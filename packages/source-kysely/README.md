@@ -1,5 +1,10 @@
 # @flowblade/source-kysely
 
+## Install
+
+```bash
+yarn add @flowblade/source-kysely tedious tarn
+```
 
 ## Contributors
 
