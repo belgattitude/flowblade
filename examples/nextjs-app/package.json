@@ -1,0 +1,50 @@
+{
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "cross-env TSCONFIG=./tsconfig.no-paths.json next build",
+    "start": "next start",
+    "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",
+    "test": "vitest run",
+    "test-unit": "vitest run",
+    "test-unit-watch": "vitest --ui",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "typecheck-no-paths": "tsc --project tsconfig.no-paths.json --noEmit",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/nextjs-classic.eslintcache",
+    "prettier-check": "yarn run --top-level prettier --check --cache --cache-location=\"../../.cache/prettier/next-classic.prettiercache\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore \"./**/*.{js,jsx,cjs,mjs,ts,tsx,mts,md,mdx,json,css,scss,less}\"",
+    "prettier-fix": "yarn run --top-level prettier --write --cache --cache-location=\"../../.cache/prettier/next-classic.prettiercache\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore \"./**/*.{js,jsx,cjs,mjs,ts,tsx,mts,md,mdx,json,css,scss,less}\"",
+    "fix-staged": "lint-staged --allow-empty"
+  },
+  "dependencies": {
+    "@flowblade/source-kysely": "workspace:^",
+    "kysely": "0.27.4",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tarn": "3.0.2",
+    "tedious": "18.6.2"
+  },
+  "devDependencies": {
+    "@belgattitude/eslint-config-bases": "5.17.0",
+    "@types/node": "22.4.1",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@vitejs/plugin-react-swc": "3.7.0",
+    "@vitest/coverage-v8": "2.0.5",
+    "@vitest/ui": "2.0.5",
+    "cross-env": "7.0.3",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.5",
+    "happy-dom": "14.12.3",
+    "postcss": "8.4.41",
+    "rimraf": "6.0.1",
+    "tailwindcss": "3.4.10",
+    "typescript": "5.5.4",
+    "vite": "5.4.1",
+    "vite-plugin-svgr": "4.2.0",
+    "vite-tsconfig-paths": "5.0.1",
+    "vitest": "2.0.5"
+  }
+}
