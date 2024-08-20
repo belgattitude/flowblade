@@ -1,0 +1,42 @@
+name: CI-monorepo-integrity
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+
+jobs:
+  install-integrity:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ⚙️ Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 📥 Monorepo install
+        uses: ./.github/actions/yarn-nm-install
+
+      - name: 👬🏽 Check for duplicates
+        run: yarn dedupe --check
+
+      - name: 🦺 Check for yarn constraints.pro
+        run: yarn constraints
+
+      - name: 🛟 Check monorepo dependency graph
+        run: yarn check:install
+
+      - name: 🦺 Syncpack checks - packages - lint-semver-ranges
+        run: yarn syncpack:check

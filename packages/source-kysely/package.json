@@ -1,0 +1,111 @@
+{
+  "name": "@flowblade/source-kysely",
+  "description": "Kysely datasource",
+  "version": "0.0.1",
+  "license": "MIT",
+  "author": {
+    "name": "Vanvelthem Sébastien",
+    "url": "https://github.com/belgattitude"
+  },
+  "homepage": "https://belgattitude.github.io/flowblade/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/belgattitude/flowblade.git",
+    "directory": "packages/source-kysely"
+  },
+  "keywords": [],
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "?build-release": "When https://github.com/atlassian/changesets/issues/432 has a solution we can remove this trick",
+    "build": "run clean && yarn run tsup",
+    "build-release": "run build",
+    "bench": "vitest bench --run",
+    "bench-codspeed": "cross-env CODSPEED=1 vitest bench --run",
+    "bench-watch": "vitest bench",
+    "docgen": "run-s docgen-typedoc",
+    "docgen-typedoc": "rimraf ./docs/api && typedoc --plugin typedoc-plugin-markdown --out ./docs/api",
+    "check-dist": "run-s check-dist-esm check-dist-cjs",
+    "check-dist-cjs": "es-check --not './dist/*.map.js' -v es2022 './dist/**/*.cjs'",
+    "check-dist-esm": "es-check --not './dist/*.map.js' -v es2022 --module './dist/**/*.mjs'",
+    "check-pub": "attw --pack && publint",
+    "check-size": "size-limit",
+    "clean": "rimraf ./dist ./build ./coverage ./_release",
+    "dev": "tsup --watch",
+    "fix-staged": "lint-staged --allow-empty",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/dsn-parser.eslintcache",
+    "test": "vitest run",
+    "test-unit": "vitest run",
+    "test-unit-coverage": "vitest run --coverage",
+    "test-unit-edge": "vitest run --environment edge-runtime",
+    "test-unit-watch": "vitest --ui --api 4515",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "typecheck-build": "tsc --project tsconfig.build.json --noEmit",
+    "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-source-kysely --dir ./coverage"
+  },
+  "peerDependencies": {
+    "kysely": "^0.27.4",
+    "tarn": "^3.0.2",
+    "tedious": "^18.6.2"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.15.4",
+    "@belgattitude/eslint-config-bases": "5.17.0",
+    "@codspeed/vitest-plugin": "3.1.1",
+    "@edge-runtime/vm": "4.0.2",
+    "@sindresorhus/is": "7.0.0",
+    "@size-limit/file": "11.1.4",
+    "@size-limit/webpack": "11.1.4",
+    "@types/lodash-es": "4.17.12",
+    "@vitest/coverage-istanbul": "2.0.5",
+    "@vitest/ui": "2.0.5",
+    "browserslist": "4.23.3",
+    "browserslist-to-esbuild": "2.1.1",
+    "cross-env": "7.0.3",
+    "es-check": "7.2.1",
+    "es-toolkit": "1.16.0",
+    "esbuild": "0.23.1",
+    "eslint": "8.57.0",
+    "is-plain-obj": "4.1.0",
+    "is-plain-object": "5.0.0",
+    "kysely": "0.27.4",
+    "lodash-es": "4.17.21",
+    "npm-run-all2": "6.2.2",
+    "publint": "0.2.10",
+    "rimraf": "6.0.1",
+    "rollup": "4.21.0",
+    "size-limit": "11.1.4",
+    "tarn": "3.0.2",
+    "tedious": "18.6.2",
+    "tsup": "8.2.4",
+    "typedoc": "0.26.6",
+    "typedoc-plugin-markdown": "4.2.5",
+    "typescript": "5.5.4",
+    "vite": "5.4.1",
+    "vite-tsconfig-paths": "5.0.1",
+    "vitest": "2.0.5",
+    "webpack": "5.93.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
