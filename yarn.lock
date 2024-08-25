@@ -1042,14 +1042,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@effect/schema@npm:0.69.0":
-  version: 0.69.0
-  resolution: "@effect/schema@npm:0.69.0"
+"@effect/schema@npm:0.71.1":
+  version: 0.71.1
+  resolution: "@effect/schema@npm:0.71.1"
   dependencies:
-    fast-check: "npm:^3.20.0"
+    fast-check: "npm:^3.21.0"
   peerDependencies:
-    effect: ^3.5.7
-  checksum: 10/8b19643fb9d2654c75802cbdc000d9f69cd161a39b6c9e5aaf42eed976894a5e332d78816d9d3b0e211d714e9fd250ebe2d0a5cc6985f63ee0d9325658859fb3
+    effect: ^3.6.5
+  checksum: 10/d8ef78980409ce6fbe3de5ccba976cdcce86014916613a12dc9826ee27ad64e8f94579718a3099c6a9fc460aaafd471f573e75f74dfeaafb89b98275b4d2ed70
   languageName: node
   linkType: hard
 
@@ -4741,10 +4741,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"effect@npm:3.5.7":
-  version: 3.5.7
-  resolution: "effect@npm:3.5.7"
-  checksum: 10/b4e6cdde83fe492258aba0d88d521d199cc6c144ce821b893d7ba890618a36b162616c442607d8494ad65096dff9a1f6183a66bc6d0e2f79b1e31d4a96946cf3
+"effect@npm:3.6.5":
+  version: 3.6.5
+  resolution: "effect@npm:3.6.5"
+  checksum: 10/e722cc1d262dfcff85b3e43d11edafb03d68e0acf670ed0d709d32218e6bf2ae7084ac627430094b1be6aee6ffdeec061b1d097d2216fce18ebc7264087ab2f0
   languageName: node
   linkType: hard
 
@@ -5856,16 +5856,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-check@npm:3.20.0":
-  version: 3.20.0
-  resolution: "fast-check@npm:3.20.0"
-  dependencies:
-    pure-rand: "npm:^6.1.0"
-  checksum: 10/36395b688842509a42c06b72ca1cb3eeb813d44c6085b9b9c19f5bb3f7c36d241f28c8a5f491242590e162087908f97adbbc6fdf884b80e4ddb9ec489e51706f
-  languageName: node
-  linkType: hard
-
-"fast-check@npm:^3.20.0":
+"fast-check@npm:3.21.0, fast-check@npm:^3.21.0":
   version: 3.21.0
   resolution: "fast-check@npm:3.21.0"
   dependencies:
@@ -6101,7 +6092,7 @@ __metadata:
     rimraf: "npm:6.0.1"
     rollup: "npm:4.21.0"
     shell-quote: "npm:1.8.1"
-    syncpack: "npm:12.4.0"
+    syncpack: "npm:13.0.0"
     typescript: "npm:5.5.4"
   languageName: unknown
   linkType: soft
@@ -7603,6 +7594,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jsonc-parser@npm:3.3.1":
+  version: 3.3.1
+  resolution: "jsonc-parser@npm:3.3.1"
+  checksum: 10/9b0dc391f20b47378f843ef1e877e73ec652a5bdc3c5fa1f36af0f119a55091d147a86c1ee86a232296f55c929bba174538c2bf0312610e0817a22de131cc3f4
+  languageName: node
+  linkType: hard
+
 "jsonfile@npm:^4.0.0":
   version: 4.0.0
   resolution: "jsonfile@npm:4.0.0"
@@ -8324,21 +8322,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:10.0.1, minimatch@npm:^10.0.0, minimatch@npm:^10.0.1":
-  version: 10.0.1
-  resolution: "minimatch@npm:10.0.1"
-  dependencies:
-    brace-expansion: "npm:^2.0.1"
-  checksum: 10/082e7ccbc090d5f8c4e4e029255d5a1d1e3af37bda837da2b8b0085b1503a1210c91ac90d9ebfe741d8a5f286ece820a1abb4f61dc1f82ce602a055d461d93f3
-  languageName: node
-  linkType: hard
-
 "minimatch@npm:9.0.3":
   version: 9.0.3
   resolution: "minimatch@npm:9.0.3"
   dependencies:
     brace-expansion: "npm:^2.0.1"
   checksum: 10/c81b47d28153e77521877649f4bab48348d10938df9e8147a58111fe00ef89559a2938de9f6632910c4f7bf7bb5cd81191a546167e58d357f0cfb1e18cecc1c5
+  languageName: node
+  linkType: hard
+
+"minimatch@npm:9.0.5, minimatch@npm:^9.0.0, minimatch@npm:^9.0.1, minimatch@npm:^9.0.3, minimatch@npm:^9.0.4, minimatch@npm:^9.0.5":
+  version: 9.0.5
+  resolution: "minimatch@npm:9.0.5"
+  dependencies:
+    brace-expansion: "npm:^2.0.1"
+  checksum: 10/dd6a8927b063aca6d910b119e1f2df6d2ce7d36eab91de83167dd136bb85e1ebff97b0d3de1cb08bd1f7e018ca170b4962479fefab5b2a69e2ae12cb2edc8348
+  languageName: node
+  linkType: hard
+
+"minimatch@npm:^10.0.0, minimatch@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "minimatch@npm:10.0.1"
+  dependencies:
+    brace-expansion: "npm:^2.0.1"
+  checksum: 10/082e7ccbc090d5f8c4e4e029255d5a1d1e3af37bda837da2b8b0085b1503a1210c91ac90d9ebfe741d8a5f286ece820a1abb4f61dc1f82ce602a055d461d93f3
   languageName: node
   linkType: hard
 
@@ -8357,15 +8364,6 @@ __metadata:
   dependencies:
     brace-expansion: "npm:^2.0.1"
   checksum: 10/126b36485b821daf96d33b5c821dac600cc1ab36c87e7a532594f9b1652b1fa89a1eebcaad4dff17c764dce1a7ac1531327f190fed5f97d8f6e5f889c116c429
-  languageName: node
-  linkType: hard
-
-"minimatch@npm:^9.0.0, minimatch@npm:^9.0.1, minimatch@npm:^9.0.3, minimatch@npm:^9.0.4, minimatch@npm:^9.0.5":
-  version: 9.0.5
-  resolution: "minimatch@npm:9.0.5"
-  dependencies:
-    brace-expansion: "npm:^2.0.1"
-  checksum: 10/dd6a8927b063aca6d910b119e1f2df6d2ce7d36eab91de83167dd136bb85e1ebff97b0d3de1cb08bd1f7e018ca170b4962479fefab5b2a69e2ae12cb2edc8348
   languageName: node
   linkType: hard
 
@@ -11022,20 +11020,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"syncpack@npm:12.4.0":
-  version: 12.4.0
-  resolution: "syncpack@npm:12.4.0"
+"syncpack@npm:13.0.0":
+  version: 13.0.0
+  resolution: "syncpack@npm:13.0.0"
   dependencies:
-    "@effect/schema": "npm:0.69.0"
+    "@effect/schema": "npm:0.71.1"
     chalk: "npm:5.3.0"
     chalk-template: "npm:1.1.0"
     commander: "npm:12.1.0"
     cosmiconfig: "npm:9.0.0"
-    effect: "npm:3.5.7"
+    effect: "npm:3.6.5"
     enquirer: "npm:2.4.1"
-    fast-check: "npm:3.20.0"
+    fast-check: "npm:3.21.0"
     globby: "npm:14.0.2"
-    minimatch: "npm:10.0.1"
+    jsonc-parser: "npm:3.3.1"
+    minimatch: "npm:9.0.5"
     npm-package-arg: "npm:11.0.3"
     ora: "npm:8.0.1"
     prompts: "npm:2.4.2"
@@ -11054,7 +11053,7 @@ __metadata:
     syncpack-prompt: dist/bin-prompt/index.js
     syncpack-set-semver-ranges: dist/bin-set-semver-ranges/index.js
     syncpack-update: dist/bin-update/index.js
-  checksum: 10/5f2a6124cccbe270650946618dfbeacf9770636ca43e50ce06a368b737b3ce6f047c547b3fadecc6393acb6fa31905aa3ceead56b46e075034b64f938ff19780
+  checksum: 10/c80f60faaad640f38de4e1fb5e7daf5dac62963def211b7b3989186c503dec8800c197d3051798553998331c0b0e05ab4b96dd765cd51c7c6cd3651f87c559ed
   languageName: node
   linkType: hard
 
