@@ -9,22 +9,12 @@
     "strict": true,
     "strictNullChecks": true,
     "incremental": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "preserve",
     "paths": {
-      "@/server": [
-        "./server/index"
-      ],
-      "@/lib": [
-        "./lib/index"
-      ],
-      "@flowblade/source-kysely": [
-        "../../../packages/source-kysely/src/index"
-      ]
+      "@/server": ["./server/index"],
+      "@/lib": ["./lib/index"],
+      "@flowblade/source-kysely": ["../../../packages/source-kysely/src/index"],
     },
     "allowJs": true,
     "skipLibCheck": true,
@@ -38,10 +28,7 @@
       }
     ]
   },
-  "exclude": [
-    "**/node_modules",
-    "**/.*/*"
-  ],
+  "exclude": ["**/node_modules", "**/.*/*"],
   "include": [
     ".eslintrc.*",
     "next-env.d.ts",

@@ -1,8 +1,13 @@
 import type { Config } from 'tailwindcss';
 
 const tailwindConfig: Config = {
-  darkMode: 'class',
-  content: ['./src/**/*.tsx', '!./src/app/api/**/*'],
+  content: [
+    './src/**/*.{js,ts,jsx,tsx}',
+    '../../node_modules/primereact/**/*.esm.js',
+    // '../../node_modules/primereact/**/*.{js,ts,jsx,tsx}',
+  ],
+  plugins: [],
+  theme: {},
 };
 
 export default tailwindConfig;
