@@ -25,7 +25,10 @@
       "{projectRoot}/**/*",
       "!{projectRoot}/**/*.md"
     ],
-    "all": ["sharedGlobals", "{projectRoot}/**/*"],
+    "all": [
+      "sharedGlobals",
+      "{projectRoot}/**/*"
+    ],
     "public": [
       "default",
       "{projectRoot}/build",
@@ -36,46 +39,85 @@
   },
   "targetDefaults": {
     "typecheck": {
-      "dependsOn": ["^typecheck"],
+      "dependsOn": [
+        "^typecheck"
+      ],
       "inputs": [
         "default",
         "^public",
         {
-          "externalDependencies": ["typescript"]
+          "externalDependencies": [
+            "typescript"
+          ]
         }
       ],
-      "outputs": ["{projectRoot}/tsconfig.tsbuildinfo"],
+      "outputs": [
+        "{projectRoot}/tsconfig.tsbuildinfo"
+      ],
       "cache": true
     },
     "lint": {
-      "dependsOn": ["^lint"],
-      "inputs": ["default", "^public"],
-      "outputs": ["{workspaceRoot}/.cache/eslint/*.eslintcache"],
+      "dependsOn": [
+        "^lint"
+      ],
+      "inputs": [
+        "default",
+        "^public"
+      ],
+      "outputs": [
+        "{workspaceRoot}/.cache/eslint/*.eslintcache"
+      ],
       "cache": true
     },
     "bench": {
-      "dependsOn": ["^build", "^bench"],
-      "inputs": ["default", "^public"],
+      "dependsOn": [
+        "^build",
+        "^bench"
+      ],
+      "inputs": [
+        "default",
+        "^public"
+      ],
       "outputs": [],
       "cache": false
     },
     "check-size": {
-      "dependsOn": ["build", "^check-size"],
-      "inputs": ["default", "^public"],
+      "dependsOn": [
+        "build",
+        "^check-size"
+      ],
+      "inputs": [
+        "default",
+        "^public"
+      ],
       "cache": true
     },
     "check-dist": {
-      "dependsOn": ["build", "^check-dist"],
-      "inputs": ["default", "^public"],
+      "dependsOn": [
+        "build",
+        "^check-dist"
+      ],
+      "inputs": [
+        "default",
+        "^public"
+      ],
       "cache": true
     },
     "check-pub": {
-      "dependsOn": ["build", "^check-pub"],
-      "inputs": ["default", "^public"],
+      "dependsOn": [
+        "build",
+        "^check-pub"
+      ],
+      "inputs": [
+        "default",
+        "^public"
+      ],
       "cache": true
     },
     "test-unit": {
-      "dependsOn": ["^test-unit"],
+      "dependsOn": [
+        "^test-unit"
+      ],
       "inputs": [
         "default",
         "^public",
@@ -86,7 +128,10 @@
       "cache": true
     },
     "bench-codspeed": {
-      "dependsOn": ["build", "^bench-codspeed"],
+      "dependsOn": [
+        "build",
+        "^bench-codspeed"
+      ],
       "inputs": [
         "default",
         "^public",
@@ -94,11 +139,15 @@
           "runtime": "node -v"
         }
       ],
-      "outputs": ["{projectRoot}/bench/output/**/*"],
+      "outputs": [
+        "{projectRoot}/bench/output/**/*"
+      ],
       "cache": false
     },
     "test-unit-coverage": {
-      "dependsOn": ["^test-unit-coverage"],
+      "dependsOn": [
+        "^test-unit-coverage"
+      ],
       "inputs": [
         "default",
         "^public",
@@ -106,29 +155,48 @@
           "runtime": "node -v"
         }
       ],
-      "outputs": ["{projectRoot}/coverage/**/*"],
+      "outputs": [
+        "{projectRoot}/coverage/**/*"
+      ],
       "cache": true
     },
     "test-unit-edge": {
-      "dependsOn": ["^test-unit-edge"],
+      "dependsOn": [
+        "^test-unit-edge"
+      ],
       "inputs": [
         "default",
         "^public",
         {
-          "externalDependencies": ["vitest", "@edge-runtime/vm"]
+          "externalDependencies": [
+            "vitest",
+            "@edge-runtime/vm"
+          ]
         }
       ],
       "cache": true
     },
     "docgen": {
-      "dependsOn": ["^docgen"],
-      "inputs": ["all", "^public"],
-      "outputs": ["{projectRoot}/docs/api/**/*"],
+      "dependsOn": [
+        "^docgen"
+      ],
+      "inputs": [
+        "all",
+        "^public"
+      ],
+      "outputs": [
+        "{projectRoot}/docs/api/**/*"
+      ],
       "cache": true
     },
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["default", "^public"],
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "default",
+        "^public"
+      ],
       "outputs": [
         "{projectRoot}/build/**/*",
         "{projectRoot}/_release/**/*",
@@ -137,10 +205,20 @@
       "cache": true
     },
     "build-release": {
-      "dependsOn": ["^build-release"],
-      "inputs": ["default", "^public", "{workspaceRoot}/.changeset/*"],
-      "outputs": ["{projectRoot}/build", "{projectRoot}/dist"],
+      "dependsOn": [
+        "^build-release"
+      ],
+      "inputs": [
+        "default",
+        "^public",
+        "{workspaceRoot}/.changeset/*"
+      ],
+      "outputs": [
+        "{projectRoot}/build",
+        "{projectRoot}/dist"
+      ],
       "cache": false
     }
-  }
+  },
+  "nxCloudId": "66df16b1ec79c0747ef91073"
 }
