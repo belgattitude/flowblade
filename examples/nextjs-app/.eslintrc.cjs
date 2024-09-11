@@ -38,6 +38,6 @@ module.exports = {
   root: true,
   rules: {
     // optional overrides per project
-    '@typescript-eslint/require-await': 'off',
+    'sonarjs/todo-tag': 'off',
   },
 };

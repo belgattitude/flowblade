@@ -41,7 +41,7 @@ module.exports = {
           {
             devDependencies: ['**/*.test.ts', '**/*.spec.ts'],
             optionalDependencies: false,
-            peerDependencies: false,
+            peerDependencies: true,
           },
         ],
         'import-x/no-cycle': [1, { maxDepth: 100 }],
@@ -58,6 +58,6 @@ module.exports = {
   root: true,
   rules: {
     'sonarjs/cognitive-complexity': ['error', 17],
-    'unicorn/no-array-reduce': 'off',
+    'sonarjs/todo-tag': 'warn',
   },
 };

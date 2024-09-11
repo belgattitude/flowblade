@@ -1,2 +1,2 @@
-export { ConnectionUtils } from './utils/connection.utils'
-export { createDialect } from './connection'
+export { createDialect } from './connection';
+export { ConnectionUtils } from './utils/connection.utils';

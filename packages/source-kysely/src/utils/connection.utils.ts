@@ -1,5 +1,5 @@
 import { convertJdbcToDsn, parseDsnOrThrow } from '@httpx/dsn-parser';
-import type {ConnectionConfiguration as TediousConnectionConfig } from 'tedious';
+import type { ConnectionConfiguration as TediousConnectionConfig } from 'tedious';
 import * as v from 'valibot';
 
 type AuthConnectionOptions = NonNullable<
@@ -9,20 +9,19 @@ type AuthConnectionOptions = NonNullable<
 const tediousSchema = v.object({
   database: v.string(),
   authentication: v.optional(
-      /**
-       * Different options for authentication types:
-       *
-       * * `default`: [[DefaultAuthentication.options]]
-       * * `ntlm` :[[NtlmAuthentication]]
-       * * `token-credential`: [[CredentialChainAuthentication.options]]
-       * * `azure-active-directory-password` : [[AzureActiveDirectoryPasswordAuthentication.options]]
-       * * `azure-active-directory-access-token` : [[AzureActiveDirectoryAccessTokenAuthentication.options]]
-       * * `azure-active-directory-msi-vm` : [[AzureActiveDirectoryMsiVmAuthentication.options]]
-       * * `azure-active-directory-msi-app-service` : [[AzureActiveDirectoryMsiAppServiceAuthentication.options]]
-       * * `azure-active-directory-service-principal-secret` : [[AzureActiveDirectoryServicePrincipalSecret.options]]
-       * * `azure-active-directory-default` : [[AzureActiveDirectoryDefaultAuthentication.options]]
-       */
-
+    /**
+     * Different options for authentication types:
+     *
+     * * `default`: [[DefaultAuthentication.options]]
+     * * `ntlm` :[[NtlmAuthentication]]
+     * * `token-credential`: [[CredentialChainAuthentication.options]]
+     * * `azure-active-directory-password` : [[AzureActiveDirectoryPasswordAuthentication.options]]
+     * * `azure-active-directory-access-token` : [[AzureActiveDirectoryAccessTokenAuthentication.options]]
+     * * `azure-active-directory-msi-vm` : [[AzureActiveDirectoryMsiVmAuthentication.options]]
+     * * `azure-active-directory-msi-app-service` : [[AzureActiveDirectoryMsiAppServiceAuthentication.options]]
+     * * `azure-active-directory-service-principal-secret` : [[AzureActiveDirectoryServicePrincipalSecret.options]]
+     * * `azure-active-directory-default` : [[AzureActiveDirectoryDefaultAuthentication.options]]
+     */
     v.union([
       v.literal('default'),
       v.literal('ntlm'),
@@ -33,11 +32,10 @@ const tediousSchema = v.object({
       v.literal('azure-active-directory-msi-vm'),
       v.literal('azure-active-directory-msi-app-service'),
       v.literal('azure-active-directory-service-principal-secret'),
-      v.literal('azure-active-directory-default')
+      v.literal('azure-active-directory-default'),
     ]),
     'default'
   ),
-
   user: v.optional(v.string()),
   password: v.optional(v.string()),
   trustServerCertificate: v.optional(v.boolean(), false),
@@ -48,10 +46,7 @@ const tediousSchema = v.object({
   ),
   encrypt: v.optional(v.boolean(), true),
   connectTimeout: v.optional(v.number('Number in milliseconds.')),
-  requestTimeout: v.optional(
-    v.number('Request timeout in milliseconds'),
-    60_000
-  ),
+  requestTimeout: v.optional(v.number('Request timeout in milliseconds')),
 });
 
 export const ConnectionUtils = {
@@ -86,12 +81,13 @@ export const ConnectionUtils = {
         };
         break;
       default:
-        throw new Error(`Unknown authentication type: ${authentication}`);
+        throw new Error(`Unsupported authentication type: ${authentication}`);
     }
     return {
       server: parsed.host,
       authentication: {
         type: authentication,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         options: authConnOptions,
       },
       options: {
@@ -100,8 +96,8 @@ export const ConnectionUtils = {
         useUTC: useUtc,
         encrypt: encrypt,
         trustServerCertificate,
-        requestTimeout: requestTimeout,
-        ...(connectTimeout ? { connectTimeout: connectTimeout } : {}),
+        ...(requestTimeout ? { requestTimeout } : {}),
+        ...(connectTimeout ? { connectTimeout } : {}),
       },
     };
   },

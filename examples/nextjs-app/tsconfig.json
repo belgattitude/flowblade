@@ -12,9 +12,10 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "preserve",
     "paths": {
+      "@flowblade/source-kysely": ["../../../packages/source-kysely/src/index"],
+      "@/env": ["./env/index"],
       "@/server": ["./server/index"],
       "@/lib": ["./lib/index"],
-      "@flowblade/source-kysely": ["../../../packages/source-kysely/src/index"],
     },
     "allowJs": true,
     "skipLibCheck": true,
