@@ -17,21 +17,9 @@ export async function GET(_req: NextRequest) {
     value: `value_${i}`,
   }));
 
-  /*
   const exec = await sql<{ name: string }>`
      DECLARE @JsonParams NVARCHAR(MAX);
      SET @JsonParams = ${JSON.stringify(params)};        
-     SELECT @JsonParams as name;
-     CREATE TABLE #TempTable (name NVARCHAR(255), value NVARCHAR(255));
-     INSERT INTO #TempTable SELECT name, value FROM OPENJSON(@JsonParams) WITH (name NVARCHAR(255), value NVARCHAR(255));
-     SELECT * FROM #TempTable;
-  `.execute(dbKysely);
-*/
-
-  const exec = await sql<{ name: string }>`
-     DECLARE @JsonParams NVARCHAR(MAX);
-     SET @JsonParams = ${JSON.stringify(params)};        
-     -- SELECT @JsonParams as name;
      CREATE TABLE #TempTable (name NVARCHAR(255), value NVARCHAR(255));
      INSERT INTO #TempTable SELECT name, value FROM OPENJSON(@JsonParams) WITH (name NVARCHAR(255), value NVARCHAR(255));
      SELECT name, value FROM #TempTable;
