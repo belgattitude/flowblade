@@ -12,7 +12,7 @@ export async function GET(_req: NextRequest) {
     name: string;
   }>`SELECT 'world' as name, 1 as id`.execute(dbKysely);
 
-  const params = Array.from({ length: 1 }, (_, i) => ({
+  const params = Array.from({ length: 10_000 }, (_, i) => ({
     name: `name_${i}`,
     value: `value_${i}`,
   }));
