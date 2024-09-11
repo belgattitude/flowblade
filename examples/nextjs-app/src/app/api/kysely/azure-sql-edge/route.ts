@@ -2,7 +2,7 @@ import { sql } from 'kysely';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { dbKysely } from '../../../../server/config/db.kysely.config';
+import { dbKysely } from '@/server/config/db.kysely.config';
 
 export const dynamic = 'force-dynamic';
 

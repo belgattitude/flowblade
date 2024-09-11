@@ -13,9 +13,9 @@
     "jsx": "preserve",
     "paths": {
       "@flowblade/source-kysely": ["../../../packages/source-kysely/src/index"],
-      "@/env": ["./env/index"],
-      "@/server": ["./server/index"],
-      "@/lib": ["./lib/index"],
+      "@/env/*": ["./env/index/*"],
+      "@/server/*": ["./server/*"],
+      "@/lib/*": ["./lib/*"],
     },
     "allowJs": true,
     "skipLibCheck": true,
