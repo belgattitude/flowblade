@@ -17,7 +17,7 @@ export async function GET(_req: NextRequest) {
     value: `value_${i}`,
   }));
 
-  const exec = await sql<{ name: string }>`
+  const exec = await sql<{ name: string; value: string }>`
      DECLARE @JsonParams NVARCHAR(MAX);
      SET @JsonParams = ${JSON.stringify(params)};        
      CREATE TABLE #TempTable (name NVARCHAR(255), value NVARCHAR(255));
