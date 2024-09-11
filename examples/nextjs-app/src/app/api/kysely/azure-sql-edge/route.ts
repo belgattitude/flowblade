@@ -22,7 +22,11 @@ export async function GET(_req: NextRequest) {
      SET @JsonParams = ${JSON.stringify(params)};        
      CREATE TABLE #TempTable (name NVARCHAR(255), value NVARCHAR(255));
      INSERT INTO #TempTable SELECT name, value FROM OPENJSON(@JsonParams) WITH (name NVARCHAR(255), value NVARCHAR(255));
-     SELECT name, value FROM #TempTable;
+     SELECT t1.name, t1.value 
+     FROM #TempTable AS t1
+     INNER JOIN (
+       SELECT name, value FROM OPENJSON(@JsonParams) WITH (name NVARCHAR(255), value NVARCHAR(255))
+     ) AS t2 ON t1.name = t2.name AND t1.value = t2.value;
   `.execute(dbKysely);
 
   return NextResponse.json({
