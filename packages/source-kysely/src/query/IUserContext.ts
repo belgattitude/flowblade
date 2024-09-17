@@ -1,7 +1,4 @@
-// @todo see if we need organizations, etc...
-import type { UserPermission } from '@/lib/data-engine/UserPermission';
-
-export type IUserContext = {
+export type IUserContext<TPerms extends string[] = string[]> = {
   userId: string;
-  permissions: UserPermission[];
+  permissions: TPerms;
 };

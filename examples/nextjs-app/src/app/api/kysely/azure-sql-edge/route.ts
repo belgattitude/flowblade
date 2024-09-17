@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { AbstractQuery } from '@flowblade/source-kysely';
+import { AbstractQuery, KyselyExecutor } from '@flowblade/source-kysely';
 import type { PlainObject } from '@httpx/plain-object';
 import { sql } from 'kysely';
 import type { NextRequest } from 'next/server';
@@ -52,7 +52,7 @@ export async function GET(_req: NextRequest) {
     value: `value_${i}`,
   }));
 
-  const result = await sql<{ name: string; value: string }>`
+  const qRaw = sql<{ name: string; value: string }>`
      DECLARE @JsonParams NVARCHAR(MAX);
      SET @JsonParams = ${JSON.stringify(params)};        
      -- CREATE TABLE #TempTable (name NVARCHAR(255), value NVARCHAR(255));
@@ -63,7 +63,15 @@ export async function GET(_req: NextRequest) {
      -- INNER JOIN (
      -- SELECT name, value FROM OPENJSON(@JsonParams) WITH (name NVARCHAR(255), value NVARCHAR(255))
      -- ) AS t2 ON t1.name = t2.name AND t1.value = t2.value;
-  `.execute(dbKysely);
+  `;
+
+  const result = await qRaw.execute(dbKysely);
+
+  const db = new KyselyExecutor({
+    connection: dbKysely,
+  });
+
+  const _a = await db.query(qRaw);
 
   return NextResponse.json({
     data: result.rows?.[0].name,
