@@ -36,12 +36,12 @@ class Query1 extends AbstractQuery<unknown> {
   };
 }
 
-export async function GET(_req: NextRequest) {
-  const params = Array.from({ length: 10 }, (_, i) => ({
-    name: faker.person.firstName(),
-    value: `value_${i}`,
-  }));
+const params = Array.from({ length: 10 }, (_, i) => ({
+  name: faker.person.firstName(),
+  value: `value_${i}`,
+}));
 
+export async function GET(_req: NextRequest) {
   const qRaw = sql<{ name: string; value: string }>`
      DECLARE @JsonParams NVARCHAR(MAX);
      SET @JsonParams = ${JSON.stringify(params)};        
@@ -61,8 +61,5 @@ export async function GET(_req: NextRequest) {
 
   const result = await db.query(qRaw);
 
-  return NextResponse.json({
-    // data: result.rows?.[0].name,
-    data: result,
-  });
+  return NextResponse.json(result);
 }
