@@ -11,14 +11,11 @@ export const swaggerConfig: SwaggerOptions = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: 'http://localhost:8080',
         description: 'Development server',
       },
     ],
-    tags: [
-      { name: 'user', description: 'User related end-points' },
-      { name: 'code', description: 'Code related end-points' },
-    ],
+    tags: [{ name: 'public', description: 'User related end-points' }],
     components: {
       securitySchemes: {
         apiKey: {
