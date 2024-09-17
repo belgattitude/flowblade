@@ -1,3 +1,6 @@
+import { faker } from '@faker-js/faker';
+import { AbstractQuery, KyselyExecutor } from '@flowblade/source-kysely';
+import type { PlainObject } from '@httpx/plain-object';
 import { sql } from 'kysely';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -6,20 +9,22 @@ import { dbKysely } from '@/server/config/db.kysely.config';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_req: NextRequest) {
-  const _row = await sql<{
-    id: number;
+type Params = PlainObject<{
+  jsonArray: {
     name: string;
-  }>`SELECT 'world' as name, 1 as id`.execute(dbKysely);
+    value: string;
+  }[];
+}>;
 
-  const params = Array.from({ length: 10_000 }, (_, i) => ({
-    name: `name_${i}`,
-    value: `value_${i}`,
-  }));
-
-  const exec = await sql<{ name: string; value: string }>`
+class Query1 extends AbstractQuery<unknown> {
+  guards = {
+    permissions: ['test'],
+  };
+  getQuery = (params: Params) => {
+    const { jsonArray } = params;
+    return sql<{ name: string; value: string }>`
      DECLARE @JsonParams NVARCHAR(MAX);
-     SET @JsonParams = ${JSON.stringify(params)};        
+     SET @JsonParams = ${JSON.stringify(jsonArray)};        
      CREATE TABLE #TempTable (name NVARCHAR(255), value NVARCHAR(255));
      INSERT INTO #TempTable SELECT name, value FROM OPENJSON(@JsonParams) WITH (name NVARCHAR(255), value NVARCHAR(255));
      SELECT t1.name, t1.value 
@@ -27,13 +32,40 @@ export async function GET(_req: NextRequest) {
      INNER JOIN (
        SELECT name, value FROM OPENJSON(@JsonParams) WITH (name NVARCHAR(255), value NVARCHAR(255))
      ) AS t2 ON t1.name = t2.name AND t1.value = t2.value;
+  `;
+  };
+}
+
+const q1 = new Query1({
+  db: dbKysely,
+  context: {
+    user: {
+      permissions: ['test'],
+      userId: '1',
+    },
+  },
+});
+
+export async function GET(_req: NextRequest) {
+  const params = Array.from({ length: 10_000 }, (_, i) => ({
+    name: faker.person.firstName(),
+    value: `value_${i}`,
+  }));
+
+  const result = await sql<{ name: string; value: string }>`
+     DECLARE @JsonParams NVARCHAR(MAX);
+     SET @JsonParams = ${JSON.stringify(params)};        
+     -- CREATE TABLE #TempTable (name NVARCHAR(255), value NVARCHAR(255));
+     -- INSERT INTO #TempTable SELECT name, value FROM OPENJSON(@JsonParams) WITH (name NVARCHAR(255), value NVARCHAR(255));
+     SELECT name, value FROM OPENJSON(@JsonParams) WITH (name NVARCHAR(255), value NVARCHAR(255))
+     -- SELECT t1.name, t1.value 
+     -- FROM #TempTable AS t1
+     -- INNER JOIN (
+     -- SELECT name, value FROM OPENJSON(@JsonParams) WITH (name NVARCHAR(255), value NVARCHAR(255))
+     -- ) AS t2 ON t1.name = t2.name AND t1.value = t2.value;
   `.execute(dbKysely);
 
   return NextResponse.json({
-    // check:
-    //  JSON.stringify(JSON.parse(exec.rows[0].name)) === JSON.stringify(params),
-    // db: row.rows,
-    test: exec.rows,
-    // exec: JSON.parse(exec.rows[0].name) as { name: string }[],
+    data: result.rows?.[0].name,
   });
 }
