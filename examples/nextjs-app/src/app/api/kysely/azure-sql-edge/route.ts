@@ -36,18 +36,8 @@ class Query1 extends AbstractQuery<unknown> {
   };
 }
 
-const q1 = new Query1({
-  db: dbKysely,
-  context: {
-    user: {
-      permissions: ['test'],
-      userId: '1',
-    },
-  },
-});
-
 export async function GET(_req: NextRequest) {
-  const params = Array.from({ length: 10_000 }, (_, i) => ({
+  const params = Array.from({ length: 10 }, (_, i) => ({
     name: faker.person.firstName(),
     value: `value_${i}`,
   }));
@@ -65,15 +55,14 @@ export async function GET(_req: NextRequest) {
      -- ) AS t2 ON t1.name = t2.name AND t1.value = t2.value;
   `;
 
-  const result = await qRaw.execute(dbKysely);
-
   const db = new KyselyExecutor({
     connection: dbKysely,
   });
 
-  const _a = await db.query(qRaw);
+  const result = await db.query(qRaw);
 
   return NextResponse.json({
-    data: result.rows?.[0].name,
+    // data: result.rows?.[0].name,
+    data: result,
   });
 }
