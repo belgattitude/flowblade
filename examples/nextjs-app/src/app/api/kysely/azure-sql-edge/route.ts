@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { AbstractQuery, KyselyExecutor } from '@flowblade/source-kysely';
+import { AbstractQuery } from '@flowblade/source-kysely';
 import type { PlainObject } from '@httpx/plain-object';
 import { sql } from 'kysely';
 import type { NextRequest } from 'next/server';

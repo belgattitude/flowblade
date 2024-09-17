@@ -1,4 +1,3 @@
-import type { PlainObject } from '@httpx/assert';
 import type { RawBuilder, SelectQueryBuilder } from 'kysely';
 
 export type QueryBuilder<TDatabase> =

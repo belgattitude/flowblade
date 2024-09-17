@@ -12,9 +12,9 @@
     "test-unit-watch": "vitest --ui",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-no-paths": "tsc --project tsconfig.no-paths.json --noEmit",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/nextjs-classic.eslintcache",
-    "prettier-check": "yarn run --top-level prettier --check --cache --cache-location=\"../../.cache/prettier/next-classic.prettiercache\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore \"./**/*.{js,jsx,cjs,mjs,ts,tsx,mts,md,mdx,json,css,scss,less}\"",
-    "prettier-fix": "yarn run --top-level prettier --write --cache --cache-location=\"../../.cache/prettier/next-classic.prettiercache\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore \"./**/*.{js,jsx,cjs,mjs,ts,tsx,mts,md,mdx,json,css,scss,less}\"",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/fastify-app.eslintcache",
+    "prettier-check": "yarn run --top-level prettier --check --cache --cache-location=\"../../.cache/prettier/fastify-app.prettiercache\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore \"./**/*.{js,jsx,cjs,mjs,ts,tsx,mts,md,mdx,json,css,scss,less}\"",
+    "prettier-fix": "yarn run --top-level prettier --write --cache --cache-location=\"../../.cache/prettier/fastify-app.prettiercache\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore \"./**/*.{js,jsx,cjs,mjs,ts,tsx,mts,md,mdx,json,css,scss,less}\"",
     "fix-staged": "lint-staged --allow-empty"
   },
   "dependencies": {
@@ -42,7 +42,7 @@
     "zod": "3.23.8"
   },
   "devDependencies": {
-    "@belgattitude/eslint-config-bases": "6.0.0-canary.9",
+    "@belgattitude/eslint-config-bases": "6.0.0-canary.12",
     "@total-typescript/ts-reset": "0.6.1",
     "@types/node": "22.5.5",
     "@typescript-eslint/eslint-plugin": "8.6.0",
@@ -52,9 +52,7 @@
     "cross-env": "7.0.3",
     "dotenv-expand": "11.0.6",
     "dotenv-flow": "4.1.0",
-    "eslint": "8.57.0",
-    "fastify-tsconfig": "2.0.0",
-    "postcss": "8.4.47",
+    "eslint": "8.57.1",
     "rimraf": "6.0.1",
     "tiny-glob": "0.2.9",
     "tsx": "4.19.1",
