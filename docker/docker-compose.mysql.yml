@@ -1,0 +1,12 @@
+services:
+  mysql:
+    image: mysql:9
+    ports: ['3306:3306']
+    env_file:
+      - .env.mysql.development
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 55
