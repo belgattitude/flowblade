@@ -9,8 +9,6 @@ export interface AppOptions {}
 export async function app(fastify: FastifyInstance, opts: AppOptions) {
   // Place here your custom code!
 
-  // [...here...]
-
   // Do not touch the following lines
 
   // This loads all plugins defined in plugins

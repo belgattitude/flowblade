@@ -9,6 +9,12 @@ const categorySchema = Type.Recursive((self) =>
   })
 );
 
+const categorySchema3 = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+  children: Type.Union([Type.Null(), Type.String()]),
+});
+
 export default async function TreeRoute(fastify: FastifyInstance) {
   fastify.get(
     '/tree',
@@ -18,7 +24,7 @@ export default async function TreeRoute(fastify: FastifyInstance) {
           foo: Type.Number(),
         }),
         response: {
-          '2xx': categorySchema,
+          '2xx': categorySchema3,
         },
       },
     },

@@ -3,6 +3,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "paths": {
+      "@/config/*": ["./config/*"],
       "@/routes/*": ["./routes/*"],
       "@/plugins/*": ["./plugins/*"]
     },
