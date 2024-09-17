@@ -1,2 +1,2 @@
-# Nextjs example app
+# Fastify example app
 
