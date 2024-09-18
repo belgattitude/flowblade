@@ -2,7 +2,7 @@ import type { SwaggerOptions } from '@fastify/swagger';
 
 export const swaggerConfig: SwaggerOptions = {
   openapi: {
-    openapi: '3.0.0',
+    openapi: '3.1.0',
     info: {
       title: 'Flowblade API',
       description:
