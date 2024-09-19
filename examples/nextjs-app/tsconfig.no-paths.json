@@ -3,8 +3,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@/server": ["./server/index"],
-      "@/lib": ["./lib/index"]
+      "@/env/*": ["./env/index/*"],
+      "@/server/*": ["./server/*"],
+      "@/lib/*": ["./lib/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,
