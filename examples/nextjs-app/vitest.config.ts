@@ -1,5 +1,4 @@
 import react from '@vitejs/plugin-react-swc';
-import svgr from 'vite-plugin-svgr';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
@@ -10,10 +9,6 @@ export default defineConfig({
       devTarget: 'es2022',
     }),
     tsconfigPaths(),
-    svgr({
-      // svgr options: https://react-svgr.com/docs/options/
-      svgrOptions: {},
-    }),
   ],
   test: {
     globals: true,
