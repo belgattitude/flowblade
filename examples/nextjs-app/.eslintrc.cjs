@@ -28,7 +28,12 @@ module.exports = {
   ],
   ignorePatterns: [...getDefaultIgnorePatterns()],
   overrides: [
-    // optional overrides per project file match
+    {
+      files: ['**/src/generated/openapi/*'],
+      rules: {
+        'sonarjs/class-name': 'off',
+      },
+    },
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
