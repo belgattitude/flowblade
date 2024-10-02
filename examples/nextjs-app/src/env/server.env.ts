@@ -17,3 +17,5 @@ export const serverEnv = createEnv({
   // For Next.js >= 13.4.4, you can just reference process.env:
   experimental__runtimeEnv: process.env,
 });
+
+export type ServerEnv = typeof serverEnv;

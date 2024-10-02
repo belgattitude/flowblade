@@ -1,5 +1,5 @@
 export interface paths {
-  "/breeds": {
+  '/breeds': {
     parameters: {
       query?: never;
       header?: never;
@@ -10,7 +10,7 @@ export interface paths {
      * Get a list of breeds
      * @description Returns a a list of breeds
      */
-    get: operations["getBreeds"];
+    get: operations['getBreeds'];
     put?: never;
     post?: never;
     delete?: never;
@@ -19,7 +19,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/fact": {
+  '/fact': {
     parameters: {
       query?: never;
       header?: never;
@@ -30,7 +30,7 @@ export interface paths {
      * Get Random Fact
      * @description Returns a random fact
      */
-    get: operations["getRandomFact"];
+    get: operations['getRandomFact'];
     put?: never;
     post?: never;
     delete?: never;
@@ -39,7 +39,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/facts": {
+  '/facts': {
     parameters: {
       query?: never;
       header?: never;
@@ -50,7 +50,7 @@ export interface paths {
      * Get a list of facts
      * @description Returns a a list of facts
      */
-    get: operations["getFacts"];
+    get: operations['getFacts'];
     put?: never;
     post?: never;
     delete?: never;
@@ -144,7 +144,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Breed"][];
+          'application/json': components['schemas']['Breed'][];
         };
       };
     };
@@ -167,7 +167,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["CatFact"];
+          'application/json': components['schemas']['CatFact'];
         };
       };
       /** @description Fact not found */
@@ -199,7 +199,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["CatFact"][];
+          'application/json': components['schemas']['CatFact'][];
         };
       };
     };

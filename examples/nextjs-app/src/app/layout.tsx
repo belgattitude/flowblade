@@ -1,12 +1,11 @@
 import '../styles/globals.css';
 
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
 
+import { fontInter } from '@/components/fonts/FontInter';
+import { DevHydrationOverlayProvider } from '@/providers/DevHydrationOverlayProvider';
 import { ReactQueryClientProvider } from '@/providers/ReactQueryClientProvider';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Flowblade nextjs app',
@@ -20,8 +19,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <ReactQueryClientProvider>{children}</ReactQueryClientProvider>
+      <body className={`${fontInter.variable} antialiased`}>
+        <ReactQueryClientProvider>
+          <DevHydrationOverlayProvider>{children}</DevHydrationOverlayProvider>
+        </ReactQueryClientProvider>
       </body>
     </html>
   );
