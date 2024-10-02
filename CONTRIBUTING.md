@@ -75,4 +75,4 @@ Commit messages are enforced through [commitlint](https://github.com/conventiona
 - **release**: All related to changeset (pre exit...)
 
 > **Note**
-> Up-to-date configuration can be found in [commitlint.config.js](https://github.com/belgattitude/flowblade/blob/main/commitlint.config.js).
+> Up-to-date configuration can be found in [commitlint.config.jt](https://github.com/belgattitude/flowblade/blob/main/commitlint.config.ts).
