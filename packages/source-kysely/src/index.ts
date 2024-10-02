@@ -1,10 +1,10 @@
-export * from './column-model/IColumnModel';
+export type * from './column-model/IColumnModel';
 export { createDialect } from './connection';
-export * from './executor/IDataSourceExecutor';
+export type * from './executor/IDataSourceExecutor';
 export * from './executor/KyselyExecutor';
 export * from './helpers/DataSourceHelpers';
 export * from './helpers/KyselyHelpers';
 export * from './query/AbstractQuery';
-export * from './query/IGetColumnModel';
-export * from './query/IGetQuery';
+export type * from './query/IGetColumnModel';
+export type * from './query/IGetQuery';
 export { ConnectionUtils } from './utils/connection.utils';
