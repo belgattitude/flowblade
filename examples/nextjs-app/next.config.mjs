@@ -1,4 +1,5 @@
 // @ts-check
+import pc from 'tinyrainbow';
 
 const trueEnv = ['true', '1', 'yes'];
 
@@ -12,7 +13,7 @@ const NEXTJS_IGNORE_TYPECHECK = trueEnv.includes(
 const TYPESCRIPT_CONFIG = process.env.TSCONFIG ?? './tsconfig.json';
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+let nextConfig = {
   eslint: {
     dirs: ['src'],
     ignoreDuringBuilds: NEXTJS_IGNORE_ESLINT,
@@ -34,5 +35,17 @@ const nextConfig = {
     tsconfigPath: TYPESCRIPT_CONFIG,
   },
 };
+
+if (process.env.NEXT_PUBLIC_HYDRATION_OVERLAY === 'yes') {
+  try {
+    const { withHydrationOverlay } = await import(
+      '@builder.io/react-hydration-overlay/next'
+    ).then((mod) => mod);
+    nextConfig = withHydrationOverlay({})(nextConfig);
+    console.log(`- ${pc.green('info')} HydrationOverlay enabled`);
+  } catch {
+    // simply ignore
+  }
+}
 
 export default nextConfig;

@@ -26,6 +26,7 @@
     "g:lint-staged-files": "lint-staged --allow-empty",
     "g:fix-all-files": "yarn workspaces foreach --all -ptv run fix-all-files",
     "g:changeset": "changeset",
+    "g:codegen": "nx run-many --output-style=static --target=codegen --exclude='docs'",
     "g:check-dist": "nx run-many --output-style=static --target=check-dist --exclude='examples/**' --exclude='docs'",
     "g:check-size": "nx run-many --output-style=static --target=check-size --exclude='examples/**' --exclude='docs'",
     "g:check-pub": "nx run-many --output-style=static --target=check-pub --exclude='examples/**' --exclude='docs'",
@@ -44,7 +45,8 @@
     "syncpack:check": "syncpack lint-semver-ranges --types prod,dev --source \"package.json\" --source \"packages/*/package.json\"",
     "syncpack:list": "syncpack list-semver-ranges --types prod,dev --source \"package.json\" --source \"packages/*/package.json\"",
     "nuke:node_modules": "rimraf --glob '**/node_modules'",
-    "prettier:format": "prettier --config .prettierrc.js --cache --cache-location=\".cache/prettier/monorepo.prettiercache\" --ignore-path .prettierignore \"**/*.{js,cjs,mjs,ts,mts,md,mdx,json}\" --write"
+    "prettier:format": "prettier --config .prettierrc.js --cache --cache-location=\".cache/prettier/monorepo.prettiercache\" --ignore-path .prettierignore \"**/*.{js,cjs,mjs,ts,mts,md,mdx,json}\" --write",
+    "prepare": "husky"
   },
   "workspaces": [
     "benchmark",
@@ -68,10 +70,10 @@
     "is-ci": "3.0.1",
     "lint-staged": "15.2.10",
     "npm-run-all2": "6.2.3",
-    "nx": "19.8.0",
+    "nx": "19.8.3",
     "prettier": "3.3.3",
     "rimraf": "6.0.1",
-    "rollup": "4.22.4",
+    "rollup": "4.24.0",
     "shell-quote": "1.8.1",
     "syncpack": "13.0.0",
     "typescript": "5.6.2"
