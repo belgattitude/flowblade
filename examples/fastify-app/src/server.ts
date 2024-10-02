@@ -1,6 +1,6 @@
 import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import closeWithGrace from 'close-with-grace';
-import fastify from 'fastify';
+import { default as fastify } from 'fastify';
 
 import { app } from './app';
 

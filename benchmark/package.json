@@ -1,0 +1,22 @@
+{
+  "name": "@flowblade/benchmark",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "bench-nextjs-node": "autocannon -c 100 -d 10 -p 10 http://localhost:3001/api/hono/node/hello",
+    "bench-nextjs-edge": "autocannon -c 100 -d 10 -p 10 http://localhost:3001/api/hono/edge/hello",
+    "bench-nextjs-health": "autocannon -c 100 -d 10 -p 10 http://localhost:3001/api/health",
+    "bench-nextjs-legacy": "autocannon -c 100 -d 10 -p 10 http://localhost:3001/api/legacy/hono/hello"
+  },
+  "devDependencies": {
+    "@belgattitude/eslint-config-bases": "6.0.0-canary.12",
+    "@total-typescript/ts-reset": "0.6.1",
+    "@types/node": "22.5.5",
+    "@typescript-eslint/eslint-plugin": "8.6.0",
+    "@typescript-eslint/parser": "8.6.0",
+    "autocannon": "7.15.0",
+    "tsx": "4.19.1",
+    "typescript": "5.6.2"
+  }
+}
