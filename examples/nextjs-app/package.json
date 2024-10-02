@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "cross-env TSCONFIG=./tsconfig.no-paths.json next build",
+    "build": "next build",
+    "build-no-paths": "cross-env TSCONFIG=./tsconfig.no-paths.json next build",
     "start": "next start",
     "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",
     "test": "vitest run",
@@ -20,6 +21,7 @@
   },
   "dependencies": {
     "@flowblade/source-kysely": "workspace:^",
+    "@hono/node-server": "1.13.1",
     "@httpx/assert": "0.13.1",
     "@httpx/dsn-parser": "1.8.4",
     "@httpx/exception": "3.0.10",
@@ -29,6 +31,7 @@
     "@prisma/client": "5.19.1",
     "@t3-oss/env-nextjs": "0.11.1",
     "clsx": "2.1.1",
+    "hono": "4.6.3",
     "ky": "1.7.2",
     "kysely": "0.27.4",
     "next": "14.2.13",
