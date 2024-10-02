@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { fontInter } from '@/components/fonts/FontInter';
 import { DevHydrationOverlayProvider } from '@/providers/DevHydrationOverlayProvider';
 import { ReactQueryClientProvider } from '@/providers/ReactQueryClientProvider';
+import { ReduxStoreProvider } from '@/providers/ReduxProvider';
 
 export const metadata: Metadata = {
   title: 'Flowblade nextjs app',
@@ -20,9 +21,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${fontInter.variable} antialiased`}>
-        <ReactQueryClientProvider>
-          <DevHydrationOverlayProvider>{children}</DevHydrationOverlayProvider>
-        </ReactQueryClientProvider>
+        <ReduxStoreProvider>
+          <ReactQueryClientProvider>
+            <DevHydrationOverlayProvider>
+              {children}
+            </DevHydrationOverlayProvider>
+          </ReactQueryClientProvider>
+        </ReduxStoreProvider>
       </body>
     </html>
   );
