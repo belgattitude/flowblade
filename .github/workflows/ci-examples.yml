@@ -1,0 +1,71 @@
+name: CI-examples
+
+on:
+  push:
+    branches:
+     - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+
+jobs:
+  test-packages:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    env:
+      NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Fetch all git history so that yarn workspaces --since can compare with the correct commits
+          # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          fetch-depth: 0
+
+      - name: ⚙️ Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 📥 Monorepo install
+        uses: ./.github/actions/yarn-nm-install
+
+      - name: ⚙️ Nx setup - SHAs for base and head for `nx affected` commands
+        id: nx-set-shas
+        uses: nrwl/nx-set-shas@v4
+
+      - run: |
+          echo "BASE: ${{ steps.nx-set-shas.outputs.base }}"
+          echo "HEAD: ${{ steps.nx-set-shas.outputs.head }}"
+
+      - name: Cache rotation keys
+        id: cache-rotation
+        shell: bash
+        run: |
+          echo "YEAR_MONTH=$(/bin/date -u "+%Y%m")" >> $GITHUB_OUTPUT
+
+      - name: ♻️ Restore packages cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.cache
+          key: ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-${{ hashFiles('packages/**.[jt]sx?', 'integrations/**.[jt]sx?') }}
+          restore-keys: |
+            ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-
+
+      - name: 🕵️ Typecheck
+        run: yarn nx run-many --target=typecheck --exclude='packages/**' --exclude='docs'
+
+      - name: 🔬 ESLint checks
+        run: yarn nx run-many --target=lint --exclude='packages/**' --exclude='docs'
+
+      - name: 🧪 Unit tests
+        run: yarn nx run-many --target=test-unit --exclude='packages/**' --exclude='docs'
+
+      - name: 🏗 Build packages
+        run: yarn nx run-many --target=build --exclude='packages/**' --exclude='docs'
