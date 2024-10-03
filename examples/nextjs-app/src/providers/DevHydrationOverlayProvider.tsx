@@ -17,7 +17,8 @@ export const DevHydrationOverlayProvider: FC<Props> = (props) => {
   const { children, integrations = defaultIntegrations } = props;
   if (
     process.env.NODE_ENV === 'development' &&
-    process.env.NEXT_PUBLIC_ENABLE_HYDRATION_OVERLAY !== 'true'
+    process.env.NEXT_PUBLIC_ENABLE_HYDRATION_OVERLAY !== 'true' &&
+    !process.env.TURBOPACK
   ) {
     // eslint-disable-next-line sonarjs/jsx-no-useless-fragment
     return <>{children}</>;

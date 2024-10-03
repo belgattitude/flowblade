@@ -2,6 +2,9 @@
 
 import pc from 'tinyrainbow';
 
+const isDev = process.env.NODE_ENV === 'development';
+const isTurbo = process.env.TURBOPACK;
+
 const trueEnv = ['true', '1', 'yes'];
 
 const NEXTJS_IGNORE_ESLINT = trueEnv.includes(
@@ -37,7 +40,11 @@ let nextConfig = {
   },
 };
 
-if (process.env.NEXT_PUBLIC_HYDRATION_OVERLAY === 'yes') {
+if (
+  process.env.NEXT_PUBLIC_HYDRATION_OVERLAY === 'yes' &&
+  process.env.NODE_ENV === 'development' &&
+  !process.env.TURBOPACK
+) {
   try {
     const { withHydrationOverlay } = await import(
       '@builder.io/react-hydration-overlay/next'
