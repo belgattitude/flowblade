@@ -4,6 +4,8 @@ import { z } from 'zod';
 
 export const serverEnv = createEnv({
   server: {
+    SENTRY_ORG: z.string().optional(),
+    SENTRY_PROJECT: z.string().optional(),
     DB_FLOWBLADE_AZURE_SQL_EDGE_JDBC: z.string().min(1),
     DB_FLOWBLADE_MYSQL_DSN: z.custom<ParsableDsn>(
       (dsn) => isParsableDsn(dsn),
