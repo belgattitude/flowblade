@@ -49,7 +49,10 @@ if (process.env.NEXT_PUBLIC_HYDRATION_OVERLAY === 'yes') {
   }
 }
 
-if (process.env.NEXT_PUBLIC_SENTRY_ENABLED === 'true') {
+if (
+  process.env.NEXT_PUBLIC_SENTRY_ENABLED === 'true' &&
+  !process.env.TURBOPACK
+) {
   try {
     const { withSentryConfig } = await import('@sentry/nextjs').then(
       (mod) => mod
