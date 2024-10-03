@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import { handle } from 'hono/vercel';
 
+export const dynamic = 'force-dynamic';
+
 export const runtime = 'edge';
 
 const app = new Hono().basePath('/api/hono/edge');
