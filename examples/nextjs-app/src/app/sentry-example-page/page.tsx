@@ -48,6 +48,7 @@ export default function Page() {
             fontSize: '14px',
             margin: '18px',
           }}
+          /* eslint-disable-next-line sonarjs/no-misused-promises */
           onClick={async () => {
             await Sentry.startSpan(
               {

@@ -1,3 +1,5 @@
+'use client';
+
 import { TreeSelect, type TreeSelectChangeEvent } from 'primereact/treeselect';
 import React, { type FC, useEffect, useState } from 'react';
 

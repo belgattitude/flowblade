@@ -3,7 +3,7 @@
 import pc from 'tinyrainbow';
 
 const isDev = process.env.NODE_ENV === 'development';
-const isTurbo = process.env.TURBOPACK;
+const isTurbo = process.env.TURBOPACK !== undefined;
 
 const trueEnv = ['true', '1', 'yes'];
 
@@ -40,11 +40,7 @@ let nextConfig = {
   },
 };
 
-if (
-  process.env.NEXT_PUBLIC_HYDRATION_OVERLAY === 'yes' &&
-  process.env.NODE_ENV === 'development' &&
-  !process.env.TURBOPACK
-) {
+if (process.env.NEXT_PUBLIC_HYDRATION_OVERLAY === 'true' && isDev && !isTurbo) {
   try {
     const { withHydrationOverlay } = await import(
       '@builder.io/react-hydration-overlay/next'
@@ -52,14 +48,13 @@ if (
     nextConfig = withHydrationOverlay({})(nextConfig);
     console.log(`- ${pc.green('info')} HydrationOverlay enabled`);
   } catch {
-    // simply ignore
+    console.error(`- ${pc.red('error')} Failed to enable HydrationOverlay`);
   }
+} else {
+  console.log(`- ${pc.green('info')} HydrationOverlay not enabled`);
 }
 
-if (
-  process.env.NEXT_PUBLIC_SENTRY_ENABLED === 'true' &&
-  !process.env.TURBOPACK
-) {
+if (process.env.NEXT_PUBLIC_SENTRY_ENABLED === 'true' && !isTurbo) {
   try {
     const { withSentryConfig } = await import('@sentry/nextjs').then(
       (mod) => mod

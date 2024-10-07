@@ -1,3 +1,5 @@
+'use client';
+
 import { MultiSelect } from 'primereact/multiselect';
 import { type FC, useState } from 'react';
 
