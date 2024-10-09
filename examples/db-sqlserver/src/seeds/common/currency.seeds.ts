@@ -2,33 +2,70 @@ import { AbstractSeed } from '../../lib/AbstractSeed';
 import type { PrismaSqlServer as Prisma } from '../../prisma';
 import jsonCurrencies from './currencies.json' with { type: 'json' };
 
-const currencyData: Prisma.CurrencyCreateInput[] =
-  jsonCurrencies.currencies.map((currency) => {
-    return {
-      code: currency.iso_4217,
-      numericCode: currency.numeric_code,
-      nameNative: currency.native_name,
-      nameNativePlural: currency.native_name_plural,
-      rounding: currency.rounding,
-      displayDecimals: currency.display_decimals,
-      symbolNative: currency.native_symbol,
-      symbol: currency.symbol,
-      createdAt: new Date(),
-      updatedAt: null,
-      withdrawalAt: null,
-    };
-  });
+const currencyData: (Prisma.CurrencyCreateInput & {
+  translations: (typeof jsonCurrencies.currencies)[number]['translations'];
+})[] = jsonCurrencies.currencies.map((currency) => {
+  return {
+    code: currency.iso_4217,
+    numericCode: currency.numeric_code,
+    nameNative: currency.native_name,
+    nameNativePlural: currency.native_name_plural,
+    rounding: String(currency.rounding),
+    displayDecimals: currency.display_decimals,
+    symbolNative: currency.native_symbol,
+    symbol: currency.symbol,
+    createdAt: new Date(),
+    updatedAt: null,
+    withdrawalAt: null,
+    translations: currency.translations,
+  };
+});
 
 export class CurrencySeeds extends AbstractSeed {
   execute = async (): Promise<void> => {
-    for (const c of currencyData) {
+    for (const { translations, ...c } of currencyData) {
       const { code, numericCode, ...nonUnique } = c;
       const inserted = await this.prisma.currency.upsert({
-        where: { code: code!, numericCode: numericCode },
+        where: { code, numericCode },
         update: nonUnique,
-        create: c,
+        create: {
+          ...c,
+          translations: {
+            createMany: {
+              data: [
+                {
+                  createdAt: new Date(),
+                  name: translations['fr-FR'].singular,
+                  namePlural: translations['fr-FR'].plural,
+                  localeCode: 'fr-FR',
+                },
+                {
+                  createdAt: new Date(),
+                  name: translations['en-US'].singular,
+                  namePlural: translations['en-US'].plural,
+                  localeCode: 'en-US',
+                },
+              ],
+            },
+          },
+        },
       });
-      this.log('UPSERT', `Currency ${inserted.code}`);
+      this.log('UPSERT', `Currency ${inserted.code} ${inserted.id}`);
+
+      /*
+      for (const translation of Object.entries(translations)) {
+        const [localeCode, i18n] = translation;
+        const columns = {
+          currency: inserted,
+          code: localeCode,
+          name: i18n.singular,
+          namePlural: i18n.plural,
+        } as Prisma.CurrencyCreateInput;
+        const insertI18n = await this.prisma.currencyI18n.upsert({
+          where: { currencyId: inserted.id, localeCode: localeCode },
+          create: i18n,
+        });
+      } */
     }
   };
 }
