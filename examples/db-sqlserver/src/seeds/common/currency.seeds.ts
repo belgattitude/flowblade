@@ -1,5 +1,5 @@
-import type { PrismaSqlServer as Prisma } from '../../index';
 import { AbstractSeed } from '../../lib/AbstractSeed';
+import type { PrismaSqlServer as Prisma } from '../../prisma';
 import jsonCurrencies from './currencies.json';
 
 const currencyData: Prisma.CurrencyCreateInput[] = jsonCurrencies.map(

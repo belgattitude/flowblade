@@ -10,6 +10,17 @@ generator client {
   output          = "../src/generated/client"
 }
 
+generator kysely {
+  provider = "prisma-kysely"
+
+  // Optionally provide a destination directory for the generated file
+  // and a filename of your choice
+  output       = "../src/generated"
+  fileName     = "kysely.ts"
+  // Optionally generate runtime enums to a separate file
+  enumFileName = "kysely.enums.ts"
+}
+
 model Currency {
   id               Int       @id @default(autoincrement())
   code             String?   @unique() @db.VarChar(3)

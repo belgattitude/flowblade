@@ -1,4 +1,4 @@
-import { PrismaClientSqlServer } from '../src';
+import { PrismaClientSqlServer } from '../src/prisma';
 import { CurrencySeeds } from '../src/seeds/common/currency.seeds';
 
 const prisma = new PrismaClientSqlServer();

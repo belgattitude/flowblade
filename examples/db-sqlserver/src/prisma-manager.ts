@@ -5,7 +5,7 @@
 import type {
   PrismaClientSqlServer as PrismaClient,
   PrismaSqlServer as Prisma,
-} from './index';
+} from './prisma';
 export type PrismaClientOptions = Prisma.PrismaClientOptions;
 
 declare let global: {
@@ -15,7 +15,6 @@ declare let global: {
 
 export class PrismaManager {
   private static instances?: Record<string, PrismaClient>;
-  private constructor() {}
 
   /**
    * Create and maintain a prismaClient instance that avoids issues with
