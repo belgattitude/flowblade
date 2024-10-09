@@ -21,16 +21,7 @@ module.exports = {
     // Apply prettier and disable incompatible rules
     '@belgattitude/eslint-config-bases/prettier-plugin',
   ],
-  ignorePatterns: [...getDefaultIgnorePatterns()],
-  overrides: [
-    {
-      files: ['**/src/generated/openapi/*'],
-      rules: {
-        '@typescript-eslint/consistent-indexed-object-style': 'off',
-        'sonarjs/class-name': 'off',
-      },
-    },
-  ],
+  ignorePatterns: [...getDefaultIgnorePatterns(), '**/src/generated/**'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     projectService: true,
