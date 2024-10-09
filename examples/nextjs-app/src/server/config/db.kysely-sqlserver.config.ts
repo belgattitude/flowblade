@@ -1,10 +1,11 @@
+import type { DBKyselySqlServer } from '@flowblade/db-sqlserver/kysely-types';
 import { ConnectionUtils, createDialect } from '@flowblade/source-kysely';
 import { Kysely, MssqlDriver } from 'kysely';
 
 import { serverEnv } from '../../env/server.env.mjs';
 
 const config = ConnectionUtils.jdbcToTediousConfig(
-  serverEnv.DB_FLOWBLADE_AZURE_SQL_EDGE_JDBC
+  serverEnv.DB_FLOWBLADE_SQLSERVER_JDBC ?? ''
 );
 const dialect = createDialect(config);
 
@@ -19,7 +20,7 @@ export class TediousAdapter extends MssqlDriver {
   }
 }
 
-export const dbKysely = new Kysely<unknown>({
+export const dbKyselySqlServer = new Kysely<DBKyselySqlServer>({
   dialect: dialect,
 
   // @todo decide if we want to move it to query executor instead.

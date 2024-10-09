@@ -1,0 +1,91 @@
+{
+  "name": "@flowblade/db-sqlserver",
+  "version": "0.0.1",
+  "type": "module",
+  "sideEffects": false,
+  "private": true,
+  "exports": {
+    "./prisma": {
+      "types": "./dist/prisma.d.ts",
+      "default": "./dist/prisma.js"
+    },
+    "./kysely-types": {
+      "types": "./dist/kysely-types.d.ts",
+      "default": "./dist/kysely-types.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "author": {
+    "name": "Vanvelthem Sébastien",
+    "url": "https://github.com/belgattitude"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/belgattitude/flowblade",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/belgattitude/flowblade.git",
+    "directory": "examples/db-sqlserver"
+  },
+  "scripts": {
+    "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",
+    "test": "vitest run",
+    "test-unit": "vitest run",
+    "test-unit-watch": "vitest --ui",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/db-sqlserver.eslintcache",
+    "fix-staged": "lint-staged --allow-empty",
+    "codegen": "run-s prisma-generate",
+    "prisma-format": "prisma format",
+    "prisma-validate": "prisma validate",
+    "prisma-generate": "prisma generate",
+    "prisma-db-reset-push": "dotenv-flow -- yarn prisma db push --force-reset",
+    "prisma-db-push": "dotenv-flow -- yarn prisma db push",
+    "prisma-db-pull": "dotenv-flow -- yarn prisma db pull",
+    "prisma-db-seed": "dotenv-flow -- yarn prisma db seed",
+    "prisma-migrate": "dotenv-flow -- yarn prisma migrate",
+    "prisma-migrate-reset": "dotenv-flow -- yarn prisma migrate reset",
+    "prisma-studio": "dotenv-flow -- yarn prisma studio",
+    "postinstall": "prisma generate"
+  },
+  "peerDependencies": {
+    "@prisma/client": "^5.20.0",
+    "kysely": "^0.27.4",
+    "tedious": "^18.6.1"
+  },
+  "peerDependenciesMeta": {
+    "@prisma/client": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@belgattitude/eslint-config-bases": "6.0.0-canary.15",
+    "@faker-js/faker": "9.0.3",
+    "@prisma/client": "5.20.0",
+    "@total-typescript/ts-reset": "0.6.1",
+    "@types/node": "22.7.5",
+    "@typescript-eslint/eslint-plugin": "8.8.1",
+    "@typescript-eslint/parser": "8.8.1",
+    "@vitest/coverage-v8": "2.1.2",
+    "@vitest/ui": "2.1.2",
+    "cross-env": "7.0.3",
+    "dotenv-expand": "11.0.6",
+    "dotenv-flow": "4.1.0",
+    "dotenv-flow-cli": "1.1.1",
+    "eslint": "8.57.1",
+    "kysely": "0.27.4",
+    "npm-run-all2": "6.2.3",
+    "prettier": "3.3.3",
+    "prisma": "5.20.0",
+    "prisma-kysely": "1.8.0",
+    "rimraf": "6.0.1",
+    "tedious": "18.6.1",
+    "tsx": "4.19.1",
+    "typescript": "5.6.3",
+    "vite": "5.4.8",
+    "vite-tsconfig-paths": "5.0.1",
+    "vitest": "2.1.2"
+  },
+  "prisma": {
+    "seed": "tsx ./scripts/run-prisma-seeds.ts"
+  }
+}

@@ -1,0 +1,1890 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DB_FLOWBLADE_MARIADB_DSN")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model api_key {
+  api_id            Int                @id @default(autoincrement()) @db.UnsignedInt
+  api_key           String             @unique(map: "unique_api_key_idx") @db.VarChar(64)
+  flag_active       Boolean            @default(true)
+  created_at        DateTime?          @db.DateTime(0)
+  updated_at        DateTime?          @db.DateTime(0)
+  created_by        String?            @db.VarChar(40)
+  updated_by        String?            @db.VarChar(40)
+  legacy_mapping    String?            @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?          @db.DateTime(0)
+  api_key_customer  api_key_customer[]
+  api_key_log       api_key_log[]
+  api_key_service   api_key_service[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model api_key_customer {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  api_id            Int       @db.UnsignedInt
+  customer_id       Int       @db.UnsignedInt
+  created_at        DateTime? @db.DateTime(0)
+  updated_at        DateTime? @db.DateTime(0)
+  created_by        String?   @db.VarChar(40)
+  updated_by        String?   @db.VarChar(40)
+  legacy_mapping    String?   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime? @db.DateTime(0)
+  api_key           api_key   @relation(fields: [api_id], references: [api_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_4A509C2B54963938")
+  customer          customer  @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_4A509C2B9395C3F3")
+
+  @@unique([api_id, customer_id], map: "unique_api_cutomer_idx")
+  @@index([api_id], map: "IDX_4A509C2B54963938")
+  @@index([customer_id], map: "IDX_4A509C2B9395C3F3")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model api_key_log {
+  id             BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  api_id         Int          @db.UnsignedInt
+  service_id     Int?         @db.UnsignedInt
+  remote_ip      String?      @db.VarChar(32)
+  created_at     DateTime?    @db.DateTime(0)
+  message        String?      @db.VarChar(784)
+  execution_time Int?         @db.UnsignedInt
+  network_usage  Int?         @db.UnsignedInt
+  usage_count    Int          @default(1) @db.UnsignedInt
+  api_key        api_key      @relation(fields: [api_id], references: [api_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_B608017254963938")
+  api_service    api_service? @relation(fields: [service_id], references: [service_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_B6080172ED5CA9E6")
+
+  @@index([api_id], map: "IDX_B608017254963938")
+  @@index([service_id], map: "IDX_B6080172ED5CA9E6")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model api_key_service {
+  id                BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  api_id            Int         @db.UnsignedInt
+  service_id        Int         @db.UnsignedInt
+  flag_active       Boolean     @default(true)
+  activated_at      DateTime?   @db.Date
+  created_at        DateTime?   @db.DateTime(0)
+  updated_at        DateTime?   @db.DateTime(0)
+  created_by        String?     @db.VarChar(40)
+  updated_by        String?     @db.VarChar(40)
+  legacy_mapping    String?     @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?   @db.DateTime(0)
+  api_key           api_key     @relation(fields: [api_id], references: [api_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_E93C346254963938")
+  api_service       api_service @relation(fields: [service_id], references: [service_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_E93C3462ED5CA9E6")
+
+  @@unique([api_id, service_id], map: "unique_api_service_idx")
+  @@index([api_id], map: "IDX_E93C346254963938")
+  @@index([service_id], map: "IDX_E93C3462ED5CA9E6")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model api_service {
+  service_id        Int               @id @default(autoincrement()) @db.UnsignedInt
+  reference         String            @unique(map: "unique_reference_idx") @db.VarChar(60)
+  description       String?           @db.VarChar(255)
+  flag_active       Boolean           @default(true)
+  created_at        DateTime?         @db.DateTime(0)
+  updated_at        DateTime?         @db.DateTime(0)
+  created_by        String?           @db.VarChar(40)
+  updated_by        String?           @db.VarChar(40)
+  legacy_mapping    String?           @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?         @db.DateTime(0)
+  api_key_log       api_key_log[]
+  api_key_service   api_key_service[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model color {
+  color_id          Int                 @id @default(autoincrement()) @db.UnsignedInt
+  reference         String              @unique(map: "unique_reference_idx") @db.VarChar(16)
+  name              String              @db.VarChar(80)
+  hex_code          String?             @db.VarChar(8)
+  created_at        DateTime?           @db.DateTime(0)
+  updated_at        DateTime?           @db.DateTime(0)
+  created_by        String?             @db.VarChar(40)
+  updated_by        String?             @db.VarChar(40)
+  legacy_mapping    String?             @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?           @db.DateTime(0)
+  color_translation color_translation[]
+  product           product[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model color_translation {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  color_id          Int       @db.UnsignedInt
+  lang              String    @db.VarChar(2)
+  name              String?   @db.VarChar(80)
+  created_at        DateTime? @db.DateTime(0)
+  updated_at        DateTime? @db.DateTime(0)
+  created_by        String?   @db.VarChar(40)
+  updated_by        String?   @db.VarChar(40)
+  legacy_mapping    String?   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime? @db.DateTime(0)
+  language          language  @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_C810386331098462")
+  color             color     @relation(fields: [color_id], references: [color_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_C81038637ADA1FB5")
+
+  @@unique([color_id, lang], map: "unique_translation_idx")
+  @@index([lang], map: "IDX_C810386331098462")
+  @@index([color_id], map: "IDX_C81038637ADA1FB5")
+  @@index([name], map: "name_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model country {
+  country_id        Int        @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference         String     @unique(map: "unique_reference_idx") @db.VarChar(2)
+  name              String     @db.VarChar(40)
+  flag_active       Boolean    @default(true)
+  icon_class        String?    @db.VarChar(40)
+  created_at        DateTime?  @db.DateTime(0)
+  updated_at        DateTime?  @db.DateTime(0)
+  created_by        String?    @db.VarChar(40)
+  updated_by        String?    @db.VarChar(40)
+  legacy_mapping    String?    @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?  @db.DateTime(0)
+  customer          customer[]
+  sale_rep          sale_rep[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model currency {
+  currency_id       Int         @id @default(autoincrement()) @db.UnsignedInt
+  reference         String      @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title             String?     @unique(map: "unique_title_idx") @db.VarChar(80)
+  symbol            String?     @db.VarChar(4)
+  display_decimals  Int?        @default(2) @db.UnsignedSmallInt
+  icon_class        String?     @db.VarChar(40)
+  created_at        DateTime?   @db.DateTime(0)
+  updated_at        DateTime?   @db.DateTime(0)
+  created_by        String?     @db.VarChar(40)
+  updated_by        String?     @db.VarChar(40)
+  legacy_mapping    String?     @db.VarChar(40)
+  legacy_synchro_at DateTime?   @db.DateTime(0)
+  pricelist         pricelist[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model customer {
+  customer_id        Int                  @id @default(autoincrement()) @db.UnsignedInt
+  group_id           Int?                 @db.UnsignedSmallInt
+  country_id         Int?                 @db.UnsignedSmallInt
+  reference          String               @unique(map: "unique_reference_idx") @db.VarChar(60)
+  name               String               @db.VarChar(80)
+  first_name         String?              @db.VarChar(40)
+  street             String?              @db.VarChar(80)
+  street_2           String?              @db.VarChar(80)
+  street_number      String?              @db.VarChar(10)
+  po_box             String?              @db.VarChar(10)
+  zipcode            String?              @db.VarChar(20)
+  city               String?              @db.VarChar(60)
+  phone              String?              @db.VarChar(20)
+  phone_2            String?              @db.VarChar(20)
+  mobile             String?              @db.VarChar(20)
+  mobile_2           String?              @db.VarChar(20)
+  fax                String?              @db.VarChar(20)
+  fax_2              String?              @db.VarChar(20)
+  email              String?              @db.VarChar(50)
+  email_2            String?              @db.VarChar(50)
+  flag_active        Boolean              @default(true)
+  created_at         DateTime?            @db.DateTime(0)
+  updated_at         DateTime?            @db.DateTime(0)
+  created_by         String?              @db.VarChar(40)
+  updated_by         String?              @db.VarChar(40)
+  legacy_mapping     String?              @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at  DateTime?            @db.DateTime(0)
+  api_key_customer   api_key_customer[]
+  country            country?             @relation(fields: [country_id], references: [country_id], onDelete: Restrict, onUpdate: Restrict, map: "FK_81398E09F92F3E70")
+  customer_group     customer_group?      @relation(fields: [group_id], references: [group_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_81398E09FE54D947")
+  customer_pricelist customer_pricelist[]
+  discount_condition discount_condition[]
+  sale_order         sale_order[]
+  user_scope         user_scope[]
+
+  @@index([country_id], map: "IDX_81398E09F92F3E70")
+  @@index([group_id], map: "IDX_81398E09FE54D947")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model customer_group {
+  group_id           Int                  @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference          String               @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title              String?              @db.VarChar(80)
+  description        String?              @db.VarChar(15000)
+  flag_active        Boolean              @default(true)
+  icon_class         String?              @db.VarChar(40)
+  created_at         DateTime?            @db.DateTime(0)
+  updated_at         DateTime?            @db.DateTime(0)
+  created_by         String?              @db.VarChar(40)
+  updated_by         String?              @db.VarChar(40)
+  legacy_mapping     String?              @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at  DateTime?            @db.DateTime(0)
+  customer           customer[]
+  discount_condition discount_condition[]
+
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model customer_pricelist {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  pricelist_id      Int       @db.UnsignedSmallInt
+  customer_id       Int       @db.UnsignedInt
+  flag_active       Boolean   @default(true)
+  activated_at      DateTime? @db.Date
+  created_at        DateTime? @db.DateTime(0)
+  updated_at        DateTime? @db.DateTime(0)
+  created_by        String?   @db.VarChar(40)
+  updated_by        String?   @db.VarChar(40)
+  legacy_mapping    String?   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime? @db.DateTime(0)
+  pricelist         pricelist @relation(fields: [pricelist_id], references: [pricelist_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_F732127789045958")
+  customer          customer  @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_F73212779395C3F3")
+
+  @@unique([customer_id, pricelist_id], map: "unique_user_pricelist_idx")
+  @@index([pricelist_id], map: "IDX_F732127789045958")
+  @@index([customer_id], map: "IDX_F73212779395C3F3")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model discount_condition {
+  id                BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  pricelist_id      Int?              @db.UnsignedSmallInt
+  customer_group_id Int?              @db.UnsignedSmallInt
+  customer_id       Int?              @db.UnsignedInt
+  brand_id          Int?              @db.UnsignedInt
+  product_group_id  Int?              @db.UnsignedInt
+  model_id          Int?              @db.UnsignedInt
+  category_id       Int?              @db.UnsignedInt
+  product_id        BigInt?           @db.UnsignedBigInt
+  discount_1        Decimal           @default(0.000000) @db.Decimal(9, 6)
+  discount_2        Decimal           @default(0.000000) @db.Decimal(9, 6)
+  discount_3        Decimal           @default(0.000000) @db.Decimal(9, 6)
+  discount_4        Decimal           @default(0.000000) @db.Decimal(9, 6)
+  fixed_price       Decimal?          @db.Decimal(12, 6)
+  valid_from        DateTime?         @db.Date
+  valid_till        DateTime?         @db.Date
+  created_at        DateTime?         @db.DateTime(0)
+  updated_at        DateTime?         @db.DateTime(0)
+  created_by        String?           @db.VarChar(40)
+  updated_by        String?           @db.VarChar(40)
+  legacy_mapping    String?           @unique(map: "unique_legacy_mapping_idx") @db.VarChar(80)
+  legacy_synchro_at DateTime?         @db.DateTime(0)
+  product_category  product_category? @relation(fields: [category_id], references: [category_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_DD0C00BE12469DE2")
+  product_group     product_group?    @relation(fields: [product_group_id], references: [group_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_DD0C00BE35E4B3D0")
+  product_brand     product_brand?    @relation(fields: [brand_id], references: [brand_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_DD0C00BE44F5D008")
+  product           product?          @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_DD0C00BE4584665A")
+  product_model     product_model?    @relation(fields: [model_id], references: [model_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_DD0C00BE7975B7E7")
+  pricelist         pricelist?        @relation(fields: [pricelist_id], references: [pricelist_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_DD0C00BE89045958")
+  customer          customer?         @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_DD0C00BE9395C3F3")
+  customer_group    customer_group?   @relation(fields: [customer_group_id], references: [group_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_DD0C00BED2919A68")
+
+  @@index([category_id], map: "IDX_DD0C00BE12469DE2")
+  @@index([product_group_id], map: "IDX_DD0C00BE35E4B3D0")
+  @@index([brand_id], map: "IDX_DD0C00BE44F5D008")
+  @@index([product_id], map: "IDX_DD0C00BE4584665A")
+  @@index([model_id], map: "IDX_DD0C00BE7975B7E7")
+  @@index([pricelist_id], map: "IDX_DD0C00BE89045958")
+  @@index([customer_id], map: "IDX_DD0C00BE9395C3F3")
+  @@index([customer_group_id], map: "IDX_DD0C00BED2919A68")
+  @@index([valid_from], map: "valid_from_idx")
+  @@index([valid_till], map: "valid_till_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model language {
+  id                                 Int                                  @id @default(autoincrement()) @db.UnsignedSmallInt
+  lang                               String                               @unique(map: "unique_lang_idx") @db.VarChar(2)
+  title                              String?                              @db.VarChar(40)
+  flag_active                        Boolean                              @default(true)
+  flag_default                       Boolean?                             @unique(map: "unique_flag_default_idx")
+  icon_class                         String?                              @db.VarChar(40)
+  created_at                         DateTime?                            @db.DateTime(0)
+  updated_at                         DateTime?                            @db.DateTime(0)
+  created_by                         String?                              @db.VarChar(40)
+  updated_by                         String?                              @db.VarChar(40)
+  legacy_mapping                     String?                              @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at                  DateTime?                            @db.DateTime(0)
+  color_translation                  color_translation[]
+  product_brand_translation          product_brand_translation[]
+  product_category_translation       product_category_translation[]
+  product_group_translation          product_group_translation[]
+  product_model_translation          product_model_translation[]
+  product_search                     product_search[]
+  product_serie_translation          product_serie_translation[]
+  product_set_translation            product_set_translation[]
+  product_stub_translation           product_stub_translation[]
+  product_translation                product_translation[]
+  product_unit_translation           product_unit_translation[]
+  sale_order_line_status_translation sale_order_line_status_translation[]
+  sale_order_status_translation      sale_order_status_translation[]
+  sale_order_type_translation        sale_order_type_translation[]
+  user                               user[]
+
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model media {
+  media_id            BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  type_id             Int?                  @db.UnsignedInt
+  container_id        BigInt?               @db.UnsignedBigInt
+  remote_media_url    String?               @db.VarChar(385)
+  remote_media_id     String?               @db.VarChar(64)
+  remote_preview_url  String?               @db.VarChar(255)
+  mimetype            String?               @db.VarChar(60)
+  filename            String?               @db.VarChar(120)
+  location            String?               @db.VarChar(255)
+  filesize            BigInt?               @db.UnsignedBigInt
+  duration            Int?                  @db.UnsignedInt
+  filemtime           Int?                  @db.UnsignedInt
+  title               String?               @db.VarChar(100)
+  description         String?               @db.VarChar(255)
+  created_at          DateTime?             @db.DateTime(0)
+  updated_at          DateTime?             @db.DateTime(0)
+  deleted_at          DateTime?             @db.DateTime(0)
+  created_by          String?               @db.VarChar(40)
+  updated_by          String?               @db.VarChar(40)
+  legacy_mapping      String?               @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at   DateTime?             @db.DateTime(0)
+  media_container     media_container?      @relation(fields: [container_id], references: [container_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_6A2CA10CBC21F742")
+  media_type          media_type?           @relation(fields: [type_id], references: [type_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_6A2CA10CC54C8C93")
+  media_video_file    media_video_file[]
+  product_media       product_media[]
+  product_serie_media product_serie_media[]
+
+  @@unique([container_id, location], map: "unique_container_location_idx")
+  @@unique([type_id, remote_media_id], map: "unique_remote_media_id_idx")
+  @@index([container_id], map: "IDX_6A2CA10CBC21F742")
+  @@index([type_id], map: "IDX_6A2CA10CC54C8C93")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model media_container {
+  container_id      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  reference         String    @unique(map: "unique_reference_idx") @db.VarChar(50)
+  folder            String    @unique(map: "unique_folder_idx") @db.VarChar(255)
+  title             String?   @db.VarChar(100)
+  description       String?   @db.VarChar(255)
+  created_at        DateTime? @db.DateTime(0)
+  updated_at        DateTime? @db.DateTime(0)
+  deleted_at        DateTime? @db.DateTime(0)
+  created_by        String?   @db.VarChar(40)
+  updated_by        String?   @db.VarChar(40)
+  legacy_mapping    String?   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime? @db.DateTime(0)
+  media             media[]
+
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model media_type {
+  type_id           Int       @id @default(autoincrement()) @db.UnsignedInt
+  reference         String    @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title             String?   @db.VarChar(80)
+  description       String?   @db.VarChar(15000)
+  icon_class        String?   @db.VarChar(40)
+  created_at        DateTime? @db.DateTime(0)
+  updated_at        DateTime? @db.DateTime(0)
+  created_by        String?   @db.VarChar(40)
+  updated_by        String?   @db.VarChar(40)
+  legacy_mapping    String?   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime? @db.DateTime(0)
+  media             media[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model media_video_file {
+  video_source_id  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  media_id         BigInt    @db.UnsignedBigInt
+  format_reference String?   @db.VarChar(80)
+  link_url         String?   @db.VarChar(385)
+  mimetype         String?   @db.VarChar(50)
+  video_width      Int?      @db.SmallInt
+  video_height     Int?      @db.SmallInt
+  comment          String?   @db.VarChar(255)
+  created_at       DateTime? @db.DateTime(0)
+  updated_at       DateTime? @db.DateTime(0)
+  created_by       String?   @db.VarChar(40)
+  updated_by       String?   @db.VarChar(40)
+  media            media     @relation(fields: [media_id], references: [media_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_812DA558EA9FDD75")
+
+  @@unique([media_id, format_reference], map: "unique_format_per_media")
+  @@index([media_id], map: "IDX_812DA558EA9FDD75")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model packaging_type {
+  type_id           Int                 @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference         String              @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title             String?             @db.VarChar(80)
+  description       String?             @db.VarChar(15000)
+  flag_active       Boolean?            @default(true)
+  icon_class        String?             @db.VarChar(40)
+  created_at        DateTime?           @db.DateTime(0)
+  updated_at        DateTime?           @db.DateTime(0)
+  created_by        String?             @db.VarChar(40)
+  updated_by        String?             @db.VarChar(40)
+  legacy_mapping    String?             @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?           @db.DateTime(0)
+  product_packaging product_packaging[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model permission {
+  permission_id   Int               @id @default(autoincrement()) @db.UnsignedInt
+  name            String            @unique(map: "unique_name_idx") @db.VarChar(128)
+  role_permission role_permission[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model pricelist {
+  pricelist_id                                                         Int                  @id @default(autoincrement()) @db.UnsignedSmallInt
+  stock_id                                                             Int                  @db.UnsignedSmallInt
+  group_id                                                             Int?                 @db.UnsignedSmallInt
+  currency_id                                                          Int                  @db.UnsignedInt
+  rank_pricelist_id                                                    Int?                 @db.UnsignedSmallInt
+  discount_condition_pricelist_id                                      Int?                 @db.UnsignedSmallInt
+  reference                                                            String               @unique(map: "unique_reference_idx") @db.VarChar(10)
+  title                                                                String?              @db.VarChar(80)
+  description                                                          String?              @db.VarChar(15000)
+  flag_enable_discount_condition                                       Boolean              @default(true)
+  flag_default                                                         Boolean?             @unique(map: "unique_flag_default_idx")
+  flag_public                                                          Boolean              @default(true)
+  flag_active                                                          Boolean              @default(true)
+  cond_product_new_max_days                                            Int?                 @db.UnsignedSmallInt
+  sort_index                                                           Int?                 @unique(map: "sort_index_idx") @db.UnsignedInt
+  icon_class                                                           String?              @db.VarChar(40)
+  created_at                                                           DateTime?            @db.DateTime(0)
+  updated_at                                                           DateTime?            @db.DateTime(0)
+  created_by                                                           String?              @db.VarChar(40)
+  updated_by                                                           String?              @db.VarChar(40)
+  legacy_mapping                                                       String?              @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at                                                    DateTime?            @db.DateTime(0)
+  customer_pricelist                                                   customer_pricelist[]
+  discount_condition                                                   discount_condition[]
+  pricelist_pricelist_discount_condition_pricelist_idTopricelist       pricelist?           @relation("pricelist_discount_condition_pricelist_idTopricelist", fields: [discount_condition_pricelist_id], references: [pricelist_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_5CCFEA6D2E5F6947")
+  other_pricelist_pricelist_discount_condition_pricelist_idTopricelist pricelist[]          @relation("pricelist_discount_condition_pricelist_idTopricelist")
+  currency                                                             currency             @relation(fields: [currency_id], references: [currency_id], onUpdate: Restrict, map: "FK_5CCFEA6D38248176")
+  pricelist_pricelist_rank_pricelist_idTopricelist                     pricelist?           @relation("pricelist_rank_pricelist_idTopricelist", fields: [rank_pricelist_id], references: [pricelist_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_5CCFEA6D5ECD273E")
+  other_pricelist_pricelist_rank_pricelist_idTopricelist               pricelist[]          @relation("pricelist_rank_pricelist_idTopricelist")
+  stock                                                                stock                @relation(fields: [stock_id], references: [stock_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_5CCFEA6DDCD6110")
+  pricelist_group                                                      pricelist_group?     @relation(fields: [group_id], references: [group_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_5CCFEA6DFE54D947")
+  product_pricelist                                                    product_pricelist[]
+  product_rank                                                         product_rank[]
+  product_stat_trend                                                   product_stat_trend[]
+  sale_order                                                           sale_order[]
+  user_pricelist                                                       user_pricelist[]
+
+  @@index([discount_condition_pricelist_id], map: "IDX_5CCFEA6D2E5F6947")
+  @@index([currency_id], map: "IDX_5CCFEA6D38248176")
+  @@index([rank_pricelist_id], map: "IDX_5CCFEA6D5ECD273E")
+  @@index([stock_id], map: "IDX_5CCFEA6DDCD6110")
+  @@index([group_id], map: "IDX_5CCFEA6DFE54D947")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model pricelist_group {
+  group_id          Int         @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference         String      @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title             String?     @db.VarChar(80)
+  sort_index        Int?        @unique(map: "sort_index_idx") @db.UnsignedInt
+  created_at        DateTime?   @db.DateTime(0)
+  updated_at        DateTime?   @db.DateTime(0)
+  created_by        String?     @db.VarChar(40)
+  updated_by        String?     @db.VarChar(40)
+  legacy_mapping    String?     @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?   @db.DateTime(0)
+  pricelist         pricelist[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product {
+  product_id             BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  parent_id              BigInt?               @db.UnsignedBigInt
+  brand_id               Int?                  @db.UnsignedInt
+  group_id               Int?                  @db.UnsignedInt
+  model_id               Int?                  @db.UnsignedInt
+  serie_id               Int?                  @db.UnsignedInt
+  category_id            Int?                  @db.UnsignedInt
+  type_id                Int?                  @db.UnsignedSmallInt
+  status_id              Int?                  @db.UnsignedSmallInt
+  unit_id                Int?                  @db.UnsignedInt
+  product_stub_id        Int?                  @db.UnsignedInt
+  department_id          Int?                  @db.UnsignedSmallInt
+  target_id              Int?                  @db.UnsignedSmallInt
+  primary_color_id       Int?                  @db.UnsignedInt
+  reference              String                @db.VarChar(60)
+  display_reference      String?               @db.VarChar(60)
+  search_reference       String?               @db.VarChar(60)
+  slug                   String?               @unique(map: "unique_slug_idx") @db.VarChar(255)
+  title                  String?               @db.VarChar(150)
+  invoice_title          String?               @db.VarChar(100)
+  description            String?               @db.VarChar(15000)
+  characteristic         String?               @db.VarChar(150)
+  keywords               String?               @db.VarChar(255)
+  volume                 Decimal?              @db.Decimal(12, 6)
+  weight                 Decimal?              @db.Decimal(12, 6)
+  weight_gross           Decimal?              @db.Decimal(12, 6)
+  length                 Decimal?              @db.Decimal(12, 6)
+  height                 Decimal?              @db.Decimal(12, 6)
+  width                  Decimal?              @db.Decimal(12, 6)
+  diameter               Decimal?              @db.Decimal(10, 8)
+  format                 String?               @db.VarChar(10)
+  pack_qty_box           Decimal?              @db.Decimal(15, 6)
+  pack_qty_carton        Decimal?              @db.Decimal(15, 6)
+  pack_qty_master_carton Decimal?              @db.Decimal(15, 6)
+  pack_qty_palet         Decimal?              @db.Decimal(15, 6)
+  barcode_ean13          String?               @db.VarChar(13)
+  barcode_upca           String?               @db.VarChar(20)
+  flag_active            Boolean               @default(true)
+  sort_index             Int?
+  available_at           DateTime?             @db.Date
+  unavailable_at         DateTime?             @db.Date
+  icon_class             String?               @db.VarChar(40)
+  trade_code_intrastat   String?               @db.VarChar(20)
+  trade_code_hts         String?               @db.VarChar(20)
+  created_at             DateTime?             @db.DateTime(0)
+  updated_at             DateTime?             @db.DateTime(0)
+  deleted_at             DateTime?             @db.DateTime(0)
+  created_by             String?               @db.VarChar(40)
+  updated_by             String?               @db.VarChar(40)
+  legacy_mapping         String?               @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at      DateTime?             @db.DateTime(0)
+  discount_condition     discount_condition[]
+  product_category       product_category?     @relation(fields: [category_id], references: [category_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04AD12469DE2")
+  product_target         product_target?       @relation(fields: [target_id], references: [target_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04AD158E0B66")
+  product_stub           product_stub?         @relation(fields: [product_stub_id], references: [product_stub_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04AD389B0DBA")
+  product_brand          product_brand?        @relation(fields: [brand_id], references: [brand_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04AD44F5D008")
+  color                  color?                @relation(fields: [primary_color_id], references: [color_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04AD5BA57244")
+  product_status         product_status?       @relation(fields: [status_id], references: [status_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04AD6BF700BD")
+  product                product?              @relation("productToproduct", fields: [parent_id], references: [product_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04AD727ACA70")
+  other_product          product[]             @relation("productToproduct")
+  product_model          product_model?        @relation(fields: [model_id], references: [model_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04AD7975B7E7")
+  product_department     product_department?   @relation(fields: [department_id], references: [department_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04ADAE80F5DF")
+  product_type           product_type?         @relation(fields: [type_id], references: [type_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04ADC54C8C93")
+  product_serie          product_serie?        @relation(fields: [serie_id], references: [serie_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04ADD94388BD")
+  product_unit           product_unit?         @relation(fields: [unit_id], references: [unit_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04ADF8BD700D")
+  product_group          product_group?        @relation(fields: [group_id], references: [group_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D34A04ADFE54D947")
+  product_attribute      product_attribute?
+  product_media          product_media[]
+  product_packaging      product_packaging[]
+  product_pricelist      product_pricelist[]
+  product_rank           product_rank[]
+  product_search         product_search[]
+  product_stat_trend     product_stat_trend[]
+  product_stock          product_stock[]
+  product_translation    product_translation[]
+  sale_order_line        sale_order_line[]
+
+  @@unique([reference, brand_id, flag_active], map: "unique_reference_idx")
+  @@index([category_id], map: "IDX_D34A04AD12469DE2")
+  @@index([target_id], map: "IDX_D34A04AD158E0B66")
+  @@index([product_stub_id], map: "IDX_D34A04AD389B0DBA")
+  @@index([brand_id], map: "IDX_D34A04AD44F5D008")
+  @@index([primary_color_id], map: "IDX_D34A04AD5BA57244")
+  @@index([status_id], map: "IDX_D34A04AD6BF700BD")
+  @@index([parent_id], map: "IDX_D34A04AD727ACA70")
+  @@index([model_id], map: "IDX_D34A04AD7975B7E7")
+  @@index([department_id], map: "IDX_D34A04ADAE80F5DF")
+  @@index([type_id], map: "IDX_D34A04ADC54C8C93")
+  @@index([serie_id], map: "IDX_D34A04ADD94388BD")
+  @@index([unit_id], map: "IDX_D34A04ADF8BD700D")
+  @@index([group_id], map: "IDX_D34A04ADFE54D947")
+  @@index([barcode_ean13], map: "barcode_ean13_idx")
+  @@index([barcode_upca], map: "barcode_upca_idx")
+  @@index([flag_active], map: "flag_active_idx")
+  @@index([keywords], map: "keywords_idx")
+  @@index([reference], map: "reference_idx")
+  @@index([search_reference], map: "search_reference_idx")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_attribute {
+  product_attribute_id BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id           BigInt    @unique(map: "unique_product_idx") @db.UnsignedBigInt
+  attributes           String?   @db.LongText
+  created_at           DateTime? @db.DateTime(0)
+  updated_at           DateTime? @db.DateTime(0)
+  product              product   @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_94DA59764584665A")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_brand {
+  brand_id                  Int                         @id @default(autoincrement()) @db.UnsignedInt
+  reference                 String                      @unique(map: "unique_reference_idx") @db.VarChar(60)
+  slug                      String?                     @unique(map: "unique_slug_idx") @db.VarChar(64)
+  title                     String?                     @unique(map: "unique_title_idx") @db.VarChar(80)
+  description               String?                     @db.VarChar(15000)
+  url                       String?                     @db.VarChar(80)
+  logo_url                  String?                     @db.VarChar(255)
+  flag_active               Boolean                     @default(true)
+  flag_public               Boolean                     @default(true)
+  icon_class                String?                     @db.VarChar(40)
+  sort_index                Int?                        @db.UnsignedInt
+  created_at                DateTime?                   @db.DateTime(0)
+  updated_at                DateTime?                   @db.DateTime(0)
+  created_by                String?                     @db.VarChar(40)
+  updated_by                String?                     @db.VarChar(40)
+  legacy_mapping            String?                     @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at         DateTime?                   @db.DateTime(0)
+  discount_condition        discount_condition[]
+  product                   product[]
+  product_brand_translation product_brand_translation[]
+  product_model             product_model[]
+  product_rank              product_rank[]
+  product_serie             product_serie[]
+
+  @@index([sort_index], map: "sort_index_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_brand_translation {
+  id                BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id          Int           @db.UnsignedInt
+  lang              String        @db.VarChar(2)
+  slug              String?       @db.VarChar(64)
+  title             String?       @db.VarChar(80)
+  description       String?       @db.VarChar(15000)
+  created_at        DateTime?     @db.DateTime(0)
+  updated_at        DateTime?     @db.DateTime(0)
+  created_by        String?       @db.VarChar(40)
+  updated_by        String?       @db.VarChar(40)
+  legacy_mapping    String?       @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?     @db.DateTime(0)
+  language          language      @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_61BD57C931098462")
+  product_brand     product_brand @relation(fields: [brand_id], references: [brand_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_61BD57C944F5D008")
+
+  @@unique([brand_id, lang], map: "unique_translation_idx")
+  @@index([lang], map: "IDX_61BD57C931098462")
+  @@index([brand_id], map: "IDX_61BD57C944F5D008")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_category {
+  category_id                  Int                            @id @default(autoincrement()) @db.UnsignedInt
+  parent_id                    Int?                           @db.UnsignedInt
+  reference                    String?                        @unique(map: "unique_reference_idx") @db.VarChar(50)
+  slug                         String                         @unique(map: "unique_slug_idx") @db.VarChar(64)
+  title                        String                         @db.VarChar(64)
+  description                  String?                        @db.VarChar(255)
+  breadcrumb                   String?                        @db.VarChar(255)
+  flag_rankable                Boolean?
+  rankable_breadcrumb          String?                        @db.VarChar(255)
+  sort_index                   Int?                           @db.UnsignedInt
+  global_sort_index            BigInt?                        @db.UnsignedBigInt
+  icon_class                   String?                        @db.VarChar(40)
+  lft                          Int                            @db.UnsignedInt
+  rgt                          Int                            @db.UnsignedInt
+  root                         BigInt?                        @db.UnsignedBigInt
+  lvl                          Int                            @db.UnsignedInt
+  alt_mapping_reference        String?                        @db.VarChar(10)
+  created_at                   DateTime                       @db.DateTime(0)
+  updated_at                   DateTime                       @db.DateTime(0)
+  created_by                   String?                        @db.VarChar(40)
+  updated_by                   String?                        @db.VarChar(40)
+  legacy_mapping               String?                        @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at            DateTime?                      @db.DateTime(0)
+  discount_condition           discount_condition[]
+  product                      product[]
+  product_category             product_category?              @relation("product_categoryToproduct_category", fields: [parent_id], references: [category_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_CDFC7356727ACA70")
+  other_product_category       product_category[]             @relation("product_categoryToproduct_category")
+  product_category_translation product_category_translation[]
+  product_rank                 product_rank[]
+
+  @@index([parent_id], map: "IDX_CDFC7356727ACA70")
+  @@index([alt_mapping_reference], map: "alt_mapping_reference_idx")
+  @@index([breadcrumb], map: "breadcrumb_idx")
+  @@index([flag_rankable], map: "flag_rankable_idx")
+  @@index([lft], map: "lft_idx")
+  @@index([lvl], map: "lvl_idx")
+  @@index([rgt], map: "rgt_idx")
+  @@index([slug], map: "slug_idx")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_category_translation {
+  id                  BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  category_id         Int              @db.UnsignedInt
+  lang                String           @db.VarChar(2)
+  slug                String?          @db.VarChar(64)
+  title               String?          @db.VarChar(64)
+  description         String?          @db.VarChar(255)
+  breadcrumb          String?          @db.VarChar(255)
+  keywords            String?          @db.VarChar(255)
+  rankable_breadcrumb String?          @db.VarChar(255)
+  created_at          DateTime?        @db.DateTime(0)
+  updated_at          DateTime?        @db.DateTime(0)
+  created_by          String?          @db.VarChar(40)
+  updated_by          String?          @db.VarChar(40)
+  legacy_mapping      String?          @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at   DateTime?        @db.DateTime(0)
+  product_category    product_category @relation(fields: [category_id], references: [category_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_1DAAB48712469DE2")
+  language            language         @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_1DAAB48731098462")
+
+  @@unique([category_id, lang], map: "unique_translation_idx")
+  @@index([category_id], map: "IDX_1DAAB48712469DE2")
+  @@index([lang], map: "IDX_1DAAB48731098462")
+  @@index([breadcrumb], map: "breadcrumb_idx")
+  @@index([keywords], map: "keywords_ft_idx")
+  @@index([slug], map: "slug_idx")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_department {
+  department_id     Int       @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference         String    @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title             String?   @unique(map: "unique_title_idx") @db.VarChar(80)
+  description       String?   @db.VarChar(15000)
+  icon_class        String?   @db.VarChar(40)
+  sort_index        Int?      @db.UnsignedInt
+  created_at        DateTime? @db.DateTime(0)
+  updated_at        DateTime? @db.DateTime(0)
+  created_by        String?   @db.VarChar(40)
+  updated_by        String?   @db.VarChar(40)
+  legacy_mapping    String?   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime? @db.DateTime(0)
+  product           product[]
+
+  @@index([sort_index], map: "sort_index_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_group {
+  group_id                  Int                         @id @default(autoincrement()) @db.UnsignedInt
+  reference                 String                      @unique(map: "unique_reference_idx") @db.VarChar(60)
+  slug                      String?                     @unique(map: "unique_slug_idx") @db.VarChar(64)
+  title                     String?                     @db.VarChar(80)
+  description               String?                     @db.VarChar(15000)
+  flag_active               Boolean                     @default(true)
+  icon_class                String?                     @db.VarChar(40)
+  created_at                DateTime?                   @db.DateTime(0)
+  updated_at                DateTime?                   @db.DateTime(0)
+  created_by                String?                     @db.VarChar(40)
+  updated_by                String?                     @db.VarChar(40)
+  legacy_mapping            String?                     @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at         DateTime?                   @db.DateTime(0)
+  discount_condition        discount_condition[]
+  product                   product[]
+  product_group_translation product_group_translation[]
+
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_group_translation {
+  id                BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  group_id          Int           @db.UnsignedInt
+  lang              String        @db.VarChar(2)
+  slug              String?       @db.VarChar(64)
+  title             String?       @db.VarChar(80)
+  description       String?       @db.VarChar(15000)
+  created_at        DateTime?     @db.DateTime(0)
+  updated_at        DateTime?     @db.DateTime(0)
+  created_by        String?       @db.VarChar(40)
+  updated_by        String?       @db.VarChar(40)
+  legacy_mapping    String?       @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?     @db.DateTime(0)
+  language          language      @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_255468FD31098462")
+  product_group     product_group @relation(fields: [group_id], references: [group_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_255468FDFE54D947")
+
+  @@unique([group_id, lang], map: "unique_translation_idx")
+  @@index([lang], map: "IDX_255468FD31098462")
+  @@index([group_id], map: "IDX_255468FDFE54D947")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_media {
+  id                 BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id         BigInt             @db.UnsignedBigInt
+  media_id           BigInt             @db.UnsignedBigInt
+  type_id            Int                @db.UnsignedInt
+  flag_primary       Boolean?
+  sort_index         Int?               @db.UnsignedInt
+  created_at         DateTime?          @db.DateTime(0)
+  updated_at         DateTime?          @db.DateTime(0)
+  created_by         String?            @db.VarChar(40)
+  updated_by         String?            @db.VarChar(40)
+  legacy_mapping     String?            @db.VarChar(40)
+  legacy_synchro_at  DateTime?          @db.DateTime(0)
+  product            product            @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_CB70DA504584665A")
+  product_media_type product_media_type @relation(fields: [type_id], references: [type_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_CB70DA50C54C8C93")
+  media              media              @relation(fields: [media_id], references: [media_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_CB70DA50EA9FDD75")
+
+  @@unique([product_id, media_id, type_id], map: "unique_product_media_type_idx")
+  @@unique([type_id, product_id, flag_primary], map: "unique_product_type_flag_primary_idx")
+  @@index([product_id], map: "IDX_CB70DA504584665A")
+  @@index([type_id], map: "IDX_CB70DA50C54C8C93")
+  @@index([media_id], map: "IDX_CB70DA50EA9FDD75")
+  @@index([sort_index], map: "sort_index_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_media_type {
+  type_id             Int                   @id @default(autoincrement()) @db.UnsignedInt
+  reference           String                @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title               String?               @db.VarChar(80)
+  description         String?               @db.VarChar(15000)
+  icon_class          String?               @db.VarChar(40)
+  created_at          DateTime?             @db.DateTime(0)
+  updated_at          DateTime?             @db.DateTime(0)
+  created_by          String?               @db.VarChar(40)
+  updated_by          String?               @db.VarChar(40)
+  legacy_mapping      String?               @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at   DateTime?             @db.DateTime(0)
+  product_media       product_media[]
+  product_serie_media product_serie_media[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_model {
+  model_id                  Int                         @id @default(autoincrement()) @db.UnsignedInt
+  brand_id                  Int?                        @db.UnsignedInt
+  reference                 String                      @db.VarChar(60)
+  slug                      String?                     @unique(map: "unique_slug_idx") @db.VarChar(64)
+  title                     String?                     @db.VarChar(80)
+  description               String?                     @db.LongText
+  specs                     String?                     @db.LongText
+  revision                  Int?                        @default(1) @db.UnsignedInt
+  flag_active               Boolean                     @default(true)
+  created_at                DateTime?                   @db.DateTime(0)
+  updated_at                DateTime?                   @db.DateTime(0)
+  created_by                String?                     @db.VarChar(40)
+  updated_by                String?                     @db.VarChar(40)
+  legacy_mapping            String?                     @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at         DateTime?                   @db.DateTime(0)
+  discount_condition        discount_condition[]
+  product                   product[]
+  product_brand             product_brand?              @relation(fields: [brand_id], references: [brand_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_76C9098544F5D008")
+  product_model_translation product_model_translation[]
+
+  @@unique([brand_id, reference], map: "unique_brand_reference_idx")
+  @@index([brand_id], map: "IDX_76C9098544F5D008")
+  @@index([revision], map: "revision_idx")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_model_translation {
+  id                BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  model_id          Int           @db.UnsignedInt
+  lang              String        @db.VarChar(2)
+  slug              String?       @db.VarChar(64)
+  title             String?       @db.VarChar(80)
+  description       String?       @db.LongText
+  specs             String?       @db.LongText
+  created_at        DateTime?     @db.DateTime(0)
+  updated_at        DateTime?     @db.DateTime(0)
+  created_by        String?       @db.VarChar(40)
+  updated_by        String?       @db.VarChar(40)
+  legacy_mapping    String?       @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?     @db.DateTime(0)
+  language          language      @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_6EEE4ED031098462")
+  product_model     product_model @relation(fields: [model_id], references: [model_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_6EEE4ED07975B7E7")
+
+  @@unique([model_id, lang], map: "unique_translation_idx")
+  @@index([lang], map: "IDX_6EEE4ED031098462")
+  @@index([model_id], map: "IDX_6EEE4ED07975B7E7")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_packaging {
+  id                BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  type_id           Int            @db.UnsignedSmallInt
+  product_id        BigInt         @db.UnsignedBigInt
+  quantity          Decimal        @db.Decimal(12, 6)
+  volume            Decimal?       @db.Decimal(12, 6)
+  weight            Decimal?       @db.Decimal(12, 6)
+  length            Decimal?       @db.Decimal(12, 6)
+  height            Decimal?       @db.Decimal(12, 6)
+  width             Decimal?       @db.Decimal(12, 6)
+  barcode_ean       String?        @db.VarChar(20)
+  barcode_upc       String?        @db.VarChar(20)
+  legacy_mapping    String?        @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?      @db.DateTime(0)
+  product           product        @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D12BBB084584665A")
+  packaging_type    packaging_type @relation(fields: [type_id], references: [type_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D12BBB08C54C8C93")
+
+  @@unique([type_id, product_id], map: "unique_product_packaging_idx")
+  @@index([product_id], map: "IDX_D12BBB084584665A")
+  @@index([type_id], map: "IDX_D12BBB08C54C8C93")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_pricelist {
+  product_pricelist_id   BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  pricelist_id           Int                     @db.UnsignedSmallInt
+  product_id             BigInt                  @db.UnsignedBigInt
+  status_id              Int?                    @db.UnsignedSmallInt
+  flag_active            Boolean                 @default(true)
+  price                  Decimal                 @db.Decimal(12, 6)
+  list_price             Decimal                 @db.Decimal(12, 6)
+  public_price           Decimal?                @db.Decimal(12, 6)
+  map_price              Decimal?                @db.Decimal(12, 6)
+  cost_price             Decimal?                @db.Decimal(12, 6)
+  minimum_price          Decimal?                @db.Decimal(12, 6)
+  minimum_margin         Decimal?                @db.Decimal(9, 6)
+  sale_minimum_qty       Decimal?                @db.Decimal(16, 6)
+  sale_multiple_qty      Decimal?                @db.Decimal(16, 6)
+  discount_1             Decimal                 @default(0.000000) @db.Decimal(9, 6)
+  discount_2             Decimal                 @default(0.000000) @db.Decimal(9, 6)
+  discount_3             Decimal                 @default(0.000000) @db.Decimal(9, 6)
+  discount_4             Decimal                 @default(0.000000) @db.Decimal(9, 6)
+  maximum_discount_1     Decimal?                @db.Decimal(9, 6)
+  is_liquidation         Boolean?
+  is_new                 Boolean?
+  is_promotional         Boolean?
+  promo_start_at         DateTime?               @db.Date
+  promo_end_at           DateTime?               @db.Date
+  bestseller_rank        Int?                    @db.UnsignedSmallInt
+  trending_rank          Int?                    @db.UnsignedSmallInt
+  fresh_rank             Int?                    @db.UnsignedSmallInt
+  deal_rank              Int?                    @db.UnsignedSmallInt
+  popular_rank           Int?                    @db.UnsignedSmallInt
+  available_at           DateTime?               @db.Date
+  unavailable_at         DateTime?               @db.Date
+  created_at             DateTime?               @db.DateTime(0)
+  updated_at             DateTime?               @db.DateTime(0)
+  deleted_at             DateTime?               @db.DateTime(0)
+  created_by             String?                 @db.VarChar(40)
+  updated_by             String?                 @db.VarChar(40)
+  legacy_mapping         String?                 @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at      DateTime?               @db.DateTime(0)
+  product                product                 @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_326F5CE04584665A")
+  product_status         product_status?         @relation(fields: [status_id], references: [status_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_326F5CE06BF700BD")
+  pricelist              pricelist               @relation(fields: [pricelist_id], references: [pricelist_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_326F5CE089045958")
+  product_pricelist_stat product_pricelist_stat?
+
+  @@unique([pricelist_id, product_id], map: "unique_product_price_idx")
+  @@index([product_id], map: "IDX_326F5CE04584665A")
+  @@index([status_id], map: "IDX_326F5CE06BF700BD")
+  @@index([pricelist_id], map: "IDX_326F5CE089045958")
+  @@index([bestseller_rank], map: "bestseller_rank_idx")
+  @@index([deal_rank], map: "deal_rank_idx")
+  @@index([flag_active], map: "flag_active_idx")
+  @@index([fresh_rank], map: "fresh_rank_idx")
+  @@index([is_liquidation], map: "is_liquidation_idx")
+  @@index([is_new], map: "is_new_idx")
+  @@index([is_promotional], map: "is_promotional_idx")
+  @@index([popular_rank], map: "popular_rank_idx")
+  @@index([price], map: "price_idx")
+  @@index([trending_rank], map: "trending_rank_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_pricelist_stat {
+  product_pricelist_stat_id BigInt            @id @db.UnsignedBigInt
+  forecasted_monthly_sales  Decimal?          @db.Decimal(16, 6)
+  first_sale_recorded_at    DateTime?         @db.Date
+  latest_sale_recorded_at   DateTime?         @db.Date
+  nb_customers              Int?
+  nb_sale_reps              Int?
+  nb_orders                 Int?
+  total_recorded_quantity   Decimal?          @db.Decimal(15, 6)
+  total_recorded_turnover   Decimal?          @db.Decimal(15, 6)
+  created_at                DateTime?         @db.DateTime(0)
+  updated_at                DateTime?         @db.DateTime(0)
+  product_pricelist         product_pricelist @relation(fields: [product_pricelist_stat_id], references: [product_pricelist_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_7A69209338FE3EBD")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_rank {
+  product_rank_id         BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id              BigInt            @db.UnsignedBigInt
+  rankable_category_id    Int?              @db.UnsignedInt
+  pricelist_id            Int?              @db.UnsignedSmallInt
+  brand_id                Int?              @db.UnsignedInt
+  deal_rank               Int?              @db.UnsignedSmallInt
+  fresh_rank              Int?              @db.UnsignedSmallInt
+  bestseller_rank         Int?              @db.UnsignedSmallInt
+  popular_rank            Int?              @db.UnsignedSmallInt
+  trending_rank           Int?              @db.UnsignedSmallInt
+  mostrated_rank          Int?              @db.UnsignedSmallInt
+  total_recorded_quantity Decimal?          @db.Decimal(15, 6)
+  total_recorded_turnover Decimal?          @db.Decimal(15, 6)
+  nb_customers            Int?              @db.UnsignedInt
+  created_at              DateTime?         @db.DateTime(0)
+  updated_at              DateTime?         @db.DateTime(0)
+  product_brand           product_brand?    @relation(fields: [brand_id], references: [brand_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_591CA4444F5D008")
+  product                 product           @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_591CA444584665A")
+  product_category        product_category? @relation(fields: [rankable_category_id], references: [category_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_591CA44717543CE")
+  pricelist               pricelist?        @relation(fields: [pricelist_id], references: [pricelist_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_591CA4489045958")
+
+  @@unique([product_id, rankable_category_id, pricelist_id, brand_id], map: "unique_product_rank_idx")
+  @@index([brand_id], map: "IDX_591CA4444F5D008")
+  @@index([product_id], map: "IDX_591CA444584665A")
+  @@index([rankable_category_id], map: "IDX_591CA44717543CE")
+  @@index([pricelist_id], map: "IDX_591CA4489045958")
+  @@index([bestseller_rank], map: "bestseller_rank_idx")
+  @@index([deal_rank], map: "deal_rank_idx")
+  @@index([fresh_rank], map: "fresh_rank_idx")
+  @@index([mostrated_rank], map: "mostrated_rank_idx")
+  @@index([popular_rank], map: "popular_rank_idx")
+  @@index([trending_rank], map: "trending_rank_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_search {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id BigInt    @db.UnsignedBigInt
+  lang       String    @db.VarChar(2)
+  keywords   String?   @db.VarChar(1500)
+  tags       String?   @db.VarChar(700)
+  updated_at DateTime? @db.DateTime(0)
+  language   language  @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_D68C9A0331098462")
+  product    product   @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_D68C9A034584665A")
+
+  @@unique([product_id, lang], map: "unique_translation_idx")
+  @@index([lang], map: "IDX_D68C9A0331098462")
+  @@index([product_id], map: "IDX_D68C9A034584665A")
+  @@index([keywords], map: "keywords_ft_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_serie {
+  serie_id                  Int                         @id @default(autoincrement()) @db.UnsignedInt
+  brand_id                  Int?                        @db.UnsignedInt
+  reference                 String                      @db.VarChar(60)
+  display_reference         String?                     @db.VarChar(60)
+  group_code                String?                     @db.VarChar(1)
+  slug                      String?                     @unique(map: "unique_slug_idx") @db.VarChar(64)
+  title                     String?                     @db.VarChar(80)
+  description               String?                     @db.LongText
+  flag_marketing_action     Boolean?
+  specs                     String?                     @db.LongText
+  revision                  Int?                        @default(1) @db.UnsignedInt
+  flag_active               Boolean                     @default(true)
+  created_at                DateTime?                   @db.DateTime(0)
+  updated_at                DateTime?                   @db.DateTime(0)
+  created_by                String?                     @db.VarChar(40)
+  updated_by                String?                     @db.VarChar(40)
+  legacy_mapping            String?                     @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at         DateTime?                   @db.DateTime(0)
+  product                   product[]
+  product_brand             product_brand?              @relation(fields: [brand_id], references: [brand_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_B66E86844F5D008")
+  product_serie_media       product_serie_media[]
+  product_serie_translation product_serie_translation[]
+
+  @@unique([brand_id, reference], map: "unique_brand_reference_idx")
+  @@index([brand_id], map: "IDX_B66E86844F5D008")
+  @@index([revision], map: "revision_idx")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_serie_media {
+  id                    BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  serie_id              Int                @db.UnsignedInt
+  media_id              BigInt             @db.UnsignedBigInt
+  product_media_type_id Int                @db.UnsignedInt
+  flag_primary          Boolean?
+  sort_index            Int?               @db.UnsignedInt
+  created_at            DateTime?          @db.DateTime(0)
+  updated_at            DateTime?          @db.DateTime(0)
+  created_by            String?            @db.VarChar(40)
+  updated_by            String?            @db.VarChar(40)
+  legacy_mapping        String?            @db.VarChar(40)
+  legacy_synchro_at     DateTime?          @db.DateTime(0)
+  product_media_type    product_media_type @relation(fields: [product_media_type_id], references: [type_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_E0F0B877E761628")
+  product_serie         product_serie      @relation(fields: [serie_id], references: [serie_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_E0F0B87D94388BD")
+  media                 media              @relation(fields: [media_id], references: [media_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_E0F0B87EA9FDD75")
+
+  @@unique([serie_id, media_id, product_media_type_id], map: "unique_product_media_type_idx")
+  @@unique([product_media_type_id, serie_id, flag_primary], map: "unique_product_type_flag_primary_idx")
+  @@index([product_media_type_id], map: "IDX_E0F0B877E761628")
+  @@index([serie_id], map: "IDX_E0F0B87D94388BD")
+  @@index([media_id], map: "IDX_E0F0B87EA9FDD75")
+  @@index([sort_index], map: "sort_index_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_serie_translation {
+  id                BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  serie_id          Int           @db.UnsignedInt
+  lang              String        @db.VarChar(2)
+  slug              String?       @db.VarChar(64)
+  title             String?       @db.VarChar(80)
+  description       String?       @db.VarChar(16000)
+  created_at        DateTime?     @db.DateTime(0)
+  updated_at        DateTime?     @db.DateTime(0)
+  created_by        String?       @db.VarChar(40)
+  updated_by        String?       @db.VarChar(40)
+  legacy_mapping    String?       @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?     @db.DateTime(0)
+  language          language      @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_7D0456F31098462")
+  product_serie     product_serie @relation(fields: [serie_id], references: [serie_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_7D0456FD94388BD")
+
+  @@unique([serie_id, lang], map: "unique_translation_idx")
+  @@index([lang], map: "IDX_7D0456F31098462")
+  @@index([serie_id], map: "IDX_7D0456FD94388BD")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_set {
+  set_id                  Int                       @id @default(autoincrement()) @db.UnsignedInt
+  type_id                 Int?                      @db.UnsignedSmallInt
+  reference               String                    @unique(map: "unique_reference_idx") @db.VarChar(60)
+  slug                    String?                   @unique(map: "unique_slug_idx") @db.VarChar(64)
+  title                   String?                   @unique(map: "unique_title_idx") @db.VarChar(80)
+  description             String?                   @db.VarChar(15000)
+  url                     String?                   @db.VarChar(80)
+  flag_active             Boolean                   @default(true)
+  icon_class              String?                   @db.VarChar(40)
+  created_at              DateTime?                 @db.DateTime(0)
+  updated_at              DateTime?                 @db.DateTime(0)
+  created_by              String?                   @db.VarChar(40)
+  updated_by              String?                   @db.VarChar(40)
+  legacy_mapping          String?                   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at       DateTime?                 @db.DateTime(0)
+  product_set_type        product_set_type?         @relation(fields: [type_id], references: [type_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_63B71C3C54C8C93")
+  product_set_translation product_set_translation[]
+
+  @@index([type_id], map: "IDX_63B71C3C54C8C93")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_set_translation {
+  id                BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  set_id            Int         @db.UnsignedInt
+  lang              String      @db.VarChar(2)
+  slug              String?     @db.VarChar(64)
+  title             String?     @db.VarChar(80)
+  description       String?     @db.VarChar(15000)
+  created_at        DateTime?   @db.DateTime(0)
+  updated_at        DateTime?   @db.DateTime(0)
+  created_by        String?     @db.VarChar(40)
+  updated_by        String?     @db.VarChar(40)
+  legacy_mapping    String?     @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?   @db.DateTime(0)
+  product_set       product_set @relation(fields: [set_id], references: [set_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_114B700710FB0D18")
+  language          language    @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_114B700731098462")
+
+  @@unique([set_id, lang], map: "unique_translation_idx")
+  @@index([set_id], map: "IDX_114B700710FB0D18")
+  @@index([lang], map: "IDX_114B700731098462")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_set_type {
+  type_id           Int           @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference         String        @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title             String?       @db.VarChar(80)
+  description       String?       @db.VarChar(15000)
+  flag_default      Boolean?      @unique(map: "unique_flag_default_idx")
+  flag_active       Boolean       @default(true)
+  icon_class        String?       @db.VarChar(40)
+  created_at        DateTime?     @db.DateTime(0)
+  updated_at        DateTime?     @db.DateTime(0)
+  created_by        String?       @db.VarChar(40)
+  updated_by        String?       @db.VarChar(40)
+  legacy_mapping    String?       @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?     @db.DateTime(0)
+  product_set       product_set[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_stat_trend {
+  product_stat_trend_id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  pricelist_id                           Int       @db.UnsignedSmallInt
+  product_id                             BigInt    @db.UnsignedBigInt
+  first_sale_recorded_at                 DateTime? @db.Date
+  latest_sale_recorded_at                DateTime? @db.Date
+  nb_customers                           Int?
+  nb_sale_reps                           Int?
+  nb_orders                              Int?
+  total_recorded_quantity                Decimal?  @db.Decimal(15, 6)
+  total_recorded_turnover                Decimal?  @db.Decimal(15, 6)
+  nb_customers_last_month                Int?
+  nb_sale_reps_last_month                Int?
+  nb_orders_last_month                   Int?
+  total_recorded_quantity_last_month     Decimal?  @db.Decimal(15, 6)
+  total_recorded_turnover_last_month     Decimal?  @db.Decimal(15, 6)
+  nb_customers_last_2_months             Int?
+  nb_sale_reps_last_2_months             Int?
+  nb_orders_last_2_months                Int?
+  total_recorded_quantity_last_2_months  Decimal?  @db.Decimal(15, 6)
+  total_recorded_turnover_last_2_months  Decimal?  @db.Decimal(15, 6)
+  nb_customers_last_3_months             Int?
+  nb_sale_reps_last_3_months             Int?
+  nb_orders_last_3_months                Int?
+  total_recorded_quantity_last_3_months  Decimal?  @db.Decimal(15, 6)
+  total_recorded_turnover_last_3_months  Decimal?  @db.Decimal(15, 6)
+  nb_customers_last_4_months             Int?
+  nb_sale_reps_last_4_months             Int?
+  nb_orders_last_4_months                Int?
+  total_recorded_quantity_last_4_months  Decimal?  @db.Decimal(15, 6)
+  total_recorded_turnover_last_4_months  Decimal?  @db.Decimal(15, 6)
+  nb_customers_last_5_months             Int?
+  nb_sale_reps_last_5_months             Int?
+  nb_orders_last_5_months                Int?
+  total_recorded_quantity_last_5_months  Decimal?  @db.Decimal(15, 6)
+  total_recorded_turnover_last_5_months  Decimal?  @db.Decimal(15, 6)
+  nb_customers_last_6_months             Int?
+  nb_sale_reps_last_6_months             Int?
+  nb_orders_last_6_months                Int?
+  total_recorded_quantity_last_6_months  Decimal?  @db.Decimal(15, 6)
+  total_recorded_turnover_last_6_months  Decimal?  @db.Decimal(15, 6)
+  nb_customers_last_7_months             Int?
+  nb_sale_reps_last_7_months             Int?
+  nb_orders_last_7_months                Int?
+  total_recorded_quantity_last_7_months  Decimal?  @db.Decimal(15, 7)
+  total_recorded_turnover_last_7_months  Decimal?  @db.Decimal(15, 7)
+  nb_customers_last_8_months             Int?
+  nb_sale_reps_last_8_months             Int?
+  nb_orders_last_8_months                Int?
+  total_recorded_quantity_last_8_months  Decimal?  @db.Decimal(15, 7)
+  total_recorded_turnover_last_8_months  Decimal?  @db.Decimal(15, 7)
+  nb_customers_last_9_months             Int?
+  nb_sale_reps_last_9_months             Int?
+  nb_orders_last_9_months                Int?
+  total_recorded_quantity_last_9_months  Decimal?  @db.Decimal(15, 7)
+  total_recorded_turnover_last_9_months  Decimal?  @db.Decimal(15, 7)
+  nb_customers_last_10_months            Int?
+  nb_sale_reps_last_10_months            Int?
+  nb_orders_last_10_months               Int?
+  total_recorded_quantity_last_10_months Decimal?  @db.Decimal(15, 7)
+  total_recorded_turnover_last_10_months Decimal?  @db.Decimal(15, 7)
+  nb_customers_last_11_months            Int?
+  nb_sale_reps_last_11_months            Int?
+  nb_orders_last_11_months               Int?
+  total_recorded_quantity_last_11_months Decimal?  @db.Decimal(15, 7)
+  total_recorded_turnover_last_11_months Decimal?  @db.Decimal(15, 7)
+  nb_customers_last_12_months            Int?
+  nb_sale_reps_last_12_months            Int?
+  nb_orders_last_12_months               Int?
+  total_recorded_quantity_last_12_months Decimal?  @db.Decimal(15, 6)
+  total_recorded_turnover_last_12_months Decimal?  @db.Decimal(15, 6)
+  legacy_synchro_at                      DateTime? @db.DateTime(0)
+  product                                product   @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_BBBB19B4584665A")
+  pricelist                              pricelist @relation(fields: [pricelist_id], references: [pricelist_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_BBBB19B89045958")
+
+  @@unique([pricelist_id, product_id], map: "unique_product_price_idx")
+  @@index([product_id], map: "IDX_BBBB19B4584665A")
+  @@index([pricelist_id], map: "IDX_BBBB19B89045958")
+  @@index([first_sale_recorded_at], map: "first_sale_recorded_at_idx")
+  @@index([latest_sale_recorded_at], map: "latest_sale_recorded_at_idx")
+  @@index([total_recorded_quantity_last_12_months], map: "total_recorded_quantity_last_12_months_idx")
+  @@index([total_recorded_turnover_last_12_months], map: "total_recorded_turnover_last_12_months_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_status {
+  status_id              Int                 @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference              String              @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title                  String?             @db.VarChar(80)
+  description            String?             @db.VarChar(15000)
+  flag_product_archived  Boolean?            @default(false)
+  flag_default           Boolean?            @unique(map: "unique_flag_default_idx")
+  flag_till_end_of_stock Boolean?            @default(false)
+  flag_end_of_lifecycle  Boolean?            @default(false)
+  flag_active            Boolean             @default(true)
+  icon_class             String?             @db.VarChar(40)
+  created_at             DateTime?           @db.DateTime(0)
+  updated_at             DateTime?           @db.DateTime(0)
+  created_by             String?             @db.VarChar(40)
+  updated_by             String?             @db.VarChar(40)
+  legacy_mapping         String?             @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at      DateTime?           @db.DateTime(0)
+  product                product[]
+  product_pricelist      product_pricelist[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_stock {
+  id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  stock_id                Int       @db.UnsignedSmallInt
+  product_id              BigInt    @db.UnsignedBigInt
+  available_stock         Decimal   @db.Decimal(12, 6)
+  theoretical_stock       Decimal?  @db.Decimal(12, 6)
+  next_available_stock_at DateTime? @db.DateTime(0)
+  next_available_stock    Decimal?  @db.Decimal(12, 6)
+  avg_monthly_sale_qty    Decimal?  @db.Decimal(12, 6)
+  updated_at              DateTime? @db.DateTime(0)
+  legacy_mapping          String?   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at       DateTime? @db.DateTime(0)
+  product                 product   @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_EA6A2D3C4584665A")
+  stock                   stock     @relation(fields: [stock_id], references: [stock_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_EA6A2D3CDCD6110")
+
+  @@unique([stock_id, product_id], map: "unique_product_price_idx")
+  @@index([product_id], map: "IDX_EA6A2D3C4584665A")
+  @@index([stock_id], map: "IDX_EA6A2D3CDCD6110")
+  @@index([available_stock], map: "available_stock_idx")
+  @@index([theoretical_stock], map: "theoretical_stock_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_stub {
+  product_stub_id          Int                        @id @default(autoincrement()) @db.UnsignedInt
+  reference                String                     @unique(map: "unique_reference_idx") @db.VarChar(60)
+  created_by               String?                    @db.VarChar(40)
+  updated_by               String?                    @db.VarChar(40)
+  legacy_mapping           String?                    @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at        DateTime?                  @db.DateTime(0)
+  product                  product[]
+  product_stub_translation product_stub_translation[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_stub_translation {
+  id                 BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  product_stub_id    Int          @db.UnsignedInt
+  lang               String       @db.VarChar(2)
+  description_header String?      @db.VarChar(5000)
+  description_footer String?      @db.VarChar(5000)
+  specs              String?      @db.VarChar(5000)
+  keywords           String?      @db.VarChar(200)
+  revision           Int?         @default(1) @db.UnsignedInt
+  created_at         DateTime?    @db.DateTime(0)
+  updated_at         DateTime?    @db.DateTime(0)
+  created_by         String?      @db.VarChar(40)
+  updated_by         String?      @db.VarChar(40)
+  legacy_mapping     String?      @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at  DateTime?    @db.DateTime(0)
+  language           language     @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_89DB144E31098462")
+  product_stub       product_stub @relation(fields: [product_stub_id], references: [product_stub_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_89DB144E389B0DBA")
+
+  @@unique([product_stub_id, lang], map: "unique_translation_idx")
+  @@index([lang], map: "IDX_89DB144E31098462")
+  @@index([product_stub_id], map: "IDX_89DB144E389B0DBA")
+  @@index([keywords], map: "keywords_idx")
+  @@index([revision], map: "revision_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_target {
+  target_id            Int       @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference            String    @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title                String?   @unique(map: "unique_title_idx") @db.VarChar(80)
+  description          String?   @db.VarChar(15000)
+  flag_exclude_enduser Boolean   @default(false)
+  icon_class           String?   @db.VarChar(40)
+  sort_index           Int?      @db.UnsignedInt
+  created_at           DateTime? @db.DateTime(0)
+  updated_at           DateTime? @db.DateTime(0)
+  created_by           String?   @db.VarChar(40)
+  updated_by           String?   @db.VarChar(40)
+  legacy_mapping       String?   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at    DateTime? @db.DateTime(0)
+  product              product[]
+
+  @@index([sort_index], map: "sort_index_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_translation {
+  id                     BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id             BigInt    @db.UnsignedBigInt
+  lang                   String    @db.VarChar(2)
+  slug                   String?   @db.VarChar(150)
+  title                  String?   @db.VarChar(150)
+  invoice_title          String?   @db.VarChar(100)
+  description            String?   @db.VarChar(5000)
+  characteristic         String?   @db.VarChar(150)
+  specs                  String?   @db.VarChar(5000)
+  usp                    String?   @db.VarChar(200)
+  additional_description String?   @db.VarChar(2000)
+  keywords               String?   @db.VarChar(200)
+  revision               Int?      @default(1) @db.UnsignedInt
+  created_at             DateTime? @db.DateTime(0)
+  updated_at             DateTime? @db.DateTime(0)
+  created_by             String?   @db.VarChar(40)
+  updated_by             String?   @db.VarChar(40)
+  legacy_mapping         String?   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at      DateTime? @db.DateTime(0)
+  language               language  @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_1846DB7031098462")
+  product                product   @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_1846DB704584665A")
+
+  @@unique([product_id, lang], map: "unique_translation_idx")
+  @@index([lang], map: "IDX_1846DB7031098462")
+  @@index([product_id], map: "IDX_1846DB704584665A")
+  @@index([keywords], map: "keywords_idx")
+  @@index([revision], map: "revision_idx")
+  @@index([slug], map: "slug_idx")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_type {
+  type_id                        Int       @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference                      String    @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title                          String?   @db.VarChar(80)
+  description                    String?   @db.VarChar(15000)
+  flag_enable_discount_condition Boolean   @default(true)
+  flag_excluded_catalog          Boolean   @default(false)
+  flag_excluded_export           Boolean   @default(false)
+  flag_default                   Boolean?  @unique(map: "unique_flag_default_idx")
+  flag_active                    Boolean   @default(true)
+  icon_class                     String?   @db.VarChar(40)
+  created_at                     DateTime? @db.DateTime(0)
+  updated_at                     DateTime? @db.DateTime(0)
+  created_by                     String?   @db.VarChar(40)
+  updated_by                     String?   @db.VarChar(40)
+  legacy_mapping                 String?   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at              DateTime? @db.DateTime(0)
+  product                        product[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_unit {
+  unit_id                  Int                        @id @default(autoincrement()) @db.UnsignedInt
+  reference                String                     @unique(map: "unique_reference_idx") @db.VarChar(10)
+  title                    String?                    @db.VarChar(80)
+  symbol                   String?                    @db.VarChar(4)
+  display_decimals         Int?                       @default(2) @db.UnsignedSmallInt
+  description              String?                    @db.VarChar(255)
+  flag_active              Boolean                    @default(true)
+  icon_class               String?                    @db.VarChar(40)
+  created_at               DateTime?                  @db.DateTime(0)
+  updated_at               DateTime?                  @db.DateTime(0)
+  created_by               String?                    @db.VarChar(40)
+  updated_by               String?                    @db.VarChar(40)
+  legacy_mapping           String?                    @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at        DateTime?                  @db.DateTime(0)
+  product                  product[]
+  product_unit_translation product_unit_translation[]
+
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_unit_translation {
+  id                BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  unit_id           Int          @db.UnsignedInt
+  lang              String       @db.VarChar(2)
+  reference         String?      @db.VarChar(10)
+  title             String?      @db.VarChar(80)
+  description       String?      @db.VarChar(255)
+  created_at        DateTime?    @db.DateTime(0)
+  updated_at        DateTime?    @db.DateTime(0)
+  created_by        String?      @db.VarChar(40)
+  updated_by        String?      @db.VarChar(40)
+  legacy_mapping    String?      @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?    @db.DateTime(0)
+  language          language     @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_A1824BB531098462")
+  product_unit      product_unit @relation(fields: [unit_id], references: [unit_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_A1824BB5F8BD700D")
+
+  @@unique([unit_id, lang], map: "unique_translation_idx")
+  @@index([lang], map: "IDX_A1824BB531098462")
+  @@index([unit_id], map: "IDX_A1824BB5F8BD700D")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model revision {
+  revision_id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  related_table         String    @db.VarChar(40)
+  related_id            BigInt
+  created_at            DateTime? @db.DateTime(0)
+  created_by            String?   @db.VarChar(40)
+  flag_revision_updated Boolean   @default(false)
+  revision              Int?
+  message               String?   @db.VarChar(150)
+  previous_data         String    @db.LongText
+  current_data          String    @db.LongText
+
+  @@unique([related_table, related_id, created_at], map: "unique_revison_log")
+  @@index([created_at], map: "created_at_idx")
+  @@index([related_id], map: "related_id_idx")
+  @@index([related_table], map: "related_table_idx")
+  @@index([revision], map: "revision_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model role {
+  role_id         Int               @id @default(autoincrement()) @db.UnsignedInt
+  parent_id       Int?              @db.UnsignedInt
+  name            String            @unique(map: "unique_name_idx") @db.VarChar(48)
+  lft             Int               @db.UnsignedInt
+  rgt             Int               @db.UnsignedInt
+  root            BigInt?           @db.UnsignedBigInt
+  lvl             Int               @db.UnsignedInt
+  role            role?             @relation("roleTorole", fields: [parent_id], references: [role_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_57698A6A727ACA70")
+  other_role      role[]            @relation("roleTorole")
+  role_permission role_permission[]
+  user_role       user_role[]
+
+  @@index([parent_id], map: "IDX_57698A6A727ACA70")
+  @@index([lft], map: "lft_idx")
+  @@index([rgt], map: "rgt_idx")
+}
+
+model role_permission {
+  role_id       Int        @db.UnsignedInt
+  permission_id Int        @db.UnsignedInt
+  role          role       @relation(fields: [role_id], references: [role_id], onUpdate: Restrict, map: "FK_6F7DF886D60322AC")
+  permission    permission @relation(fields: [permission_id], references: [permission_id], onUpdate: Restrict, map: "FK_6F7DF886FED90CCA")
+
+  @@id([role_id, permission_id])
+  @@index([role_id], map: "IDX_6F7DF886D60322AC")
+  @@index([permission_id], map: "IDX_6F7DF886FED90CCA")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sale_delivery {
+  delivery_id        BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  reference          String?           @db.VarChar(60)
+  customer_reference String?           @db.VarChar(60)
+  comment            String?           @db.VarChar(255)
+  delivered_at       DateTime?         @db.DateTime(0)
+  created_at         DateTime?         @db.DateTime(0)
+  updated_at         DateTime?         @db.DateTime(0)
+  deleted_at         DateTime?         @db.DateTime(0)
+  created_by         String?           @db.VarChar(40)
+  updated_by         String?           @db.VarChar(40)
+  legacy_mapping     String?           @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at  DateTime?         @db.DateTime(0)
+  sale_order_line    sale_order_line[]
+
+  @@index([delivered_at], map: "delivered_at_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sale_invoice {
+  invoice_id         BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  reference          String?           @db.VarChar(60)
+  customer_reference String?           @db.VarChar(60)
+  comment            String?           @db.VarChar(255)
+  invoiced_at        DateTime?         @db.DateTime(0)
+  created_at         DateTime?         @db.DateTime(0)
+  updated_at         DateTime?         @db.DateTime(0)
+  deleted_at         DateTime?         @db.DateTime(0)
+  created_by         String?           @db.VarChar(40)
+  updated_by         String?           @db.VarChar(40)
+  legacy_mapping     String?           @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at  DateTime?         @db.DateTime(0)
+  sale_order_line    sale_order_line[]
+
+  @@index([invoiced_at], map: "invoiced_at_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sale_order {
+  order_id           BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  type_id            Int                @db.UnsignedSmallInt
+  status_id          Int?               @db.UnsignedSmallInt
+  customer_id        Int                @db.UnsignedInt
+  rep_id             Int?               @db.UnsignedInt
+  user_id            Int?               @db.UnsignedInt
+  parent_id          BigInt?            @db.UnsignedBigInt
+  pricelist_id       Int                @db.UnsignedSmallInt
+  reference          String?            @db.VarChar(60)
+  comment            String?            @db.VarChar(512)
+  customer_reference String?            @db.VarChar(60)
+  customer_comment   String?            @db.VarChar(255)
+  document_date      DateTime?          @db.DateTime(0)
+  expires_at         DateTime?          @db.DateTime(0)
+  created_at         DateTime?          @db.DateTime(0)
+  updated_at         DateTime?          @db.DateTime(0)
+  deleted_at         DateTime?          @db.DateTime(0)
+  created_by         String?            @db.VarChar(40)
+  updated_by         String?            @db.VarChar(40)
+  legacy_mapping     String?            @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at  DateTime?          @db.DateTime(0)
+  sale_rep           sale_rep?          @relation(fields: [rep_id], references: [rep_id], onDelete: Restrict, onUpdate: Restrict, map: "FK_25F5CB1B54C549EA")
+  sale_order_status  sale_order_status? @relation(fields: [status_id], references: [status_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_25F5CB1B6BF700BD")
+  sale_order         sale_order?        @relation("sale_orderTosale_order", fields: [parent_id], references: [order_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_25F5CB1B727ACA70")
+  other_sale_order   sale_order[]       @relation("sale_orderTosale_order")
+  pricelist          pricelist          @relation(fields: [pricelist_id], references: [pricelist_id], onUpdate: Restrict, map: "FK_25F5CB1B89045958")
+  customer           customer           @relation(fields: [customer_id], references: [customer_id], onUpdate: Restrict, map: "FK_25F5CB1B9395C3F3")
+  user               user?              @relation(fields: [user_id], references: [user_id], onDelete: Restrict, onUpdate: Restrict, map: "FK_25F5CB1BA76ED395")
+  sale_order_type    sale_order_type    @relation(fields: [type_id], references: [type_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_25F5CB1BC54C8C93")
+  sale_order_line    sale_order_line[]
+
+  @@index([rep_id], map: "IDX_25F5CB1B54C549EA")
+  @@index([status_id], map: "IDX_25F5CB1B6BF700BD")
+  @@index([parent_id], map: "IDX_25F5CB1B727ACA70")
+  @@index([pricelist_id], map: "IDX_25F5CB1B89045958")
+  @@index([customer_id], map: "IDX_25F5CB1B9395C3F3")
+  @@index([user_id], map: "IDX_25F5CB1BA76ED395")
+  @@index([type_id], map: "IDX_25F5CB1BC54C8C93")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sale_order_line {
+  line_id                BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  order_id               BigInt?                @db.UnsignedBigInt
+  status_id              Int                    @db.UnsignedSmallInt
+  delivery_id            BigInt?                @db.UnsignedBigInt
+  invoice_id             BigInt?                @db.UnsignedBigInt
+  product_id             BigInt                 @db.UnsignedBigInt
+  line_number            Int?                   @db.UnsignedSmallInt
+  reference              String?                @db.VarChar(60)
+  quantity               Decimal                @db.Decimal(12, 6)
+  price                  Decimal                @db.Decimal(12, 6)
+  discount_1             Decimal                @default(0.000000) @db.Decimal(9, 6)
+  discount_2             Decimal                @default(0.000000) @db.Decimal(9, 6)
+  discount_3             Decimal                @default(0.000000) @db.Decimal(9, 6)
+  discount_4             Decimal                @default(0.000000) @db.Decimal(9, 6)
+  comment                String?                @db.VarChar(512)
+  customer_reference     String?                @db.VarChar(60)
+  customer_comment       String?                @db.VarChar(255)
+  delivered_at           DateTime?              @db.DateTime(0)
+  invoiced_at            DateTime?              @db.DateTime(0)
+  created_at             DateTime?              @db.DateTime(0)
+  updated_at             DateTime?              @db.DateTime(0)
+  deleted_at             DateTime?              @db.DateTime(0)
+  created_by             String?                @db.VarChar(40)
+  updated_by             String?                @db.VarChar(40)
+  legacy_mapping         String?                @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at      DateTime?              @db.DateTime(0)
+  sale_delivery          sale_delivery?         @relation(fields: [delivery_id], references: [delivery_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_61B16AA512136921")
+  sale_invoice           sale_invoice?          @relation(fields: [invoice_id], references: [invoice_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_61B16AA52989F1FD")
+  product                product                @relation(fields: [product_id], references: [product_id], onUpdate: Restrict, map: "FK_61B16AA54584665A")
+  sale_order_line_status sale_order_line_status @relation(fields: [status_id], references: [status_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_61B16AA56BF700BD")
+  sale_order             sale_order?            @relation(fields: [order_id], references: [order_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_61B16AA58D9F6D38")
+
+  @@index([delivery_id], map: "IDX_61B16AA512136921")
+  @@index([invoice_id], map: "IDX_61B16AA52989F1FD")
+  @@index([product_id], map: "IDX_61B16AA54584665A")
+  @@index([status_id], map: "IDX_61B16AA56BF700BD")
+  @@index([order_id], map: "IDX_61B16AA58D9F6D38")
+  @@index([delivered_at], map: "delivered_at_idx")
+  @@index([invoiced_at], map: "invoiced_at_idx")
+  @@index([line_number], map: "line_number_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sale_order_line_status {
+  status_id                          Int                                  @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference                          String                               @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title                              String?                              @db.VarChar(80)
+  flag_default                       Boolean?                             @unique(map: "unique_flag_default_idx")
+  flag_readonly                      Boolean                              @default(false)
+  flag_active                        Boolean                              @default(true)
+  created_at                         DateTime?                            @db.DateTime(0)
+  updated_at                         DateTime?                            @db.DateTime(0)
+  created_by                         String?                              @db.VarChar(40)
+  updated_by                         String?                              @db.VarChar(40)
+  legacy_mapping                     String?                              @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at                  DateTime?                            @db.DateTime(0)
+  sale_order_line                    sale_order_line[]
+  sale_order_line_status_translation sale_order_line_status_translation[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sale_order_line_status_translation {
+  id                     BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  status_id              Int                    @db.UnsignedSmallInt
+  lang                   String                 @db.VarChar(2)
+  title                  String?                @db.VarChar(80)
+  created_at             DateTime?              @db.DateTime(0)
+  updated_at             DateTime?              @db.DateTime(0)
+  created_by             String?                @db.VarChar(40)
+  updated_by             String?                @db.VarChar(40)
+  legacy_mapping         String?                @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at      DateTime?              @db.DateTime(0)
+  language               language               @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_F4D5EE4B31098462")
+  sale_order_line_status sale_order_line_status @relation(fields: [status_id], references: [status_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_F4D5EE4B6BF700BD")
+
+  @@unique([status_id, lang], map: "unique_translation_idx")
+  @@index([lang], map: "IDX_F4D5EE4B31098462")
+  @@index([status_id], map: "IDX_F4D5EE4B6BF700BD")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sale_order_status {
+  status_id                     Int                             @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference                     String                          @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title                         String?                         @db.VarChar(80)
+  flag_default                  Boolean?                        @unique(map: "unique_flag_default_idx")
+  flag_readonly                 Boolean                         @default(false)
+  flag_active                   Boolean                         @default(true)
+  created_at                    DateTime?                       @db.DateTime(0)
+  updated_at                    DateTime?                       @db.DateTime(0)
+  created_by                    String?                         @db.VarChar(40)
+  updated_by                    String?                         @db.VarChar(40)
+  legacy_mapping                String?                         @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at             DateTime?                       @db.DateTime(0)
+  sale_order                    sale_order[]
+  sale_order_status_translation sale_order_status_translation[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sale_order_status_translation {
+  id                BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  status_id         Int               @db.UnsignedSmallInt
+  lang              String            @db.VarChar(2)
+  title             String?           @db.VarChar(80)
+  created_at        DateTime?         @db.DateTime(0)
+  updated_at        DateTime?         @db.DateTime(0)
+  created_by        String?           @db.VarChar(40)
+  updated_by        String?           @db.VarChar(40)
+  legacy_mapping    String?           @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?         @db.DateTime(0)
+  language          language          @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_7017D8531098462")
+  sale_order_status sale_order_status @relation(fields: [status_id], references: [status_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_7017D856BF700BD")
+
+  @@unique([status_id, lang], map: "unique_translation_idx")
+  @@index([lang], map: "IDX_7017D8531098462")
+  @@index([status_id], map: "IDX_7017D856BF700BD")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sale_order_type {
+  type_id                     Int                           @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference                   String                        @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title                       String?                       @db.VarChar(80)
+  flag_active                 Boolean                       @default(true)
+  created_at                  DateTime?                     @db.DateTime(0)
+  updated_at                  DateTime?                     @db.DateTime(0)
+  created_by                  String?                       @db.VarChar(40)
+  updated_by                  String?                       @db.VarChar(40)
+  legacy_mapping              String?                       @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at           DateTime?                     @db.DateTime(0)
+  sale_order                  sale_order[]
+  sale_order_type_translation sale_order_type_translation[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sale_order_type_translation {
+  id                BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  type_id           Int             @db.UnsignedSmallInt
+  lang              String          @db.VarChar(2)
+  title             String?         @db.VarChar(80)
+  created_at        DateTime?       @db.DateTime(0)
+  updated_at        DateTime?       @db.DateTime(0)
+  created_by        String?         @db.VarChar(40)
+  updated_by        String?         @db.VarChar(40)
+  legacy_mapping    String?         @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?       @db.DateTime(0)
+  language          language        @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_EEA9D8B731098462")
+  sale_order_type   sale_order_type @relation(fields: [type_id], references: [type_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_EEA9D8B7C54C8C93")
+
+  @@unique([type_id, lang], map: "unique_translation_idx")
+  @@index([lang], map: "IDX_EEA9D8B731098462")
+  @@index([type_id], map: "IDX_EEA9D8B7C54C8C93")
+  @@index([title], map: "title_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sale_rep {
+  rep_id            Int          @id @default(autoincrement()) @db.UnsignedInt
+  country_id        Int?         @db.UnsignedSmallInt
+  reference         String?      @unique(map: "unique_reference_idx") @db.VarChar(60)
+  name              String       @db.VarChar(80)
+  first_name        String?      @db.VarChar(40)
+  street            String?      @db.VarChar(80)
+  street_2          String?      @db.VarChar(80)
+  street_number     String?      @db.VarChar(10)
+  po_box            String?      @db.VarChar(10)
+  zipcode           String?      @db.VarChar(20)
+  city              String?      @db.VarChar(60)
+  phone             String?      @db.VarChar(20)
+  phone_2           String?      @db.VarChar(20)
+  mobile            String?      @db.VarChar(20)
+  mobile_2          String?      @db.VarChar(20)
+  fax               String?      @db.VarChar(20)
+  fax_2             String?      @db.VarChar(20)
+  email             String?      @db.VarChar(50)
+  email_2           String?      @db.VarChar(50)
+  flag_active       Boolean      @default(true)
+  created_at        DateTime?    @db.DateTime(0)
+  updated_at        DateTime?    @db.DateTime(0)
+  created_by        String?      @db.VarChar(40)
+  updated_by        String?      @db.VarChar(40)
+  legacy_mapping    String?      @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?    @db.DateTime(0)
+  sale_order        sale_order[]
+  country           country?     @relation(fields: [country_id], references: [country_id], onDelete: Restrict, onUpdate: Restrict, map: "FK_C84C7443F92F3E70")
+
+  @@index([country_id], map: "IDX_C84C7443F92F3E70")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model stock {
+  stock_id          Int             @id @default(autoincrement()) @db.UnsignedSmallInt
+  reference         String          @unique(map: "unique_reference_idx") @db.VarChar(60)
+  title             String          @db.VarChar(80)
+  description       String?         @db.VarChar(15000)
+  flag_active       Boolean         @default(true)
+  icon_class        String?         @db.VarChar(40)
+  created_at        DateTime?       @db.DateTime(0)
+  updated_at        DateTime?       @db.DateTime(0)
+  created_by        String?         @db.VarChar(40)
+  updated_by        String?         @db.VarChar(40)
+  legacy_mapping    String?         @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime?       @db.DateTime(0)
+  pricelist         pricelist[]
+  product_stock     product_stock[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model user {
+  user_id        Int              @id @default(autoincrement()) @db.UnsignedInt
+  lang           String?          @db.VarChar(2)
+  username       String?          @unique(map: "unique_username_idx") @db.VarChar(80)
+  email          String           @unique(map: "unique_email_idx") @db.VarChar(130)
+  displayName    String?          @db.VarChar(50)
+  password       String           @db.VarChar(128)
+  sale_order     sale_order[]
+  language       language?        @relation(fields: [lang], references: [lang], onUpdate: Restrict, map: "FK_8D93D64931098462")
+  user_pricelist user_pricelist[]
+  user_role      user_role[]
+  user_scope     user_scope[]
+
+  @@index([lang], map: "IDX_8D93D64931098462")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model user_pricelist {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  pricelist_id      Int       @db.UnsignedSmallInt
+  user_id           Int       @db.UnsignedInt
+  flag_active       Boolean   @default(true)
+  activated_at      DateTime? @db.Date
+  created_at        DateTime? @db.DateTime(0)
+  updated_at        DateTime? @db.DateTime(0)
+  created_by        String?   @db.VarChar(40)
+  updated_by        String?   @db.VarChar(40)
+  legacy_mapping    String?   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime? @db.DateTime(0)
+  pricelist         pricelist @relation(fields: [pricelist_id], references: [pricelist_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_5C2F678989045958")
+  user              user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_5C2F6789A76ED395")
+
+  @@unique([pricelist_id, user_id], map: "unique_user_pricelist_idx")
+  @@index([pricelist_id], map: "IDX_5C2F678989045958")
+  @@index([user_id], map: "IDX_5C2F6789A76ED395")
+}
+
+model user_role {
+  user_id Int  @db.UnsignedInt
+  role_id Int  @db.UnsignedInt
+  user    user @relation(fields: [user_id], references: [user_id], onUpdate: Restrict, map: "FK_2DE8C6A3A76ED395")
+  role    role @relation(fields: [role_id], references: [role_id], onUpdate: Restrict, map: "FK_2DE8C6A3D60322AC")
+
+  @@id([user_id, role_id])
+  @@index([user_id], map: "IDX_2DE8C6A3A76ED395")
+  @@index([role_id], map: "IDX_2DE8C6A3D60322AC")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model user_scope {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id           Int       @db.UnsignedInt
+  customer_id       Int       @db.UnsignedInt
+  flag_active       Boolean   @default(true)
+  created_at        DateTime? @db.DateTime(0)
+  updated_at        DateTime? @db.DateTime(0)
+  created_by        String?   @db.VarChar(40)
+  updated_by        String?   @db.VarChar(40)
+  legacy_mapping    String?   @unique(map: "unique_legacy_mapping_idx") @db.VarChar(40)
+  legacy_synchro_at DateTime? @db.DateTime(0)
+  customer          customer  @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_E26DAE8B9395C3F3")
+  user              user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Restrict, map: "FK_E26DAE8BA76ED395")
+
+  @@unique([user_id, customer_id], map: "unique_user_customer_idx")
+  @@index([customer_id], map: "IDX_E26DAE8B9395C3F3")
+  @@index([user_id], map: "IDX_E26DAE8BA76ED395")
+}
