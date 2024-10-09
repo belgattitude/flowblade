@@ -1,0 +1,25 @@
+datasource db {
+  provider = "sqlserver"
+  url      = env("DB_FLOWBLADE_SQLSERVER_JDBC")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema", "views"]
+  output          = "../src/generated/client"
+}
+
+model currency {
+  currency_id       Int       @id @default(autoincrement())
+  reference         String    @unique() @db.VarChar(60)
+  title             String?   @unique() @db.VarChar(80)
+  symbol            String?   @db.VarChar(4)
+  display_decimals  Int?      @default(2) @db.SmallInt
+  icon_class        String?   @db.VarChar(40)
+  created_at        DateTime? @db.DateTime2
+  updated_at        DateTime? @db.DateTime2
+  created_by        String?   @db.VarChar(40)
+  updated_by        String?   @db.VarChar(40)
+  legacy_mapping    String?   @db.VarChar(40)
+  legacy_synchro_at DateTime? @db.DateTime2
+}

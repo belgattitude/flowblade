@@ -1,0 +1,23 @@
+name: flowblade-azure-mariadb
+
+services:
+  mariadb:
+    image: mariadb:11.5-noble
+    ports: ['3306:3306']
+    env_file:
+      - .env.mariadb.development
+    networks:
+      - flowblade-dev-network
+    volumes:
+      - flowblade-mariadb-data:/var/lib/mysql/data:rw
+      - flowblade-mariadb-logs:/var/lib/mysql/logs:rw
+      #- /var/docker/mariadb/conf:/etc/mysql
+
+volumes:
+  flowblade-mariadb-data:
+  flowblade-mariadb-logs:
+
+networks:
+  flowblade-dev-network:
+    driver: bridge
+    enable_ipv6: false

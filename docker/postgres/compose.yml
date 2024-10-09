@@ -1,0 +1,20 @@
+name: flowblade-postgres
+
+services:
+  main-db:
+    container_name: flowblade-postgres
+    image: postgres:17.0-alpine3.20
+    ports:
+      - target: 5432
+        published: 5432
+        protocol: tcp
+    env_file:
+      - .env.postgres.development
+    volumes:
+      - postgres_db_data:/var/lib/postgresql/data:rw
+      # you may use a bind-mounted host directory instead,
+      # so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./docker/db/data:/var/lib/postgresql/data:rw
+
+volumes:
+  postgres_db_data:
