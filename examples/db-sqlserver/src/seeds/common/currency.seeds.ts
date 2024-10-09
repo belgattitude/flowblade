@@ -51,21 +51,6 @@ export class CurrencySeeds extends AbstractSeed {
         },
       });
       this.log('UPSERT', `Currency ${inserted.code} ${inserted.id}`);
-
-      /*
-      for (const translation of Object.entries(translations)) {
-        const [localeCode, i18n] = translation;
-        const columns = {
-          currency: inserted,
-          code: localeCode,
-          name: i18n.singular,
-          namePlural: i18n.plural,
-        } as Prisma.CurrencyCreateInput;
-        const insertI18n = await this.prisma.currencyI18n.upsert({
-          where: { currencyId: inserted.id, localeCode: localeCode },
-          create: i18n,
-        });
-      } */
     }
   };
 }
