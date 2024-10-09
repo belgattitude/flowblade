@@ -2,25 +2,17 @@
 
 import pc from 'tinyrainbow';
 
+import { buildEnv } from './src/env/build.env.mjs';
+import { clientEnv } from './src/env/client.env.mjs';
+
 const isDev = process.env.NODE_ENV === 'development';
 const isTurbo = process.env.TURBOPACK !== undefined;
-
-const trueEnv = ['true', '1', 'yes'];
-
-const NEXTJS_IGNORE_ESLINT = trueEnv.includes(
-  process.env?.NEXTJS_IGNORE_ESLINT ?? 'false'
-);
-const NEXTJS_IGNORE_TYPECHECK = trueEnv.includes(
-  process.env?.NEXTJS_IGNORE_TYPECHECK ?? 'false'
-);
-
-const TYPESCRIPT_CONFIG = process.env.TSCONFIG ?? './tsconfig.json';
 
 /** @type {import('next').NextConfig} */
 let nextConfig = {
   eslint: {
     dirs: ['src'],
-    ignoreDuringBuilds: NEXTJS_IGNORE_ESLINT,
+    ignoreDuringBuilds: buildEnv.NEXT_BUILD_IGNORE_ESLINT === 'true',
   },
   experimental: {
     // Prefer loading of ES Modules over CommonJS
@@ -32,15 +24,20 @@ let nextConfig = {
     // @link {https://github.com/vercel/next.js/discussions/26420|Discussion}
     externalDir: true,
   },
-  productionBrowserSourceMaps: true,
+  productionBrowserSourceMaps:
+    buildEnv.NEXT_BUILD_PRODUCTION_SOURCEMAPS === 'true',
   reactStrictMode: true,
   typescript: {
-    ignoreBuildErrors: NEXTJS_IGNORE_TYPECHECK,
-    tsconfigPath: TYPESCRIPT_CONFIG,
+    ignoreBuildErrors: buildEnv.NEXT_BUILD_IGNORE_TYPECHECK !== 'true',
+    tsconfigPath: buildEnv.NEXT_BUILD_TSCONFIG,
   },
 };
 
-if (process.env.NEXT_PUBLIC_HYDRATION_OVERLAY === 'true' && isDev && !isTurbo) {
+if (
+  clientEnv.NEXT_PUBLIC_ENABLE_HYDRATION_OVERLAY === 'true' &&
+  isDev &&
+  !isTurbo
+) {
   try {
     const { withHydrationOverlay } = await import(
       '@builder.io/react-hydration-overlay/next'
@@ -54,7 +51,7 @@ if (process.env.NEXT_PUBLIC_HYDRATION_OVERLAY === 'true' && isDev && !isTurbo) {
   console.log(`- ${pc.green('info')} HydrationOverlay not enabled`);
 }
 
-if (process.env.NEXT_PUBLIC_SENTRY_ENABLED === 'true' && !isTurbo) {
+if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true' && !isTurbo) {
   try {
     const { withSentryConfig } = await import('@sentry/nextjs').then(
       (mod) => mod

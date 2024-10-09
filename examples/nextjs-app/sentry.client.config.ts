@@ -3,13 +3,23 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from '@sentry/nextjs';
+import * as Spotlight from '@spotlightjs/spotlight';
 
-Sentry.init({
-  dsn: 'https://e98cc2e45a164688bc9e14113b801684@o937515.ingest.us.sentry.io/6328544',
+import { clientEnv } from './src/env/client.env.mjs';
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true') {
+  Sentry.init({
+    // dsn: 'https://e98cc2e45a164688bc9e14113b801684@o937515.ingest.us.sentry.io/6328544',
 
-  // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false,
-});
+    // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
+    tracesSampleRate: 1,
+
+    // Setting this option to true will print useful information to the console while you're setting up Sentry.
+    debug: false,
+  });
+}
+
+if (clientEnv.NEXT_PUBLIC_SPOTLIGHT_ENABLED === 'true') {
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  Spotlight.init();
+}

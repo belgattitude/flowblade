@@ -1,7 +1,7 @@
 import { ConnectionUtils, createDialect } from '@flowblade/source-kysely';
 import { Kysely, MssqlDriver } from 'kysely';
 
-import { serverEnv } from '../../env/server.env';
+import { serverEnv } from '../../env/server.env.mjs';
 
 const config = ConnectionUtils.jdbcToTediousConfig(
   serverEnv.DB_FLOWBLADE_AZURE_SQL_EDGE_JDBC

@@ -3,7 +3,7 @@
 import NextError from 'next/error';
 import { useEffect } from 'react';
 
-import { clientEnv } from '../env/client.env';
+import { clientEnv } from '../env/client.env.mjs';
 
 type Props = {
   error: Error & { digest?: string };

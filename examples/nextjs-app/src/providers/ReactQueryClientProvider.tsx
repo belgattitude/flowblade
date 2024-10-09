@@ -23,7 +23,10 @@ export const ReactQueryClientProvider: FC<Props> = (props) => {
     <QueryClientProvider client={client}>
       {children}
       {forceDisableDevTools !== true && (
-        <ReactQueryDevtools initialIsOpen={false} position={'bottom'} />
+        <ReactQueryDevtools
+          initialIsOpen={false}
+          buttonPosition={'bottom-left'}
+        />
       )}
     </QueryClientProvider>
   );
