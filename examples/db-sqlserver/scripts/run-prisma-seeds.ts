@@ -1,13 +1,14 @@
 import { PrismaClientSqlServer } from '../src/prisma';
 import { CurrencySeeds } from '../src/seeds/common/currency.seeds';
+import { LanguageSeeds } from '../src/seeds/common/language.seeds';
 
 const prisma = new PrismaClientSqlServer();
 
 async function runPrismaSeeds() {
   console.log(`Start seeding ...`);
 
-  const companySeeds = new CurrencySeeds(prisma);
-  await companySeeds.execute();
+  await new LanguageSeeds(prisma).execute();
+  await new CurrencySeeds(prisma).execute();
 
   console.log(`Seeding finished.`);
 }

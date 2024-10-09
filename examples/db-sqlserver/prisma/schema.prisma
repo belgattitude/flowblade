@@ -21,19 +21,48 @@ generator kysely {
   enumFileName = "kysely.enums.ts"
 }
 
+model Language {
+  id               Int       @id @default(autoincrement())
+  iso639_1         String    @unique() @db.VarChar(2)
+  iso639_2         String    @unique() @db.VarChar(3)
+  locale           String    @unique() @db.VarChar(5)
+  nameNative       String    @map(name: "name_native") @db.VarChar(40)
+  nameNativePlural String?   @map(name: "name_native_plural") @db.VarChar(40)
+  createdAt        DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt        DateTime? @map(name: "updated_at") @db.DateTime2
+
+  @@map(name: "language")
+  @@schema("common")
+}
+
 model Currency {
   id               Int       @id @default(autoincrement())
   code             String?   @unique() @db.VarChar(3)
-  name             String?   @unique() @db.VarChar(40)
-  name_plural      String?   @unique() @db.VarChar(40)
+  numericCode      Int       @unique() @map(name: "numeric_code") @db.SmallInt
+  nameNative       String    @map(name: "name_native") @db.VarChar(40)
+  nameNativePlural String?   @map(name: "name_native_plural") @db.VarChar(40)
   symbol           String?   @db.VarChar(5)
-  symbol_native    String?   @db.VarChar(5)
-  rounding         Int?      @default(2) @db.SmallInt
-  display_decimals Int?      @default(2) @map(name: "display_decimals") @db.SmallInt
+  symbolNative     String?   @map(name: "symbol_native") @db.VarChar(5)
+  rounding         Float?    @default(0) @db.Float()
+  displayDecimals  Int?      @default(2) @map(name: "display_decimals") @db.SmallInt
+  withdrawalAt     DateTime? @map(name: "withdrawal_at") @db.DateTime2
   createdAt        DateTime  @map(name: "created_at") @db.DateTime2
   updatedAt        DateTime? @map(name: "updated_at") @db.DateTime2
-  withdrawalAt     DateTime? @map(name: "withdrawal_at") @db.DateTime2
 
   @@map(name: "currency")
+  @@schema("common")
+}
+
+model CurrencyI18n {
+  id         Int       @id @default(autoincrement())
+  currencyId Int       @map(name: "currency_id") @db.Int
+  languageId Int       @map(name: "language_id") @db.Int
+  name       String    @unique() @map(name: "name_native") @db.VarChar(40)
+  namePlural String?   @unique() @map(name: "name_native_plural") @db.VarChar(40)
+  createdAt  DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt  DateTime? @map(name: "updated_at") @db.DateTime2
+
+  @@unique([currencyId, languageId])
+  @@map(name: "currency_i18n")
   @@schema("common")
 }
