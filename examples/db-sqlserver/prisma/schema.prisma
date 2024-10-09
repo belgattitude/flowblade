@@ -1,7 +1,7 @@
 datasource db {
   provider = "sqlserver"
   url      = env("DB_FLOWBLADE_SQLSERVER_JDBC")
-  schemas  = ["common"]
+  schemas  = ["common", "user"]
 }
 
 generator client {
@@ -11,14 +11,17 @@ generator client {
 }
 
 model Currency {
-  id                Int       @id @default(autoincrement())
-  title             String?   @unique() @db.VarChar(80)
-  symbol            String?   @db.VarChar(4)
-  display_decimals  Int?      @default(2) @db.SmallInt
-  createdAt         DateTime  @map(name: "created_at") @db.DateTime2
-  updatedAt         DateTime  @map(name: "updated_at") @db.DateTime2
-  legacy_mapping    String?   @db.VarChar(40)
-  legacy_synchro_at DateTime? @db.DateTime2
+  id               Int       @id @default(autoincrement())
+  code             String?   @unique() @db.VarChar(3)
+  name             String?   @unique() @db.VarChar(40)
+  name_plural      String?   @unique() @db.VarChar(40)
+  symbol           String?   @db.VarChar(5)
+  symbol_native    String?   @db.VarChar(5)
+  rounding         Int?      @default(2) @db.SmallInt
+  display_decimals Int?      @default(2) @map(name: "display_decimals") @db.SmallInt
+  createdAt        DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt        DateTime? @map(name: "updated_at") @db.DateTime2
+  withdrawalAt     DateTime? @map(name: "withdrawal_at") @db.DateTime2
 
   @@map(name: "currency")
   @@schema("common")
