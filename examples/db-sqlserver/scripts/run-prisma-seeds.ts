@@ -19,7 +19,6 @@ await runPrismaSeeds()
     // eslint-disable-next-line unicorn/no-process-exit
     process.exit(1);
   })
-  // eslint-disable-next-line sonarjs/no-misused-promises
   .finally(async (): Promise<void> => {
     await prisma.$disconnect();
   });
