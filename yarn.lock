@@ -2995,7 +2995,7 @@ __metadata:
     "@types/node": "npm:22.7.5"
     "@typescript-eslint/eslint-plugin": "npm:8.8.1"
     "@typescript-eslint/parser": "npm:8.8.1"
-    autocannon: "npm:7.15.0"
+    autocannon: "npm:8.0.0"
     eslint: "npm:8.57.1"
     tsx: "npm:4.19.1"
     typescript: "npm:5.6.3"
@@ -3333,6 +3333,15 @@ __metadata:
   bin:
     node-pre-gyp: bin/node-pre-gyp
   checksum: 10/59529a2444e44fddb63057152452b00705aa58059079191126c79ac1388ae4565625afa84ed4dd1bf017d1111ab6e47907f7c5192e06d83c9496f2f3e708680a
+  languageName: node
+  linkType: hard
+
+"@minimistjs/subarg@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@minimistjs/subarg@npm:1.0.0"
+  dependencies:
+    minimist: "npm:^1.1.0"
+  checksum: 10/7ad5a706e881f3da5260f7915a51ac37dd61e08c57e82b273cc83fda881ac52da71b800626d17d8e0c0f02d1ce401aaa5ab5b7a593403e602cba6a3d987a400b
   languageName: node
   linkType: hard
 
@@ -6667,10 +6676,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"autocannon@npm:7.15.0":
-  version: 7.15.0
-  resolution: "autocannon@npm:7.15.0"
+"autocannon@npm:8.0.0":
+  version: 8.0.0
+  resolution: "autocannon@npm:8.0.0"
   dependencies:
+    "@minimistjs/subarg": "npm:^1.0.0"
     chalk: "npm:^4.1.0"
     char-spinner: "npm:^1.0.1"
     cli-table3: "npm:^0.6.0"
@@ -6692,11 +6702,10 @@ __metadata:
     reinterval: "npm:^1.1.0"
     retimer: "npm:^3.0.0"
     semver: "npm:^7.3.2"
-    subarg: "npm:^1.0.0"
     timestring: "npm:^6.0.0"
   bin:
     autocannon: autocannon.js
-  checksum: 10/0d70b3c38cad47560574deae868426cdd492b2d42f471b372d8e2413be8b245c7f707fa1828fc11c8b3dfc5346aa5d39bf0efab7796b7e760c586c7373277249
+  checksum: 10/fa418a88a738ab707a4f71a461c959ed589938702cc84db028d5018996abeb6cf965592917b87ac799d41e52a7a5a67629cfe7cb5e20fe0899fa1d1ba3cd75be
   languageName: node
   linkType: hard
 
@@ -16360,15 +16369,6 @@ __metadata:
   version: 4.2.0
   resolution: "stylis@npm:4.2.0"
   checksum: 10/58359185275ef1f39c339ae94e598168aa6bb789f6cf0d52e726c1e7087a94e9c17f0385a28d34483dec1ffc2c75670ec714dc5603d99c3124ec83bc2b0a0f42
-  languageName: node
-  linkType: hard
-
-"subarg@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "subarg@npm:1.0.0"
-  dependencies:
-    minimist: "npm:^1.1.0"
-  checksum: 10/f1c6763d8719065051e4a2130e97b5c110da7a97d6ab00e1fbb1d32b9d9e958c982e363fb4ee464aec163f659e360f504db1cc4cc0317bcfda042e63888044a8
   languageName: node
   linkType: hard
 
