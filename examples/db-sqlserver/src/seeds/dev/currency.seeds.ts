@@ -28,7 +28,10 @@ export class CurrencySeeds extends AbstractSeed {
       const { code, numericCode, ...nonUnique } = c;
       const inserted = await this.prisma.currency.upsert({
         where: { code, numericCode },
-        update: nonUnique,
+        update: {
+          ...nonUnique,
+          updatedAt: new Date(),
+        },
         create: {
           ...c,
         },

@@ -16,7 +16,10 @@ export class BrandSeeds extends AbstractSeed {
       const { name, ...nonUnique } = b;
       const inserted = await this.prisma.brand.upsert({
         where: { name },
-        update: nonUnique,
+        update: {
+          ...nonUnique,
+          updatedAt: new Date(),
+        },
         create: b,
       });
       this.log('UPSERT', `Brand ${inserted.name}`);

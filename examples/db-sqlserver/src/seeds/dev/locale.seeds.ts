@@ -19,7 +19,10 @@ export class LocaleSeeds extends AbstractSeed {
       const { locale, ...nonUnique } = l;
       const inserted = await this.prisma.locale.upsert({
         where: { locale },
-        update: nonUnique,
+        update: {
+          ...nonUnique,
+          updatedAt: new Date(),
+        },
         create: l,
       });
       this.log('UPSERT', `Language ${inserted.locale}`);
