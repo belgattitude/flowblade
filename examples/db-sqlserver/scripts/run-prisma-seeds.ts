@@ -1,16 +1,22 @@
+import { CliLogger } from '../src/lib/logger/cli-logger';
 import { PrismaClientSqlServer } from '../src/prisma';
-import { CurrencySeeds } from '../src/seeds/common/currency.seeds';
-import { LocaleSeeds } from '../src/seeds/common/locale.seeds';
+import { CurrencySeeds } from '../src/seeds/dev/currency.seeds';
+import { LocaleSeeds } from '../src/seeds/dev/locale.seeds';
 
 const prisma = new PrismaClientSqlServer();
+const logger = new CliLogger('Prisma Seeds');
 
 async function runPrismaSeeds() {
-  console.log(`Start seeding ...`);
+  logger.log('info', `Start seeding (dev) ...`);
+  const params = {
+    prisma,
+    logger,
+  };
 
-  await new LocaleSeeds(prisma).execute();
-  await new CurrencySeeds(prisma).execute();
+  await new LocaleSeeds(params).execute();
+  await new CurrencySeeds(params).execute();
 
-  console.log(`Seeding finished.`);
+  logger.log('info', `Seeding finished.`);
 }
 
 await runPrismaSeeds()

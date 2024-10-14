@@ -1,6 +1,6 @@
-import { AbstractSeed } from '../../lib/AbstractSeed';
+import { AbstractSeed } from '../../lib/abstract-seed';
 import type { PrismaSqlServer as Prisma } from '../../prisma';
-import jsonLocales from './locales.json' with { type: 'json' };
+import jsonLocales from './locale.seeds.json' with { type: 'json' };
 
 const localeData: Prisma.LocaleCreateInput[] = jsonLocales.locales.map(
   (lang) => {
