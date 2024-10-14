@@ -18,8 +18,8 @@ erDiagram
   Int id PK
   String code UK
   Int numeric_code UK
-  String name_native
-  String name_native_plural "nullable"
+  String name
+  String name_plural "nullable"
   String symbol "nullable"
   String symbol_native "nullable"
   String rounding "nullable"
@@ -59,8 +59,8 @@ https://github.com/samchon/prisma-markdown
   - `id`: 
   - `code`: 
   - `numeric_code`: 
-  - `name_native`: 
-  - `name_native_plural`: 
+  - `name`: 
+  - `name_plural`: 
   - `symbol`: 
   - `symbol_native`: 
   - `rounding`: 

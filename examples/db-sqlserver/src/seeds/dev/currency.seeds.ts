@@ -8,8 +8,8 @@ const currencyData: (Prisma.CurrencyCreateInput & {
   return {
     code: currency.iso_4217,
     numericCode: currency.numeric_code,
-    nameNative: currency.native_name,
-    nameNativePlural: currency.native_name_plural,
+    name: currency.native_name,
+    namePlural: currency.native_name_plural,
     rounding: String(currency.rounding),
     displayDecimals: currency.display_decimals,
     symbolNative: currency.native_symbol,
