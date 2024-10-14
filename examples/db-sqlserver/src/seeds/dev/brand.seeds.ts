@@ -22,7 +22,7 @@ export class BrandSeeds extends AbstractSeed {
         },
         create: b,
       });
-      this.log('UPSERT', `Brand ${inserted.name}`);
+      this.log('UPSERT', `Brand ${inserted.id} - ${inserted.name}`);
     }
   };
 }

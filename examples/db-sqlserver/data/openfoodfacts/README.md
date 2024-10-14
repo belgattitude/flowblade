@@ -33,13 +33,14 @@ WHERE code IS NOT NULL
 
 ```genericsql
 COPY (
- SELECT brand_name as name, count(*) AS nb_products 
+ SELECT brand_name as name, 
+        count(*) AS nb_products 
  FROM etl_load_product 
  WHERE brand_name is not null and brand_name <> '' 
- GROUP BY brand_name 
- HAVING nb_products > 10 
- ORDER BY nb_products DESC
-) TO 'brands.openfoodfact.sample.json' (FORMAT JSON, ARRAY true);
+ GROUP BY brand_name
+ HAVING nb_products > 50
+ ORDER BY nb_products DESC    
+) TO 'brand.seeds.openfoodfact.json' (FORMAT JSON, ARRAY true);
 ```
 
 ## Create sample json
