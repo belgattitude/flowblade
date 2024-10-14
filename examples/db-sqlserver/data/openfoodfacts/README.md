@@ -43,6 +43,32 @@ COPY (
 ) TO 'brand.seeds.openfoodfact.json' (FORMAT JSON, ARRAY true);
 ```
 
+### Create a product sample
+
+```genericsql
+COPY (
+    SELECT code,
+           product_name as name,
+           lang,
+           product_name_en as n_en,
+           product_name_fr as n_fr,
+           product_name_pt as n_pt,
+           brand_name as brand        
+    FROM etl_load_product
+    WHERE completeness > 0.6
+      AND (countries like '%France%'
+        OR countries like '%Portugal%'
+        OR countries like '%Germany%'
+        OR countries like '%Italy%' OR
+           countries like '%Poland%'
+        )
+    LIMIT 30000    
+) TO 'product.seeds.openfoodfact.jsonl' (FORMAT JSON, ARRAY false);
+```
+
+
+```genericsql
+
 ## Create sample json
 
 ```genericsql
