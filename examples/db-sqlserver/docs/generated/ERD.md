@@ -8,7 +8,7 @@
 erDiagram
 "locale" {
   Int id PK
-  String code UK
+  String locale UK
   String name_native
   Boolean flag_active
   DateTime created_at
@@ -29,15 +29,41 @@ erDiagram
   DateTime created_at
   DateTime updated_at "nullable"
 }
+"brand" {
+  Int id PK
+  String name UK
+  Boolean flag_active
+  DateTime created_at
+  DateTime updated_at "nullable"
+}
+"product" {
+  Int id PK
+  Int brand_id FK
+  String name
+  Boolean flag_active
+  DateTime created_at
+  DateTime updated_at "nullable"
+}
+"product_i18n" {
+  Int id PK
+  Int currency_id FK
+  String locale FK
+  String name
+  DateTime created_at
+  DateTime updated_at "nullable"
+}
 "currency_i18n" {
   Int id PK
   Int currency_id FK
-  Int locale_id FK
+  String locale FK
   String name
   String name_plural "nullable"
   DateTime created_at
   DateTime updated_at "nullable"
 }
+"product" }o--|| "brand" : Brand
+"product_i18n" }o--|| "product" : Product
+"product_i18n" }o--|| "locale" : Locale
 "currency_i18n" }o--|| "currency" : Currency
 "currency_i18n" }o--|| "locale" : Locale
 ```
@@ -47,7 +73,7 @@ https://github.com/samchon/prisma-markdown
 
 **Properties**
   - `id`: 
-  - `code`: 
+  - `locale`: 
   - `name_native`: 
   - `flag_active`: 
   - `created_at`: 
@@ -70,12 +96,41 @@ https://github.com/samchon/prisma-markdown
   - `created_at`: 
   - `updated_at`: 
 
+### `brand`
+
+**Properties**
+  - `id`: 
+  - `name`: 
+  - `flag_active`: 
+  - `created_at`: 
+  - `updated_at`: 
+
+### `product`
+
+**Properties**
+  - `id`: 
+  - `brand_id`: 
+  - `name`: 
+  - `flag_active`: 
+  - `created_at`: 
+  - `updated_at`: 
+
+### `product_i18n`
+
+**Properties**
+  - `id`: 
+  - `currency_id`: 
+  - `locale`: 
+  - `name`: 
+  - `created_at`: 
+  - `updated_at`: 
+
 ### `currency_i18n`
 
 **Properties**
   - `id`: 
   - `currency_id`: 
-  - `locale_id`: 
+  - `locale`: 
   - `name`: 
   - `name_plural`: 
   - `created_at`: 

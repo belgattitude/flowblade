@@ -30,13 +30,14 @@ generator kysely {
 
 model Locale {
   id         Int       @id @default(autoincrement()) @db.SmallInt
-  code       String    @unique() @db.VarChar(5)
+  locale     String    @unique() @db.VarChar(5)
   nameNative String    @map(name: "name_native") @db.VarChar(40)
   flagActive Boolean   @default(true) @map(name: "flag_active") @db.Bit
   createdAt  DateTime  @map(name: "created_at") @db.DateTime2
   updatedAt  DateTime? @map(name: "updated_at") @db.DateTime2
 
-  currency CurrencyI18n[]
+  currency    CurrencyI18n[]
+  ProductI18n ProductI18n[]
 
   @@map(name: "locale")
   @@schema("common")
@@ -63,19 +64,62 @@ model Currency {
   @@schema("common")
 }
 
+model Brand {
+  id         Int       @id @default(autoincrement()) @db.Int
+  name       String    @unique @map(name: "name") @db.VarChar(40)
+  flagActive Boolean   @default(true) @map(name: "flag_active") @db.Bit
+  createdAt  DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt  DateTime? @map(name: "updated_at") @db.DateTime2
+  Product    Product[]
+
+  @@map(name: "brand")
+  @@schema("common")
+}
+
+model Product {
+  id      Int   @id @default(autoincrement()) @db.Int
+  Brand   Brand @relation(fields: [brandId], references: [id])
+  brandId Int   @map(name: "brand_id") @db.Int
+
+  name       String    @map(name: "name") @db.VarChar(40)
+  flagActive Boolean   @default(true) @map(name: "flag_active") @db.Bit
+  createdAt  DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt  DateTime? @map(name: "updated_at") @db.DateTime2
+
+  ProductI18n ProductI18n[]
+
+  @@map(name: "product")
+  @@schema("common")
+}
+
+model ProductI18n {
+  id        Int       @id @default(autoincrement())
+  Product   Product   @relation(fields: [productId], references: [id])
+  productId Int       @map(name: "currency_id") @db.Int
+  Locale    Locale    @relation(fields: [locale], references: [locale])
+  locale    String    @map(name: "locale") @db.VarChar(5)
+  name      String    @map(name: "name") @db.VarChar(40)
+  createdAt DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt DateTime? @map(name: "updated_at") @db.DateTime2
+
+  @@unique([productId, locale])
+  @@map(name: "product_i18n")
+  @@schema("common")
+}
+
 model CurrencyI18n {
   id         Int       @id @default(autoincrement())
   Currency   Currency  @relation(fields: [currencyId], references: [id])
   currencyId Int       @map(name: "currency_id") @db.SmallInt
-  Locale     Locale    @relation(fields: [localeId], references: [id])
-  localeId   Int       @map(name: "locale_id") @db.SmallInt
+  Locale     Locale    @relation(fields: [locale], references: [locale])
+  locale     String    @map(name: "locale") @db.VarChar(5)
   name       String    @map(name: "name") @db.VarChar(40)
   namePlural String?   @map(name: "name_plural") @db.VarChar(40)
   createdAt  DateTime  @map(name: "created_at") @db.DateTime2
   updatedAt  DateTime? @map(name: "updated_at") @db.DateTime2
 
-  @@unique([currencyId, localeId])
-  @@unique([localeId, name])
+  @@unique([currencyId, locale])
+  @@unique([locale, name])
   @@map(name: "currency_i18n")
   @@schema("common")
 }

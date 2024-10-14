@@ -1,5 +1,6 @@
 import { CliLogger } from '../src/lib/logger/cli-logger';
 import { PrismaClientSqlServer } from '../src/prisma';
+import { BrandSeeds } from '../src/seeds/dev/brand.seeds';
 import { CurrencySeeds } from '../src/seeds/dev/currency.seeds';
 import { LocaleSeeds } from '../src/seeds/dev/locale.seeds';
 
@@ -15,6 +16,7 @@ async function runPrismaSeeds() {
 
   await new LocaleSeeds(params).execute();
   await new CurrencySeeds(params).execute();
+  await new BrandSeeds(params).execute();
 
   logger.log('info', `Seeding finished.`);
 }
