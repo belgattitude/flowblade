@@ -72,6 +72,7 @@ model Brand {
   updatedAt  DateTime? @map(name: "updated_at") @db.DateTime2
   Product    Product[]
 
+  @@index([name])
   @@map(name: "brand")
   @@schema("common")
 }
@@ -90,6 +91,8 @@ model Product {
 
   ProductI18n ProductI18n[]
 
+  @@index([name])
+  @@index([barcodeEan13])
   @@map(name: "product")
   @@schema("common")
 }

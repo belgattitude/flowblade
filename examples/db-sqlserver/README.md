@@ -5,7 +5,7 @@ Example of a product database using SQL Server, Prisma and Kysely.
 ### Quick start
 
 ```bash
-yarn prisma-db-reset-push
+yarn db-recreate
 yarn prisma-db-seed
 ```
 

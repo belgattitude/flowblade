@@ -47,27 +47,53 @@ COPY (
 
 ```genericsql
 COPY (
-    SELECT code,
-           product_name as name,
-           lang,
-           product_name_en as n_en,
-           product_name_fr as n_fr,
-           product_name_pt as n_pt,
-           brand_name as brand        
+    WITH duplicateCodes AS MATERIALIZED (
+      SELECT code
+      FROM etl_load_product
+      GROUP BY code
+      HAVING COUNT(*) > 1
+    )
+    SELECT distinct code,
+                    product_name as name,
+                    lang,
+                    product_name_en as n_en,
+                    product_name_fr as n_fr,
+                    product_name_pt as n_pt,
+                    brand_name as brand
     FROM etl_load_product
-    WHERE completeness > 0.6
+    ANTI JOIN duplicateCodes USING (code) 
+    WHERE completeness > 0.2
       AND (countries like '%France%'
         OR countries like '%Portugal%'
         OR countries like '%Germany%'
-        OR countries like '%Italy%' OR
-           countries like '%Poland%'
-        )
-    LIMIT 30000    
+        OR countries like '%Italy%'
+        OR countries like '%Poland%'
+        )    
+    ORDER BY completeness DESC        
+    LIMIT 100000
 ) TO 'product.seeds.openfoodfact.jsonl' (FORMAT JSON, ARRAY false);
 ```
 
-
 ```genericsql
+    WITH duplicateCodes AS MATERIALIZED (
+      SELECT code, count(*)
+      FROM etl_load_product
+      GROUP BY code
+      HAVING COUNT(*) > 1
+    )
+    SELECT code, count(*)
+    FROM etl_load_product
+    WHERE completeness > 0.3
+      AND (countries like '%France%'
+        OR countries like '%Portugal%'
+        OR countries like '%Germany%'
+        OR countries like '%Italy%'
+        OR countries like '%Poland%'
+        )    
+    GROUP BY code
+    HAVING count(*) > 1
+
+```
 
 ## Create sample json
 

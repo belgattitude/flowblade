@@ -1,6 +1,8 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { isEan13, isStringNonEmpty } from '@httpx/assert';
+
 import { AbstractSeed } from '../../lib/abstract-seed';
 import { parseJsonl } from '../../lib/parse-jsonl';
 
@@ -24,27 +26,36 @@ export class ProductSeeds extends AbstractSeed {
     const products = productSeeds.map((p) => {
       return {
         reference: p.code,
-        name: p.name,
-        barco: p.name,
-        brand: p.brand,
-        createdAt: new Date(),
-        updatedAt: null,
+        name: p.name ?? p.n_en ?? p.n_fr ?? p.n_pt ?? 'Unknnown name',
+        barcode_ean13: isEan13(p.code) ? p.code : null,
+        brandName: isStringNonEmpty(p.brand) ? p.brand : null,
       };
     });
-    console.log('products', products);
-    return;
 
-    for (const l of products) {
-      const { reference, ...nonUnique } = l;
-      const inserted = await this.prisma.product.upsert({
-        where: { locale },
-        update: {
-          ...nonUnique,
-          updatedAt: new Date(),
-        },
-        create: l,
-      });
-      this.log('UPSERT', `Language ${inserted.locale}`);
-    }
+    this.log('UPSERT', `Will upsert ${products.length} products`);
+
+    const _result = await this.prisma.$queryRaw`
+        DECLARE @jsonSeeds NVARCHAR(MAX); -- WARNING LIMIT TO 2GB
+        SET @jsonSeeds = ${JSON.stringify(products)};
+
+        MERGE INTO [common].[product] as p
+        USING (
+          SELECT seed.reference, seed.name, seed.barcode_ean13, b.id as brand_id
+          FROM OPENJSON(@jsonSeeds)
+                        WITH (reference NVARCHAR(255), name NVARCHAR(255), barcode_ean13 CHAR(13), brandName NVARCHAR(255))
+                 AS seed
+                 LEFT OUTER JOIN [common].[brand] AS b ON brandName = b.name
+        ) AS data (reference, name, barcode_ean13, brand_id)
+        ON p.reference = data.reference
+        WHEN MATCHED
+          THEN UPDATE SET
+                        name = data.name,
+                        barcode_ean13 = data.barcode_ean13,
+                        updated_at = CURRENT_TIMESTAMP
+        WHEN NOT MATCHED
+          THEN INSERT (reference, name, barcode_ean13, brand_id, created_at)
+               VALUES (data.reference, data.name, data.barcode_ean13, data.brand_id, CURRENT_TIMESTAMP);
+
+    `;
   };
 }

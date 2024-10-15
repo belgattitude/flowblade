@@ -1,4 +1,5 @@
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 import escape from 'regexp.escape';
 const tableRegexp =
   // eslint-disable-next-line regexp/no-unused-capturing-group
@@ -8,6 +9,12 @@ const tableRegexp =
 const createConstraintRegexp = () =>
   // eslint-disable-next-line regexp/no-unused-capturing-group
   /CONSTRAINT \[(?<indexName>[\w\-[\]]{1,200})\] UNIQUE NONCLUSTERED \((?<keys>(.*))\),?\n?/gi;
+
+const isNullableColumn = (column: string, ddl: string): boolean => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const escaped = escape(column.trim()) as string;
+  return !new RegExp(`${escaped} .* NOT NULL`, 'gm').test(ddl);
+};
 
 export const fixSqlServerNullUniqueIndexes = (ddls: string[]): string[] => {
   const fixedDdls = [] as string[];
@@ -30,13 +37,8 @@ export const fixSqlServerNullUniqueIndexes = (ddls: string[]): string[] => {
           if (keys === undefined || indexName === undefined) {
             throw new TypeError(`Can't extract keys from '${match}'`);
           }
-          const isNullableColumn = (column: string): boolean => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            const escaped = escape(column.trim()) as string;
-            return !new RegExp(`${escaped} .* NOT NULL`, 'gm').test(ddl);
-          };
           const columns = keys.split(',');
-          if (columns.some((element) => isNullableColumn(element))) {
+          if (columns.some((element) => isNullableColumn(element, ddl))) {
             const cond = columns.map((c) => `${c} IS NOT NULL`).join(' AND ');
             createIndex.push(
               `CREATE UNIQUE NONCLUSTERED INDEX ${indexName}
