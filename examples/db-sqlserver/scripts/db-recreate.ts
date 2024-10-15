@@ -10,7 +10,7 @@ try {
   const ddl = prismaDdl.getDdl();
   const statements = ddl.split(/GO/);
   for (const stmt of statements) {
-    console.log(stmt);
+    logger.log('info', `Executing: ${stmt}`);
     await prisma.$executeRawUnsafe(`${stmt}`);
   }
 } catch (e) {
