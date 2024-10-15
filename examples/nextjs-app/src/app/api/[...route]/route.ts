@@ -14,17 +14,18 @@ const app = new Hono().basePath('/api');
 /**
  * Sample 1
  */
-
 const zProduct = z.object({
   id: z.number(),
   name: z.string(),
-});
+} satisfies Record<string, unknown>);
 
 app.get(
   '/01-products',
   openApi({
     request: {
-      query: z.object({ limit: z.coerce.number().optional().default(100) }),
+      query: z.object({
+        limit: z.coerce.number().optional().default(100),
+      }),
     },
     responses: {
       200: z.array(zProduct),
@@ -41,7 +42,7 @@ app.get(
             p.brand_id,
             p.created_at,
             p.updated_at
-        FROM [common].[product] as p
+        FROM [common].[product] as p 
     `.execute(dbKyselySqlServer);
     return c.json(rows);
   }
@@ -51,17 +52,23 @@ app.get(
   '/02-products',
   openApi({
     request: {
-      query: z.object({ limit: z.coerce.number().optional().default(100) }),
+      query: z.object({
+        limit: z.coerce.number().optional().default(100),
+        searchName: z.string().optional(),
+      }),
     },
     responses: {
       200: z.array(zProduct),
     },
   }),
   async (c) => {
-    const { limit } = c.req.valid('query');
+    const { limit, searchName } = c.req.valid('query');
     const rows = await dbKyselySqlServer
       .selectFrom('common.product as p')
       .select(['name', 'barcode_ean13'])
+      .$if(searchName !== undefined, (q) =>
+        q.where('name', 'like', `%${searchName}%`)
+      )
       .top(limit)
       .execute();
     return c.json(rows);
@@ -70,7 +77,7 @@ app.get(
 
 createOpenApiDocument(app, {
   info: {
-    title: 'Example API',
+    title: 'Sample api',
     version: '1.0.0',
   },
 });
