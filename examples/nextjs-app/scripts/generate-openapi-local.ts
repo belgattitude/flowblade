@@ -1,7 +1,7 @@
 import path from 'node:path';
 import url from 'node:url';
 
-import { apiCatfactConfig } from '@/config/api-catfact.config';
+import { apiLocalConfig } from '@/config/api-local.config';
 import { generateOpenApiTypes } from '@/lib/generators/generate-open-api-types';
 
 const basePath = path.resolve(
@@ -9,7 +9,7 @@ const basePath = path.resolve(
   '..'
 );
 
-export const catFactSchema = apiCatfactConfig.schemaUrl;
-export const generatedFile = `${basePath}/src/generated/openapi/openapi-catfact.types.ts`;
+export const catFactSchema = apiLocalConfig.schemaUrl;
+export const generatedFile = `${basePath}/src/generated/openapi/local.types.ts`;
 
 await generateOpenApiTypes(catFactSchema, generatedFile);

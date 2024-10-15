@@ -1,6 +1,6 @@
 import type { DBKyselySqlServer } from '@flowblade/db-sqlserver/kysely-types';
 import { ConnectionUtils, createDialect } from '@flowblade/source-kysely';
-import { Kysely, MssqlDriver } from 'kysely';
+import { Kysely } from 'kysely';
 
 import { serverEnv } from '../../env/server.env.mjs';
 
@@ -14,16 +14,8 @@ const maskPII = (param: unknown) => {
   return param;
 };
 
-export class TediousAdapter extends MssqlDriver {
-  getDialect() {
-    return dialect;
-  }
-}
-
 export const dbKyselySqlServer = new Kysely<DBKyselySqlServer>({
   dialect: dialect,
-
-  // @todo decide if we want to move it to query executor instead.
   log: (event) => {
     if (event.level === 'error') {
       console.error('Query failed :', {

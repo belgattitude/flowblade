@@ -33,24 +33,6 @@ let nextConfig = {
   },
 };
 
-if (
-  clientEnv.NEXT_PUBLIC_ENABLE_HYDRATION_OVERLAY === 'true' &&
-  isDev &&
-  !isTurbo
-) {
-  try {
-    const { withHydrationOverlay } = await import(
-      '@builder.io/react-hydration-overlay/next'
-    ).then((mod) => mod);
-    nextConfig = withHydrationOverlay({})(nextConfig);
-    console.log(`- ${pc.green('info')} HydrationOverlay enabled`);
-  } catch {
-    console.error(`- ${pc.red('error')} Failed to enable HydrationOverlay`);
-  }
-} else {
-  console.log(`- ${pc.green('info')} HydrationOverlay not enabled`);
-}
-
 if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true' && !isTurbo) {
   try {
     const { withSentryConfig } = await import('@sentry/nextjs').then(

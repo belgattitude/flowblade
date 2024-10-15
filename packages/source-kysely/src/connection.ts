@@ -22,6 +22,8 @@ export const createDialect = (
     },
     tedious: {
       ...tedious,
+      // See https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
+      TYPES: { ...tedious.TYPES, NVarChar: tedious.TYPES.VarChar },
       connectionFactory: () => {
         return new tedious.Connection(tediousConfig);
       },
