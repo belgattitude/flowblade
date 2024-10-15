@@ -1,9 +1,9 @@
+import { BrandSeeds } from '../seeds/dev/brand.seeds';
+import { CurrencySeeds } from '../seeds/dev/currency.seeds';
+import { LocaleSeeds } from '../seeds/dev/locale.seeds';
+import { ProductSeeds } from '../seeds/dev/product.seeds';
 import { CliLogger } from '../src/lib/logger/cli-logger';
 import { PrismaClientSqlServer } from '../src/prisma';
-import { BrandSeeds } from '../src/seeds/dev/brand.seeds';
-import { CurrencySeeds } from '../src/seeds/dev/currency.seeds';
-import { LocaleSeeds } from '../src/seeds/dev/locale.seeds';
-import { ProductSeeds } from '../src/seeds/dev/product.seeds';
 
 const prisma = new PrismaClientSqlServer();
 const logger = new CliLogger('Prisma Seeds');

@@ -2,10 +2,12 @@
 
 Example of a product database using SQL Server, Prisma and Kysely. 
 
+> **Warning** The prisma integration is shown to demonstrate the issues with the current prisma sql-server support.
+
 ### Quick start
 
 ```bash
-yarn db-recreate
+yarn db-recreate-dev
 yarn prisma-db-seed
 ```
 
@@ -25,18 +27,23 @@ DB_FLOWBLADE_SQLSERVER_JDBC="sqlserver://localhost:1433;database=flowblade;user=
 
 > Yon can create a './env.local' file to override the default values.
 
+### Schema
+
+![schema.png](docs%2Fimages%2Fschema.png)
+
 ### Local scripts
 
-| Name                        | Description                                 |
-|-----------------------------|---------------------------------------------|
-| `yarn codegen`              | Run codegen (prisma generate...)            |
-| `yarn prisma-db-reset-push` | Drop and recreate database                  |
-| `yarn prisma-db-push`       | Attempt to apply schema changes to database |
-| `yarn prisma-db-seed`       | Load seeds into database                    |
-| `yarn prisma-studio`        | Launch prisma studio (ui admin)             |
-| `yarn prisma-validate`      | Validate schema.prisma                      |
-| `yarn prisma-format`        | Format schema.prisma                        |
-| `yarn lint`                 | Check for lint errors                       |
-| `yarn lint --fix`           | Attempt to run linter auto-fix              |
-| `yarn test-unit`            | Run unit tests                              |
-| `yarn clean`                | Remove all caches                           |
+| Name                        | Description                                               |
+|-----------------------------|-----------------------------------------------------------|
+| `yarn codegen`              | Run codegen (prisma generate...)                          |
+| `yarn db-recreate-dev`      | Reset the database and apply the latest schema with seeds |
+| `yarn prisma-db-seed`       | Load seeds into database                                  |
+| `yarn prisma-db-reset-push` | Drop and recreate database                                |
+| `yarn prisma-db-push`       | Attempt to apply schema changes to database               |
+| `yarn prisma-studio`        | Launch prisma studio (ui admin)                           |
+| `yarn prisma-validate`      | Validate schema.prisma                                    |
+| `yarn prisma-format`        | Format schema.prisma                                      |
+| `yarn lint`                 | Check for lint errors                                     |
+| `yarn lint --fix`           | Attempt to run linter auto-fix                            |
+| `yarn test-unit`            | Run unit tests                                            |
+| `yarn clean`                | Remove all caches                                         |

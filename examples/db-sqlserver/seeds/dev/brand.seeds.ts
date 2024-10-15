@@ -1,5 +1,5 @@
-import { AbstractSeed } from '../../lib/abstract-seed';
-import type { PrismaSqlServer as Prisma } from '../../prisma';
+import { AbstractSeed } from '../../src/lib/abstract-seed';
+import type { PrismaSqlServer as Prisma } from '../../src/prisma';
 import jsonBrands from './brand.seeds.openfoodfact.json' with { type: 'json' };
 
 export class BrandSeeds extends AbstractSeed {

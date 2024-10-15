@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 
 import { isEan13, isStringNonEmpty } from '@httpx/assert';
 
-import { AbstractSeed } from '../../lib/abstract-seed';
-import { parseJsonl } from '../../lib/parse-jsonl';
+import { AbstractSeed } from '../../src/lib/abstract-seed';
+import { parseJsonl } from '../../src/lib/parse-jsonl';
 
 export class ProductSeeds extends AbstractSeed {
   execute = async (): Promise<void> => {
