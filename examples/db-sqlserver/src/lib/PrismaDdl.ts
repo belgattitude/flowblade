@@ -2,19 +2,13 @@ import { readFileSync, writeFileSync } from 'node:fs';
 
 import { execaCommandSync } from 'execa';
 
+import { fixSqlServerNullUniqueIndexes } from './hacks/fix-sql-server-null-unique-indexes';
 import type { ILogger } from './logger/logger.interface';
 
 export class PrismaDdl {
   constructor(public readonly logger: ILogger) {}
 
-  /**
-   *
-   * @throws Error
-   */
-  createDdlFile = (outputFile = 'prisma/schema.prisma') => {
-    const log = this.logger.log;
-    log('info', 'Running create ddl...');
-
+  getDdl = (): string => {
     this.execPrismaCliOrThrow(
       'yarn prisma format',
       'Formatting prisma schema failed'
@@ -33,9 +27,23 @@ export class PrismaDdl {
       })
       .filter((v) => {
         return v?.toUpperCase().match(/^(ALTER|CREATE) /);
-      });
+      })
+      .filter((v) => v !== null);
 
-    const createTablesStr = creationDdls.join('\nGO\n');
+    const hackedDdls = fixSqlServerNullUniqueIndexes(creationDdls);
+
+    return hackedDdls.join('\nGO\n');
+  };
+
+  /**
+   *
+   * @throws Error
+   */
+  createDdlFile = (outputFile = 'prisma/schema.prisma') => {
+    const log = this.logger.log;
+    log('info', 'Running create ddl...');
+
+    const createTablesStr = this.getDdl();
 
     let currentContent: string;
     try {

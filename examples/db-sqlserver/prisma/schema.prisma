@@ -77,14 +77,16 @@ model Brand {
 }
 
 model Product {
-  id      Int   @id @default(autoincrement()) @db.Int
-  Brand   Brand @relation(fields: [brandId], references: [id])
-  brandId Int   @map(name: "brand_id") @db.Int
+  id      Int    @id @default(autoincrement()) @db.Int
+  Brand   Brand? @relation(fields: [brandId], references: [id])
+  brandId Int?   @map(name: "brand_id") @db.Int
 
-  name       String    @map(name: "name") @db.VarChar(40)
-  flagActive Boolean   @default(true) @map(name: "flag_active") @db.Bit
-  createdAt  DateTime  @map(name: "created_at") @db.DateTime2
-  updatedAt  DateTime? @map(name: "updated_at") @db.DateTime2
+  reference    String    @unique @map(name: "reference") @db.VarChar(40)
+  name         String    @map(name: "name") @db.NVarChar(200)
+  barcodeEan13 String?   @unique @map(name: "barcode_ean13") @db.Char(13)
+  flagActive   Boolean   @default(true) @map(name: "flag_active") @db.Bit
+  createdAt    DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt    DateTime? @map(name: "updated_at") @db.DateTime2
 
   ProductI18n ProductI18n[]
 
@@ -95,7 +97,7 @@ model Product {
 model ProductI18n {
   id        Int       @id @default(autoincrement())
   Product   Product   @relation(fields: [productId], references: [id])
-  productId Int       @map(name: "currency_id") @db.Int
+  productId Int       @map(name: "product_id") @db.Int
   Locale    Locale    @relation(fields: [locale], references: [locale])
   locale    String    @map(name: "locale") @db.VarChar(5)
   name      String    @map(name: "name") @db.VarChar(40)

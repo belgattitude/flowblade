@@ -1,0 +1,30 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`hack > should fix unique indexes 1`] = `
+[
+  "CREATE TABLE [common].[currency_i18n2] (
+          [id] INT NOT NULL IDENTITY(1,1),
+          [currency_id] SMALLINT NOT NULL,
+          [locale] VARCHAR(5) NOT NULL,
+          [name] VARCHAR(40) NOT NULL,
+          [description] VARCHAR(40) NULL,
+          [barcode_ean13] CHAR(13),
+          [test] VARCHAR(40) NOT NULL,          
+          CONSTRAINT [currency_i18n2_pkey] PRIMARY KEY CLUSTERED ([id]),          
+          CONSTRAINT [currency_i18n2_name_key] UNIQUE NONCLUSTERED ([name]),
+                                        CONSTRAINT [currency_i18n2_currency_id_locale_key] UNIQUE NONCLUSTERED ([currency_id],[locale]),
+        );",
+  "CREATE UNIQUE NONCLUSTERED INDEX currency_i18n2_description_key
+              ON [common].[currency_i18n2] ([description])
+              WHERE [description] IS NOT NULL            
+            ",
+  "CREATE UNIQUE NONCLUSTERED INDEX currency_i18n2_barcode_ean13
+              ON [common].[currency_i18n2] ([barcode_ean13])
+              WHERE [barcode_ean13] IS NOT NULL            
+            ",
+  "CREATE UNIQUE NONCLUSTERED INDEX currency_i18n2_description_test_key
+              ON [common].[currency_i18n2] ([description],[test])
+              WHERE [description] IS NOT NULL AND [test] IS NOT NULL            
+            ",
+]
+`;

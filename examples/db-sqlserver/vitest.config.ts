@@ -19,7 +19,7 @@ export default defineConfig({
     },
     // threads is good, vmThreads is faster (perf++) but comes with possible memory leaks
     // @link https://vitest.dev/config/#vmthreads
-    pool: 'threads',
+    pool: 'forks',
     poolOptions: {
       vmThreads: {
         // useAtomics -> perf+
@@ -43,9 +43,6 @@ export default defineConfig({
     ],
     passWithNoTests: true,
     // setupFiles: './setup/tests/setupVitest.ts',
-    cache: {
-      dir: '../../.cache/vitest/db-sqlserver',
-    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'clover'],
