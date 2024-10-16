@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 
 import { CliLogger } from '../src/lib/logger/cli-logger';
-import { PrismaDdl } from '../src/lib/PrismaDdl';
+import { PrismaDdl } from '../src/lib/prisma-ddl';
 
 const ddlOutputFile = fileURLToPath(
   import.meta.url + '/../../data/ddl/create-tables.generated.sql'
