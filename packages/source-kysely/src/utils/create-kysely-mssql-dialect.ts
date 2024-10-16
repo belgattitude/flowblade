@@ -1,12 +1,15 @@
 import { MssqlDialect } from 'kysely';
 import * as tarn from 'tarn';
-import * as tedious from 'tedious';
+import * as Tedious from 'tedious';
 
 /**
  * Create a Kysely dialect for Microsoft SQL Server.
  *
  * @example
  * ```typescript
+ * import * as Tedious from 'tedious';
+ * import { TediousConnUtils } from '@flowblade/source-kysely';
+ *
  * const jdbcDsn = "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
  * const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
  * const tediousConnection = new Tedious.Connection(tediousConfig);
@@ -16,6 +19,11 @@ import * as tedious from 'tedious';
  *   tarnPool: {
  *     min: 0,
  *     max: 10
+ *   },
+ *   // Optional tedious tyoes
+ *   tediousTypes: {
+ *     // Example based on https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
+ *     { ...Tedious.TYPES, NVarChar: Tedious.TYPES.VarChar }
  *   }
  * });
  *
@@ -25,7 +33,7 @@ import * as tedious from 'tedious';
  * ```
  */
 export const createKyselyMssqlDialect = (
-  tediousConfig: tedious.ConnectionConfiguration,
+  tediousConfig: Tedious.ConnectionConfiguration,
   options?: {
     tarnPool?: {
       /** default: 0 */
@@ -33,9 +41,10 @@ export const createKyselyMssqlDialect = (
       /** default: 10 */
       max?: number;
     };
+    tediousTypes?: typeof Tedious.TYPES;
   }
-) => {
-  const { tarnPool = {} } = options ?? {};
+): MssqlDialect => {
+  const { tarnPool = {}, tediousTypes } = options ?? {};
   const { min = 0, max = 10 } = tarnPool;
   return new MssqlDialect({
     tarn: {
@@ -53,11 +62,11 @@ export const createKyselyMssqlDialect = (
       // validateConnections: false
     },
     tedious: {
-      ...tedious,
+      ...Tedious,
       // See https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
-      TYPES: { ...tedious.TYPES, NVarChar: tedious.TYPES.VarChar },
+      ...(tediousTypes === undefined ? {} : { TYPES: tediousTypes }),
       connectionFactory: () => {
-        return new tedious.Connection(tediousConfig);
+        return new Tedious.Connection(tediousConfig);
       },
       /**
        * @todo when https://github.com/kysely-org/kysely/pull/1073/files is merged
