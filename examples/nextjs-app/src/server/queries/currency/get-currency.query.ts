@@ -18,18 +18,23 @@ export const getCurrencyQuery = (params: Params) => {
   const { locale } = params;
   const { fn } = dbKyselySqlServer;
   return dbKyselySqlServer
-    .selectFrom('currency as cu')
-    .leftJoin('currency_i18n as cuI18n', (join) =>
+    .selectFrom('common.currency as cu')
+    .leftJoin('common.currency_i18n as cu18', (join) =>
       join
-        .onRef('cu.id', '=', 'cuI18n.currency_id')
-        .on('cuI18n.locale', '=', locale)
+        .onRef('cu.id', '=', 'cu18.currency_id')
+        .on('cu18.locale', '=', locale)
     )
     .select([
       'cu.id as currency_id',
       'cu.code',
-      fn.coalesce('currency_i18n.name', 'currency.name').as('name'),
       fn
-        .coalesce('currency_i18n.name_plural', 'currency.name_plural')
+        .coalesce('common.currency_i18n.name', 'common.currency.name')
+        .as('name'),
+      fn
+        .coalesce(
+          'common.currency_i18n.name_plural',
+          'common.currency.name_plural'
+        )
         .as('namePlural'),
     ])
     .execute();
@@ -38,10 +43,10 @@ export const getCurrencyQuery = (params: Params) => {
       SELECT cu.id as currency_id,
              cu.code,
              cu.symbol,
-             COALESCE(cuI18n.name, cu.name) as name,
-             COALESCE(cuI18n.name_plural, cu.name_plural) as namePlural
-      FROM [common].[currency] cu
-      LEFT OUTER JOIN [common].[currency_i18n] cuI18n
+             COALESCE(cuI18n.name, cu.name) AS name,
+             COALESCE(cuI18n.name_plural, cu.name_plural) AS namePlural
+      FROM [common].[currency] AS cu
+      LEFT OUTER JOIN [common].[currency_i18n] AS cuI18n
       ON cu.id = cui18n.currency_id and cuI18n.locale = ${locale}        
   `;
 };

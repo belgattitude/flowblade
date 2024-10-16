@@ -6,6 +6,46 @@
 yarn add @flowblade/source-kysely tedious tarn
 ```
 
+## Utils
+
+### createKyselyMssqlDialect
+
+```typescript
+import { TediousConnUtils, createKyselyMssqlDialect } from '@flowblade/source-kysely';
+
+const jdbcDsn = "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
+const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
+const tediousConnection = new Tedious.Connection(tediousConfig);
+
+const dialect = createKyselyMssqlDialect(tediousConfig, {
+  // Optional tarn pool options
+  tarnPool: {
+    min: 0,
+    max: 10
+  }
+});
+
+const db = new Kysely<DB>({
+    dialect
+});
+```
+
+### TediousConnUtils
+
+#### fromJdbcDsn
+
+Parse and validate a JDBC connection string and return a Tedious connection configuration.
+
+```typescript
+import { TediousConnUtils } from '@flowblade/source-kysely';
+
+const tediousConfig = TediousConnUtils.fromJdbcDsn(process.env.DB_JDBC_DSN);
+
+const jdbcDsn = "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
+const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
+const tediousConnection = new Tedious.Connection(tediousConfig);
+```
+
 ## Contributors
 
 Contributions are welcome. Have a look to the [CONTRIBUTING](https://github.com/belgattitude/flowblade/blob/main/CONTRIBUTING.md) document.
