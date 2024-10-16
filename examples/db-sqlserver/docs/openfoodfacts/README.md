@@ -1,7 +1,7 @@
 
 ## Create duckdb
 
-```genericsql
+```sql
 CREATE OR REPLACE TABLE etl_load_product AS
 SELECT code,
        lang,
@@ -31,7 +31,7 @@ WHERE code IS NOT NULL
 
 ## Create sample brands
 
-```genericsql
+```sql
 COPY (
  SELECT brand_name as name, 
         count(*) AS nb_products 
@@ -45,7 +45,7 @@ COPY (
 
 ### Create a product sample
 
-```genericsql
+```sql
 COPY (
     WITH duplicateCodes AS MATERIALIZED (
       SELECT code
@@ -74,7 +74,7 @@ COPY (
 ) TO 'product.seeds.openfoodfact.jsonl' (FORMAT JSON, ARRAY false);
 ```
 
-```genericsql
+```sql
     WITH duplicateCodes AS MATERIALIZED (
       SELECT code, count(*)
       FROM etl_load_product
@@ -97,6 +97,6 @@ COPY (
 
 ## Create sample json
 
-```genericsql
+```sql
 COPY (FROM read_ndjson('openfoodfacts-products.jsonl', ignore_errors=True) OFFSET 3000000 LIMIT 3) TO 'openfoodfact-sample.json';
 ```

@@ -40,28 +40,33 @@ export class ProductSeeds extends AbstractSeed {
         insertedEan13: string;
       }[]
     >`
-        DECLARE @jsonSeeds NVARCHAR(MAX); -- WARNING LIMIT TO 2GB
-        SET @jsonSeeds = ${JSON.stringify(products)};
+      DECLARE @jsonSeeds NVARCHAR(MAX); -- WARNING LIMIT TO 2GB
+      SET @jsonSeeds = ${JSON.stringify(products)};
 
-        MERGE INTO [common].[product] as p
-        USING (
-          SELECT seed.reference, seed.name, seed.barcode_ean13, b.id as brand_id
-          FROM OPENJSON(@jsonSeeds)
-                        WITH (reference NVARCHAR(255), name NVARCHAR(255), barcode_ean13 CHAR(13), brandName NVARCHAR(255))
-                 AS seed
-                 LEFT OUTER JOIN [common].[brand] AS b ON brandName = b.name
-        ) AS data (reference, name, barcode_ean13, brand_id)
-        ON p.reference = data.reference
-        WHEN MATCHED
-          THEN UPDATE SET
-                        name = data.name,
-                        barcode_ean13 = data.barcode_ean13,
-                        updated_at = CURRENT_TIMESTAMP
-        WHEN NOT MATCHED
-          THEN INSERT (reference, name, barcode_ean13, brand_id, created_at)
-               VALUES (data.reference, data.name, data.barcode_ean13, data.brand_id, CURRENT_TIMESTAMP)
+      -- Upsert new products
+      MERGE INTO [common].[product] as p
+      USING (
+        -- Get data from jsonSeeds with brand.brand_id 
+        SELECT seed.reference, seed.name, seed.barcode_ean13, b.id as brand_id
+        FROM OPENJSON(@jsonSeeds) WITH (
+          reference NVARCHAR(255),
+          name NVARCHAR(255),
+          barcode_ean13 CHAR(13),
+          brandName NVARCHAR(255)
+          ) AS seed
+          LEFT OUTER JOIN [common].[brand] AS b
+            ON brandName = b.name
+      ) AS data (reference, name, barcode_ean13, brand_id)
+      ON p.reference = data.reference
+      WHEN MATCHED
+        THEN UPDATE SET
+          name = data.name,
+          barcode_ean13 = data.barcode_ean13,
+          updated_at = CURRENT_TIMESTAMP
+      WHEN NOT MATCHED
+        THEN INSERT (reference, name, barcode_ean13, brand_id, created_at)
+             VALUES (data.reference, data.name, data.barcode_ean13, data.brand_id, CURRENT_TIMESTAMP)
         OUTPUT INSERTED.id as insertedId, INSERTED.barcode_ean13 as insertedEan13;
-
     `;
     this.collectStats('Product', { totalAffected: result.length });
   };
