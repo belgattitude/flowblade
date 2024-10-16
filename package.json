@@ -87,6 +87,20 @@
   "resolutions-help": {
     "@opentelemetry/instrumentation": "Till prisma is updated"
   },
+  "dependenciesMeta-help": {
+    "tree-sitter/*": "Swagger-ui used in examples react depends on node-gyp tree-sitter and this is not wanted at all for client side render."
+  },
+  "dependenciesMeta": {
+    "tree-sitter": {
+      "built": false
+    },
+    "tree-sitter-json": {
+      "built": false
+    },
+    "tree-sitter-yaml": {
+      "built": false
+    }
+  },
   "engines": {
     "node": ">=18.18"
   }

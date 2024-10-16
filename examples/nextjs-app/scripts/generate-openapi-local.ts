@@ -10,6 +10,6 @@ const basePath = path.resolve(
 );
 
 export const catFactSchema = apiLocalConfig.schemaUrl;
-export const generatedFile = `${basePath}/src/lib/openapi/local-api.generated.types.ts`;
+export const generatedFile = `${basePath}/src/lib/openapi/local-api.types.generated.ts`;
 
 await generateOpenApiTypes(catFactSchema, generatedFile);

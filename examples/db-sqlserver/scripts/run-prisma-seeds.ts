@@ -44,7 +44,7 @@ async function runPrismaSeeds() {
   logger.log('success', `Seeding finished, here's the summary:`);
   summary.forEach((s) => {
     const inSeconds = Math.round(s.timeMs / 100) / 10;
-    const total = logger.log(
+    logger.log(
       'success',
       `[x] ${s.name.padEnd(12, '.')} - affected: ${String(s.totalAffected).padStart(7, '.')} - took ${inSeconds} s`
     );

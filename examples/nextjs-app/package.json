@@ -1,5 +1,5 @@
 {
-  "name": "@examples/nextjs-app",
+  "name": "nextjs-app",
   "version": "0.1.87",
   "type": "module",
   "private": true,
@@ -29,15 +29,8 @@
     "prettier-check": "yarn run --top-level prettier --check --cache --cache-location=\"../../.cache/prettier/next-classic.prettiercache\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore \"./**/*.{js,jsx,cjs,mjs,ts,tsx,mts,md,mdx,json,css,scss,less}\"",
     "prettier-fix": "yarn run --top-level prettier --write --cache --cache-location=\"../../.cache/prettier/next-classic.prettiercache\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore \"./**/*.{js,jsx,cjs,mjs,ts,tsx,mts,md,mdx,json,css,scss,less}\"",
     "fix-staged": "lint-staged --allow-empty",
-    "codegen": "run-s codegen-api prisma-generate",
-    "codegen-api": "tsx ./scripts/generate-openapi-local.ts",
-    "prisma-generate": "prisma generate",
-    "prisma-db-push": "dotenv-flow -- yarn prisma db push",
-    "prisma-db-pull": "dotenv-flow -- yarn prisma db pull",
-    "prisma-db-seed": "dotenv-flow -- yarn prisma db seed",
-    "prisma-migrate": "dotenv-flow -- yarn prisma migrate",
-    "prisma-migrate-reset": "dotenv-flow -- yarn prisma migrate reset",
-    "prisma-studio": "dotenv-flow -- yarn prisma studio"
+    "codegen": "run-s codegen-api",
+    "codegen-api": "tsx ./scripts/generate-openapi-local.ts"
   },
   "dependencies": {
     "@flowblade/db-sqlserver": "workspace:^",
@@ -56,7 +49,6 @@
     "@opentelemetry/sdk-logs": "0.53.0",
     "@opentelemetry/sdk-metrics": "1.26.0",
     "@opentelemetry/sdk-trace-base": "1.26.0",
-    "@prisma/client": "5.21.0",
     "@reduxjs/toolkit": "2.3.0",
     "@sentry/nextjs": "8.34.0",
     "@t3-oss/env-nextjs": "0.11.1",
@@ -78,6 +70,7 @@
     "react-redux": "9.1.2",
     "swagger-ui-react": "5.17.14",
     "tailwind-merge": "2.5.4",
+    "tarn": "3.0.2",
     "tedious": "19.0.0",
     "valibot": "1.0.0-beta.1",
     "zod": "3.23.8"
@@ -109,7 +102,6 @@
     "openapi-typescript": "7.4.1",
     "postcss": "8.4.47",
     "prettier": "3.3.3",
-    "prisma": "5.21.0",
     "rimraf": "6.0.1",
     "tailwindcss": "3.4.14",
     "tinyrainbow": "1.2.0",

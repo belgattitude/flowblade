@@ -29,7 +29,7 @@ module.exports = {
   ignorePatterns: [...getDefaultIgnorePatterns()],
   overrides: [
     {
-      files: ['**/src/generated/openapi/*'],
+      files: ['**/src/**/*.generated.ts'],
       rules: {
         '@typescript-eslint/consistent-indexed-object-style': 'off',
         'sonarjs/class-name': 'off',
