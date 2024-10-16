@@ -1,1 +1,1 @@
-export type * as LocalApi from './local-api.generated.types';
+export type * as LocalApi from './local-api.types.generated';
