@@ -39,6 +39,7 @@ export class CurrencySeeds extends AbstractSeed {
       this.log('UPSERT', `Currency ${inserted.code} ${inserted.id}`);
       mapCurrencyi18n.set(inserted.code, inserted.id);
     }
+    this.collectStats('Currency', { totalAffected: currencyData.length });
 
     const locales = await this.prisma.locale.findMany({
       select: {
@@ -47,6 +48,7 @@ export class CurrencySeeds extends AbstractSeed {
     });
     const availableLocales = new Set(locales.map((row) => row.locale));
 
+    let affected = 0;
     for (const { translations, code: currencyCode } of currencyData) {
       const currencyId = mapCurrencyi18n.get(currencyCode)!;
       for (const [localeCode, value] of Object.entries(translations)) {
@@ -68,12 +70,14 @@ export class CurrencySeeds extends AbstractSeed {
               THEN INSERT (currency_id, locale, name, name_plural, created_at) 
                    VALUES (data.currency_id, data.locale, data.name, data.name_plural, CURRENT_TIMESTAMP);       
           `;
+          affected++;
           this.log(
             'UPSERT',
             `CurrencyI18n ${currencyCode} ${localeCode} - ${name}`
           );
         }
       }
+      this.collectStats('CurrencyI18n', { totalAffected: affected });
     }
   };
 }

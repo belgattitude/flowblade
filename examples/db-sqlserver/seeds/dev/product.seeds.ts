@@ -34,7 +34,12 @@ export class ProductSeeds extends AbstractSeed {
 
     this.log('UPSERT', `Will upsert ${products.length} products`);
 
-    const _result = await this.prisma.$queryRaw`
+    const result = await this.prisma.$queryRaw<
+      {
+        insertedId: number;
+        insertedEan13: string;
+      }[]
+    >`
         DECLARE @jsonSeeds NVARCHAR(MAX); -- WARNING LIMIT TO 2GB
         SET @jsonSeeds = ${JSON.stringify(products)};
 
@@ -54,8 +59,10 @@ export class ProductSeeds extends AbstractSeed {
                         updated_at = CURRENT_TIMESTAMP
         WHEN NOT MATCHED
           THEN INSERT (reference, name, barcode_ean13, brand_id, created_at)
-               VALUES (data.reference, data.name, data.barcode_ean13, data.brand_id, CURRENT_TIMESTAMP);
+               VALUES (data.reference, data.name, data.barcode_ean13, data.brand_id, CURRENT_TIMESTAMP)
+        OUTPUT INSERTED.id as insertedId, INSERTED.barcode_ean13 as insertedEan13;
 
     `;
+    this.collectStats('Product', { totalAffected: result.length });
   };
 }

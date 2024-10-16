@@ -24,5 +24,6 @@ export class BrandSeeds extends AbstractSeed {
       });
       this.log('UPSERT', `Brand ${inserted.id} - ${inserted.name}`);
     }
+    this.collectStats('Brand', { totalAffected: brandData.length });
   };
 }

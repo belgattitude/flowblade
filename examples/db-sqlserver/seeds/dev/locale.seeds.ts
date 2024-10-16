@@ -27,5 +27,6 @@ export class LocaleSeeds extends AbstractSeed {
       });
       this.log('UPSERT', `Language ${inserted.locale}`);
     }
+    this.collectStats('Locale', { totalAffected: localeData.length });
   };
 }
