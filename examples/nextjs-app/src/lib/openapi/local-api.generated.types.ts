@@ -1,5 +1,5 @@
 export interface paths {
-  '/api/query1': {
+  '/api/products/ex1': {
     parameters: {
       query?: never;
       header?: never;
@@ -10,6 +10,47 @@ export interface paths {
       parameters: {
         query?: {
           limit?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description 200 OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/products/ex2': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: {
+          limit?: number;
+          searchName?: string;
         };
         header?: never;
         path?: never;
