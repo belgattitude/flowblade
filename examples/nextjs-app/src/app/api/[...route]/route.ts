@@ -4,7 +4,7 @@ import { createOpenApiDocument, openApi } from 'hono-zod-openapi';
 import { sql } from 'kysely';
 import { z } from 'zod';
 
-import { dbKyselySqlServer } from '@/server/config/db.kysely-sqlserver.config';
+import { dbKyselySqlServer as db } from '@/server/config/db.kysely-sqlserver.config';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -43,7 +43,7 @@ app.get(
             p.created_at,
             p.updated_at
         FROM [common].[product] as p 
-    `.execute(dbKyselySqlServer);
+    `.execute(db);
     return c.json(rows);
   }
 );
@@ -63,7 +63,7 @@ app.get(
   }),
   async (c) => {
     const { limit, searchName } = c.req.valid('query');
-    const rows = await dbKyselySqlServer
+    const rows = await db
       .selectFrom('common.product as p')
       .select(['name', 'barcode_ean13'])
       .$if(searchName !== undefined, (q) =>

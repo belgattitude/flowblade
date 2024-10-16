@@ -1,5 +1,5 @@
 import { CliLogger } from '../src/lib/logger/cli-logger';
-import { PrismaDdl } from '../src/lib/PrismaDdl';
+import { PrismaDdl } from '../src/lib/prisma-ddl';
 import { PrismaClientSqlServer } from '../src/prisma';
 
 const logger = new CliLogger('create-ddl');

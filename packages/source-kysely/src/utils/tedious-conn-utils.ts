@@ -12,15 +12,15 @@ const tediousSchema = v.object({
     /**
      * Different options for authentication types:
      *
-     * * `default`: [[DefaultAuthentication.options]]
-     * * `ntlm` :[[NtlmAuthentication]]
-     * * `token-credential`: [[CredentialChainAuthentication.options]]
-     * * `azure-active-directory-password` : [[AzureActiveDirectoryPasswordAuthentication.options]]
-     * * `azure-active-directory-access-token` : [[AzureActiveDirectoryAccessTokenAuthentication.options]]
-     * * `azure-active-directory-msi-vm` : [[AzureActiveDirectoryMsiVmAuthentication.options]]
-     * * `azure-active-directory-msi-app-service` : [[AzureActiveDirectoryMsiAppServiceAuthentication.options]]
-     * * `azure-active-directory-service-principal-secret` : [[AzureActiveDirectoryServicePrincipalSecret.options]]
-     * * `azure-active-directory-default` : [[AzureActiveDirectoryDefaultAuthentication.options]]
+     * `default`: [[DefaultAuthentication.options]]
+     * `ntlm` :[[NtlmAuthentication]]
+     * `token-credential`: [[CredentialChainAuthentication.options]]
+     * `azure-active-directory-password` : [[AzureActiveDirectoryPasswordAuthentication.options]]
+     * `azure-active-directory-access-token` : [[AzureActiveDirectoryAccessTokenAuthentication.options]]
+     * `azure-active-directory-msi-vm` : [[AzureActiveDirectoryMsiVmAuthentication.options]]
+     * `azure-active-directory-msi-app-service` : [[AzureActiveDirectoryMsiAppServiceAuthentication.options]]
+     * `azure-active-directory-service-principal-secret` : [[AzureActiveDirectoryServicePrincipalSecret.options]]
+     * `azure-active-directory-default` : [[AzureActiveDirectoryDefaultAuthentication.options]]
      */
     v.union([
       v.literal('default'),
@@ -49,8 +49,19 @@ const tediousSchema = v.object({
   requestTimeout: v.optional(v.number('Request timeout in milliseconds')),
 });
 
-export const ConnectionUtils = {
-  jdbcToTediousConfig: (jdbcUrl: string): TediousConnectionConfig => {
+export const TediousConnUtils = {
+  /**
+   * Parse and validate a JDBC connection string and return a Tedious connection configuration.
+   *
+   * @example
+   * ```typescript
+   * const jdbcDsn = "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
+   * const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
+   * const tediousConnection = new Tedious.Connection(tediousConfig);
+   * ```
+   * @throw TypeError if dsn isn't valid
+   */
+  fromJdbcDsn: (jdbcUrl: string): TediousConnectionConfig => {
     const dsn = convertJdbcToDsn(jdbcUrl);
     const parsed = parseDsnOrThrow(dsn);
     const params = v.parse(tediousSchema, parsed.params);
