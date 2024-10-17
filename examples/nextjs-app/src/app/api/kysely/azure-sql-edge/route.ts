@@ -78,7 +78,7 @@ export async function GET(_req: NextRequest) {
     connection: dbKyselySqlServer,
   });
 
-  const result = await db.query(qRaw);
+  const result = await db.queryRaw(qRaw);
 
   return NextResponse.json(result.data);
 }
