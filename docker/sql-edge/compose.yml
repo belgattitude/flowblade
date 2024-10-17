@@ -9,6 +9,13 @@ services:
       - '1433:1433'
     env_file:
       - .env.azure-sql-edge.development
+    restart: unless-stopped
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q "SELECT 1" -b -o /dev/null
+      interval: 1s
+      timeout: 30s
+      retries: 30
+      start_period: 5s
     networks:
       - flowblade-dev-network
     volumes:

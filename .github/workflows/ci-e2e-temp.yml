@@ -1,0 +1,51 @@
+name: CI-e2e-temp
+
+on:
+  push:
+    branches:
+     - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+
+jobs:
+  test-packages:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    env:
+      NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Fetch all git history so that yarn workspaces --since can compare with the correct commits
+          # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          fetch-depth: 0
+
+      - name: ⚙️ Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 📥 Monorepo install
+        uses: ./.github/actions/yarn-nm-install
+
+      - name: ⚙️ Nx setup - SHAs for base and head for `nx affected` commands
+        id: nx-set-shas
+        uses: nrwl/nx-set-shas@v4
+
+      - run: |
+          echo "BASE: ${{ steps.nx-set-shas.outputs.base }}"
+          echo "HEAD: ${{ steps.nx-set-shas.outputs.head }}"
+
+      - name: 🧪 E2E source-kysely sql-server
+        working-directory: "packages/source-kysely"
+        run:
+          docker compose -f e2e/docker/compose.yml -f e2e/docker/sql-server/azure/compose.yml up -d --wait
+          yarn test-e2e
+
