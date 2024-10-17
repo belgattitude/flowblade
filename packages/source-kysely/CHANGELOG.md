@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.3.0
+
+### Minor Changes
+
+- [`6967b73`](https://github.com/belgattitude/flowblade/commit/6967b73057c2f7297377951c5bebd9fbcac93115) - BC: rename executor into datasource + expose underlying connection
+
 ## 0.2.0
 
 ### Minor Changes
