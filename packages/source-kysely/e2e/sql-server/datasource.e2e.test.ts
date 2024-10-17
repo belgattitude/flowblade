@@ -4,6 +4,7 @@ import { createE2eDatasource } from '../utils/create-e2e-datasource';
 
 describe('Datasource sqlserver', () => {
   const ds = createE2eDatasource('sql-server');
+  const db = ds.getConnection();
   describe('Kysely raw queries', () => {
     it('01. basicQuery', async () => {
       type Row = {
@@ -53,9 +54,34 @@ describe('Datasource sqlserver', () => {
     });
   });
 
-  describe('Kysely select queries', () => {
-    it('basicQuery with params', async () => {
-      const db = ds.getConnection();
+  describe.sequential('Kysely select queries', () => {
+    it('upsert a brand', async () => {
+      const params = {
+        id: 1,
+        name: 'Brand 1',
+      };
+      const query = db
+        .mergeInto('brand as Target')
+        .using('brand as Source', 'Target.id', 'Source.id')
+        .whenMatched()
+        .thenUpdateSet({
+          name: params.name,
+          updated_at: new Date(),
+        })
+        .whenNotMatched()
+        .thenInsertValues({
+          name: params.name,
+          created_at: new Date(),
+        })
+        .output(['inserted.id', 'inserted.name', 'inserted.flag_active']);
+
+      const rows = await ds.query(query);
+      const stabletimeMs = 0.1;
+      rows.meta.timeMs = stabletimeMs;
+      expect(rows).toMatchSnapshot();
+    });
+
+    it('get some brands', async () => {
       const query = db.selectFrom('brand as b').select(['b.id', 'b.name']);
       const rows = await ds.query(query);
       const stabletimeMs = 0.1;

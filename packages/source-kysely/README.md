@@ -56,9 +56,8 @@ Contributions are welcome. Have a look to the [CONTRIBUTING](https://github.com/
 
 ## Sponsors
 
-If my OSS work brightens your day, let's take it to new heights together!
 [Sponsor](<[sponsorship](https://github.com/sponsors/belgattitude)>), [coffee](<(https://ko-fi.com/belgattitude)>),
-or star – any gesture of support fuels my passion to improve. Thanks for being awesome! 🙏❤️
+or star – All is spent for quality time with loved ones. Thanks ! 🙏❤️
 
 ### Special thanks to
 
@@ -87,4 +86,4 @@ or star – any gesture of support fuels my passion to improve. Thanks for being
 
 ## License
 
-MIT © [belgattitude](https://github.com/belgattitude) and contributors.
+MIT © [Sébastien Vanvelthem](https://github.com/belgattitude) and contributors.
