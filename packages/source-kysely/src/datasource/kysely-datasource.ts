@@ -17,12 +17,14 @@ type Params<TDatabase> = {
   connection: Kysely<TDatabase>;
 };
 
-export class KyselyExecutor<TDatabase> implements DatasourceInterface {
+export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   private conn: Kysely<TDatabase>;
 
   constructor(params: Params<TDatabase>) {
     this.conn = params.connection;
   }
+
+  getConnection = (): Kysely<TDatabase> => this.conn;
 
   queryRaw = async <
     TRawQuery extends RawBuilder<unknown>,

@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { KyselyExecutor } from '@flowblade/source-kysely';
+import { KyselyDatasource } from '@flowblade/source-kysely';
 import { sql } from 'kysely';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -74,7 +74,7 @@ export async function GET(_req: NextRequest) {
      -- ) AS t2 ON t1.name = t2.name AND t1.value = t2.value;
   `;
 */
-  const db = new KyselyExecutor({
+  const db = new KyselyDatasource({
     connection: dbKyselySqlServer,
   });
 

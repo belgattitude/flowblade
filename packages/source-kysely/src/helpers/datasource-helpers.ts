@@ -1,6 +1,6 @@
 import type { Jsonify } from 'type-fest';
 
-import type { DatasourceExecutorSuccess } from '../executor/datasource.interface';
+import type { DatasourceExecutorSuccess } from '../datasource/datasource.interface';
 
 export type JsonifiedDataSourceResponse<
   T extends DatasourceExecutorSuccess<Record<string, unknown>[]>,

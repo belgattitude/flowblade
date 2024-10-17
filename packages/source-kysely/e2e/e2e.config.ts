@@ -2,7 +2,7 @@ import { Kysely } from 'kysely';
 
 import {
   createKyselyMssqlDialect,
-  KyselyExecutor,
+  KyselyDatasource,
   TediousConnUtils,
 } from '../src';
 
@@ -22,6 +22,6 @@ export const e2eDb = new Kysely<unknown>({
   dialect,
 });
 
-export const e2eExecutor = new KyselyExecutor({
+export const e2eExecutor = new KyselyDatasource({
   connection: e2eDb,
 });

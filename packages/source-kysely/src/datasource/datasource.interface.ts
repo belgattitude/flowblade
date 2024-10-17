@@ -37,6 +37,7 @@ export type DatasourceExecutorResult<TQuery> =
 type VoluntaryAny = any;
 
 export interface DatasourceInterface {
+  getConnection: () => VoluntaryAny;
   queryRaw: (
     query: VoluntaryAny
   ) => Promise<DatasourceExecutorSuccess<VoluntaryAny>>;

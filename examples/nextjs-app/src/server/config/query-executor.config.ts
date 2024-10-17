@@ -1,7 +1,7 @@
-import { KyselyExecutor } from '@flowblade/source-kysely';
+import { KyselyDatasource } from '@flowblade/source-kysely';
 
 import { dbKyselySqlServer } from '@/server/config/db.kysely-sqlserver.config';
 
-export const queryExecutor = new KyselyExecutor({
+export const queryExecutor = new KyselyDatasource({
   connection: dbKyselySqlServer,
 });
