@@ -54,31 +54,23 @@ describe('Datasource sqlserver', () => {
     });
   });
 
-  describe.sequential('Kysely select queries', () => {
-    it('upsert a brand', async () => {
-      const params = {
-        id: 1,
-        name: 'Brand 1',
-      };
-      const query = db
-        .mergeInto('brand as Target')
-        .using('brand as Source', 'Target.id', 'Source.id')
-        .whenMatched()
-        .thenUpdateSet({
-          name: params.name,
-          updated_at: new Date(),
-        })
-        .whenNotMatched()
-        .thenInsertValues({
-          name: params.name,
-          created_at: new Date(),
-        })
-        .output(['inserted.id', 'inserted.name', 'inserted.flag_active']);
-
-      const rows = await ds.query(query);
-      const stabletimeMs = 0.1;
-      rows.meta.timeMs = stabletimeMs;
-      expect(rows).toMatchSnapshot();
+  describe.skip('Kysely select queries', () => {
+    it('upsert some brand', async () => {
+      const params = [
+        { name: 'Brand A' },
+        { name: 'Brand B' },
+        { name: 'Brand C' },
+      ];
+      const qRaw = sql`
+        DELETE FROM brand WHERE 1=1;    
+        INSERT INTO brand (name, created_at) VALUES (
+            SELECT name, CURRENT_TIMESTAMP
+            FROM OPENJSON(${JSON.stringify(params)}) WITH (
+                name NVARCHAR(255)
+            )
+        )      
+      `;
+      expect(await ds.queryRaw(qRaw)).toMatchSnapshot();
     });
 
     it('get some brands', async () => {

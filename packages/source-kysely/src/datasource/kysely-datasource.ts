@@ -18,13 +18,13 @@ type Params<TDatabase> = {
 };
 
 export class KyselyDatasource<TDatabase> implements DatasourceInterface {
-  private conn: Kysely<TDatabase>;
+  private db: Kysely<TDatabase>;
 
   constructor(params: Params<TDatabase>) {
-    this.conn = params.connection;
+    this.db = params.connection;
   }
 
-  getConnection = (): Kysely<TDatabase> => this.conn;
+  getConnection = (): Kysely<TDatabase> => this.db;
 
   queryRaw = async <
     TRawQuery extends RawBuilder<unknown>,
@@ -34,9 +34,9 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   ): Promise<DatasourceExecutorSuccess<TQueryResult>> => {
     let compiled: CompiledQuery | null = null;
     try {
-      compiled = rawQuery.compile(this.conn);
+      compiled = rawQuery.compile(this.db);
       const start = performance.now();
-      const { numAffectedRows, ...result } = await rawQuery.execute(this.conn);
+      const { numAffectedRows, ...result } = await rawQuery.execute(this.db);
       const timeMs = performance.now() - start;
       const affectedRows = parseBigIntToSafeInt(numAffectedRows);
 
@@ -67,11 +67,10 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     try {
       const start = performance.now();
       compiled = query.compile();
-      const { numAffectedRows, ...result } =
-        await this.conn.executeQuery(compiled);
+      const r = await this.db.executeQuery(query);
+      const { numAffectedRows, ...result } = r;
       const timeMs = performance.now() - start;
       const affectedRows = parseBigIntToSafeInt(numAffectedRows);
-
       return {
         data: result.rows as TRet,
         meta: {

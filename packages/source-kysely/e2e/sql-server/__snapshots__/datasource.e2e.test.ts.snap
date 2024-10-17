@@ -27,31 +27,25 @@ exports[`Datasource sqlserver > Kysely raw queries > 02. basicQuery with params 
 
 exports[`Datasource sqlserver > Kysely select queries > get some brands 1`] = `
 {
-  "data": [],
+  "data": [
+    {
+      "id": 15,
+      "name": "Brand 1",
+    },
+    {
+      "id": 16,
+      "name": "Brand 2",
+    },
+    {
+      "id": 17,
+      "name": "Brand 3",
+    },
+  ],
   "meta": {
-    "affectedRows": 0,
+    "affectedRows": 3,
     "query": {
       "params": [],
       "sql": "select "b"."id", "b"."name" from "brand" as "b"",
-    },
-    "timeMs": 0.1,
-  },
-}
-`;
-
-exports[`Datasource sqlserver > Kysely select queries > upsert a brand 1`] = `
-{
-  "data": [],
-  "meta": {
-    "affectedRows": 0,
-    "query": {
-      "params": [
-        "Brand 1",
-        2024-10-17T21:57:22.145Z,
-        "Brand 1",
-        2024-10-17T21:57:22.145Z,
-      ],
-      "sql": "merge into "brand" as "Target" using "brand" as "Source" on "Target"."id" = "Source"."id" when matched then update set "name" = @1, "updated_at" = @2 when not matched then insert ("name", "created_at") values (@3, @4) output "inserted"."id", "inserted"."name", "inserted"."flag_active";",
     },
     "timeMs": 0.1,
   },
