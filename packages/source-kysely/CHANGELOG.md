@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.2.0
+
+### Minor Changes
+
+- [`e1b1753`](https://github.com/belgattitude/flowblade/commit/e1b1753100361d67995f73abf4cb3faeddaccb46) - Add queryRaw to KyselyExecutor
+
 ## 0.1.0
 
 ### Minor Changes
