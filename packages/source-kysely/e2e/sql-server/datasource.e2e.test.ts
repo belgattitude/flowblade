@@ -1,9 +1,9 @@
 import { sql } from 'kysely';
 
-import { e2eExecutor } from './e2e.config';
+import { createE2eDatasource } from '../utils/create-e2e-datasource';
 
-describe('KyselyExecutorE2E', () => {
-  const executor = e2eExecutor;
+describe('Datasource sqlserver', () => {
+  const ds = createE2eDatasource('sql-server');
   describe('Kysely raw queries', () => {
     it('01. basicQuery', async () => {
       type Row = {
@@ -11,7 +11,7 @@ describe('KyselyExecutorE2E', () => {
       };
 
       const rawSql = sql<Row>`SELECT 1 as one`;
-      const result = await executor.queryRaw(rawSql);
+      const result = await ds.queryRaw(rawSql);
       const stabletimeMs = 0.1;
       result.meta.timeMs = stabletimeMs;
       expect(result).toStrictEqual({
@@ -46,7 +46,18 @@ describe('KyselyExecutorE2E', () => {
           WHERE 1 = ${params.number}
           AND 'Hello' like ${params.string}
       `;
-      const rows = await executor.queryRaw(rawSql);
+      const rows = await ds.queryRaw(rawSql);
+      const stabletimeMs = 0.1;
+      rows.meta.timeMs = stabletimeMs;
+      expect(rows).toMatchSnapshot();
+    });
+  });
+
+  describe('Kysely select queries', () => {
+    it('basicQuery with params', async () => {
+      const db = ds.getConnection();
+      const query = db.selectFrom('brand as b').select(['b.id', 'b.name']);
+      const rows = await ds.query(query);
       const stabletimeMs = 0.1;
       rows.meta.timeMs = stabletimeMs;
       expect(rows).toMatchSnapshot();

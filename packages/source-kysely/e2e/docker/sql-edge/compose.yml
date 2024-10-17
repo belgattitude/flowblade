@@ -1,0 +1,27 @@
+name: flowblade-e2e-azure-sql-edge
+
+services:
+  azure-sql-edge:
+    container_name: flowblade-e2e-azure-sql-edge
+    image: mcr.microsoft.com/azure-sql-edge
+    ports:
+      - '10433:1433'
+    env_file:
+      - .env.azure-sql-edge.e2e
+    networks:
+      - flowblade-dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q "SELECT 1" -b -o /dev/null
+      interval: 1s
+      timeout: 30s
+      retries: 30
+      start_period: 5s
+    # For e2e don't persist data
+    #volumes:
+    #- flowblade-azure-sql-edge:/var/opt/mssql:rw
+
+networks:
+  flowblade-dev-network:
+    driver: bridge
+    enable_ipv6: false
