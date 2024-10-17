@@ -22,24 +22,9 @@ export default defineConfig({
       provider: 'istanbul',
       reporter: ['text', 'json', 'clover'],
     },
-    typecheck: {
-      enabled: false,
-    },
     benchmark: {
       reporters: ['default'],
       outputJson: './bench/output/benchmark-results.json',
-    },
-    pool: 'forks',
-    poolOptions: {
-      vmThreads: {
-        // useAtomics: true,
-      },
-      threads: {
-        // minThreads: 1,
-        // maxThreads: 16,
-        useAtomics: true, // perf+
-        isolate: false, // perf+++
-      },
     },
     environment: 'node',
     exclude: [

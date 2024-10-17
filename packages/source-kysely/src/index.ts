@@ -1,10 +1,5 @@
-export type * from './column-model/IColumnModel';
-export type * from './executor/IDataSourceExecutor';
-export * from './executor/KyselyExecutor';
-export * from './helpers/DataSourceHelpers';
-export * from './helpers/KyselyHelpers';
-export * from './query/AbstractQuery';
-export type * from './query/IGetColumnModel';
-export type * from './query/IGetQuery';
+export type * from './executor/datasource.interface';
+export * from './executor/kysely-executor';
+export * from './helpers/datasource-helpers';
 export { createKyselyMssqlDialect } from './utils/create-kysely-mssql-dialect';
 export { TediousConnUtils } from './utils/tedious-conn-utils';

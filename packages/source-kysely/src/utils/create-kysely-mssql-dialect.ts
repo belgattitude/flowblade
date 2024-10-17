@@ -20,11 +20,9 @@ import * as Tedious from 'tedious';
  *     min: 0,
  *     max: 10
  *   },
- *   // Optional tedious tyoes
- *   tediousTypes: {
- *     // Example based on https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
- *     { ...Tedious.TYPES, NVarChar: Tedious.TYPES.VarChar }
- *   }
+ *   // Optional: customize tedious types
+ *   // Example based on https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
+ *   tediousTypes: { ...Tedious.TYPES, NVarChar: Tedious.TYPES.VarChar}
  * });
  *
  * const db = new Kysely<DB>({
