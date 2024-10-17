@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  test-packages:
+  test-kysely-e2e:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -46,6 +46,10 @@ jobs:
       - name: 🧪 Start Azure SQL Edge
         working-directory: "packages/source-kysely"
         run: docker compose -f e2e/docker/sql-edge/compose.yml up -d --wait
+
+      - name: 🧪 E2E Recreate e2e database
+        working-directory: "packages/source-kysely"
+        run: yarn recreate-e2e-db
 
       - name: 🧪 E2E source-kysely sql-server
         working-directory: "packages/source-kysely"

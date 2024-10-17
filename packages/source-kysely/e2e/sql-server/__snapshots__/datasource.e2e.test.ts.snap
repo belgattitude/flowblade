@@ -24,3 +24,17 @@ exports[`Datasource sqlserver > Kysely raw queries > 02. basicQuery with params 
   },
 }
 `;
+
+exports[`Datasource sqlserver > Kysely select queries > basicQuery with params 1`] = `
+{
+  "data": [],
+  "meta": {
+    "affectedRows": 0,
+    "query": {
+      "params": [],
+      "sql": "select "b"."id", "b"."name" from "brand" as "b"",
+    },
+    "timeMs": 0.1,
+  },
+}
+`;
