@@ -43,9 +43,12 @@ jobs:
           echo "BASE: ${{ steps.nx-set-shas.outputs.base }}"
           echo "HEAD: ${{ steps.nx-set-shas.outputs.head }}"
 
+      - name: 🧪 Start Azure SQL Edge
+        working-directory: "packages/source-kysely"
+        run: docker compose -f e2e/docker/compose.yml -f e2e/docker/sql-edge/compose.yml up -d --wait
+
       - name: 🧪 E2E source-kysely sql-server
         working-directory: "packages/source-kysely"
-        run:
-          docker compose -f e2e/docker/compose.yml -f e2e/docker/sql-server/azure/compose.yml up -d --wait
-          yarn test-e2e
+        run: yarn test-e2e
+
 
