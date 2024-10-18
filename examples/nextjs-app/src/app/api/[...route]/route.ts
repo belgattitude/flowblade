@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { swaggerUI } from '@hono/swagger-ui';
 import { Hono } from 'hono';
 import { handle } from 'hono/vercel';
 import { createOpenApiDocument, openApi } from 'hono-zod-openapi';
@@ -145,6 +146,8 @@ createOpenApiDocument(app, {
     version: '1.0.0',
   },
 });
+
+app.get('/documentation', swaggerUI({ url: '/api/doc' }));
 
 export const DELETE = handle(app);
 export const GET = handle(app);
