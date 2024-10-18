@@ -74,7 +74,15 @@ describe('Datasource sqlserver', () => {
     });
 
     it('get some brands', async () => {
-      const query = db.selectFrom('brand as b').select(['b.id', 'b.name']);
+      const query = ds
+        .eb()
+        .selectFrom('brand as b')
+        .select(['b.id', 'b.name'])
+        .leftJoin('product as p', 'p.brand_id', 'b.id')
+        .select(['p.id as product_id', 'p.name as product_name'])
+        .where('b.created_at', '<', new Date())
+        .orderBy('b.name', 'desc');
+
       const rows = await ds.query(query);
       const stabletimeMs = 0.1;
       rows.meta.timeMs = stabletimeMs;

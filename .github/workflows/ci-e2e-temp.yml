@@ -49,7 +49,7 @@ jobs:
 
       - name: 🧪 E2E Recreate e2e database
         working-directory: "packages/source-kysely"
-        run: yarn recreate-e2e-db
+        run: yarn e2e-recreate-db
 
       - name: 🧪 E2E source-kysely sql-server
         working-directory: "packages/source-kysely"
