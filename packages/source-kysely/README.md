@@ -10,6 +10,26 @@ yarn add @flowblade/source-kysely
 yarn add tedious tarn
 ```
 
+## Quick start
+
+```typescript
+import { KyselyDatasource } from '@flowblade/source-kysely';
+import { db } from '@/config/db.config.ts'; // Your db configuration
+
+const ds = new KyselyDatasource({ db });
+const query = ds.eb()  // Kysely expression builder
+        .selectFrom('brand as b')
+        .select(['b.id', 'b.name'])
+        .leftJoin('product as p', 'p.brand_id', 'b.id')
+        .select(['p.id as product_id', 'p.name as product_name'])
+        .where('b.created_at', '<', new Date())
+        .orderBy('b.name', 'desc');
+
+const result = await ds.query(query);
+console.log(result.data);
+console.log(result.meta);
+```
+
 ## Utils
 
 ### createKyselySqlServerDialect
