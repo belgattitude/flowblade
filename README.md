@@ -1,5 +1,14 @@
 ## Flowblade
 
+Data store and transformation library for data-driven applications.
+
+### Datasources
+
+| Datasource | Description |
+|------------|-------------|
+| [@flowblade/source-kysely](https://github.com/belgattitude/flowblade/tree/main/packages/source-kysely#readme) | Kysely datasource reader |
+
+
 
 ## Contributors
 
@@ -50,4 +59,4 @@ or star – any gesture of support fuels my passion to improve. Thanks for being
 
 ## License
 
-MIT © [belgattitude](https://github.com/belgattitude) and contributors.
+MIT © [Sébastien Vanvelthem](https://github.com/belgattitude) and contributors.
