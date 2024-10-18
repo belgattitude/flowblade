@@ -9,18 +9,22 @@ Data store and transformation library for data-driven applications.
 | [@flowblade/source-kysely](https://github.com/belgattitude/flowblade/tree/main/packages/source-kysely#readme) | Kysely datasource reader |
 
 
+## Structure
+
+```
+.
+├── examples
+│   │── db-sqlserver  (shared db package for ms sqlserver)
+│   │── fastify-app
+│   └── nextjs-app
+└── packages
+    │── source-kysely
+    └── (...)
+```
 
 ## Contributors
 
 Contributions are welcome. Take a look to the [CONTRIBUTING](https://github.com/belgattitude/flowblade/blob/main/CONTRIBUTING.md) docs or skip and try
-
-```bash
-# make a fork and clone it, then
-yarn install
-yarn g:test-unit
-yarn g:lint
-yarn g:typecheck
-```
 
 ## Support
 
@@ -28,9 +32,7 @@ Don't hesitate and open [an issue](https://github.com/belgattitude/flowblade/iss
 
 ## Sponsors
 
-If my OSS work brightens your day, let's take it to new heights together!
-[Sponsor](<[sponsorship](https://github.com/sponsors/belgattitude)>), [coffee](<(https://ko-fi.com/belgattitude)>),
-or star – any gesture of support fuels my passion to improve. Thanks for being awesome! 🙏❤️
+[Sponsor](<[sponsorship](https://github.com/sponsors/belgattitude)>), [coffee](<(https://ko-fi.com/belgattitude)>), or star – Thanks for being awesome! 🙏❤️
 
 ### Special thanks to
 

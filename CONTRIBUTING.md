@@ -19,16 +19,27 @@ If applicable:
 - [x] a **changeset** should be provided (`yarn g:changeset`) to request a version bump.
 - [x] **documentation** should be updated (`yarn g:build-doc` to rebuild the api doc).
 
+## Quick start
+
+```bash
+# make a fork and clone it, then
+yarn install
+yarn g:test-unit
+yarn g:lint
+yarn g:typecheck
+```
+
 ## Structure
 
 ```
 .
 ├── examples
-│   └── next-app
+│   │── db-sqlserver
+│   │── fastify-app
+│   └── nextjs-app
 └── packages
-    │── assert
-    │── dsn-parser
-    └── exception
+    │── source-kysely
+    └── (...)
 ```
 
 ## Local scripts
