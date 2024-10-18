@@ -1,5 +1,5 @@
 export type * from './datasource/datasource.interface';
 export * from './datasource/kysely-datasource';
 export * from './helpers/datasource-helpers';
-export { createKyselyMssqlDialect } from './utils/create-kysely-mssql-dialect';
+export { createKyselySqlServerDialect } from './utils/create-kysely-sql-server-dialect';
 export { TediousConnUtils } from './utils/tedious-conn-utils';

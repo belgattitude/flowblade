@@ -8,13 +8,13 @@ import * as Tedious from 'tedious';
  * @example
  * ```typescript
  * import * as Tedious from 'tedious';
- * import { TediousConnUtils } from '@flowblade/source-kysely';
+ * import { TediousConnUtils, createKyselySqlServerDialect } from '@flowblade/source-kysely';
  *
  * const jdbcDsn = "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
  * const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
  * const tediousConnection = new Tedious.Connection(tediousConfig);
  *
- * const dialect = createKyselyMssqlDialect(tediousConfig, {
+ * const dialect = createKyselySqlServerDialect(tediousConfig, {
  *   // Optional tarn pool options
  *   tarnPool: {
  *     min: 0,
@@ -30,7 +30,7 @@ import * as Tedious from 'tedious';
  * })
  * ```
  */
-export const createKyselyMssqlDialect = (
+export const createKyselySqlServerDialect = (
   tediousConfig: Tedious.ConnectionConfiguration,
   options?: {
     tarnPool?: {

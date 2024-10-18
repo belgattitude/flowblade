@@ -4,7 +4,6 @@ import { createE2eDatasource } from '../utils/create-e2e-datasource';
 
 describe('Datasource sqlserver', () => {
   const ds = createE2eDatasource('sql-server');
-  const db = ds.getConnection();
   describe('Kysely raw queries', () => {
     it('01. basicQuery', async () => {
       type Row = {
