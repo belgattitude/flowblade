@@ -1,6 +1,6 @@
 import type { DBKyselySqlServer } from '@flowblade/db-sqlserver/kysely-types';
 import {
-  createKyselyMssqlDialect,
+  createKyselySqlServerDialect,
   TediousConnUtils,
 } from '@flowblade/source-kysely';
 import { Kysely } from 'kysely';
@@ -10,7 +10,7 @@ import { serverEnv } from '../../env/server.env.mjs';
 const config = TediousConnUtils.fromJdbcDsn(
   serverEnv.DB_FLOWBLADE_SQLSERVER_JDBC ?? ''
 );
-const dialect = createKyselyMssqlDialect(config);
+const dialect = createKyselySqlServerDialect(config);
 
 const maskPII = (param: unknown) => {
   // @todo filter out personal identifiable information
