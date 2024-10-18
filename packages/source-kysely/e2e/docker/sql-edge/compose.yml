@@ -1,14 +1,15 @@
-name: flowblade-azure-sql-edge
+name: flowblade-e2e-azure-sql-edge
 
 services:
   azure-sql-edge:
-    container_name: sql-server-db
+    container_name: flowblade-e2e-azure-sql-edge
     image: mcr.microsoft.com/azure-sql-edge
-    cap_add: ['SYS_PTRACE']
     ports:
-      - '1433:1433'
+      - '10433:1433'
     env_file:
-      - .env.azure-sql-edge.development
+      - .env.azure-sql-edge.e2e
+    networks:
+      - flowblade-dev-network
     restart: unless-stopped
     healthcheck:
       test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q "SELECT 1" -b -o /dev/null
@@ -16,13 +17,9 @@ services:
       timeout: 30s
       retries: 30
       start_period: 5s
-    networks:
-      - flowblade-dev-network
-    volumes:
-      - flowblade-azure-sql-edge:/var/opt/mssql:rw
-
-volumes:
-  flowblade-azure-sql-edge:
+    # For e2e don't persist data
+    #volumes:
+    #- flowblade-azure-sql-edge:/var/opt/mssql:rw
 
 networks:
   flowblade-dev-network:
