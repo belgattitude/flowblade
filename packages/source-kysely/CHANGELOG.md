@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.4.0
+
+### Minor Changes
+
+- [#69](https://github.com/belgattitude/flowblade/pull/69) [`40b1eba`](https://github.com/belgattitude/flowblade/commit/40b1eba863dd12b7c9c4187b658b9d4158589451) Thanks [@belgattitude](https://github.com/belgattitude)! - Improve e2e test to run on sql-server
+
 ## 0.3.0
 
 ### Minor Changes
