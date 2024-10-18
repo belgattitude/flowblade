@@ -1,0 +1,105 @@
+datasource db {
+  provider = "sqlserver"
+  url      = env("E2E_DB_AZURE_SQL_EDGE")
+}
+
+generator kysely {
+  provider = "prisma-kysely"
+  output   = "."
+  fileName = "kysely-sql-server-e2e-db.generated.types.ts"
+}
+
+model Locale {
+  id         Int       @id @default(autoincrement()) @db.SmallInt
+  locale     String    @unique() @db.VarChar(5)
+  nameNative String    @map(name: "name_native") @db.VarChar(40)
+  flagActive Boolean   @default(true) @map(name: "flag_active") @db.Bit
+  createdAt  DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt  DateTime? @map(name: "updated_at") @db.DateTime2
+
+  currency    CurrencyI18n[]
+  ProductI18n ProductI18n[]
+
+  @@map(name: "locale")
+}
+
+model Currency {
+  id              Int       @id @default(autoincrement()) @db.SmallInt
+  code            String    @unique() @db.VarChar(3)
+  numericCode     Int       @unique() @map(name: "numeric_code") @db.SmallInt
+  name            String    @map(name: "name") @db.VarChar(40)
+  namePlural      String?   @map(name: "name_plural") @db.VarChar(40)
+  symbol          String?   @db.NVarChar(5)
+  symbolNative    String?   @map(name: "symbol_native") @db.NVarChar(5)
+  rounding        String?   @default("0") @map(name: "rounding") @db.Char(5)
+  displayDecimals Int?      @default(2) @map(name: "display_decimals") @db.SmallInt
+  withdrawalAt    DateTime? @map(name: "withdrawal_at") @db.DateTime2
+  flagActive      Boolean   @default(true) @map(name: "flag_active") @db.Bit
+  createdAt       DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt       DateTime? @map(name: "updated_at") @db.DateTime2
+
+  Translations CurrencyI18n[]
+
+  @@map(name: "currency")
+}
+
+model Brand {
+  id         Int       @id @default(autoincrement()) @db.Int
+  name       String    @unique @map(name: "name") @db.VarChar(40)
+  flagActive Boolean   @default(true) @map(name: "flag_active") @db.Bit
+  createdAt  DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt  DateTime? @map(name: "updated_at") @db.DateTime2
+  Product    Product[]
+
+  @@index([name])
+  @@map(name: "brand")
+}
+
+model Product {
+  id      Int    @id @default(autoincrement()) @db.Int
+  Brand   Brand? @relation(fields: [brandId], references: [id])
+  brandId Int?   @map(name: "brand_id") @db.Int
+
+  reference    String    @unique @map(name: "reference") @db.VarChar(40)
+  name         String    @map(name: "name") @db.NVarChar(200)
+  barcodeEan13 String    @map(name: "barcode_ean13") @db.Char(13)
+  flagActive   Boolean   @default(true) @map(name: "flag_active") @db.Bit
+  createdAt    DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt    DateTime? @map(name: "updated_at") @db.DateTime2
+
+  ProductI18n ProductI18n[]
+
+  @@index([name])
+  @@index([barcodeEan13])
+  @@map(name: "product")
+}
+
+model ProductI18n {
+  id        Int       @id @default(autoincrement())
+  Product   Product   @relation(fields: [productId], references: [id])
+  productId Int       @map(name: "product_id") @db.Int
+  Locale    Locale    @relation(fields: [locale], references: [locale])
+  locale    String    @map(name: "locale") @db.VarChar(5)
+  name      String    @map(name: "name") @db.VarChar(40)
+  createdAt DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt DateTime? @map(name: "updated_at") @db.DateTime2
+
+  @@unique([productId, locale])
+  @@map(name: "product_i18n")
+}
+
+model CurrencyI18n {
+  id         Int       @id @default(autoincrement())
+  Currency   Currency  @relation(fields: [currencyId], references: [id])
+  currencyId Int       @map(name: "currency_id") @db.SmallInt
+  Locale     Locale    @relation(fields: [locale], references: [locale])
+  locale     String    @map(name: "locale") @db.VarChar(5)
+  name       String    @map(name: "name") @db.VarChar(40)
+  namePlural String?   @map(name: "name_plural") @db.VarChar(40)
+  createdAt  DateTime  @map(name: "created_at") @db.DateTime2
+  updatedAt  DateTime? @map(name: "updated_at") @db.DateTime2
+
+  @@unique([currencyId, locale])
+  @@unique([locale, name])
+  @@map(name: "currency_i18n")
+}
