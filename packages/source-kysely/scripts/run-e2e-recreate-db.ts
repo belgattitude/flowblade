@@ -3,7 +3,7 @@ import { execPrismaCliOrThrow } from '../e2e/utils/prisma-cli.utils';
 
 const { schema, env } = envE2EConfig.sqlServer.prisma;
 
-const forcePush = execPrismaCliOrThrow({
+execPrismaCliOrThrow({
   cmd: `yarn prisma db push --schema=${schema} --force-reset`,
   env: {
     E2E_DB_AZURE_SQL_EDGE: envE2EConfig.sqlServer.dsn,

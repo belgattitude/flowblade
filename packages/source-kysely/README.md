@@ -32,7 +32,7 @@ console.log(result.data);
 console.log(result.meta);
 
 /** Raw queries support */
-const data = await ds.queryRaw(sql`SELECT * FROM brand`);
+const data = await ds.queryRaw(sql<{ count: number }>`SELECT 1 as "count' FROM brand`);
 ```
 
 ## Utils
