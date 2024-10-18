@@ -3,7 +3,11 @@
 ## Install
 
 ```bash
-yarn add @flowblade/source-kysely tedious tarn
+yarn add @flowblade/source-kysely
+
+# Install optional drivers
+# 01. for Ms SqlServer or Azure Sql Edge
+yarn add tedious tarn
 ```
 
 ## Utils
