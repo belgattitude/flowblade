@@ -1,5 +1,12 @@
 # Flowblade NextJs example app
 
+## 0.1.92
+
+### Patch Changes
+
+- Updated dependencies [[`751aec1`](https://github.com/belgattitude/flowblade/commit/751aec1ab2801815a05ff778eea79e952214da89), [`07babdd`](https://github.com/belgattitude/flowblade/commit/07babddf52d186c9994731835d038615e338d657), [`07babdd`](https://github.com/belgattitude/flowblade/commit/07babddf52d186c9994731835d038615e338d657)]:
+  - @flowblade/source-kysely@0.5.0
+
 ## 0.1.91
 
 ### Patch Changes
