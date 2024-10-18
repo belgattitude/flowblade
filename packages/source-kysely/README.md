@@ -13,8 +13,10 @@ yarn add tedious tarn
 ## Quick start
 
 ```typescript
+// Your db configuration, see Utils section for more details
+import { db } from '@/config/db.config.ts'; 
 import { KyselyDatasource } from '@flowblade/source-kysely';
-import { db } from '@/config/db.config.ts'; // Your db configuration
+import { sql } from 'kysely'; 
 
 const ds = new KyselyDatasource({ db });
 const query = ds.eb()  // Kysely expression builder
@@ -28,6 +30,9 @@ const query = ds.eb()  // Kysely expression builder
 const result = await ds.query(query);
 console.log(result.data);
 console.log(result.meta);
+
+/** Raw queries support */
+const data = await ds.queryRaw(sql`SELECT * FROM brand`);
 ```
 
 ## Utils
