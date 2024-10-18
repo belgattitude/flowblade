@@ -1737,6 +1737,70 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@belgattitude/eslint-config-bases@npm:6.0.0":
+  version: 6.0.0
+  resolution: "@belgattitude/eslint-config-bases@npm:6.0.0"
+  dependencies:
+    "@rushstack/eslint-patch": "npm:^1.10.4"
+    "@tanstack/eslint-plugin-query": "npm:^5.59.7"
+    "@typescript-eslint/eslint-plugin": "npm:^8.10.0"
+    "@typescript-eslint/parser": "npm:^8.10.0"
+    "@typescript-eslint/typescript-estree": "npm:^8.10.0"
+    "@typescript-eslint/utils": "npm:^8.10.0"
+    eslint-config-prettier: "npm:^9.1.0"
+    eslint-import-resolver-typescript: "npm:^3.6.3"
+    eslint-plugin-import-x: "npm:^4.3.1"
+    eslint-plugin-jest: "npm:^28.8.3"
+    eslint-plugin-jest-formatting: "npm:^3.1.0"
+    eslint-plugin-jsx-a11y: "npm:^6.10.0"
+    eslint-plugin-perfectionist: "npm:^3.9.1"
+    eslint-plugin-playwright: "npm:^1.7.0"
+    eslint-plugin-prettier: "npm:^5.2.1"
+    eslint-plugin-react: "npm:^7.37.1"
+    eslint-plugin-react-hooks: "npm:^4.6.2 || ^5.0.0 || 5.0.0-canary-7118f5dd7-20230705"
+    eslint-plugin-regexp: "npm:^2.6.0"
+    eslint-plugin-simple-import-sort: "npm:^12.1.1"
+    eslint-plugin-sonarjs: "npm:^2.0.3"
+    eslint-plugin-storybook: "npm:^0.9.0"
+    eslint-plugin-testing-library: "npm:^6.4.0"
+    eslint-plugin-unicorn: "npm:^56.0.0"
+    eslint-plugin-unused-imports: "npm:^4.1.4"
+  peerDependencies:
+    "@graphql-eslint/eslint-plugin": ^3.20.1
+    "@testing-library/dom": ^10.4.0
+    eslint: ^8.57.0
+    eslint-plugin-mdx: ^3.1.5
+    eslint-plugin-tailwindcss: ^3.17.4
+    graphql: ^16.9.0
+    prettier: ">=3.2.0 <5.0.0"
+    react: ">=18.2.0"
+    react-dom: ">=18.2.0"
+    typescript: ^5.3.1
+  peerDependenciesMeta:
+    "@graphql-eslint/eslint-plugin":
+      optional: true
+    "@testing-library/dom":
+      optional: true
+    eslint-plugin-mdx:
+      optional: true
+    eslint-plugin-tailwindcss:
+      optional: true
+    graphql:
+      optional: true
+    prettier:
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+    tailwindcss:
+      optional: true
+    typescript:
+      optional: true
+  checksum: 10c0/ca4001cff6145bc033cc9ff95387becd2f2195be232c1a997b7cef076d05da7d02142108a64f027589722833ef7bc8ecbfd90e810390bc27f98ebd5776ec2b21
+  languageName: node
+  linkType: hard
+
 "@belgattitude/eslint-config-bases@npm:6.0.0-canary.20":
   version: 6.0.0-canary.20
   resolution: "@belgattitude/eslint-config-bases@npm:6.0.0-canary.20"
@@ -2741,7 +2805,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@flowblade/benchmark@workspace:benchmark"
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.0.0-canary.20"
+    "@belgattitude/eslint-config-bases": "npm:6.0.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
     "@types/node": "npm:22.7.6"
     "@typescript-eslint/eslint-plugin": "npm:8.10.0"
@@ -2805,7 +2869,7 @@ __metadata:
   resolution: "@flowblade/source-kysely@workspace:packages/source-kysely"
   dependencies:
     "@arethetypeswrong/cli": "npm:0.16.4"
-    "@belgattitude/eslint-config-bases": "npm:6.0.0-canary.20"
+    "@belgattitude/eslint-config-bases": "npm:6.0.0"
     "@codspeed/vitest-plugin": "npm:3.1.1"
     "@edge-runtime/vm": "npm:4.0.3"
     "@faker-js/faker": "npm:9.0.3"
@@ -5413,7 +5477,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:^5.58.0, @typescript-eslint/utils@npm:^5.62.0":
+"@typescript-eslint/utils@npm:^5.62.0":
   version: 5.62.0
   resolution: "@typescript-eslint/utils@npm:5.62.0"
   dependencies:
@@ -8625,14 +8689,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-testing-library@npm:^6.3.2":
-  version: 6.3.2
-  resolution: "eslint-plugin-testing-library@npm:6.3.2"
+"eslint-plugin-testing-library@npm:^6.3.2, eslint-plugin-testing-library@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "eslint-plugin-testing-library@npm:6.4.0"
   dependencies:
-    "@typescript-eslint/utils": "npm:^5.58.0"
+    "@typescript-eslint/utils": "npm:^5.62.0"
   peerDependencies:
-    eslint: ^7.5.0 || ^8.0.0
-  checksum: 10c0/0de4bf5b68f8e5632647a4c003a21004b55ffd769f445c9a64701400718ccea518fdb63b6d8a08bc3bae054f451d44cdd75943491325ae3459b90de3ae53d44e
+    eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
+  checksum: 10c0/b9997487a09df41c27487ed80640712c2c6e62840f5fb9eea1f0b622e40cb438a19a8c52ff2d73f5ab7b28d5e7ce2be649d87ca41fb67897422159d36f42033a
   languageName: node
   linkType: hard
 
@@ -9364,7 +9428,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "flowblade-monorepo@workspace:."
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.0.0-canary.20"
+    "@belgattitude/eslint-config-bases": "npm:6.0.0"
     "@changesets/changelog-github": "npm:0.5.0"
     "@changesets/cli": "npm:2.27.9"
     "@commitlint/cli": "npm:19.5.0"
