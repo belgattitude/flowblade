@@ -7,11 +7,9 @@ import type {
 } from 'kysely';
 import type { Simplify, Writable } from 'type-fest';
 
+import type { DatasourceInterface } from '../core/datasource.interface';
+import type { DatasourceResult } from '../core/datasource-result';
 import { parseBigIntToSafeInt } from '../utils/internal/internal-utils';
-import type {
-  DatasourceExecutorSuccess,
-  DatasourceInterface,
-} from './datasource.interface';
 
 type Params<TDatabase> = {
   connection: Kysely<TDatabase>;
@@ -79,7 +77,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     TQueryResult = Simplify<Awaited<ReturnType<TRawQuery['execute']>>['rows']>,
   >(
     rawQuery: TRawQuery
-  ): Promise<DatasourceExecutorSuccess<TQueryResult>> => {
+  ): Promise<DatasourceResult<TQueryResult>> => {
     let compiled: CompiledQuery | null = null;
     try {
       compiled = rawQuery.compile(this.db);
@@ -133,7 +131,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     TRet = InferResult<TQuery>,
   >(
     query: TQuery
-  ): Promise<DatasourceExecutorSuccess<TRet>> => {
+  ): Promise<DatasourceResult<TRet>> => {
     let compiled: CompiledQuery | null = null;
     try {
       const start = performance.now();
@@ -162,7 +160,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   async *stream<TQuery extends Compilable<unknown>, TRet = InferResult<TQuery>>(
     _query: TQuery,
     _chunkSize: number
-  ): AsyncIterableIterator<DatasourceExecutorSuccess<TRet>> {
+  ): AsyncIterableIterator<DatasourceResult<TRet>> {
     throw new Error('Not implemented yet');
   }
 }
