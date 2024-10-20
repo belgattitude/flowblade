@@ -1,7 +1,7 @@
 export type DatasourceResultMeta = {
-  query: {
-    sql: string;
-    params: unknown[];
+  query?: {
+    sql?: string;
+    params?: unknown[];
   };
   timeMs?: number | undefined;
   /**
@@ -13,5 +13,5 @@ export type DatasourceResultMeta = {
 
 export type DatasourceResult<TQuery> = {
   data: TQuery;
-  meta: DatasourceResultMeta;
+  meta?: DatasourceResultMeta;
 };

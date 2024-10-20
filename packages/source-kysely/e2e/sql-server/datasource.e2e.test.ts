@@ -13,7 +13,7 @@ describe('Datasource sqlserver', () => {
       const rawSql = sql<Row>`SELECT 1 as one`;
       const result = await ds.queryRaw(rawSql);
       const stabletimeMs = 0.1;
-      result.meta.timeMs = stabletimeMs;
+      result.meta!.timeMs = stabletimeMs;
       expect(result).toStrictEqual({
         data: [
           {
@@ -48,7 +48,7 @@ describe('Datasource sqlserver', () => {
       `;
       const rows = await ds.queryRaw(rawSql);
       const stabletimeMs = 0.1;
-      rows.meta.timeMs = stabletimeMs;
+      rows.meta!.timeMs = stabletimeMs;
       expect(rows).toMatchSnapshot();
     });
   });
@@ -84,7 +84,7 @@ describe('Datasource sqlserver', () => {
 
       const rows = await ds.query(query);
       const stabletimeMs = 0.1;
-      rows.meta.timeMs = stabletimeMs;
+      rows.meta!.timeMs = stabletimeMs;
       expect(rows).toMatchSnapshot();
     });
   });
