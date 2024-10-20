@@ -1,5 +1,12 @@
 # Fastify example app
 
+## 0.1.94
+
+### Patch Changes
+
+- Updated dependencies [[`d0590da`](https://github.com/belgattitude/flowblade/commit/d0590dac858757b8479371ff6c8af131acdbfcc7)]:
+  - @flowblade/source-kysely@0.6.1
+
 ## 0.1.93
 
 ### Patch Changes
