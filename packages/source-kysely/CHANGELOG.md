@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.6.1
+
+### Patch Changes
+
+- [`d0590da`](https://github.com/belgattitude/flowblade/commit/d0590dac858757b8479371ff6c8af131acdbfcc7) Thanks [@belgattitude](https://github.com/belgattitude)! - Make DatasourceResult.meta optional
+
 ## 0.6.0
 
 ### Minor Changes
