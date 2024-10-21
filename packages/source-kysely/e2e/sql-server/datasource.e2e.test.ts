@@ -1,5 +1,10 @@
 import { sql } from 'kysely';
 
+import {
+  assertQueryResultError,
+  assertQueryResultSuccess,
+  type QueryResultError,
+} from '../../src';
 import { createE2eDatasource } from '../utils/create-e2e-datasource';
 
 describe('Datasource sqlserver', () => {
@@ -12,6 +17,7 @@ describe('Datasource sqlserver', () => {
 
       const rawSql = sql<Row>`SELECT 1 as one`;
       const result = await ds.queryRaw(rawSql);
+      assertQueryResultSuccess(result);
       const stabletimeMs = 0.1;
       result.meta!.timeMs = stabletimeMs;
       expect(result).toStrictEqual({
@@ -20,6 +26,7 @@ describe('Datasource sqlserver', () => {
             one: 1,
           },
         ],
+        success: true,
         meta: {
           affectedRows: 1,
           timeMs: stabletimeMs,
@@ -32,7 +39,32 @@ describe('Datasource sqlserver', () => {
       assertType<Row[]>(result.data);
     });
 
-    it('02. basicQuery with params', async () => {
+    it('02. errorQuery', async () => {
+      type Row = {
+        one: number;
+      };
+
+      const rawSql = sql<Row>`SELECT FROM 1 as invalid_query`;
+      const result = await ds.queryRaw(rawSql);
+      assertQueryResultError(result);
+      // const stabletimeMs = 0.1;
+      // result.meta!.timeMs = stabletimeMs;
+      expect(result).toStrictEqual({
+        success: false,
+        error: {
+          message: "Query failed: Incorrect syntax near the keyword 'FROM'.",
+        },
+        meta: {
+          query: {
+            params: [],
+            sql: 'SELECT FROM 1 as invalid_query',
+          },
+        },
+      });
+      assertType<QueryResultError>(result);
+    });
+
+    it('03. basicQuery with params', async () => {
       type Row = {
         one: number;
       };
@@ -47,6 +79,7 @@ describe('Datasource sqlserver', () => {
           AND 'Hello' like ${params.string}
       `;
       const rows = await ds.queryRaw(rawSql);
+      assertQueryResultSuccess(rows);
       const stabletimeMs = 0.1;
       rows.meta!.timeMs = stabletimeMs;
       expect(rows).toMatchSnapshot();
@@ -83,6 +116,7 @@ describe('Datasource sqlserver', () => {
         .orderBy('b.name', 'desc');
 
       const rows = await ds.query(query);
+      assertQueryResultSuccess(rows);
       const stabletimeMs = 0.1;
       rows.meta!.timeMs = stabletimeMs;
       expect(rows).toMatchSnapshot();

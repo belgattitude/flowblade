@@ -80,5 +80,5 @@ export async function GET(_req: NextRequest) {
 
   const result = await db.queryRaw(qRaw);
 
-  return NextResponse.json(result.data);
+  return NextResponse.json(result);
 }
