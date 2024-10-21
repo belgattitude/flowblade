@@ -149,7 +149,6 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     let compiled: CompiledQuery | null = null;
     let meta: QueryResultMeta = {};
     try {
-      const start = performance.now();
       compiled = query.compile();
 
       meta.query ??= {
@@ -157,6 +156,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         params: compiled.parameters as Writable<unknown[]>,
       };
 
+      const start = performance.now();
       const r = await this.db.executeQuery(compiled);
       const { numAffectedRows, ...result } = r;
       const timeMs = performance.now() - start;
