@@ -8,45 +8,16 @@ import type {
 import type { Simplify, Writable } from 'type-fest';
 
 import type { DatasourceInterface } from '../core/datasource.interface';
-import type {
-  QueryResult,
-  QueryResultError,
-  QueryResultMeta,
-  QueryResultSuccess,
-} from '../core/query-result';
+import type { QueryResult, QueryResultMeta } from '../core/query-result';
+import {
+  createResultError,
+  createResultSuccess,
+} from '../core/query-result-factories';
 import { parseBigIntToSafeInt } from '../utils/internal/internal-utils';
 
 type Params<TDatabase> = {
   connection: Kysely<TDatabase>;
 };
-
-const createError = (method: string, message: string, cause?: Error): Error => {
-  const c = cause && cause instanceof Error ? cause : undefined;
-  return new Error(`[KyselyDatasource.${method}] - ${message}: ${c?.message}`, {
-    cause: c,
-  });
-};
-
-const createResultSuccess = <T>(
-  data: T,
-  meta: QueryResultMeta
-): QueryResultSuccess<T> => ({
-  success: true,
-  data,
-  meta,
-});
-
-const createResultError = (
-  error: QueryResultError['error'],
-  meta?: QueryResultError['meta']
-): QueryResultError => ({
-  success: false,
-  error: {
-    ...error,
-    message: `Query failed: ${error.message}`,
-  },
-  ...(meta === undefined ? {} : { meta }),
-});
 
 export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   private db: Kysely<TDatabase>;
@@ -84,7 +55,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *
    * @example
    * ```typescript
-   * import { KyselyDatasource } from '@flowblade/source-kysely';
+   * import { KyselyDatasource, isQueryResultError } from '@flowblade/source-kysely';
    * import { sql } from 'kysely';
    *
    * const ds = new KyselyDatasource({ db });
@@ -92,11 +63,16 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    * const rawSql = sql<{one: number}>`SELECT 1 as one`;
    *
    * const result = await ds.queryRaw(rawSql);
-   * console.log(result.data);
-   * console.log(result.meta);
-   * ```
    *
-   * @throw Error if the query fails (check Error.cause for the underlying error)
+   * if (isQueryResultError(result)) {
+   *   console.error(result.error);
+   *   console.error(result.meta);
+   * }  else {
+   *   console.log(result.data);
+   *   console.log(result.meta);
+   * }
+   * ```
+
    */
   queryRaw = async <
     TRawQuery extends RawBuilder<unknown>,
@@ -141,7 +117,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *
    * @example
    * ```typescript
-   * import { KyselyDatasource } from '@flowblade/source-kysely';
+   * import { KyselyDatasource, isQueryResultError } from '@flowblade/source-kysely';
    *
    * const ds = new KyselyDatasource({ db });
    * const query = ds.eb // This gives access to Kysely expression builder
@@ -153,11 +129,16 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *         .orderBy('b.name', 'desc');
    *
    * const result = await ds.query(query);
-   * console.log(result.data);
-   * console.log(result.meta);
+   *
+   * if (isQueryResultError(result)) {
+   *   console.error(result.error);
+   *   console.error(result.meta);
+   * }  else {
+   *   console.log(result.data);
+   *   console.log(result.meta);
+   * }
    * ```
    *
-   * @throw Error if the query fails (check Error.cause for the underlying error)
    */
   query = async <
     TQuery extends Compilable<unknown>,

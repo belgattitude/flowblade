@@ -15,7 +15,7 @@ yarn add tedious tarn
 ```typescript
 // Your db configuration, see Utils section for more details
 import { db } from '@/config/db.config.ts'; 
-import { KyselyDatasource } from '@flowblade/source-kysely';
+import { KyselyDatasource, isQueryResultError } from '@flowblade/source-kysely';
 import { sql } from 'kysely'; 
 
 const ds = new KyselyDatasource({ db });
@@ -28,8 +28,15 @@ const query = ds.eb()  // Kysely expression builder
         .orderBy('b.name', 'desc');
 
 const result = await ds.query(query);
-console.log(result.data);
-console.log(result.meta);
+
+// Discriminated usin with success: true | false
+if (isQueryResultError(result)) {
+    console.error(result.error);
+    console.error(result.meta);
+}  else {
+    console.log(result.data);
+    console.log(result.meta);
+}
 
 /** Raw queries support */
 const data = await ds.queryRaw(sql<{ count: number }>`SELECT 1 as "count' FROM brand`);
