@@ -1,6 +1,5 @@
 import type { DBKyselySqlServer } from '@flowblade/db-sqlserver/kysely-types';
 import type { KyselyDatasource, QueryResult } from '@flowblade/source-kysely';
-import type { SimplifyDeep } from 'type-fest';
 import { z } from 'zod';
 
 const validators = {
@@ -23,9 +22,7 @@ const validators = {
 } as const;
 
 type SearchParams = z.infer<typeof validators.search.params>;
-type SearchResult = QueryResult<
-  SimplifyDeep<z.infer<typeof validators.search.result>>
->;
+type SearchResult = QueryResult<z.infer<typeof validators.search.result>>;
 
 export class ProductRepo<
   T extends
@@ -56,9 +53,13 @@ export class ProductRepo<
       )
       .top(limit);
 
-    // const a =  this.ds.query(query);
+    /**
+     * @todo still a bug to figure out. Why the type is not working
+     */
+    return this.ds.query(query);
+    /*
     const a = this.ds.query(query);
     console.log('Test to see if the types are working');
-    return a;
+    return a; */
   };
 }
