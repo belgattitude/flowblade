@@ -32,7 +32,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    * const ds = new KyselyDatasource({ db });
    *
    * // Kysely Expression builder (query, update, delete, merge...)
-   * const eb = ds.eb();
+   * const eb = ds.queryBuilder;
    *
    * const query = eb.selectFrom('brand as b')
    *                 .select(['b.id', 'b.name']);
@@ -40,7 +40,17 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    * ```
    */
 
-  eb(): Kysely<TDatabase> {
+  public get queryBuilder(): Pick<
+    Kysely<TDatabase>,
+    | 'mergeInto'
+    | 'selectFrom'
+    | 'selectNoFrom'
+    | 'deleteFrom'
+    | 'insertInto'
+    | 'replaceInto'
+    | 'with'
+    | 'withRecursive'
+  > {
     return this.db;
   }
 
@@ -120,7 +130,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    * import { KyselyDatasource, isQueryResultError } from '@flowblade/source-kysely';
    *
    * const ds = new KyselyDatasource({ db });
-   * const query = ds.eb // This gives access to Kysely expression builder
+   * const query = ds.queryBuilder // This gives access to Kysely expression builder
    *         .selectFrom('brand as b')
    *         .select(['b.id', 'b.name'])
    *         .leftJoin('product as p', 'p.brand_id', 'b.id')
