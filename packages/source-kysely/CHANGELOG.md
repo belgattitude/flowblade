@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.7.0
+
+### Minor Changes
+
+- [#80](https://github.com/belgattitude/flowblade/pull/80) [`f7efa65`](https://github.com/belgattitude/flowblade/commit/f7efa65382e1b1a1642582f0c31145806d905282) Thanks [@belgattitude](https://github.com/belgattitude)! - query and queryRaw don't throw, but return a QueryResutError
+
 ## 0.6.1
 
 ### Patch Changes
