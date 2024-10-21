@@ -19,7 +19,7 @@ import { KyselyDatasource, isQueryResultError } from '@flowblade/source-kysely';
 import { sql } from 'kysely'; 
 
 const ds = new KyselyDatasource({ db });
-const query = ds.eb()  // Kysely expression builder
+const query = ds.queryBuilder  // Kysely expression builder
         .selectFrom('brand as b')
         .select(['b.id', 'b.name'])
         .leftJoin('product as p', 'p.brand_id', 'b.id')

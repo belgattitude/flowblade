@@ -106,8 +106,7 @@ describe('Datasource sqlserver', () => {
     });
 
     it('get some brands', async () => {
-      const query = ds
-        .eb()
+      const query = ds.queryBuilder
         .selectFrom('brand as b')
         .select(['b.id', 'b.name'])
         .leftJoin('product as p', 'p.brand_id', 'b.id')
