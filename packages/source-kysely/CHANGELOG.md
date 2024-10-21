@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.8.0
+
+### Minor Changes
+
+- [#82](https://github.com/belgattitude/flowblade/pull/82) [`cb01bef`](https://github.com/belgattitude/flowblade/commit/cb01bef93a01a366ef4229bcc13f2091a7ea1586) Thanks [@belgattitude](https://github.com/belgattitude)! - Refactor! rename eb() to queryBuilder getter
+
 ## 0.7.0
 
 ### Minor Changes
