@@ -1,11 +1,11 @@
-import type { DatasourceResult } from './datasource-result';
+import type { QueryResult } from './query-result';
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 export interface DatasourceInterface {
   getConnection: () => VoluntaryAny;
-  queryRaw: (query: VoluntaryAny) => Promise<DatasourceResult<VoluntaryAny>>;
-  query: (query: VoluntaryAny) => Promise<DatasourceResult<VoluntaryAny>>;
+  queryRaw: (query: VoluntaryAny) => Promise<QueryResult<VoluntaryAny>>;
+  query: (query: VoluntaryAny) => Promise<QueryResult<VoluntaryAny>>;
 
   stream: (
     query: VoluntaryAny,
