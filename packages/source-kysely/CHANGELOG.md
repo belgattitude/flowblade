@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.9.0
+
+### Minor Changes
+
+- [#91](https://github.com/belgattitude/flowblade/pull/91) [`f5b2c01`](https://github.com/belgattitude/flowblade/commit/f5b2c01d15a13e042916404284c96a2705a8c545) Thanks [@belgattitude](https://github.com/belgattitude)! - Export convenience AsyncQueryResult type
+
 ## 0.8.0
 
 ### Minor Changes
