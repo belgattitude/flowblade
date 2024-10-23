@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.10.0
+
+### Minor Changes
+
+- [#95](https://github.com/belgattitude/flowblade/pull/95) [`fc09914`](https://github.com/belgattitude/flowblade/commit/fc0991492a5a9d07d99aad24b1ee3d1f7c615c83) Thanks [@belgattitude](https://github.com/belgattitude)! - Add queryInfo metadata
+
 ## 0.9.0
 
 ### Minor Changes
