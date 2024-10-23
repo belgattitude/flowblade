@@ -28,12 +28,12 @@ let nextConfig = {
     buildEnv.NEXT_BUILD_PRODUCTION_SOURCEMAPS === 'true',
   reactStrictMode: true,
   typescript: {
-    ignoreBuildErrors: buildEnv.NEXT_BUILD_IGNORE_TYPECHECK !== 'true',
+    ignoreBuildErrors: buildEnv.NEXT_BUILD_IGNORE_TYPECHECK === 'true',
     tsconfigPath: buildEnv.NEXT_BUILD_TSCONFIG,
   },
 };
 
-if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true' && !isTurbo) {
+if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true') {
   try {
     const { withSentryConfig } = await import('@sentry/nextjs').then(
       (mod) => mod
@@ -77,4 +77,16 @@ if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true' && !isTurbo) {
   console.log(`- ${pc.green('info')} Sentry integration not enabled`);
 }
 
+if (process.env.ANALYZE === 'true') {
+  try {
+    const withBundleAnalyzer = await import('@next/bundle-analyzer').then(
+      (mod) => mod.default
+    );
+    nextConfig = withBundleAnalyzer({
+      enabled: true,
+    })(nextConfig);
+  } catch {
+    // Do nothing, @next/bundle-analyzer is probably purged in prod or not installed
+  }
+}
 export default nextConfig;

@@ -5,8 +5,6 @@ export const config = {
   api: {
     bodyParser: false,
   },
-  // Specifies the maximum allowed duration for this function to execute (in seconds)
-  maxDuration: 120,
 };
 
 const app = new Hono().basePath('/api/legacy/hono');
