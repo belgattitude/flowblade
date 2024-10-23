@@ -7,7 +7,10 @@ import type {
 } from 'kysely';
 import type { Simplify, Writable } from 'type-fest';
 
-import type { DatasourceInterface } from '../core/datasource.interface';
+import type {
+  DatasourceInterface,
+  DatasourceQueryInfo,
+} from '../core/datasource.interface';
 import type { QueryResult, QueryResultMeta } from '../core/query-result';
 import {
   createResultError,
@@ -74,6 +77,11 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *
    * const result = await ds.queryRaw(rawSql);
    *
+   * // Or with query information (will be sent in the metadata)
+   * // const result = await ds.query(query, {
+   * //  name: 'getBrands'
+   * // });
+   *
    * if (isQueryResultError(result)) {
    *   console.error(result.error);
    *   console.error(result.meta);
@@ -88,14 +96,17 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     TRawQuery extends RawBuilder<unknown>,
     TQueryResult = Simplify<Awaited<ReturnType<TRawQuery['execute']>>['rows']>,
   >(
-    rawQuery: TRawQuery
+    rawQuery: TRawQuery,
+    info?: DatasourceQueryInfo
   ): Promise<QueryResult<TQueryResult>> => {
+    const { name } = info ?? {};
     let compiled: CompiledQuery | null = null;
     let meta: QueryResultMeta = {};
     try {
       compiled = rawQuery.compile(this.db);
 
       meta.query ??= {
+        ...(name === undefined ? {} : { name }),
         sql: compiled.sql,
         params: compiled.parameters as Writable<unknown[]>,
       };
@@ -140,6 +151,11 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *
    * const result = await ds.query(query);
    *
+   * // Or with query information (will be sent in the metadata)
+   * // const result = await ds.query(query, {
+   * //  name: 'getBrands'
+   * // });
+   *
    * if (isQueryResultError(result)) {
    *   console.error(result.error);
    *   console.error(result.meta);
@@ -154,14 +170,17 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     TQuery extends Compilable<unknown>,
     TQueryResult = InferResult<TQuery>,
   >(
-    query: TQuery
+    query: TQuery,
+    info?: DatasourceQueryInfo
   ): Promise<QueryResult<TQueryResult>> => {
+    const { name } = info ?? {};
     let compiled: CompiledQuery | null = null;
     let meta: QueryResultMeta = {};
     try {
       compiled = query.compile();
 
       meta.query ??= {
+        ...(name === undefined ? {} : { name }),
         sql: compiled.sql,
         params: compiled.parameters as Writable<unknown[]>,
       };

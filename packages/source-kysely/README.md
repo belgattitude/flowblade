@@ -29,6 +29,11 @@ const query = ds.queryBuilder  // Kysely expression builder
 
 const result = await ds.query(query);
 
+// Or with query information (will be sent in the metadata)
+// const result = await ds.query(query, {
+//  name: 'getBrands'
+// });
+
 // Discriminated usin with success: true | false
 if (isQueryResultError(result)) {
     console.error(result.error);
