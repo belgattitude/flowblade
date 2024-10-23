@@ -28,3 +28,4 @@ export type QueryResultError = {
 };
 
 export type QueryResult<TQuery> = QueryResultSuccess<TQuery> | QueryResultError;
+export type AsyncQueryResult<TQuery> = Promise<QueryResult<TQuery>>;

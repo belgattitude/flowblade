@@ -6,6 +6,7 @@ export {
 } from './core/assert';
 export type * from './core/datasource.interface';
 export type {
+  AsyncQueryResult,
   QueryResult,
   QueryResultError,
   QueryResultMeta,
