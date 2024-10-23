@@ -49,7 +49,7 @@
     "check-dist-esm": "es-check --not './dist/*.map.js' -v es2022 --module './dist/**/*.mjs'",
     "check-pub": "attw --pack && publint",
     "check-size": "size-limit",
-    "clean": "rimraf ./dist ./build ./coverage ./_release ./tsconfig.build.json",
+    "clean": "rimraf --glob ./dist ./build ./coverage ./_release './tsconfig*.tsbuildinfo'",
     "dev": "tsup --watch",
     "fix-staged": "lint-staged --allow-empty",
     "kysely": "kysely",
