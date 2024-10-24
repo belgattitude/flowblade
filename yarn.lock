@@ -2840,7 +2840,7 @@ __metadata:
     eslint: "npm:8.57.1"
     execa: "npm:9.4.1"
     kysely: "npm:0.27.4"
-    npm-run-all2: "npm:7.0.0"
+    npm-run-all2: "npm:7.0.1"
     prettier: "npm:3.3.3"
     prisma: "npm:5.21.1"
     prisma-kysely: "npm:1.8.0"
@@ -9659,7 +9659,7 @@ __metadata:
     husky: "npm:9.1.6"
     is-ci: "npm:3.0.1"
     lint-staged: "npm:15.2.10"
-    npm-run-all2: "npm:7.0.0"
+    npm-run-all2: "npm:7.0.1"
     nx: "npm:20.0.5"
     prettier: "npm:3.3.3"
     rimraf: "npm:6.0.1"
@@ -12440,7 +12440,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:9.0.5, minimatch@npm:^9.0.3, minimatch@npm:^9.0.4, minimatch@npm:^9.0.5":
+"minimatch@npm:9.0.5, minimatch@npm:^9.0.0, minimatch@npm:^9.0.3, minimatch@npm:^9.0.4, minimatch@npm:^9.0.5":
   version: 9.0.5
   resolution: "minimatch@npm:9.0.5"
   dependencies:
@@ -13025,6 +13025,27 @@ __metadata:
     run-p: bin/run-p/index.js
     run-s: bin/run-s/index.js
   checksum: 10c0/ee09d88820e67d61497b3058a179e4d13ff9518242546d0114bdb6e657e3ba8427e672ce99abf3b680ac4433fa79639a47897b232a90f465d9a6eea5744b56bc
+  languageName: node
+  linkType: hard
+
+"npm-run-all2@npm:7.0.1":
+  version: 7.0.1
+  resolution: "npm-run-all2@npm:7.0.1"
+  dependencies:
+    ansi-styles: "npm:^6.2.1"
+    cross-spawn: "npm:^7.0.3"
+    memorystream: "npm:^0.3.1"
+    minimatch: "npm:^9.0.0"
+    pidtree: "npm:^0.6.0"
+    read-package-json-fast: "npm:^4.0.0"
+    shell-quote: "npm:^1.7.3"
+    which: "npm:^5.0.0"
+  bin:
+    npm-run-all: bin/npm-run-all/index.js
+    npm-run-all2: bin/npm-run-all/index.js
+    run-p: bin/run-p/index.js
+    run-s: bin/run-s/index.js
+  checksum: 10c0/1f2438341473280f7f55015f04a9c5bbbb3226e8235ef50811f50f98514f10ff2ac1640da592e0d5a2e6c7b95060e1bb1c7a86b5177fa746151912ac99a8f3b7
   languageName: node
   linkType: hard
 
