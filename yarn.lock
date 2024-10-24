@@ -1808,6 +1808,70 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@belgattitude/eslint-config-bases@npm:6.1.0":
+  version: 6.1.0
+  resolution: "@belgattitude/eslint-config-bases@npm:6.1.0"
+  dependencies:
+    "@rushstack/eslint-patch": "npm:^1.10.4"
+    "@tanstack/eslint-plugin-query": "npm:^5.59.7"
+    "@typescript-eslint/eslint-plugin": "npm:^8.11.0"
+    "@typescript-eslint/parser": "npm:^8.11.0"
+    "@typescript-eslint/typescript-estree": "npm:^8.11.0"
+    "@typescript-eslint/utils": "npm:^8.11.0"
+    eslint-config-prettier: "npm:^9.1.0"
+    eslint-import-resolver-typescript: "npm:^3.6.3"
+    eslint-plugin-import-x: "npm:^4.3.1"
+    eslint-plugin-jest: "npm:^28.8.3"
+    eslint-plugin-jest-formatting: "npm:^3.1.0"
+    eslint-plugin-jsx-a11y: "npm:^6.10.1"
+    eslint-plugin-perfectionist: "npm:^3.9.1"
+    eslint-plugin-playwright: "npm:^2.0.0"
+    eslint-plugin-prettier: "npm:^5.2.1"
+    eslint-plugin-react: "npm:^7.37.2"
+    eslint-plugin-react-hooks: "npm:^4.6.2 || ^5.0.0 || 5.0.0-canary-7118f5dd7-20230705"
+    eslint-plugin-regexp: "npm:^2.6.0"
+    eslint-plugin-simple-import-sort: "npm:^12.1.1"
+    eslint-plugin-sonarjs: "npm:^2.0.4"
+    eslint-plugin-storybook: "npm:^0.10.1"
+    eslint-plugin-testing-library: "npm:^6.4.0"
+    eslint-plugin-unicorn: "npm:^56.0.0"
+    eslint-plugin-unused-imports: "npm:^4.1.4"
+  peerDependencies:
+    "@graphql-eslint/eslint-plugin": ^3.20.1
+    "@testing-library/dom": ^10.4.0
+    eslint: ^8.57.0
+    eslint-plugin-mdx: ^3.1.5
+    eslint-plugin-tailwindcss: ^3.17.4
+    graphql: ^16.9.0
+    prettier: ">=3.2.0 <5.0.0"
+    react: ">=18.2.0"
+    react-dom: ">=18.2.0"
+    typescript: ^5.3.1
+  peerDependenciesMeta:
+    "@graphql-eslint/eslint-plugin":
+      optional: true
+    "@testing-library/dom":
+      optional: true
+    eslint-plugin-mdx:
+      optional: true
+    eslint-plugin-tailwindcss:
+      optional: true
+    graphql:
+      optional: true
+    prettier:
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+    tailwindcss:
+      optional: true
+    typescript:
+      optional: true
+  checksum: 10c0/033b9cf07eb85be6e9d2e35a71afdd6ec887b0a8e5c1edd14a40abfe1321f6d8a1f3000d9388e1ec7d7f5dc91060ce809e9d86edb98144ab9091b275b12929f3
+  languageName: node
+  linkType: hard
+
 "@changesets/apply-release-plan@npm:^7.0.5":
   version: 7.0.5
   resolution: "@changesets/apply-release-plan@npm:7.0.5"
@@ -2755,7 +2819,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@flowblade/benchmark@workspace:benchmark"
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.0.4"
+    "@belgattitude/eslint-config-bases": "npm:6.1.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
     "@types/node": "npm:22.7.9"
     "@typescript-eslint/eslint-plugin": "npm:8.11.0"
@@ -2819,7 +2883,7 @@ __metadata:
   resolution: "@flowblade/source-kysely@workspace:packages/source-kysely"
   dependencies:
     "@arethetypeswrong/cli": "npm:0.16.4"
-    "@belgattitude/eslint-config-bases": "npm:6.0.4"
+    "@belgattitude/eslint-config-bases": "npm:6.1.0"
     "@codspeed/vitest-plugin": "npm:3.1.1"
     "@edge-runtime/vm": "npm:4.0.3"
     "@faker-js/faker": "npm:9.0.3"
@@ -8737,6 +8801,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-playwright@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "eslint-plugin-playwright@npm:2.0.0"
+  dependencies:
+    globals: "npm:^13.23.0"
+  peerDependencies:
+    eslint: ">=8.40.0"
+  checksum: 10c0/0fecb0cf23cc7099c2f4ba40167f0a09d19e670e4856a90582a5a33b303738e3ee6e24ac4e5b3a679a9718deed563861a6a3fdec446068f55f9509c9ef4fa298
+  languageName: node
+  linkType: hard
+
 "eslint-plugin-prettier@npm:^5.2.1":
   version: 5.2.1
   resolution: "eslint-plugin-prettier@npm:5.2.1"
@@ -8794,7 +8869,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react@npm:^7.35.0, eslint-plugin-react@npm:^7.37.1":
+"eslint-plugin-react@npm:^7.35.0, eslint-plugin-react@npm:^7.37.1, eslint-plugin-react@npm:^7.37.2":
   version: 7.37.2
   resolution: "eslint-plugin-react@npm:7.37.2"
   dependencies:
@@ -9646,7 +9721,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "flowblade-monorepo@workspace:."
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.0.4"
+    "@belgattitude/eslint-config-bases": "npm:6.1.0"
     "@changesets/changelog-github": "npm:0.5.0"
     "@changesets/cli": "npm:2.27.9"
     "@commitlint/cli": "npm:19.5.0"
