@@ -78,13 +78,12 @@ describe('Datasource sqlserver', () => {
           WHERE 1 = ${params.number}
           AND 'Hello' like ${params.string}
       `;
-      const rows = await ds.queryRaw(rawSql, {
+      const result = await ds.queryRaw(rawSql, {
         name: 'Retrieve something',
       });
-      assertQueryResultSuccess(rows);
-      const stabletimeMs = 0.1;
-      rows.meta!.timeMs = stabletimeMs;
-      expect(rows).toMatchSnapshot();
+      assertQueryResultSuccess(result);
+      result.meta!.timeMs = 0.1;
+      expect(result).toMatchSnapshot();
     });
   });
 
