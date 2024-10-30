@@ -7,6 +7,8 @@ export {
 export type * from './core/datasource.interface';
 export type {
   AsyncQueryResult,
+  InferAsyncQueryResultData,
+  InferQueryResultData,
   QueryResult,
   QueryResultError,
   QueryResultMeta,

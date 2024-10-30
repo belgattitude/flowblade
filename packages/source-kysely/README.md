@@ -47,6 +47,42 @@ if (isQueryResultError(result)) {
 const data = await ds.queryRaw(sql<{ count: number }>`SELECT 1 as "count' FROM brand`);
 ```
 
+## Type helpers
+
+### InferQueryResultData
+
+Infer the success part (data) of a QueryResult.
+
+```typescript
+import type { InferQueryResultData, QueryResult } from "@flowblade/source-kysely";
+
+type Row = { id: number };
+const queryResult: QueryResult<Row[]> = {
+  success: true,
+  data: [ { id: 1 } ],
+};
+type TData = InferQueryResultData<typeof queryResult>;
+// TData is Row[]
+```
+
+### InferAsyncQueryResultSuccess
+
+Infer the success part (data) of an AsyncQueryResult.
+
+```typescript
+import type { InferAsyncQueryResultData, AsyncQueryResult } from "@flowblade/source-kysely";
+
+type Row = { id: number };
+const getQueryResult = async (): AsyncQueryResult<Row[]> => {
+    return {
+        success: true,
+        data: [{ id: 1 }],
+    };
+};
+type TData = InferAsyncQueryResultData<ReturnType<typeof getQueryResult>>;
+// TData is Row[]
+```
+
 ## Utils
 
 ### createKyselySqlServerDialect
