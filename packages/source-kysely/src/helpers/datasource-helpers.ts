@@ -11,7 +11,7 @@ export type JsonifiedDataSourceResponse<
   T extends QueryResult<Record<string, unknown>[]>,
 > = {
   success: true | false;
-  data: Jsonify<QueryResultSuccess<unknown>>;
+  data: Jsonify<QueryResultSuccess<unknown[]>>;
   meta?: QueryResultMeta;
   error?: QueryResultError;
 };

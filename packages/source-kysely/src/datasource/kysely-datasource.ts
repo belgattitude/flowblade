@@ -5,13 +5,17 @@ import type {
   Kysely,
   RawBuilder,
 } from 'kysely';
-import type { Simplify, Writable } from 'type-fest';
+import type { Writable } from 'type-fest';
 
 import type {
   DatasourceInterface,
   DatasourceQueryInfo,
 } from '../core/datasource.interface';
-import type { QueryResult, QueryResultMeta } from '../core/query-result';
+import type {
+  AsyncQueryResult,
+  QueryResult,
+  QueryResultMeta,
+} from '../core/query-result';
 import {
   createResultError,
   createResultSuccess,
@@ -94,11 +98,11 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    */
   queryRaw = async <
     TRawQuery extends RawBuilder<unknown>,
-    TQueryResult = Simplify<Awaited<ReturnType<TRawQuery['execute']>>['rows']>,
+    TData extends unknown[] = Awaited<ReturnType<TRawQuery['execute']>>['rows'],
   >(
     rawQuery: TRawQuery,
     info?: DatasourceQueryInfo
-  ): Promise<QueryResult<TQueryResult>> => {
+  ): AsyncQueryResult<TData> => {
     const { name } = info ?? {};
     let compiled: CompiledQuery | null = null;
     let meta: QueryResultMeta = {};
@@ -121,8 +125,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         timeMs,
         ...(affectedRows === undefined ? {} : { affectedRows }),
       };
-
-      return createResultSuccess(result.rows as TQueryResult, meta);
+      return createResultSuccess(result.rows as TData, meta);
     } catch (err) {
       return createResultError(
         {
@@ -164,15 +167,14 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *   console.log(result.meta);
    * }
    * ```
-   *
    */
   query = async <
     TQuery extends Compilable<unknown>,
-    TQueryResult = InferResult<TQuery>,
+    TData extends unknown[] = InferResult<TQuery>,
   >(
     query: TQuery,
     info?: DatasourceQueryInfo
-  ): Promise<QueryResult<TQueryResult>> => {
+  ): Promise<QueryResult<TData>> => {
     const { name } = info ?? {};
     let compiled: CompiledQuery | null = null;
     let meta: QueryResultMeta = {};
@@ -197,7 +199,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         timeMs,
         ...(affectedRows === undefined ? {} : { affectedRows }),
       };
-      return createResultSuccess(result.rows as TQueryResult, meta);
+      return createResultSuccess(result.rows as TData, meta);
     } catch (err) {
       return createResultError(
         {
@@ -209,10 +211,13 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   };
 
   // eslint-disable-next-line require-yield,sonarjs/generator-without-yield
-  async *stream<TQuery extends Compilable<unknown>, TRet = InferResult<TQuery>>(
+  async *stream<
+    TQuery extends Compilable<unknown>,
+    TData = InferResult<TQuery>,
+  >(
     _query: TQuery,
     _chunkSize: number
-  ): AsyncIterableIterator<QueryResult<TRet>> {
+  ): AsyncIterableIterator<QueryResult<TData[]>> {
     throw new Error('Not implemented yet');
   }
 }
