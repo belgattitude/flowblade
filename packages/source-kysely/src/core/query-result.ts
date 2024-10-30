@@ -74,8 +74,3 @@ export type InferAsyncQueryResultData<T> =
       ? P['data']
       : never
     : never;
-
-/*
-export type InferAsyncQueryResultData<T> =
-  Awaited<T> extends QueryResultSuccess<unknown[]> ? Awaited<T>['data'] : never;
-*/
