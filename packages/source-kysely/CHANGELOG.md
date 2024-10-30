@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.11.0
+
+### Minor Changes
+
+- [#114](https://github.com/belgattitude/flowblade/pull/114) [`ed4c6bf`](https://github.com/belgattitude/flowblade/commit/ed4c6bf9b5997d497faa74ff584e971cf7829308) Thanks [@belgattitude](https://github.com/belgattitude)! - Expose InferQueryResultData and InferAsyncQueryResultData type helpers
+
 ## 0.10.0
 
 ### Minor Changes
