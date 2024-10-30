@@ -1,4 +1,5 @@
-import { sql } from 'kysely';
+import { type InferResult, sql } from 'kysely';
+import { expectTypeOf } from 'vitest';
 
 import {
   assertQueryResultError,
@@ -81,7 +82,11 @@ describe('Datasource sqlserver', () => {
       const result = await ds.queryRaw(rawSql, {
         name: 'Retrieve something',
       });
+
       assertQueryResultSuccess(result);
+      expectTypeOf(result.data).toEqualTypeOf<
+        Awaited<ReturnType<(typeof rawSql)['execute']>>['rows']
+      >();
       result.meta!.timeMs = 0.1;
       expect(result).toMatchSnapshot();
     });
@@ -117,6 +122,7 @@ describe('Datasource sqlserver', () => {
 
       const rows = await ds.query(query);
       assertQueryResultSuccess(rows);
+      expectTypeOf(rows.data).toEqualTypeOf<InferResult<typeof query>>();
       const stabletimeMs = 0.1;
       rows.meta!.timeMs = stabletimeMs;
       expect(rows).toMatchSnapshot();

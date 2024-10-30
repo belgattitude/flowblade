@@ -4,10 +4,10 @@ import type {
   QueryResultSuccess,
 } from './query-result';
 
-export const createResultSuccess = <T>(
-  data: T,
+export const createResultSuccess = <TData extends unknown[]>(
+  data: TData,
   meta: QueryResultMeta
-): QueryResultSuccess<T> => ({
+): QueryResultSuccess<TData> => ({
   success: true,
   data,
   meta,
