@@ -3,7 +3,7 @@ name: flowblade-postgres
 services:
   main-db:
     container_name: flowblade-postgres
-    image: postgres:17.0-alpine3.20
+    image: postgres:17.1-alpine3.20
     ports:
       - target: 5432
         published: 5432
