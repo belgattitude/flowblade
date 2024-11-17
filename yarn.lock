@@ -1797,9 +1797,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@belgattitude/eslint-config-bases@npm:6.4.0":
-  version: 6.4.0
-  resolution: "@belgattitude/eslint-config-bases@npm:6.4.0"
+"@belgattitude/eslint-config-bases@npm:6.5.0":
+  version: 6.5.0
+  resolution: "@belgattitude/eslint-config-bases@npm:6.5.0"
   dependencies:
     "@rushstack/eslint-patch": "npm:^1.10.4"
     "@tanstack/eslint-plugin-query": "npm:^5.60.1"
@@ -1807,6 +1807,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^8.14.0"
     "@typescript-eslint/typescript-estree": "npm:^8.14.0"
     "@typescript-eslint/utils": "npm:^8.14.0"
+    "@vitest/eslint-plugin": "npm:^1.1.10"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-import-resolver-typescript: "npm:^3.6.3"
     eslint-plugin-import-x: "npm:^4.4.2"
@@ -1818,7 +1819,7 @@ __metadata:
     eslint-plugin-prettier: "npm:^5.2.1"
     eslint-plugin-react: "npm:^7.37.2"
     eslint-plugin-react-hooks: "npm:^4.6.2 || ^5.0.0 || 5.0.0-canary-7118f5dd7-20230705"
-    eslint-plugin-regexp: "npm:^2.6.0"
+    eslint-plugin-regexp: "npm:^2.7.0"
     eslint-plugin-simple-import-sort: "npm:^12.1.1"
     eslint-plugin-sonarjs: "npm:^2.0.4"
     eslint-plugin-storybook: "npm:^0.11.0"
@@ -1828,9 +1829,9 @@ __metadata:
   peerDependencies:
     "@graphql-eslint/eslint-plugin": ^3.20.1
     "@testing-library/dom": ^10.4.0
-    eslint: ^8.57.0
+    eslint: ^8.57.1
     eslint-plugin-mdx: ^3.1.5
-    eslint-plugin-tailwindcss: ^3.17.4
+    eslint-plugin-tailwindcss: ^3.17.5
     graphql: ^16.9.0
     prettier: ">=3.2.0 <5.0.0"
     react: ">=18.2.0"
@@ -1857,7 +1858,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/12a8f33be08cec433067dbceed29ea479dcd9cbe1e4a247f6640a8c07f851e121c978f58e691794905b236f914f8195fd515b9ee28d470b412774219e00ce1c2
+  checksum: 10c0/422253f6dd5f67e824148eac80d14f68dd94b5c7a591a6685b749325ae8e445dc6700a6eb3e996a02d63c49a06a9f21e2b062edb8559980a3ee3c17114c5ecfd
   languageName: node
   linkType: hard
 
@@ -2639,7 +2640,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint-community/regexpp@npm:^4.10.0, @eslint-community/regexpp@npm:^4.6.1, @eslint-community/regexpp@npm:^4.8.0, @eslint-community/regexpp@npm:^4.9.1":
+"@eslint-community/regexpp@npm:^4.10.0, @eslint-community/regexpp@npm:^4.11.0, @eslint-community/regexpp@npm:^4.6.1, @eslint-community/regexpp@npm:^4.8.0":
   version: 4.12.1
   resolution: "@eslint-community/regexpp@npm:4.12.1"
   checksum: 10c0/a03d98c246bcb9109aec2c08e4d10c8d010256538dcb3f56610191607214523d4fb1b00aa81df830b6dffb74c5fa0be03642513a289c567949d3e550ca11cdf6
@@ -2822,7 +2823,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@flowblade/benchmark@workspace:benchmark"
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.4.0"
+    "@belgattitude/eslint-config-bases": "npm:6.5.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
     "@types/node": "npm:22.9.0"
     "@typescript-eslint/eslint-plugin": "npm:8.14.0"
@@ -2886,7 +2887,7 @@ __metadata:
   resolution: "@flowblade/source-kysely@workspace:packages/source-kysely"
   dependencies:
     "@arethetypeswrong/cli": "npm:0.17.0"
-    "@belgattitude/eslint-config-bases": "npm:6.4.0"
+    "@belgattitude/eslint-config-bases": "npm:6.5.0"
     "@codspeed/vitest-plugin": "npm:3.1.1"
     "@edge-runtime/vm": "npm:4.0.4"
     "@faker-js/faker": "npm:9.2.0"
@@ -5988,6 +5989,23 @@ __metadata:
     "@vitest/browser":
       optional: true
   checksum: 10c0/f795fdd645ccc46de45baa431a1b3b216d74195b9751cb0498009b8ef929dcd48c2f858570d421908549f5a631ac2931f7c7f3fe4ff0bc80707805beda5c18d7
+  languageName: node
+  linkType: hard
+
+"@vitest/eslint-plugin@npm:^1.1.10":
+  version: 1.1.10
+  resolution: "@vitest/eslint-plugin@npm:1.1.10"
+  peerDependencies:
+    "@typescript-eslint/utils": ">= 8.0"
+    eslint: ">= 8.57.0"
+    typescript: ">= 5.0.0"
+    vitest: "*"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+    vitest:
+      optional: true
+  checksum: 10c0/f69be2a1067976e452225ff8e2189dbfc9ebd6717be8013260372e8b724775d58849afd9e1a85449ba8f454ef0f69c8a200743b413fbe0e357b984c18e79bd5f
   languageName: node
   linkType: hard
 
@@ -9178,12 +9196,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-regexp@npm:^2.6.0":
-  version: 2.6.0
-  resolution: "eslint-plugin-regexp@npm:2.6.0"
+"eslint-plugin-regexp@npm:^2.6.0, eslint-plugin-regexp@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "eslint-plugin-regexp@npm:2.7.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.2.0"
-    "@eslint-community/regexpp": "npm:^4.9.1"
+    "@eslint-community/regexpp": "npm:^4.11.0"
     comment-parser: "npm:^1.4.0"
     jsdoc-type-pratt-parser: "npm:^4.0.0"
     refa: "npm:^0.12.1"
@@ -9191,7 +9209,7 @@ __metadata:
     scslre: "npm:^0.3.0"
   peerDependencies:
     eslint: ">=8.44.0"
-  checksum: 10c0/475a398c8947faa94b64cf52102a839c752bc08f86ff6f718aba0234b24a47feb702a11048506311987657d9fea1cdcb71dbe08a62481dbab8c47df3acc6d0b6
+  checksum: 10c0/c4882b441bab92e89c82cb27d6650540ad318750df5e99b42989f0fdf9ea381a9156de8470f1221483f98b5dc9cd6c493da73ccc18d94dee8d4a0f0ce78bd122
   languageName: node
   linkType: hard
 
@@ -10022,7 +10040,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "flowblade-monorepo@workspace:."
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.4.0"
+    "@belgattitude/eslint-config-bases": "npm:6.5.0"
     "@changesets/changelog-github": "npm:0.5.0"
     "@changesets/cli": "npm:2.27.9"
     "@commitlint/cli": "npm:19.5.0"
