@@ -7,6 +7,7 @@ const zDsn = z.custom((dsn) => isParsableDsn(dsn), 'Invalid DSN format.');
 
 export const serverEnv = createEnv({
   server: {
+    NEXT_CONFIG_COMPRESS: z.enum(['true', 'false']),
     SENTRY_ORG: z.string().optional(),
     SENTRY_PROJECT: z.string().optional(),
     DB_FLOWBLADE_SQLSERVER_JDBC: z.string().optional(),

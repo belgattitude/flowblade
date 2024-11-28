@@ -4,12 +4,14 @@ import pc from 'tinyrainbow';
 
 import { buildEnv } from './src/env/build.env.mjs';
 import { clientEnv } from './src/env/client.env.mjs';
+import { serverEnv } from './src/env/server.env.mjs';
 
-const isDev = process.env.NODE_ENV === 'development';
-const isTurbo = process.env.TURBOPACK !== undefined;
+const _isDev = process.env.NODE_ENV === 'development';
+const _isTurbo = process.env.TURBOPACK !== undefined;
 
 /** @type {import('next').NextConfig} */
 let nextConfig = {
+  compress: serverEnv.NEXT_CONFIG_COMPRESS === 'true',
   eslint: {
     dirs: ['src'],
     ignoreDuringBuilds: buildEnv.NEXT_BUILD_IGNORE_ESLINT === 'true',
