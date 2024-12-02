@@ -2787,7 +2787,7 @@ __metadata:
     "@belgattitude/eslint-config-bases": "npm:6.10.0"
     "@faker-js/faker": "npm:9.2.0"
     "@httpx/assert": "npm:0.15.1"
-    "@prisma/client": "npm:5.22.0"
+    "@prisma/client": "npm:6.0.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
     "@types/node": "npm:22.10.1"
     "@typescript-eslint/eslint-plugin": "npm:8.16.0"
@@ -2804,7 +2804,7 @@ __metadata:
     kysely: "npm:0.27.4"
     npm-run-all2: "npm:7.0.1"
     prettier: "npm:3.4.1"
-    prisma: "npm:5.22.0"
+    prisma: "npm:6.0.0"
     prisma-kysely: "npm:1.8.0"
     prisma-markdown: "npm:1.0.9"
     regexp.escape: "npm:2.0.1"
@@ -2813,7 +2813,7 @@ __metadata:
     tinyrainbow: "npm:1.2.0"
     tsx: "npm:4.19.2"
     typescript: "npm:5.7.2"
-    vite: "npm:6.0.1"
+    vite: "npm:6.0.2"
     vite-tsconfig-paths: "npm:5.1.3"
     vitest: "npm:2.1.6"
   peerDependencies:
@@ -2864,12 +2864,12 @@ __metadata:
     tedious: "npm:19.0.0"
     tsup: "npm:8.3.5"
     tsx: "npm:4.19.2"
-    type-fest: "npm:^4.29.0"
-    typedoc: "npm:0.27.1"
-    typedoc-plugin-markdown: "npm:4.3.0"
+    type-fest: "npm:^4.29.1"
+    typedoc: "npm:0.27.2"
+    typedoc-plugin-markdown: "npm:4.3.1"
     typescript: "npm:5.7.2"
-    valibot: "npm:^1.0.0-beta.8"
-    vite: "npm:6.0.1"
+    valibot: "npm:^1.0.0-beta.9"
+    vite: "npm:6.0.2"
     vite-tsconfig-paths: "npm:5.1.3"
     vitest: "npm:2.1.6"
     webpack: "npm:5.96.1"
@@ -2885,14 +2885,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gerrit0/mini-shiki@npm:^1.23.2":
-  version: 1.23.2
-  resolution: "@gerrit0/mini-shiki@npm:1.23.2"
+"@gerrit0/mini-shiki@npm:^1.24.0":
+  version: 1.24.1
+  resolution: "@gerrit0/mini-shiki@npm:1.24.1"
   dependencies:
-    "@shikijs/engine-oniguruma": "npm:^1.23.1"
-    "@shikijs/types": "npm:^1.23.1"
+    "@shikijs/engine-oniguruma": "npm:^1.24.0"
+    "@shikijs/types": "npm:^1.24.0"
     "@shikijs/vscode-textmate": "npm:^9.3.0"
-  checksum: 10c0/e8800afd3917b16eff945cb0d2a21b2e5361f3c12456be56e3dec603fa77a8ebc7163948f367ae2d1ccf88d9009a30047da7e4220174b62fb6dda776d57852ac
+  checksum: 10c0/12cedece534f0aa1b665e5e305fe18ae5ee628af2a83e39491112be44fba0f630984f4e1d1254b57a1fa0aeece3d2d8ff016f58016b4bf1634df4dfe709495cc
   languageName: node
   linkType: hard
 
@@ -4013,18 +4013,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:5.22.0":
-  version: 5.22.0
-  resolution: "@prisma/client@npm:5.22.0"
-  peerDependencies:
-    prisma: "*"
-  peerDependenciesMeta:
-    prisma:
-      optional: true
-  checksum: 10c0/ad111b931f184249794f811637456eb38dcfd0d7047e5a1f64804e5256f462fa3ee7c7a552fc8fa181e8daacc2b958af7426cb57bf0dc66605c3ef7c4aef4afb
-  languageName: node
-  linkType: hard
-
 "@prisma/client@npm:6.0.0":
   version: 6.0.0
   resolution: "@prisma/client@npm:6.0.0"
@@ -4062,29 +4050,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/engines-version@npm:5.22.0-44.605197351a3c8bdd595af2d2a9bc3025bca48ea2":
-  version: 5.22.0-44.605197351a3c8bdd595af2d2a9bc3025bca48ea2
-  resolution: "@prisma/engines-version@npm:5.22.0-44.605197351a3c8bdd595af2d2a9bc3025bca48ea2"
-  checksum: 10c0/95df49c6f35f99c0977e9690d9ae0776327df07c6f035e8c4a247a9c21108f0760c02ca6dbe63a35013e5cd1eb77a896edb340f1e28ea04373c6cefc4ce09b51
-  languageName: node
-  linkType: hard
-
 "@prisma/engines-version@npm:5.23.0-27.5dbef10bdbfb579e07d35cc85fb1518d357cb99e":
   version: 5.23.0-27.5dbef10bdbfb579e07d35cc85fb1518d357cb99e
   resolution: "@prisma/engines-version@npm:5.23.0-27.5dbef10bdbfb579e07d35cc85fb1518d357cb99e"
   checksum: 10c0/73151c2546e93b095fc42751896bfa8378bfc5db41b0bcbdf4925484d6fdb8be784bf1911081abf8e4e2f39543db34f9a7a130f533b4aaab6b344ba942c0cf97
-  languageName: node
-  linkType: hard
-
-"@prisma/engines@npm:5.22.0":
-  version: 5.22.0
-  resolution: "@prisma/engines@npm:5.22.0"
-  dependencies:
-    "@prisma/debug": "npm:5.22.0"
-    "@prisma/engines-version": "npm:5.22.0-44.605197351a3c8bdd595af2d2a9bc3025bca48ea2"
-    "@prisma/fetch-engine": "npm:5.22.0"
-    "@prisma/get-platform": "npm:5.22.0"
-  checksum: 10c0/81a439e5064a1036e05da8feaf7ffb19b5dba98d5ea68dc385f7e24e3cc25ef9f0b78a1aa1d7d7234a9afd916ee18b707863cee48274912315bc933429f26ce7
   languageName: node
   linkType: hard
 
@@ -4104,17 +4073,6 @@ __metadata:
     "@prisma/fetch-engine": "npm:6.0.0"
     "@prisma/get-platform": "npm:6.0.0"
   checksum: 10c0/ab5dbe5f82a0f4bd5ef895dfd8cac70a9c9f1051b5d3a5c463b63e24b2ea6c92f4c2d28fca47699a288932acb331169b0aa3200a96f7d502cefd1228c6abe908
-  languageName: node
-  linkType: hard
-
-"@prisma/fetch-engine@npm:5.22.0":
-  version: 5.22.0
-  resolution: "@prisma/fetch-engine@npm:5.22.0"
-  dependencies:
-    "@prisma/debug": "npm:5.22.0"
-    "@prisma/engines-version": "npm:5.22.0-44.605197351a3c8bdd595af2d2a9bc3025bca48ea2"
-    "@prisma/get-platform": "npm:5.22.0"
-  checksum: 10c0/0d3dcaffbadcf9185cca37bb50ce3a92fad2a205451731e5c3d02b1ee96a918dde99a9ce231e62bddde5ec8dcb3035338ff1312f8416f2cdaf31a69a19448baf
   languageName: node
   linkType: hard
 
@@ -4172,15 +4130,6 @@ __metadata:
   dependencies:
     "@prisma/debug": "npm:5.22.0"
   checksum: 10c0/d7a6a6f66330b38aea76cd148b1bbdf43e373f6401e8edabaebc12db81abc35712386c97f1178d97d1655905a4ff822000b902c407ead986565984555b9893d0
-  languageName: node
-  linkType: hard
-
-"@prisma/get-platform@npm:5.22.0":
-  version: 5.22.0
-  resolution: "@prisma/get-platform@npm:5.22.0"
-  dependencies:
-    "@prisma/debug": "npm:5.22.0"
-  checksum: 10c0/b934f9bbba1e8dae01721a213a5b166a4dd9f35bf04ad93fb9e24afb67945c09562d4e2c5b4d33b1830cdc7adeb03775309c55ab2c470048ed4cfc947fe495f5
   languageName: node
   linkType: hard
 
@@ -4317,9 +4266,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reduxjs/toolkit@npm:2.3.0":
-  version: 2.3.0
-  resolution: "@reduxjs/toolkit@npm:2.3.0"
+"@reduxjs/toolkit@npm:2.4.0":
+  version: 2.4.0
+  resolution: "@reduxjs/toolkit@npm:2.4.0"
   dependencies:
     immer: "npm:^10.0.3"
     redux: "npm:^5.0.1"
@@ -4333,7 +4282,7 @@ __metadata:
       optional: true
     react-redux:
       optional: true
-  checksum: 10c0/414e90b706331385a2122fc79e33f90c59a9caf9a59419f1bfd7f5e594bc8e4987902fd1bccbc53eb96d22c65ec2981ff5581f3d2df3ecd381a630f391edfc3e
+  checksum: 10c0/8752f18ded06727386662e2b6ea626008c5eb79630bd67ed911b7958375d25882cf2c8703f10e9c56df12c0b4123eb495aead10b0e31072196478221a9f92a74
   languageName: node
   linkType: hard
 
@@ -4825,7 +4774,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shikijs/engine-oniguruma@npm:^1.23.1":
+"@shikijs/engine-oniguruma@npm:^1.24.0":
   version: 1.24.0
   resolution: "@shikijs/engine-oniguruma@npm:1.24.0"
   dependencies:
@@ -4835,7 +4784,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shikijs/types@npm:1.24.0, @shikijs/types@npm:^1.23.1":
+"@shikijs/types@npm:1.24.0, @shikijs/types@npm:^1.24.0":
   version: 1.24.0
   resolution: "@shikijs/types@npm:1.24.0"
   dependencies:
@@ -5133,10 +5082,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.61.5":
-  version: 5.61.5
-  resolution: "@tanstack/query-core@npm:5.61.5"
-  checksum: 10c0/597af37641eb7e4123259f2f4244de977de98b1cab245a246f892b73bceac78d02e49f3368304e74691ab5ed74aa2b203b0a17045406f0303bbf962696856db9
+"@tanstack/query-core@npm:5.62.0":
+  version: 5.62.0
+  resolution: "@tanstack/query-core@npm:5.62.0"
+  checksum: 10c0/bd1b900c7585572a775af506bb257aeebfd0ff1e943c15b6edd13db185143c5ec52fce925d518cb300d3668abfdb0a32365130f4a0fa64d931ce1878bf22cc52
   languageName: node
   linkType: hard
 
@@ -5147,26 +5096,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:5.61.5":
-  version: 5.61.5
-  resolution: "@tanstack/react-query-devtools@npm:5.61.5"
+"@tanstack/react-query-devtools@npm:5.62.0":
+  version: 5.62.0
+  resolution: "@tanstack/react-query-devtools@npm:5.62.0"
   dependencies:
     "@tanstack/query-devtools": "npm:5.61.4"
   peerDependencies:
-    "@tanstack/react-query": ^5.61.5
+    "@tanstack/react-query": ^5.62.0
     react: ^18 || ^19
-  checksum: 10c0/62c7d105e6d5bc635cd0545654ebf7b6d95856d51423a3db686b86abc1c102b0bbe4d9d83f2a7b5111dc8f07a83b32b821cc37562ee9c3e45d74d5d1b198a06c
+  checksum: 10c0/b5f94368d83c3178fc0a53f917d801a5f09de91fd481a04efeb531e8390867f7abc5e63f96944a99269d8ca827bf802429c71c3e88a0286686e62d73497bf548
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:5.61.5":
-  version: 5.61.5
-  resolution: "@tanstack/react-query@npm:5.61.5"
+"@tanstack/react-query@npm:5.62.0":
+  version: 5.62.0
+  resolution: "@tanstack/react-query@npm:5.62.0"
   dependencies:
-    "@tanstack/query-core": "npm:5.61.5"
+    "@tanstack/query-core": "npm:5.62.0"
   peerDependencies:
     react: ^18 || ^19
-  checksum: 10c0/1c535836025622a13f7a53947bc715147a34a5f98bcda32c0afd56f605073f21788b19f3e47e21876cad2cff7c9cd3b25cadd12eba5ddcc4c7e37f75d0742c32
+  checksum: 10c0/c5cd6c8916889e4195b105eff97f4a333775fd9b883107d27fb5495cc77daf65df2eb725256f5ba77318fd1f4c1689f229b3a4110e261412ad35d68139e16fb2
   languageName: node
   linkType: hard
 
@@ -9428,7 +9377,7 @@ __metadata:
     tiny-glob: "npm:0.2.9"
     tsx: "npm:4.19.2"
     typescript: "npm:5.7.2"
-    vite: "npm:6.0.1"
+    vite: "npm:6.0.2"
     vite-tsconfig-paths: "npm:5.1.3"
     vitest: "npm:2.1.6"
     zod: "npm:3.23.8"
@@ -12724,12 +12673,12 @@ __metadata:
     "@opentelemetry/sdk-logs": "npm:0.55.0"
     "@opentelemetry/sdk-metrics": "npm:1.28.0"
     "@opentelemetry/sdk-trace-base": "npm:1.28.0"
-    "@reduxjs/toolkit": "npm:2.3.0"
+    "@reduxjs/toolkit": "npm:2.4.0"
     "@sentry/nextjs": "npm:8.41.0"
     "@spotlightjs/spotlight": "npm:2.6.3"
     "@t3-oss/env-nextjs": "npm:0.11.1"
-    "@tanstack/react-query": "npm:5.61.5"
-    "@tanstack/react-query-devtools": "npm:5.61.5"
+    "@tanstack/react-query": "npm:5.62.0"
+    "@tanstack/react-query-devtools": "npm:5.62.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
     "@types/node": "npm:22.10.1"
     "@types/react": "npm:18.3.12"
@@ -12755,13 +12704,13 @@ __metadata:
     kysely: "npm:0.27.4"
     next: "npm:15.0.3"
     npm-run-all2: "npm:7.0.1"
-    openapi-fetch: "npm:0.13.0"
-    openapi-react-query: "npm:0.2.5"
-    openapi-typescript: "npm:7.4.3"
+    openapi-fetch: "npm:0.13.1"
+    openapi-react-query: "npm:0.2.6"
+    openapi-typescript: "npm:7.4.4"
     postcss: "npm:8.4.49"
     prettier: "npm:3.4.1"
     primeicons: "npm:7.0.0"
-    primereact: "npm:10.8.4"
+    primereact: "npm:10.8.5"
     react: "npm:19.0.0-rc-69d4b800-20241021"
     react-dom: "npm:19.0.0-rc-69d4b800-20241021"
     react-error-boundary: "npm:4.1.2"
@@ -12773,10 +12722,10 @@ __metadata:
     tedious: "npm:19.0.0"
     tinyrainbow: "npm:1.2.0"
     tsx: "npm:4.19.2"
-    type-fest: "npm:4.29.0"
+    type-fest: "npm:4.29.1"
     typescript: "npm:5.7.2"
-    valibot: "npm:1.0.0-beta.8"
-    vite: "npm:6.0.1"
+    valibot: "npm:1.0.0-beta.9"
+    vite: "npm:6.0.2"
     vite-tsconfig-paths: "npm:5.1.3"
     vitest: "npm:2.1.6"
     webpack: "npm:5.96.1"
@@ -13261,24 +13210,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openapi-fetch@npm:0.13.0":
-  version: 0.13.0
-  resolution: "openapi-fetch@npm:0.13.0"
+"openapi-fetch@npm:0.13.1":
+  version: 0.13.1
+  resolution: "openapi-fetch@npm:0.13.1"
   dependencies:
     openapi-typescript-helpers: "npm:^0.0.15"
-  checksum: 10c0/675a74102ba2d4433b65c89ec9f5b20254bc399912c069b1b9ca584103992e5eb71680b2b9436fe48eedf4410ad2c2dbead2c5d0c790d5cbc8e16a0b7578879c
+  checksum: 10c0/cb8557e461a2480b0907af735e4b2cbb4469838268eca3cd68a64860bc6a2bdcb8531e758a35c7a745e5ccea89dd173ab83956950d020b4006b28e35144c10cf
   languageName: node
   linkType: hard
 
-"openapi-react-query@npm:0.2.5":
-  version: 0.2.5
-  resolution: "openapi-react-query@npm:0.2.5"
+"openapi-react-query@npm:0.2.6":
+  version: 0.2.6
+  resolution: "openapi-react-query@npm:0.2.6"
   dependencies:
     openapi-typescript-helpers: "npm:^0.0.15"
   peerDependencies:
     "@tanstack/react-query": ^5.25.0
-    openapi-fetch: ^0.13.0
-  checksum: 10c0/c78644444fbf07264e8025c4d1f326c0eeb0448c300d4e6786ce47a9c39e6f1d312c76c6ab5a5d6e71bf6cd2ff93bda1f650a7077b1d8d710fef1bd99566f903
+    openapi-fetch: ^0.13.1
+  checksum: 10c0/94306aace851824a626173384018b2a1c9783146c9c685eb32a69810480434318e69736b51a26ccb2d05cd29f5ab59b19d3878d6a5c52b26c3918db49998c8fb
   languageName: node
   linkType: hard
 
@@ -13296,9 +13245,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openapi-typescript@npm:7.4.3":
-  version: 7.4.3
-  resolution: "openapi-typescript@npm:7.4.3"
+"openapi-typescript@npm:7.4.4":
+  version: 7.4.4
+  resolution: "openapi-typescript@npm:7.4.4"
   dependencies:
     "@redocly/openapi-core": "npm:^1.25.9"
     ansi-colors: "npm:^4.1.3"
@@ -13310,7 +13259,7 @@ __metadata:
     typescript: ^5.x
   bin:
     openapi-typescript: bin/cli.js
-  checksum: 10c0/d238c26410e41d094a11b811f5425d5436ad8c4392c03754b127c8e90da1df28ad8080db2079760af8a8b4cee1a03cff32ea57760a02514c66283d7f6d381e75
+  checksum: 10c0/bdaa32bca608565b472fbb74654bc82c4e0d41b288165a9beb8e2ddee39395577e70f249d26cc5761212f2ea20d666d779831b0c9efc4ac38c4730c6918c7f34
   languageName: node
   linkType: hard
 
@@ -14164,9 +14113,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"primereact@npm:10.8.4":
-  version: 10.8.4
-  resolution: "primereact@npm:10.8.4"
+"primereact@npm:10.8.5":
+  version: 10.8.5
+  resolution: "primereact@npm:10.8.5"
   dependencies:
     "@types/react-transition-group": "npm:^4.4.1"
     react-transition-group: "npm:^4.4.1"
@@ -14177,7 +14126,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/fabecc7a9ec17e83f55b853150cab7966d4887171f3e6803e1d03c9124b456a57f6fe7640c1d79059de05bdfa0141e22c1a539bc0f36102d783a8b45fb043bcf
+  checksum: 10c0/7c8bb72fc96975a233deb58c2b1d56615ce79dbd42657c8c407bf433b9a8eec388da3426af49e55ee59b0688dc08dd043788a6592ebd5c58b23e75cf4b7377b3
   languageName: node
   linkType: hard
 
@@ -14207,21 +14156,6 @@ __metadata:
   bin:
     prisma-markdown: lib/executable/markdown.js
   checksum: 10c0/d4da642519db54df828c107f680d55d37207c2cc52916936412116100721ae46df78c754f1b0067fad99a77886cdbe9e325ab021633b148af6815186e913564d
-  languageName: node
-  linkType: hard
-
-"prisma@npm:5.22.0":
-  version: 5.22.0
-  resolution: "prisma@npm:5.22.0"
-  dependencies:
-    "@prisma/engines": "npm:5.22.0"
-    fsevents: "npm:2.3.3"
-  dependenciesMeta:
-    fsevents:
-      optional: true
-  bin:
-    prisma: build/index.js
-  checksum: 10c0/63d1fe828394d1a1fabc0d29245ae35be53c1bdb26da4dbcfaf17fba3733c1c120b72f28b548dba47b2b80ff7fad670717be1316c1ea4bb12ebe1937415a1ddb
   languageName: node
   linkType: hard
 
@@ -16693,10 +16627,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"type-fest@npm:4.29.0, type-fest@npm:^4.29.0, type-fest@npm:^4.7.1":
-  version: 4.29.0
-  resolution: "type-fest@npm:4.29.0"
-  checksum: 10c0/de11f04e141e4dd2caf8ba9cb4894955f73d60c06303f93836feea66f162166a2d66e81e7aca270721627cdc7fef2d248b21917fe1346598a66c3d6b856d2d7f
+"type-fest@npm:4.29.1, type-fest@npm:^4.29.1, type-fest@npm:^4.7.1":
+  version: 4.29.1
+  resolution: "type-fest@npm:4.29.1"
+  checksum: 10c0/93019c35cedec6dc12a324edcf6bd71719881c944f70e6bf029fd2deb4132589439510f4043f82d7afa6238c0850becfe64fa299a0bca351bed9d839b65463e2
   languageName: node
   linkType: hard
 
@@ -16812,20 +16746,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc-plugin-markdown@npm:4.3.0":
-  version: 4.3.0
-  resolution: "typedoc-plugin-markdown@npm:4.3.0"
+"typedoc-plugin-markdown@npm:4.3.1":
+  version: 4.3.1
+  resolution: "typedoc-plugin-markdown@npm:4.3.1"
   peerDependencies:
     typedoc: 0.27.x
-  checksum: 10c0/2db27e6508fc0047b9608edc084b6c43bbe88e03dbdc288b33a77ecba75d1c5561236b5e5df2153b50ff781d79684a90d6b2b1c099f20839310275cb4e142eb7
+  checksum: 10c0/031e7d61611899fc4f45953575b7b63734c34379c1f9791b42e0ab4605dd2fff952dd35d53d8edd8068afdc9b127858a6b93fda94ec065e8a6ab869012e84500
   languageName: node
   linkType: hard
 
-"typedoc@npm:0.27.1":
-  version: 0.27.1
-  resolution: "typedoc@npm:0.27.1"
+"typedoc@npm:0.27.2":
+  version: 0.27.2
+  resolution: "typedoc@npm:0.27.2"
   dependencies:
-    "@gerrit0/mini-shiki": "npm:^1.23.2"
+    "@gerrit0/mini-shiki": "npm:^1.24.0"
     lunr: "npm:^2.3.9"
     markdown-it: "npm:^14.1.0"
     minimatch: "npm:^9.0.5"
@@ -16834,7 +16768,7 @@ __metadata:
     typescript: 5.0.x || 5.1.x || 5.2.x || 5.3.x || 5.4.x || 5.5.x || 5.6.x || 5.7.x
   bin:
     typedoc: bin/typedoc
-  checksum: 10c0/28e62707c7157c1f07a24e5422143de5e8f6ed0967a7fb4f76ae220824e14d79d43589ec963ed6b7327eb4e5066c7037adad7a1a523a7d4a6aab259ef0f22570
+  checksum: 10c0/85184d40760a5528a7f82a6b1a2932973208fc55762a4b8c3445b895c4fbdd65bbfbde9b1c2b335019129b59e36eda294080de9d332df6e1c856500234f0bb4d
   languageName: node
   linkType: hard
 
@@ -17109,19 +17043,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"valibot@npm:1.0.0-beta.8":
-  version: 1.0.0-beta.8
-  resolution: "valibot@npm:1.0.0-beta.8"
-  peerDependencies:
-    typescript: ">=5"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 10c0/71aea3ce739e46bf60dc16a01c180fcd76be603a5dd76e43b57fe3a9595d01bb1787d0ffda390f00d755a249405d61b73c6e7f9575cb316dac6c60c40c8814ef
-  languageName: node
-  linkType: hard
-
-"valibot@npm:^1.0.0-beta.8":
+"valibot@npm:1.0.0-beta.9, valibot@npm:^1.0.0-beta.9":
   version: 1.0.0-beta.9
   resolution: "valibot@npm:1.0.0-beta.9"
   peerDependencies:
@@ -17188,9 +17110,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:6.0.1, vite@npm:^5.0.0 || ^6.0.0":
-  version: 6.0.1
-  resolution: "vite@npm:6.0.1"
+"vite@npm:6.0.2, vite@npm:^5.0.0 || ^6.0.0":
+  version: 6.0.2
+  resolution: "vite@npm:6.0.2"
   dependencies:
     esbuild: "npm:^0.24.0"
     fsevents: "npm:~2.3.3"
@@ -17236,7 +17158,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10c0/e4d853eb9042ff29fa4d7cee1484738faaee4b1d9dcf786a94783bebb736b39af0afa7ac1a209000530638098d0a1b240b51f509d32addb028b222453f862916
+  checksum: 10c0/45fc609f2bc5fb5beb5a8e2cad9ad6c2edce229a922f6fc1270ea2a9d75819482edcc0f77c85b4a7abdad7eb69ce6a4f26131925d47cdc0778fc15d1bbc3b6a2
   languageName: node
   linkType: hard
 
