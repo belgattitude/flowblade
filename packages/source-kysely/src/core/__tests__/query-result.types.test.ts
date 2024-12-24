@@ -18,7 +18,7 @@ describe('QueryResult types tests', () => {
       };
       type TData = InferQueryResultData<typeof queryResult>;
       assertQueryResultSuccess(queryResult);
-      expectTypeOf(queryResult.data).toEqualTypeOf<TData>;
+      expectTypeOf(queryResult.data).toEqualTypeOf<TData>();
     });
   });
 
@@ -35,7 +35,7 @@ describe('QueryResult types tests', () => {
       const result = await getQueryResult();
       assertQueryResultSuccess(result);
       const data: TData = [{ id: 1 }];
-      expectTypeOf(result.data).toEqualTypeOf<typeof data>;
+      expectTypeOf(result.data).toEqualTypeOf<typeof data>();
     });
   });
 });
