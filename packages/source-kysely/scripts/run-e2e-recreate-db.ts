@@ -1,7 +1,7 @@
 import { envE2EConfig } from '../e2e/env.e2e.config';
 import { execPrismaCliOrThrow } from '../e2e/utils/prisma-cli.utils';
 
-const { schema, env } = envE2EConfig.sqlServer.prisma;
+const { schema } = envE2EConfig.sqlServer.prisma;
 
 execPrismaCliOrThrow({
   cmd: `yarn prisma db push --schema=${schema} --force-reset`,

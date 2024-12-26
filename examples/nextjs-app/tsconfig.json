@@ -13,9 +13,11 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "preserve",
     "paths": {
-      "@flowblade/db-sqlserver/kysely-types": [
+      "@flowblade-examples/db-sqlserver/kysely-types": [
         "../../db-sqlserver/src/kysely-types.ts"
       ],
+      "@flowblade/core": ["../../../packages/core/src/index"],
+      "@flowblade/source-duckdb": ["../../../packages/source-duckdb/src/index"],
       "@flowblade/source-kysely": ["../../../packages/source-kysely/src/index"],
       "@/components/*": ["./components/*"],
       "@/config/*": ["./config/*"],

@@ -1,11 +1,11 @@
-import { type InferResult, sql } from 'kysely';
-import { expectTypeOf } from 'vitest';
-
 import {
   assertQueryResultError,
   assertQueryResultSuccess,
   type QueryResultError,
-} from '../../src';
+} from '@flowblade/core';
+import { type InferResult, sql } from 'kysely';
+import { expectTypeOf } from 'vitest';
+
 import { createE2eDatasource } from '../utils/create-e2e-datasource';
 
 describe('Datasource sqlserver', () => {

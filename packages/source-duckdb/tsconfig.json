@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "strictNullChecks": true,
+    "exactOptionalPropertyTypes": false,
+    "paths": {
+      "@flowblade/core": ["../core/src/index"],
+      "@flowblade/sql-tag": ["../sql-tag/src/index"]
+    },
+    "types": ["vitest/globals"]
+  },
+  "exclude": ["**/node_modules", "**/.*/*", "dist", "coverage"],
+  "include": [
+    ".eslintrc.*",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.cjs",
+    "**/*.mjs",
+    "**/*.json"
+  ]
+}

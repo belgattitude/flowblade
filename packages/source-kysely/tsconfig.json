@@ -10,7 +10,9 @@
     "noUncheckedIndexedAccess": true,
     "strictNullChecks": true,
     "exactOptionalPropertyTypes": false,
-    "paths": {},
+    "paths": {
+      "@flowblade/core": ["../core/src/index"]
+    },
     "types": ["vitest/globals"]
   },
   "exclude": ["**/node_modules", "**/.*/*", "dist", "coverage"],

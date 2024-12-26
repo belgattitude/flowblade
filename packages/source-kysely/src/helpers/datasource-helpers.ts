@@ -1,11 +1,10 @@
-import type { Jsonify } from 'type-fest';
-
 import type {
   QueryResult,
   QueryResultError,
   QueryResultMeta,
   QueryResultSuccess,
-} from '../core/query-result';
+} from '@flowblade/core';
+import type { Jsonify } from 'type-fest';
 
 export type JsonifiedDataSourceResponse<
   T extends QueryResult<Record<string, unknown>[]>,
