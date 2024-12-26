@@ -12,6 +12,12 @@ Fast and lightweight ([~610B](#bundle-size)) sql template tag based on [sql-temp
 [![downloads](https://img.shields.io/npm/dm/@flowblade/sql-tag?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/sql-tag)
 [![license](https://img.shields.io/npm/l/@flowblade/sql-tag?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
 
+## Features
+
+- 📐&nbsp; Lightweight (less than [700~B](#bundle-size))
+- 🛡️&nbsp; Tested on [node 18-22, browser, cloudflare workers and runtime/edge](#compatibility).
+- 🗝️&nbsp; Available in ESM and CJS formats.
+
 ## Install
 
 ```bash
