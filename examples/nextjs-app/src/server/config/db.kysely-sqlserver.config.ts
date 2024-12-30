@@ -10,7 +10,18 @@ import { serverEnv } from '../../env/server.env.mjs';
 const config = TediousConnUtils.fromJdbcDsn(
   serverEnv.DB_FLOWBLADE_SQLSERVER_JDBC ?? ''
 );
-const dialect = createKyselySqlServerDialect(config);
+const dialect = createKyselySqlServerDialect({
+  tediousConfig: config,
+  poolOptions: {
+    min: 0,
+    max: 10,
+    validateConnections: false,
+    propagateCreateError: true,
+  },
+  dialectConfig: {
+    resetConnectionOnRelease: false,
+  },
+});
 
 const maskPII = (param: unknown) => {
   // @todo filter out personal identifiable information
