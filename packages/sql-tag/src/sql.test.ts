@@ -18,7 +18,7 @@ describe('sql tests', () => {
       username: string;
     }>`
         SELECT id, username FROM users 
-        WHERE username IN (${sql.join(params.users)})
+        WHERE username IN (${sql.join(params.users)}) 
         ${params.ids.length > 0 ? sql`AND id IN (${sql.join(params.ids)})` : sql.empty}          
     `;
 

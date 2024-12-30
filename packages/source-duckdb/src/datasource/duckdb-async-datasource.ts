@@ -9,7 +9,6 @@ import {
 } from '@flowblade/core';
 import type { TaggedSql } from '@flowblade/sql-tag';
 import type { Database } from 'duckdb-async';
-import type { Compilable, InferResult } from 'kysely';
 
 type Params = {
   connection: Database;
@@ -120,24 +119,18 @@ export class DuckDBAsyncDatasource implements DatasourceInterface {
    * }
    * ```
    */
-  query = async <
-    TQuery extends Compilable<unknown>,
-    TData extends unknown[] = InferResult<TQuery>,
-  >(
-    query: TQuery,
+  query = async (
+    query: unknown,
     info?: DatasourceQueryInfo
-  ): Promise<QueryResult<TData>> => {
+  ): Promise<QueryResult<unknown[]>> => {
     throw new Error('Not implemented yet');
   };
 
   // eslint-disable-next-line require-yield,sonarjs/generator-without-yield
-  async *stream<
-    TQuery extends Compilable<unknown>,
-    TData = InferResult<TQuery>,
-  >(
-    _query: TQuery,
+  async *stream(
+    _query: unknown,
     _chunkSize: number
-  ): AsyncIterableIterator<QueryResult<TData[]>> {
+  ): AsyncIterableIterator<QueryResult<unknown[]>> {
     throw new Error('Not implemented yet');
   }
 }
