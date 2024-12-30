@@ -1,5 +1,28 @@
 # @flowblade/source-kysely
 
+## 0.13.0
+
+### Minor Changes
+
+- [#237](https://github.com/belgattitude/flowblade/pull/237) [`7aaa524`](https://github.com/belgattitude/flowblade/commit/7aaa524be9981fbdcf153a3ae196754cde05c663) Thanks [@belgattitude](https://github.com/belgattitude)! - Create @flowblade/core package
+
+  **Warning**: This is a breaking change
+
+  Create `@flowblade/core` package to centralize common types and utilities. If you're relying
+  on `@flowblade/source-kysely` or `@flowblade/source-duckdb`, you'll need to update your imports for
+  `QueryResults` and others.
+
+  ```typescript
+  import type { QueryResult } from "@flowblade/core";
+  import type { KyselyDatasource } from "@flowblade/source-kysely";
+  ```
+
+  And ensure that @flowblade/core is installed:
+
+  ```bash
+  yarn add @flowblade/core @flowblade/source-kysely kysely
+  ```
+
 ## 0.12.0
 
 ### Minor Changes
