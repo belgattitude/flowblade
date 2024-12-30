@@ -7,10 +7,9 @@ import {
   type QueryResult,
   type QueryResultMeta,
 } from '@flowblade/core';
-import type { RawSql } from '@flowblade/sql-tag';
+import type { TaggedSql } from '@flowblade/sql-tag';
 import type { Database } from 'duckdb-async';
-import type { Compilable, CompiledQuery, InferResult } from 'kysely';
-import type { Writable } from 'type-fest';
+import type { Compilable, InferResult } from 'kysely';
 
 type Params = {
   connection: Database;
@@ -54,7 +53,7 @@ export class DuckDBAsyncDatasource implements DatasourceInterface {
    * ```
    */
   queryRaw = async <TData extends unknown[]>(
-    rawQuery: RawSql<TData>,
+    rawQuery: TaggedSql<TData>,
     info?: DatasourceQueryInfo
   ): AsyncQueryResult<TData> => {
     const { name } = info ?? {};
@@ -128,39 +127,7 @@ export class DuckDBAsyncDatasource implements DatasourceInterface {
     query: TQuery,
     info?: DatasourceQueryInfo
   ): Promise<QueryResult<TData>> => {
-    const { name } = info ?? {};
-    let compiled: CompiledQuery | null = null;
-    let meta: QueryResultMeta = {};
-    try {
-      compiled = query.compile();
-
-      meta.query ??= {
-        ...(name === undefined ? {} : { name }),
-        sql: compiled.sql,
-        params: compiled.parameters as Writable<unknown[]>,
-      };
-
-      const start = performance.now();
-      const r = await this.db.executeQuery(compiled);
-      const { numAffectedRows, ...result } = r;
-      const timeMs = performance.now() - start;
-
-      const affectedRows = parseBigIntToSafeInt(numAffectedRows);
-
-      meta = {
-        ...meta,
-        timeMs,
-        ...(affectedRows === undefined ? {} : { affectedRows }),
-      };
-      return createResultSuccess(result.rows as TData, meta);
-    } catch (err) {
-      return createResultError(
-        {
-          message: (err as Error).message,
-        },
-        meta
-      );
-    }
+    throw new Error('Not implemented yet');
   };
 
   // eslint-disable-next-line require-yield,sonarjs/generator-without-yield

@@ -1,4 +1,4 @@
-# @flowblade/db-sqlserver
+# @flowblade-examples/db-sqlserver
 
 ### Getting started
 
