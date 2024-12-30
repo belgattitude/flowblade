@@ -1,5 +1,5 @@
 ---
-"@flowblade/source-duckdb": minor
+"@flowblade/source-duckdb": patch
 ---
 
 Initial alpha version for source duckdb
