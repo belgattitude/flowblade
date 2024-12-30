@@ -2,11 +2,20 @@
 
 Data store and transformation library for data-driven applications.
 
+
 ### Datasources
 
-| Datasource | Description |
-|------------|-------------|
+| Datasource                                                                                                    | Description              |
+|---------------------------------------------------------------------------------------------------------------|--------------------------|
 | [@flowblade/source-kysely](https://github.com/belgattitude/flowblade/tree/main/packages/source-kysely#readme) | Kysely datasource reader |
+| [@flowblade/source-duckdb](https://github.com/belgattitude/flowblade/tree/main/packages/source-duckdb#readme) | Duckdb nodejs datasource |
+
+
+### Utilities
+
+| Utilities                                                                                         | Description                 |
+|---------------------------------------------------------------------------------------------------|-----------------------------|
+| [@flowblade/sql-tag](https://github.com/belgattitude/flowblade/tree/main/packages/sql-tag#readme) | Tagged SQL template literal |
 
 
 ## Structure
@@ -18,7 +27,9 @@ Data store and transformation library for data-driven applications.
 │   │── fastify-app
 │   └── nextjs-app
 └── packages
+    │── source-duckdb
     │── source-kysely
+    │── sql-tag
     └── (...)
 ```
 

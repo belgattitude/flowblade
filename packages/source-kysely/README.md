@@ -3,7 +3,7 @@
 ## Install
 
 ```bash
-yarn add @flowblade/source-kysely
+yarn add @flowblade/core @flowblade/source-kysely kysely
 
 # Install optional drivers
 # 01. for Ms SqlServer or Azure Sql Edge

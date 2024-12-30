@@ -1,4 +1,12 @@
 import type {
+  AsyncQueryResult,
+  DatasourceInterface,
+  DatasourceQueryInfo,
+  QueryResult,
+  QueryResultMeta,
+} from '@flowblade/core';
+import { createResultError, createResultSuccess } from '@flowblade/core';
+import type {
   Compilable,
   CompiledQuery,
   InferResult,
@@ -7,19 +15,6 @@ import type {
 } from 'kysely';
 import type { Writable } from 'type-fest';
 
-import type {
-  DatasourceInterface,
-  DatasourceQueryInfo,
-} from '../core/datasource.interface';
-import type {
-  AsyncQueryResult,
-  QueryResult,
-  QueryResultMeta,
-} from '../core/query-result';
-import {
-  createResultError,
-  createResultSuccess,
-} from '../core/query-result-factories';
 import { parseBigIntToSafeInt } from '../utils/internal/internal-utils';
 
 type Params<TDatabase> = {
@@ -94,7 +89,6 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *   console.log(result.meta);
    * }
    * ```
-
    */
   queryRaw = async <
     TRawQuery extends RawBuilder<unknown>,
