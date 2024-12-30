@@ -12,10 +12,16 @@ import type { E2EDbTypes } from './e2e-db.types';
 const tediousConfig = TediousConnUtils.fromJdbcDsn(envE2EConfig.sqlServer.dsn);
 
 export const e2eSqlServerDb = new Kysely<E2EDbTypes['sqlServer']>({
-  dialect: createKyselySqlServerDialect(tediousConfig, {
-    tarnPool: {
+  dialect: createKyselySqlServerDialect({
+    tediousConfig,
+    poolOptions: {
       min: 0,
-      max: 1,
+      max: 10,
+      validateConnections: false,
+      propagateCreateError: true,
+    },
+    dialectConfig: {
+      resetConnectionOnRelease: false,
     },
   }),
 });

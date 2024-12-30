@@ -23,7 +23,7 @@ describe('assert tests', () => {
       };
       expect(() => assertQueryResultSuccess(result)).not.toThrow();
       assertQueryResultSuccess(result);
-      expectTypeOf(result.data?.[0]!.id).toEqualTypeOf<number>;
+      expectTypeOf(result.data?.[0]!.id).toEqualTypeOf<number>();
     });
   });
 });
