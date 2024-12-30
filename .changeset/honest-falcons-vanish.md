@@ -16,7 +16,7 @@ import type { QueryResult } from '@flowblade/core';
 import type { KyselyDatasource } from '@flowblade/source-kysely';
 ```
 
-And ensure tha @flowblade/core is installed:
+And ensure that @flowblade/core is installed:
 
 ```bash
 yarn add @flowblade/core @flowblade/source-kysely kysely
