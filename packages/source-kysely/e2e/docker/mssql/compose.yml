@@ -2,7 +2,6 @@ name: flowblade-e2e-mssql
 
 services:
   mssql:
-    container_name: flowblade-e2e-mssql
     image: mcr.microsoft.com/mssql/server:2022-CU16-ubuntu-22.04
     # Only when docker is running as "root".
     cap_add: ['SYS_PTRACE']
@@ -11,21 +10,21 @@ services:
     env_file:
       - .env.mssql.development
     networks:
-      - flowblade-e2e-mssql
+      - flowblade-e2e
     volumes:
-      - flowblade-e2e-mssql:/var/opt/mssql:rw
+      - flowblade-mssql:/var/opt/mssql:rw
     restart: no
     healthcheck:
       test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q "SELECT 1" -b -o /dev/null
       interval: 1s
-      timeout: 30s
+      timeout: 60s
       retries: 30
       start_period: 5s
 
 volumes:
-  flowblade-e2e-mssql:
+  flowblade-mssql:
 
 networks:
-  flowblade-e2e-mssql:
+  flowblade-e2e:
     driver: bridge
     enable_ipv6: false
