@@ -1,5 +1,5 @@
 ---
-"@flowblade/core": minor
+"@flowblade/core": patch
 ---
 
 Initial version for @flowblade/core
