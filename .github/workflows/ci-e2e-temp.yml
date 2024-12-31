@@ -45,7 +45,7 @@ jobs:
 
       - name: 🧪 Start Azure SQL Edge
         working-directory: "packages/source-kysely"
-        run: docker compose -f e2e/docker/sql-edge/compose.yml up -d --wait
+        run: docker compose -f e2e/docker/mssql/compose.yml up -d --wait
 
       - name: 🧪 E2E Recreate e2e database
         working-directory: "packages/source-kysely"
