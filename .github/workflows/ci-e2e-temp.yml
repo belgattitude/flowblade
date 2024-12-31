@@ -43,7 +43,7 @@ jobs:
           echo "BASE: ${{ steps.nx-set-shas.outputs.base }}"
           echo "HEAD: ${{ steps.nx-set-shas.outputs.head }}"
 
-      - name: 🧪 Start Azure SQL Edge
+      - name: 🧪 Start MSSQL server
         working-directory: "packages/source-kysely"
         run: docker compose -f e2e/docker/mssql/compose.yml up -d --wait
 
