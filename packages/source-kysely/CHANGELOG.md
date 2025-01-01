@@ -1,5 +1,14 @@
 # @flowblade/source-kysely
 
+## 0.13.2
+
+### Patch Changes
+
+- [#250](https://github.com/belgattitude/flowblade/pull/250) [`bbacdbf`](https://github.com/belgattitude/flowblade/commit/bbacdbff458c079df721db6241c3ff042c1c0e16) Thanks [@belgattitude](https://github.com/belgattitude)! - Fix last release
+
+- Updated dependencies [[`bbacdbf`](https://github.com/belgattitude/flowblade/commit/bbacdbff458c079df721db6241c3ff042c1c0e16)]:
+  - @flowblade/core@0.2.2
+
 ## 0.13.1
 
 ### Patch Changes
