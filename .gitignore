@@ -13,6 +13,11 @@ _release
 nx-cloud.env
 .nx
 
+# temp files
+**/tmp/*
+!**/tmp/.gitkeep
+
+
 # security: atlassian/changeset
 
 **/.netrc
