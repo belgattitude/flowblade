@@ -1,5 +1,5 @@
 const sqlServerDsn =
-  'sqlserver://localhost:10433;database=master;user=sa;password=flowbladeE2E;trustServerCertificate=true;encrypt=false';
+  'sqlserver://localhost:10433;database=master;user=sa;password=FlowbladeSADev123;trustServerCertificate=true;encrypt=false';
 
 export const envE2EConfig = {
   sqlServer: {

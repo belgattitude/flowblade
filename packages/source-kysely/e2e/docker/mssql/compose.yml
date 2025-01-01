@@ -7,9 +7,9 @@ services:
     # Only when docker is running as "root".
     cap_add: ['SYS_PTRACE']
     ports:
-      - '1433:1433'
+      - '10433:1433'
     env_file:
-      - .env.mssql.development
+      - .env.mssql.e2e
     networks:
       - flowblade-e2e
     volumes:
