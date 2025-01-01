@@ -53,7 +53,7 @@
     "dev": "tsup --watch",
     "fix-staged": "lint-staged --allow-empty",
     "kysely": "kysely",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/dsn-parser.eslintcache",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/source-kysely.eslintcache",
     "e2e-codegen": "tsx scripts/run-e2e-codegen.ts",
     "e2e-recreate-db": "tsx scripts/run-e2e-recreate-db.ts",
     "e2e-docker-up": "docker compose -f ./e2e/docker/mssql/compose.yml up",
