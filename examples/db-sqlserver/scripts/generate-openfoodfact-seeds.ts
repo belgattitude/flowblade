@@ -1,53 +1,18 @@
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
-
 import { assertQueryResultSuccess } from '@flowblade/core';
 import { DuckDBAsyncDatasource } from '@flowblade/source-duckdb';
 import { sql } from '@flowblade/sql-tag';
 import { Database } from 'duckdb-async';
-import { DownloaderHelper } from 'node-downloader-helper';
+import { format } from 'sql-formatter';
 
 import {
   generateOpenfoodfactImage,
   type OpenfoodfactImage,
 } from '../src/internal/generate-openfoodfact-image';
 import { CliLogger } from '../src/lib/logger/cli-logger';
-
-const tempPath = fileURLToPath(
-  import.meta.url + ['..', '..', '..', 'tmp'].join('/')
-);
-const remoteFoodParquetUrl =
-  'https://huggingface.co/datasets/openfoodfacts/product-database/resolve/main/food.parquet';
-
-const files = {
-  foodParquetFile: `${tempPath}/food.parquet`,
-};
-console.log(tempPath);
-
-if (!fs.existsSync(files.foodParquetFile)) {
-  const dl = new DownloaderHelper(remoteFoodParquetUrl, tempPath, {
-    fileName: 'food.parquet',
-  });
-  dl.on('progress', (stats) => {
-    console.log('progress', JSON.stringify(stats));
-  });
-  dl.on('end', () => {
-    console.log('Download Completed');
-  });
-  await dl.start();
-}
-
+import { scriptsConfig } from './config/scripts.config';
 const logger = new CliLogger('generate-openfoodfact-seeds');
 
-try {
-  const db = await Database.create(':memory:', {
-    access_mode: 'READ_WRITE',
-    max_memory: '200MB',
-    threads: '8',
-  });
-
-  const ds = new DuckDBAsyncDatasource({ connection: db });
-
+const getQueryCreateProductTable = () => {
   type Row = {
     code: string;
     brands_tags: string[];
@@ -62,7 +27,8 @@ try {
     revision: number;
   };
 
-  const query = sql<Row>`
+  return sql<Row>`
+    CREATE OR REPLACE TABLE etl_load_product AS 
     SELECT 
         code, -- sometimes a valid ean13 barcode
         rev as revision, -- integer
@@ -81,13 +47,69 @@ try {
         product_name, -- array of string prefixed by locales
         quantity -- string
             
-    -- FROM 'https://huggingface.co/datasets/openfoodfacts/product-database/resolve/main/food.parquet'
-    FROM '${sql.unsafeRaw(files.foodParquetFile)}'  
+    FROM '${sql.unsafeRaw(scriptsConfig.openfoodfact.foodData.local)}'  
     WHERE code IS NOT NULL
-      AND date_diff('year', to_timestamp(created_t), current_timestamp) <= 2     
-    LIMIT 1;
+      AND date_diff('year', to_timestamp(created_t), current_timestamp) <= 3     
+    LIMIT 5000000;
   `;
+};
 
+const createEtlBrands = async (ds: DuckDBAsyncDatasource) => {
+  const query = sql`
+    CREATE OR REPLACE table etl_brands as (
+    WITH
+        brands AS MATERIALIZED (
+            SELECT p.brands as label,
+                   lower(regexp_replace(
+                           trim(regexp_replace(
+                                   strip_accents(p.brands),
+                                   '(\\s+)|["´’\`.!&,;'']', ' ', 'g'
+                                )
+                           ),
+                           '\\s+', '-', 'g')
+                   ) as label_slug,
+                   count(distinct p.code) as nb_products
+            FROM etl_load_product AS p
+            WHERE p.brands IS NOT NULL
+              AND trim(p.brands) <> ''
+            GROUP BY label
+            HAVING nb_products > 10
+               AND label_slug is not null
+            ORDER BY nb_products DESC
+        )
+    SELECT b.label_slug,
+           array_agg(distinct { name: b.label, nb_products: b.nb_products } order by b.nb_products desc) as matches,
+           array_agg(distinct b.label) as similars,
+           array_agg(distinct b2.label_slug) as similar_tags
+    FROM brands AS b
+    FULL OUTER JOIN brands AS b2
+         ON (b.label <> b2.label
+         -- and jaro_similarity(lower(trim(b.label)), lower(trim(b2.label))) > 0.95
+         --and levenshtein(lower(trim(b.label)), lower(trim(b2.label))) < 2
+          AND jaro_similarity(lower(trim(b.label_slug)), lower(trim(b2.label_slug))) > 0.95 )
+    WHERE b.label_slug IS NOT NULL
+     AND b2.label_slug IS NOT NULL
+    GROUP BY b.label_slug
+    ORDER BY len(similar_tags) DESC, len(similars) DESC
+    )
+  `;
+  return ds.queryRaw(query);
+};
+
+try {
+  const db = await Database.create(
+    `${scriptsConfig.openfoodfact.foodData.duckdb}`,
+    {
+      access_mode: 'READ_WRITE',
+      max_memory: '1000MB',
+      threads: '8',
+    }
+  );
+
+  const ds = new DuckDBAsyncDatasource({ connection: db });
+
+  const query = getQueryCreateProductTable();
+  console.log(format(query.text, { language: 'sql' }));
   const result = await ds.queryRaw(query);
   assertQueryResultSuccess(result);
   const data = result.data.map((row) => {
@@ -99,7 +121,9 @@ try {
       }),
     };
   });
-  console.debug(data);
+
+  const result2 = await createEtlBrands(ds);
+  assertQueryResultSuccess(result2);
 } catch (e) {
   logger.log('error', (e as Error).message);
   // eslint-disable-next-line unicorn/no-process-exit
