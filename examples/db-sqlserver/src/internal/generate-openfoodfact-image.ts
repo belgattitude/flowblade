@@ -1,3 +1,5 @@
+import { isStringNonEmpty } from '@httpx/assert';
+
 type ImageKey = 'front_fr' | 'nutrition_fr' | `${number}`;
 export type OpenfoodfactImage = {
   key: ImageKey;
@@ -29,6 +31,9 @@ export const generateOpenfoodfactImage = (data: {
   images: OpenfoodfactImage[];
 }): ImageData | null => {
   const { code, images } = data;
+  if (!isStringNonEmpty(code)) {
+    return null;
+  }
   const prefix = `${code.slice(0, 3)}/${code.slice(3, 6)}/${code.slice(6, 9)}/${code.slice(9)}`;
   let img: ImageData['image'] | undefined = undefined;
   for (const image of images) {

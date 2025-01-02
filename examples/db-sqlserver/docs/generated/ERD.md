@@ -39,12 +39,23 @@ erDiagram
 "product" {
   Int id PK
   Int brand_id FK "nullable"
-  String reference UK
-  String name
+  String code UK "nullable"
+  String reference UK "nullable"
   String barcode_ean13 UK "nullable"
+  String name
   Boolean flag_active
   DateTime created_at
   DateTime updated_at "nullable"
+}
+"barcode_type" {
+  Int id PK
+  String label UK
+}
+"product_barcode" {
+  Int id PK
+  Int product_id FK
+  Int type_id FK
+  String barcode
 }
 "product_i18n" {
   Int id PK
@@ -64,6 +75,8 @@ erDiagram
   DateTime updated_at "nullable"
 }
 "product" }o--o| "brand" : Brand
+"product_barcode" }o--|| "product" : Product
+"product_barcode" }o--|| "barcode_type" : BarcodeType
 "product_i18n" }o--|| "product" : Product
 "product_i18n" }o--|| "locale" : Locale
 "currency_i18n" }o--|| "currency" : Currency
@@ -112,12 +125,27 @@ https://github.com/samchon/prisma-markdown
 **Properties**
   - `id`: 
   - `brand_id`: 
+  - `code`: 
   - `reference`: 
-  - `name`: 
   - `barcode_ean13`: 
+  - `name`: 
   - `flag_active`: 
   - `created_at`: 
   - `updated_at`: 
+
+### `barcode_type`
+
+**Properties**
+  - `id`: 
+  - `label`: 
+
+### `product_barcode`
+
+**Properties**
+  - `id`: 
+  - `product_id`: 
+  - `type_id`: 
+  - `barcode`: 
 
 ### `product_i18n`
 

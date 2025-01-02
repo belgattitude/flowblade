@@ -2580,17 +2580,20 @@ __metadata:
     node-downloader-helper: "npm:2.1.9"
     npm-run-all2: "npm:7.0.2"
     prettier: "npm:3.4.2"
+    pretty-bytes: "npm:6.1.1"
     prisma: "npm:6.1.0"
     prisma-kysely: "npm:1.8.0"
     prisma-markdown: "npm:1.0.9"
     regexp.escape: "npm:2.0.1"
     rimraf: "npm:6.0.1"
+    sql-formatter: "npm:15.4.8"
     tedious: "npm:19.0.0"
     tinyrainbow: "npm:1.2.0"
     tsx: "npm:4.19.2"
     typescript: "npm:5.7.2"
     vite-tsconfig-paths: "npm:5.1.4"
     vitest: "npm:2.1.8"
+    yocto-spinner: "npm:0.1.2"
   peerDependencies:
     "@prisma/client": ^5.20.0
     kysely: ^0.27.4
@@ -2653,7 +2656,7 @@ __metadata:
     duckdb-async: "npm:1.1.3"
     eslint: "npm:8.57.1"
     eslint-config-next: "npm:15.1.3"
-    happy-dom: "npm:16.2.9"
+    happy-dom: "npm:16.3.0"
     hono: "npm:4.6.15"
     hono-zod-openapi: "npm:0.5.0"
     ky: "npm:1.7.4"
@@ -2666,7 +2669,7 @@ __metadata:
     postcss: "npm:8.4.49"
     prettier: "npm:3.4.2"
     primeicons: "npm:7.0.0"
-    primereact: "npm:10.8.5"
+    primereact: "npm:10.9.1"
     react: "npm:19.0.0"
     react-dom: "npm:19.0.0"
     react-error-boundary: "npm:5.0.0"
@@ -10275,13 +10278,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"happy-dom@npm:16.2.9":
-  version: 16.2.9
-  resolution: "happy-dom@npm:16.2.9"
+"happy-dom@npm:16.3.0":
+  version: 16.3.0
+  resolution: "happy-dom@npm:16.3.0"
   dependencies:
     webidl-conversions: "npm:^7.0.0"
     whatwg-mimetype: "npm:^3.0.0"
-  checksum: 10c0/32f21d8e27f64c684d10a85004ed2e68219415cd6d2d6d7172f5ca6c174e483a8305fc452d72f449895e34160d17e995142461600bdd5339ea1069d0b74869c8
+  checksum: 10c0/c90e29ff44818008aaae1fc65b276a9a1920455884fe895fdc634ced3f98a71fe81317ddf9a2ec1d7d07af0b300500d9f652ba7cfc144ed96c5f7c480edde83b
   languageName: node
   linkType: hard
 
@@ -14303,6 +14306,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pretty-bytes@npm:6.1.1":
+  version: 6.1.1
+  resolution: "pretty-bytes@npm:6.1.1"
+  checksum: 10c0/c7a660b933355f3b4587ad3f001c266a8dd6afd17db9f89ebc50812354bb142df4b9600396ba5999bdb1f9717300387dc311df91895c5f0f2a1780e22495b5f8
+  languageName: node
+  linkType: hard
+
 "pretty-bytes@npm:^5.4.1":
   version: 5.6.0
   resolution: "pretty-bytes@npm:5.6.0"
@@ -14337,9 +14347,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"primereact@npm:10.8.5":
-  version: 10.8.5
-  resolution: "primereact@npm:10.8.5"
+"primereact@npm:10.9.1":
+  version: 10.9.1
+  resolution: "primereact@npm:10.9.1"
   dependencies:
     "@types/react-transition-group": "npm:^4.4.1"
     react-transition-group: "npm:^4.4.1"
@@ -14350,7 +14360,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/7c8bb72fc96975a233deb58c2b1d56615ce79dbd42657c8c407bf433b9a8eec388da3426af49e55ee59b0688dc08dd043788a6592ebd5c58b23e75cf4b7377b3
+  checksum: 10c0/aa5519af9fb6733bf7e2c7667230dcbb6d0474c1afda3b9b4c96d866b9e40600a6f79014aa7db3da2fb297529df2b1bc38479eb5b01ec4d838226d6d262a8371
   languageName: node
   linkType: hard
 
@@ -18088,7 +18098,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yoctocolors@npm:^2.0.0":
+"yocto-spinner@npm:0.1.2":
+  version: 0.1.2
+  resolution: "yocto-spinner@npm:0.1.2"
+  dependencies:
+    yoctocolors: "npm:^2.1.1"
+  checksum: 10c0/45cde40c8f266ffe403154d6f9a263c5f595b731f2fe3fac1a41b4bc15e31ea5408e67fefb80afec63328ababf0adc6432cd9facffc6493f669630e012b1157a
+  languageName: node
+  linkType: hard
+
+"yoctocolors@npm:^2.0.0, yoctocolors@npm:^2.1.1":
   version: 2.1.1
   resolution: "yoctocolors@npm:2.1.1"
   checksum: 10c0/85903f7fa96f1c70badee94789fade709f9d83dab2ec92753d612d84fcea6d34c772337a9f8914c6bed2f5fc03a428ac5d893e76fab636da5f1236ab725486d0
