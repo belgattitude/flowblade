@@ -1,0 +1,69 @@
+{
+  "name": "@flowblade-examples/duckdb-openfoodfact",
+  "version": "0.0.1",
+  "type": "module",
+  "sideEffects": false,
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "author": {
+    "name": "Vanvelthem Sébastien",
+    "url": "https://github.com/belgattitude"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/belgattitude/flowblade",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/belgattitude/flowblade.git",
+    "directory": "examples/shared/duckb-openfoodfact"
+  },
+  "scripts": {
+    "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",
+    "test": "vitest run",
+    "test-unit": "vitest run",
+    "test-unit-watch": "vitest --ui",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/db-sqlserver.eslintcache",
+    "fix-staged": "lint-staged --allow-empty"
+  },
+  "devDependencies": {
+    "@belgattitude/eslint-config-bases": "6.18.0",
+    "@faker-js/faker": "9.3.0",
+    "@flowblade/core": "workspace:^",
+    "@flowblade/source-duckdb": "workspace:^",
+    "@flowblade/sql-tag": "workspace:^",
+    "@httpx/assert": "0.15.1",
+    "@total-typescript/ts-reset": "0.6.1",
+    "@types/node": "22.10.3",
+    "@typescript-eslint/eslint-plugin": "8.19.0",
+    "@typescript-eslint/parser": "8.19.0",
+    "@vitest/coverage-v8": "2.1.8",
+    "@vitest/ui": "2.1.8",
+    "cross-env": "7.0.3",
+    "dotenv-expand": "12.0.1",
+    "dotenv-flow": "4.1.0",
+    "dotenv-flow-cli": "1.1.1",
+    "duckdb-async": "1.1.3",
+    "eslint": "8.57.1",
+    "execa": "9.5.2",
+    "kysely": "0.27.5",
+    "node-downloader-helper": "2.1.9",
+    "npm-run-all2": "7.0.2",
+    "prettier": "3.4.2",
+    "pretty-bytes": "6.1.1",
+    "regexp.escape": "2.0.1",
+    "rimraf": "6.0.1",
+    "sql-formatter": "15.4.8",
+    "tinyrainbow": "1.2.0",
+    "tsx": "4.19.2",
+    "typescript": "5.7.2",
+    "vite-tsconfig-paths": "5.1.4",
+    "vitest": "2.1.8",
+    "yocto-spinner": "0.1.2"
+  }
+}

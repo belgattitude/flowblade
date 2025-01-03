@@ -14,7 +14,7 @@ yarn prisma-db-seed
 DDL operations requires a SQL Server instance to be running.
 
 ```bash
-docker compose -f ../../docker/sql-edge/compose.yml up
+docker compose -f ../../../docker/sql-edge/compose.yml up
 ```
 
 ### Environment variables

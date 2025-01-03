@@ -12,7 +12,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/belgattitude/flowblade.git",
-    "directory": "examples/fastify-app"
+    "directory": "examples/apps/fastify-app"
   },
   "scripts": {
     "dev": "run clean && cross-env NODE_ENV=development tsx watch ./src/server.ts --watch-path=./src --clear-screen=false | pino-pretty",
@@ -23,9 +23,7 @@
     "test-unit-watch": "vitest --ui",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-no-paths": "tsc --project tsconfig.no-paths.json --noEmit",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/fastify-app.eslintcache",
-    "prettier-check": "yarn run --top-level prettier --check --cache --cache-location=\"../../.cache/prettier/fastify-app.prettiercache\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore \"./**/*.{js,jsx,cjs,mjs,ts,tsx,mts,md,mdx,json,css,scss,less}\"",
-    "prettier-fix": "yarn run --top-level prettier --write --cache --cache-location=\"../../.cache/prettier/fastify-app.prettiercache\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore \"./**/*.{js,jsx,cjs,mjs,ts,tsx,mts,md,mdx,json,css,scss,less}\"",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../.cache/eslint/fastify-app.eslintcache",
     "fix-staged": "lint-staged --allow-empty"
   },
   "dependencies": {

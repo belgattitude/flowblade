@@ -23,9 +23,12 @@ Data store and transformation library for data-driven applications.
 ```
 .
 ├── examples
-│   │── db-sqlserver  (shared db package for ms sqlserver)
-│   │── fastify-app
-│   └── nextjs-app
+│   │── apps  
+│   │   │── fastify-app
+│   │   └── nextjs-app
+│   └── shared  
+│       │── db-sqlserver 
+│       └── duckdb-openfoodfact
 └── packages
     │── source-duckdb
     │── source-kysely
