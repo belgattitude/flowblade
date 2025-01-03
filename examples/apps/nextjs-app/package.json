@@ -12,7 +12,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/belgattitude/flowblade.git",
-    "directory": "examples/nextjs-app"
+    "directory": "examples/apps/nextjs-app"
   },
   "scripts": {
     "dev": "next dev --turbopack",
@@ -26,9 +26,7 @@
     "test-unit-watch": "vitest --ui",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-no-paths": "tsc --project tsconfig.no-paths.json --noEmit",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/nextjs-classic.eslintcache",
-    "prettier-check": "yarn run --top-level prettier --check --cache --cache-location=\"../../.cache/prettier/next-classic.prettiercache\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore \"./**/*.{js,jsx,cjs,mjs,ts,tsx,mts,md,mdx,json,css,scss,less}\"",
-    "prettier-fix": "yarn run --top-level prettier --write --cache --cache-location=\"../../.cache/prettier/next-classic.prettiercache\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore \"./**/*.{js,jsx,cjs,mjs,ts,tsx,mts,md,mdx,json,css,scss,less}\"",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../.cache/eslint/nextjs-classic.eslintcache",
     "fix-staged": "lint-staged --allow-empty",
     "codegen": "run-s codegen-api",
     "codegen-api": "tsx ./scripts/generate-openapi-local.ts"

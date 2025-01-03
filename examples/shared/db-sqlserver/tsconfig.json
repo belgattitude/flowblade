@@ -12,10 +12,14 @@
     "incremental": true,
     "lib": ["esnext"],
     "paths": {
-      "@flowblade/core": ["../../../packages/core/src/index"],
-      "@flowblade/source-duckdb": ["../../../packages/source-duckdb/src/index"],
-      "@flowblade/source-kysely": ["../../../packages/source-kysely/src/index"],
-      "@flowblade/sql-tag": ["../../../packages/sql-tag/src/index"]
+      "@flowblade/core": ["../../../../packages/core/src/index"],
+      "@flowblade/source-duckdb": [
+        "../../../../packages/source-duckdb/src/index"
+      ],
+      "@flowblade/source-kysely": [
+        "../../../../packages/source-kysely/src/index"
+      ],
+      "@flowblade/sql-tag": ["../../../../packages/sql-tag/src/index"]
     },
     "allowJs": true,
     "skipLibCheck": true,

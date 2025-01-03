@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 
 const tempPath = fileURLToPath(
-  import.meta.url + ['..', '..', '..', '..', 'tmp'].join('/')
+  import.meta.url + ['..', '..', '..', '..', 'data'].join('/')
 );
 
 const foodRemoteParquetUrl =

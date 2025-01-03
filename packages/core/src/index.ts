@@ -21,3 +21,10 @@ export {
   createResultError,
   createResultSuccess,
 } from './data-source/query-result-factories';
+export {
+  type PerformanceSpan,
+  type QError,
+  QMeta,
+  QResult,
+} from './query-result/q-result';
+export { AsyncResult, Result } from 'typescript-result';

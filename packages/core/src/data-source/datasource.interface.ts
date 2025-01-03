@@ -1,3 +1,4 @@
+import type { QResult } from '../query-result/q-result';
 import type { QueryResult } from './query-result';
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -16,6 +17,11 @@ export interface DatasourceInterface {
     query: VoluntaryAny,
     info?: DatasourceQueryInfo
   ) => Promise<QueryResult<VoluntaryAny>>;
+
+  queryExperimental?: (
+    query: VoluntaryAny,
+    info?: DatasourceQueryInfo
+  ) => Promise<QResult<VoluntaryAny, VoluntaryAny>>;
 
   stream: (
     query: VoluntaryAny,

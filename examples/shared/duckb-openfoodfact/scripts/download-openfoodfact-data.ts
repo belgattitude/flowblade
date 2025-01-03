@@ -22,7 +22,7 @@ if (fs.existsSync(localParquet)) {
     text: 'Downloading food.parquet',
   });
 
-  spinner.start('Hello');
+  spinner.start('Downloading food.parquet');
   const dl = new DownloaderHelper(remoteParquet, downloadPath, {
     fileName: localParquet.split('/').pop(),
     progressThrottle: 1500,

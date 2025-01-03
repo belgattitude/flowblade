@@ -46,4 +46,30 @@ describe('DuckDBAsyncDatasource e2e', async () => {
     expect(data.length).toBe(90);
     expectTypeOf(data).toEqualTypeOf<{ id: number }[]>();
   });
+
+  it('should return queryExperimental', async () => {
+    const ds = datasource;
+
+    const params = {
+      min: 10,
+      max: 99,
+    };
+
+    const rawSql = sql<{ id: number }>`
+
+      WITH products(productId) 
+          AS MATERIALIZED (SELECT COLUMNS(*)::INTEGER FROM RANGE(1,100))
+      
+      SELECT productId FROM products 
+      WHERE productId between ${params.min}::INTEGER and ${params.max}::INTEGER
+
+    `;
+
+    const result = await ds.queryExperimental(rawSql);
+
+    const data = result.data;
+
+    expect(data!.length).toBe(90);
+    expectTypeOf(data!).toEqualTypeOf<{ id: number }[]>();
+  });
 });

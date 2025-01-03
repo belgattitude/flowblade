@@ -4,6 +4,9 @@ import {
   createResultSuccess,
   type DatasourceInterface,
   type DatasourceQueryInfo,
+  type QError,
+  QMeta,
+  QResult,
   type QueryResult,
   type QueryResultMeta,
 } from '@flowblade/core';
@@ -133,4 +136,61 @@ export class DuckDBAsyncDatasource implements DatasourceInterface {
   ): AsyncIterableIterator<QueryResult<unknown[]>> {
     throw new Error('Not implemented yet');
   }
+
+  queryExperimental = async <
+    TData extends unknown[],
+    TError extends QError | undefined,
+  >(
+    rawQuery: TaggedSql<TData>,
+    info?: DatasourceQueryInfo
+  ): Promise<QResult<TData, TError>> => {
+    const { name } = info ?? {};
+    let meta: QueryResultMeta = {
+      query: {
+        sql: '',
+        params: [],
+      },
+    };
+
+    const start = performance.now();
+    try {
+      const { sql, values: params } = rawQuery;
+
+      meta.query ??= {
+        ...(name === undefined ? {} : { name }),
+        sql: sql,
+        params: params,
+      };
+
+      const result = await this.db.all(sql, ...params);
+      const timeMs = performance.now() - start;
+      const affectedRows = result.length;
+
+      meta = {
+        ...meta,
+        timeMs,
+        ...(affectedRows === undefined ? {} : { affectedRows }),
+      };
+
+      return new QResult(
+        new QMeta(meta).withAddedPerformanceSpan({
+          name: 'query',
+          timeMs: timeMs,
+        }),
+        result as TData
+      );
+      // return createResultSuccess(result as TData, meta);
+    } catch {
+      return new QResult<TData, TError>(
+        new QMeta(meta).withAddedPerformanceSpan({
+          name: 'query',
+          timeMs: performance.now() - start,
+        }),
+        undefined,
+        {
+          message: 'Error',
+        } as TError
+      );
+    }
+  };
 }
