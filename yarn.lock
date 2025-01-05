@@ -2909,7 +2909,7 @@ __metadata:
     rimraf: "npm:6.0.1"
     rollup: "npm:4.29.1"
     size-limit: "npm:11.1.6"
-    sql-formatter: "npm:15.4.8"
+    sql-formatter: "npm:15.4.9"
     sql-template-tag: "npm:5.2.1"
     tsup: "npm:8.3.5"
     tsx: "npm:4.19.2"
@@ -16110,6 +16110,19 @@ __metadata:
   bin:
     sql-formatter: bin/sql-formatter-cli.cjs
   checksum: 10c0/7caa79be948b62285caae926d76f702adfa37512e0ca22d4f6e809dc957c6b8cef14040e2ddd18bfe9e249b1c03d136bd6c6a631e2b9699f01b1cf1a2f45c272
+  languageName: node
+  linkType: hard
+
+"sql-formatter@npm:15.4.9":
+  version: 15.4.9
+  resolution: "sql-formatter@npm:15.4.9"
+  dependencies:
+    argparse: "npm:^2.0.1"
+    get-stdin: "npm:=8.0.0"
+    nearley: "npm:^2.20.1"
+  bin:
+    sql-formatter: bin/sql-formatter-cli.cjs
+  checksum: 10c0/3d31dd8d7ecd166b91e6545d9b78e5c8e728f9bad48cf189ea25126a1a58dbf55c02225c17e233f7ea05c09f1c3da58f22a9e5721f50ac53eb8e3238995ae27f
   languageName: node
   linkType: hard
 
