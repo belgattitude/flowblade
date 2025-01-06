@@ -32,7 +32,7 @@
     "test-unit": "vitest run",
     "test-unit-watch": "vitest --ui",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../.cache/eslint/db-sqlserver.eslintcache",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../../.cache/eslint/db-sqlserver.eslintcache",
     "fix-staged": "lint-staged --allow-empty",
     "codegen": "run-s codegen-prisma codegen-ddl",
     "codegen-prisma": "prisma generate",
@@ -52,8 +52,8 @@
     "postinstall": "prisma generate"
   },
   "peerDependencies": {
-    "@prisma/client": "^5.20.0",
-    "kysely": "^0.27.4",
+    "@prisma/client": "^6.1.0",
+    "kysely": "^0.27.5",
     "tedious": "^19.0.0"
   },
   "peerDependenciesMeta": {
