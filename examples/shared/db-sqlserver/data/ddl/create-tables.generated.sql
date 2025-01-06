@@ -41,15 +41,31 @@ GO
 CREATE TABLE [common].[product] (
     [id] INT NOT NULL IDENTITY(1,1),
     [brand_id] INT,
-    [reference] VARCHAR(40) NOT NULL,
-    [name] NVARCHAR(200) NOT NULL,
+    [code] VARCHAR(30),
+    [reference] VARCHAR(40),
     [barcode_ean13] CHAR(13),
+    [name] NVARCHAR(200) NOT NULL,
     [flag_active] BIT NOT NULL CONSTRAINT [product_flag_active_df] DEFAULT 1,
     [created_at] DATETIME2 NOT NULL,
     [updated_at] DATETIME2,
     CONSTRAINT [product_pkey] PRIMARY KEY CLUSTERED ([id]),
-    CONSTRAINT [product_reference_key] UNIQUE NONCLUSTERED ([reference]),
-    )
+            )
+GO
+CREATE TABLE [common].[barcode_type] (
+    [id] TINYINT NOT NULL IDENTITY(1,1),
+    [label] VARCHAR(20) NOT NULL,
+    CONSTRAINT [barcode_type_pkey] PRIMARY KEY CLUSTERED ([id]),
+    CONSTRAINT [barcode_type_label_key] UNIQUE NONCLUSTERED ([label])
+)
+GO
+CREATE TABLE [common].[product_barcode] (
+    [id] INT NOT NULL IDENTITY(1,1),
+    [product_id] INT NOT NULL,
+    [type_id] TINYINT NOT NULL,
+    [barcode] VARCHAR(50) NOT NULL,
+    CONSTRAINT [product_barcode_pkey] PRIMARY KEY CLUSTERED ([id]),
+    CONSTRAINT [product_barcode_product_id_type_id_barcode_key] UNIQUE NONCLUSTERED ([product_id],[type_id],[barcode])
+)
 GO
 CREATE TABLE [common].[product_i18n] (
     [id] INT NOT NULL IDENTITY(1,1),
@@ -79,9 +95,15 @@ CREATE NONCLUSTERED INDEX [brand_name_idx] ON [common].[brand]([name])
 GO
 CREATE NONCLUSTERED INDEX [product_name_idx] ON [common].[product]([name])
 GO
-CREATE NONCLUSTERED INDEX [product_barcode_ean13_idx] ON [common].[product]([barcode_ean13])
+CREATE NONCLUSTERED INDEX [product_code_idx] ON [common].[product]([code])
+GO
+CREATE NONCLUSTERED INDEX [product_reference_idx] ON [common].[product]([reference])
 GO
 ALTER TABLE [common].[product] ADD CONSTRAINT [product_brand_id_fkey] FOREIGN KEY ([brand_id]) REFERENCES [common].[brand]([id]) ON DELETE SET NULL ON UPDATE CASCADE
+GO
+ALTER TABLE [common].[product_barcode] ADD CONSTRAINT [product_barcode_product_id_fkey] FOREIGN KEY ([product_id]) REFERENCES [common].[product]([id]) ON DELETE NO ACTION ON UPDATE CASCADE
+GO
+ALTER TABLE [common].[product_barcode] ADD CONSTRAINT [product_barcode_type_id_fkey] FOREIGN KEY ([type_id]) REFERENCES [common].[barcode_type]([id]) ON DELETE NO ACTION ON UPDATE CASCADE
 GO
 ALTER TABLE [common].[product_i18n] ADD CONSTRAINT [product_i18n_product_id_fkey] FOREIGN KEY ([product_id]) REFERENCES [common].[product]([id]) ON DELETE NO ACTION ON UPDATE CASCADE
 GO
@@ -90,6 +112,16 @@ GO
 ALTER TABLE [common].[currency_i18n] ADD CONSTRAINT [currency_i18n_currency_id_fkey] FOREIGN KEY ([currency_id]) REFERENCES [common].[currency]([id]) ON DELETE NO ACTION ON UPDATE CASCADE
 GO
 ALTER TABLE [common].[currency_i18n] ADD CONSTRAINT [currency_i18n_locale_fkey] FOREIGN KEY ([locale]) REFERENCES [common].[locale]([locale]) ON DELETE NO ACTION ON UPDATE CASCADE
+GO
+CREATE UNIQUE NONCLUSTERED INDEX product_code_key
+              ON [common].[product] ([code])
+              WHERE [code] IS NOT NULL            
+            
+GO
+CREATE UNIQUE NONCLUSTERED INDEX product_reference_key
+              ON [common].[product] ([reference])
+              WHERE [reference] IS NOT NULL            
+            
 GO
 CREATE UNIQUE NONCLUSTERED INDEX product_barcode_ean13_key
               ON [common].[product] ([barcode_ean13])

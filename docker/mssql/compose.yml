@@ -1,3 +1,4 @@
+# see https://gist.github.com/belgattitude/9979e5501d72ffa90c9460597dee8dca
 name: flowblade-mssql
 
 services:
@@ -6,10 +7,12 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-CU16-ubuntu-22.04
     # Only when docker is running as "root".
     cap_add: ['SYS_PTRACE']
-    ports:
-      - '1433:1433'
     env_file:
       - .env.mssql.development
+    environment:
+      - HOST_PORT=${MSSQL_DOCKER_HOST_PORT:-1433}
+    ports:
+      - '${HOST_PORT}:1433'
     networks:
       - flowblade
     volumes:
@@ -20,7 +23,7 @@ services:
       interval: 1s
       timeout: 30s
       retries: 30
-      start_period: 5s
+      start_period: 3s
 
 volumes:
   flowblade-mssql:
