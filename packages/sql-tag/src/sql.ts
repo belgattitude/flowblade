@@ -8,7 +8,7 @@ import {
   type RawValue,
 } from 'sql-template-tag';
 
-import type { TaggedSql } from './types';
+import type { SqlTag } from './types';
 
 /**
  * Tagged Sql template literal function.
@@ -38,8 +38,8 @@ export const sql = Object.assign(
   <T>(
     sqlFragments: TemplateStringsArray,
     ...parameters: RawValue[]
-  ): TaggedSql<T[]> => {
-    return sqlt(sqlFragments, ...parameters) as TaggedSql<T[]>;
+  ): SqlTag<T[]> => {
+    return sqlt(sqlFragments, ...parameters) as SqlTag<T[]>;
   },
   {
     /**
@@ -60,8 +60,8 @@ export const sql = Object.assign(
      *     `;
      * ```
      */
-    get empty(): TaggedSql<null> {
-      return empty as TaggedSql<null>;
+    get empty(): SqlTag<null> {
+      return empty as SqlTag<null>;
     },
     /**
      * Accepts an array of arrays, and returns the SQL with the values joined together in
@@ -88,8 +88,8 @@ export const sql = Object.assign(
       separator?: string,
       prefix?: string,
       suffix?: string
-    ): TaggedSql<T> {
-      return bulk(data, separator, prefix, suffix) as TaggedSql<T>;
+    ): SqlTag<T> {
+      return bulk(data, separator, prefix, suffix) as SqlTag<T>;
     },
     /**
      * Accepts a string and returns a TaggedSql instance, useful if you want some part of the SQL
@@ -106,8 +106,8 @@ export const sql = Object.assign(
      * );
      * ```
      */
-    unsafeRaw<T = unknown>(sql: string): TaggedSql<T> {
-      return raw(sql) as TaggedSql<T>;
+    unsafeRaw<T = unknown>(sql: string): SqlTag<T> {
+      return raw(sql) as SqlTag<T>;
     },
     /**
      * Joins the array of values with an optional separator (default to ', ').
@@ -136,8 +136,8 @@ export const sql = Object.assign(
       separator = ', ',
       prefix?: string,
       suffix?: string
-    ): TaggedSql<unknown> {
-      return join(array, separator, prefix, suffix) as TaggedSql<unknown>;
+    ): SqlTag<unknown> {
+      return join(array, separator, prefix, suffix) as SqlTag<unknown>;
     },
   }
 );

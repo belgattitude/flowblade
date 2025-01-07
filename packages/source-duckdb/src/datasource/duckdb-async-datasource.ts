@@ -10,7 +10,7 @@ import {
   type QueryResult,
   type QueryResultMeta,
 } from '@flowblade/core';
-import type { TaggedSql } from '@flowblade/sql-tag';
+import type { SqlTag } from '@flowblade/sql-tag';
 import type { Database } from 'duckdb-async';
 
 type Params = {
@@ -55,7 +55,7 @@ export class DuckDBAsyncDatasource implements DatasourceInterface {
    * ```
    */
   queryRaw = async <TData extends unknown[]>(
-    rawQuery: TaggedSql<TData>,
+    rawQuery: SqlTag<TData>,
     info?: DatasourceQueryInfo
   ): AsyncQueryResult<TData> => {
     const { name } = info ?? {};
@@ -141,7 +141,7 @@ export class DuckDBAsyncDatasource implements DatasourceInterface {
     TData extends unknown[],
     TError extends QError | undefined,
   >(
-    rawQuery: TaggedSql<TData>,
+    rawQuery: SqlTag<TData>,
     info?: DatasourceQueryInfo
   ): Promise<QResult<TData, TError>> => {
     const { name } = info ?? {};

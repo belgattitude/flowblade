@@ -1,7 +1,7 @@
 {
-  "name": "@flowblade/source-kysely",
-  "description": "Kysely datasource",
-  "version": "0.13.2",
+  "name": "@flowblade/sql-tag-format",
+  "description": "Formatter utilities for @flowblade/sql-tag",
+  "version": "0.0.1",
   "license": "MIT",
   "author": {
     "name": "Vanvelthem Sébastien",
@@ -11,7 +11,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/belgattitude/flowblade.git",
-    "directory": "packages/source-kysely"
+    "directory": "packages/sql-tag-format"
   },
   "keywords": [],
   "sideEffects": false,
@@ -35,16 +35,13 @@
   "files": [
     "dist"
   ],
-  "publishConfig": {
-    "directory": "_release/package"
-  },
   "scripts": {
     "?build-release": "When https://github.com/atlassian/changesets/issues/432 has a solution we can remove this trick",
     "build": "run clean && yarn run tsup",
-    "build-release": "yarn build && rimraf ./_release && yarn pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz",
-    "bench": "vitest bench --run",
-    "bench-codspeed": "cross-env CODSPEED=1 vitest bench --run",
-    "bench-watch": "vitest bench",
+    "build-release": "run build",
+    "bench-disabled": "vitest bench --run",
+    "bench-codspeed-disabled": "cross-env CODSPEED=1 vitest bench --run",
+    "bench-watch-disabled": "vitest bench",
     "docgen": "run-s docgen-typedoc",
     "docgen-typedoc": "rimraf ./docs/api && typedoc --plugin typedoc-plugin-markdown --out ./docs/api",
     "check-dist": "run-s check-dist-esm check-dist-cjs",
@@ -55,13 +52,7 @@
     "clean": "rimraf --glob ./dist ./build ./coverage ./_release './tsconfig*.tsbuildinfo'",
     "dev": "tsup --watch",
     "fix-staged": "lint-staged --allow-empty",
-    "kysely": "kysely",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/source-kysely.eslintcache",
-    "e2e-codegen": "tsx scripts/run-e2e-codegen.ts",
-    "e2e-recreate-db": "tsx scripts/run-e2e-recreate-db.ts",
-    "e2e-docker-up": "docker compose -f ./e2e/docker/mssql/compose.yml up",
-    "e2e-docker-up-d": "docker compose -f ./e2e/docker/mssql/compose.yml up -d --wait",
-    "e2e-docker-down": "docker compose -f ./e2e/docker/mssql/compose.yml down --volumes",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/sql-tag-format.eslintcache",
     "test": "vitest run",
     "test-unit": "vitest run",
     "test-e2e": "vitest --config=vitest.e2e.config.ts run",
@@ -70,36 +61,19 @@
     "test-unit-watch": "vitest --ui --api 4515",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-build": "tsc --project tsconfig.build.json --noEmit",
-    "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-source-kysely --dir ./coverage"
+    "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-sql-tag-format --dir ./coverage"
   },
   "dependencies": {
-    "@httpx/assert": "^0.15.1",
-    "@httpx/dsn-parser": "^1.8.5",
-    "@httpx/plain-object": "^2.0.4",
-    "type-fest": "^4.31.0",
-    "valibot": "^1.0.0-beta.11"
+    "sql-formatter": "^15.4.9"
   },
   "peerDependencies": {
-    "@flowblade/core": "workspace:^",
-    "kysely": "^0.27.5",
-    "tarn": "^3.0.2",
-    "tedious": "^19.0.0"
-  },
-  "peerDependenciesMeta": {
-    "tarn": {
-      "optional": true
-    },
-    "tedious": {
-      "optional": true
-    }
+    "@flowblade/sql-tag": "workspace:^"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.17.2",
     "@belgattitude/eslint-config-bases": "6.18.0",
     "@codspeed/vitest-plugin": "4.0.0",
     "@edge-runtime/vm": "5.0.0",
-    "@faker-js/faker": "9.3.0",
-    "@prisma/client": "6.1.0",
     "@size-limit/file": "11.1.6",
     "@size-limit/webpack": "11.1.6",
     "@vitest/coverage-istanbul": "2.1.8",
@@ -111,17 +85,12 @@
     "esbuild": "0.24.2",
     "eslint": "8.57.1",
     "execa": "9.5.2",
-    "kysely": "0.27.5",
     "npm-run-all2": "7.0.2",
     "prettier": "3.4.2",
-    "prisma": "6.1.0",
-    "prisma-kysely": "1.8.0",
     "publint": "0.3.0",
     "rimraf": "6.0.1",
     "rollup": "4.30.1",
     "size-limit": "11.1.6",
-    "tarn": "3.0.2",
-    "tedious": "19.0.0",
     "tsup": "8.3.5",
     "tsx": "4.19.2",
     "typedoc": "0.27.6",
