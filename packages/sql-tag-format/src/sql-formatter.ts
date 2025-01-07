@@ -56,7 +56,7 @@ export class SqlFormatter {
    */
   constructor(
     private dialect: SqlFormatterDialect,
-    private formatterOptions: SqlFormatterOptions
+    private formatterOptions?: SqlFormatterOptions
   ) {}
 
   /**
