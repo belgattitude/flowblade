@@ -1,5 +1,11 @@
 # @flowblade/sql-tag
 
+## 0.1.3
+
+### Patch Changes
+
+- [#262](https://github.com/belgattitude/flowblade/pull/262) [`493e1e8`](https://github.com/belgattitude/flowblade/commit/493e1e808b8435b7dbfa8ebc2a37d95d91710925) Thanks [@belgattitude](https://github.com/belgattitude)! - Rename TaggedSql type to SqlTag
+
 ## 0.1.2
 
 ### Patch Changes
