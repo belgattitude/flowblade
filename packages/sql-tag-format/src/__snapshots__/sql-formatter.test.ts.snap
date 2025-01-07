@@ -1,0 +1,413 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Sql tag formatter > Complex transact sql query > should format the query 1`] = `
+"-- TRANSACT-SQL
+DECLARE @InitialData NVARCHAR(MAX);
+
+DECLARE @ProductToUpdate NVARCHAR(MAX);
+
+SET
+  @InitialData = ?;
+
+SET
+  @ProductToUpdate = ?;
+
+-- DDL
+CREATE TABLE #correctedProducts (
+  productId NVARCHAR(255),
+  countryId NVARCHAR(10),
+  productName NVARCHAR(255),
+  createdAt DATETIME DEFAULT GETDATE(),
+  updatedAt DATETIME DEFAULT GETDATE(),
+);
+
+-- INSERT
+INSERT INTO
+  #correctedProducts (productId, countryId, productName)
+SELECT
+  productId,
+  countryId,
+  productName
+FROM
+  OPENJSON (@InitialData)
+WITH
+  (
+    productId NVARCHAR(255),
+    countryId NVARCHAR(255),
+    productName NVARCHAR(255)
+  );
+
+-- FROM HERE I AM IN A SITUATION WHERE THE TABLE Is FILLED
+UPDATE T
+SET
+  productName = tNewData.productName
+FROM
+  (
+    SELECT
+      productId,
+      countryId,
+      productName
+    FROM
+      OPENJSON (@ProductToUpdate)
+    WITH
+      (
+        productId NVARCHAR(255),
+        countryId NVARCHAR(255),
+        productName NVARCHAR(255)
+      )
+  ) AS tNewData
+  INNER JOIN #correctedProducts AS T ON tNewData.productId = T.productId
+  and T.countryId = tNewData.countryId;
+
+-- SELECT
+SELECT
+  TOP 10 productId,
+  countryId,
+  productName,
+  createdAt,
+  updatedAt
+FROM
+  #correctedProducts;"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for bigquery 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for db2 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for db2i 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for hive 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for mariadb 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for mysql 1`] = `
+"SELECT
+  *
+FROM
+table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for n1ql 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for plsql 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for postgresql 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for redshift 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for singlestoredb 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for snowflake 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for spark 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for sql 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for sqlite 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for tidb 1`] = `
+"SELECT
+  *
+FROM
+table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for transactsql 1`] = `
+"SELECT
+  *
+FROM
+table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for trino 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > formatOrThrow > should format the query for tsql 1`] = `
+"SELECT
+  *
+FROM
+table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for bigquery 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for db2 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for db2i 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for hive 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for mariadb 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for mysql 1`] = `
+"SELECT
+  *
+FROM
+table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for n1ql 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for plsql 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for postgresql 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for redshift 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for singlestoredb 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for snowflake 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for spark 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for sql 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for sqlite 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for tidb 1`] = `
+"SELECT
+  *
+FROM
+table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for transactsql 1`] = `
+"SELECT
+  *
+FROM
+table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for trino 1`] = `
+"SELECT
+  *
+FROM
+  table
+WHERE
+  id = 1"
+`;
+
+exports[`Sql tag formatter > formatOrNull > should format the query for tsql 1`] = `
+"SELECT
+  *
+FROM
+table
+WHERE
+  id = 1"
+`;

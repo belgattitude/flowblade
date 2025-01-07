@@ -1,18 +1,20 @@
+import * as os from 'node:os';
+
 import { assertQueryResultSuccess } from '@flowblade/core';
 import { DuckDBAsyncDatasource } from '@flowblade/source-duckdb';
 import { sql } from '@flowblade/sql-tag';
+import { SqlFormatter } from '@flowblade/sql-tag-format';
+import boxen from 'boxen';
 import { Database } from 'duckdb-async';
-import { format } from 'sql-formatter';
+import pc from 'tinyrainbow';
 
-import {
-  generateOpenfoodfactImage,
-  type OpenfoodfactImage,
-} from '../src/internal/generate-openfoodfact-image';
+import type { OpenfoodfactImage } from '../src/internal/generate-openfoodfact-image';
 import { CliLogger } from '../src/lib/logger/cli-logger';
 import { scriptsConfig } from './config/scripts.config';
 const logger = new CliLogger('generate-openfoodfact-seeds');
+const sqlFormatter = new SqlFormatter('postgresql');
 
-const getQueryCreateProductTable = () => {
+const getQueryCreateEtlLoadProductTable = () => {
   type Row = {
     code: string;
     brands_tags: string[];
@@ -54,8 +56,8 @@ const getQueryCreateProductTable = () => {
   `;
 };
 
-const createEtlBrands = async (ds: DuckDBAsyncDatasource) => {
-  const query = sql`
+const getQueryCreateEtlBrands = () => {
+  return sql`
     CREATE OR REPLACE table etl_brands as (
     WITH
         brands AS MATERIALIZED (
@@ -93,37 +95,68 @@ const createEtlBrands = async (ds: DuckDBAsyncDatasource) => {
     ORDER BY len(similar_tags) DESC, len(similars) DESC
     )
   `;
-  return ds.queryRaw(query);
 };
 
 try {
+  const threads = `${os.cpus().length - 1}`;
+  console.log('Will run with threads:', threads);
   const db = await Database.create(
     `${scriptsConfig.openfoodfact.foodData.duckdb}`,
     {
       access_mode: 'READ_WRITE',
       max_memory: '1000MB',
-      threads: '8',
+      threads: threads,
     }
   );
 
   const ds = new DuckDBAsyncDatasource({ connection: db });
 
-  const query = getQueryCreateProductTable();
-  console.log(format(query.text, { language: 'sql' }));
+  // ---------------------------------------------
+  // Step 1: Create product table
+  // ---------------------------------------------
+
+  console.log(`${pc.green('getQueryCreateEtlLoadProductTable')}`);
+  const query = getQueryCreateEtlLoadProductTable();
+  console.log(
+    boxen(sqlFormatter.formatOrThrow(query), {
+      title: 'sql',
+      titleAlignment: 'center',
+    })
+  );
   const result = await ds.queryRaw(query);
   assertQueryResultSuccess(result);
-  const data = result.data.map((row) => {
-    return {
-      ...row,
-      test: generateOpenfoodfactImage({
-        code: row.code,
-        images: row.images,
-      }),
-    };
-  });
+  const { meta } = result;
 
-  const result2 = await createEtlBrands(ds);
+  console.log(`${pc.green('Success')} in ${Math.round(meta?.timeMs ?? 0)} ms}`);
+
+  /**
+   *   const _data = result.data.map((row) => {
+   *     return {
+   *       ...row,
+   *       test: generateOpenfoodfactImage({
+   *         code: row.code,
+   *         images: row.images,
+   *       }),
+   *     };
+   *   });
+   */
+
+  // ---------------------------------------------
+  // Step 2: Create product table
+  // ---------------------------------------------
+
+  console.log(`${pc.green('getQueryCreateEtlBrands')}`);
+  const query2 = getQueryCreateEtlBrands();
+  console.log(
+    boxen(sqlFormatter.formatOrNull(query2) ?? query2.text, {
+      title: 'sql',
+      titleAlignment: 'center',
+    })
+  );
+  const result2 = await ds.queryRaw(query2);
   assertQueryResultSuccess(result2);
+
+  console.log(`${pc.green('Success')} in ${result2?.meta?.timeMs} ms}`);
 } catch (e) {
   logger.log('error', (e as Error).message);
   // eslint-disable-next-line unicorn/no-process-exit
