@@ -19,6 +19,7 @@
     "g:docgen": "nx affected --output-style=static --target=docgen --exclude='examples/**'",
     "g:test": "yarn workspaces foreach --all -pv run test",
     "g:test-unit": "nx run-many --output-style=static --target=test-unit --exclude='examples/**' --exclude='docs'",
+    "g:test-e2e": "nx run-many --output-style=static --target=test-unit --exclude='examples/**' --exclude='docs'",
     "g:test-unit-coverage": "nx run-many --output-style=static --target=test-unit-coverage --exclude='examples/**' --exclude='docs'",
     "g:test-unit-edge": "nx run-many --output-style=static --target=test-unit-edge --exclude='examples/**' --exclude='docs'",
     "g:lint": "nx run-many --output-style=static --target=lint",
