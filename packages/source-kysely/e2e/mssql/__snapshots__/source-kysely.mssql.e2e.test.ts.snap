@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Datasource sqlserver > Kysely raw queries > 02. errorQuery 1`] = `
+{
+  "affectedRows": 0,
+  "params": [],
+  "sql": "SELECT FROM 1 as invalid_query",
+  "type": "sql",
+}
+`;
+
+exports[`Datasource sqlserver > Kysely raw queries > 03. basicQuery with params 1`] = `
+{
+  "affectedRows": 1,
+  "params": [
+    1,
+    "Hello",
+  ],
+  "sql": "
+          SELECT 1 as one
+          WHERE 1 = @1
+          AND 'Hello' like @2
+      ",
+  "type": "sql",
+}
+`;
+
+exports[`Datasource sqlserver > Kysely raw queries > upsert some brand > data 1`] = `undefined`;
+
+exports[`Datasource sqlserver > Kysely with query builder > select: get some brands > data 1`] = `[]`;
+
+exports[`Datasource sqlserver > Kysely with query builder > select: get some brands > meta 1`] = `
+{
+  "affectedRows": 0,
+  "params": [
+    2025-01-09T23:30:57.701Z,
+  ],
+  "sql": "select "b"."id", "b"."name", "p"."id" as "product_id", "p"."name" as "product_name" from "brand" as "b" left join "product" as "p" on "p"."brand_id" = "b"."id" where "b"."created_at" < @1 order by "b"."name" desc",
+  "type": "sql",
+}
+`;

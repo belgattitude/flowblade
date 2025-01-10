@@ -9,7 +9,7 @@ import { execPrismaCliOrThrow } from '../e2e/utils/prisma-cli.utils';
 
 const { schema, env } = envE2EConfig.sqlServer.prisma;
 
-const ddlOutputFile = `${__dirname}/sql-server/db/ddl.generated.e2e.sql`;
+const ddlOutputFile = `${__dirname}/../e2e/mssql/db/ddl.generated.e2e.sql`;
 
 execPrismaCliOrThrow({
   cmd: `yarn prisma generate --schema ${schema}`,
@@ -28,3 +28,7 @@ const migrate = execPrismaCliOrThrow({
 writeFileSync(ddlOutputFile, migrate.stdout, {
   encoding: 'utf8',
 });
+
+console.log(`Generated DDL file: ${ddlOutputFile}`);
+// eslint-disable-next-line unicorn/no-process-exit
+process.exit(0);

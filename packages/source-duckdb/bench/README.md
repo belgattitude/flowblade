@@ -1,2 +1,2 @@
-## @flowblade/source-kysely benchmarks
+## @flowblade/source-duckdb benchmarks
 

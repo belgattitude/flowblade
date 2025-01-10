@@ -1,1 +1,1 @@
-export * from './datasource/duckdb-async-datasource';
+export * from './datasource/duckdb-datasource';

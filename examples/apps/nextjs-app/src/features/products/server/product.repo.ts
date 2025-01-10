@@ -1,4 +1,4 @@
-import type { QueryResult } from '@flowblade/core';
+import type { QError, QResult } from '@flowblade/core';
 import type { KyselyDatasource } from '@flowblade/source-kysely';
 import type { DBKyselySqlServer } from '@flowblade-examples/db-sqlserver/kysely-types';
 import { z } from 'zod';
@@ -12,7 +12,7 @@ const validators = {
     result: z.array(
       z.object({
         id: z.number(),
-        reference: z.string(),
+        reference: z.string().nullable(),
         name: z.string(),
         barcode_ean13: z.string().nullable(),
         brand_id: z.number().nullable(),
@@ -23,7 +23,7 @@ const validators = {
 } as const;
 
 type SearchParams = z.infer<typeof validators.search.params>;
-type SearchResult = QueryResult<z.infer<typeof validators.search.result>>;
+type SearchResult = QResult<z.infer<typeof validators.search.result>, QError>;
 
 export class ProductRepo<
   T extends
@@ -57,10 +57,12 @@ export class ProductRepo<
     /**
      * @todo still a bug to figure out. Why the type is not working
      */
-    return this.ds.query(query);
-    /*
-    const a = this.ds.query(query);
-    console.log('Test to see if the types are working');
-    return a; */
+    const result = await this.ds.query(query);
+    // const { data, meta, error } = result;
+    console.log(
+      'Test to see if the types are working',
+      result.data![0]!.reference
+    );
+    return result;
   };
 }

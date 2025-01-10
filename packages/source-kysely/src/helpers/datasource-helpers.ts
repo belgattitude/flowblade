@@ -1,24 +1,14 @@
-import type {
-  QueryResult,
-  QueryResultError,
-  QueryResultMeta,
-  QueryResultSuccess,
-} from '@flowblade/core';
-import type { Jsonify } from 'type-fest';
+import type { QError, QMeta, QResult } from '@flowblade/core';
 
-export type JsonifiedDataSourceResponse<
-  T extends QueryResult<Record<string, unknown>[]>,
-> = {
-  success: true | false;
-  data: Jsonify<QueryResultSuccess<unknown[]>>;
-  meta?: QueryResultMeta;
-  error?: QueryResultError;
-};
+export type JsonifiedDataSourceResponse<T extends QResult<unknown[], QError>> =
+  {
+    data?: T['data'];
+    error?: QError;
+    meta: QMeta;
+  };
 
 export const DatasourceHelpers = {
-  toJsonified: <T extends QueryResult<Record<string, unknown>[]>>(
-    queryResponse: T
-  ) => {
+  toJsonified: <T extends QResult<unknown[], QError>>(queryResponse: T) => {
     return queryResponse as unknown as JsonifiedDataSourceResponse<T>;
   },
 };

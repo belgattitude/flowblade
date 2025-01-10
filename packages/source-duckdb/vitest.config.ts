@@ -2,7 +2,11 @@ import codspeedPlugin from '@codspeed/vitest-plugin';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
-const testFiles = ['./src/**/*.test.{js,ts}', './test/**/*.test.{js,ts}'];
+const testFiles = [
+  './src/**/*.test.{js,ts}',
+  './test/**/*.test.{js,ts}',
+  './e2e/**/*.test.ts',
+];
 
 const isCodeSpeedEnabled = process.env?.CODSPEED === '1';
 const cspeed = isCodeSpeedEnabled ? codspeedPlugin() : undefined;

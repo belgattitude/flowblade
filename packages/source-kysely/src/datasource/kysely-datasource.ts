@@ -1,18 +1,15 @@
-import type {
-  AsyncQueryResult,
-  DatasourceInterface,
-  DatasourceQueryInfo,
-  QueryResult,
-  QueryResultMeta,
+import {
+  createQResultError,
+  createQResultSuccess,
+  createSqlSpan,
+  type DatasourceInterface,
+  type DatasourceQueryInfo,
+  type QError,
+  QMeta,
+  type QMetaSqlSpan,
+  type QResult,
 } from '@flowblade/core';
-import { createResultError, createResultSuccess } from '@flowblade/core';
-import type {
-  Compilable,
-  CompiledQuery,
-  InferResult,
-  Kysely,
-  RawBuilder,
-} from 'kysely';
+import type { Compilable, InferResult, Kysely, RawBuilder } from 'kysely';
 import type { Writable } from 'type-fest';
 
 import { parseBigIntToSafeInt } from '../utils/internal/internal-utils';
@@ -20,6 +17,14 @@ import { parseBigIntToSafeInt } from '../utils/internal/internal-utils';
 type Params<TDatabase> = {
   connection: Kysely<TDatabase>;
 };
+
+type KyselyQueryOrRawQuery<T = unknown> = Compilable<T> | RawBuilder<T>;
+type KyselyInferQueryOrRawQuery<T extends KyselyQueryOrRawQuery> =
+  T extends RawBuilder<unknown>
+    ? Awaited<ReturnType<T['execute']>>['rows']
+    : T extends Compilable
+      ? InferResult<T>
+      : never;
 
 export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   private db: Kysely<TDatabase>;
@@ -60,75 +65,12 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     this.db = params.connection;
   }
 
-  getConnection = (): Kysely<TDatabase> => this.db;
-
   /**
-   * Run a raw query on the datasource and return the result.
+   * Return the underlying kysely connection.
    *
-   * @example
-   * ```typescript
-   * import { KyselyDatasource, isQueryResultError } from '@flowblade/source-kysely';
-   * import { sql } from 'kysely';
-   *
-   * const ds = new KyselyDatasource({ db });
-   *
-   * const rawSql = sql<{one: number}>`SELECT 1 as one`;
-   *
-   * const result = await ds.queryRaw(rawSql);
-   *
-   * // Or with query information (will be sent in the metadata)
-   * // const result = await ds.query(query, {
-   * //  name: 'getBrands'
-   * // });
-   *
-   * if (isQueryResultError(result)) {
-   *   console.error(result.error);
-   *   console.error(result.meta);
-   * }  else {
-   *   console.log(result.data);
-   *   console.log(result.meta);
-   * }
-   * ```
+   * Warning: this isn't covered by api stability. Use at your own risks.
    */
-  queryRaw = async <
-    TRawQuery extends RawBuilder<unknown>,
-    TData extends unknown[] = Awaited<ReturnType<TRawQuery['execute']>>['rows'],
-  >(
-    rawQuery: TRawQuery,
-    info?: DatasourceQueryInfo
-  ): AsyncQueryResult<TData> => {
-    const { name } = info ?? {};
-    let compiled: CompiledQuery | null = null;
-    let meta: QueryResultMeta = {};
-    try {
-      compiled = rawQuery.compile(this.db);
-
-      meta.query ??= {
-        ...(name === undefined ? {} : { name }),
-        sql: compiled.sql,
-        params: compiled.parameters as Writable<unknown[]>,
-      };
-
-      const start = performance.now();
-      const { numAffectedRows, ...result } = await rawQuery.execute(this.db);
-      const timeMs = performance.now() - start;
-      const affectedRows = parseBigIntToSafeInt(numAffectedRows);
-
-      meta = {
-        ...meta,
-        timeMs,
-        ...(affectedRows === undefined ? {} : { affectedRows }),
-      };
-      return createResultSuccess(result.rows as TData, meta);
-    } catch (err) {
-      return createResultError(
-        {
-          message: (err as Error).message,
-        },
-        meta
-      );
-    }
-  };
+  getConnection = (): Kysely<TDatabase> => this.db;
 
   /**
    * Run a query on the datasource and return the result.
@@ -153,65 +95,72 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    * //  name: 'getBrands'
    * // });
    *
-   * if (isQueryResultError(result)) {
-   *   console.error(result.error);
-   *   console.error(result.meta);
-   * }  else {
-   *   console.log(result.data);
-   *   console.log(result.meta);
-   * }
+   * const result = await ds.query(rawSql);
+   *
+   * // Option 1: the QResult object contains the data, metadata and error
+   * //  - data:  the result rows (TData or undefined if error)
+   * //  - error: the error (QError or undefined if success)
+   * //  - meta:  the metadata (always present)
+   *
+   * const { data, meta, error } = result;
+   *
+   * // Option 2: You operate over the result, ie: mapping the data
+   *
+   * const { data } = result.map((row) => {
+   *   return {
+   *    ...data
+   *    key: `key-${row.productId}`
+   * })
    * ```
    */
   query = async <
-    TQuery extends Compilable<unknown>,
-    TData extends unknown[] = InferResult<TQuery>,
+    TQuery extends KyselyQueryOrRawQuery,
+    TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
   >(
     query: TQuery,
     info?: DatasourceQueryInfo
-  ): Promise<QueryResult<TData>> => {
+  ): Promise<QResult<TData, QError>> => {
     const { name } = info ?? {};
-    let compiled: CompiledQuery | null = null;
-    let meta: QueryResultMeta = {};
+
+    const compiled = query.compile(this.db);
+    const meta = createSqlSpan({
+      sql: compiled.sql,
+      params: compiled.parameters as Writable<QMetaSqlSpan['params']>,
+    });
+
+    const start = performance.now();
+
     try {
-      compiled = query.compile();
-
-      meta.query ??= {
-        ...(name === undefined ? {} : { name }),
-        sql: compiled.sql,
-        params: compiled.parameters as Writable<unknown[]>,
-      };
-
-      const start = performance.now();
       const r = await this.db.executeQuery(compiled);
       const { numAffectedRows, ...result } = r;
-      const timeMs = performance.now() - start;
-
-      const affectedRows = parseBigIntToSafeInt(numAffectedRows);
-
-      meta = {
-        ...meta,
-        timeMs,
-        ...(affectedRows === undefined ? {} : { affectedRows }),
-      };
-      return createResultSuccess(result.rows as TData, meta);
+      meta.timeMs = performance.now() - start;
+      meta.affectedRows = parseBigIntToSafeInt(numAffectedRows) ?? 0;
+      return createQResultSuccess(
+        result.rows as TData,
+        new QMeta({ name, spans: meta })
+      );
     } catch (err) {
-      return createResultError(
+      meta.timeMs = performance.now() - start;
+      return createQResultError(
         {
           message: (err as Error).message,
         },
-        meta
+        new QMeta({
+          name,
+          spans: meta,
+        })
       );
     }
   };
 
   // eslint-disable-next-line require-yield,sonarjs/generator-without-yield
   async *stream<
-    TQuery extends Compilable<unknown>,
-    TData = InferResult<TQuery>,
+    TQuery extends KyselyQueryOrRawQuery,
+    TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
   >(
     _query: TQuery,
     _chunkSize: number
-  ): AsyncIterableIterator<QueryResult<TData[]>> {
+  ): AsyncIterableIterator<QResult<TData, QError>> {
     throw new Error('Not implemented yet');
   }
 }

@@ -1,7 +1,6 @@
 import * as os from 'node:os';
 
-import { assertQueryResultSuccess } from '@flowblade/core';
-import { DuckDBAsyncDatasource } from '@flowblade/source-duckdb';
+import { DuckdbDatasource } from '@flowblade/source-duckdb';
 import { sql } from '@flowblade/sql-tag';
 import { SqlFormatter } from '@flowblade/sql-tag-format';
 import boxen from 'boxen';
@@ -109,7 +108,7 @@ try {
     }
   );
 
-  const ds = new DuckDBAsyncDatasource({ connection: db });
+  const ds = new DuckdbDatasource({ connection: db });
 
   // ---------------------------------------------
   // Step 1: Create product table
@@ -123,11 +122,16 @@ try {
       titleAlignment: 'center',
     })
   );
-  const result = await ds.queryRaw(query);
-  assertQueryResultSuccess(result);
+  const result = await ds.query(query);
   const { meta } = result;
 
-  console.log(`${pc.green('Success')} in ${Math.round(meta?.timeMs ?? 0)} ms}`);
+  if (!result.isOk()) {
+    throw new Error(result.error!.message);
+  }
+
+  console.log(
+    `${pc.green('Success')} in ${Math.round(meta?.getTotalTimeMs())} ms}`
+  );
 
   /**
    *   const _data = result.data.map((row) => {
@@ -153,10 +157,12 @@ try {
       titleAlignment: 'center',
     })
   );
-  const result2 = await ds.queryRaw(query2);
-  assertQueryResultSuccess(result2);
+  const r2 = await ds.query(query2);
 
-  console.log(`${pc.green('Success')} in ${result2?.meta?.timeMs} ms}`);
+  if (!r2.isOk()) {
+    throw new Error(r2.error!.message);
+  }
+  console.log(`${pc.green('Success')} in ${r2.meta.getTotalTimeMs()} ms}`);
 } catch (e) {
   logger.log('error', (e as Error).message);
   // eslint-disable-next-line unicorn/no-process-exit
