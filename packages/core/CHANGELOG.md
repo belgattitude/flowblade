@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.2.3
+
+### Patch Changes
+
+- [#270](https://github.com/belgattitude/flowblade/pull/270) [`389491e`](https://github.com/belgattitude/flowblade/commit/389491e37a918d441ac574aac3ebb0700ba02d79) Thanks [@belgattitude](https://github.com/belgattitude)! - Patch version but a lot of BC for datasource components
+
 ## 0.2.2
 
 ### Patch Changes
