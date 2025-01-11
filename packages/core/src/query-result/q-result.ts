@@ -19,6 +19,18 @@ export class QResult<
   TData extends unknown[] | undefined,
   TError extends QError | undefined,
 > {
+  /**
+   * Utility getter to infer the value type of the result.
+   * Note: this getter does not hold any value, it's only used for type inference.
+   */
+  declare $inferData: TData;
+
+  /**
+   * Utility getter to infer the error type of the result.
+   * Note: this getter does not hold any value, it's only used for type inference.
+   */
+  declare $inferError: TError;
+
   private _result: Result<
     {
       rows: TData;
