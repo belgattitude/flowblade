@@ -99,6 +99,10 @@ export class QResult<
     });
   };
 
+  /**
+   * Allows to transform the result into a JSONifiable object.
+   * Warning if the underlying data isn't serializable (ie: bigint, dates, etc), this method will throw an error.
+   */
   toJsonifiable = (): {
     data?: TData;
     error?: TError;
