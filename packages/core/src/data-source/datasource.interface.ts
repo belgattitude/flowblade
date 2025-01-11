@@ -2,9 +2,9 @@ import type { QError, QResult } from '../query-result/q-result';
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-export type DatasourceQueryInfo = {
+export interface DatasourceQueryInfo {
   name?: string;
-};
+}
 
 export interface DatasourceInterface {
   getConnection: () => VoluntaryAny;

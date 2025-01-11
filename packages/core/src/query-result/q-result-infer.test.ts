@@ -28,7 +28,7 @@ describe('QResult inference', () => {
       }),
     });
 
-  describe('$inferValue', () => {
+  describe('$inferData', () => {
     describe('when a result is success', () => {
       it('should return the type of data', () => {
         const successResult = createSuccessResult();

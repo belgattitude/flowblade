@@ -2,22 +2,24 @@ import { Result } from 'typescript-result';
 
 import type { QMeta } from '../meta/q-meta';
 
-export type QError = {
+export interface QError {
   message: string;
-};
+}
 
-type ConstructorParams<
+interface ConstructorParams<
   TData extends unknown[] | undefined,
   TError extends QError | undefined,
-> = {
+> {
   meta: QMeta;
   data?: TData | undefined;
   error?: TError | undefined;
-};
+}
 
 export class QResult<
   TData extends unknown[] | undefined,
-  TError extends QError | undefined,
+  TError extends QError | undefined = TData extends undefined
+    ? QError
+    : undefined,
 > {
   /**
    * Utility getter to infer the value type of the result.

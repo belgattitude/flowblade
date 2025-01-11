@@ -1,17 +1,17 @@
 import type { QColumnModel } from '../cm/q-column-model';
 
-export type QMetaMapSpan = {
+export interface QMetaMapSpan {
   type: 'map';
   timeMs: number;
-};
+}
 
-export type QMetaSqlSpan = {
+export interface QMetaSqlSpan {
   type: 'sql';
   sql: string;
   params: unknown[];
   timeMs: number;
   affectedRows: number;
-};
+}
 
 export type QMetaSpan = QMetaSqlSpan | QMetaMapSpan;
 
