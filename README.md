@@ -2,6 +2,11 @@
 
 Data store and transformation library for data-driven applications.
 
+### Core
+
+| Datasource                                                                                  | Description                           |
+|---------------------------------------------------------------------------------------------|---------------------------------------|
+| [@flowblade/core](https://github.com/belgattitude/flowblade/tree/main/packages/core#readme) | Base contracts, interfaces and utils. |
 
 ### Datasources
 
