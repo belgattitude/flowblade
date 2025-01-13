@@ -35,7 +35,7 @@ import type { SqlTag } from './types';
  */
 
 export const sql = Object.assign(
-  <T>(
+  <T = unknown>(
     sqlFragments: TemplateStringsArray,
     ...parameters: RawValue[]
   ): SqlTag<T[]> => {
@@ -95,7 +95,7 @@ export const sql = Object.assign(
      * Accepts a string and returns a TaggedSql instance, useful if you want some part of the SQL
      * to be dynamic.
      *
-     * ⚠️ Do not accept user input to unsafeRaw, this will create a SQL injection vulnerability.
+     * ⚠️ Do not forget to sanitize user input to unsafeRaw to prevent SQL injection vulnerability.
      *
      * @example
      * ```typescript
@@ -138,6 +138,34 @@ export const sql = Object.assign(
       suffix?: string
     ): SqlTag<unknown> {
       return join(array, separator, prefix, suffix) as SqlTag<unknown>;
+    },
+
+    /**
+     * Conditionally add a part of the SQL string.
+     *
+     * You can prefer using 'if' over the ternary operator for
+     * better readability (when using prettier or biome)/
+     *
+     * ```typescript
+     * const userIds: string[] = []; // Parameters
+     *
+     * const query = sql<>`
+     *    SELECT id, username FROM users
+     *    WHERE 1=1
+     *    ${sql.if(
+     *      params.ids.length > 0,
+     *      () => sql`AND id IN (${sql.join(userIds.ids)})`  // 👈 "then" as second parameter
+     *      () => sql.empty   // 👈 Optional 'else' as third parameter (default to sql.empty)
+     *    )}
+     *  `;
+     * ```
+     */
+    if(
+      condition: boolean,
+      then: () => SqlTag<unknown>,
+      otherwise: () => SqlTag<unknown> = () => sql.empty
+    ): SqlTag<unknown> {
+      return condition ? then() : otherwise();
     },
   }
 );
