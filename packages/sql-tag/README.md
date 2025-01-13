@@ -14,8 +14,12 @@ Fast and lightweight ([~610B](#bundle-size)) sql template tag based on [sql-temp
 
 ## Features
 
+- 🛡️&nbsp; Prevent sql injections.
+- 🤲&nbsp; Facilitate query composition and conditional clauses.
+- 🦄&nbsp; Allow to retrieve sql and parameters separately.
+- ⚡️&nbsp; Minimal performance overhead.
 - 📐&nbsp; Lightweight (less than [~700B](#bundle-size))
-- 🛡️&nbsp; Tested on [node 18-22, browser, cloudflare workers and runtime/edge](#compatibility).
+- ♾️️&nbsp; Tested on [node 18-22, browser, cloudflare workers and runtime/edge](#compatibility).
 - 🗝️&nbsp; Available in ESM and CJS formats.
 
 ## Install
