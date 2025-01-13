@@ -1,5 +1,11 @@
 # @flowblade/sql-tag
 
+## 0.1.5
+
+### Patch Changes
+
+- [`4099ebb`](https://github.com/belgattitude/flowblade/commit/4099ebb434deaa1094c27cda0247b35e2d5ee325) - Improve documentation
+
 ## 0.1.4
 
 ### Patch Changes
