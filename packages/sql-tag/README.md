@@ -1,6 +1,6 @@
 # @flowblade/sql-tag
 
-Fast and lightweight ([~610B](#bundle-size)) sql template tag based on [sql-template-tag](https://github.com/blakeembrey/sql-template-tag).
+Fast and lightweight ([~630B](#bundle-size)) sql template tag based on [sql-template-tag](https://github.com/blakeembrey/sql-template-tag).
 
 [![npm](https://img.shields.io/npm/v/@flowblade/sql-tag?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/sql-tag)
 [![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/CHANGELOG.md)
@@ -14,13 +14,13 @@ Fast and lightweight ([~610B](#bundle-size)) sql template tag based on [sql-temp
 
 ## Features
 
-- 🛡️&nbsp; Prevent sql injections.
-- 🤲&nbsp; Facilitate query composition and conditional clauses.
-- 🦄&nbsp; Allow to retrieve sql and parameters separately.
+- 🛡️&nbsp; Take advantage of [template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) to prevent sql injections.
+- 🤲&nbsp; Facilitate [query composition](#query-composition) and [conditional clauses](#conditionals).
+- 🦄&nbsp; Separate actual sql from provided parameters.
 - ⚡️&nbsp; Minimal performance overhead.
 - 📐&nbsp; Lightweight (less than [~700B](#bundle-size))
-- ♾️️&nbsp; Tested on [node 18-22, browser, cloudflare workers and runtime/edge](#compatibility).
-- 🗝️&nbsp; Available in ESM and CJS formats.
+- ♾️️&nbsp; Tested on [node 18-22, browser, workers and edge](#compatibility).
+- 🌍 &nbsp; Available in ESM and CJS formats.
 
 ## Install
 
@@ -29,31 +29,112 @@ yarn add @flowblade/sql-tag
 ```
 ## Usage
 
+### Basic
+
 ```typescript
 import { sql } from '@flowblade/sql-tag';
 
-// 👈 Unvalidated parameters
+// 👈 User provided parameters
 const params = {
     country: 'BE',
     users: ['John', 'Doe'],
-    ids: [1],
 };
 
-const query = sql<{
+const query = sql<{ // 👈 optionally type the result
     id: number;
     username: string;
 }>`
    SELECT id, username FROM users 
-   WHERE country = ${params.country}           -- 👈 simple
-   AND username IN (${sql.join(params.users)}) -- 👈 sql.join
-      
-   -- 👇 conditional clause with sql.empty
-   ${params.ids.length > 0 ? sql`AND id IN (${sql.join(params.ids)})` : sql.empty}          
+   WHERE country = ${params.country}           -- 👈 simple param
+   AND username IN (${sql.join(params.users)}) -- 👈 array param
 `;
 
-// query.sql === "SELECT id, username FROM users WHERE country = ? AND username IN (?, ?) AND id IN (?)";
-// query.values === ['BE', 'John', 'Doe', 1];
+// query.sql === "SELECT id, username FROM users WHERE country = ? AND username IN (?, ?)";
+// query.values === ['BE', 'John', 'Doe'];
 ```
+
+### Conditionals
+
+```typescript
+import { sql } from '@flowblade/sql-tag';
+
+// 👈 User provided parameters
+const userIds = [1, 2];
+
+const query = sql<{ // 👈 optionally type the result
+    id: number;
+    username: string;
+}>`
+   SELECT id, username FROM users 
+   WHERE 1=1 
+   -- 👇 alternative 2: with ternary operator and sql.empty
+   ${userIds.length > 0 ? sql`AND id IN (${sql.join(userIds)})` : sql.empty}
+   
+   -- 👇 alternative 2: with usage of sql.if helper
+   ${sql.if(
+     userIds.length,
+     () => sql`AND id IN (${sql.join(userIds)})`
+   )}                     
+`;
+
+// query.sql === "SELECT id, username FROM users WHERE 1=1 AND id IN (?, ?)";
+// query.values === [1, 2];
+```
+
+
+### Query composition
+
+You can nest any query into another one.
+
+```typescript
+import {sql} from '@flowblade/sql-tag';
+
+const getSqlUserCountByCountries = (minUsers: number) => sql`
+  SELECT 
+    c.name as country_name, 
+    count(u.id) as user_count 
+  FROM country AS c INNER JOIN user u 
+  ON c.id = u.country_id
+  GROUP BY c.name
+  HAVING count(u.id) > ${minUsers}
+`;
+
+const compression: 'zstd' | 'snappy' | 'gzip' = 'zstd';
+
+// Example base on DuckDb COPY statement
+// but you can nest into CTE, table aliases, subqueries etc...
+const query = sql`
+    COPY
+    (${getSqlUserCountByCountries(23)})
+    TO 'usercount_by_countries.parquet'
+    (FORMAT 'parquet', COMPRESSION ${compression}, ROW_GROUP_SIZE 100000);
+`;
+
+console.log(query.values); // [23]
+console.log(query.sql);    // "COPY (SELECT...."
+```
+
+## Methods
+
+| Helpers       | Description                               | Example                                             |
+|---------------|-------------------------------------------|-----------------------------------------------------|
+| sql.unsafeRaw | Allow to pass unsafe values in the query. | `ORDER BY ${sql.unsafeRaw('name desc')}`            |
+| sql.join      | Join array values with optional separator | `AND id IN ${sql.join(['1', '3'])`                  |
+| sql.if        | Conditionally add a statement             | `AND ${sql.if(true, () => sql'deleted_at is null')}` |
+| sql.bulk      | Ease bulk inserts                         |                                                     |
+
+
+## Credits
+
+This package won't be possible without the great work of [Blake Embrey sql-template-tag](https://github.com/blakeembrey/sql-template-tag).
+
+Some notable differences:
+
+- [x] Named export for sql: `import {sql} from '@flowblade/sql-tag'`.
+- [x] Possibility to type the result of the query (ie `sql<Row>`).
+- [x] Utility functions (join...) are directly available from the sql tag.
+- [x] Add `sql.if` helper to conditionally add a statement.
+- [x] Rename `sqlRaw` to `sql.unsafeRaw` to prevent misuse.
 
 ## Bundle size
 
@@ -61,7 +142,7 @@ Bundle size is tracked by a [size-limit configuration](https://github.com/belgat
 
 | Scenario (esm)                                              | Size (compressed) |
 |-------------------------------------------------------------|------------------:|
-| `import { sql } from '@flowblade/sql-tag`                   |            ~ 610B |
+| `import { sql } from '@flowblade/sql-tag`                   |            ~ 630B |
 
 ## Compatibility
 

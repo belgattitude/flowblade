@@ -41,10 +41,7 @@ const query = sql<{
 }>`
    SELECT id, username FROM users 
    WHERE country = ${params.country}           -- 👈 simple
-   AND username IN (${sql.join(params.users)}) -- 👈 sql.join
-      
-   -- 👇 conditional clause with sql.empty
-   ${params.ids.length > 0 ? sql`AND id IN (${sql.join(params.ids)})` : sql.empty}          
+   AND username IN (${sql.join(params.users)}) -- 👈 sql.join      
 `;
 
 const pgsqlFormatter = new SqlFormatter('postgresql');
