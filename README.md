@@ -2,6 +2,11 @@
 
 Data store and transformation library for data-driven applications.
 
+### Core
+
+| Datasource                                                                                  | Description                           |
+|---------------------------------------------------------------------------------------------|---------------------------------------|
+| [@flowblade/core](https://github.com/belgattitude/flowblade/tree/main/packages/core#readme) | Base contracts, interfaces and utils. |
 
 ### Datasources
 
@@ -13,9 +18,10 @@ Data store and transformation library for data-driven applications.
 
 ### Utilities
 
-| Utilities                                                                                         | Description                 |
-|---------------------------------------------------------------------------------------------------|-----------------------------|
-| [@flowblade/sql-tag](https://github.com/belgattitude/flowblade/tree/main/packages/sql-tag#readme) | Tagged SQL template literal |
+| Utilities                                                                                                       | Description                                     |
+|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
+| [@flowblade/sql-tag](https://github.com/belgattitude/flowblade/tree/main/packages/sql-tag#readme)               | Tagged SQL template literal                     |
+| [@flowblade/sql-tag-format](https://github.com/belgattitude/flowblade/tree/main/packages/sql-tag-format#readme) | Tagged SQL template literal formatter utilities |
 
 
 ## Structure
@@ -33,6 +39,7 @@ Data store and transformation library for data-driven applications.
     │── source-duckdb
     │── source-kysely
     │── sql-tag
+    │── sql-tag-format
     └── (...)
 ```
 
