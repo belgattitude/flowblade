@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.2.5
+
+### Patch Changes
+
+- [#277](https://github.com/belgattitude/flowblade/pull/277) [`0bcf17a`](https://github.com/belgattitude/flowblade/commit/0bcf17a9eff68ad6b6eebbbb6a36354ed3f5abe4) Thanks [@belgattitude](https://github.com/belgattitude)! - Perf types, avoid union when infering TData
+
 ## 0.2.4
 
 ### Patch Changes
