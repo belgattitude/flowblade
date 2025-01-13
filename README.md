@@ -34,6 +34,7 @@ Data store and transformation library for data-driven applications.
     │── source-duckdb
     │── source-kysely
     │── sql-tag
+    │── sql-tag-format
     └── (...)
 ```
 
