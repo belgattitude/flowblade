@@ -11,15 +11,13 @@ interface ConstructorParams<
   TError extends QError | undefined,
 > {
   meta: QMeta;
-  data?: TData | undefined;
-  error?: TError | undefined;
+  data?: TData;
+  error?: TError;
 }
 
 export class QResult<
   TData extends unknown[] | undefined,
-  TError extends QError | undefined = TData extends undefined
-    ? QError
-    : undefined,
+  TError extends QError | undefined = undefined,
 > {
   /**
    * Utility getter to infer the value type of the result.

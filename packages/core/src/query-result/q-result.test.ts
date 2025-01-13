@@ -28,6 +28,26 @@ describe('QResult', () => {
       }),
     });
 
+  describe('type inference from constructor', () => {
+    it('should', () => {
+      const result = new QResult({
+        error: undefined,
+        data: [
+          {
+            name: 'Sébastien',
+          },
+          {
+            name: 'Damien',
+          },
+        ],
+        meta: new QMeta({
+          spans: initialSqlSpan,
+        }),
+      });
+      expectTypeOf(result.data).toEqualTypeOf<{ name: string }[] | undefined>();
+    });
+  });
+
   describe('map', () => {
     describe('when a result is success', () => {
       const successResult = createSuccessResult();
