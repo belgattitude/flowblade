@@ -110,7 +110,7 @@ const query = sql`
     (FORMAT 'parquet', COMPRESSION ${compression}, ROW_GROUP_SIZE 100000);
 `;
 
-console.log(query.values); // [23]
+console.log(query.values); // [23, 'zstd']
 console.log(query.sql);    // "COPY (SELECT...."
 ```
 
