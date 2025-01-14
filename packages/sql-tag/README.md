@@ -60,6 +60,7 @@ import { sql } from '@flowblade/sql-tag';
 
 // 👈 User provided parameters
 const userIds = [1, 2];
+const limit = 10;
 
 const query = sql<{ // 👈 optionally type the result
     id: number;
@@ -74,11 +75,12 @@ const query = sql<{ // 👈 optionally type the result
    ${sql.if(
      userIds.length,
      () => sql`AND id IN (${sql.join(userIds)})`
-   )}                     
+   )}    
+   LIMIT ${limit}                 
 `;
 
-// query.sql === "SELECT id, username FROM users WHERE 1=1 AND id IN (?, ?)";
-// query.values === [1, 2];
+// query.sql === "SELECT id, username FROM users WHERE 1=1 AND id IN (?, ?) LIMIT ?";
+// query.values === [1, 2, 10];
 ```
 
 
@@ -121,19 +123,23 @@ Ease bulk inserts/merge from multi rows arrays.
 ```typescript
 import { sql } from '@flowblade/sql-tag';
 
-const userNames = [
-  ['Blake'],
-  ['Bob'],
-  ['Joe'],
-];
+const insert = sql`
+   INSERT INTO product (name, price, stock, status) 
+   VALUES ${sql.bulk([
+     ['Laptop', 999.99, 50, 'active'],
+     ['Keyboard', 79.99, 100, 'active'],
+   ])}
+  `;
 
-const query = sql`
-  INSERT INTO users (name) VALUES ${sql.bulk(userNames)}
-  RETURNING *
-`;
+const { text, sql, statement, values } = insert;
 
-query.sql; //=> "INSERT INTO users (name) VALUES (?),(?),(?)"
-query.values; //=> ["Blake", "Bob", "Joe"]
+insert.text;   //=> "INSERT INTO product (name, price, stock, status) VALUES ($1,$2,$3,$4),($5,$6,$7,$8)"
+insert.sql;    //=> "INSERT INTO product (name, price, stock, status) VALUES (?,?,?,?),(?,?,?,?),(?,?,?,?)"
+insert.values; //=> ["Laptop", 999.99, 50, "active", "Keyboard", 79.99, 100, "active"]
+```
+
+// Example with pglite
+const result = await db.query(text, values, {});
 ```
 
 ## Methods
