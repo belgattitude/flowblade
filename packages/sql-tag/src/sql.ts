@@ -63,6 +63,7 @@ export const sql = Object.assign(
     get empty(): SqlTag<null> {
       return empty as SqlTag<null>;
     },
+
     /**
      * Accepts an array of arrays, and returns the SQL with the values joined together in
      * a format useful for bulk inserts.
@@ -78,9 +79,12 @@ export const sql = Object.assign(
      * ];
      *
      * const query = sql`
-     *   INSERT INTO users (name) VALUES ${bulk(userNames)}
+     *   INSERT INTO users (name) VALUES ${sql.bulk(userNames)}
      *   RETURNING *
      * `;
+     *
+     * query.sql; //=> "INSERT INTO users (name) VALUES (?),(?),(?)"
+     * query.values; //=> ["Blake", "Bob", "Joe"]
      * ```
      */
     bulk<T = unknown>(

@@ -114,15 +114,37 @@ console.log(query.values); // [23]
 console.log(query.sql);    // "COPY (SELECT...."
 ```
 
+### Bulk inserts
+
+Ease bulk inserts/merge from multi rows arrays.
+
+```typescript
+import { sql } from '@flowblade/sql-tag';
+
+const userNames = [
+  ['Blake'],
+  ['Bob'],
+  ['Joe'],
+];
+
+const query = sql`
+  INSERT INTO users (name) VALUES ${sql.bulk(userNames)}
+  RETURNING *
+`;
+
+query.sql; //=> "INSERT INTO users (name) VALUES (?),(?),(?)"
+query.values; //=> ["Blake", "Bob", "Joe"]
+```
+
 ## Methods
 
-| Helpers       | Description                               | Example                                             |
-|---------------|-------------------------------------------|-----------------------------------------------------|
-| sql.unsafeRaw | Allow to pass unsafe values in the query. | `ORDER BY ${sql.unsafeRaw('name desc')}`            |
-| sql.join      | Join array values with optional separator | `AND id IN ${sql.join(['1', '3'])`                  |
+| Helpers       | Description                               | Example                                              |
+|---------------|-------------------------------------------|------------------------------------------------------|
+| sql.unsafeRaw | Allow to pass unsafe values in the query. | `ORDER BY ${sql.unsafeRaw('name desc')}`             |
+| sql.empty     | Helper to represent empty string.         | `${isTrue ? sql'1=1' : sql.empty}`                   |
+| sql.join      | Join array values with optional separator | `AND id IN ${sql.join(['1', '3'])`                   |
 | sql.if        | Conditionally add a statement             | `AND ${sql.if(true, () => sql'deleted_at is null')}` |
-| sql.bulk      | Ease bulk inserts                         |                                                     |
-
+| sql.bulk      | Ease bulk inserts                         |                                                      |
 
 ## Credits
 
