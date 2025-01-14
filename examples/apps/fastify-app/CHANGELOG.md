@@ -1,5 +1,15 @@
 # Fastify example app
 
+## 0.1.109
+
+### Patch Changes
+
+- Updated dependencies [[`067a968`](https://github.com/belgattitude/flowblade/commit/067a968759302e5e5a70c45363754a77b1301f24)]:
+  - @flowblade/sql-tag@0.1.7
+  - @flowblade-examples/db-sqlserver@0.0.1
+  - @flowblade/source-duckdb@0.1.8
+  - @flowblade/source-kysely@0.13.7
+
 ## 0.1.108
 
 ### Patch Changes
