@@ -16,7 +16,7 @@ export default defineConfig({
     target: ['node18'],
   },
   plugins: [tsconfigPaths(), ...[cspeed].filter(Boolean)],
-  cacheDir: '../../.cache/vite/source-kysely',
+  cacheDir: '../../.cache/vite/source-duckdb',
   test: {
     // @link https://vitest.dev/config/#clearmocks
     clearMocks: true,

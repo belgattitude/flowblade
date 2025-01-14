@@ -15,13 +15,15 @@ describe('sql tests', () => {
       users: ['John', 'Doe'],
       ids: [1, 2],
     };
+    const limit = 10;
     const query = sql<{
       id: number;
       username: string;
     }>`
         SELECT id, username FROM users 
         WHERE username IN (${sql.join(params.users)}) 
-        ${params.ids.length > 0 ? sql`AND id IN (${sql.join(params.ids)})` : sql.empty}          
+        ${params.ids.length > 0 ? sql`AND id IN (${sql.join(params.ids)})` : sql.empty}
+        LIMIT ${limit}
     `;
 
     expect(formatPostresql(query.sql)).toStrictEqual(
@@ -29,10 +31,11 @@ describe('sql tests', () => {
         SELECT id, username FROM users 
         WHERE username IN (?, ?)
         AND id IN (?, ?)
+        LIMIT ?
     `)
     );
 
-    expect(query.values).toStrictEqual([...params.users, ...params.ids]);
+    expect(query.values).toStrictEqual([...params.users, ...params.ids, limit]);
   });
 
   describe('query composition', () => {
