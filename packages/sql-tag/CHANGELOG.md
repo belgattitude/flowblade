@@ -1,5 +1,11 @@
 # @flowblade/sql-tag
 
+## 0.1.7
+
+### Patch Changes
+
+- [#282](https://github.com/belgattitude/flowblade/pull/282) [`067a968`](https://github.com/belgattitude/flowblade/commit/067a968759302e5e5a70c45363754a77b1301f24) Thanks [@belgattitude](https://github.com/belgattitude)! - Fix jsdoc and add bulk insert example
+
 ## 0.1.6
 
 ### Patch Changes
