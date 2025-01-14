@@ -72,19 +72,19 @@ export const sql = Object.assign(
      * ```typescript
      * import { sql } from '@flowblade/sql-tag';
      *
-     * const userNames = [
-     *   ['Blake'],
-     *   ['Bob'],
-     *   ['Joe'],
-     * ];
+     * const insert = sql`
+     *    INSERT INTO product (name, price, stock, status)
+     *    VALUES ${sql.bulk([
+     *      ['Laptop', 999.99, 50, 'active'],
+     *      ['Keyboard', 79.99, 100, 'active'],
+     *    ])}
+     *   `;
      *
-     * const query = sql`
-     *   INSERT INTO users (name) VALUES ${sql.bulk(userNames)}
-     *   RETURNING *
-     * `;
+     * const { text, sql, statement, values } = insert;
      *
-     * query.sql; //=> "INSERT INTO users (name) VALUES (?),(?),(?)"
-     * query.values; //=> ["Blake", "Bob", "Joe"]
+     * insert.text;   //=> "INSERT INTO product (name, price, stock, status) VALUES ($1,$2,$3,$4),($5,$6,$7,$8)"
+     * insert.sql;    //=> "INSERT INTO product (name, price, stock, status) VALUES (?,?,?,?),(?,?,?,?),(?,?,?,?)"
+     * insert.values; //=> ["Laptop", 999.99, 50, "active", "Keyboard", 79.99, 100, "active"]
      * ```
      */
     bulk<T = unknown>(
