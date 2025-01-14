@@ -146,6 +146,44 @@ query.values; //=> ["Blake", "Bob", "Joe"]
 | sql.if        | Conditionally add a statement             | `AND ${sql.if(true, () => sql'deleted_at is null')}` |
 | sql.bulk      | Ease bulk inserts                         |                                                      |
 
+## Recipes
+
+### Advanced examplew with transact-sql (mssql)
+
+```typescript
+const products = Array.from({ length: 1000 }, (_, i) => ({
+  id: i,
+  productName: `Product ${i}`,
+}));
+
+const sqlRaw = sql<GetAdvancedResult>`
+  -- TRANSACT-SQL
+  DECLARE @Products NVARCHAR(MAX); -- WARNING LIMIT TO 2GB
+  SET @Products = ${JSON.stringify(products)};
+
+  -- DDL (# prefix is equivalent to CREATE TEMPORATY TABLE on other db)
+  CREATE TABLE #products (
+    productId INT,
+    name NVARCHAR(255),
+  );
+  
+  -- INSERT
+  INSERT INTO #products (productId, productName)
+     SELECT productId, productName
+       FROM OPENJSON(@InitialData) WITH (
+           id INT,           
+           name NVARCHAR(255)
+       );
+          
+  -- SELECT
+  SELECT TOP ${sql.unsafeRaw(String(limit))} id, name
+    FROM #products
+    WHERE id > ${sql.unsafeRaw(String(offset))}
+    ORDER BY id; 
+`;
+
+```
+
 ## Credits
 
 This package won't be possible without the great work of [Blake Embrey sql-template-tag](https://github.com/blakeembrey/sql-template-tag).
