@@ -1,8 +1,8 @@
+import type { DBKyselySqlServer } from '@examples/db-sqlserver/kysely-types';
 import {
   createKyselySqlServerDialect,
   TediousConnUtils,
 } from '@flowblade/source-kysely';
-import type { DBKyselySqlServer } from '@flowblade-examples/db-sqlserver/kysely-types';
 import { Kysely } from 'kysely';
 
 import { serverEnv } from '../../env/server.env.mjs';
