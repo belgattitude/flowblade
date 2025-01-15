@@ -15,8 +15,6 @@ jobs:
     strategy:
       matrix:
         node-version: [ 20.x ]
-    env:
-      NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,15 +26,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-
-
-      - name: ⚙️ Nx setup - SHAs for base and head for `nx affected` commands
-        id: nx-set-shas
-        uses: nrwl/nx-set-shas@v4
-
-      - run: |
-          echo "BASE: ${{ steps.nx-set-shas.outputs.base }}"
-          echo "HEAD: ${{ steps.nx-set-shas.outputs.head }}"
 
       - name: 📥 Monorepo install
         uses: ./.github/actions/yarn-nm-install
