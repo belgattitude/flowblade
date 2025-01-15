@@ -1,0 +1,43 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local", "**/tsconfig*.json"],
+  "globalPassThroughEnv": ["AWS_SECRET_KEY", "GITHUB_TOKEN"],
+  "cacheDir": ".cache/turbo",
+  "tasks": {
+    "codegen": {
+      // Codegen caching might also be disabled and enabled by workspace (see packages/db-main-prisma/turbo.json)
+      // as generated code location might vary between toolings
+      "cache": true,
+      "outputs": ["src/generated/**"]
+    },
+    "build": {
+      "outputs": ["dist/**"]
+      // This repo example relies on tsconfig paths to ease starting
+      // "dependsOn": ["^build"]
+    },
+    "build-force": {
+      "outputs": ["dist/**"]
+    },
+    "bench": {
+      "env": ["CODSPEED"]
+    },
+    "test": {},
+    "test-unit": {},
+    "lint": {
+      "env": ["TIMING"]
+    },
+    "lint-styles": {},
+    "typecheck": {},
+    "build-storybook": {},
+    "clean": {
+      "cache": false
+    },
+    "check-dist": {
+      /** Note that build-force */
+      "dependsOn": ["build-force", "build"]
+    },
+    "check-size": {
+      "dependsOn": ["build-force", "build"]
+    }
+  }
+}
