@@ -1,6 +1,6 @@
 import { MssqlDialect, type MssqlDialectConfig } from 'kysely';
 import { default as tarn } from 'tarn';
-import { default as Tedious } from 'tedious';
+import * as Tedious from 'tedious';
 
 import {
   createTarnPoolOptions,
@@ -43,12 +43,12 @@ type Params = {
  * @example
  * ```typescript
  * import { default as Tedious } from 'tedious';
- * import { TediousConnUtils, createKyselySqlServerDialect } from '@flowblade/source-kysely';
+ * import { TediousConnUtils, createKyselyMssqlDialect } from '@flowblade/source-kysely';
  *
  * const jdbcDsn = "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
  * const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
  *
- * const dialect = createKyselySqlServerDialect({
+ * const dialect = createKyselyMssqlDialect({
  *  tediousConfig,
  *  // 👉 Optional tarn pool options
  *  poolOptions: {
@@ -72,7 +72,7 @@ type Params = {
  * })
  * ```
  */
-export const createKyselySqlServerDialect = (params: Params): MssqlDialect => {
+export const createKyselyMssqlDialect = (params: Params): MssqlDialect => {
   const { tediousConfig, poolOptions = {}, dialectConfig } = params;
   const { validateConnections, ...tarnOptions } = poolOptions;
 

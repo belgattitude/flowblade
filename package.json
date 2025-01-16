@@ -9,7 +9,7 @@
   "homepage": "https://github.com/belgattitude/flowblade",
   "repository": "belgattitude/flowblade",
   "scripts": {
-    "g:clean": "run clean:global-cache && yarn workspaces foreach --all -pv run clean",
+    "g:clean": "run clean:global-cache && run clean:turbo && yarn workspaces foreach --all -pv run clean",
     "clean:global-cache": "rimraf ./.cache",
     "clean:turbo": "turbo daemon clean && turbo daemon stop && rimraf .turbo",
     "g:bench": "turbo run bench --concurrency 1",

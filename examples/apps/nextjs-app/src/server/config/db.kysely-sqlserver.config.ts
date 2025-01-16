@@ -1,6 +1,6 @@
 import type { DBKyselySqlServer } from '@examples/db-sqlserver/kysely-types';
 import {
-  createKyselySqlServerDialect,
+  createKyselyMssqlDialect,
   TediousConnUtils,
 } from '@flowblade/source-kysely';
 import { Kysely } from 'kysely';
@@ -10,7 +10,7 @@ import { serverEnv } from '../../env/server.env.mjs';
 const config = TediousConnUtils.fromJdbcDsn(
   serverEnv.DB_FLOWBLADE_SQLSERVER_JDBC ?? ''
 );
-const dialect = createKyselySqlServerDialect({
+const dialect = createKyselyMssqlDialect({
   tediousConfig: config,
   poolOptions: {
     min: 0,

@@ -2,7 +2,7 @@ import { assertNever } from '@httpx/assert';
 import { Kysely } from 'kysely';
 
 import {
-  createKyselySqlServerDialect,
+  createKyselyMssqlDialect,
   KyselyDatasource,
   TediousConnUtils,
 } from '../../src';
@@ -12,7 +12,7 @@ import type { E2EDbTypes } from './e2e-db.types';
 const tediousConfig = TediousConnUtils.fromJdbcDsn(envE2EConfig.sqlServer.dsn);
 
 export const e2eSqlServerDb = new Kysely<E2EDbTypes['sqlServer']>({
-  dialect: createKyselySqlServerDialect({
+  dialect: createKyselyMssqlDialect({
     tediousConfig,
     poolOptions: {
       min: 0,

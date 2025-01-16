@@ -1,16 +1,16 @@
 import { MssqlDialect } from 'kysely';
 import * as Tedious from 'tedious';
 
-import { createKyselySqlServerDialect } from '../create-kysely-sql-server-dialect';
-import { TediousConnUtils } from '../tedious-conn-utils';
+import { createKyselyMssqlDialect } from './create-kysely-mssql-dialect';
+import { TediousConnUtils } from './tedious-conn-utils';
 
-describe('createKyselySqlServerDialect', () => {
+describe('createKyselyMssqlDialect', () => {
   it('should allow to redefine tedious types', () => {
     const jdbcDsn =
       'sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false';
     const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
 
-    const dialect = createKyselySqlServerDialect({
+    const dialect = createKyselyMssqlDialect({
       tediousConfig: tediousConfig,
       poolOptions: {
         min: 0,

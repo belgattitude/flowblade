@@ -96,16 +96,16 @@ type TData = InferAsyncQueryResultData<ReturnType<typeof getQueryResult>>;
 
 ## Utils
 
-### createKyselySqlServerDialect
+### createKyselyMssqlDialect
 
 ```typescript
 import { default as Tedious } from 'tedious';
-import { TediousConnUtils, createKyselySqlServerDialect } from '@flowblade/source-kysely';
+import { TediousConnUtils, createKyselyMssqlDialect } from '@flowblade/source-kysely';
 
 const jdbcDsn = "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
 const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
 
-const dialect = createKyselySqlServerDialect({
+const dialect = createKyselyMssqlDialect({
     tediousConfig,
     // 👉 Optional tarn pool options
     poolOptions: {
