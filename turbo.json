@@ -2,7 +2,8 @@
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local", "**/tsconfig*.json"],
   "globalPassThroughEnv": ["AWS_SECRET_KEY", "GITHUB_TOKEN"],
-  "cacheDir": ".cache/turbo",
+  "cacheDir": ".turbo",
+  "ui": "tui",
   "tasks": {
     "codegen": {
       // Codegen caching might also be disabled and enabled by workspace (see packages/db-main-prisma/turbo.json)
@@ -27,6 +28,8 @@
     },
     "test": {},
     "test-unit": {},
+    "test-unit-edge": {},
+    "test-unit-coverage": {},
     "lint": {
       "env": ["TIMING"]
     },
@@ -41,6 +44,9 @@
       "dependsOn": ["build-force", "build"]
     },
     "check-size": {
+      "dependsOn": ["build-force", "build"]
+    },
+    "check-pub": {
       "dependsOn": ["build-force", "build"]
     }
   }
