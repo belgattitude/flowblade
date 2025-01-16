@@ -1,5 +1,13 @@
 # @flowblade/source-kysely
 
+## 0.13.8
+
+### Patch Changes
+
+- [#289](https://github.com/belgattitude/flowblade/pull/289) [`584220a`](https://github.com/belgattitude/flowblade/commit/584220ab956284025422258de4779702c375b8c7) Thanks [@belgattitude](https://github.com/belgattitude)! - BC: refactor createKyselySqlServerDialect to createKyselyMssqlDialect
+
+- [#289](https://github.com/belgattitude/flowblade/pull/289) [`584220a`](https://github.com/belgattitude/flowblade/commit/584220ab956284025422258de4779702c375b8c7) Thanks [@belgattitude](https://github.com/belgattitude)! - Fix issue when bundling createKyselyMssqlDialect with nextjs
+
 ## 0.13.7
 
 ### Patch Changes
