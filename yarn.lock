@@ -2809,7 +2809,7 @@ __metadata:
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:6.19.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
-    "@types/node": "npm:22.10.6"
+    "@types/node": "npm:22.10.7"
     "@typescript-eslint/eslint-plugin": "npm:8.20.0"
     "@typescript-eslint/parser": "npm:8.20.0"
     autocannon: "npm:8.0.0"
@@ -5510,7 +5510,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:22.10.6, @types/node@npm:>=18":
+"@types/node@npm:*, @types/node@npm:22.10.7, @types/node@npm:>=18":
+  version: 22.10.7
+  resolution: "@types/node@npm:22.10.7"
+  dependencies:
+    undici-types: "npm:~6.20.0"
+  checksum: 10c0/c941b4689dfc4044b64a5f601306cbcb0c7210be853ba378a5dd44137898c45accedd796ee002ad9407024cac7ecaf5049304951cb1d80ce3d7cebbbae56f20e
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:22.10.6":
   version: 22.10.6
   resolution: "@types/node@npm:22.10.6"
   dependencies:
