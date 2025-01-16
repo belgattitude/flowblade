@@ -49,13 +49,13 @@ jobs:
             ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-
 
       - name: 🕵️ Typecheck
-        run: yarn nx run-many --target=typecheck --exclude='packages/**' --exclude='docs'
+        run: yarn turbo run typecheck --filter='@examples/*'
 
       - name: 🔬 ESLint checks
-        run: yarn nx run-many --target=lint --exclude='packages/**' --exclude='docs'
+        run: yarn turbo run lint --filter='@examples/*'
 
       - name: 🧪 Unit tests
-        run: yarn nx run-many --target=test-unit --exclude='packages/**' --exclude='docs'
+        run: yarn turbo run test-unit --filter='@examples/*'
 
       - name: 🏗 Build packages
-        run: yarn nx run-many --target=build --exclude='packages/**' --exclude='docs'
+        run: yarn turbo run build --filter='@examples/*'
