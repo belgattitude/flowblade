@@ -1,8 +1,10 @@
 import 'nextra-theme-docs/style.css';
+import '../styles/globals.css';
 
 import { Banner, Head } from 'nextra/components';
 import { getPageMap } from 'nextra/page-map';
 import { Footer, Layout, Navbar } from 'nextra-theme-docs';
+import type { ReactNode } from 'react';
 
 export const metadata = {
   // Define your metadata here
@@ -18,7 +20,11 @@ const navbar = (
 );
 const footer = <Footer>MIT {new Date().getFullYear()} © Nextra.</Footer>;
 
-export default async function RootLayout({ children }) {
+export default async function RootLayout({
+  children,
+}: Readonly<{
+  children: ReactNode;
+}>) {
   return (
     <html
       // Not required, but good for SEO
@@ -26,7 +32,7 @@ export default async function RootLayout({ children }) {
       // Required to be set
       dir="ltr"
       // Suggested by `next-themes` package https://github.com/pacocoursey/next-themes#with-app
-      suppressHydrationWarning
+      suppressHydrationWarning={true}
     >
       <Head
       // ... Your additional head options

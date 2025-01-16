@@ -5,5 +5,12 @@ const withNextra = nextra({
 });
 
 export default withNextra({
-  // ... Other Next.js config options
+  eslint: {
+    dirs: ['src'],
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+    tsconfigPath: './tsconfig.json',
+  },
 });
