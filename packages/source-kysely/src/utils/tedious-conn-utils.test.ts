@@ -1,4 +1,4 @@
-import { TediousConnUtils } from '../tedious-conn-utils';
+import { TediousConnUtils } from './tedious-conn-utils';
 
 describe('TediousConnUtils', () => {
   describe('fromJdbcDsn', () => {

@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 
-import { createTarnPoolOptions } from '../create-tarn-pool-options';
+import { createTarnPoolOptions } from './create-tarn-pool-options';
 
 describe('createTarnPoolOptions', () => {
   it('should return the defaults', () => {
