@@ -18,8 +18,6 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x]
-    env:
-      NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,14 +32,6 @@ jobs:
 
       - name: 📥 Monorepo install
         uses: ./.github/actions/yarn-nm-install
-
-      - name: ⚙️ Nx setup - SHAs for base and head for `nx affected` commands
-        id: nx-set-shas
-        uses: nrwl/nx-set-shas@v4
-
-      - run: |
-          echo "BASE: ${{ steps.nx-set-shas.outputs.base }}"
-          echo "HEAD: ${{ steps.nx-set-shas.outputs.head }}"
 
       - name: Cache rotation keys
         id: cache-rotation
@@ -59,13 +49,13 @@ jobs:
             ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-
 
       - name: 🕵️ Typecheck
-        run: yarn nx run-many --target=typecheck --exclude='packages/**' --exclude='docs'
+        run: yarn turbo run typecheck --filter='@examples/*'
 
       - name: 🔬 ESLint checks
-        run: yarn nx run-many --target=lint --exclude='packages/**' --exclude='docs'
+        run: yarn turbo run lint --filter='@examples/*'
 
       - name: 🧪 Unit tests
-        run: yarn nx run-many --target=test-unit --exclude='packages/**' --exclude='docs'
+        run: yarn turbo run test-unit --filter='@examples/*'
 
       - name: 🏗 Build packages
-        run: yarn nx run-many --target=build --exclude='packages/**' --exclude='docs'
+        run: yarn turbo run build --filter='@examples/*'

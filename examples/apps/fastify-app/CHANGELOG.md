@@ -6,7 +6,7 @@
 
 - Updated dependencies [[`067a968`](https://github.com/belgattitude/flowblade/commit/067a968759302e5e5a70c45363754a77b1301f24)]:
   - @flowblade/sql-tag@0.1.7
-  - @flowblade-examples/db-sqlserver@0.0.1
+  - @examples/db-sqlserver@0.0.1
   - @flowblade/source-duckdb@0.1.8
   - @flowblade/source-kysely@0.13.7
 
@@ -17,7 +17,7 @@
 - Updated dependencies [[`2c61d77`](https://github.com/belgattitude/flowblade/commit/2c61d77025259157fe2e4e4917f52682dcd578aa), [`0bcf17a`](https://github.com/belgattitude/flowblade/commit/0bcf17a9eff68ad6b6eebbbb6a36354ed3f5abe4)]:
   - @flowblade/sql-tag@0.1.6
   - @flowblade/core@0.2.5
-  - @flowblade-examples/db-sqlserver@0.0.1
+  - @examples/db-sqlserver@0.0.1
   - @flowblade/source-duckdb@0.1.7
   - @flowblade/source-kysely@0.13.6
 
@@ -27,7 +27,7 @@
 
 - Updated dependencies [[`4099ebb`](https://github.com/belgattitude/flowblade/commit/4099ebb434deaa1094c27cda0247b35e2d5ee325)]:
   - @flowblade/sql-tag@0.1.5
-  - @flowblade-examples/db-sqlserver@0.0.1
+  - @examples/db-sqlserver@0.0.1
   - @flowblade/source-duckdb@0.1.6
   - @flowblade/source-kysely@0.13.5
 
@@ -37,7 +37,7 @@
 
 - Updated dependencies [[`93f3cb0`](https://github.com/belgattitude/flowblade/commit/93f3cb07c44a37ce608720bd7dd28200a1e2d790)]:
   - @flowblade/core@0.2.4
-  - @flowblade-examples/db-sqlserver@0.0.1
+  - @examples/db-sqlserver@0.0.1
   - @flowblade/source-duckdb@0.1.5
   - @flowblade/source-kysely@0.13.4
 
@@ -50,7 +50,7 @@
   - @flowblade/source-kysely@0.13.3
   - @flowblade/sql-tag@0.1.4
   - @flowblade/core@0.2.3
-  - @flowblade-examples/db-sqlserver@0.0.1
+  - @examples/db-sqlserver@0.0.1
 
 ## 0.1.104
 
@@ -58,7 +58,7 @@
 
 - Updated dependencies [[`493e1e8`](https://github.com/belgattitude/flowblade/commit/493e1e808b8435b7dbfa8ebc2a37d95d91710925)]:
   - @flowblade/sql-tag@0.1.3
-  - @flowblade-examples/db-sqlserver@0.0.1
+  - @examples/db-sqlserver@0.0.1
   - @flowblade/source-duckdb@0.1.3
 
 ## 0.1.103

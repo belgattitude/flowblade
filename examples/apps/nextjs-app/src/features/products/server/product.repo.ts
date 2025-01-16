@@ -1,6 +1,6 @@
+import type { DBKyselySqlServer } from '@examples/db-sqlserver/kysely-types';
 import type { QError, QResult } from '@flowblade/core';
 import type { KyselyDatasource } from '@flowblade/source-kysely';
-import type { DBKyselySqlServer } from '@flowblade-examples/db-sqlserver/kysely-types';
 import { z } from 'zod';
 
 const validators = {
