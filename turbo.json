@@ -37,14 +37,13 @@
       "cache": false
     },
     "check-dist": {
-      /** Note that build-force */
-      "dependsOn": ["build-force", "build"]
+      "dependsOn": ["build"]
     },
     "check-size": {
-      "dependsOn": ["build-force", "build"]
+      "dependsOn": ["build"]
     },
     "check-pub": {
-      "dependsOn": ["build-force", "build"]
+      "dependsOn": ["build"]
     }
   }
 }
