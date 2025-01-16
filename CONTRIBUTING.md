@@ -29,6 +29,8 @@ yarn g:lint
 yarn g:typecheck
 ```
 
+> If you don't have yarn on your system: `npm i -g yarn` then enable corepack with `corepack enable`
+
 ## Structure
 
 ```
