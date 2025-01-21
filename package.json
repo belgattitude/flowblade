@@ -18,7 +18,7 @@
     "g:build-release": "yarn workspaces foreach -tv --worktree --from 'packages/*' run build-release",
     "g:build-packages": "yarn workspaces foreach -tv --worktree --from 'packages/*' run build",
     "g:build-examples": "turbo run build --filter='@examples/*'",
-    "g:docgen": "nx affected --output-style=static --target=docgen --exclude='examples/**'",
+    "g:docgen": "turbo run docgen --affected",
     "g:test": "yarn workspaces foreach --all -pv run test",
     "g:test-unit": "turbo run test-unit --filter='!@examples/*' --filter='!@docs/*'",
     "g:test-e2e": "turbo run test-e2e --filter='!@examples/*' --filter='!@docs/*'",
