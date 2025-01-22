@@ -1,13 +1,9 @@
-export default {
-  content: [
-    './app/**/*.{js,jsx,ts,tsx,md,mdx}',
-    './content/**/*.{md,mdx}',
-
-    // Or if using `src` directory:
-    './src/**/*.{js,jsx,ts,tsx,md,mdx}',
-  ],
+import type { Config } from 'tailwindcss';
+const config: Config = {
+  content: ['./src/**/*.{js,jsx,ts,tsx,md,mdx}'],
   theme: {
     extend: {},
   },
   plugins: [],
 };
+export default config;

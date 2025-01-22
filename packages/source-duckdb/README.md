@@ -14,11 +14,84 @@
 ## Install
 
 ```bash
-yarn add @flowblade/source-duckdb @flowblade/core @flowblade/sql-tag duckdb-async
+yarn add @flowblade/source-duckdb @flowblade/core @flowblade/sql-tag @duckdb/node-api
 ```
 
 ## Quick start
 
+### Create a duckdb instance
+
+```typescript
+import { type DuckDBConnection, DuckDBInstance } from '@duckdb/node-api';
+import { DuckdbDatasource } from '@flowblade/source-duckdb';
+
+// Create a connection to a DuckDB instance
+const createConnection = async (): Promise<DuckDBConnection> => {
+  const instance = await DuckDBInstance.create(':memory:', {
+    access_mode: 'READ_WRITE',
+    max_memory: '64MB',
+  });
+  return await instance.connect();
+};
+
+// Create a the duckdb datasource
+export const ds = new DuckdbDatasource({ connection: duckdb });
+```
+
+### Query the database
+
+```typescript
+import {DuckdbDatasource} from '@flowblade/source-duckdb';
+import { ds } from "./config.ts";
+
+const params = {
+    min: 10,
+    max: 99,
+    name: 'test',
+    createdAt: new Date().toISOString(),
+};
+
+type Row = { id: number; name: 'test'; createdAt: Date };
+
+const rawSql = sql<Row>`
+
+      WITH products(productId, createdAt)
+          AS MATERIALIZED (
+               FROM RANGE(1,100) SELECT 
+               range::INT,
+               TIMESTAMPTZ '2025-01-01 12:30:00.123456789+01:00'
+          )
+      
+      SELECT productId, 
+             ${params.name} as name,
+             createdAt
+             
+      FROM products 
+      WHERE productId BETWEEN ${params.min}::INTEGER AND ${params.max}::INTEGER
+      AND createdAt < ${params.createdAt}::TIMESTAMPTZ
+    `;
+
+const result = await ds.query(rawSql);
+
+// Option 1: The QResult object contains the data, metadata and error
+//  - data:  the result rows (TData or undefined if error)
+//  - error: the error (QError or undefined if success)
+//  - meta:  the metadata (always present)
+
+const { data, meta, error } = result;
+
+// Option 2: You operate over the result, ie: mapping the data
+
+const { data } = result.map((row) => {
+    return {
+        id: row.productId,
+        key: `key-${row.productId}`
+    })
+
+if (data) {
+    console.log(data);
+}
+```
 
 ## Contributors
 
