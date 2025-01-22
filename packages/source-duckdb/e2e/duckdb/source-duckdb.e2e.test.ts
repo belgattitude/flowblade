@@ -21,7 +21,7 @@ describe('DuckDBAsyncDatasource e2e', async () => {
       min: 10,
       max: 99,
       name: 'test',
-      createdAt: new Date().toISOString(),
+      createdAt: '2025-01-22T23:54:41.114Z',
     };
 
     type Row = { id: number; name: 'test'; createdAt: Date };
@@ -59,7 +59,14 @@ describe('DuckDBAsyncDatasource e2e', async () => {
       const result = await ds.query(rawSql);
       const { meta } = result;
       expect(meta.getSpans().length).toBe(1);
-      expect(meta.getSpans()).toMatchSnapshot();
+      expect(
+        meta.getSpans().map((span) => {
+          return {
+            ...span,
+            timeMs: 0,
+          };
+        })
+      ).toMatchSnapshot();
     });
   });
 });

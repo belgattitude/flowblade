@@ -463,7 +463,7 @@ exports[`DuckDBAsyncDatasource e2e > query > should return expected meta 1`] = `
       "test",
       10,
       99,
-      "2025-01-22T23:22:59.089Z",
+      "2025-01-22T23:54:41.114Z",
     ],
     "sql": "
 
@@ -482,7 +482,7 @@ exports[`DuckDBAsyncDatasource e2e > query > should return expected meta 1`] = `
       WHERE productId BETWEEN $2::INTEGER AND $3::INTEGER
       AND createdAt < $4::TIMESTAMPTZ
     ",
-    "timeMs": 1.6006849999999986,
+    "timeMs": 0,
     "type": "sql",
   },
 ]
