@@ -1,0 +1,75 @@
+name: CI-docs-website
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - '.github/actions/**'
+      - '.github/workflows/**'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy-docs-website:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      NEXTJS_IGNORE_ESLINT: true
+      NEXTJS_IGNORE_TYPECHECK: true
+      NEXT_DISABLE_SOURCEMAPS: true
+      NEXT_TELEMETRY_DISABLED: true
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.12.1
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Setup node 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+
+      - name: 📥 Monorepo install
+        uses: ./.github/actions/yarn-nm-install
+
+      - name: ♻️ Restore website docs build caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/docs/.next/cache
+            ${{ github.workspace }}/.cache
+            ${{ github.workspace }}/docs/tsconfig.tsbuildinfo
+          key: website-docs-build-cache-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      - name: 🏗 Build docs
+        run: yarn website:build
+        env:
+          NEXT_BUILD_ENV_BASE_PATH: "/httpx"
+          NEXT_BUILD_ENV_LINT: false
+          NEXT_BUILD_ENV_SOURCEMAPS: false
+          NEXT_BUILD_ENV_TYPECHECK: false
+          NEXT_TELEMETRY_DISABLED: true
+
+      - name: 🚀 Deploy
+        if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
+        run: |
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          yarn website:deploy -u "github-actions-bot <support+actions@github.com>"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

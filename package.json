@@ -35,7 +35,7 @@
     "g:check-pub": "turbo run check-pub --filter='!@examples/**' --filter='!docs/**'",
     "g:release": "yarn g:build-release && yarn exec changeset publish",
     "g:ci-coverage-upload": "yarn workspaces foreach --all -tv run ci-coverage-upload",
-    "website:build": "yarn workspace flowblade-docs run build",
+    "website:build": "yarn workspace @docs/website run build",
     "website:deploy": "gh-pages -d ./docs/out -t true",
     "deps:check": "npx npm-check-updates@latest --configFileName .ncurc.yml --deep",
     "deps:update": "npx npm-check-updates@latest --configFileName .ncurc.yml -u --deep",
