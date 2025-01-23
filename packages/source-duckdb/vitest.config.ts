@@ -11,6 +11,10 @@ const testFiles = [
 const isCodeSpeedEnabled = process.env?.CODSPEED === '1';
 const cspeed = isCodeSpeedEnabled ? codspeedPlugin() : undefined;
 
+export const setup = () => {
+  process.env.TZ = 'UTC';
+};
+
 export default defineConfig({
   esbuild: {
     target: ['node18'],
@@ -18,6 +22,7 @@ export default defineConfig({
   plugins: [tsconfigPaths(), ...[cspeed].filter(Boolean)],
   cacheDir: '../../.cache/vite/source-duckdb',
   test: {
+    globalSetup: './vitest.setup.ts',
     // @link https://vitest.dev/config/#clearmocks
     clearMocks: true,
     coverage: {
