@@ -1,0 +1,37 @@
+name: codspeed-benchmarks
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+  # `workflow_dispatch` allows CodSpeed to trigger backtest
+  # performance analysis in order to generate initial data.
+  workflow_dispatch:
+
+jobs:
+  benchmarks:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 20.x ]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Fetch all git history so that yarn workspaces --since can compare with the correct commits
+          # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          fetch-depth: 0
+
+      - name: ⚙️ Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 📥 Monorepo install
+        uses: ./.github/actions/yarn-nm-install
+
+      - name: 🌠 Run benchmarks
+        uses: CodSpeedHQ/action@v3
+        with:
+          run: yarn g:bench-codspeed
+          token: ${{ secrets.CODSPEED_TOKEN }}

@@ -1,0 +1,94 @@
+name: CI-packages
+
+on:
+  push:
+    branches:
+     - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+
+jobs:
+  test-packages:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Fetch all git history so that yarn workspaces --since can compare with the correct commits
+          # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          fetch-depth: 0
+
+      - name: ⚙️ Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 📥 Monorepo install
+        uses: ./.github/actions/yarn-nm-install
+
+      - name: Cache rotation keys
+        id: cache-rotation
+        shell: bash
+        run: |
+          echo "YEAR_MONTH=$(/bin/date -u "+%Y%m")" >> $GITHUB_OUTPUT
+
+      - name: ♻️ Restore packages cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.cache
+          key: ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-${{ hashFiles('packages/**.[jt]sx?', 'integrations/**.[jt]sx?') }}
+          restore-keys: |
+            ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-
+
+      - name: 🕵️ Typecheck
+        if: matrix.node-version == '20.x'
+        run: yarn turbo run typecheck --filter='!@examples/*' --filter='!@docs/*'
+
+      - name: 🔬 ESLint checks
+        if: matrix.node-version == '20.x'
+        run: yarn turbo run lint --filter='!@examples/*' --filter='!@docs/*'
+
+      - name: 🧪 Unit tests (no-coverage - node !== 20.x)
+        if: matrix.node-version != '20.x'
+        run: yarn turbo run test-unit --filter='!@examples/*' --filter='!@docs/*'
+
+      - name: 🧪 Unit tests (coverage - only node 20.x)
+        if: matrix.node-version == '20.x'
+        run: yarn turbo run test-unit-coverage --filter='!@examples/*' --filter='!@docs/*'
+
+      - name: ☂️ Codecov upload (only node-20)
+        if: matrix.node-version == '20.x'
+        working-directory: ${{ github.workspace }}
+        run: |
+          bash .github/scripts/install-codecov.sh
+          yarn g:ci-coverage-upload
+        shell: bash
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: 🧪 Unit tests (edge-runtime)
+        if: matrix.node-version == '20.x'
+        run: yarn turbo run test-unit-edge --filter='!@examples/*' --filter='!@docs/*'
+
+      - name: 🏗 Build packages
+        run: yarn turbo run build --filter='!@examples/*' --filter='!@docs/*'
+
+      - name: 📐 Check build for size-limits
+        if: matrix.node-version == '20.x'
+        run: yarn turbo run check-size --filter='!@examples/*' --filter='!@docs/*'
+
+      - name: 🛟 Check build for ecmascript compliance
+        if: matrix.node-version == '20.x'
+        run: yarn turbo run check-dist --filter='!@examples/*' --filter='!@docs/*'
+
+      - name: 🛟 Check publishable dist (arethetypeswrong)
+        if: matrix.node-version == '20.x'
+        run: yarn turbo run check-pub --filter='!@examples/*' --filter='!@docs/*'
