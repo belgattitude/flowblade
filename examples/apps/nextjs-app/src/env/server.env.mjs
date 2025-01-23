@@ -11,7 +11,6 @@ export const serverEnv = createEnv({
     SENTRY_ORG: z.string().optional(),
     SENTRY_PROJECT: z.string().optional(),
     DB_FLOWBLADE_SQLSERVER_JDBC: z.string().optional(),
-    DB_FLOWBLADE_MYSQL_DSN: zDsn.optional(),
     DB_FLOWBLADE_MARIADB_DSN: zDsn.optional(),
     DB_FLOWBLADE_POSTGRES_DSN: zDsn.optional(),
   },

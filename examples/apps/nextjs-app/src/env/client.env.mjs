@@ -14,9 +14,12 @@ export const clientEnv = createEnv({
   client: {
     NEXT_PUBLIC_SENTRY_ENABLED: z.enum(['true', 'false']),
     NEXT_PUBLIC_SPOTLIGHT_ENABLED: z.enum(['true', 'false']),
+    NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED: z.enum(['true', 'false']),
   },
   runtimeEnv: {
     NEXT_PUBLIC_SENTRY_ENABLED: process.env.NEXT_PUBLIC_SENTRY_ENABLED,
     NEXT_PUBLIC_SPOTLIGHT_ENABLED: process.env.NEXT_PUBLIC_SPOTLIGHT_ENABLED,
+    NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED:
+      process.env.NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED,
   },
 });
