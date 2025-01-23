@@ -10,7 +10,9 @@
     "noUncheckedIndexedAccess": true,
     "strictNullChecks": true,
     "exactOptionalPropertyTypes": false,
-    "paths": {},
+    "paths": {
+      "@flowblade/sql-tag": ["../sql-tag/src/index"]
+    },
     "types": ["vitest/globals"]
   },
   "exclude": ["**/node_modules", "**/.*/*", "dist", "coverage"],

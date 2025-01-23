@@ -1,5 +1,6 @@
 import type { QMeta, QMetaSqlSpan } from '../meta/q-meta';
-import { type QError, QResult } from '../query-result/q-result';
+import { QResult } from '../query-result/q-result';
+import type { QError } from '../query-result/types';
 
 /**
  * Create a new SQL span with sql query + params and initial timeMs: 0, affectedRows: 0.

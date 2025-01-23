@@ -1,9 +1,10 @@
 import { expectTypeOf } from 'vitest';
 
 import { QMeta, type QMetaSqlSpan } from '../meta/q-meta';
-import { type QError, QResult } from './q-result';
+import { QResult } from './q-result';
+import type { QError } from './types';
 
-describe('QResult inference', () => {
+describe('QResult internal inference test', () => {
   const initialSqlSpan: QMetaSqlSpan = {
     type: 'sql',
     timeMs: 10.334,
