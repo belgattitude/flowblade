@@ -1,5 +1,13 @@
 # @flowblade/core
 
+## 0.2.6
+
+### Patch Changes
+
+- [#315](https://github.com/belgattitude/flowblade/pull/315) [`1a5cf14`](https://github.com/belgattitude/flowblade/commit/1a5cf14e3db80e086301cf588c5c49a3076ec8af) Thanks [@belgattitude](https://github.com/belgattitude)! - Add InferQResult
+
+- [#315](https://github.com/belgattitude/flowblade/pull/315) [`1a5cf14`](https://github.com/belgattitude/flowblade/commit/1a5cf14e3db80e086301cf588c5c49a3076ec8af) Thanks [@belgattitude](https://github.com/belgattitude)! - Export AdyncQResult convenience type
+
 ## 0.2.5
 
 ### Patch Changes

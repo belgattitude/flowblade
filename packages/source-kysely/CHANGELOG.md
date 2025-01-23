@@ -1,5 +1,12 @@
 # @flowblade/source-kysely
 
+## 0.13.9
+
+### Patch Changes
+
+- Updated dependencies [[`1a5cf14`](https://github.com/belgattitude/flowblade/commit/1a5cf14e3db80e086301cf588c5c49a3076ec8af), [`1a5cf14`](https://github.com/belgattitude/flowblade/commit/1a5cf14e3db80e086301cf588c5c49a3076ec8af)]:
+  - @flowblade/core@0.2.6
+
 ## 0.13.8
 
 ### Patch Changes
