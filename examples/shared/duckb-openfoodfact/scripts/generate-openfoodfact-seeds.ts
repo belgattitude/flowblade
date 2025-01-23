@@ -1,10 +1,10 @@
 import * as os from 'node:os';
 
+import { DuckDBInstance } from '@duckdb/node-api';
 import { DuckdbDatasource } from '@flowblade/source-duckdb';
 import { sql } from '@flowblade/sql-tag';
 import { SqlFormatter } from '@flowblade/sql-tag-format';
 import boxen from 'boxen';
-import { Database } from 'duckdb-async';
 import pc from 'tinyrainbow';
 
 import type { OpenfoodfactImage } from '../src/internal/generate-openfoodfact-image';
@@ -99,14 +99,12 @@ const getQueryCreateEtlBrands = () => {
 try {
   const threads = `${os.cpus().length - 1}`;
   console.log('Will run with threads:', threads);
-  const db = await Database.create(
-    `${scriptsConfig.openfoodfact.foodData.duckdb}`,
-    {
-      access_mode: 'READ_WRITE',
-      max_memory: '1000MB',
-      threads: threads,
-    }
-  );
+  const instance = await DuckDBInstance.create(':memory:', {
+    access_mode: 'READ_WRITE',
+    max_memory: '64MB',
+    threads,
+  });
+  const db = await instance.connect();
 
   const ds = new DuckdbDatasource({ connection: db });
 

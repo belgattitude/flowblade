@@ -23,7 +23,7 @@
     "start": "next start",
     "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../.cache/eslint/docs.eslintcache",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../.cache/eslint/docs.eslintcache",
     "fix-staged": "lint-staged --allow-empty"
   },
   "dependencies": {

@@ -67,14 +67,15 @@
     "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-source-duckdb --dir ./coverage"
   },
   "peerDependencies": {
+    "@duckdb/node-api": "^1.1.3-alpha.10",
     "@flowblade/core": "workspace:^",
-    "@flowblade/sql-tag": "workspace:^",
-    "duckdb-async": "^1.1.3"
+    "@flowblade/sql-tag": "workspace:^"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.17.3",
     "@belgattitude/eslint-config-bases": "6.19.0",
     "@codspeed/vitest-plugin": "4.0.0",
+    "@duckdb/node-api": "1.1.3-alpha.10",
     "@edge-runtime/vm": "5.0.0",
     "@faker-js/faker": "9.4.0",
     "@flowblade/core": "workspace:^",
@@ -86,7 +87,6 @@
     "browserslist": "4.24.4",
     "browserslist-to-esbuild": "2.1.1",
     "cross-env": "7.0.3",
-    "duckdb-async": "1.1.3",
     "es-check": "8.0.1",
     "esbuild": "0.24.2",
     "eslint": "8.57.1",
