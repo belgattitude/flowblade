@@ -1,5 +1,11 @@
 # @flowblade/source-duckdb
 
+## 0.1.9
+
+### Patch Changes
+
+- [#307](https://github.com/belgattitude/flowblade/pull/307) [`ff2d08e`](https://github.com/belgattitude/flowblade/commit/ff2d08e651bfc741e51929b3f7f5cbb99a134a41) Thanks [@belgattitude](https://github.com/belgattitude)! - Breaking: replace duckdb-async driver by @duckdb/node-api alpha
+
 ## 0.1.8
 
 ### Patch Changes
