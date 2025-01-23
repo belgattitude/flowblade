@@ -26,7 +26,7 @@ module.exports = {
     // Apply prettier and disable incompatible rules
     '@belgattitude/eslint-config-bases/prettier-plugin',
   ],
-  ignorePatterns: [...getDefaultIgnorePatterns(), '**/_pagefind/**'],
+  ignorePatterns: [...getDefaultIgnorePatterns(), '**/_pagefind/**', 'out'],
   overrides: [
     {
       files: ['**/src/**/*.generated.ts'],

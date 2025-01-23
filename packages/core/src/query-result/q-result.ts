@@ -14,7 +14,7 @@ interface ConstructorParams<
 
 export class QResult<
   TData extends unknown[] | undefined,
-  TError extends QError | undefined = undefined,
+  TError extends QError | undefined,
 > {
   /**
    * Utility getter to infer the value type of the result.

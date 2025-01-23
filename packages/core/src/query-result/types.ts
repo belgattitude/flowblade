@@ -5,6 +5,6 @@ export interface QError {
 }
 
 export type AsyncQResult<
-  TData extends unknown[] | undefined,
-  TError extends QError | undefined = undefined,
+  TData extends unknown[],
+  TError extends QError | undefined = QError,
 > = Promise<QResult<TData, TError>>;

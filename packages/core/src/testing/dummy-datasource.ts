@@ -1,4 +1,5 @@
-import type { DuckDBConnection, DuckDBValue } from '@duckdb/node-api';
+import type { SqlTag } from '@flowblade/sql-tag';
+
 import {
   type AsyncQResult,
   createQResultError,
@@ -9,17 +10,22 @@ import {
   type QError,
   QMeta,
   type QResult,
-} from '@flowblade/core';
-import type { SqlTag } from '@flowblade/sql-tag';
+} from '../index';
 
-export type DuckdbDatasourceParams = {
-  connection: DuckDBConnection;
+type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+type DummyDatasourceParams = {
+  connection: VoluntaryAny;
 };
 
-export class DuckdbDatasource implements DatasourceInterface {
-  private db: DuckDBConnection;
+/**
+ * @internal
+ */
+export class DummyDatasource implements DatasourceInterface {
+  private db: VoluntaryAny;
 
-  constructor(params: DuckdbDatasourceParams) {
+  constructor(params: DummyDatasourceParams) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.db = params.connection;
   }
 
@@ -29,7 +35,7 @@ export class DuckdbDatasource implements DatasourceInterface {
    * Warning: using the underling driver connection isn't recommended
    *          and not covered by api stability. Use at your own risks.
    */
-  getConnection = (): DuckDBConnection => this.db;
+  getConnection = (): VoluntaryAny => this.db;
 
   /**
    * Run a raw query on the datasource and return a query result (QResult).
@@ -74,11 +80,11 @@ export class DuckdbDatasource implements DatasourceInterface {
     const meta = createSqlSpan({ sql, params });
     const start = performance.now();
     try {
-      const rows = await this.db.runAndReadAll(sql, params as DuckDBValue[]);
-      meta.affectedRows = rows.currentRowCount;
+      const rows = [] as VoluntaryAny[];
+      meta.affectedRows = 0;
       meta.timeMs = performance.now() - start;
       return createQResultSuccess(
-        rows.getRowObjectsJson() as TData,
+        rows as TData,
         new QMeta({ name, spans: meta })
       );
     } catch (err) {
