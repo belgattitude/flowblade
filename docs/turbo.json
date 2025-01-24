@@ -4,7 +4,12 @@
   "tasks": {
     "build": {
       "env": ["NEXT_BUILD_*", "NEXT_PUBLIC_*", "SENTRY_*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**",
+        "public/_pagefind/**"
+      ]
     },
     "typecheck": {},
     "dev": {
