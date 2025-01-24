@@ -16,16 +16,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+
 
 jobs:
   build-and-deploy-docs-website:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+      pages: write
+      id-token: write
     env:
       NEXTJS_IGNORE_ESLINT: true
       NEXTJS_IGNORE_TYPECHECK: true
