@@ -8,6 +8,14 @@ const basePath = process.env.NEXT_BUILD_BASE_PATH ?? undefined;
 
 const withNextra = nextra({
   // contentDirBasePath: '/',
+  mdxOptions: {
+    rehypePrettyCodeOptions: {
+      theme: {
+        dark: 'github-dark',
+        light: 'github-light',
+      },
+    },
+  },
 });
 
 export default withNextra({
