@@ -19,9 +19,8 @@
     "build": "next build && run generate-search-idx",
     "generate-search-idx": "pagefind --site .next/server/app --output-path public/_pagefind",
     "bundle-analyze": "cross-env ANALYZE=true next build",
-    "build-no-paths": "cross-env NEXT_BUILD_TSCONFIG=./tsconfig.no-paths.json next build",
     "start": "next start",
-    "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",
+    "clean": "rimraf ./.next ./out ./public/_pagefind ./coverage ./tsconfig.tsbuildinfo",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../.cache/eslint/docs.eslintcache",
     "fix-staged": "lint-staged --allow-empty"

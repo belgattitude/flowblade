@@ -7,7 +7,7 @@ const output = buildEnv.NEXT_BUILD_OUTPUT ?? undefined;
 const basePath = process.env.NEXT_BUILD_BASE_PATH ?? undefined;
 
 const withNextra = nextra({
-  // contentDirBasePath: './src/content'
+  // contentDirBasePath: '/',
 });
 
 export default withNextra({
