@@ -48,7 +48,8 @@
     "prisma-db-seed": "dotenv-flow -- yarn prisma db seed",
     "prisma-migrate": "dotenv-flow -- yarn prisma migrate",
     "prisma-migrate-reset": "dotenv-flow -- yarn prisma migrate reset",
-    "prisma-studio": "dotenv-flow -- yarn prisma studio"
+    "prisma-studio": "dotenv-flow -- yarn prisma studio",
+    "postinstall": "prisma generate"
   },
   "peerDependencies": {
     "@prisma/client": "^6.1.0",
