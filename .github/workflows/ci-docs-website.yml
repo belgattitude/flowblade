@@ -57,19 +57,30 @@ jobs:
           key: website-docs-build-cache-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
       - name: 🏗 Build docs
-        run: yarn website:build
+        run: yarn workspace @docs/website run build
         env:
-          NEXT_BUILD_ENV_BASE_PATH: "/flowblade"
-          NEXT_BUILD_ENV_LINT: false
-          NEXT_BUILD_ENV_SOURCEMAPS: false
-          NEXT_BUILD_ENV_TYPECHECK: false
+          NEXT_BUILD_BASE_PATH: "/flowblade"
+          NEXT_BUILD_OUTPUT: "export"
+          NEXT_BUILD_IGNORE_ESLINT: false
+          NEXT_BUILD_IGNORE_TYPECHECK: false
+          NEXT_BUILD_PRODUCTION_SOURCEMAPS: false
           NEXT_TELEMETRY_DISABLED: true
+
+      - name: 🚀 Upload doc website artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs/out
 
       - name: 🚀 Deploy
         if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
-        run: |
-          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-          yarn website:deploy -u "github-actions-bot <support+actions@github.com>"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      #- name: 🚀 Deploy
+      #  if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
+      #  run: |
+      #    git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+      #    yarn website:deploy -u "github-actions-bot <support+actions@github.com>"
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
