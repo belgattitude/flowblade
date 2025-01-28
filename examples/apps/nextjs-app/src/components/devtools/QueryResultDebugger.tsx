@@ -8,7 +8,6 @@ import { cn } from '@/components/utils';
 
 type Props<T extends unknown[] = unknown[]> = {
   result: QResult<T, QError>;
-  dialect: 'tsql' | 'mysql' | 'plsql';
 };
 
 export const QueryResultDebugger = async (props: Props) => {
