@@ -6,7 +6,7 @@
 "@flowblade/core": patch
 ---
 
-Update browserlists minimums
+Update browserslist minimums
 
 ```
 defaults

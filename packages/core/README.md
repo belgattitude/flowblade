@@ -6,6 +6,14 @@
 yarn add @flowblade/core
 ```
 
+## Bundle size
+
+Bundle size is tracked by a [size-limit configuration](https://github.com/belgattitude/flowblade/blob/main/packages/core/.size-limit.ts)
+
+| Scenario (esm)                                | Size (compressed) |
+|-----------------------------------------------|------------------:|
+| `import * from '@flowblade/sql-tag`           |          ~ 2.04kB |
+| `import { QResult } from '@flowblade/sql-tag` |          ~ 1.63kB |
 
 ## Compatibility
 
