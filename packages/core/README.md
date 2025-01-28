@@ -6,6 +6,21 @@
 yarn add @flowblade/core
 ```
 
+
+## Compatibility
+
+| Level      | CI | Description                                                                                                                                                                                                                                                                                                                                                      |
+|------------|----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|  
+| Node       | ✅  | CI for 18.x, 20.x & 22.x.                                                                                                                                                                                                                                                                                                                                        |
+| Browser    | ✅  | Tested with latest chrome (vitest/playwright)                                                                                                                                                                                                                                                                                                                    |
+| Browsers   | ✅  | [> 94%](https://browserslist.dev/?q=ZGVmYXVsdHMsIGNocm9tZSA%2BPSA5NiwgZmlyZWZveCA%2BPSA5NCwgZWRnZSA%2BPSA5MSwgc2FmYXJpID49IDE1LCBpb3MgPj0gMTUsIG9wZXJhID49IDgz) on 01/2025. Mins to [defaults, chrome >= 96, firefox >= 94, edge >= 91, safari >= 15, ios >= 15, opera >= 83](https://github.com/belgattitude/flowblade/blob/main/packages/core/.browserslistrc) |
+| Edge       | ✅  | Ensured on CI with [@vercel/edge-runtime](https://github.com/vercel/edge-runtime).                                                                                                                                                                                                                                                                               | 
+| Cloudflare | ✅  | Ensured with @cloudflare/vitest-pool-workers (see [wrangler.toml](https://github.com/belgattitude/flowblade/blob/main/devtools/vitest/wrangler.toml)                                                                                                                                                                                                             |
+| Typescript | ✅  | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI.                                                                                                                                                                                                                                                    |
+| ES2022     | ✅  | Dist files checked with [es-check](https://github.com/yowainwright/es-check)                                                                                                                                                                                                                                                                                     |
+| Performance| ✅  | Monitored with [codspeed.io](https://codspeed.io/belgattitude/flowblade)                                                                                                                                                                                                                                                                                         |
+
+
 ## Contributors
 
 Contributions are welcome. Have a look to the [CONTRIBUTING](https://github.com/belgattitude/flowblade/blob/main/CONTRIBUTING.md) document.
