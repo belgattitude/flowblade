@@ -2734,17 +2734,20 @@ __metadata:
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:6.20.0"
     "@duckdb/node-api": "npm:1.1.3-alpha.10"
+    "@duckdb/node-bindings": "npm:1.1.3-alpha.10"
     "@examples/db-sqlserver": "workspace:^"
     "@faker-js/faker": "npm:9.4.0"
     "@flowblade/core": "workspace:^"
     "@flowblade/source-duckdb": "workspace:^"
     "@flowblade/source-kysely": "workspace:^"
     "@flowblade/sql-tag": "workspace:^"
+    "@flowblade/sql-tag-format": "workspace:^"
     "@hono/node-server": "npm:1.13.7"
     "@hono/swagger-ui": "npm:0.5.0"
     "@httpx/assert": "npm:0.15.1"
     "@httpx/dsn-parser": "npm:1.8.5"
     "@httpx/exception": "npm:3.0.11"
+    "@httpx/lru": "npm:0.2.1"
     "@httpx/memo-intl": "npm:1.1.3"
     "@httpx/plain-object": "npm:2.0.5"
     "@httpx/treeu": "npm:0.4.10"
@@ -3365,6 +3368,13 @@ __metadata:
   version: 3.0.11
   resolution: "@httpx/exception@npm:3.0.11"
   checksum: 10c0/5c609c0dd25b2ca2405f8ba6f4ff5d54b3dc68febf25b0c6be57f22201697d068062d354a9a476b745d57d2ee3fb4b57c02512cca1699869adb4f5f182945e66
+  languageName: node
+  linkType: hard
+
+"@httpx/lru@npm:0.2.1":
+  version: 0.2.1
+  resolution: "@httpx/lru@npm:0.2.1"
+  checksum: 10c0/b31882eb169fdbddf53631a6218e0bb31b7422417ed17642b5ffde5dc8345584f45d58e5cf0cc2eb4012b329e537ca1e47d2a268c59331403e08c0b89f358a25
   languageName: node
   linkType: hard
 
