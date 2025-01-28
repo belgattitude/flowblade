@@ -17,6 +17,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build-standalone": "cross-env NEXT_BUILD_OUTPUT=standalone next build",
     "bundle-analyze": "cross-env ANALYZE=true next build",
     "build-no-paths": "cross-env NEXT_BUILD_TSCONFIG=./tsconfig.no-paths.json next build",
     "start": "next start",

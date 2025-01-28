@@ -9,14 +9,21 @@ import { serverEnv } from './src/env/server.env.mjs';
 const _isDev = process.env.NODE_ENV === 'development';
 const _isTurbo = process.env.TURBOPACK !== undefined;
 
+const buildOutput = buildEnv.NEXT_BUILD_OUTPUT ?? undefined;
+
 /** @type {import('next').NextConfig} */
 let nextConfig = {
   compress: serverEnv.NEXT_CONFIG_COMPRESS === 'true',
+  // ...(buildOutput === undefined ? {} : { output: buildOutput }),
+  output: 'standalone',
   eslint: {
     dirs: ['src'],
     ignoreDuringBuilds: buildEnv.NEXT_BUILD_IGNORE_ESLINT === 'true',
   },
-  serverExternalPackages: ['tedious', 'tarn', 'mssql', '@duckdb/node-api'],
+  outputFileTracingRoot: '../../..',
+  outputFileTracingIncludes: {
+    '*': ['node_modules/@duckdb/node-bindings-linux-x64/duckdb.node'],
+  },
   experimental: {
     // Prefer loading of ES Modules over CommonJS
     // @link {https://nextjs.org/blog/next-11-1#es-modules-support|Blog 11.1.0}

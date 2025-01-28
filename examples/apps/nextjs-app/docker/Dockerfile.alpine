@@ -1,16 +1,14 @@
 ARG NODE_VERSION=22.13
-ARG DEBIAN_VERSION=bookworm-slim
+ARG ALPINE_VERSION=3.21
 
 #############################################################
 # Stage 1 - App extraction / pruning                        #
 #############################################################
 
-FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS app-builder
+FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS app-builder
 
-RUN apt-get update \
-  && apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
-  && corepack enable
-
+# gcompat is required for duckdb neo to work
+RUN apk add --no-cache git jq && corepack enable
 
 WORKDIR /app
 
@@ -31,9 +29,13 @@ RUN turbo prune --scope=@examples/nextjs-app --docker --out-dir=./out/nextjs-app
 
 FROM app-builder AS app-installer
 
-ENV NEXT_BUILD_IGNORE_ESLINT=true
-ENV NEXT_BUILD_IGNORE_TYPECHECK=true
-ENV NEXT_BUILD_OUTPUT=standalone
+# This will disable runtime env validation
+# see ./src/config/server-runtime-env.config.mjs
+ENV NEXTJS_PRODUCTION_PHASE=build
+
+ENV NEXT_BUILD_ENV_TYPECHECK=false
+ENV NEXT_BUILD_ENV_LINT=false
+ENV NEXT_BUILD_ENV_OUTPUT=standalone
 # ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
 # ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
 
@@ -78,7 +80,7 @@ RUN yarn turbo run build --filter=@examples/nextjs-app...
 # Stage 3 - App runner                                      #
 #############################################################
 
-FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS app-runner
+FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS app-runner
 
 ARG NEXTJS_APP_PORT
 
@@ -87,10 +89,7 @@ ENV HOSTNAME=0.0.0.0
 ENV PORT=${NEXTJS_APP_PORT:-3000}
 ENV TZ=Europe/Brussels
 
-RUN apt-get update \
-  && apt-get install bash tzdata --no-install-recommends -y \
-  && corepack enable
-
+RUN apk add --no-cache tzdata bash && corepack enable
 
 WORKDIR /app
 
@@ -103,17 +102,17 @@ RUN chown nextjs:nodejs .next
 
 USER nextjs
 
-COPY --from=app-installer --chown=nextjs:nodejs /app/examples/apps/nextjs-app/next.config.mjs \
-                    /app/examples/apps/nextjs-app/package.json \
+COPY --from=app-installer --chown=nextjs:nodejs /app/apps/nextjs-app/next.config.mjs \
+                    /app/apps/nextjs-app/package.json \
                     ./
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=app-installer --chown=nextjs:nodejs /app/examples/apps/nextjs-app/.next/standalone ./
-COPY --from=app-installer --chown=nextjs:nodejs /app/examples/apps/nextjs-app/.next/static ./apps/nextjs-app/.next/static
-COPY --from=app-installer --chown=nextjs:nodejs /app/examples/apps/nextjs-app/public ./apps/nextjs-app/public
+COPY --from=app-installer --chown=nextjs:nodejs /app/apps/nextjs-app/.next/standalone ./
+COPY --from=app-installer --chown=nextjs:nodejs /app/apps/nextjs-app/.next/static ./apps/nextjs-app/.next/static
+COPY --from=app-installer --chown=nextjs:nodejs /app/apps/nextjs-app/public ./apps/nextjs-app/public
 
 EXPOSE ${PORT}
 
-CMD ["node", "apps/examples/nextjs-app/server.js"]
+CMD ["node", "apps/nextjs-app/server.js"]
 
