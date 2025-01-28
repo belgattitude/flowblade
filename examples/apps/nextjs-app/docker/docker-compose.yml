@@ -1,0 +1,16 @@
+name: flowblade-nextjs-app
+services:
+  nextjs-app:
+    build:
+      # Start from root of the monorepo
+      context: ../../../../
+      dockerfile: ./examples/apps/nextjs-app/docker/Dockerfile
+    restart: always
+    networks:
+      - flowblade-nextjs-app-net
+    ports:
+      - 3000:3000
+
+networks:
+  flowblade-nextjs-app-net:
+    driver: bridge
