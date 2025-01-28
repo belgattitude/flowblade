@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { fontInter } from '@/components/fonts/FontInter';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { ReactQueryClientProvider } from '@/providers/ReactQueryClientProvider';
 import { ReduxStoreProvider } from '@/providers/ReduxProvider';
 
@@ -21,7 +22,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${fontInter.variable} antialiased`}>
         <ReduxStoreProvider>
-          <ReactQueryClientProvider>{children}</ReactQueryClientProvider>
+          <ReactQueryClientProvider>
+            <MainLayout>{children}</MainLayout>
+          </ReactQueryClientProvider>
         </ReduxStoreProvider>
       </body>
     </html>

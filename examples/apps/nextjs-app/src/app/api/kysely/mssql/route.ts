@@ -4,7 +4,7 @@ import { sql } from 'kysely';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { dbKyselySqlServer } from '@/server/config/db.kysely-sqlserver.config';
+import { dbKyselyMssql } from '@/server/config/db.kysely-mssql.config';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,7 +75,7 @@ export async function GET(_req: NextRequest) {
   `;
 */
   const db = new KyselyDatasource({
-    connection: dbKyselySqlServer,
+    connection: dbKyselyMssql,
   });
 
   const result = await db.query(qRaw);

@@ -10,7 +10,7 @@ export const serverEnv = createEnv({
     NEXT_CONFIG_COMPRESS: v.picklist(['true', 'false']),
     SENTRY_ORG: v.optional(v.string()),
     SENTRY_PROJECT: v.optional(v.string()),
-    DB_FLOWBLADE_SQLSERVER_JDBC: v.optional(v.string()),
+    DB_FLOWBLADE_MSSQL_JDBC: v.optional(v.string()),
     DB_FLOWBLADE_MARIADB_DSN: v.optional(zDsn),
     DB_FLOWBLADE_POSTGRES_DSN: v.optional(zDsn),
   },

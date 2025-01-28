@@ -8,7 +8,7 @@ import { Kysely } from 'kysely';
 import { serverEnv } from '../../env/server.env.mjs';
 
 const config = TediousConnUtils.fromJdbcDsn(
-  serverEnv.DB_FLOWBLADE_SQLSERVER_JDBC ?? ''
+  serverEnv.DB_FLOWBLADE_MSSQL_JDBC ?? ''
 );
 const dialect = createKyselyMssqlDialect({
   tediousConfig: config,
@@ -28,7 +28,7 @@ const maskPII = (param: unknown) => {
   return param;
 };
 
-export const dbKyselySqlServer = new Kysely<DBKyselySqlServer>({
+export const dbKyselyMssql = new Kysely<DBKyselySqlServer>({
   dialect: dialect,
   log: (event) => {
     if (event.level === 'error') {

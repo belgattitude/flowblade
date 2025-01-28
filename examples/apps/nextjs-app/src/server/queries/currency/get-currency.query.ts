@@ -1,6 +1,6 @@
 import { sql } from 'kysely';
 
-import { dbKyselySqlServer } from '@/server/config/db.kysely-sqlserver.config';
+import { dbKyselyMssql } from '@/server/config/db.kysely-mssql.config';
 
 type Params = {
   locale: string;
@@ -16,8 +16,8 @@ type Response = {
 
 export const getCurrencyQuery = (params: Params) => {
   const { locale } = params;
-  const { fn } = dbKyselySqlServer;
-  return dbKyselySqlServer
+  const { fn } = dbKyselyMssql;
+  return dbKyselyMssql
     .selectFrom('common.currency as cu')
     .leftJoin('common.currency_i18n as cu18', (join) =>
       join

@@ -2758,6 +2758,7 @@ __metadata:
     "@opentelemetry/sdk-trace-base": "npm:1.30.1"
     "@reduxjs/toolkit": "npm:2.5.1"
     "@sentry/nextjs": "npm:8.51.0"
+    "@shikijs/transformers": "npm:2.1.0"
     "@spotlightjs/spotlight": "npm:2.10.2"
     "@t3-oss/env-nextjs": "npm:0.12.0"
     "@tailwindcss/postcss": "npm:4.0.0"
@@ -2800,6 +2801,7 @@ __metadata:
     react-error-boundary: "npm:5.0.0"
     react-redux: "npm:9.2.0"
     rimraf: "npm:6.0.1"
+    shiki: "npm:2.1.0"
     tailwind-merge: "npm:2.6.0"
     tailwindcss: "npm:4.0.0"
     tarn: "npm:3.0.2"
@@ -5545,6 +5547,16 @@ __metadata:
   dependencies:
     "@shikijs/types": "npm:2.1.0"
   checksum: 10c0/ef5e403a163a312d24df8633c163a5f783a590baf4a4adc00552afb52f24ae58359f286fee29579d730d83bd9531ed26d77933d83a5822dede763ab2918fe38f
+  languageName: node
+  linkType: hard
+
+"@shikijs/transformers@npm:2.1.0":
+  version: 2.1.0
+  resolution: "@shikijs/transformers@npm:2.1.0"
+  dependencies:
+    "@shikijs/core": "npm:2.1.0"
+    "@shikijs/types": "npm:2.1.0"
+  checksum: 10c0/c98bdcc8c9d8e790b6c5b69610a8ae908058e39a9b166fbb3159d3f81103c98e5f6e0b508fc2484ba31648b18d93bea572eed742fc91203e399edd636fb7ca07
   languageName: node
   linkType: hard
 
@@ -18677,7 +18689,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shiki@npm:^2.0.0":
+"shiki@npm:2.1.0, shiki@npm:^2.0.0":
   version: 2.1.0
   resolution: "shiki@npm:2.1.0"
   dependencies:
