@@ -1,5 +1,21 @@
 # @flowblade/sql-tag
 
+## 0.1.8
+
+### Patch Changes
+
+- [#328](https://github.com/belgattitude/flowblade/pull/328) [`485d95e`](https://github.com/belgattitude/flowblade/commit/485d95ee70b6af2a9ce32ee42420cd1cf8fbdd19) Thanks [@belgattitude](https://github.com/belgattitude)! - Update browserslist minimums
+
+  ```
+  defaults
+  chrome >= 96
+  firefox >= 94
+  edge >= 91
+  safari >= 15
+  ios >= 15
+  opera >= 83
+  ```
+
 ## 0.1.7
 
 ### Patch Changes
