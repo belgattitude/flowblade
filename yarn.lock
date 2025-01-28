@@ -2734,17 +2734,20 @@ __metadata:
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:6.20.0"
     "@duckdb/node-api": "npm:1.1.3-alpha.10"
+    "@duckdb/node-bindings": "npm:1.1.3-alpha.10"
     "@examples/db-sqlserver": "workspace:^"
     "@faker-js/faker": "npm:9.4.0"
     "@flowblade/core": "workspace:^"
     "@flowblade/source-duckdb": "workspace:^"
     "@flowblade/source-kysely": "workspace:^"
     "@flowblade/sql-tag": "workspace:^"
+    "@flowblade/sql-tag-format": "workspace:^"
     "@hono/node-server": "npm:1.13.7"
     "@hono/swagger-ui": "npm:0.5.0"
     "@httpx/assert": "npm:0.15.1"
     "@httpx/dsn-parser": "npm:1.8.5"
     "@httpx/exception": "npm:3.0.11"
+    "@httpx/lru": "npm:0.2.1"
     "@httpx/memo-intl": "npm:1.1.3"
     "@httpx/plain-object": "npm:2.0.5"
     "@httpx/treeu": "npm:0.4.10"
@@ -2758,6 +2761,7 @@ __metadata:
     "@opentelemetry/sdk-trace-base": "npm:1.30.1"
     "@reduxjs/toolkit": "npm:2.5.1"
     "@sentry/nextjs": "npm:8.51.0"
+    "@shikijs/transformers": "npm:2.1.0"
     "@spotlightjs/spotlight": "npm:2.10.2"
     "@t3-oss/env-nextjs": "npm:0.12.0"
     "@tailwindcss/postcss": "npm:4.0.0"
@@ -2800,6 +2804,8 @@ __metadata:
     react-error-boundary: "npm:5.0.0"
     react-redux: "npm:9.2.0"
     rimraf: "npm:6.0.1"
+    shiki: "npm:2.1.0"
+    sql-formatter: "npm:15.4.10"
     tailwind-merge: "npm:2.6.0"
     tailwindcss: "npm:4.0.0"
     tarn: "npm:3.0.2"
@@ -3363,6 +3369,13 @@ __metadata:
   version: 3.0.11
   resolution: "@httpx/exception@npm:3.0.11"
   checksum: 10c0/5c609c0dd25b2ca2405f8ba6f4ff5d54b3dc68febf25b0c6be57f22201697d068062d354a9a476b745d57d2ee3fb4b57c02512cca1699869adb4f5f182945e66
+  languageName: node
+  linkType: hard
+
+"@httpx/lru@npm:0.2.1":
+  version: 0.2.1
+  resolution: "@httpx/lru@npm:0.2.1"
+  checksum: 10c0/b31882eb169fdbddf53631a6218e0bb31b7422417ed17642b5ffde5dc8345584f45d58e5cf0cc2eb4012b329e537ca1e47d2a268c59331403e08c0b89f358a25
   languageName: node
   linkType: hard
 
@@ -5545,6 +5558,16 @@ __metadata:
   dependencies:
     "@shikijs/types": "npm:2.1.0"
   checksum: 10c0/ef5e403a163a312d24df8633c163a5f783a590baf4a4adc00552afb52f24ae58359f286fee29579d730d83bd9531ed26d77933d83a5822dede763ab2918fe38f
+  languageName: node
+  linkType: hard
+
+"@shikijs/transformers@npm:2.1.0":
+  version: 2.1.0
+  resolution: "@shikijs/transformers@npm:2.1.0"
+  dependencies:
+    "@shikijs/core": "npm:2.1.0"
+    "@shikijs/types": "npm:2.1.0"
+  checksum: 10c0/c98bdcc8c9d8e790b6c5b69610a8ae908058e39a9b166fbb3159d3f81103c98e5f6e0b508fc2484ba31648b18d93bea572eed742fc91203e399edd636fb7ca07
   languageName: node
   linkType: hard
 
@@ -18677,7 +18700,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shiki@npm:^2.0.0":
+"shiki@npm:2.1.0, shiki@npm:^2.0.0":
   version: 2.1.0
   resolution: "shiki@npm:2.1.0"
   dependencies:

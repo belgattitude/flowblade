@@ -16,7 +16,7 @@ let nextConfig = {
     dirs: ['src'],
     ignoreDuringBuilds: buildEnv.NEXT_BUILD_IGNORE_ESLINT === 'true',
   },
-  serverExternalPackages: ['tedious', 'tarn', 'mssql'],
+  serverExternalPackages: ['tedious', 'tarn', 'mssql', '@duckdb/node-api'],
   experimental: {
     // Prefer loading of ES Modules over CommonJS
     // @link {https://nextjs.org/blog/next-11-1#es-modules-support|Blog 11.1.0}

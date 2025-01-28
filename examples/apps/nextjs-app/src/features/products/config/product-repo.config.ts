@@ -1,4 +1,4 @@
 import { ProductRepo } from '@/features/products/server/product.repo';
-import { kyselyDatasource } from '@/server/config/kyselyDatasource.config';
+import { dsKyselyMssql } from '@/server/config/ds.kysely-mssql.config';
 
-export const productRepo = new ProductRepo({ ds: kyselyDatasource });
+export const productRepo = new ProductRepo({ ds: dsKyselyMssql });

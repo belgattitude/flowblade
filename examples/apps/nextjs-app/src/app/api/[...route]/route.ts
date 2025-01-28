@@ -6,7 +6,7 @@ import { createOpenApiDocument, openApi } from 'hono-zod-openapi';
 import { sql } from 'kysely';
 import { z } from 'zod';
 
-import { dbKyselySqlServer as db } from '@/server/config/db.kysely-sqlserver.config';
+import { dbKyselyMssql as db } from '@/server/config/db.kysely-mssql.config';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
