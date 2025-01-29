@@ -24,7 +24,7 @@ export class DemoDuckdbRepo {
   getSqlSearch = (params?: SearchParams): SqlTag<SearchResult[]> => {
     const {
       min = 10,
-      max = 99,
+      max = 500,
       name = 'test',
       createdAt = '2025-01-22T23:54:41.114Z',
     } = params ?? {};
@@ -33,7 +33,7 @@ export class DemoDuckdbRepo {
 
       WITH products(productId, createdAt)
           AS MATERIALIZED (
-               FROM RANGE(1,100) SELECT 
+               FROM RANGE(1,1000) SELECT 
                range::INT,
                TIMESTAMPTZ '2025-01-01 12:30:00.123456789+01:00'
           )
