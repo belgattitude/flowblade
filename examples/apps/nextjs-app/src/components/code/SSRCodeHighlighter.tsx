@@ -18,7 +18,7 @@ type Props = {
   lang?: BundledLanguage;
   theme?: BundledTheme;
 };
-export async function ShikiSSRCode(props: Props) {
+export async function SSRCodeHighlighter(props: Props) {
   const {
     code = '',
     className,

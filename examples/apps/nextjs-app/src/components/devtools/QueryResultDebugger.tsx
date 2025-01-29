@@ -3,7 +3,7 @@
 import type { QError, QResult } from '@flowblade/core';
 import { format } from 'sql-formatter';
 
-import { ShikiSSRCode } from '@/components/code/ShikiSSRCode';
+import { DynamicCodeBlock } from '@/components/code/DynamicCodeBlock';
 import { cn } from '@/components/utils';
 
 type Props<T extends unknown[] = unknown[]> = {
@@ -53,21 +53,21 @@ export const QueryResultDebugger = async (props: Props) => {
           })}
         >
           <div className={'flex flex-col gap-5'}>
-            <ShikiSSRCode
-              filename={'meta'}
-              code={JSON.stringify(meta, null, 2)}
-              lang={'json'}
-            />
             {formattedSql !== undefined && (
-              <ShikiSSRCode
+              <DynamicCodeBlock
                 filename={'formatted sql'}
                 code={formattedSql}
                 lang={'sql'}
               />
             )}
+            <DynamicCodeBlock
+              filename={'meta'}
+              code={JSON.stringify(meta, null, 2)}
+              lang={'json'}
+            />
           </div>
           {data !== null && (
-            <ShikiSSRCode
+            <DynamicCodeBlock
               filename={'data'}
               code={JSON.stringify(data, null, 2)}
               lang={'json'}
