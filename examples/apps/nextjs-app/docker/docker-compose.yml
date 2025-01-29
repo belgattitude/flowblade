@@ -5,7 +5,7 @@ services:
       # Start from root of the monorepo
       context: ../../../../
       dockerfile: ./examples/apps/nextjs-app/docker/Dockerfile
-    restart: always
+    restart: no
     networks:
       - flowblade-nextjs-app-net
     ports:
