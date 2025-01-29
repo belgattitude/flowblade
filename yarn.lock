@@ -2327,6 +2327,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@duckdb/node-bindings@patch:@duckdb/node-bindings@npm%3A1.1.3-alpha.10#~/.yarn/patches/@duckdb-node-bindings-npm-1.1.3-alpha.10-e7c5a46d03.patch":
+  version: 1.1.3-alpha.10
+  resolution: "@duckdb/node-bindings@patch:@duckdb/node-bindings@npm%3A1.1.3-alpha.10#~/.yarn/patches/@duckdb-node-bindings-npm-1.1.3-alpha.10-e7c5a46d03.patch::version=1.1.3-alpha.10&hash=69e110"
+  dependencies:
+    "@duckdb/node-bindings-darwin-arm64": "npm:1.1.3-alpha.10"
+    "@duckdb/node-bindings-darwin-x64": "npm:1.1.3-alpha.10"
+    "@duckdb/node-bindings-linux-arm64": "npm:1.1.3-alpha.10"
+    "@duckdb/node-bindings-linux-x64": "npm:1.1.3-alpha.10"
+    "@duckdb/node-bindings-win32-x64": "npm:1.1.3-alpha.10"
+  dependenciesMeta:
+    "@duckdb/node-bindings-darwin-arm64":
+      optional: true
+    "@duckdb/node-bindings-darwin-x64":
+      optional: true
+    "@duckdb/node-bindings-linux-arm64":
+      optional: true
+    "@duckdb/node-bindings-linux-x64":
+      optional: true
+    "@duckdb/node-bindings-win32-x64":
+      optional: true
+  checksum: 10c0/5041576f46504a6284ed83ca011f0b72d5c690097eb0629146e76a6541431c0e6f59651c4b0f1c9105d732c0093839c23e9843261898ac15ea4e9eebe09b129a
+  languageName: node
+  linkType: hard
+
 "@edge-runtime/primitives@npm:6.0.0":
   version: 6.0.0
   resolution: "@edge-runtime/primitives@npm:6.0.0"
@@ -2734,6 +2758,7 @@ __metadata:
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:6.20.0"
     "@duckdb/node-api": "npm:1.1.3-alpha.10"
+    "@duckdb/node-bindings": "patch:@duckdb/node-bindings@npm%3A1.1.3-alpha.10#~/.yarn/patches/@duckdb-node-bindings-npm-1.1.3-alpha.10-e7c5a46d03.patch"
     "@examples/db-sqlserver": "workspace:^"
     "@faker-js/faker": "npm:9.4.0"
     "@flowblade/core": "workspace:^"
