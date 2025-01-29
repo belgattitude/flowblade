@@ -21,7 +21,7 @@ export const CodeBlock: FC<Props> = (props) => {
 
   useLayoutEffect(() => {
     void highlight(code, lang).then(setNodes);
-  }, []);
+  }, [code, lang]);
 
   return (
     <div className={cn('', className)}>

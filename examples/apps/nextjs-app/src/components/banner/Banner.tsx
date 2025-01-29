@@ -20,9 +20,7 @@ export const Banner: FC<Props> = (props) => {
             </span>
             <p className="ml-3 truncate font-medium text-white">
               <span className="md:hidden">We announced a new product!</span>
-              <span className="hidden md:inline">
-                Big news! We're excited to announce a brand new product.
-              </span>
+              <span className="hidden md:inline">Flowblade playground</span>
             </p>
           </div>
           <div className="order-3 mt-2 w-full shrink-0 sm:order-2 sm:mt-0 sm:w-auto">
