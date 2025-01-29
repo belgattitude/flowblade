@@ -1,5 +1,8 @@
 // @ts-check
 
+import path from 'node:path';
+import url from 'node:url';
+
 import pc from 'tinyrainbow';
 
 import { buildEnv } from './src/env/build.env.mjs';
@@ -8,19 +11,25 @@ import { serverEnv } from './src/env/server.env.mjs';
 
 const _isDev = process.env.NODE_ENV === 'development';
 const _isTurbo = process.env.TURBOPACK !== undefined;
-
 const buildOutput = buildEnv.NEXT_BUILD_OUTPUT ?? undefined;
+
+const monorepoRoot = path.resolve(
+  path.dirname(url.fileURLToPath(import.meta.url)),
+  '..',
+  '..',
+  '..'
+);
 
 /** @type {import('next').NextConfig} */
 let nextConfig = {
   compress: serverEnv.NEXT_CONFIG_COMPRESS === 'true',
-  // ...(buildOutput === undefined ? {} : { output: buildOutput }),
-  output: 'standalone',
+  ...(buildOutput === undefined ? {} : { output: buildOutput }),
   eslint: {
     dirs: ['src'],
     ignoreDuringBuilds: buildEnv.NEXT_BUILD_IGNORE_ESLINT === 'true',
   },
-  outputFileTracingRoot: '../../..',
+  serverExternalPackages: ['@duckdb/node-api', 'tedious', 'mssql', 'tarn'],
+  outputFileTracingRoot: monorepoRoot,
   outputFileTracingIncludes: {
     '*': ['node_modules/@duckdb/node-bindings-linux-x64/duckdb.node'],
   },
