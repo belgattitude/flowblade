@@ -24,6 +24,10 @@ Data store and transformation library for data-driven applications.
 | [@flowblade/sql-tag-format](https://github.com/belgattitude/flowblade/tree/main/packages/sql-tag-format#readme) | Tagged SQL template literal formatter utilities |
 
 
+### Examples
+
+NextJs: https://flowblade-next-app.vercel.app/demo/duckdb
+
 ## Structure
 
 ```
