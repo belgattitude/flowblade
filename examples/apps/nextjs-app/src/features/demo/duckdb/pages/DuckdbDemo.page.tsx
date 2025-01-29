@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import ky from 'ky';
 import type { FC } from 'react';
 
 import {
@@ -10,10 +11,9 @@ import {
 
 const useSearch = () => {
   return useQuery({
-    queryKey: ['posts'],
+    queryKey: ['demo/duckdb/search'],
     queryFn: async (): Promise<SerializedQResult> => {
-      const response = await fetch('/api/demo/duckdb/search');
-      return await response.json();
+      return await ky.get<SerializedQResult>('/api/demo/duckdb/search').json();
     },
   });
 };
