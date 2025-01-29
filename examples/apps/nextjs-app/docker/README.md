@@ -18,7 +18,15 @@ docker compose up
 docker compose down
 ```
 
-### Cheat sheet
+### Additional commands
+
+#### Run bash in container
+
+```bash
+docker compose run nextjs-app bash
+```
+
+#### Get the exported size
 
 ```bash
 export IMAGE=flowblade-nextjs-app

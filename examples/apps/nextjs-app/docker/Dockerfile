@@ -8,7 +8,8 @@ ARG DEBIAN_VERSION=bookworm-slim
 FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS app-builder
 
 RUN apt-get update \
-  && apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
+  #&& apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
+  && apt-get install git jq --no-install-recommends -y \
   && corepack enable
 
 
