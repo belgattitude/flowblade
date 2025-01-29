@@ -7,7 +7,7 @@ services:
     env_file:
       - .env.mariadb.development
     networks:
-      - flowblade-dev-network
+      - flowblade-net
     volumes:
       - flowblade-mariadb-data:/var/lib/mysql/data:rw
       - flowblade-mariadb-logs:/var/lib/mysql/logs:rw
@@ -18,6 +18,6 @@ volumes:
   flowblade-mariadb-logs:
 
 networks:
-  flowblade-dev-network:
+  flowblade-net:
     driver: bridge
     enable_ipv6: false

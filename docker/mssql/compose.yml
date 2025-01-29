@@ -13,7 +13,7 @@ services:
     ports:
       - '10433:1433'
     networks:
-      - mssql-net
+      - flowblade-net
     volumes:
       - data:/var/opt/mssql:rw
     restart: no
@@ -28,7 +28,6 @@ volumes:
   data:
 
 networks:
-  mssql-net:
+  flowblade-net:
     driver: bridge
-    # prevent issues with macos/x
     enable_ipv6: false

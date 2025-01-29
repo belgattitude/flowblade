@@ -1,13 +1,15 @@
 name: flowblade-postgres
 
 services:
-  main-db:
+  postgres:
     container_name: flowblade-postgres
     image: postgres:17.2-alpine3.21
     ports:
       - target: 5432
         published: 5432
         protocol: tcp
+    networks:
+      - flowblade-net
     env_file:
       - .env.postgres.development
     volumes:
@@ -18,3 +20,8 @@ services:
 
 volumes:
   postgres_db_data:
+
+networks:
+  flowblade-net:
+    driver: bridge
+    enable_ipv6: false

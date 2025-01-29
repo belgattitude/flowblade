@@ -1,0 +1,20 @@
+name: flowblade-minio
+
+services:
+  minio:
+    image: minio/minio
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password
+      - MINIO_DOMAIN=minio
+    networks:
+      - flowblade-net
+    ports:
+      - 9001:9001
+      - 9000:9000
+    command: ['server', '/data', '--console-address', ':9001']
+
+networks:
+  flowblade-net:
+    driver: bridge
+    enable_ipv6: false
