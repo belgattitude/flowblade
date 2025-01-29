@@ -1,27 +1,44 @@
-'use server';
+'use client';
 
-import type { QError, QResult } from '@flowblade/core';
+import {
+  type QError,
+  QMeta,
+  type QMetaSpan,
+  type QResult,
+} from '@flowblade/core';
 import { format } from 'sql-formatter';
 
 import { DynamicCodeBlock } from '@/components/code/DynamicCodeBlock';
 import { cn } from '@/components/utils';
 
-type Props<T extends unknown[] = unknown[]> = {
-  result: QResult<T, QError>;
+export type SerializedQResult<T extends unknown[] = unknown[]> = Omit<
+  QResult<T, QError>,
+  'meta'
+> & {
+  meta: {
+    spans: QMetaSpan[];
+  };
 };
 
-export const QueryResultDebugger = async (props: Props) => {
+type Props<T extends unknown[] = unknown[]> = {
+  result: SerializedQResult<T>;
+};
+
+export const QueryResultDebugger = (props: Props) => {
   const { result } = props;
   const isError = result.error !== undefined;
 
   const { errorMsg, meta, data } = {
     errorMsg: isError ? result.error.message : null,
     data: isError ? null : result.data,
-    meta: result.meta,
+    meta: new QMeta({
+      spans: result.meta?.spans ?? [],
+    }),
   };
 
   let formattedSql: string | undefined;
-  const firstSqlSpan = meta?.getSpans().find((span) => span.type === 'sql');
+
+  const firstSqlSpan = meta.getSpans().find((span) => span.type === 'sql');
   const sql = firstSqlSpan === undefined ? undefined : firstSqlSpan.sql;
   if (sql !== undefined) {
     try {

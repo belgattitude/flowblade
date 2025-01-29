@@ -17,9 +17,6 @@ export type QMetaSpan = QMetaSqlSpan | QMetaMapSpan;
 
 type ConstructorParams = {
   cm?: QColumnModel;
-  /**
-   * Optional initial spans as an array or a single span.
-   */
   spans?: QMetaSpan | QMetaSpan[];
   name?: string;
 };

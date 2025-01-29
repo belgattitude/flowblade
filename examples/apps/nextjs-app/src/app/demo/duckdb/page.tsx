@@ -1,4 +1,4 @@
-import { DuckdbDemoPage } from '@/features/demo/duckdb/DuckdbDemo.page';
+import { DuckdbDemoPage } from '@/features/demo/duckdb/pages/DuckdbDemo.page';
 
 export const dynamic = 'force-dynamic';
 
