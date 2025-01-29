@@ -7,10 +7,11 @@ services:
       dockerfile: ./examples/apps/nextjs-app/docker/Dockerfile
     restart: no
     networks:
-      - flowblade-nextjs-app-net
+      - flowblade-net
     ports:
       - 3000:3000
 
 networks:
   flowblade-nextjs-app-net:
-    driver: bridge
+    driver: net
+    enable_ipv6: false
