@@ -2327,30 +2327,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@duckdb/node-bindings@patch:@duckdb/node-bindings@npm%3A1.1.3-alpha.10#~/.yarn/patches/@duckdb-node-bindings-npm-1.1.3-alpha.10-e7c5a46d03.patch":
-  version: 1.1.3-alpha.10
-  resolution: "@duckdb/node-bindings@patch:@duckdb/node-bindings@npm%3A1.1.3-alpha.10#~/.yarn/patches/@duckdb-node-bindings-npm-1.1.3-alpha.10-e7c5a46d03.patch::version=1.1.3-alpha.10&hash=69e110"
-  dependencies:
-    "@duckdb/node-bindings-darwin-arm64": "npm:1.1.3-alpha.10"
-    "@duckdb/node-bindings-darwin-x64": "npm:1.1.3-alpha.10"
-    "@duckdb/node-bindings-linux-arm64": "npm:1.1.3-alpha.10"
-    "@duckdb/node-bindings-linux-x64": "npm:1.1.3-alpha.10"
-    "@duckdb/node-bindings-win32-x64": "npm:1.1.3-alpha.10"
-  dependenciesMeta:
-    "@duckdb/node-bindings-darwin-arm64":
-      optional: true
-    "@duckdb/node-bindings-darwin-x64":
-      optional: true
-    "@duckdb/node-bindings-linux-arm64":
-      optional: true
-    "@duckdb/node-bindings-linux-x64":
-      optional: true
-    "@duckdb/node-bindings-win32-x64":
-      optional: true
-  checksum: 10c0/5041576f46504a6284ed83ca011f0b72d5c690097eb0629146e76a6541431c0e6f59651c4b0f1c9105d732c0093839c23e9843261898ac15ea4e9eebe09b129a
-  languageName: node
-  linkType: hard
-
 "@edge-runtime/primitives@npm:6.0.0":
   version: 6.0.0
   resolution: "@edge-runtime/primitives@npm:6.0.0"
@@ -2758,7 +2734,6 @@ __metadata:
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:6.20.0"
     "@duckdb/node-api": "npm:1.1.3-alpha.10"
-    "@duckdb/node-bindings": "patch:@duckdb/node-bindings@npm%3A1.1.3-alpha.10#~/.yarn/patches/@duckdb-node-bindings-npm-1.1.3-alpha.10-e7c5a46d03.patch"
     "@examples/db-sqlserver": "workspace:^"
     "@faker-js/faker": "npm:9.4.0"
     "@flowblade/core": "workspace:^"
@@ -5006,9 +4981,9 @@ __metadata:
   linkType: hard
 
 "@redocly/config@npm:^0.20.1":
-  version: 0.20.2
-  resolution: "@redocly/config@npm:0.20.2"
-  checksum: 10c0/7340cca57d1f603ebaf897880caebf36f344d311aacdd63e0528e5a79f90d964b839bd432b5ef62707555f6571e05c5a8f1348e7838e496fbb1043a5b0098f6d
+  version: 0.20.3
+  resolution: "@redocly/config@npm:0.20.3"
+  checksum: 10c0/06e44cb3dc28ef89424d3c60ea9c0291f1c32eeece68b584326c0d2fa5c6b58bd2edc4a749d858fb49afcea562a9632418848edd858cd291bab00895effb2379
   languageName: node
   linkType: hard
 
@@ -8170,9 +8145,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001579, caniuse-lite@npm:^1.0.30001688":
-  version: 1.0.30001695
-  resolution: "caniuse-lite@npm:1.0.30001695"
-  checksum: 10c0/acf90a767051fdd8083711b3ff9f07a28149c55e394115d8f874f149aa4f130e6bc50cea1dd94fe03035b9ebbe13b64f446518a6d2e19f72650962bdff44b2c5
+  version: 1.0.30001696
+  resolution: "caniuse-lite@npm:1.0.30001696"
+  checksum: 10c0/8060584c612b2bc232995a6e31153432de7946b5417d3b3505a3ab76e632e5568ccc7bae38f1a977f21d4fc214f9e64be829213f810694172c9109e258cb5be8
   languageName: node
   linkType: hard
 
@@ -14200,9 +14175,9 @@ __metadata:
   linkType: hard
 
 "loupe@npm:^3.1.0, loupe@npm:^3.1.2":
-  version: 3.1.2
-  resolution: "loupe@npm:3.1.2"
-  checksum: 10c0/b13c02e3ddd6a9d5f8bf84133b3242de556512d824dddeea71cce2dbd6579c8f4d672381c4e742d45cf4423d0701765b4a6e5fbc24701def16bc2b40f8daa96a
+  version: 3.1.3
+  resolution: "loupe@npm:3.1.3"
+  checksum: 10c0/f5dab4144254677de83a35285be1b8aba58b3861439ce4ba65875d0d5f3445a4a496daef63100ccf02b2dbc25bf58c6db84c9cb0b96d6435331e9d0a33b48541
   languageName: node
   linkType: hard
 
@@ -14356,19 +14331,19 @@ __metadata:
   linkType: hard
 
 "marked-terminal@npm:^7.1.0":
-  version: 7.2.1
-  resolution: "marked-terminal@npm:7.2.1"
+  version: 7.3.0
+  resolution: "marked-terminal@npm:7.3.0"
   dependencies:
     ansi-escapes: "npm:^7.0.0"
     ansi-regex: "npm:^6.1.0"
-    chalk: "npm:^5.3.0"
+    chalk: "npm:^5.4.1"
     cli-highlight: "npm:^2.1.11"
     cli-table3: "npm:^0.6.5"
-    node-emoji: "npm:^2.1.3"
+    node-emoji: "npm:^2.2.0"
     supports-hyperlinks: "npm:^3.1.0"
   peerDependencies:
-    marked: ">=1 <15"
-  checksum: 10c0/33e7901fd7ded6062440582a84d0896b96faf3e9b15ad54d92b7792a3e5533e925f170a905e9ac719a73f83dd3e08f71dfd9f2f75924fdb6c358beceece49450
+    marked: ">=1 <16"
+  checksum: 10c0/59d23c2ed9488c40856d828f431ae1d5d57426e791bbce8f05ec5a7d3a1f848cdb3b8d8880d76ae45570415f8b48ae459f50bbbd88ece5a31306f1e3de57f021
   languageName: node
   linkType: hard
 
@@ -15744,7 +15719,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-emoji@npm:^2.1.3":
+"node-emoji@npm:^2.2.0":
   version: 2.2.0
   resolution: "node-emoji@npm:2.2.0"
   dependencies:
