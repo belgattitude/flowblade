@@ -1,5 +1,15 @@
 # @flowblade/source-kysely
 
+## 0.13.11
+
+### Patch Changes
+
+- [#337](https://github.com/belgattitude/flowblade/pull/337) [`a4c0261`](https://github.com/belgattitude/flowblade/commit/a4c02616b082b244fc095ff97086a40f15545019) Thanks [@belgattitude](https://github.com/belgattitude)! - Update browserslist baseline
+
+- Updated dependencies [[`a4c0261`](https://github.com/belgattitude/flowblade/commit/a4c02616b082b244fc095ff97086a40f15545019)]:
+  - @flowblade/sql-tag@0.1.9
+  - @flowblade/core@0.2.8
+
 ## 0.13.10
 
 ### Patch Changes

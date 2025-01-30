@@ -1,5 +1,17 @@
 # Flowblade NextJs example app
 
+## 0.1.114
+
+### Patch Changes
+
+- Updated dependencies [[`a4c0261`](https://github.com/belgattitude/flowblade/commit/a4c02616b082b244fc095ff97086a40f15545019), [`a4c0261`](https://github.com/belgattitude/flowblade/commit/a4c02616b082b244fc095ff97086a40f15545019)]:
+  - @flowblade/source-duckdb@0.1.12
+  - @flowblade/sql-tag-format@0.0.8
+  - @flowblade/source-kysely@0.13.11
+  - @flowblade/sql-tag@0.1.9
+  - @flowblade/core@0.2.8
+  - @examples/db-sqlserver@0.0.1
+
 ## 0.1.113
 
 ### Patch Changes
