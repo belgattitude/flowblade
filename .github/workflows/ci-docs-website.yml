@@ -55,6 +55,12 @@ jobs:
             ${{ github.workspace }}/docs/tsconfig.tsbuildinfo
           key: website-docs-build-cache-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
+      - name: 🕵️ Typecheck
+        run: yarn turbo run typecheck --filter='@docs/website'
+
+      - name: 🔬 ESLint checks
+        run: yarn turbo run lint --filter='@docs/website'
+
       - name: 🏗 Build docs
         run: yarn workspace @docs/website run build
         env:
