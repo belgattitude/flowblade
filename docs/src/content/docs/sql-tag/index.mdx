@@ -5,7 +5,6 @@ Fast and lightweight ([~630B](#bundle-size)) sql template tag based on [sql-temp
 <div className={'shields-ctn'}>
 [![npm](https://img.shields.io/npm/v/@flowblade/sql-tag?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/sql-tag)
 [![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/CHANGELOG.md)
-[![codecov](https://img.shields.io/codecov/c/github/belgattitude/flowblade?logo=codecov&label=Unit&flag=flowblade-sql-tag-unit&style=for-the-badge&labelColor=444)](https://app.codecov.io/gh/belgattitude/flowblade/tree/main/packages%2Fsql-tag)
 [![bundles](https://img.shields.io/static/v1?label=&message=cjs|esm@treeshake&logo=webpack&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/.size-limit.cjs)
 [![node](https://img.shields.io/static/v1?label=Node&message=18%2b&logo=node.js&style=for-the-badge&labelColor=444&color=informational)](#compatibility)
 [![browserslist](https://img.shields.io/static/v1?label=Browser&message=%3E96%25&logo=googlechrome&style=for-the-badge&labelColor=444&color=informational)](#compatibility)
@@ -29,6 +28,16 @@ Fast and lightweight ([~630B](#bundle-size)) sql template tag based on [sql-temp
 ```sh npm2yarn
 npm i -D @flowblade/sql-tag
 ```
+
+## API
+
+| Helpers       | Description                               | Example                                              |
+|---------------|-------------------------------------------|------------------------------------------------------|
+| sql.join      | Join array values with optional separator | `AND id IN ${sql.join(['1', '3'])`                   |
+| sql.if        | Conditionally add a statement             | `AND ${sql.if(true, () => sql'deleted_at is null')}` |
+| sql.bulk      | Ease bulk inserts                         |                                                      |
+| sql.unsafeRaw | Allow to pass unsafe values in the query. | `ORDER BY ${sql.unsafeRaw('name desc')}`             |
+| sql.empty     | Helper to represent empty string.         | `${isTrue ? sql'1=1' : sql.empty}`                   |
 
 ## Usage
 
@@ -85,7 +94,6 @@ const query = sql<{ // 👈 optionally type the result
 // query.sql === "SELECT id, username FROM users WHERE 1=1 AND id IN (?, ?) LIMIT ?";
 // query.values === [1, 2, 10];
 ```
-
 
 ### Query composition
 
@@ -145,28 +153,21 @@ insert.values; //=> ["Laptop", 999.99, 50, "active", "Keyboard", 79.99, 100, "ac
 const result = await db.query(text, values, {});
 ```
 
-
-## Methods
-
-| Helpers       | Description                               | Example                                              |
-|---------------|-------------------------------------------|------------------------------------------------------|
-| sql.unsafeRaw | Allow to pass unsafe values in the query. | `ORDER BY ${sql.unsafeRaw('name desc')}`             |
-| sql.empty     | Helper to represent empty string.         | `${isTrue ? sql'1=1' : sql.empty}`                   |
-| sql.join      | Join array values with optional separator | `AND id IN ${sql.join(['1', '3'])`                   |
-| sql.if        | Conditionally add a statement             | `AND ${sql.if(true, () => sql'deleted_at is null')}` |
-| sql.bulk      | Ease bulk inserts                         |                                                      |
-
 ## Recipes
 
-### Advanced examplew with transact-sql (mssql)
+### With transact-sql (mssql)
 
 ```typescript
+import { sql } from '@flowblade/sql-tag';
+
 const products = Array.from({ length: 1000 }, (_, i) => ({
   id: i,
   productName: `Product ${i}`,
 }));
 
-const sqlRaw = sql<GetAdvancedResult>`
+const limit = 10;
+
+const sqlRaw = sql<{ id: number, name: string }>`
   -- TRANSACT-SQL
   DECLARE @Products NVARCHAR(MAX); -- WARNING LIMIT TO 2GB
   SET @Products = ${JSON.stringify(products)};
@@ -188,7 +189,6 @@ const sqlRaw = sql<GetAdvancedResult>`
   -- SELECT
   SELECT TOP ${sql.unsafeRaw(String(limit))} id, name
     FROM #products
-    WHERE id > ${sql.unsafeRaw(String(offset))}
     ORDER BY id;
 `;
 
@@ -227,37 +227,4 @@ Bundle size is tracked by a [size-limit configuration](https://github.com/belgat
 | ES2022     | ✅  | Dist files checked with [es-check](https://github.com/yowainwright/es-check)                                                                                                                                                                                                                                                                   |
 | Performance| ✅  | Monitored with [codspeed.io](https://codspeed.io/belgattitude/flowblade)                                                                                                                                                                                                                                                                      |
 
-## Contributors
-
-Contributions are welcome. Have a look to the [CONTRIBUTING](https://github.com/belgattitude/flowblade/blob/main/CONTRIBUTING.md) document.
-
-## Sponsors
-
-[Sponsor](<[sponsorship](https://github.com/sponsors/belgattitude)>), [coffee](<(https://ko-fi.com/belgattitude)>),
-or star – All is spent for quality time with loved ones. Thanks ! 🙏❤️
-
-### Special thanks to
-
-<table>
-    <tr>
-        <td>
-            <a href="https://www.jetbrains.com/?ref=belgattitude" target="_blank">
-                <img width="65" src="https://asset.brandfetch.io/idarKiKkI-/id53SttZhi.jpeg" alt="Jetbrains logo" />
-            </a>
-        </td>
-        <td>
-            <a href="https://www.embie.be/?ref=belgattitude" target="_blank">
-                <img width="65" src="https://avatars.githubusercontent.com/u/98402122?s=200&v=4" alt="Jetbrains logo" />
-            </a>
-        </td>
-    </tr>
-    <tr>
-        <td align="center">
-            <a href="https://www.jetbrains.com/?ref=belgattitude" target="_blank">JetBrains</a>
-        </td>
-        <td align="center">
-            <a href="https://www.embie.be/?ref=belgattitude" target="_blank">Embie.be</a>
-        </td>
-    </tr>
-</table>
 

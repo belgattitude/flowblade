@@ -27,6 +27,16 @@ Fast and lightweight ([~790B](#bundle-size)) sql template tag based on [sql-temp
 ```bash
 yarn add @flowblade/sql-tag
 ```
+## API
+
+| Helpers       | Description                               | Example                                              |
+|---------------|-------------------------------------------|------------------------------------------------------|
+| sql.join      | Join array values with optional separator | `AND id IN ${sql.join(['1', '3'])`                   |
+| sql.if        | Conditionally add a statement             | `AND ${sql.if(true, () => sql'deleted_at is null')}` |
+| sql.bulk      | Ease bulk inserts                         |                                                      |
+| sql.unsafeRaw | Allow to pass unsafe values in the query. | `ORDER BY ${sql.unsafeRaw('name desc')}`             |
+| sql.empty     | Helper to represent empty string.         | `${isTrue ? sql'1=1' : sql.empty}`                   |
+
 ## Usage
 
 ### Basic
@@ -44,7 +54,7 @@ const query = sql<{ // 👈 optionally type the result
     id: number;
     username: string;
 }>`
-   SELECT id, username FROM users 
+   SELECT id, username FROM users
    WHERE country = ${params.country}           -- 👈 simple param
    AND username IN (${sql.join(params.users)}) -- 👈 array param
 `;
@@ -66,23 +76,22 @@ const query = sql<{ // 👈 optionally type the result
     id: number;
     username: string;
 }>`
-   SELECT id, username FROM users 
-   WHERE 1=1 
+   SELECT id, username FROM users
+   WHERE 1=1
    -- 👇 alternative 2: with ternary operator and sql.empty
    ${userIds.length > 0 ? sql`AND id IN (${sql.join(userIds)})` : sql.empty}
-   
+
    -- 👇 alternative 2: with usage of sql.if helper
    ${sql.if(
      userIds.length,
      () => sql`AND id IN (${sql.join(userIds)})`
-   )}    
-   LIMIT ${limit}                 
+   )}
+   LIMIT ${limit}
 `;
 
 // query.sql === "SELECT id, username FROM users WHERE 1=1 AND id IN (?, ?) LIMIT ?";
 // query.values === [1, 2, 10];
 ```
-
 
 ### Query composition
 
@@ -92,10 +101,10 @@ You can nest any query into another one.
 import {sql} from '@flowblade/sql-tag';
 
 const getSqlUserCountByCountries = (minUsers: number) => sql`
-  SELECT 
-    c.name as country_name, 
-    count(u.id) as user_count 
-  FROM country AS c INNER JOIN user u 
+  SELECT
+    c.name as country_name,
+    count(u.id) as user_count
+  FROM country AS c INNER JOIN user u
   ON c.id = u.country_id
   GROUP BY c.name
   HAVING count(u.id) > ${minUsers}
@@ -124,7 +133,7 @@ Ease bulk inserts/merge from multi rows arrays.
 import { sql } from '@flowblade/sql-tag';
 
 const insert = sql`
-   INSERT INTO product (name, price, stock, status) 
+   INSERT INTO product (name, price, stock, status)
    VALUES ${sql.bulk([
      ['Laptop', 999.99, 50, 'active'],
      ['Keyboard', 79.99, 100, 'active'],
@@ -142,28 +151,21 @@ insert.values; //=> ["Laptop", 999.99, 50, "active", "Keyboard", 79.99, 100, "ac
 const result = await db.query(text, values, {});
 ```
 
-
-## Methods
-
-| Helpers       | Description                               | Example                                              |
-|---------------|-------------------------------------------|------------------------------------------------------|
-| sql.unsafeRaw | Allow to pass unsafe values in the query. | `ORDER BY ${sql.unsafeRaw('name desc')}`             |
-| sql.empty     | Helper to represent empty string.         | `${isTrue ? sql'1=1' : sql.empty}`                   |
-| sql.join      | Join array values with optional separator | `AND id IN ${sql.join(['1', '3'])`                   |
-| sql.if        | Conditionally add a statement             | `AND ${sql.if(true, () => sql'deleted_at is null')}` |
-| sql.bulk      | Ease bulk inserts                         |                                                      |
-
 ## Recipes
 
-### Advanced examplew with transact-sql (mssql)
+### With transact-sql (mssql)
 
 ```typescript
+import { sql } from '@flowblade/sql-tag';
+
 const products = Array.from({ length: 1000 }, (_, i) => ({
   id: i,
   productName: `Product ${i}`,
 }));
 
-const sqlRaw = sql<GetAdvancedResult>`
+const limit = 10;
+
+const sqlRaw = sql<{ id: number, name: string }>`
   -- TRANSACT-SQL
   DECLARE @Products NVARCHAR(MAX); -- WARNING LIMIT TO 2GB
   SET @Products = ${JSON.stringify(products)};
@@ -173,20 +175,19 @@ const sqlRaw = sql<GetAdvancedResult>`
     productId INT,
     name NVARCHAR(255),
   );
-  
+
   -- INSERT
   INSERT INTO #products (productId, productName)
      SELECT productId, productName
        FROM OPENJSON(@InitialData) WITH (
-           id INT,           
+           id INT,
            name NVARCHAR(255)
        );
-          
+
   -- SELECT
   SELECT TOP ${sql.unsafeRaw(String(limit))} id, name
     FROM #products
-    WHERE id > ${sql.unsafeRaw(String(offset))}
-    ORDER BY id; 
+    ORDER BY id;
 `;
 
 ```
