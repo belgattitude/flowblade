@@ -1,0 +1,85 @@
+name: CI-nextjs-app-docker
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - '**'
+
+env:
+  IMAGE: flowblade/example-nextjs-app
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    #if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
+    runs-on: ubuntu-latest
+    name: nextjs-app example docker build
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ github.workspace }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+
+      - name: ⚙️ Setup QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: ⚙️ Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🤫 Login to Docker Hub
+        # Disabled for example
+        if: false
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🏗 Build and export to Docker
+        uses: docker/build-push-action@v6
+        with:
+          load: true
+          context: .
+          file: ./examples/apps/nextjs-app/docker/Dockerfile
+          # Disabled for example
+          # push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          #build-args: |
+          #  "DATABASE_FILENAME=data/test.sqlite.db"
+          secrets: |
+            "github_token=${{ secrets.GITHUB_TOKEN }}"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 🕵️ Docker image inspect
+        run: docker image inspect ${{ env.IMAGE }}:${{ steps.meta.outputs.version }}
+
+      - name: 💾 Save docker image
+        run: docker save ${{ env.IMAGE }}:${{ steps.meta.outputs.version }} -o ./docker-image.tar
+
+      - name: 📐 Compress saved image and show size
+        env:
+          MAX_SIZE_IN_MB: 200
+          ZSTD_LEVEL: 8
+        run: |
+          zstd -${{ env.ZSTD_LEVEL }} -i ./docker-image.tar -o ./docker-image.tar.zst          
+          ls -lah | grep docker-image.tar
+          if [ $(ls -s --block-size=1048576 ./docker-image.tar.zst | cut -d' ' -f1)  -gt ${{ env.MAX_SIZE_IN_MB }} ]; then 
+             echo 'Error: docker image too big'; 
+             exit 1; 
+          else echo "Size ok"; fi

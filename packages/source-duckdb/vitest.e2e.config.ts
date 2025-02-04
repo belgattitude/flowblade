@@ -9,6 +9,7 @@ export default defineConfig({
   },
   plugins: [tsconfigPaths()],
   test: {
+    globalSetup: './vitest.setup.ts',
     // @link https://vitest.dev/config/#clearmocks
     clearMocks: true,
     environment: 'node',
