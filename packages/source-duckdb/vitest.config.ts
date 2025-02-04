@@ -11,10 +11,6 @@ const testFiles = [
 const isCodeSpeedEnabled = process.env?.CODSPEED === '1';
 const cspeed = isCodeSpeedEnabled ? codspeedPlugin() : undefined;
 
-export const setup = () => {
-  process.env.TZ = 'UTC';
-};
-
 export default defineConfig({
   esbuild: {
     target: ['node18'],
