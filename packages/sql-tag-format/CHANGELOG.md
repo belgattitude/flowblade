@@ -1,5 +1,13 @@
 # @flowblade/sql-tag-format
 
+## 0.0.9
+
+### Patch Changes
+
+- [#359](https://github.com/belgattitude/flowblade/pull/359) [`58da82c`](https://github.com/belgattitude/flowblade/commit/58da82cca4a2a2e3b6715cc5db76b583fa2aeee0) Thanks [@belgattitude](https://github.com/belgattitude)! - Allow sql string in formatter
+
+- [#359](https://github.com/belgattitude/flowblade/pull/359) [`58da82c`](https://github.com/belgattitude/flowblade/commit/58da82cca4a2a2e3b6715cc5db76b583fa2aeee0) Thanks [@belgattitude](https://github.com/belgattitude)! - Fix npm publish workspace version
+
 ## 0.0.8
 
 ### Patch Changes
