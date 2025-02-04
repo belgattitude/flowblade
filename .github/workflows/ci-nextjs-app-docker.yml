@@ -1,4 +1,4 @@
-name: ci-nextjs-app-docker
+name: CI-nextjs-app-docker
 
 on:
   push:
@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   docker:
-    if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
+    #if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
     runs-on: ubuntu-latest
     name: nextjs-app example docker build
     defaults:
