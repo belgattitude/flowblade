@@ -16,8 +16,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
-
-
 jobs:
   build-and-deploy-docs-website:
     runs-on: ubuntu-latest
