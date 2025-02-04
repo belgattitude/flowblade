@@ -6,7 +6,7 @@ import {
   type QMetaSpan,
   type QResult,
 } from '@flowblade/core';
-import { format } from 'sql-formatter';
+import { SqlFormatter } from '@flowblade/sql-tag-format';
 
 import { DynamicCodeBlock } from '@/components/code/DynamicCodeBlock';
 import { cn } from '@/components/utils';
@@ -39,10 +39,11 @@ export const QueryResultDebugger = (props: Props) => {
   let formattedSql: string | undefined;
 
   const firstSqlSpan = meta.getSpans().find((span) => span.type === 'sql');
-  const sql = firstSqlSpan === undefined ? undefined : firstSqlSpan.sql;
+  const { sql } = firstSqlSpan ?? {};
   if (sql !== undefined) {
+    const sqlFormatter = new SqlFormatter('postgresql');
     try {
-      formattedSql = format(sql, { language: 'postgresql' });
+      formattedSql = sqlFormatter.formatOrThrow(sql);
     } catch (e) {
       formattedSql = `Failed to format SQL ${(e as Error).message}`;
     }

@@ -19,6 +19,9 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.cts",
+  "publishConfig": {
+    "directory": "_release/package"
+  },
   "exports": {
     ".": {
       "import": {
@@ -38,7 +41,7 @@
   "scripts": {
     "?build-release": "When https://github.com/atlassian/changesets/issues/432 has a solution we can remove this trick",
     "build": "run clean && yarn run tsup",
-    "build-release": "run build",
+    "build-release": "yarn build && rimraf ./_release && yarn pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz",
     "bench-disabled": "vitest bench --run",
     "bench-codspeed-disabled": "cross-env CODSPEED=1 vitest bench --run",
     "bench-watch-disabled": "vitest bench",

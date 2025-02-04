@@ -74,7 +74,7 @@ export class SqlFormatter {
    * @return string if sql can be parsed, null otherwise
    */
   formatOrNull = (
-    sql: SqlTag<unknown>,
+    sql: SqlTag<unknown> | string,
     params?: FormatParams
   ): string | null => {
     try {
@@ -103,9 +103,13 @@ export class SqlFormatter {
    *
    * @throws Error is sql cannot be parsed
    */
-  formatOrThrow = (sql: SqlTag<unknown>, params?: FormatParams): string => {
+  formatOrThrow = (
+    sql: SqlTag<unknown> | string,
+    params?: FormatParams
+  ): string => {
     const options = params?.options ?? this.formatterOptions;
-    return sqlFormat(sql.sql, {
+    const sqlString = typeof sql === 'string' ? sql : sql.sql;
+    return sqlFormat(sqlString, {
       language: params?.dialect ?? this.dialect,
       ...options,
     });
