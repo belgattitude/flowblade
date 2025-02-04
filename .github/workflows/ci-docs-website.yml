@@ -16,8 +16,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
-
-
 jobs:
   build-and-deploy-docs-website:
     runs-on: ubuntu-latest
@@ -55,14 +53,16 @@ jobs:
             ${{ github.workspace }}/docs/tsconfig.tsbuildinfo
           key: website-docs-build-cache-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
+      - name: 🕵️ Typecheck
+        run: yarn turbo run typecheck --filter='@docs/website'
+
+      - name: 🔬 ESLint checks
+        run: yarn turbo run lint --filter='@docs/website'
+
       - name: 🏗 Build docs
-        run: yarn workspace @docs/website run build
+        run: yarn workspace @docs/website run build-static
         env:
           NEXT_BUILD_BASE_PATH: "/flowblade"
-          NEXT_BUILD_OUTPUT: "export"
-          NEXT_BUILD_IGNORE_ESLINT: false
-          NEXT_BUILD_IGNORE_TYPECHECK: false
-          NEXT_BUILD_PRODUCTION_SOURCEMAPS: false
           NEXT_TELEMETRY_DISABLED: true
 
       - name: 🚀 Upload doc website artifact

@@ -9,7 +9,7 @@
   "homepage": "https://github.com/belgattitude/flowblade",
   "repository": "belgattitude/flowblade",
   "scripts": {
-    "g:clean": "rimraf ./out && run clean:global-cache && run clean:turbo && yarn workspaces foreach --all -pv run clean",
+    "g:clean": "rimraf ./out && run clean:global-cache && yarn workspaces foreach --all -pv run clean && run clean:turbo",
     "clean:global-cache": "rimraf ./.cache",
     "clean:turbo": "turbo daemon clean && turbo daemon stop && rimraf .turbo",
     "g:bench": "turbo run bench --concurrency 1",
@@ -54,7 +54,7 @@
   ],
   "packageManager": "yarn@4.6.0",
   "devDependencies": {
-    "@belgattitude/eslint-config-bases": "6.21.0",
+    "@belgattitude/eslint-config-bases": "6.22.0",
     "@changesets/changelog-github": "0.5.0",
     "@changesets/cli": "2.27.12",
     "@commitlint/cli": "19.7.1",

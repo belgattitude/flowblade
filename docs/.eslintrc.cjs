@@ -29,10 +29,16 @@ module.exports = {
   ignorePatterns: [...getDefaultIgnorePatterns(), '**/_pagefind/**', 'out'],
   overrides: [
     {
-      files: ['**/src/**/*.generated.ts'],
+      files: ['**/src/**/_meta.ts'],
       rules: {
-        '@typescript-eslint/consistent-indexed-object-style': 'off',
-        'sonarjs/class-name': 'off',
+        'import/no-anonymous-default-export': 'off',
+      },
+    },
+    {
+      files: ['./src/mdx-components.tsx'],
+      rules: {
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        'jsx-a11y/alt-text': 'off',
       },
     },
   ],

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { generateStaticParamsFor, importPage } from 'nextra/pages';
 
 import { useMDXComponents } from '../../mdx-components';
+
 export const generateStaticParams = generateStaticParamsFor('mdxPath');
 
 type Props = {

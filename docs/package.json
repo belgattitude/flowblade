@@ -15,11 +15,14 @@
     "directory": "docs"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack --port 3008",
     "build": "next build && run generate-search-idx",
+    "build-static": "cross-env NEXT_BUILD_OUTPUT=export next build && run generate-search-idx-static",
     "generate-search-idx": "pagefind --site .next/server/app --output-path public/_pagefind",
+    "generate-search-idx-static": "pagefind --site .next/server/app --output-path out/_pagefind",
     "bundle-analyze": "cross-env ANALYZE=true next build",
     "start": "next start",
+    "serve": "sirv out --port 3009",
     "clean": "rimraf ./.next ./out ./public/_pagefind ./coverage ./tsconfig.tsbuildinfo",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../.cache/eslint/docs.eslintcache",
@@ -38,7 +41,7 @@
     "zod": "3.24.1"
   },
   "devDependencies": {
-    "@belgattitude/eslint-config-bases": "6.21.0",
+    "@belgattitude/eslint-config-bases": "6.22.0",
     "@tailwindcss/postcss": "4.0.3",
     "@total-typescript/ts-reset": "0.6.1",
     "@types/node": "22.13.1",
@@ -54,10 +57,11 @@
     "eslint-config-next": "15.1.6",
     "npm-run-all2": "7.0.2",
     "pagefind": "1.3.0",
-    "postcss": "8.5.1",
     "prettier": "3.4.2",
     "rimraf": "6.0.1",
+    "sirv-cli": "3.0.0",
     "tailwindcss": "4.0.3",
+    "tinyrainbow": "2.0.0",
     "tsx": "4.19.2",
     "typescript": "5.7.3",
     "vite-tsconfig-paths": "5.1.4",

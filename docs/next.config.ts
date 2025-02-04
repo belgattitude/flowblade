@@ -1,10 +1,15 @@
 import nextra from 'nextra';
+import pc from 'tinyrainbow';
 
 import { buildEnv } from './src/env/build.env.mjs';
 
 const output = buildEnv.NEXT_BUILD_OUTPUT ?? undefined;
 /** Useful when you publish the static export in a different basePath, ie gh-pages */
 const basePath = process.env.NEXT_BUILD_BASE_PATH ?? undefined;
+
+console.log(
+  `- ${pc.green('info')} Next.js output mode is "${output ?? 'default'}"`
+);
 
 const withNextra = nextra({
   // contentDirBasePath: '/',
