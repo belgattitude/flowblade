@@ -1,5 +1,14 @@
 # @flowblade/source-duckdb
 
+## 0.1.13
+
+### Patch Changes
+
+- [#352](https://github.com/belgattitude/flowblade/pull/352) [`a0b6225`](https://github.com/belgattitude/flowblade/commit/a0b622574ca46396481dd5fd8af407e45e5f1710) Thanks [@belgattitude](https://github.com/belgattitude)! - Update duckdb-neo to latest alpha to fix issues with nextjs in standalone mode.
+
+  You must update duckdb/node-api to latest 1.1.3-alpha.12, see
+  https://github.com/duckdb/duckdb-node-neo/pull/127
+
 ## 0.1.12
 
 ### Patch Changes
