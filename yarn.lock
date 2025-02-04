@@ -2695,7 +2695,7 @@ __metadata:
     "@httpx/assert": "npm:0.15.2"
     "@httpx/dsn-parser": "npm:1.8.6"
     "@httpx/exception": "npm:3.0.12"
-    "@httpx/memo-intl": "npm:1.2.2"
+    "@httpx/memo-intl": "npm:1.2.3"
     "@httpx/plain-object": "npm:2.0.6"
     "@httpx/treeu": "npm:0.4.12"
     "@sinclair/typebox": "npm:0.34.15"
@@ -2746,8 +2746,8 @@ __metadata:
     "@httpx/assert": "npm:0.15.2"
     "@httpx/dsn-parser": "npm:1.8.6"
     "@httpx/exception": "npm:3.0.12"
-    "@httpx/lru": "npm:0.5.0"
-    "@httpx/memo-intl": "npm:1.2.2"
+    "@httpx/lru": "npm:0.6.0"
+    "@httpx/memo-intl": "npm:1.2.3"
     "@httpx/plain-object": "npm:2.0.6"
     "@httpx/treeu": "npm:0.4.12"
     "@next/bundle-analyzer": "npm:15.1.6"
@@ -2814,7 +2814,7 @@ __metadata:
     tsx: "npm:4.19.2"
     type-fest: "npm:4.33.0"
     typescript: "npm:5.7.3"
-    valibot: "npm:1.0.0-beta.14"
+    valibot: "npm:1.0.0-beta.15"
     vite-tsconfig-paths: "npm:5.1.4"
     vitest: "npm:3.0.5"
     webpack: "npm:5.97.1"
@@ -3192,7 +3192,7 @@ __metadata:
     typedoc: "npm:0.27.6"
     typedoc-plugin-markdown: "npm:4.4.1"
     typescript: "npm:5.7.3"
-    valibot: "npm:^1.0.0-beta.14"
+    valibot: "npm:^1.0.0-beta.15"
     vite-tsconfig-paths: "npm:5.1.4"
     vitest: "npm:3.0.5"
     webpack: "npm:5.97.1"
@@ -3372,19 +3372,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@httpx/lru@npm:0.5.0, @httpx/lru@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "@httpx/lru@npm:0.5.0"
-  checksum: 10c0/5e7c57d8d05f21cfe866f93018087fedaa732da02f51941ff482c8c6bfac54c62aa34e8834a3073692173c374734d7d2e9ecbf5d2952dee65297dea04d5aa5a7
+"@httpx/lru@npm:0.6.0, @httpx/lru@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@httpx/lru@npm:0.6.0"
+  checksum: 10c0/e56d4805f1fa30261567197a88084112ebc06685b421c398be2acfba5bad38fd9966370a44d1a43e806e2dae6053665b53c436751e14252d004c2390ff41cdc3
   languageName: node
   linkType: hard
 
-"@httpx/memo-intl@npm:1.2.2":
-  version: 1.2.2
-  resolution: "@httpx/memo-intl@npm:1.2.2"
+"@httpx/memo-intl@npm:1.2.3":
+  version: 1.2.3
+  resolution: "@httpx/memo-intl@npm:1.2.3"
   dependencies:
-    "@httpx/lru": "npm:^0.5.0"
-  checksum: 10c0/39e2d65157dd0903b4ad41635dccc11438476f6f75842d69955c68a2e5abcfb34471063df6635f84a1687f922b4b4cc65405ec5496284837348b944fb6478a82
+    "@httpx/lru": "npm:^0.6.0"
+  checksum: 10c0/8aa29ed4ffa979d4dc62dbc855129c6aa9f2f9253ff2e0c8089eb3f92a8883bc0d56523af901aaccd98e4f1d15d8db9d007af6c6db18164c28e0b93d7d4f334a
   languageName: node
   linkType: hard
 
@@ -20745,19 +20745,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"valibot@npm:1.0.0-beta.14":
-  version: 1.0.0-beta.14
-  resolution: "valibot@npm:1.0.0-beta.14"
-  peerDependencies:
-    typescript: ">=5"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 10c0/04e7c6f188fca78aabe043b28e08934786cdcb905e9aec8a3efcd6bcf2ce8e14162aa4cf172a5f058b807ab51a55d0f594848a346c4bfba20fa61f412cdcd768
-  languageName: node
-  linkType: hard
-
-"valibot@npm:^1.0.0-beta.14":
+"valibot@npm:1.0.0-beta.15, valibot@npm:^1.0.0-beta.15":
   version: 1.0.0-beta.15
   resolution: "valibot@npm:1.0.0-beta.15"
   peerDependencies:
