@@ -1,5 +1,11 @@
 # @flowblade/source-duckdb
 
+## 0.2.0
+
+### Minor Changes
+
+- [#357](https://github.com/belgattitude/flowblade/pull/357) [`3ef93a8`](https://github.com/belgattitude/flowblade/commit/3ef93a8c4db16f1eabd3c0898b590c9980e71664) Thanks [@belgattitude](https://github.com/belgattitude)! - Expose { sql } from @flowblade/sql-tag
+
 ## 0.1.13
 
 ### Patch Changes

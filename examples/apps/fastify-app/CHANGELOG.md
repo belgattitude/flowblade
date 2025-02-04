@@ -1,5 +1,12 @@
 # Fastify example app
 
+## 0.1.116
+
+### Patch Changes
+
+- Updated dependencies [[`3ef93a8`](https://github.com/belgattitude/flowblade/commit/3ef93a8c4db16f1eabd3c0898b590c9980e71664)]:
+  - @flowblade/source-duckdb@0.2.0
+
 ## 0.1.115
 
 ### Patch Changes
