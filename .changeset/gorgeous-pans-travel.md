@@ -2,4 +2,4 @@
 "@flowblade/source-duckdb": patch
 ---
 
-Minimum duckdb version is ^1.1.3-alpha.12
+Minimum duckdb version is ^1.1.3-alpha.13
