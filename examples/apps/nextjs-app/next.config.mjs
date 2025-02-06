@@ -40,6 +40,23 @@ let nextConfig = {
     // @link {https://github.com/vercel/next.js/discussions/26420|Discussion}
     externalDir: true,
   },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp',
+          },
+        ],
+      },
+    ];
+  },
   productionBrowserSourceMaps:
     buildEnv.NEXT_BUILD_PRODUCTION_SOURCEMAPS === 'true',
   reactStrictMode: true,

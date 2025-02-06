@@ -13,6 +13,11 @@ export const serverEnv = createEnv({
     DB_FLOWBLADE_MSSQL_JDBC: v.optional(v.string()),
     DB_FLOWBLADE_MARIADB_DSN: v.optional(zDsn),
     DB_FLOWBLADE_POSTGRES_DSN: v.optional(zDsn),
+    BLOB_READ_WRITE_TOKEN: v.optional(v.pipe(v.string(), v.minLength(10))),
+    MOTHERDUCK_READ_SCALING_TOKEN: v.optional(
+      v.pipe(v.string(), v.minLength(10))
+    ),
+    MOTHERDUCK_TOKEN: v.optional(v.pipe(v.string(), v.minLength(10))),
   },
   // If you're using Next.js < 13.4.4, you'll need to specify the runtimeEnv manually
   // runtimeEnv: {
