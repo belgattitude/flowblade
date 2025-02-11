@@ -1,5 +1,11 @@
 # @flowblade/source-duckdb
 
+## 0.3.1
+
+### Patch Changes
+
+- [#386](https://github.com/belgattitude/flowblade/pull/386) [`eed7d6e`](https://github.com/belgattitude/flowblade/commit/eed7d6ee345634914aefbee5b53026b5f05d18e4) Thanks [@belgattitude](https://github.com/belgattitude)! - Disallow duckdb neo < 2
+
 ## 0.3.0
 
 ### Minor Changes
