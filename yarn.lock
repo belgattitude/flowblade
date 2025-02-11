@@ -2754,6 +2754,7 @@ __metadata:
     "@httpx/lru": "npm:0.6.0"
     "@httpx/memo-intl": "npm:1.2.3"
     "@httpx/plain-object": "npm:2.0.6"
+    "@httpx/stable-hash": "npm:0.1.0"
     "@httpx/treeu": "npm:0.4.12"
     "@motherduck/wasm-client": "npm:0.6.6"
     "@next/bundle-analyzer": "npm:15.1.7"
@@ -2784,9 +2785,9 @@ __metadata:
     "@vitejs/plugin-react-swc": "npm:3.8.0"
     "@vitest/coverage-v8": "npm:3.0.5"
     "@vitest/ui": "npm:3.0.5"
-    ag-charts-community: "npm:11.0.4"
-    ag-charts-react: "npm:11.0.4"
-    ag-grid-react: "npm:33.0.4"
+    ag-charts-community: "npm:11.1.0"
+    ag-charts-react: "npm:11.1.0"
+    ag-grid-react: "npm:33.1.0"
     apache-arrow: "npm:19.0.0"
     clsx: "npm:2.1.1"
     cross-env: "npm:7.0.3"
@@ -2795,7 +2796,7 @@ __metadata:
     dotenv-flow-cli: "npm:1.1.1"
     eslint: "npm:8.57.1"
     eslint-config-next: "npm:15.1.7"
-    happy-dom: "npm:17.0.3"
+    happy-dom: "npm:17.0.4"
     hast-util-to-jsx-runtime: "npm:2.3.2"
     hono: "npm:4.7.0"
     hono-zod-openapi: "npm:0.5.0"
@@ -3162,7 +3163,7 @@ __metadata:
     vitest: "npm:3.0.5"
     webpack: "npm:5.97.1"
   peerDependencies:
-    "@duckdb/node-api": ^1.1.3-alpha.12 || ^1.2.0-alpha.14
+    "@duckdb/node-api": ^1.2.0-alpha.14
     "@flowblade/core": "workspace:^"
   languageName: unknown
   linkType: soft
@@ -3408,6 +3409,15 @@ __metadata:
   version: 2.0.6
   resolution: "@httpx/plain-object@npm:2.0.6"
   checksum: 10c0/7cb319889b6821bca843803450b8d8179afb111d775d23806b16915b6692dbc7db4c0e9627ea96d333957c3a1c566d779881bb581d672e417cb587ee70b82391
+  languageName: node
+  linkType: hard
+
+"@httpx/stable-hash@npm:0.1.0":
+  version: 0.1.0
+  resolution: "@httpx/stable-hash@npm:0.1.0"
+  dependencies:
+    "@httpx/plain-object": "npm:^2.0.6"
+  checksum: 10c0/9814fdabef2919627a1a72a8f4a9907ef79bb463e7643c140328a511b5796b94c7596d80c42601d90ccc8e3a098539a152101d941e245ac30e0c3acae8a52f06
   languageName: node
   linkType: hard
 
@@ -7331,59 +7341,60 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ag-charts-community@npm:11.0.4":
-  version: 11.0.4
-  resolution: "ag-charts-community@npm:11.0.4"
+"ag-charts-community@npm:11.1.0":
+  version: 11.1.0
+  resolution: "ag-charts-community@npm:11.1.0"
   dependencies:
-    ag-charts-locale: "npm:11.0.4"
-    ag-charts-types: "npm:11.0.4"
-  checksum: 10c0/ab437a9e448ca0c1ed2e0782888eab138e3d86c91e50d2b87826d8c09e3c231197c7d5ebc793d0476ec45f848ee13557c86813b6330340d07c9d1fbca7c11261
+    ag-charts-locale: "npm:11.1.0"
+    ag-charts-types: "npm:11.1.0"
+  checksum: 10c0/646f56318305bb5244e9587343c7e209052dcfd71719d7c1a4fd98db896ddfad2ccd73be79354485b3e3c310e8c00ac0b577304abbc8a8f80fdbcbfce0577ec6
   languageName: node
   linkType: hard
 
-"ag-charts-locale@npm:11.0.4":
-  version: 11.0.4
-  resolution: "ag-charts-locale@npm:11.0.4"
-  checksum: 10c0/e1f3ae8749b619c5926452beb8650002dff7d72a15aa7b929377fac3836040e6816beae21cf89835099de6a13196306a4af66cba778472bb0d58e2cf52ceb92c
+"ag-charts-locale@npm:11.1.0":
+  version: 11.1.0
+  resolution: "ag-charts-locale@npm:11.1.0"
+  checksum: 10c0/6f76a4570c264283f27b90f2f4b2e88d44ce5b738e60a5714e4c38e7856fff2055b98f45c4ddfb067327919286d3b2f852d32e9076a1844b4f8cc7f9e1dd94ed
   languageName: node
   linkType: hard
 
-"ag-charts-react@npm:11.0.4":
-  version: 11.0.4
-  resolution: "ag-charts-react@npm:11.0.4"
+"ag-charts-react@npm:11.1.0":
+  version: 11.1.0
+  resolution: "ag-charts-react@npm:11.1.0"
+  dependencies:
+    ag-charts-community: "npm:11.1.0"
   peerDependencies:
-    ag-charts-community: 11.0.4
     react: ^18.0.0 || ^19.0.0
-  checksum: 10c0/8b9be8bec010eb470143a5ca6786c7324d5142e0577dcea38426f47281606fefed39c719f842fdd3efce1357334c935142f6e8e8f0d51b866a4eba3481d02335
+  checksum: 10c0/0c1161576df4fd3593c5fc26cd76d8919f3c63a51304fba8936aa26e0dc916805f9f71b2d85166e8a44358769a6caa151bd8fe2464be2d7d1ff39cfb2077b80c
   languageName: node
   linkType: hard
 
-"ag-charts-types@npm:11.0.4":
-  version: 11.0.4
-  resolution: "ag-charts-types@npm:11.0.4"
-  checksum: 10c0/836eb47e6be2d4b0c3087994394c448a74b230c870d0a639e46259f065fff4f4ecc5d254f06ef1f04073a19af5382842afc3c6d56fdd41382a44219a6f90fe67
+"ag-charts-types@npm:11.1.0":
+  version: 11.1.0
+  resolution: "ag-charts-types@npm:11.1.0"
+  checksum: 10c0/ab3e2bc373bc16bdb3ad453bec5614009d44d4cb9ed278fa09970f85b53d6e47bda6c1ffb8d23511b0934d0ee160ea41ebbae6b0670bec250045a27bdc025171
   languageName: node
   linkType: hard
 
-"ag-grid-community@npm:33.0.4":
-  version: 33.0.4
-  resolution: "ag-grid-community@npm:33.0.4"
+"ag-grid-community@npm:33.1.0":
+  version: 33.1.0
+  resolution: "ag-grid-community@npm:33.1.0"
   dependencies:
-    ag-charts-types: "npm:11.0.4"
-  checksum: 10c0/6faa3dc9e1d63583bf56b4d58fb32c702881ebaec029b356f15568e038dadae74f97f313bb455060efac7579e123a47d42f5800772bd892ca07bf201745afd22
+    ag-charts-types: "npm:11.1.0"
+  checksum: 10c0/a94db2e5315838d837bf3f0e8b6cf60ba5006533c533eed378c04cc967c8b1b5c0caf0d2530a47020024a3f1ca82a8e7ed7a854827c2bd97508e200a1029d3b2
   languageName: node
   linkType: hard
 
-"ag-grid-react@npm:33.0.4":
-  version: 33.0.4
-  resolution: "ag-grid-react@npm:33.0.4"
+"ag-grid-react@npm:33.1.0":
+  version: 33.1.0
+  resolution: "ag-grid-react@npm:33.1.0"
   dependencies:
-    ag-grid-community: "npm:33.0.4"
+    ag-grid-community: "npm:33.1.0"
     prop-types: "npm:^15.8.1"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10c0/b12a66b7c8b646210e8d91c593146e5de980d1612f3145797e928bf93c9ddfe6bb46a6fe544358c663a29159830e90fa3a6e862354831237c3a3bc8ed596bdc8
+  checksum: 10c0/f4306be6eed02c21a7f0db6ed48d6e0ee11897e60ece51d761ced713a363e4a2036d20d315edd755af1fe1d46dd31cb0944a1bd2298daa3f4676f152bce1f425
   languageName: node
   linkType: hard
 
@@ -12111,13 +12122,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"happy-dom@npm:17.0.3":
-  version: 17.0.3
-  resolution: "happy-dom@npm:17.0.3"
+"happy-dom@npm:17.0.4":
+  version: 17.0.4
+  resolution: "happy-dom@npm:17.0.4"
   dependencies:
     webidl-conversions: "npm:^7.0.0"
     whatwg-mimetype: "npm:^3.0.0"
-  checksum: 10c0/a45fbd62bd6199ec01c968a47203ad97d9562a880ac70895330f063a0bda2e23ac8f7ba74bdb3000d66c9e0b6927ea1b7ef5e8a34f3afc8de6bd4b166801e1ff
+  checksum: 10c0/6d88ae10b64eac5e1188540d43be4883256f0f4bc7a0f2b153b05e205f669f665ed6ed9793c8ffb0fb2936c068c47572b915c6b8a01298d9dbde45b168ca7d84
   languageName: node
   linkType: hard
 
