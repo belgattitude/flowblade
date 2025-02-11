@@ -1,5 +1,11 @@
 # @flowblade/source-duckdb
 
+## 0.3.0
+
+### Minor Changes
+
+- [#379](https://github.com/belgattitude/flowblade/pull/379) [`364a908`](https://github.com/belgattitude/flowblade/commit/364a908b6c72dd272e8196813809c02734d06261) Thanks [@belgattitude](https://github.com/belgattitude)! - Bump minimum duckdb neo version to 1.2.0-alpha.14
+
 ## 0.2.1
 
 ### Patch Changes
