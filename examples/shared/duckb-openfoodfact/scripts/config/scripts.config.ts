@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 
-const tempPath = fileURLToPath(
+const dataPath = fileURLToPath(
   import.meta.url + ['..', '..', '..', '..', 'data'].join('/')
 );
 
@@ -9,11 +9,11 @@ const foodRemoteParquetUrl =
 
 export const scriptsConfig = {
   openfoodfact: {
-    downloadPath: tempPath,
+    downloadPath: dataPath,
     foodData: {
-      duckdb: `${tempPath}/food.db`,
+      duckdb: `${dataPath}/food.db`,
       remote: foodRemoteParquetUrl,
-      local: `${tempPath}/food.parquet`,
+      local: `${dataPath}/food.parquet`,
     },
   },
 } as const;

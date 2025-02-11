@@ -5,12 +5,12 @@ import { DuckdbDatasource } from '@flowblade/source-duckdb';
 import { sql } from '@flowblade/sql-tag';
 import { SqlFormatter } from '@flowblade/sql-tag-format';
 import boxen from 'boxen';
+import dedent from 'dedent';
 import pc from 'tinyrainbow';
 
 import type { OpenfoodfactImage } from '../src/internal/generate-openfoodfact-image';
-import { CliLogger } from '../src/lib/logger/cli-logger';
 import { scriptsConfig } from './config/scripts.config';
-const logger = new CliLogger('generate-openfoodfact-seeds');
+import { formatTimeMsToSeconds } from './utils/formatter';
 const sqlFormatter = new SqlFormatter('postgresql');
 
 const getQueryCreateEtlLoadProductTable = () => {
@@ -79,9 +79,9 @@ const getQueryCreateEtlBrands = () => {
             ORDER BY nb_products DESC
         )
     SELECT b.label_slug,
-           array_agg(distinct { name: b.label, nb_products: b.nb_products } order by b.nb_products desc) as matches,
-           array_agg(distinct b.label) as similars,
-           array_agg(distinct b2.label_slug) as similar_tags
+           array_agg(distinct { name: b.label, nb_products: b.nb_products }) as matches,
+           array_agg(distinct b.label order by b.label) as similars,
+           array_agg(distinct b2.label_slug order by b2.label_slug) as similar_tags
     FROM brands AS b
     FULL OUTER JOIN brands AS b2
          ON (b.label <> b2.label
@@ -98,71 +98,61 @@ const getQueryCreateEtlBrands = () => {
 
 try {
   const threads = `${os.cpus().length - 1}`;
-  console.log('Will run with threads:', threads);
-  const instance = await DuckDBInstance.create(':memory:', {
-    access_mode: 'READ_WRITE',
-    max_memory: '64MB',
-    threads,
-  });
+  const memory = '512MB';
+  console.log(
+    pc.bold(
+      boxen(
+        dedent`
+        DuckDb Instance
+        👉 Db file: ${scriptsConfig.openfoodfact.foodData.duckdb}
+        👉 Memory: ${memory}
+        👉 Threads: ${threads}
+        `
+      )
+    )
+  );
+  const instance = await DuckDBInstance.create(
+    scriptsConfig.openfoodfact.foodData.duckdb,
+    {
+      access_mode: 'READ_WRITE',
+      max_memory: memory,
+      threads,
+    }
+  );
   const db = await instance.connect();
 
   const ds = new DuckdbDatasource({ connection: db });
 
-  // ---------------------------------------------
-  // Step 1: Create product table
-  // ---------------------------------------------
+  const queries = [
+    {
+      name: 'etl_load_product',
+      query: getQueryCreateEtlLoadProductTable(),
+    },
+    {
+      name: 'etl_brands',
+      query: getQueryCreateEtlBrands(),
+    },
+  ];
 
-  console.log(`${pc.green('getQueryCreateEtlLoadProductTable')}`);
-  const query = getQueryCreateEtlLoadProductTable();
-  console.log(
-    boxen(sqlFormatter.formatOrThrow(query), {
-      title: 'sql',
-      titleAlignment: 'center',
-    })
-  );
-  const result = await ds.query(query);
-  const { meta } = result;
+  for (const q of queries) {
+    const { name, query } = q;
+    console.log(boxen(`Running query: ${pc.cyan(name)}`));
+    const formattedQuery = sqlFormatter.formatOrNull(query) ?? query.text;
+    console.log(pc.blue(formattedQuery));
+    const result = await ds.query(query);
+    const { meta } = result;
 
-  if (!result.isOk()) {
-    throw new Error(result.error!.message);
+    if (!result.isOk()) {
+      throw new Error(result.error!.message);
+    }
+    console.log(
+      boxen(
+        `${pc.green(`Query ${name} executed in ${formatTimeMsToSeconds(meta.getTotalTimeMs())} seconds`)}`
+      )
+    );
   }
-
-  console.log(
-    `${pc.green('Success')} in ${Math.round(meta?.getTotalTimeMs())} ms}`
-  );
-
-  /**
-   *   const _data = result.data.map((row) => {
-   *     return {
-   *       ...row,
-   *       test: generateOpenfoodfactImage({
-   *         code: row.code,
-   *         images: row.images,
-   *       }),
-   *     };
-   *   });
-   */
-
-  // ---------------------------------------------
-  // Step 2: Create product table
-  // ---------------------------------------------
-
-  console.log(`${pc.green('getQueryCreateEtlBrands')}`);
-  const query2 = getQueryCreateEtlBrands();
-  console.log(
-    boxen(sqlFormatter.formatOrNull(query2) ?? query2.text, {
-      title: 'sql',
-      titleAlignment: 'center',
-    })
-  );
-  const r2 = await ds.query(query2);
-
-  if (!r2.isOk()) {
-    throw new Error(r2.error!.message);
-  }
-  console.log(`${pc.green('Success')} in ${r2.meta.getTotalTimeMs()} ms}`);
 } catch (e) {
-  logger.log('error', (e as Error).message);
+  console.log(boxen(pc.red((e as Error).message)));
   // eslint-disable-next-line unicorn/no-process-exit
   process.exit(1);
 }
