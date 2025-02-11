@@ -12,7 +12,12 @@ services:
     ports:
       - 9001:9001
       - 9000:9000
+    volumes:
+      - minio-data:/data:rw
     command: ['server', '/data', '--console-address', ':9001']
+
+volumes:
+  minio-data:
 
 networks:
   flowblade-net:
