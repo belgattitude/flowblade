@@ -1,4 +1,4 @@
-ARG NODE_VERSION=22.13
+ARG NODE_VERSION=22.14
 ARG DEBIAN_VERSION=bookworm-slim
 
 #############################################################
@@ -61,12 +61,14 @@ COPY --link .gitignore ./
 COPY --from=app-builder --link /app/out/nextjs-app/json/ .
 COPY --from=app-builder --link /app/out/nextjs-app/yarn.lock ./yarn.lock
 
-RUN yarn install --inline-builds
 
-# Alternatively we can use a build cache (buildx)
-#RUN --mount=type=cache,target=/root/.yarn3-cache,id=yarn3-cache \
-#    YARN_CACHE_FOLDER=/root/.yarn3-cache \
-#    yarn install --inline-builds
+# Option 1: run install without cache
+#RUN yarn install --inline-builds
+
+# Option 2: run install with buildx cache mount (buildx)
+RUN --mount=type=cache,target=/root/.yarn3-cache,id=yarn3-cache \
+    YARN_CACHE_FOLDER=/root/.yarn3-cache \
+    yarn install --inline-builds
 
 # Build the project
 COPY --from=app-builder /app/out/nextjs-app/full/ .
