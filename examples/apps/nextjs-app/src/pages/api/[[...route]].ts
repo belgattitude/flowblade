@@ -7,6 +7,7 @@ import type { PageConfig } from 'next';
 import { demoDuckdbRouter } from '@/features/demo/duckdb/server/demo-duckdb.router';
 
 export const config: PageConfig = {
+  runtime: 'nodejs',
   api: {
     bodyParser: false,
   },
