@@ -2,10 +2,11 @@ import { handle } from '@hono/node-server/vercel';
 import { swaggerUI } from '@hono/swagger-ui';
 import { Hono } from 'hono';
 import { createOpenApiDocument } from 'hono-zod-openapi';
+import type { PageConfig } from 'next';
 
 import { demoDuckdbRouter } from '@/features/demo/duckdb/server/demo-duckdb.router';
 
-export const config = {
+export const config: PageConfig = {
   api: {
     bodyParser: false,
   },
