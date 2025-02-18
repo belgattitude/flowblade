@@ -1,26 +1,12 @@
-/**
- * Renovatebot config and overrides for the monorepo
- *
- * - https://docs.renovatebot.com/configuration-options/
- * - https://docs.renovatebot.com/presets-default/
- */
 {
-  "extends": ["config:base"],
-  "enabled": true,
-  "enabledManagers": ["npm", "docker-compose", "dockerfile", "github-actions"],
-  "postUpdateOptions": [
-    // https://docs.renovatebot.com/configuration-options/#postupdateoptions
-    // Will run yarn dedupe --strategy highest
-    'yarnDedupeHighest'
-  ],
-  "packageRules": [
+  extends: ["config:recommended"],
+  enabled: true,
+  enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
+  postUpdateOptions: ["yarnDedupeHighest"],
+  packageRules: [
     {
-      // Exclusions
-      "matchPackageNames": [
-        // keep this inline with .ncurc.yml
-        // ie: "is-port-reachable",
-      ],
-      "enabled": false
+      matchPackageNames: [],
+      enabled: false,
     },
-  ]
+  ],
 }
