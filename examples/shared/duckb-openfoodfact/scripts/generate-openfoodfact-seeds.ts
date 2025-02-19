@@ -97,7 +97,7 @@ const getQueryCreateEtlBrands = () => {
 };
 
 try {
-  const threads = `${os.cpus().length - 1}`;
+  const threads = `${os.availableParallelism() - 1}`;
   const memory = '512MB';
   console.log(
     pc.bold(
