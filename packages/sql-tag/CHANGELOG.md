@@ -1,5 +1,11 @@
 # @flowblade/sql-tag
 
+## 0.1.10
+
+### Patch Changes
+
+- [#418](https://github.com/belgattitude/flowblade/pull/418) [`9b02388`](https://github.com/belgattitude/flowblade/commit/9b023886645a2f8ba86f1b90f21eaae46c54fb15) Thanks [@belgattitude](https://github.com/belgattitude)! - Internal declare external on sql-template-tag
+
 ## 0.1.9
 
 ### Patch Changes
