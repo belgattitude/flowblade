@@ -1,5 +1,12 @@
 # @flowblade/sql-tag-format
 
+## 0.0.10
+
+### Patch Changes
+
+- Updated dependencies [[`9b02388`](https://github.com/belgattitude/flowblade/commit/9b023886645a2f8ba86f1b90f21eaae46c54fb15)]:
+  - @flowblade/sql-tag@0.1.10
+
 ## 0.0.9
 
 ### Patch Changes
