@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { fontInter } from '@/components/fonts/FontInter';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { MainLayout } from '@/components/layout/main-layout';
 import { ReactQueryClientProvider } from '@/providers/ReactQueryClientProvider';
 import { ReduxStoreProvider } from '@/providers/ReduxProvider';
 
