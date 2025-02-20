@@ -25,15 +25,22 @@ import { type DuckDBConnection, DuckDBInstance } from '@duckdb/node-api';
 import { DuckdbDatasource } from '@flowblade/source-duckdb';
 
 // Create a connection to a DuckDB instance
-const createConnection = async (): Promise<DuckDBConnection> => {
+const createConnection = async (
+  maxThreads = 4
+): Promise<DuckDBConnection> => {
+  const availableThreads = os.availableParallelism();
+  const maxParallelism = Math.min(maxThreads, availableThreads - 1);
+  const threads = availableThreads > 1 ? maxParallelism : undefined;
+
   const instance = await DuckDBInstance.create(':memory:', {
     // Choose between READ_ONLY or READ_WRITE
     // Note that in READ_WRITE mode concurrency is limited to 1
     // See: https://duckdb.org/docs/connect/concurrency.html
-    access_mode: 'READ_ONLY',
+    access_mode: 'READ_WRITE',
     max_memory: '64MB',
-    // Not that increasing the threads will use more memory (OOM)  
-    threads: `${Math.max(os.availableParallelism() - 1, 4)}`,  
+    // More threads, mome memory
+    ...(threads ? { threads: threads.toString(10) } : {}),
+
   });
   return await instance.connect();
 };
