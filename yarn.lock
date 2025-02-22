@@ -61,11 +61,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arethetypeswrong/cli@npm:0.17.3":
-  version: 0.17.3
-  resolution: "@arethetypeswrong/cli@npm:0.17.3"
+"@arethetypeswrong/cli@npm:0.17.4":
+  version: 0.17.4
+  resolution: "@arethetypeswrong/cli@npm:0.17.4"
   dependencies:
-    "@arethetypeswrong/core": "npm:0.17.3"
+    "@arethetypeswrong/core": "npm:0.17.4"
     chalk: "npm:^4.1.2"
     cli-table3: "npm:^0.6.3"
     commander: "npm:^10.0.1"
@@ -74,22 +74,23 @@ __metadata:
     semver: "npm:^7.5.4"
   bin:
     attw: dist/index.js
-  checksum: 10c0/c1803ed23d6bcce2562465ecc2b133c28067b926603a45c4c6a4ecf88b6758db0f373a998b86238308d4a62a9e8d035e5ce492ffc6b9907b5eb5e87aecf091e1
+  checksum: 10c0/561a2a8f88916c776669673119f4b02d0ceab25110c966f8817447e13587967c2935f2d8c468e5d9b19ff3e2617ca9128c43e44ca2abf62741f0a90899511c61
   languageName: node
   linkType: hard
 
-"@arethetypeswrong/core@npm:0.17.3":
-  version: 0.17.3
-  resolution: "@arethetypeswrong/core@npm:0.17.3"
+"@arethetypeswrong/core@npm:0.17.4":
+  version: 0.17.4
+  resolution: "@arethetypeswrong/core@npm:0.17.4"
   dependencies:
     "@andrewbranch/untar.js": "npm:^1.0.3"
+    "@loaderkit/resolve": "npm:^1.0.2"
     cjs-module-lexer: "npm:^1.2.3"
     fflate: "npm:^0.8.2"
     lru-cache: "npm:^10.4.3"
     semver: "npm:^7.5.4"
     typescript: "npm:5.6.1-rc"
     validate-npm-package-name: "npm:^5.0.0"
-  checksum: 10c0/999f5fd0b6bc0e7a32bfb367213c34f24018e97e14e04ad498fd75ed252e6b83bbcd56de592de865a13534c590a0ef7b23670ce0811ebfa1180f954ce258d6df
+  checksum: 10c0/3414ce50cb5028608b14e78317e18c9617058264c83d110f3561aa6c39680338ca3398ef8bd9ba6966ba15044f89830250a1defe84d732d7758bcf3cca830c99
   languageName: node
   linkType: hard
 
@@ -549,6 +550,13 @@ __metadata:
     typescript:
       optional: true
   checksum: 10c0/84b6ffcc2769aa571323cb4a03700de7acc966f11264736a0a9378df37295716c7e63f7ee86076016ac8858824269c9d0db60c35a554b0e87843a4f49c839363
+  languageName: node
+  linkType: hard
+
+"@braidai/lang@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@braidai/lang@npm:1.0.0"
+  checksum: 10c0/a04cdaee5e03ddd091fecd7e30bb3744040f17c32360498466128ce436296e9ce315671fb88ac8bb67d5e2934f6f0b0560233ab5c0d660cf6fa450868f283201
   languageName: node
   linkType: hard
 
@@ -2022,7 +2030,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@flowblade/core@workspace:packages/core"
   dependencies:
-    "@arethetypeswrong/cli": "npm:0.17.3"
+    "@arethetypeswrong/cli": "npm:0.17.4"
     "@belgattitude/eslint-config-bases": "npm:6.24.0"
     "@codspeed/vitest-plugin": "npm:4.0.0"
     "@edge-runtime/vm": "npm:5.0.0"
@@ -2063,7 +2071,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@flowblade/source-duckdb@workspace:packages/source-duckdb"
   dependencies:
-    "@arethetypeswrong/cli": "npm:0.17.3"
+    "@arethetypeswrong/cli": "npm:0.17.4"
     "@belgattitude/eslint-config-bases": "npm:6.24.0"
     "@codspeed/vitest-plugin": "npm:4.0.0"
     "@duckdb/node-api": "npm:1.2.0-alpha.14"
@@ -2107,7 +2115,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@flowblade/source-kysely@workspace:packages/source-kysely"
   dependencies:
-    "@arethetypeswrong/cli": "npm:0.17.3"
+    "@arethetypeswrong/cli": "npm:0.17.4"
     "@belgattitude/eslint-config-bases": "npm:6.24.0"
     "@codspeed/vitest-plugin": "npm:4.0.0"
     "@edge-runtime/vm": "npm:5.0.0"
@@ -2166,7 +2174,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@flowblade/sql-tag-format@workspace:packages/sql-tag-format"
   dependencies:
-    "@arethetypeswrong/cli": "npm:0.17.3"
+    "@arethetypeswrong/cli": "npm:0.17.4"
     "@belgattitude/eslint-config-bases": "npm:6.24.0"
     "@codspeed/vitest-plugin": "npm:4.0.0"
     "@edge-runtime/vm": "npm:5.0.0"
@@ -2205,7 +2213,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@flowblade/sql-tag@workspace:packages/sql-tag"
   dependencies:
-    "@arethetypeswrong/cli": "npm:0.17.3"
+    "@arethetypeswrong/cli": "npm:0.17.4"
     "@belgattitude/eslint-config-bases": "npm:6.24.0"
     "@codspeed/vitest-plugin": "npm:4.0.0"
     "@edge-runtime/vm": "npm:5.0.0"
@@ -2683,6 +2691,15 @@ __metadata:
   version: 5.6.4
   resolution: "@js-joda/core@npm:5.6.4"
   checksum: 10c0/e8553d353e759d169c41f1e1695eaef5e78d607d96ac7db55fc3ff490cfed68ab62220a1f67f4b0c9a76dd24b08da5bd35cb90f902ce63b731886194862a649b
+  languageName: node
+  linkType: hard
+
+"@loaderkit/resolve@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@loaderkit/resolve@npm:1.0.2"
+  dependencies:
+    "@braidai/lang": "npm:^1.0.0"
+  checksum: 10c0/93a9f35e80232c6511fd6c51de88fe7c0eedd361f5e32bd0fd541c8f06f4f3e38add28cb70528b46019b406867c90d9f7221e46a759de0303e2e2863b7855b6e
   languageName: node
   linkType: hard
 
