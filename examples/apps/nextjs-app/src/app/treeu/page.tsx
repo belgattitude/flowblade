@@ -1,17 +1,15 @@
-import { SideBar } from '@/components/sidebar/SideBar';
-
-import { CityMultiSelect } from '../../components/prime/CityMultiSelect';
-import { FolderTreeSelect } from '../../components/prime/FolderTreeSelect';
+import { ProductFiltersPanel } from '@/features/products/components/product-filters-panel';
+import { ProductGrid } from '@/features/products/components/product-grid';
 
 export default function TreeuDemoRoute() {
   return (
-    <div className={'p-10'}>
-      <SideBar>
-        <div className={'m-5 flex flex-col gap-5'}>
-          <CityMultiSelect />
-          <FolderTreeSelect />
-        </div>
-      </SideBar>
+    <div className={'flex flex-col w-full p-10 gap-5'}>
+      <div className={'border'}>
+        <ProductFiltersPanel className={'p-5'} />
+      </div>
+      <div className={'flex h-[400px] border'}>
+        <ProductGrid className={'p-5'} />
+      </div>
     </div>
   );
 }

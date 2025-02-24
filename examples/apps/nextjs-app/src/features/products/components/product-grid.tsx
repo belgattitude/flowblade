@@ -1,0 +1,54 @@
+'use client';
+import { MIntl } from '@httpx/memo-intl';
+import type { ColDef } from 'ag-grid-community';
+import { type FC, useState } from 'react';
+
+import { DynamicAgGrid } from '@/components/ag-grid/dynamic-ag-grid';
+import { cn } from '@/components/utils';
+import { useEthicalProducts } from '@/features/products/api/ethical-api';
+import type { EthicalProduct } from '@/features/products/data/ethical-products.data';
+import { useSelector } from '@/redux/redux-hooks';
+
+type Props = {
+  className?: string;
+};
+
+const productColDefs: ColDef<EthicalProduct>[] = [
+  { field: 'brand' },
+  { field: 'label' },
+  {
+    field: 'price',
+    editable: true,
+    cellClass: 'text-right',
+    valueGetter: (params) =>
+      MIntl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'EUR',
+        notation: 'compact',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(params.data!.price),
+  },
+  { field: 'stock' },
+  { field: 'weight' },
+  { field: 'category' },
+  { field: 'color' },
+];
+
+export const ProductGrid: FC<Props> = (props) => {
+  const { className } = props;
+  const selectedBrands = useSelector(
+    (state) => state.productFilters.selectedBrands
+  );
+  const { data = [] } = useEthicalProducts({
+    brands: selectedBrands.map((brand) => brand.name),
+  });
+
+  const [colDefs, _setColDefs] = useState<ColDef[]>(productColDefs);
+
+  return (
+    <div className={cn('flex-1 min-h-full w-full h-full', className)}>
+      <DynamicAgGrid rowData={data} columnDefs={colDefs} />
+    </div>
+  );
+};

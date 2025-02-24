@@ -15,7 +15,7 @@
     "directory": "examples/apps/nextjs-app"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "build-no-paths": "cross-env NEXT_BUILD_TSCONFIG=./tsconfig.no-paths.json next build",
     "build-standalone": "cross-env NEXT_BUILD_OUTPUT=standalone next build",
@@ -68,7 +68,7 @@
     "@radix-ui/react-slot": "1.1.2",
     "@radix-ui/react-tooltip": "1.1.8",
     "@reduxjs/toolkit": "2.6.0",
-    "@sentry/nextjs": "8.54.0",
+    "@sentry/nextjs": "9.1.0",
     "@shikijs/transformers": "3.0.0",
     "@t3-oss/env-nextjs": "0.12.0",
     "@tanstack/react-query": "5.66.9",
@@ -76,6 +76,7 @@
     "@vercel/otel": "1.10.1",
     "ag-charts-community": "11.1.1",
     "ag-charts-react": "11.1.1",
+    "ag-grid-community": "33.1.1",
     "ag-grid-react": "33.1.1",
     "apache-arrow": "19.0.1",
     "class-variance-authority": "0.7.1",
