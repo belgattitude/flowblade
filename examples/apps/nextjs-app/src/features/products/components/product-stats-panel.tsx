@@ -3,7 +3,7 @@
 import type { FC } from 'react';
 
 import { ProductGrid } from '@/features/products/components/product-grid';
-import { ReportBoundary } from '@/features/products/components/ReportBoundary';
+import { ReportBoundary } from '@/features/products/components/report-boundary';
 
 export const ProductStatsPanel: FC = () => {
   return (

@@ -1,4 +1,5 @@
 'use client';
+
 import { MIntl } from '@httpx/memo-intl';
 import type { ColDef, GridOptions } from 'ag-grid-community';
 import { type FC, useState } from 'react';

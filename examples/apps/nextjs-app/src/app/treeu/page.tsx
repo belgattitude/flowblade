@@ -1,6 +1,8 @@
 import { ProductFiltersPanel } from '@/features/products/components/product-filters-panel';
 import { ProductGrid } from '@/features/products/components/product-grid';
 
+export const dynamic = 'force-dynamic';
+
 export default function TreeuDemoRoute() {
   return (
     <div className={'flex flex-col w-full p-10 gap-5'}>
