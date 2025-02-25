@@ -39,7 +39,12 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
         maxSelectedLabels={3}
         filter={true}
       />
-      <Button label="Execute" onClick={() => {}} />
+      <Button
+        label="Execute"
+        onClick={() => {
+          console.log('Executed');
+        }}
+      />
     </div>
   );
 };
