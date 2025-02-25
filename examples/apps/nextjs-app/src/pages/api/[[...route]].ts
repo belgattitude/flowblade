@@ -5,6 +5,7 @@ import { createOpenApiDocument } from 'hono-zod-openapi';
 import type { PageConfig } from 'next';
 
 import { demoDuckdbRouter } from '@/features/demo/duckdb/server/demo-duckdb.router';
+import { ethicalProductRouter } from '@/features/products/server/ethical-product.router';
 
 export const config: PageConfig = {
   runtime: 'nodejs',
@@ -22,6 +23,7 @@ app.get('/health', (c) => {
 });
 
 app.route('/demo/duckdb', demoDuckdbRouter);
+app.route('/product/ethical', ethicalProductRouter);
 
 createOpenApiDocument(app, {
   info: {

@@ -38,7 +38,7 @@ const productColDefs: ColDef<EthicalProduct>[] = [
 export const ProductGrid: FC<Props> = (props) => {
   const { className } = props;
   const selectedBrands = useSelector(
-    (state) => state.productFilters.selectedBrands
+    (state) => state.productFilters.selection.brands
   );
   const { data = [] } = useEthicalProducts({
     brands: selectedBrands.map((brand) => brand.name),
