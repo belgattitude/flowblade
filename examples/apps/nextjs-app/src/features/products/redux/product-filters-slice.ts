@@ -11,6 +11,7 @@ type Filters = {
 };
 
 export type ProductFiltersState = {
+  loadingAt: number | null;
   data: { brands: EthicalBrand[] };
   /** DRAFT - Current state of the filters */
   internalSelection: Filters;
@@ -18,6 +19,7 @@ export type ProductFiltersState = {
   filters: Filters;
 };
 export const productFiltersInitialState: ProductFiltersState = {
+  loadingAt: null,
   data: {
     brands: [],
   },
@@ -42,6 +44,9 @@ export const productFiltersSlice = createProductFiltersSlice({
         state.internalSelection.brands = action.payload;
       }
     ),
+    startLoading: create.reducer((state) => {
+      state.loadingAt = Date.now();
+    }),
     execute: create.reducer((state) => {
       state.filters = state.internalSelection;
     }),

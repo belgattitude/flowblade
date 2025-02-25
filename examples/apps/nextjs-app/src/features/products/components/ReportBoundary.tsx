@@ -1,6 +1,8 @@
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
-import type { FC, PropsWithChildren } from 'react';
+import { type FC, type PropsWithChildren, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+
+import { LoadingPlaceholder } from './loading-placeholder';
 
 export const ReportBoundary: FC<PropsWithChildren> = (props) => {
   const { children } = props;
@@ -16,7 +18,7 @@ export const ReportBoundary: FC<PropsWithChildren> = (props) => {
             </div>
           )}
         >
-          {children}
+          <Suspense fallback={<LoadingPlaceholder />}>{children}</Suspense>
         </ErrorBoundary>
       )}
     </QueryErrorResetBoundary>
