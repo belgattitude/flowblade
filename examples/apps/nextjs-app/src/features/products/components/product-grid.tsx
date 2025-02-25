@@ -5,7 +5,7 @@ import { type FC, useState } from 'react';
 
 import { DynamicAgGrid } from '@/components/ag-grid/dynamic-ag-grid';
 import { cn } from '@/components/utils';
-import { useEthicalProducts } from '@/features/products/api/ethical-api';
+import { useSuspenseEthicalProducts } from '@/features/products/api/ethical-api';
 import type { EthicalProduct } from '@/features/products/data/ethical-products.data';
 import { useSelector } from '@/redux/redux-hooks';
 
@@ -43,11 +43,15 @@ const autoSizeStrategy: GridOptions['autoSizeStrategy'] = {
 export const ProductGrid: FC<Props> = (props) => {
   const { className } = props;
   const selectedBrands = useSelector(
-    (state) => state.productFilters.selection.brands
+    (state) => state.productFilters.filters.brands
   );
-  const { data } = useEthicalProducts({
+  const { data, error, isFetching } = useSuspenseEthicalProducts({
     brands: selectedBrands.map((brand) => brand.name),
   });
+
+  if (error && !isFetching) {
+    throw error;
+  }
 
   const [colDefs, _setColDefs] = useState<ColDef[]>(productColDefs);
 
