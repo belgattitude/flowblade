@@ -20,7 +20,7 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
   const { data } = useEthicalBrands();
   const dispatch = useDispatch();
   const selectedBrands = useSelector(
-    (state) => state.productFilters.selection.brands
+    (state) => state.productFilters.internalSelection.brands
   );
 
   return (
@@ -41,8 +41,9 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
       />
       <Button
         label="Execute"
+        severity={'info'}
         onClick={() => {
-          console.log('Executed');
+          dispatch(productFiltersSlice.actions.execute());
         }}
       />
     </div>

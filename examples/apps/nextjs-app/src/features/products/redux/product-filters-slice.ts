@@ -6,15 +6,27 @@ import {
 
 import type { EthicalBrand } from '../server/ethical-product.repo';
 
+type SelectedFilters = {
+  brands: EthicalBrand[];
+};
+
 export type ProductFiltersState = {
+  loadingAt: number | null;
   data: { brands: EthicalBrand[] };
-  selection: { brands: EthicalBrand[] };
+  /** DRAFT - Current state of the filters */
+  internalSelection: SelectedFilters;
+  /** ACTUAL - Report state */
+  filters: SelectedFilters;
 };
 export const productFiltersInitialState: ProductFiltersState = {
+  loadingAt: null,
   data: {
     brands: [],
   },
-  selection: {
+  internalSelection: {
+    brands: [],
+  },
+  filters: {
     brands: [],
   },
 };
@@ -29,8 +41,14 @@ export const productFiltersSlice = createProductFiltersSlice({
   reducers: (create) => ({
     brandSelected: create.reducer(
       (state, action: PayloadAction<EthicalBrand[]>) => {
-        state.selection.brands = action.payload;
+        state.internalSelection.brands = action.payload;
       }
     ),
+    startLoading: create.reducer((state) => {
+      state.loadingAt = Date.now();
+    }),
+    execute: create.reducer((state) => {
+      state.filters = state.internalSelection;
+    }),
   }),
 });
