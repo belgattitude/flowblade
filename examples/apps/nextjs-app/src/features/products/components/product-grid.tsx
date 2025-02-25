@@ -38,7 +38,7 @@ const productColDefs: ColDef<EthicalProduct>[] = [
 export const ProductGrid: FC<Props> = (props) => {
   const { className } = props;
   const selectedBrands = useSelector(
-    (state) => state.productFilters.selectedBrands
+    (state) => state.productFilters.selection.brands
   );
   const { data = [] } = useEthicalProducts({
     brands: selectedBrands.map((brand) => brand.name),
@@ -47,7 +47,7 @@ export const ProductGrid: FC<Props> = (props) => {
   const [colDefs, _setColDefs] = useState<ColDef[]>(productColDefs);
 
   return (
-    <div className={cn('flex-1 min-h-full w-full h-full', className)}>
+    <div className={cn('flex-1 w-full h-full', className)}>
       <DynamicAgGrid rowData={data} columnDefs={colDefs} />
     </div>
   );

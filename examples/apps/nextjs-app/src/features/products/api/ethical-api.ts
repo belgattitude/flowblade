@@ -1,24 +1,29 @@
 import { useQuery } from '@tanstack/react-query';
 
-import {
-  type EthicalProduct,
-  ethicalProducts,
-} from '@/features/products/data/ethical-products.data';
-
-export type SearchEthicalProductsParams = {
-  brands?: string[];
-};
+import { apiFetcher } from '@/config/ky.config';
+import type { EthicalProduct } from '@/features/products/data/ethical-products.data';
+import type {
+  EthicalBrand,
+  SearchEthicalProductsParams,
+} from '@/features/products/server/ethical-product.repo';
 
 export const getEthicalProducts = async (
   params: SearchEthicalProductsParams
 ): Promise<EthicalProduct[]> => {
-  const { brands = [] } = params;
-  return ethicalProducts.filter((product) => {
-    if (brands.length > 0) {
-      return brands.includes(product.brand);
-    }
-    return true;
-  });
+  const brands =
+    Array.isArray(params.brands) && params.brands.length > 0
+      ? params.brands.join(',')
+      : undefined;
+
+  return apiFetcher('product/ethical/search', {
+    searchParams: {
+      ...(brands ? { brands } : {}),
+    },
+  }).json<EthicalProduct[]>();
+};
+
+export const getEthicalBrands = async (): Promise<EthicalBrand[]> => {
+  return apiFetcher('product/ethical/brands', {}).json<EthicalBrand[]>();
 };
 
 export const useEthicalProducts = (params: SearchEthicalProductsParams) => {
@@ -28,20 +33,6 @@ export const useEthicalProducts = (params: SearchEthicalProductsParams) => {
       return getEthicalProducts(params);
     },
   });
-};
-
-export type EthicalBrand = {
-  name: string;
-};
-
-export const getEthicalBrands = async (): Promise<EthicalBrand[]> => {
-  const brands = new Set<string>();
-  for (const { brand } of ethicalProducts) {
-    if (!brands.has(brand)) {
-      brands.add(brand);
-    }
-  }
-  return [...brands].map((brand) => ({ name: brand }));
 };
 
 export const useEthicalBrands = () => {

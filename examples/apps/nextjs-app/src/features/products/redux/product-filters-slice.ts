@@ -4,15 +4,19 @@ import {
   type PayloadAction,
 } from '@reduxjs/toolkit';
 
-import type { EthicalBrand } from '@/features/products/api/ethical-api';
+import type { EthicalBrand } from '../server/ethical-product.repo';
 
 export type ProductFiltersState = {
-  brands: EthicalBrand[];
-  selectedBrands: EthicalBrand[];
+  data: { brands: EthicalBrand[] };
+  selection: { brands: EthicalBrand[] };
 };
 export const productFiltersInitialState: ProductFiltersState = {
-  brands: [],
-  selectedBrands: [],
+  data: {
+    brands: [],
+  },
+  selection: {
+    brands: [],
+  },
 };
 
 export const createProductFiltersSlice = buildCreateSlice({
@@ -25,7 +29,7 @@ export const productFiltersSlice = createProductFiltersSlice({
   reducers: (create) => ({
     brandSelected: create.reducer(
       (state, action: PayloadAction<EthicalBrand[]>) => {
-        state.selectedBrands = action.payload;
+        state.selection.brands = action.payload;
       }
     ),
   }),
