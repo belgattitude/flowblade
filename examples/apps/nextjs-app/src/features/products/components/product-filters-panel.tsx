@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from 'primereact/button';
 import { MultiSelect } from 'primereact/multiselect';
 import type { FC } from 'react';
 
@@ -23,7 +24,7 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
   );
 
   return (
-    <div className={cn('', className)}>
+    <div className={cn('flex gap-3', className)}>
       <MultiSelect
         value={selectedBrands}
         onChange={(e) => {
@@ -38,6 +39,7 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
         maxSelectedLabels={3}
         filter={true}
       />
+      <Button label="Execute" onClick={() => {}} />
     </div>
   );
 };
