@@ -1,6 +1,6 @@
 'use client';
 import { MIntl } from '@httpx/memo-intl';
-import type { ColDef } from 'ag-grid-community';
+import type { ColDef, GridOptions } from 'ag-grid-community';
 import { type FC, useState } from 'react';
 
 import { DynamicAgGrid } from '@/components/ag-grid/dynamic-ag-grid';
@@ -35,12 +35,17 @@ const productColDefs: ColDef<EthicalProduct>[] = [
   { field: 'color' },
 ];
 
+const autoSizeStrategy: GridOptions['autoSizeStrategy'] = {
+  type: 'fitGridWidth',
+  defaultMinWidth: 50,
+};
+
 export const ProductGrid: FC<Props> = (props) => {
   const { className } = props;
   const selectedBrands = useSelector(
     (state) => state.productFilters.selection.brands
   );
-  const { data = [] } = useEthicalProducts({
+  const { data } = useEthicalProducts({
     brands: selectedBrands.map((brand) => brand.name),
   });
 
@@ -48,7 +53,11 @@ export const ProductGrid: FC<Props> = (props) => {
 
   return (
     <div className={cn('flex-1 w-full h-full', className)}>
-      <DynamicAgGrid rowData={data} columnDefs={colDefs} />
+      <DynamicAgGrid
+        rowData={data}
+        columnDefs={colDefs}
+        autoSizeStrategy={autoSizeStrategy}
+      />
     </div>
   );
 };

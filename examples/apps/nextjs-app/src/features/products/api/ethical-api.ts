@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 
 import { apiFetcher } from '@/config/ky.config';
 import type { EthicalProduct } from '@/features/products/data/ethical-products.data';
@@ -35,8 +35,26 @@ export const useEthicalProducts = (params: SearchEthicalProductsParams) => {
   });
 };
 
+export const useSuspenseEthicalProducts = (
+  params: SearchEthicalProductsParams
+) => {
+  return useSuspenseQuery({
+    queryKey: ['get-ethical-products', params],
+    queryFn: () => {
+      return getEthicalProducts(params);
+    },
+  });
+};
+
 export const useEthicalBrands = () => {
   return useQuery({
+    queryKey: ['get-ethical-brands'],
+    queryFn: getEthicalBrands,
+  });
+};
+
+export const useSuspenseEthicalBrands = () => {
+  return useSuspenseQuery({
     queryKey: ['get-ethical-brands'],
     queryFn: getEthicalBrands,
   });
