@@ -6,7 +6,7 @@ import {
 
 import type { EthicalBrand } from '../server/ethical-product.repo';
 
-type Filters = {
+type SelectedFilters = {
   brands: EthicalBrand[];
 };
 
@@ -14,9 +14,9 @@ export type ProductFiltersState = {
   loadingAt: number | null;
   data: { brands: EthicalBrand[] };
   /** DRAFT - Current state of the filters */
-  internalSelection: Filters;
+  internalSelection: SelectedFilters;
   /** ACTUAL - Report state */
-  filters: Filters;
+  filters: SelectedFilters;
 };
 export const productFiltersInitialState: ProductFiltersState = {
   loadingAt: null,
