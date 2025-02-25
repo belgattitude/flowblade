@@ -1,9 +1,9 @@
 import ky from 'ky';
 
-import { apiLocalConfig } from '@/config/api-local.config';
+const prefixUrl = '/api';
 
 export const apiFetcher = ky.create({
-  prefixUrl: apiLocalConfig.apiUrl,
+  prefixUrl: prefixUrl,
   retry: {
     limit: 2,
     methods: ['get', 'put', 'head', 'delete', 'options', 'trace'],
