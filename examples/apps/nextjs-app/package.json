@@ -16,6 +16,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "sidecar": "npx spotlight-sidecar",
     "build": "next build",
     "build-no-paths": "cross-env NEXT_BUILD_TSCONFIG=./tsconfig.no-paths.json next build",
     "build-standalone": "cross-env NEXT_BUILD_OUTPUT=standalone next build",
@@ -112,7 +113,7 @@
     "@belgattitude/eslint-config-bases": "6.25.0",
     "@faker-js/faker": "9.5.1",
     "@next/bundle-analyzer": "15.2.0",
-    "@spotlightjs/spotlight": "2.11.0",
+    "@spotlightjs/spotlight": "2.11.1",
     "@tailwindcss/postcss": "4.0.9",
     "@tanstack/react-query-devtools": "5.66.11",
     "@total-typescript/ts-reset": "0.6.1",
