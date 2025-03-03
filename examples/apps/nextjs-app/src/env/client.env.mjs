@@ -1,10 +1,12 @@
 // @ts-check
 
 /*
- * Please avoid to use zod default and/or coercion. Default should live under the
- * main Next.js committed ".env" file. As coercion is only avaible when passing through
- * createEnv it can create some ambiguities between tools consuming the env
- * and might create tree-shakability limits.
+ * Please avoid to use valibot default and/or coercion.
+ *
+ * Default should live under the main Next.js committed ".env" file.
+ * As coercion is only available when passing through
+ * createEnv it might create some ambiguities between env consumers
+ * and create tree-shakability issues.
  */
 
 import { createEnv } from '@t3-oss/env-nextjs';

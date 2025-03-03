@@ -32,8 +32,8 @@ const searchResponseSchema = v.object({
   error: v.optional(v.string()),
 });
 const searchRequestSchema = v.object({
-  // min: v.optional(NumberSchema),
-  // max: v.optional(NumberSchema),
+  //min: v.optional(numberSchema),
+  //max: v.optional(numberSchema),
   name: v.optional(v.string()),
   createdAt: v.optional(v.string()),
 });
