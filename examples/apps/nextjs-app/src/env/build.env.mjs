@@ -10,4 +10,5 @@ export const buildEnv = createEnv({
     NEXT_BUILD_PRODUCTION_SOURCEMAPS: v.picklist(['true', 'false']),
   },
   experimental__runtimeEnv: process.env,
+  emptyStringAsUndefined: true,
 });

@@ -24,4 +24,5 @@ export const clientEnv = createEnv({
     NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED:
       process.env.NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED,
   },
+  emptyStringAsUndefined: true,
 });
