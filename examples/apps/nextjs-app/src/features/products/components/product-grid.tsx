@@ -4,7 +4,7 @@ import { MIntl } from '@httpx/memo-intl';
 import type { ColDef, GridOptions } from 'ag-grid-community';
 import { type FC, useState } from 'react';
 
-import { DynamicAgGrid } from '@/components/ag-grid/dynamic-ag-grid';
+import { AgGrid } from '@/components/ag-grid/ag-grid';
 import { cn } from '@/components/utils';
 import { useSuspenseEthicalProducts } from '@/features/products/api/ethical-api';
 import type { EthicalProduct } from '@/features/products/data/ethical-products.data';
@@ -58,7 +58,7 @@ export const ProductGrid: FC<Props> = (props) => {
 
   return (
     <div className={cn('flex-1 w-full h-full', className)}>
-      <DynamicAgGrid
+      <AgGrid
         rowData={data}
         columnDefs={colDefs}
         autoSizeStrategy={autoSizeStrategy}
