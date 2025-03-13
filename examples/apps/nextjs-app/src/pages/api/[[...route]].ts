@@ -45,7 +45,7 @@ app.get(
 app.get(
   '/docs',
   apiReference({
-    theme: 'saturn',
+    theme: 'default',
     url: '/api/openapi',
   })
 );
