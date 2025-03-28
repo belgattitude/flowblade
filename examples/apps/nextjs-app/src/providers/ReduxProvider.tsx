@@ -8,12 +8,10 @@ import { type AppStore, makeReduxStore } from '@/redux/redux-store';
 
 export const ReduxStoreProvider: FC<PropsWithChildren> = (props) => {
   const { children } = props;
-  const storeRef = useRef<AppStore | null>(null);
+  const storeRef = useRef<AppStore>(undefined);
 
-  if (!storeRef.current) {
-    // create new store instance to avoid leaking in ssr context
-    storeRef.current = makeReduxStore();
-  }
+  // create the redux store instance in the client to avoid leaking in ssr context
+  storeRef.current ??= makeReduxStore();
 
   return <Provider store={storeRef.current}>{children}</Provider>;
 };
