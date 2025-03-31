@@ -11,8 +11,8 @@ describe('DuckDBAsyncDatasource e2e', async () => {
     ds = new DuckdbDatasource({ connection: duckdb });
   });
 
-  afterEach(async () => {
-    ds.getConnection().close();
+  afterEach(() => {
+    ds.getConnection().closeSync();
   });
 
   describe('query', () => {
