@@ -1261,9 +1261,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@duckdb/node-api@npm:1.2.1-alpha.17":
+  version: 1.2.1-alpha.17
+  resolution: "@duckdb/node-api@npm:1.2.1-alpha.17"
+  dependencies:
+    "@duckdb/node-bindings": "npm:1.2.1-alpha.17"
+  checksum: 10c0/2d895b7691d5e8a767fff2059f9f58521e5d878ab09b53640d86b205835027adc58b429861ea52ccdc0870be21ba94283a385afc58a3788d82fae06b01b62049
+  languageName: node
+  linkType: hard
+
 "@duckdb/node-bindings-darwin-arm64@npm:1.2.1-alpha.16":
   version: 1.2.1-alpha.16
   resolution: "@duckdb/node-bindings-darwin-arm64@npm:1.2.1-alpha.16"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@duckdb/node-bindings-darwin-arm64@npm:1.2.1-alpha.17":
+  version: 1.2.1-alpha.17
+  resolution: "@duckdb/node-bindings-darwin-arm64@npm:1.2.1-alpha.17"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
@@ -1275,9 +1291,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@duckdb/node-bindings-darwin-x64@npm:1.2.1-alpha.17":
+  version: 1.2.1-alpha.17
+  resolution: "@duckdb/node-bindings-darwin-x64@npm:1.2.1-alpha.17"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
 "@duckdb/node-bindings-linux-arm64@npm:1.2.1-alpha.16":
   version: 1.2.1-alpha.16
   resolution: "@duckdb/node-bindings-linux-arm64@npm:1.2.1-alpha.16"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@duckdb/node-bindings-linux-arm64@npm:1.2.1-alpha.17":
+  version: 1.2.1-alpha.17
+  resolution: "@duckdb/node-bindings-linux-arm64@npm:1.2.1-alpha.17"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
@@ -1289,9 +1319,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@duckdb/node-bindings-linux-x64@npm:1.2.1-alpha.17":
+  version: 1.2.1-alpha.17
+  resolution: "@duckdb/node-bindings-linux-x64@npm:1.2.1-alpha.17"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
 "@duckdb/node-bindings-win32-x64@npm:1.2.1-alpha.16":
   version: 1.2.1-alpha.16
   resolution: "@duckdb/node-bindings-win32-x64@npm:1.2.1-alpha.16"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@duckdb/node-bindings-win32-x64@npm:1.2.1-alpha.17":
+  version: 1.2.1-alpha.17
+  resolution: "@duckdb/node-bindings-win32-x64@npm:1.2.1-alpha.17"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -1317,6 +1361,30 @@ __metadata:
     "@duckdb/node-bindings-win32-x64":
       optional: true
   checksum: 10c0/3ba6b87865f23a46c2c694bd5abc4bc4eae16fc98c60bb2dc748399ae68f2b714b9d085095a448e57a5825c9425f0e7fc604d08f6a1f947c708f96306e8b11bc
+  languageName: node
+  linkType: hard
+
+"@duckdb/node-bindings@npm:1.2.1-alpha.17":
+  version: 1.2.1-alpha.17
+  resolution: "@duckdb/node-bindings@npm:1.2.1-alpha.17"
+  dependencies:
+    "@duckdb/node-bindings-darwin-arm64": "npm:1.2.1-alpha.17"
+    "@duckdb/node-bindings-darwin-x64": "npm:1.2.1-alpha.17"
+    "@duckdb/node-bindings-linux-arm64": "npm:1.2.1-alpha.17"
+    "@duckdb/node-bindings-linux-x64": "npm:1.2.1-alpha.17"
+    "@duckdb/node-bindings-win32-x64": "npm:1.2.1-alpha.17"
+  dependenciesMeta:
+    "@duckdb/node-bindings-darwin-arm64":
+      optional: true
+    "@duckdb/node-bindings-darwin-x64":
+      optional: true
+    "@duckdb/node-bindings-linux-arm64":
+      optional: true
+    "@duckdb/node-bindings-linux-x64":
+      optional: true
+    "@duckdb/node-bindings-win32-x64":
+      optional: true
+  checksum: 10c0/bd5bb1f95ecc8498c0e6e777faae324049065e669e8d9ea5294494f34a1c8b114fde6e3571b8a4aa0fb7f001559fe657871b52353fb576e4634558fbd2e53fb8
   languageName: node
   linkType: hard
 
@@ -2162,7 +2230,7 @@ __metadata:
     "@arethetypeswrong/cli": "npm:0.17.4"
     "@belgattitude/eslint-config-bases": "npm:6.31.0"
     "@codspeed/vitest-plugin": "npm:4.0.1"
-    "@duckdb/node-api": "npm:1.2.1-alpha.16"
+    "@duckdb/node-api": "npm:1.2.1-alpha.17"
     "@edge-runtime/vm": "npm:5.0.0"
     "@faker-js/faker": "npm:9.6.0"
     "@flowblade/core": "workspace:^"
