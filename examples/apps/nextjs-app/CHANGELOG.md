@@ -1,5 +1,12 @@
 # Flowblade NextJs example app
 
+## 0.1.124
+
+### Patch Changes
+
+- Updated dependencies [[`bda3fc2`](https://github.com/belgattitude/flowblade/commit/bda3fc21d5d7d181fbc6354281330d74fe1de09d)]:
+  - @flowblade/source-duckdb@0.6.0
+
 ## 0.1.123
 
 ### Patch Changes
