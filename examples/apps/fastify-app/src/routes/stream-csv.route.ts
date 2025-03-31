@@ -3,8 +3,8 @@ import { ReadableStream } from 'node:stream/web';
 
 import type { FastifyInstance } from 'fastify';
 
-export default async function MainRoute(fastify: FastifyInstance) {
-  fastify.get('/stream-csv', async (request, reply) => {
+export default async function StreamCsvRoute(fastify: FastifyInstance) {
+  fastify.get('/stream-csv', async (_request, reply) => {
     const stream = fs.createReadStream('./data/test.csv');
     reply.header('Content-Type', 'application/octet-stream');
     reply.send(ReadableStream.from(stream));
