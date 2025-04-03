@@ -2088,7 +2088,7 @@ __metadata:
     execa: "npm:9.5.2"
     npm-run-all2: "npm:7.0.2"
     prettier: "npm:3.5.3"
-    publint: "npm:0.3.9"
+    publint: "npm:0.3.10"
     rimraf: "npm:6.0.1"
     rollup: "npm:4.39.0"
     size-limit: "npm:11.2.0"
@@ -2130,7 +2130,7 @@ __metadata:
     execa: "npm:9.5.2"
     npm-run-all2: "npm:7.0.2"
     prettier: "npm:3.5.3"
-    publint: "npm:0.3.9"
+    publint: "npm:0.3.10"
     rimraf: "npm:6.0.1"
     rollup: "npm:4.39.0"
     size-limit: "npm:11.2.0"
@@ -2178,7 +2178,7 @@ __metadata:
     prettier: "npm:3.5.3"
     prisma: "npm:6.5.0"
     prisma-kysely: "npm:1.8.0"
-    publint: "npm:0.3.9"
+    publint: "npm:0.3.10"
     rimraf: "npm:6.0.1"
     rollup: "npm:4.39.0"
     size-limit: "npm:11.2.0"
@@ -2229,7 +2229,7 @@ __metadata:
     execa: "npm:9.5.2"
     npm-run-all2: "npm:7.0.2"
     prettier: "npm:3.5.3"
-    publint: "npm:0.3.9"
+    publint: "npm:0.3.10"
     rimraf: "npm:6.0.1"
     rollup: "npm:4.39.0"
     size-limit: "npm:11.2.0"
@@ -2269,7 +2269,7 @@ __metadata:
     execa: "npm:9.5.2"
     npm-run-all2: "npm:7.0.2"
     prettier: "npm:3.5.3"
-    publint: "npm:0.3.9"
+    publint: "npm:0.3.10"
     rimraf: "npm:6.0.1"
     rollup: "npm:4.39.0"
     size-limit: "npm:11.2.0"
@@ -17473,12 +17473,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"package-manager-detector@npm:^0.2.0, package-manager-detector@npm:^0.2.8, package-manager-detector@npm:^0.2.9":
+"package-manager-detector@npm:^0.2.0, package-manager-detector@npm:^0.2.8":
   version: 0.2.11
   resolution: "package-manager-detector@npm:0.2.11"
   dependencies:
     quansync: "npm:^0.2.7"
   checksum: 10c0/247991de461b9e731f3463b7dae9ce187e53095b7b94d7d96eec039abf418b61ccf74464bec1d0c11d97311f33472e77baccd4c5898f77358da4b5b33395e0b1
+  languageName: node
+  linkType: hard
+
+"package-manager-detector@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "package-manager-detector@npm:1.1.0"
+  checksum: 10c0/b5ba0bdaae4d70bb6e1a1af047522fdcd811e65e60927c2e7cc3736324a00b30d66ac304bab1d7cd925b11142d90fcc4215a7efde430a5616cea698e0b2dfada
   languageName: node
   linkType: hard
 
@@ -18298,17 +18305,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"publint@npm:0.3.9":
-  version: 0.3.9
-  resolution: "publint@npm:0.3.9"
+"publint@npm:0.3.10":
+  version: 0.3.10
+  resolution: "publint@npm:0.3.10"
   dependencies:
     "@publint/pack": "npm:^0.1.2"
-    package-manager-detector: "npm:^0.2.9"
+    package-manager-detector: "npm:^1.1.0"
     picocolors: "npm:^1.1.1"
     sade: "npm:^1.8.1"
   bin:
     publint: src/cli.js
-  checksum: 10c0/cb0d3b7a5509be4ffa77a61809bc2e8b79620b3be4c420dade8a722e085bb6a9280fce3e04f44b2b5cf8adeded376c1ad2eedd0e03c35829307a220d5926826f
+  checksum: 10c0/ab8518d4b2077d8eda3fcdae6c7acd72a7c48dab54e2b3bc457b050073059dbe47081dc7e5b209fb703f04930c3849cb2744177cad02379f23599d731e7615f7
   languageName: node
   linkType: hard
 
