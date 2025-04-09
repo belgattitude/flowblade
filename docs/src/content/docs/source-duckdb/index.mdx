@@ -43,7 +43,7 @@ const createConnection = async (
     // See: https://duckdb.org/docs/connect/concurrency.html
     access_mode: 'READ_WRITE',
     max_memory: '64MB',
-    // More threads might create more memory needs
+    // Using more threads may require additional memory
     ...(threads ? { threads: threads.toString(10) } : {}),
   });
   return await instance.connect();
