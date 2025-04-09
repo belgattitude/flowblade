@@ -18,6 +18,9 @@ jobs:
     strategy:
       matrix:
         node-version: [22.x]
+    env:
+      TURBO_API: 'http://127.0.0.1:9080'
+      TURBO_TEAM: 'flowblade'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,6 +32,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+
+      - name: ⏩ TurboRepo local server
+        uses: felixmosh/turborepo-gh-artifacts@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
 
       - name: 📥 Monorepo install
         uses: ./.github/actions/yarn-nm-install
@@ -49,13 +58,13 @@ jobs:
             ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-
 
       - name: 🕵️ Typecheck
-        run: yarn turbo run typecheck --filter='@examples/*'
+        run: yarn turbo run typecheck --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🔬 ESLint checks
-        run: yarn turbo run lint --filter='@examples/*'
+        run: yarn turbo run lint --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🧪 Unit tests
-        run: yarn turbo run test-unit --filter='@examples/*'
+        run: yarn turbo run test-unit --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🏗 Build packages
-        run: yarn turbo run build --filter='@examples/*'
+        run: yarn turbo run build --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
