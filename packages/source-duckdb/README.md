@@ -13,8 +13,8 @@
 yarn add @flowblade/source-duckdb @flowblade/core @duckdb/node-api
 ```
 
-> Note that at this time duckdb neo is still in alpha. To install use the latest tag
-> ie: `@duckdb/node-api@^1.2.1-alpha.17`
+> Note that at this time [@duckdb/node-api](https://github.com/duckdb/duckdb-node-neo) 
+> is still in alpha. To install use the latest tag, ie: `@duckdb/node-api@1.2.1-alpha.18`
 
 ### Create a duckdb instance
 
@@ -38,9 +38,8 @@ const createConnection = async (
     // See: https://duckdb.org/docs/connect/concurrency.html
     access_mode: 'READ_WRITE',
     max_memory: '64MB',
-    // More threads, mome memory
+    // More threads might create more memory needs
     ...(threads ? { threads: threads.toString(10) } : {}),
-
   });
   return await instance.connect();
 };
@@ -96,11 +95,12 @@ const { data, meta, error } = result;
 
 // Option 2: You operate over the result, ie: mapping the data
 
-const { data } = result.map((row) => {
+const { data: data2 } = result.map((row) => {
     return {
         id: row.productId,
         key: `key-${row.productId}`
-    })
+    }
+});
 
 if (data) {
     console.log(data);
