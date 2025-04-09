@@ -41,6 +41,12 @@ jobs:
         with:
           node-version: "22.x"
 
+      - name: ⏩ TurboRepo local server
+        uses: felixmosh/turborepo-gh-artifacts@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
+
       - name: 📥 Monorepo install
         uses: ./.github/actions/yarn-nm-install
 
@@ -54,10 +60,10 @@ jobs:
           key: website-docs-build-cache-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
       - name: 🕵️ Typecheck
-        run: yarn turbo run typecheck --filter='@docs/website'
+        run: yarn turbo run typecheck --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🔬 ESLint checks
-        run: yarn turbo run lint --filter='@docs/website'
+        run: yarn turbo run lint --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🏗 Build docs
         run: yarn workspace @docs/website run build-static
