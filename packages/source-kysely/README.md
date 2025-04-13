@@ -86,7 +86,7 @@ const jdbcDsn = "sqlserver://localhost:1433;database=db;user=sa;password=pwd;tru
 const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
 
 const dialect = createKyselyMssqlDialect({
-    tediousConfig: config,
+    tediousConfig,
     // 👉 Optional tarn pool options
     poolOptions: {
         min: 0,  // 👉 Minimum number of connections, default 0
