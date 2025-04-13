@@ -1,8 +1,8 @@
-**@flowblade/core v0.2.5**
+**@flowblade/core v0.2.8**
 
 ***
 
-# @flowblade/core v0.2.5
+# @flowblade/core v0.2.8
 
 ## Classes
 
@@ -19,6 +19,8 @@
 
 ## Type Aliases
 
+- [AsyncQResult](type-aliases/AsyncQResult.md)
+- [InferQResult](type-aliases/InferQResult.md)
 - [QMetaSpan](type-aliases/QMetaSpan.md)
 
 ## Functions

@@ -1,4 +1,4 @@
-[**@flowblade/core v0.2.5**](../README.md)
+[**@flowblade/core v0.2.8**](../README.md)
 
 ***
 
@@ -10,7 +10,9 @@
 
 ## Type Parameters
 
-• **T** *extends* `unknown`[]
+### T
+
+`T` *extends* `unknown`[]
 
 ## Parameters
 

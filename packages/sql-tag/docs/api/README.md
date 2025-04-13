@@ -1,13 +1,13 @@
-**@flowblade/sql-tag v0.1.7**
+**@flowblade/sql-tag v0.1.10**
 
 ***
 
-# @flowblade/sql-tag v0.1.7
+# @flowblade/sql-tag v0.1.10
 
 ## Type Aliases
 
 - [SqlTag](type-aliases/SqlTag.md)
 
-## Functions
+## Variables
 
-- [sql](functions/sql.md)
+- [sql](variables/sql.md)

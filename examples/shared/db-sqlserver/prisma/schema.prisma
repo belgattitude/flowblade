@@ -8,6 +8,7 @@ generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["multiSchema", "views"]
   output          = "../src/generated/client"
+  moduleFormat    = "esm"
 }
 
 /// https://github.com/samchon/prisma-markdown

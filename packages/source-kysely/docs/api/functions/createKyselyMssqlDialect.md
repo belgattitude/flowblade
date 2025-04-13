@@ -1,4 +1,4 @@
-[**@flowblade/source-kysely v0.13.8**](../README.md)
+[**@flowblade/source-kysely v0.13.12**](../README.md)
 
 ***
 
@@ -35,14 +35,15 @@ const dialect = createKyselyMssqlDialect({
  poolOptions: {
    min: 0,                        // Minimum number of connections, default 0
    max: 10,                       // Minimum number of connections, default 10
-   validateConnections: true,     // Revalidate new connections, default true
    propagateCreateError: false,   // Propagate connection creation errors, default false
    log: (msg) => console.log(msg) // Custom logger, default noop
  },
  // 👉 Optional tarn pool options
  dialectConfig: {
-   // 👉 Reset connection on pool release, default true
-   resetConnectionOnRelease: true,
+   // 👉 Validate connections before being acquired from the pool, default true
+   validateConnections: true,
+   // 👉 Reset connection on pool release, default false
+   resetConnectionsOnRelease: false,
    // 👉 Example based on https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
    tediousTypes: { ...Tedious.TYPES, NVarChar: Tedious.TYPES.VarChar}
  }

@@ -1,4 +1,4 @@
-[**@flowblade/source-kysely v0.13.8**](../README.md)
+[**@flowblade/source-kysely v0.13.12**](../README.md)
 
 ***
 
@@ -34,6 +34,6 @@ const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
 const tediousConnection = new Tedious.Connection(tediousConfig);
 ```
 
-#### Throw
+#### Throws
 
 TypeError if dsn isn't valid

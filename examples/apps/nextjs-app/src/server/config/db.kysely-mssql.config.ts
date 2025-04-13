@@ -15,11 +15,11 @@ const dialect = createKyselyMssqlDialect({
   poolOptions: {
     min: 0,
     max: 10,
-    validateConnections: false,
     propagateCreateError: true,
   },
   dialectConfig: {
-    resetConnectionOnRelease: false,
+    validateConnections: false,
+    resetConnectionsOnRelease: false,
   },
 });
 

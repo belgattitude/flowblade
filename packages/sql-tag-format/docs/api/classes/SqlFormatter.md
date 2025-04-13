@@ -1,4 +1,4 @@
-[**@flowblade/sql-tag-format v0.0.6**](../README.md)
+[**@flowblade/sql-tag-format v0.0.10**](../README.md)
 
 ***
 
@@ -8,9 +8,9 @@
 
 ## Constructors
 
-### new SqlFormatter()
+### Constructor
 
-> **new SqlFormatter**(`dialect`, `formatterOptions`?): [`SqlFormatter`](SqlFormatter.md)
+> **new SqlFormatter**(`dialect`, `formatterOptions?`): `SqlFormatter`
 
 SqlFormatter constructor
 
@@ -18,7 +18,7 @@ SqlFormatter constructor
 
 ##### dialect
 
-`"bigquery"` | `"db2"` | `"db2i"` | `"hive"` | `"mariadb"` | `"mysql"` | `"n1ql"` | `"plsql"` | `"postgresql"` | `"redshift"` | `"singlestoredb"` | `"snowflake"` | `"spark"` | `"sql"` | `"sqlite"` | `"tidb"` | `"transactsql"` | `"trino"` | `"tsql"`
+`"bigquery"` | `"db2"` | `"db2i"` | `"hive"` | `"mariadb"` | `"mysql"` | `"tidb"` | `"n1ql"` | `"plsql"` | `"postgresql"` | `"redshift"` | `"spark"` | `"sqlite"` | `"sql"` | `"trino"` | `"transactsql"` | `"singlestoredb"` | `"snowflake"` | `"tsql"`
 
 ##### formatterOptions?
 
@@ -26,7 +26,7 @@ SqlFormatter constructor
 
 #### Returns
 
-[`SqlFormatter`](SqlFormatter.md)
+`SqlFormatter`
 
 #### Example
 
@@ -64,7 +64,7 @@ try {
 
 ### formatOrNull()
 
-> **formatOrNull**(`sql`, `params`?): `null` \| `string`
+> **formatOrNull**(`sql`, `params?`): `null` \| `string`
 
 Format sql to string or return null if sql cannot be parsed
 
@@ -72,7 +72,7 @@ Format sql to string or return null if sql cannot be parsed
 
 ##### sql
 
-`SqlTag`\<`unknown`\>
+`string` | `SqlTag`\<`unknown`\>
 
 ##### params?
 
@@ -98,7 +98,7 @@ const formatted = sqlFormatter.formatOrNull(
 
 ### formatOrThrow()
 
-> **formatOrThrow**(`sql`, `params`?): `string`
+> **formatOrThrow**(`sql`, `params?`): `string`
 
 Format sql to string or throw an error if sql cannot be parsed
 
@@ -106,7 +106,7 @@ Format sql to string or throw an error if sql cannot be parsed
 
 ##### sql
 
-`SqlTag`\<`unknown`\>
+`string` | `SqlTag`\<`unknown`\>
 
 ##### params?
 

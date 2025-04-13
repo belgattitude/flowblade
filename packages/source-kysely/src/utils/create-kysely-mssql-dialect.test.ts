@@ -15,9 +15,10 @@ describe('createKyselyMssqlDialect', () => {
       poolOptions: {
         min: 0,
         max: 10,
-        validateConnections: false,
       },
       dialectConfig: {
+        validateConnections: true,
+        resetConnectionsOnRelease: false,
         tediousTypes: {
           ...Tedious.TYPES,
           NVarChar: Tedious.TYPES.VarChar,

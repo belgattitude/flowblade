@@ -1,4 +1,4 @@
-[**@flowblade/core v0.2.5**](../README.md)
+[**@flowblade/core v0.2.8**](../README.md)
 
 ***
 
@@ -8,9 +8,9 @@
 
 ## Constructors
 
-### new QMeta()
+### Constructor
 
-> **new QMeta**(`params`): [`QMeta`](QMeta.md)
+> **new QMeta**(`params`): `QMeta`
 
 Construct a new span
 
@@ -22,7 +22,7 @@ Construct a new span
 
 #### Returns
 
-[`QMeta`](QMeta.md)
+`QMeta`
 
 #### Example
 
@@ -133,7 +133,7 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
 
 ### withSpan()
 
-> **withSpan**(`span`): [`QMeta`](QMeta.md)
+> **withSpan**(`span`): `QMeta`
 
 Return a new instance of QMeta with the provided span added.
 
@@ -145,7 +145,7 @@ Return a new instance of QMeta with the provided span added.
 
 #### Returns
 
-[`QMeta`](QMeta.md)
+`QMeta`
 
 #### Example
 
