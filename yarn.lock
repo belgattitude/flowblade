@@ -492,19 +492,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@belgattitude/eslint-config-bases@npm:6.34.0":
-  version: 6.34.0
-  resolution: "@belgattitude/eslint-config-bases@npm:6.34.0"
+"@belgattitude/eslint-config-bases@npm:6.35.0":
+  version: 6.35.0
+  resolution: "@belgattitude/eslint-config-bases@npm:6.35.0"
   dependencies:
     "@rushstack/eslint-patch": "npm:^1.11.0"
-    "@tanstack/eslint-plugin-query": "npm:5.71.5"
+    "@tanstack/eslint-plugin-query": "npm:^5.73.3"
     "@typescript-eslint/eslint-plugin": "npm:^8.29.1"
     "@typescript-eslint/parser": "npm:^8.29.1"
     "@typescript-eslint/typescript-estree": "npm:^8.29.1"
     "@typescript-eslint/utils": "npm:^8.29.1"
     "@vitest/eslint-plugin": "npm:^1.1.42"
     eslint-config-prettier: "npm:^10.1.2"
-    eslint-plugin-import-x: "npm:^4.10.2"
+    eslint-plugin-import-x: "npm:^4.10.3"
     eslint-plugin-jest: "npm:^28.11.0"
     eslint-plugin-jest-formatting: "npm:^3.1.0"
     eslint-plugin-jsx-a11y: "npm:^6.10.2"
@@ -549,7 +549,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/dedbb5bfbd3b29b11937acd29521f063b63b05393332d58e7ca1f063cdd4dd7e806eefd5b159705b0d2c3d4caa4256d6dc9727d458c9a5f1e49ce8002aafdff2
+  checksum: 10c0/a7495c4fb7ef11aa3304c3f1d5f91b3ad28a92531d03516bd622a964e7828e956a595428731f504733930154cc9f07b2563fe53dfdcccca532d90e0b9e53b56c
   languageName: node
   linkType: hard
 
@@ -1150,7 +1150,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@docs/website@workspace:docs"
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.34.0"
+    "@belgattitude/eslint-config-bases": "npm:6.35.0"
     "@t3-oss/env-nextjs": "npm:0.12.0"
     "@tailwindcss/postcss": "npm:4.1.3"
     "@total-typescript/ts-reset": "npm:0.6.1"
@@ -1539,7 +1539,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples/db-sqlserver@workspace:examples/shared/db-sqlserver"
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.34.0"
+    "@belgattitude/eslint-config-bases": "npm:6.35.0"
     "@faker-js/faker": "npm:9.6.0"
     "@flowblade/core": "workspace:^"
     "@flowblade/sql-tag": "workspace:^"
@@ -1585,7 +1585,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples/duckdb-openfoodfact@workspace:examples/shared/duckb-openfoodfact"
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.34.0"
+    "@belgattitude/eslint-config-bases": "npm:6.35.0"
     "@duckdb/node-api": "npm:1.2.2-alpha.18"
     "@faker-js/faker": "npm:9.6.0"
     "@flowblade/core": "workspace:^"
@@ -1634,7 +1634,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples/fastify-app@workspace:examples/apps/fastify-app"
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.34.0"
+    "@belgattitude/eslint-config-bases": "npm:6.35.0"
     "@duckdb/node-api": "npm:1.2.2-alpha.18"
     "@examples/db-sqlserver": "workspace:^"
     "@fast-csv/format": "npm:5.0.2"
@@ -1690,7 +1690,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples/nextjs-app@workspace:examples/apps/nextjs-app"
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.34.0"
+    "@belgattitude/eslint-config-bases": "npm:6.35.0"
     "@duckdb/node-api": "npm:1.2.2-alpha.18"
     "@examples/db-sqlserver": "workspace:^"
     "@faker-js/faker": "npm:9.6.0"
@@ -2052,7 +2052,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@flowblade/benchmark@workspace:benchmark"
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.34.0"
+    "@belgattitude/eslint-config-bases": "npm:6.35.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
     "@types/node": "npm:22.14.1"
     "@typescript-eslint/eslint-plugin": "npm:8.29.1"
@@ -2070,7 +2070,7 @@ __metadata:
   resolution: "@flowblade/core@workspace:packages/core"
   dependencies:
     "@arethetypeswrong/cli": "npm:0.17.4"
-    "@belgattitude/eslint-config-bases": "npm:6.34.0"
+    "@belgattitude/eslint-config-bases": "npm:6.35.0"
     "@codspeed/vitest-plugin": "npm:4.0.1"
     "@edge-runtime/vm": "npm:5.0.0"
     "@faker-js/faker": "npm:9.6.0"
@@ -2111,7 +2111,7 @@ __metadata:
   resolution: "@flowblade/source-duckdb@workspace:packages/source-duckdb"
   dependencies:
     "@arethetypeswrong/cli": "npm:0.17.4"
-    "@belgattitude/eslint-config-bases": "npm:6.34.0"
+    "@belgattitude/eslint-config-bases": "npm:6.35.0"
     "@codspeed/vitest-plugin": "npm:4.0.1"
     "@duckdb/node-api": "npm:1.2.2-alpha.18"
     "@edge-runtime/vm": "npm:5.0.0"
@@ -2155,7 +2155,7 @@ __metadata:
   resolution: "@flowblade/source-kysely@workspace:packages/source-kysely"
   dependencies:
     "@arethetypeswrong/cli": "npm:0.17.4"
-    "@belgattitude/eslint-config-bases": "npm:6.34.0"
+    "@belgattitude/eslint-config-bases": "npm:6.35.0"
     "@codspeed/vitest-plugin": "npm:4.0.1"
     "@edge-runtime/vm": "npm:5.0.0"
     "@faker-js/faker": "npm:9.6.0"
@@ -2214,7 +2214,7 @@ __metadata:
   resolution: "@flowblade/sql-tag-format@workspace:packages/sql-tag-format"
   dependencies:
     "@arethetypeswrong/cli": "npm:0.17.4"
-    "@belgattitude/eslint-config-bases": "npm:6.34.0"
+    "@belgattitude/eslint-config-bases": "npm:6.35.0"
     "@codspeed/vitest-plugin": "npm:4.0.1"
     "@edge-runtime/vm": "npm:5.0.0"
     "@size-limit/file": "npm:11.2.0"
@@ -2253,7 +2253,7 @@ __metadata:
   resolution: "@flowblade/sql-tag@workspace:packages/sql-tag"
   dependencies:
     "@arethetypeswrong/cli": "npm:0.17.4"
-    "@belgattitude/eslint-config-bases": "npm:6.34.0"
+    "@belgattitude/eslint-config-bases": "npm:6.35.0"
     "@codspeed/vitest-plugin": "npm:4.0.1"
     "@edge-runtime/vm": "npm:5.0.0"
     "@electric-sql/pglite": "npm:0.2.17"
@@ -6362,14 +6362,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/eslint-plugin-query@npm:5.71.5":
-  version: 5.71.5
-  resolution: "@tanstack/eslint-plugin-query@npm:5.71.5"
+"@tanstack/eslint-plugin-query@npm:^5.73.3":
+  version: 5.73.3
+  resolution: "@tanstack/eslint-plugin-query@npm:5.73.3"
   dependencies:
     "@typescript-eslint/utils": "npm:^8.18.1"
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0
-  checksum: 10c0/ad2ea00b965f0ef64296bf3d24ea30fab1b43d00495b4738d307b485954d7e58e2806caaa530b03b0cf74a49816ae62494999ff4036fa07bd887c0ab9e82e467
+  checksum: 10c0/82cfa9bc3ebc47adb995f6ca57cdd1b498a66af1dc4e7f9329bed1168f1e72bdebb09db316fba9cb8e3a60b5da0b1edda174c5efa51c3a0f61f29955d64cae19
   languageName: node
   linkType: hard
 
@@ -11062,7 +11062,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-import-x@npm:^4.10.2":
+"eslint-plugin-import-x@npm:^4.10.3":
   version: 4.10.3
   resolution: "eslint-plugin-import-x@npm:4.10.3"
   dependencies:
@@ -12087,7 +12087,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "flowblade-monorepo@workspace:."
   dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.34.0"
+    "@belgattitude/eslint-config-bases": "npm:6.35.0"
     "@changesets/changelog-github": "npm:0.5.1"
     "@changesets/cli": "npm:2.28.1"
     "@commitlint/cli": "npm:19.8.0"
