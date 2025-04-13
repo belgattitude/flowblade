@@ -1,5 +1,7 @@
 # @flowblade/source-kysely
 
+A source adapter for [Kysely](https://github.com/kysely-org/kysely).
+
 [![npm](https://img.shields.io/npm/v/@flowblade/source-kysely?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/source-kysely)
 [![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/source-kysely/CHANGELOG.md)
 [![codecov](https://img.shields.io/codecov/c/github/belgattitude/flowblade?logo=codecov&label=Unit&flag=flowblade-source-kysely-unit&style=for-the-badge&labelColor=444)](https://app.codecov.io/gh/belgattitude/flowblade/tree/main/packages%2Fsource-kysely)
@@ -9,7 +11,6 @@
 [![size](https://img.shields.io/bundlephobia/minzip/@flowblade/source-kysely@latest?label=Max&style=for-the-badge&labelColor=444&color=informational)](https://bundlephobia.com/package/@flowblade/source-kysely@latest)
 [![downloads](https://img.shields.io/npm/dm/@flowblade/source-kysely?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/source-kysely)
 [![license](https://img.shields.io/npm/l/@flowblade/source-kysely?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
-
 
 ## Install
 
@@ -21,22 +22,31 @@ yarn add @flowblade/core @flowblade/source-kysely kysely
 yarn add tedious tarn
 ```
 
+Kysely supports
+
+[![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=flat&logo=postgresql&logoColor=white)](https://kysely.dev/docs/getting-started?dialect=postgresql)
+[![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=flat&logo=mysql&logoColor=white)](https://kysely.dev/docs/getting-started?dialect=mysql)
+[![MicrosoftSQLServer](https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=flat&logo=microsoft%20sql%20server&logoColor=white)](https://kysely.dev/docs/getting-started?dialect=mssql)
+[![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=flat&logo=sqlite&logoColor=white)](https://kysely.dev/docs/getting-started?dialect=sqlite)
+
 ## Quick start
 
 ```typescript
 // Your db configuration, see Utils section for more details
 import { db } from '@/config/db.config.ts'; 
 import { KyselyDatasource, isQueryResultError } from '@flowblade/source-kysely';
-import { sql } from 'kysely'; 
+import { sql } from 'kysely';
+
+import { KyselyDatasource, isQueryResultError } from '@flowblade/source-kysely';
 
 const ds = new KyselyDatasource({ db });
-const query = ds.queryBuilder  // Kysely expression builder
-        .selectFrom('brand as b')
-        .select(['b.id', 'b.name'])
-        .leftJoin('product as p', 'p.brand_id', 'b.id')
-        .select(['p.id as product_id', 'p.name as product_name'])
-        .where('b.created_at', '<', new Date())
-        .orderBy('b.name', 'desc');
+const query = ds.queryBuilder // This gives access to Kysely expression builder
+    .selectFrom('brand as b')
+    .select(['b.id', 'b.name'])
+    .leftJoin('product as p', 'p.brand_id', 'b.id')
+    .select(['p.id as product_id', 'p.name as product_name'])
+    .where('b.created_at', '<', new Date())
+    .orderBy('b.name', 'desc');
 
 const result = await ds.query(query);
 
@@ -45,83 +55,62 @@ const result = await ds.query(query);
 //  name: 'getBrands'
 // });
 
-// Discriminated usin with success: true | false
-if (isQueryResultError(result)) {
-    console.error(result.error);
-    console.error(result.meta);
-}  else {
-    console.log(result.data);
-    console.log(result.meta);
-}
 
-/** Raw queries support */
-const data = await ds.queryRaw(sql<{ count: number }>`SELECT 1 as "count' FROM brand`);
-```
+// Option 1: the QResult object contains the data, metadata and error
+//  - data:  the result rows (TData or undefined if error)
+//  - error: the error (QError or undefined if success)
+//  - meta:  the metadata (always present)
 
-## Type helpers
+const { data, meta, error } = result;
 
-### InferQueryResultData
+// Option 2: You operate over the result, ie: mapping the data
 
-Infer the success part (data) of a QueryResult.
-
-```typescript
-import type { InferQueryResultData, QueryResult } from "@flowblade/source-kysely";
-
-type Row = { id: number };
-const queryResult: QueryResult<Row[]> = {
-  success: true,
-  data: [ { id: 1 } ],
-};
-type TData = InferQueryResultData<typeof queryResult>;
-// TData is Row[]
-```
-
-### InferAsyncQueryResultSuccess
-
-Infer the success part (data) of an AsyncQueryResult.
-
-```typescript
-import type { InferAsyncQueryResultData, AsyncQueryResult } from "@flowblade/source-kysely";
-
-type Row = { id: number };
-const getQueryResult = async (): AsyncQueryResult<Row[]> => {
+const { data: data2 } = result.map((row) => {
     return {
-        success: true,
-        data: [{ id: 1 }],
-    };
-};
-type TData = InferAsyncQueryResultData<ReturnType<typeof getQueryResult>>;
-// TData is Row[]
+        ...data,
+        key: `key-${row.productId}`
+    }})
 ```
 
 ## Utils
 
 ### createKyselyMssqlDialect
 
+Create a Kysely dialect for Ms SqlServer or Azure Sql Edge.
+
 ```typescript
-import { default as Tedious } from 'tedious';
+import * as Tedious from 'tedious';
 import { TediousConnUtils, createKyselyMssqlDialect } from '@flowblade/source-kysely';
 
 const jdbcDsn = "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
 const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
 
 const dialect = createKyselyMssqlDialect({
-    tediousConfig,
+    tediousConfig: config,
     // 👉 Optional tarn pool options
     poolOptions: {
-        min: 0,                        // Minimum number of connections, default 0
-        max: 10,                       // Minimum number of connections, default 10
-        validateConnections: true,     // Revalidate new connections, default true
-        propagateCreateError: false,   // Propagate connection creation errors, default false
-        log: (msg) => console.log(msg) // Custom logger, default noop
+        min: 0,  // 👉 Minimum number of connections, default 0
+        max: 10, // 👉 Maximum number of connections, default 10
+        propagateCreateError: true, // 👉 Propagate connection creation errors, default false
     },
-    // 👉 Optional tarn pool options
     dialectConfig: {
-        // 👉 Reset connection on pool release, default true
-        resetConnectionOnRelease: true,
-        // 👉 Example based on https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
-        tediousTypes: { ...Tedious.TYPES, NVarChar: Tedious.TYPES.VarChar}
-    }
+        /**
+         * When true, connections are validated before being acquired from the pool,
+         * resulting in additional requests to the database.
+         *
+         * In safe scenarios, this can be set to false to improve performance.
+         *
+         * Defaults to `true`.
+         */
+        validateConnections: true,
+        /**
+         * When true, connections are reset to their initial states when released back to the pool,
+         * resulting in additional requests to the database.
+         *
+         * Defaults to `false`.
+         */
+        resetConnectionsOnRelease: false,
+    },
 });
 
 const db = new Kysely<DB>({
@@ -129,7 +118,7 @@ const db = new Kysely<DB>({
 })
 ```
 
-> ℹ️ **Note**: For performance you can avoid connection roundtrips by setting `validateConnections` to `false`
+> **Note**: For performance you can avoid connection roundtrips by setting `validateConnections` to `false`
 > and `resetConnectionOnRelease` to `false`. 
 
 ### TediousConnUtils
@@ -141,10 +130,11 @@ Parse and validate a JDBC connection string and return a Tedious connection conf
 ```typescript
 import { TediousConnUtils } from '@flowblade/source-kysely';
 
+// In your .env file
+// DB_JDBC_DSN="sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
+
 const tediousConfig = TediousConnUtils.fromJdbcDsn(process.env.DB_JDBC_DSN);
 
-const jdbcDsn = "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
-const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
 const tediousConnection = new Tedious.Connection(tediousConfig);
 ```
 
