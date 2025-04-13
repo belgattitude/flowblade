@@ -2,7 +2,7 @@
 "@flowblade/source-kysely": minor
 ---
 
-Update to kysely 0.28.0
+Update to kysely 0.28.0, see https://github.com/kysely-org/kysely/releases/tag/0.28.0
 
 ## BC changes
 
