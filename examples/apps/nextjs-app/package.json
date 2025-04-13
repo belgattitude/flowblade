@@ -15,7 +15,7 @@
     "directory": "examples/apps/nextjs-app"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "sidecar": "npx spotlight-sidecar",
     "build": "next build",
     "build-no-paths": "cross-env NEXT_BUILD_TSCONFIG=./tsconfig.no-paths.json next build",
