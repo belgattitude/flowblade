@@ -17,11 +17,11 @@ export const e2eSqlServerDb = new Kysely<E2EDbTypes['sqlServer']>({
     poolOptions: {
       min: 0,
       max: 10,
-      validateConnections: false,
       propagateCreateError: true,
     },
     dialectConfig: {
-      resetConnectionOnRelease: false,
+      validateConnections: false,
+      resetConnectionsOnRelease: false,
     },
   }),
 });

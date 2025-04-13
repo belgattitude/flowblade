@@ -9,12 +9,6 @@ import {
 
 type PoolOptions = {
   /**
-   * Controls whether connections are validated before being acquired from the pool.
-   * Connection validation performs additional requests to the database.
-   */
-  validateConnections?: MssqlDialectConfig['tarn']['options']['validateConnections'];
-
-  /**
    * Logger function, noop by default
    */
   log?: MssqlDialectConfig['tarn']['options']['log'];
@@ -25,14 +19,22 @@ type Params = {
   poolOptions?: PoolOptions;
   dialectConfig?: {
     /**
-     * Controls whether connections are reset to their initial states when released back to the pool.
-     * Resetting a connection performs additional requests to the database.
+     * When true, connections are reset to their initial states when released back to the pool,
+     * resulting in additional requests to the database.
      *
-     * See {@link https://tediousjs.github.io/tedious/api-connection.html#function_reset | connection.reset}.
+     * Defaults to `false`.
+     */
+    resetConnectionsOnRelease?: MssqlDialectConfig['resetConnectionsOnRelease'];
+
+    /**
+     * When true, connections are validated before being acquired from the pool,
+     * resulting in additional requests to the database.
+     *
+     * In safe scenarios, this can be set to false to improve performance.
      *
      * Defaults to `true`.
      */
-    resetConnectionOnRelease?: boolean;
+    validateConnections?: MssqlDialectConfig['validateConnections'];
     tediousTypes?: typeof Tedious.TYPES;
   };
 };
@@ -54,14 +56,15 @@ type Params = {
  *  poolOptions: {
  *    min: 0,                        // Minimum number of connections, default 0
  *    max: 10,                       // Minimum number of connections, default 10
- *    validateConnections: true,     // Revalidate new connections, default true
  *    propagateCreateError: false,   // Propagate connection creation errors, default false
  *    log: (msg) => console.log(msg) // Custom logger, default noop
  *  },
  *  // 👉 Optional tarn pool options
  *  dialectConfig: {
- *    // 👉 Reset connection on pool release, default true
- *    resetConnectionOnRelease: true,
+ *    // 👉 Validate connections before being acquired from the pool, default true
+ *    validateConnections: true,
+ *    // 👉 Reset connection on pool release, default false
+ *    resetConnectionsOnRelease: false,
  *    // 👉 Example based on https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
  *    tediousTypes: { ...Tedious.TYPES, NVarChar: Tedious.TYPES.VarChar}
  *  }
@@ -74,18 +77,21 @@ type Params = {
  */
 export const createKyselyMssqlDialect = (params: Params): MssqlDialect => {
   const { tediousConfig, poolOptions = {}, dialectConfig } = params;
-  const { validateConnections, ...tarnOptions } = poolOptions;
 
-  const { tediousTypes, resetConnectionOnRelease = true } = dialectConfig ?? {};
+  const {
+    tediousTypes,
+    resetConnectionsOnRelease = false,
+    validateConnections = true,
+  } = dialectConfig ?? {};
   return new MssqlDialect({
     tarn: {
       ...tarn,
       options: {
-        ...createTarnPoolOptions(tarnOptions),
-        validateConnections,
+        ...createTarnPoolOptions(poolOptions),
       },
     },
-
+    validateConnections,
+    resetConnectionsOnRelease,
     tedious: {
       ...Tedious,
       // See https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
@@ -93,7 +99,6 @@ export const createKyselyMssqlDialect = (params: Params): MssqlDialect => {
       connectionFactory: () => {
         return new Tedious.Connection(tediousConfig);
       },
-      resetConnectionOnRelease,
     },
   });
 };
