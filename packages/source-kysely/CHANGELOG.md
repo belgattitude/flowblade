@@ -1,5 +1,31 @@
 # @flowblade/source-kysely
 
+## 0.14.0
+
+### Minor Changes
+
+- [#569](https://github.com/belgattitude/flowblade/pull/569) [`bb6ade5`](https://github.com/belgattitude/flowblade/commit/bb6ade5457cc04a7e388f227d67ff3a1689f60d3) Thanks [@belgattitude](https://github.com/belgattitude)! - Update to kysely 0.28.0, see https://github.com/kysely-org/kysely/releases/tag/0.28.0
+
+  ## BC changes
+
+  Update the createKyselyMssqlDialect to use the new constructor and
+  move validateConnections and resetConnectionsOnRelease to the dialectConfig.
+
+  ```typescript
+  const dialect = createKyselyMssqlDialect({
+    tediousConfig: config,
+    poolOptions: {
+      min: 0,
+      max: 10,
+      propagateCreateError: true,
+    },
+    dialectConfig: {
+      validateConnections: false,
+      resetConnectionsOnRelease: false,
+    },
+  });
+  ```
+
 ## 0.13.12
 
 ### Patch Changes
