@@ -1,4 +1,4 @@
-[**@flowblade/source-kysely v0.13.8**](../README.md)
+[**@flowblade/source-kysely v0.13.12**](../README.md)
 
 ***
 
@@ -8,7 +8,9 @@
 
 ## Type Parameters
 
-• **TDatabase**
+### TDatabase
+
+`TDatabase`
 
 ## Implements
 
@@ -16,9 +18,9 @@
 
 ## Constructors
 
-### new KyselyDatasource()
+### Constructor
 
-> **new KyselyDatasource**\<`TDatabase`\>(`params`): [`KyselyDatasource`](KyselyDatasource.md)\<`TDatabase`\>
+> **new KyselyDatasource**\<`TDatabase`\>(`params`): `KyselyDatasource`\<`TDatabase`\>
 
 #### Parameters
 
@@ -28,7 +30,7 @@
 
 #### Returns
 
-[`KyselyDatasource`](KyselyDatasource.md)\<`TDatabase`\>
+`KyselyDatasource`\<`TDatabase`\>
 
 ## Accessors
 
@@ -81,15 +83,19 @@ Warning: this isn't covered by api stability. Use at your own risks.
 
 ### query()
 
-> **query**\<`TQuery`, `TData`\>(`query`, `info`?): `Promise`\<`QResult`\<`TData`, `QError`\>\>
+> **query**\<`TQuery`, `TData`\>(`query`, `info?`): `Promise`\<`QResult`\<`TData`, `QError`\>\>
 
 Run a query on the datasource and return the result.
 
 #### Type Parameters
 
-• **TQuery** *extends* `KyselyQueryOrRawQuery`\<`unknown`\>
+##### TQuery
 
-• **TData** *extends* `unknown`[] = `KyselyInferQueryOrRawQuery`\<`TQuery`\>
+`TQuery` *extends* `KyselyQueryOrRawQuery`\<`unknown`\>
+
+##### TData
+
+`TData` *extends* `unknown`[] = `KyselyInferQueryOrRawQuery`\<`TQuery`\>
 
 #### Parameters
 
@@ -139,9 +145,9 @@ const { data, meta, error } = result;
 
 const { data } = result.map((row) => {
   return {
-   ...data
+   ...data,
    key: `key-${row.productId}`
-})
+}})
 ```
 
 #### Implementation of
@@ -156,9 +162,13 @@ const { data } = result.map((row) => {
 
 #### Type Parameters
 
-• **TQuery** *extends* `KyselyQueryOrRawQuery`\<`unknown`\>
+##### TQuery
 
-• **TData** *extends* `unknown`[] = `KyselyInferQueryOrRawQuery`\<`TQuery`\>
+`TQuery` *extends* `KyselyQueryOrRawQuery`\<`unknown`\>
+
+##### TData
+
+`TData` *extends* `unknown`[] = `KyselyInferQueryOrRawQuery`\<`TQuery`\>
 
 #### Parameters
 

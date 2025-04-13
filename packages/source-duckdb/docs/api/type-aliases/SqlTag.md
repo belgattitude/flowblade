@@ -1,8 +1,8 @@
-[**@flowblade/sql-tag v0.1.10**](../README.md)
+[**@flowblade/source-duckdb v0.7.0**](../README.md)
 
 ***
 
-[@flowblade/sql-tag](../README.md) / SqlTag
+[@flowblade/source-duckdb](../README.md) / SqlTag
 
 # Type Alias: SqlTag\<T\>
 

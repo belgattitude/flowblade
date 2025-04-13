@@ -1,4 +1,4 @@
-[**@flowblade/core v0.2.5**](../README.md)
+[**@flowblade/core v0.2.8**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ Create a new SQL span with sql query + params and initial timeMs: 0, affectedRow
 
 ### \_\_namedParameters
 
-#### affectedRows
+#### affectedRows?
 
 `number`
 
@@ -26,7 +26,7 @@ Create a new SQL span with sql query + params and initial timeMs: 0, affectedRow
 
 `string`
 
-#### timeMs
+#### timeMs?
 
 `number`
 

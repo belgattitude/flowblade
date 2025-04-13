@@ -1,4 +1,4 @@
-[**@flowblade/core v0.2.5**](../README.md)
+[**@flowblade/core v0.2.8**](../README.md)
 
 ***
 
@@ -8,15 +8,19 @@
 
 ## Type Parameters
 
-• **TData** *extends* `unknown`[] \| `undefined`
+### TData
 
-• **TError** *extends* [`QError`](../interfaces/QError.md) \| `undefined` = `undefined`
+`TData` *extends* `unknown`[] \| `undefined`
+
+### TError
+
+`TError` *extends* [`QError`](../interfaces/QError.md) \| `undefined`
 
 ## Constructors
 
-### new QResult()
+### Constructor
 
-> **new QResult**\<`TData`, `TError`\>(`params`): [`QResult`](QResult.md)\<`TData`, `TError`\>
+> **new QResult**\<`TData`, `TError`\>(`params`): `QResult`\<`TData`, `TError`\>
 
 #### Parameters
 
@@ -26,7 +30,7 @@
 
 #### Returns
 
-[`QResult`](QResult.md)\<`TData`, `TError`\>
+`QResult`\<`TData`, `TError`\>
 
 ## Properties
 
@@ -96,11 +100,13 @@ Note: this getter does not hold any value, it's only used for type inference.
 
 ### map()
 
-> **map**\<`ReturnType`\>(`fn`): [`QResult`](QResult.md)\<`ReturnType`[]\>
+> **map**\<`ReturnType`\>(`fn`): `QResult`\<`ReturnType`[], `undefined`\>
 
 #### Type Parameters
 
-• **ReturnType**
+##### ReturnType
+
+`ReturnType`
 
 #### Parameters
 
@@ -110,7 +116,7 @@ Note: this getter does not hold any value, it's only used for type inference.
 
 #### Returns
 
-[`QResult`](QResult.md)\<`ReturnType`[]\>
+`QResult`\<`ReturnType`[], `undefined`\>
 
 ***
 

@@ -1,4 +1,4 @@
-[**@flowblade/source-kysely v0.13.8**](../README.md)
+[**@flowblade/source-kysely v0.13.12**](../README.md)
 
 ***
 
@@ -16,7 +16,9 @@
 
 #### Type Parameters
 
-• **T** *extends* `QResult`\<`unknown`[], `QError`\>
+##### T
+
+`T` *extends* `QResult`\<`unknown`[], `QError`\>
 
 #### Parameters
 

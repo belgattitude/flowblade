@@ -1,4 +1,4 @@
-[**@flowblade/sql-tag-format v0.0.6**](../README.md)
+[**@flowblade/sql-tag-format v0.0.10**](../README.md)
 
 ***
 
@@ -6,4 +6,4 @@
 
 # Type Alias: SqlFormatterDialect
 
-> **SqlFormatterDialect**: `SqlLanguage`
+> **SqlFormatterDialect** = `SqlLanguage`

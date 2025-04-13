@@ -1,8 +1,8 @@
-**@flowblade/source-kysely v0.13.8**
+**@flowblade/source-kysely v0.13.12**
 
 ***
 
-# @flowblade/source-kysely v0.13.8
+# @flowblade/source-kysely v0.13.12
 
 ## Classes
 
