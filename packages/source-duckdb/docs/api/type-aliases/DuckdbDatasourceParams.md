@@ -1,4 +1,4 @@
-[**@flowblade/source-duckdb v0.1.8**](../README.md)
+[**@flowblade/source-duckdb v0.7.0**](../README.md)
 
 ***
 
@@ -6,10 +6,10 @@
 
 # Type Alias: DuckdbDatasourceParams
 
-> **DuckdbDatasourceParams**: `object`
+> **DuckdbDatasourceParams** = `object`
 
-## Type declaration
+## Properties
 
 ### connection
 
-> **connection**: `DuckDbDatabase`
+> **connection**: `DuckDBConnection`

@@ -1,4 +1,4 @@
-[**@flowblade/source-kysely v0.13.8**](../README.md)
+[**@flowblade/source-kysely v0.13.12**](../README.md)
 
 ***
 
@@ -6,21 +6,27 @@
 
 # Type Alias: JsonifiedDataSourceResponse\<T\>
 
-> **JsonifiedDataSourceResponse**\<`T`\>: `object`
+> **JsonifiedDataSourceResponse**\<`T`\> = `object`
 
 ## Type Parameters
 
-• **T** *extends* `QResult`\<`unknown`[], `QError`\>
+### T
 
-## Type declaration
+`T` *extends* `QResult`\<`unknown`[], `QError`\>
+
+## Properties
 
 ### data?
 
 > `optional` **data**: `T`\[`"data"`\]
 
+***
+
 ### error?
 
 > `optional` **error**: `QError`
+
+***
 
 ### meta
 

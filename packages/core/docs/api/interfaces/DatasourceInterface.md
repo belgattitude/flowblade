@@ -1,4 +1,4 @@
-[**@flowblade/core v0.2.5**](../README.md)
+[**@flowblade/core v0.2.8**](../README.md)
 
 ***
 
@@ -12,6 +12,11 @@
 
 > **getConnection**: () => `any`
 
+Return underlying duckdb connection.
+
+Warning: using the underling driver connection isn't recommended
+         and not covered by api stability. Use at your own risks.
+
 #### Returns
 
 `any`
@@ -20,7 +25,7 @@
 
 ### query()
 
-> **query**: (`query`, `info`?) => `Promise`\<[`QResult`](../classes/QResult.md)\<`any`, [`QError`](QError.md)\>\>
+> **query**: (`query`, `info?`) => [`AsyncQResult`](../type-aliases/AsyncQResult.md)\<`any`, `any`\>
 
 #### Parameters
 
@@ -34,13 +39,13 @@
 
 #### Returns
 
-`Promise`\<[`QResult`](../classes/QResult.md)\<`any`, [`QError`](QError.md)\>\>
+[`AsyncQResult`](../type-aliases/AsyncQResult.md)\<`any`, `any`\>
 
 ***
 
 ### stream()
 
-> **stream**: (`query`, `chunkSize`) => `AsyncIterableIterator`
+> **stream**: (`query`, `chunkSize`) => `AsyncIterableIterator`\<`any`\>
 
 #### Parameters
 
@@ -54,4 +59,4 @@
 
 #### Returns
 
-`AsyncIterableIterator`
+`AsyncIterableIterator`\<`any`\>

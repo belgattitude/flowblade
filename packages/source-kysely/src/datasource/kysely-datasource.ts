@@ -108,9 +108,9 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *
    * const { data } = result.map((row) => {
    *   return {
-   *    ...data
+   *    ...data,
    *    key: `key-${row.productId}`
-   * })
+   * }})
    * ```
    */
   query = async <

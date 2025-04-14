@@ -23,3 +23,8 @@ if (clientEnv.NEXT_PUBLIC_SPOTLIGHT_ENABLED === 'true') {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   Spotlight.init();
 }
+
+export const onRouterTransitionStart =
+  clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true'
+    ? Sentry.captureRouterTransitionStart
+    : undefined;

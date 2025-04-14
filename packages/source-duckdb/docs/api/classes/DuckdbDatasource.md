@@ -1,4 +1,4 @@
-[**@flowblade/source-duckdb v0.1.8**](../README.md)
+[**@flowblade/source-duckdb v0.7.0**](../README.md)
 
 ***
 
@@ -12,9 +12,9 @@
 
 ## Constructors
 
-### new DuckdbDatasource()
+### Constructor
 
-> **new DuckdbDatasource**(`params`): [`DuckdbDatasource`](DuckdbDatasource.md)
+> **new DuckdbDatasource**(`params`): `DuckdbDatasource`
 
 #### Parameters
 
@@ -24,13 +24,13 @@
 
 #### Returns
 
-[`DuckdbDatasource`](DuckdbDatasource.md)
+`DuckdbDatasource`
 
 ## Methods
 
 ### getConnection()
 
-> **getConnection**(): `Database`
+> **getConnection**(): `DuckDBConnection`
 
 Return underlying duckdb connection.
 
@@ -39,7 +39,7 @@ Warning: using the underling driver connection isn't recommended
 
 #### Returns
 
-`Database`
+`DuckDBConnection`
 
 #### Implementation of
 
@@ -49,19 +49,21 @@ Warning: using the underling driver connection isn't recommended
 
 ### query()
 
-> **query**\<`TData`\>(`rawQuery`, `info`?): `Promise`\<`QResult`\<`TData`, `QError`\>\>
+> **query**\<`TData`\>(`rawQuery`, `info?`): `AsyncQResult`\<`TData`\>
 
 Run a raw query on the datasource and return a query result (QResult).
 
 #### Type Parameters
 
-• **TData** *extends* `unknown`[]
+##### TData
+
+`TData` *extends* `unknown`[]
 
 #### Parameters
 
 ##### rawQuery
 
-`SqlTag`\<`TData`\>
+[`SqlTag`](../type-aliases/SqlTag.md)\<`TData`\>
 
 ##### info?
 
@@ -69,7 +71,7 @@ Run a raw query on the datasource and return a query result (QResult).
 
 #### Returns
 
-`Promise`\<`QResult`\<`TData`, `QError`\>\>
+`AsyncQResult`\<`TData`\>
 
 #### Example
 

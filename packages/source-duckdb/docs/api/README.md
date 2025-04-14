@@ -1,8 +1,8 @@
-**@flowblade/source-duckdb v0.1.8**
+**@flowblade/source-duckdb v0.7.0**
 
 ***
 
-# @flowblade/source-duckdb v0.1.8
+# @flowblade/source-duckdb v0.7.0
 
 ## Classes
 
@@ -11,3 +11,8 @@
 ## Type Aliases
 
 - [DuckdbDatasourceParams](type-aliases/DuckdbDatasourceParams.md)
+- [SqlTag](type-aliases/SqlTag.md)
+
+## Variables
+
+- [sql](variables/sql.md)
