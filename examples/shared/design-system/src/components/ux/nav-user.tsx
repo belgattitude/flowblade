@@ -1,15 +1,6 @@
 'use client';
 
 import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from 'lucide-react';
-
-import {
   Avatar,
   AvatarFallback,
   AvatarImage,
@@ -29,6 +20,14 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@examples/design-system/components/ui/sidebar';
+import {
+  BadgeCheck,
+  Bell,
+  ChevronsUpDown,
+  CreditCard,
+  LogOut,
+  Sparkles,
+} from 'lucide-react';
 
 export function NavUser({
   user,

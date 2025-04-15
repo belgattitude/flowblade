@@ -1,15 +1,14 @@
-import * as React from 'react';
+import {
+  type Button,
+  buttonVariants,
+} from '@examples/design-system/components/ui/button';
+import { cn } from '@examples/design-system/lib/utils';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
 } from 'lucide-react';
-
-import { cn } from '@examples/design-system/lib/utils';
-import {
-  Button,
-  buttonVariants,
-} from '@examples/design-system/components/ui/button';
+import * as React from 'react';
 
 function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
   return (
@@ -122,9 +121,9 @@ function PaginationEllipsis({
 export {
   Pagination,
   PaginationContent,
-  PaginationLink,
-  PaginationItem,
-  PaginationPrevious,
-  PaginationNext,
   PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
 };
