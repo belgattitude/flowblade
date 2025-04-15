@@ -1,15 +1,18 @@
+const isBrowser = typeof window !== 'undefined';
+
 /**
  * Utility to infer the nextjs local server info (ie: port, url)
  */
 export const getNextjsHostInfo = (params?: { defaultPort?: number }) => {
   const { defaultPort = 3000 } = params ?? {};
-  const port =
-    typeof window === 'undefined'
-      ? (process.env.PORT ?? defaultPort)
-      : defaultPort;
-  const url = `http://localhost:${port}`;
+  const port = process.env.PORT ?? defaultPort;
+  if (isBrowser) {
+    return {
+      url: `${window.location.protocol}://${window.location.hostname}:${window.location.port}`,
+      port: window.location.port,
+    };
+  }
   return {
-    port,
-    url,
+    url: process.env.BASE_URL ?? `http://localhost:${port}`,
   };
 };
