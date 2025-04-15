@@ -54,5 +54,14 @@ module.exports = {
         '@typescript-eslint/prefer-nullish-coalescing': 'off',
       },
     },
+    {
+      files: ['**/*/chart.tsx'],
+      rules: {
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/restrict-template-expressions': 'off',
+        '@typescript-eslint/no-unsafe-argument': 'off',
+      },
+    },
   ],
 };
