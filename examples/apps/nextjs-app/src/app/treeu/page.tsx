@@ -40,6 +40,9 @@ const columns: GridColumn[] = [
 // once data is loaded.
 function getData([col, row]: Item): GridCell {
   const person = data[row];
+  if (person === undefined) {
+    throw new Error('No data found');
+  }
 
   if (col === 0) {
     return {
@@ -56,15 +59,19 @@ function getData([col, row]: Item): GridCell {
       displayData: person.lastName,
     };
   } else {
-    throw new Error();
+    throw new Error('Invalid colum model');
   }
 }
 
 export default function TreeuDemoRoute() {
+  // const gridRef = useRef<DataEditorRef | null>(null);
+
   return (
     <div className={'flex flex-col w-full p-10 gap-5'}>
       <DynamicGlideGrid
-        className={'w-full border'}
+        className={'flex w-[400px] h-[400px] border'}
+        width={'100%'}
+        height={'400px'}
         getCellContent={getData}
         columns={columns}
         rows={data.length}
