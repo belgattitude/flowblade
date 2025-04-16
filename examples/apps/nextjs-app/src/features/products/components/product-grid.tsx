@@ -53,7 +53,7 @@ export const ProductGrid: FC<Props> = (props) => {
   const [colDefs, _setColDefs] = useState<ColDef[]>(productColDefs);
 
   return (
-    <div className={cn('flex flex-1 w-full h-full', className)}>
+    <div className={cn('flex w-full h-full', className)}>
       <ReportAgGrid
         className={'flex-1'}
         rowData={data}
