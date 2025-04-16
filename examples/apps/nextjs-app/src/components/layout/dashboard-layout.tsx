@@ -1,6 +1,3 @@
-import type { FC, PropsWithChildren } from 'react';
-
-import { AppSidebar } from '@/components/shadcdn/components/app-sidebar';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,13 +5,15 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/shadcdn/ui/breadcrumb';
-import { Separator } from '@/components/shadcdn/ui/separator';
+} from '@examples/design-system/components/ui/breadcrumb';
+import { Separator } from '@examples/design-system/components/ui/separator';
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from '@/components/shadcdn/ui/sidebar';
+} from '@examples/design-system/components/ui/sidebar';
+import { AppSidebar } from '@examples/design-system/components/ux/app-sidebar';
+import type { FC, PropsWithChildren } from 'react';
 
 type Props = PropsWithChildren;
 
