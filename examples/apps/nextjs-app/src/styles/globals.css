@@ -1,9 +1,7 @@
 @import 'tailwindcss';
-
-@source "./src/**/*.{ts,tsx}";
-@source "../../shared/design-system/src/**/*.{ts,tsx}";
-
 @import 'tw-animate-css';
+
+@source "../../../../shared/design-system/src/**/*.{ts,tsx}";
 
 @theme {
   --font-sans: var(--font-inter);
