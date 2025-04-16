@@ -1,8 +1,8 @@
 import { getNextjsHostInfo } from '@/lib/nextjs/get-nextjs-host-info';
 
-const { url } = getNextjsHostInfo({ defaultPort: 3000 });
+const { baseUrl } = getNextjsHostInfo({ defaultPort: 3000 });
 
 export const apiLocalConfig = {
-  apiUrl: `${url}/api`,
-  schemaUrl: `${url}/api/openapi`,
+  apiUrl: `${baseUrl}/api`,
+  schemaUrl: `${baseUrl}/api/openapi`,
 } as const;

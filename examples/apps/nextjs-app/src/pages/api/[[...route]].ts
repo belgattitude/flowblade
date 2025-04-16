@@ -26,7 +26,7 @@ app.get('/health', (c) => {
 app.route('/demo/duckdb', demoDuckdbRouter);
 app.route('/product/ethical', ethicalProductRouter);
 
-const { url } = getNextjsHostInfo({ defaultPort: 3000 });
+const { baseUrl } = getNextjsHostInfo();
 
 app.get(
   '/openapi',
@@ -37,7 +37,7 @@ app.get(
         version: '1.0.0',
         description: 'Flowblade API',
       },
-      servers: [{ url, description: 'Local Server' }],
+      servers: [{ url: baseUrl, description: 'Local Server' }],
     },
   })
 );
