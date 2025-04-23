@@ -1,5 +1,12 @@
 # Flowblade NextJs example app
 
+## 0.1.127
+
+### Patch Changes
+
+- Updated dependencies [[`f805023`](https://github.com/belgattitude/flowblade/commit/f8050236d3cf31d0292b0deda6a197a0a50c91e6)]:
+  - @flowblade/sql-tag-format@0.0.11
+
 ## 0.1.126
 
 ### Patch Changes
