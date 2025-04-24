@@ -13,10 +13,12 @@
   "scripts": {
     "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",
     "typecheck": "tsc --project tsconfig.json --noEmit",
+    "bump-ui": "npx shadcn@latest add --all --overwrite -c . && yarn lint --fix",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../../.cache/eslint/design-system.eslintcache",
     "fix-staged": "lint-staged --allow-empty"
   },
   "dependencies": {
+    "@hookform/resolvers": "5.0.1",
     "@radix-ui/react-accordion": "1.2.8",
     "@radix-ui/react-alert-dialog": "1.1.11",
     "@radix-ui/react-aspect-ratio": "1.1.4",
@@ -59,7 +61,6 @@
     "recharts": "2.15.3",
     "sonner": "2.0.3",
     "tailwind-merge": "3.2.0",
-    "tw-animate-css": "1.2.8",
     "vaul": "1.1.2",
     "zod": "3.24.3"
   },
@@ -75,6 +76,7 @@
     "@vitest/ui": "3.1.2",
     "rimraf": "6.0.1",
     "tailwindcss": "4.1.4",
+    "tw-animate-css": "1.2.8",
     "typescript": "5.8.3",
     "vitest": "3.1.2"
   }
