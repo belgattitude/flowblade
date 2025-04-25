@@ -1236,7 +1236,7 @@ __metadata:
     tsx: "npm:4.19.3"
     typescript: "npm:5.8.3"
     vite-tsconfig-paths: "npm:5.1.4"
-    webpack: "npm:5.99.6"
+    webpack: "npm:5.99.7"
     zod: "npm:3.24.3"
   languageName: unknown
   linkType: soft
@@ -2235,7 +2235,7 @@ __metadata:
     typescript-result: "npm:^3.1.1"
     vite-tsconfig-paths: "npm:5.1.4"
     vitest: "npm:3.1.2"
-    webpack: "npm:5.99.6"
+    webpack: "npm:5.99.7"
   languageName: unknown
   linkType: soft
 
@@ -2276,7 +2276,7 @@ __metadata:
     typescript: "npm:5.8.3"
     vite-tsconfig-paths: "npm:5.1.4"
     vitest: "npm:3.1.2"
-    webpack: "npm:5.99.6"
+    webpack: "npm:5.99.7"
   peerDependencies:
     "@duckdb/node-api": ^1.2.1-alpha.18
     "@flowblade/core": "workspace:^"
@@ -2327,7 +2327,7 @@ __metadata:
     valibot: "npm:^1.0.0"
     vite-tsconfig-paths: "npm:5.1.4"
     vitest: "npm:3.1.2"
-    webpack: "npm:5.99.6"
+    webpack: "npm:5.99.7"
   peerDependencies:
     "@flowblade/core": "workspace:^"
     "@flowblade/sql-tag": "workspace:^"
@@ -2375,7 +2375,7 @@ __metadata:
     typescript: "npm:5.8.3"
     vite-tsconfig-paths: "npm:5.1.4"
     vitest: "npm:3.1.2"
-    webpack: "npm:5.99.6"
+    webpack: "npm:5.99.7"
   peerDependencies:
     "@flowblade/sql-tag": "workspace:^"
   languageName: unknown
@@ -2416,7 +2416,7 @@ __metadata:
     typescript: "npm:5.8.3"
     vite-tsconfig-paths: "npm:5.1.4"
     vitest: "npm:3.1.2"
-    webpack: "npm:5.99.6"
+    webpack: "npm:5.99.7"
   languageName: unknown
   linkType: soft
 
@@ -20450,15 +20450,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"schema-utils@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "schema-utils@npm:4.3.0"
+"schema-utils@npm:^4.3.0, schema-utils@npm:^4.3.2":
+  version: 4.3.2
+  resolution: "schema-utils@npm:4.3.2"
   dependencies:
     "@types/json-schema": "npm:^7.0.9"
     ajv: "npm:^8.9.0"
     ajv-formats: "npm:^2.1.1"
     ajv-keywords: "npm:^5.1.0"
-  checksum: 10c0/c23f0fa73ef71a01d4a2bb7af4c91e0d356ec640e071aa2d06ea5e67f042962bb7ac7c29a60a295bb0125878801bc3209197a2b8a833dd25bd38e37c3ed21427
+  checksum: 10c0/981632f9bf59f35b15a9bcdac671dd183f4946fe4b055ae71a301e66a9797b95e5dd450de581eb6cca56fb6583ce8f24d67b2d9f8e1b2936612209697f6c277e
   languageName: node
   linkType: hard
 
@@ -23304,7 +23304,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:5.99.6, webpack@npm:^5.98.0":
+"webpack@npm:5.99.6":
   version: 5.99.6
   resolution: "webpack@npm:5.99.6"
   dependencies:
@@ -23337,6 +23337,43 @@ __metadata:
   bin:
     webpack: bin/webpack.js
   checksum: 10c0/b8b44b16933a0dd83e185ad42f292bbdfa9c47e245cbe786c48520d681556ece9af6ea7fff33059fafdf3d2cd62674715308d70a6f15eda6c6de7e03ef01842a
+  languageName: node
+  linkType: hard
+
+"webpack@npm:5.99.7, webpack@npm:^5.98.0":
+  version: 5.99.7
+  resolution: "webpack@npm:5.99.7"
+  dependencies:
+    "@types/eslint-scope": "npm:^3.7.7"
+    "@types/estree": "npm:^1.0.6"
+    "@types/json-schema": "npm:^7.0.15"
+    "@webassemblyjs/ast": "npm:^1.14.1"
+    "@webassemblyjs/wasm-edit": "npm:^1.14.1"
+    "@webassemblyjs/wasm-parser": "npm:^1.14.1"
+    acorn: "npm:^8.14.0"
+    browserslist: "npm:^4.24.0"
+    chrome-trace-event: "npm:^1.0.2"
+    enhanced-resolve: "npm:^5.17.1"
+    es-module-lexer: "npm:^1.2.1"
+    eslint-scope: "npm:5.1.1"
+    events: "npm:^3.2.0"
+    glob-to-regexp: "npm:^0.4.1"
+    graceful-fs: "npm:^4.2.11"
+    json-parse-even-better-errors: "npm:^2.3.1"
+    loader-runner: "npm:^4.2.0"
+    mime-types: "npm:^2.1.27"
+    neo-async: "npm:^2.6.2"
+    schema-utils: "npm:^4.3.2"
+    tapable: "npm:^2.1.1"
+    terser-webpack-plugin: "npm:^5.3.11"
+    watchpack: "npm:^2.4.1"
+    webpack-sources: "npm:^3.2.3"
+  peerDependenciesMeta:
+    webpack-cli:
+      optional: true
+  bin:
+    webpack: bin/webpack.js
+  checksum: 10c0/e121880d921d5500e9dd61c3428f5d8dca4786c559e7f37488173186447cd22079be677d470a4db1643febf8031b9be900f501c9b95ba94ffe3d2065ad486d31
   languageName: node
   linkType: hard
 
