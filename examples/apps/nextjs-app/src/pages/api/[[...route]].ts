@@ -43,7 +43,7 @@ app.get(
 );
 
 app.get(
-  '/docs',
+  '/reference',
   apiReference({
     theme: 'default',
     url: '/api/openapi',

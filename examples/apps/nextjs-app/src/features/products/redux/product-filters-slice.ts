@@ -6,27 +6,30 @@ import {
 
 import type { EthicalBrand } from '../server/ethical-product.repo';
 
-type SelectedFilters = {
+type SearchFilters = {
   brands: EthicalBrand[];
+  slowdownApiMs: number;
 };
 
 export type ProductFiltersState = {
   loadingAt: number | null;
   data: { brands: EthicalBrand[] };
-  /** DRAFT - Current state of the filters */
-  internalSelection: SelectedFilters;
-  /** ACTUAL - Report state */
-  filters: SelectedFilters;
+  /** Draft state - Current state of the filters before clicking execute */
+  draftFilters: SearchFilters;
+  /** Actual state - State of the filters when execute is clicked */
+  filters: SearchFilters;
 };
 export const productFiltersInitialState: ProductFiltersState = {
   loadingAt: null,
   data: {
     brands: [],
   },
-  internalSelection: {
+  draftFilters: {
+    slowdownApiMs: 0,
     brands: [],
   },
   filters: {
+    slowdownApiMs: 0,
     brands: [],
   },
 };
@@ -39,16 +42,21 @@ export const productFiltersSlice = createProductFiltersSlice({
   name: 'productFilters',
   initialState: productFiltersInitialState,
   reducers: (create) => ({
-    brandSelected: create.reducer(
+    brandsFilterChanged: create.reducer(
       (state, action: PayloadAction<EthicalBrand[]>) => {
-        state.internalSelection.brands = action.payload;
+        state.draftFilters.brands = action.payload;
+      }
+    ),
+    slowdownApiMsFilterChanged: create.reducer(
+      (state, action: PayloadAction<number>) => {
+        state.draftFilters.slowdownApiMs = action.payload;
       }
     ),
     startLoading: create.reducer((state) => {
       state.loadingAt = Date.now();
     }),
     execute: create.reducer((state) => {
-      state.filters = state.internalSelection;
+      state.filters = state.draftFilters;
     }),
   }),
 });

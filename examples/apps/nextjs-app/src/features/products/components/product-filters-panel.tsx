@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
 import { MultiSelect } from 'primereact/multiselect';
 import type { FC } from 'react';
 
@@ -19,33 +20,60 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
   const { className } = props;
   const { data } = useEthicalBrands();
   const dispatch = useDispatch();
-  const selectedBrands = useSelector(
-    (state) => state.productFilters.internalSelection.brands
+  const draftFilters = useSelector(
+    (state) => state.productFilters.draftFilters
   );
 
   return (
-    <div className={cn('flex gap-3', className)}>
-      <MultiSelect
-        value={selectedBrands}
-        onChange={(e) => {
-          dispatch(
-            productFiltersSlice.actions.brandSelected(e.value as EthicalBrand[])
-          );
-        }}
-        options={data}
-        optionLabel="name"
-        display="chip"
-        placeholder="Choose Brands"
-        maxSelectedLabels={3}
-        filter={true}
-      />
-      <Button
-        label="Execute"
-        severity={'info'}
-        onClick={() => {
-          dispatch(productFiltersSlice.actions.execute());
-        }}
-      />
+    <div className={'@container'}>
+      <div
+        className={cn('flex gap-3 flex-row @sm:@max-md:flex-col', className)}
+      >
+        <MultiSelect
+          value={draftFilters.brands}
+          onChange={(e) => {
+            dispatch(
+              productFiltersSlice.actions.brandsFilterChanged(
+                e.value as EthicalBrand[]
+              )
+            );
+          }}
+          options={data}
+          optionLabel="name"
+          display="chip"
+          filterMatchMode={'contains'}
+          inline={false}
+          placeholder="Choose Brands"
+          maxSelectedLabels={3}
+          filter={true}
+        />
+        <Dropdown
+          value={draftFilters.slowdownApiMs}
+          onChange={(e) => {
+            dispatch(
+              productFiltersSlice.actions.slowdownApiMsFilterChanged(
+                e.value as number
+              )
+            );
+          }}
+          options={[
+            { label: '0ms', value: 0 },
+            { label: '100ms', value: 100 },
+            { label: '1s', value: 1000 },
+            { label: '5s', value: 5000 },
+          ]}
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Api slowdown"
+        />
+        <Button
+          label="Execute"
+          severity={'info'}
+          onClick={() => {
+            dispatch(productFiltersSlice.actions.execute());
+          }}
+        />
+      </div>
     </div>
   );
 };

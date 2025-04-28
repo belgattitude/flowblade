@@ -28,6 +28,7 @@ let nextConfig = {
     dirs: ['src'],
     ignoreDuringBuilds: buildEnv.NEXT_BUILD_IGNORE_ESLINT === 'true',
   },
+  transpilePackages: ['@duckdb/duckdb-wasm'],
   serverExternalPackages: ['@duckdb/node-api', 'tedious', 'mssql', 'tarn'],
   outputFileTracingRoot: monorepoRoot,
   experimental: {
@@ -39,6 +40,42 @@ let nextConfig = {
     // @link {https://github.com/vercel/next.js/pull/22867|Original PR}
     // @link {https://github.com/vercel/next.js/discussions/26420|Discussion}
     externalDir: true,
+  },
+
+  turbopack: {
+    rules: {
+      '*.wasm': {
+        loaders: [
+          {
+            loader: 'file-loader',
+            options: {
+              esModule: true,
+            },
+          },
+        ],
+        as: '*.js',
+      },
+    },
+  },
+
+  webpack: (config, { isServer }) => {
+    config.module.rules.push({
+      test: /\.wasm/,
+      loader: 'file-loader',
+      options: {},
+    });
+
+    /*
+    config.experiments = {
+      ...config.experiments,
+      asyncWebAssembly: true, // Enable async WebAssembly support
+    }; */
+
+    // config.module.rules.push({
+    //   test: /\.wasm$/,
+    //   type: 'asset/resource', // Treat .wasm files as assets
+    // });
+    return config;
   },
   async headers() {
     return [

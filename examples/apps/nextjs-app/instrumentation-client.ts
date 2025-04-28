@@ -3,7 +3,6 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from '@sentry/nextjs';
-import * as Spotlight from '@spotlightjs/spotlight';
 
 import { clientEnv } from './src/env/client.env.mjs';
 
@@ -17,11 +16,6 @@ if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true') {
     // Setting this option to true will print useful information to the console while you're setting up Sentry.
     debug: false,
   });
-}
-
-if (clientEnv.NEXT_PUBLIC_SPOTLIGHT_ENABLED === 'true') {
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  Spotlight.init();
 }
 
 export const onRouterTransitionStart =
