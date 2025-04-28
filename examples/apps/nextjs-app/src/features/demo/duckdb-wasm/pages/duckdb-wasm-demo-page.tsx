@@ -22,9 +22,10 @@ export const DuckdbWasmDemoPage: FC = () => {
           range::INT,
           TIMESTAMPTZ '2025-01-01 12:30:00.123456789+01:00'
         )
-        SELECT productId,
-          'cool' as name,
-          createdAt
+        SELECT 
+           productId,
+           'cool' as name,
+           createdAt
         FROM products`)
       );
     };
