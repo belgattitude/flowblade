@@ -38,7 +38,7 @@ ENV NEXT_BUILD_OUTPUT=standalone
 # ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
 # ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
 
-ENV TZ=Europe/Brussels
+ENV TZ=Etc/UTC
 
 # Optimize for YARN installation speed
 ENV YARN_ENABLE_GLOBAL_CACHE=false
