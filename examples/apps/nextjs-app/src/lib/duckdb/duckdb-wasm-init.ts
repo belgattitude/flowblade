@@ -71,7 +71,7 @@ const _initializeDuckDb = async (
  */
 export const getDuckDB = async (): Promise<AsyncDuckDB> => {
   if (typeof window !== 'undefined') {
-    return DB ? DB : await initializeDuckDb();
+    return DB ?? (await initializeDuckDb());
   }
-  return null;
+  throw new Error('DuckDB wasm is only available in the browser context.');
 };

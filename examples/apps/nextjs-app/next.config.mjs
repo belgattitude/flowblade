@@ -28,7 +28,7 @@ let nextConfig = {
     dirs: ['src'],
     ignoreDuringBuilds: buildEnv.NEXT_BUILD_IGNORE_ESLINT === 'true',
   },
-  transpilePackages: ['@duckdb/duckdb-wasm'],
+  // transpilePackages: ['@duckdb/duckdb-wasm'],
   serverExternalPackages: ['@duckdb/node-api', 'tedious', 'mssql', 'tarn'],
   outputFileTracingRoot: monorepoRoot,
   experimental: {
@@ -65,11 +65,10 @@ let nextConfig = {
       options: {},
     });
 
-    /*
     config.experiments = {
       ...config.experiments,
       asyncWebAssembly: true, // Enable async WebAssembly support
-    }; */
+    };
 
     // config.module.rules.push({
     //   test: /\.wasm$/,
