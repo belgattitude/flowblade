@@ -6,5 +6,13 @@
 reject: [
   "eslint",
   "react-day-picker",
-  "apache-arrow"
+  "apache-arrow",
+  # Till @vercel/otel support offers support for v2
+  "@opentelemetry/api",
+  "@opentelemetry/api-logs",
+  "@opentelemetry/instrumentation",
+  "@opentelemetry/resources",
+  "@opentelemetry/sdk-logs",
+  "@opentelemetry/sdk-metrics",
+  "@opentelemetry/sdk-trace-base",
 ]

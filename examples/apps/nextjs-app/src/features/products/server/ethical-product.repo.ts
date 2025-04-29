@@ -11,15 +11,12 @@ export type EthicalBrand = {
   name: string;
 };
 
-const wait = async (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
-
 export class EthicalProductRepo {
   search = async (
     params: SearchEthicalProductsParams
   ): Promise<EthicalProduct[]> => {
     const { brands = [] } = params;
-    await wait(2000);
+
     return ethicalProducts.filter((product) => {
       if (Array.isArray(brands) && brands.length > 0) {
         return brands.includes(product.brand);

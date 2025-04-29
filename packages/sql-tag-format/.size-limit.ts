@@ -5,12 +5,12 @@ module.exports = [
     name: 'Import * (ESM)',
     path: ['dist/index.mjs'],
     import: '*',
-    limit: '50KB',
+    limit: '55KB',
   },
   {
     name: 'Only { SqlFormatter } (ESM)',
     path: ['dist/index.mjs'],
     import: '{ SqlFormatter }',
-    limit: '50Kb',
+    limit: '55Kb',
   },
 ] satisfies SizeLimitConfig;

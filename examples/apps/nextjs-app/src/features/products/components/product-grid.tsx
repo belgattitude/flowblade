@@ -43,11 +43,10 @@ const autoSizeStrategy: GridOptions['autoSizeStrategy'] = {
 
 export const ProductGrid: FC<Props> = (props) => {
   const { className } = props;
-  const selectedBrands = useSelector(
-    (state) => state.productFilters.filters.brands
-  );
+  const filter = useSelector((state) => state.productFilters.filters);
   const { data } = useSuspenseEthicalProducts({
-    brands: selectedBrands.map((brand) => brand.name),
+    brands: filter.brands.map((brand) => brand.name),
+    slowdownApiMs: filter.slowdownApiMs.toString(10),
   });
 
   const [colDefs, _setColDefs] = useState<ColDef[]>(productColDefs);

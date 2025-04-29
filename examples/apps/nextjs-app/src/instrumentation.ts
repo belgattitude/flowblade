@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/nextjs';
+import type * as Sentry from '@sentry/nextjs';
 
 export async function register() {
   if (process.env.NEXT_PUBLIC_SENTRY_ENABLED === 'true') {
@@ -12,7 +12,12 @@ export async function register() {
   }
 }
 
-export const onRequestError =
-  process.env.NEXT_PUBLIC_SENTRY_ENABLED === 'true'
-    ? Sentry.captureRequestError
-    : (_error: unknown, _request: unknown, _errorContext: unknown) => void 0;
+let captureRequestError: typeof Sentry.captureRequestError | undefined;
+
+if (process.env.NEXT_PUBLIC_SENTRY_ENABLED === 'true') {
+  captureRequestError = await import('@sentry/nextjs').then(
+    (mod) => mod.captureRequestError
+  );
+}
+
+export const onRequestError = captureRequestError;

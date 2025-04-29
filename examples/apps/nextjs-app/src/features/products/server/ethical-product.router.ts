@@ -3,17 +3,21 @@ import { openApi } from 'hono-zod-openapi';
 import { z } from 'zod';
 
 import { EthicalProductRepo } from '@/features/products/server/ethical-product.repo';
+import { wait } from '@/lib/utils/wait';
 
 const app = new Hono();
 
-app.get(
+export const ethicalProductSearchRequestSchema = {
+  query: z.object({
+    brands: z.string().optional(),
+    slowdownApiMs: z.string().optional().default('0'),
+  }),
+};
+
+export const EthicalProductRequestSchema = app.get(
   '/search',
   openApi({
-    request: {
-      query: z.object({
-        brands: z.string().optional(),
-      }),
-    },
+    request: ethicalProductSearchRequestSchema,
     responses: {
       200: z.array(
         z.object({
@@ -26,6 +30,10 @@ app.get(
   }),
   async (c) => {
     const query = c.req.valid('query');
+    const slowdownApiMs = Number.parseInt(query.slowdownApiMs, 10) ?? 0;
+    if (slowdownApiMs > 0) {
+      await wait(slowdownApiMs);
+    }
     const brands =
       query.brands === undefined ? undefined : query.brands.split(',');
     return c.json(await new EthicalProductRepo().search({ brands }));
