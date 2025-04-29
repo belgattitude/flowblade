@@ -8,7 +8,7 @@ import { dsDuckdbMemory } from '@/server/config/ds.duckdb-memory.config';
 
 const app = new Hono();
 
-const _numberSchema = v.pipe(
+const numberSchema = v.pipe(
   v.unknown(),
   v.transform((v) => {
     if (v !== undefined) {
@@ -32,8 +32,8 @@ const searchResponseSchema = v.object({
   error: v.optional(v.string()),
 });
 const searchRequestSchema = v.object({
-  // min: v.optional(numberSchema),
-  // max: v.optional(numberSchema),
+  min: v.optional(numberSchema),
+  max: v.optional(numberSchema),
   name: v.optional(v.string()),
   createdAt: v.optional(v.string()),
 });
