@@ -6,7 +6,8 @@ import { getPageMap } from 'nextra/page-map';
 import { Footer, Layout, Navbar } from 'nextra-theme-docs';
 import type { ReactNode } from 'react';
 
-import { fontUbuntu } from '../components/fonts/FontUbuntu';
+import { fontGeist } from '../components/fonts/FontGeist';
+import { fontInter } from '../components/fonts/FontInter';
 
 export const metadata = {
   // Define your metadata here
@@ -62,7 +63,9 @@ export default async function RootLayout({
       >
         {/* Your additional tags should be passed as `children` of `<Head>` element */}
       </Head>
-      <body className={`${fontUbuntu.variable} ${fontUbuntu.className}`}>
+      <body
+        className={`${fontGeist.variable} ${fontInter.variable} antialiased`}
+      >
         <Layout
           // banner={_banner}
           navbar={navbar}
