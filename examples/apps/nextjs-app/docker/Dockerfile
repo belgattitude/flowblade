@@ -1,4 +1,4 @@
-ARG NODE_VERSION=22.14
+ARG NODE_VERSION=22.15
 ARG DEBIAN_VERSION=bookworm-slim
 
 #############################################################
