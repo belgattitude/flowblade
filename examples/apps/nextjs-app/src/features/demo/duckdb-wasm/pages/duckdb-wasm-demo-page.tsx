@@ -30,6 +30,13 @@ export const DuckdbWasmDemoPage: FC = () => {
       );
     };
     void init();
+    return () => {
+      // Clean up the connection when component unmounts
+      if (connectionRef.current) {
+        connectionRef.current.close().catch(console.error);
+        connectionRef.current = null;
+      }
+    };
   }, []);
 
   return <div>Cool</div>;
