@@ -1,12 +1,8 @@
-@import 'tailwindcss'; /* Apply Tailwind's base styles (Preflight) */ /* Include component styles */ /* Include utility classes */
-
 @import 'nextra-theme-docs/style.css';
+
 @import 'tailwindcss';
 
 @variant dark (&:where(.dark *));
-
-@theme {
-}
 
 body {
   font-feature-settings:
@@ -50,7 +46,6 @@ code.text-\[\.9em\] {
 @theme inline {
   --default-font-family: var(--font-family-geist);
   --font-sans: var(--font-family-geist);
-  --font-mono: var(--font-roboto-mono);
 }
 
 /*
