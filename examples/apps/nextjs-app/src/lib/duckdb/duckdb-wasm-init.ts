@@ -66,7 +66,7 @@ const _initializeDuckDb = async (
 /**
  * Get the instance of DuckDB, initializing it if needed.
  *
- * Typically `useDuckDB` is used in React components instead, but this
+ * Typically, `useDuckDB` is used in React components instead, but this
  * method provides access outside of React contexts.
  */
 export const getDuckDB = async (): Promise<AsyncDuckDB> => {

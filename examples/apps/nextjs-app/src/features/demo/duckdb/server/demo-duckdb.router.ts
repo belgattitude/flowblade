@@ -4,19 +4,10 @@ import { resolver, validator as vValidator } from 'hono-openapi/valibot';
 import * as v from 'valibot';
 
 import { DemoDuckdbRepo } from '@/features/demo/duckdb/server/demo-duckdb.repo';
+import { vCoercedIntSchema } from '@/lib/utils/valibot-utils';
 import { dsDuckdbMemory } from '@/server/config/ds.duckdb-memory.config';
 
 const app = new Hono();
-
-const numberSchema = v.pipe(
-  v.unknown(),
-  v.transform((v) => {
-    if (v !== undefined) {
-      return Number(v);
-    }
-  }),
-  v.number()
-);
 
 const searchResponseSchema = v.object({
   meta: v.object({
@@ -32,8 +23,8 @@ const searchResponseSchema = v.object({
   error: v.optional(v.string()),
 });
 const searchRequestSchema = v.object({
-  min: v.optional(numberSchema),
-  max: v.optional(numberSchema),
+  min: v.optional(vCoercedIntSchema),
+  max: v.optional(vCoercedIntSchema),
   name: v.optional(v.string()),
   createdAt: v.optional(v.string()),
 });
