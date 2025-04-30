@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config';
 
 const testFiles = ['./src/**/*.test.{js,jsx,ts,tsx}'];
 export default defineConfig({
-  cacheDir: '../../../.cache/vitest/nextjs-app',
+  cacheDir: '../../../.cache/vitest/design-system',
   plugins: [
     react({
       devTarget: 'es2022',
@@ -12,6 +12,7 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   test: {
+    globalSetup: './vitest.setup.ts',
     globals: true,
     deps: {
       optimizer: {
@@ -26,7 +27,6 @@ export default defineConfig({
     },
     environment: 'happy-dom',
     passWithNoTests: true,
-    // setupFiles: './setup/tests/setupVitest.ts',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'clover'],

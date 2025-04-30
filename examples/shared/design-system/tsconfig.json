@@ -13,13 +13,15 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "preserve",
     "paths": {
+      "@/test-utils": ["../tests/setup/test-utils"],
       "@examples/design-system/*": ["./*"]
     },
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["vitest/globals"]
   },
   "exclude": ["**/node_modules", "**/.*/*"],
   "include": [
