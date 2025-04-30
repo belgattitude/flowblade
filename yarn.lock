@@ -1211,7 +1211,7 @@ __metadata:
   resolution: "@docs/website@workspace:docs"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:6.36.0"
-    "@t3-oss/env-nextjs": "npm:0.13.0"
+    "@t3-oss/env-nextjs": "npm:0.13.4"
     "@tailwindcss/postcss": "npm:4.1.5"
     "@total-typescript/ts-reset": "npm:0.6.1"
     "@types/node": "npm:22.15.3"
@@ -7022,6 +7022,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@t3-oss/env-core@npm:0.13.4":
+  version: 0.13.4
+  resolution: "@t3-oss/env-core@npm:0.13.4"
+  peerDependencies:
+    arktype: ^2.1.0
+    typescript: ">=5.0.0"
+    valibot: ^1.0.0-beta.7 || ^1.0.0
+    zod: ^3.24.0 || ^4.0.0-beta.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+    valibot:
+      optional: true
+    zod:
+      optional: true
+  checksum: 10c0/3598c1582b4cd0aead095a492d60cb7656ffa308c0362744fe32f04ec6563601c04d898c0da7b5efb4dc7ace1d3b18a77f268a15a9e940a6997d9dd84f86a749
+  languageName: node
+  linkType: hard
+
 "@t3-oss/env-nextjs@npm:0.13.0":
   version: 0.13.0
   resolution: "@t3-oss/env-nextjs@npm:0.13.0"
@@ -7039,6 +7058,26 @@ __metadata:
     zod:
       optional: true
   checksum: 10c0/5eb3f08f654b02da62c29d301f12d2687797e652a8f169666ec7f97561d135aeacd73bd6fdd7488717194063dc0a1d80b8cdd654adc2cff7ceaec1446c347958
+  languageName: node
+  linkType: hard
+
+"@t3-oss/env-nextjs@npm:0.13.4":
+  version: 0.13.4
+  resolution: "@t3-oss/env-nextjs@npm:0.13.4"
+  dependencies:
+    "@t3-oss/env-core": "npm:0.13.4"
+  peerDependencies:
+    typescript: ">=5.0.0"
+    valibot: ^1.0.0-beta.7 || ^1.0.0
+    zod: ^3.24.0 || ^4.0.0-beta.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+    valibot:
+      optional: true
+    zod:
+      optional: true
+  checksum: 10c0/140450041df8b37fd1dfdb281774fd254237af66cf784c9a9fbb047167bd3bcb1cc0ca4dc0c8fd82557904027c0a2edcc56bdd27b15e30a8a6e2285a42f42ef0
   languageName: node
   linkType: hard
 
