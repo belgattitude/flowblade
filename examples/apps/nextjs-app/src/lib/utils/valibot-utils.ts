@@ -8,6 +8,10 @@ export const vCoercedIntSchema = v.pipe(
   v.transform((v) => {
     if (v !== undefined) {
       if (typeof v === 'number') {
+        // Ensure we're dealing with integers, not floating point
+        if (!Number.isInteger(v)) {
+          throw new Error(`Value must be an integer, got: ${v}`);
+        }
         return v;
       }
       if (typeof v === 'string') {
@@ -17,9 +21,10 @@ export const vCoercedIntSchema = v.pipe(
         }
       }
       throw new Error(
-        `Invalid value: ${typeof v === 'string' ? v : ''} ('${typeof v})'`
+        `Invalid value: ${String(v)} (type: '${typeof v}'). Expected a number or numeric string.`
       );
     }
+    return undefined; // Return undefined if input is undefined
   }),
-  v.number()
+  v.optional(v.number())
 );
