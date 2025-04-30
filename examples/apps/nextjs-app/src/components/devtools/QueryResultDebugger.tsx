@@ -87,7 +87,11 @@ export const QueryResultDebugger = (props: Props) => {
           {data !== null && (
             <DynamicCodeBlock
               filename={'data'}
-              code={JSON.stringify(data, null, 2)}
+              code={JSON.stringify(
+                Array.isArray(data) ? data.slice(0, 100) : data,
+                null,
+                2
+              )}
               lang={'json'}
             />
           )}

@@ -6,7 +6,7 @@ const prefixUrl =
   typeof window === 'undefined' ? apiLocalConfig.apiUrl : '/api';
 
 export const apiFetcher = ky.create({
-  prefixUrl: prefixUrl,
+  prefixUrl,
   retry: {
     limit: 2,
     methods: ['get', 'put', 'head', 'delete', 'options', 'trace'],

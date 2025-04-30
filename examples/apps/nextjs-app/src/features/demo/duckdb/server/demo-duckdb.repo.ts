@@ -30,7 +30,6 @@ export class DemoDuckdbRepo {
       name = 'test',
       createdAt = '2025-01-22T23:54:41.114Z',
     } = params ?? {};
-    console.log(params, min, limit, name, createdAt);
     const query = sql<SearchResult>`
 
       WITH products(productId, createdAt)

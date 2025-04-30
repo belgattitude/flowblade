@@ -13,9 +13,13 @@ const useSearch = () => {
   return useQuery({
     queryKey: ['demo/duckdb/search'],
     queryFn: async (): Promise<SerializedQResult> => {
-      return await apiFetcher
-        .get<SerializedQResult>('/api/demo/duckdb/search')
-        .json();
+      return apiFetcher
+        .get('demo/duckdb/search', {
+          searchParams: {
+            limit: 10_000,
+          },
+        })
+        .json<SerializedQResult>();
     },
   });
 };
@@ -30,7 +34,7 @@ export const DuckdbDemoPage: FC = () => {
     return <QueryResultDebugger result={data} />;
   }
   if (error) {
-    console.log(data);
+    console.log(error);
   }
 
   return <div>error, check console</div>;
