@@ -7,6 +7,9 @@ ARG DEBIAN_VERSION=bookworm-slim
 
 FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS app-builder
 
+#RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+#RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
+#    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
 RUN apt-get update \
   #&& apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
   && apt-get install git jq --no-install-recommends -y \
@@ -32,13 +35,7 @@ RUN turbo prune --scope=@examples/nextjs-app --docker --out-dir=./out/nextjs-app
 
 FROM app-builder AS app-installer
 
-ENV NEXT_BUILD_IGNORE_ESLINT=true
-ENV NEXT_BUILD_IGNORE_TYPECHECK=true
-ENV NEXT_BUILD_OUTPUT=standalone
-# ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
-# ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
-
-ENV TZ=Europe/Brussels
+ENV TZ=Etc/UTC
 
 # Optimize for YARN installation speed
 ENV YARN_ENABLE_GLOBAL_CACHE=false
@@ -74,6 +71,13 @@ RUN --mount=type=cache,target=/root/.yarn3-cache,id=yarn3-cache \
 COPY --from=app-builder /app/out/nextjs-app/full/ .
 COPY --link .gitignore turbo.json tsconfig.base.json ./
 
+ENV NEXT_BUILD_IGNORE_ESLINT=true
+ENV NEXT_BUILD_IGNORE_TYPECHECK=true
+ENV NEXT_BUILD_OUTPUT=standalone
+# ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
+# ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
+
+
 RUN yarn workspace @examples/db-sqlserver prisma-generate
 RUN yarn turbo run build --filter=@examples/nextjs-app...
 
@@ -88,8 +92,10 @@ ARG NEXTJS_APP_PORT
 # Bort PORT / HOSTNAME envs are respected by nextjs start/dev.
 ENV HOSTNAME=0.0.0.0
 ENV PORT=${NEXTJS_APP_PORT:-3000}
-ENV TZ=Europe/Brussels
+ENV TZ=Etc/UTC
 
+#RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
+#    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
 RUN apt-get update \
   && apt-get install bash tzdata --no-install-recommends -y \
   && corepack enable
@@ -118,5 +124,5 @@ COPY --from=app-installer --chown=nextjs:nodejs /app/examples/apps/nextjs-app/pu
 
 EXPOSE ${PORT}
 
-CMD ["node", "apps/examples/nextjs-app/server.js"]
+CMD ["node", "apps/nextjs-app/server.js"]
 

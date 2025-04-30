@@ -23,7 +23,9 @@ docker compose down
 #### Run bash in container
 
 ```bash
-docker compose run nextjs-app bash
+docker compose run nextjs-app bash 
+# equivalent to
+docker run --rm -it --entrypoint bash flowblade-nextjs-app-nextjs-app
 ```
 
 #### Get the exported size
