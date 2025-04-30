@@ -18,7 +18,7 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY --link package.json turbo.json ./
+COPY --link package.json turbo.jsonc ./
 
 # We can't run turbo without yarn install first, let's install locally and make sure
 # both local and docker are aligned on the package.json version.
@@ -69,7 +69,7 @@ RUN --mount=type=cache,target=/root/.yarn3-cache,id=yarn3-cache \
 
 # Build the project
 COPY --from=app-builder /app/out/nextjs-app/full/ .
-COPY --link .gitignore turbo.json tsconfig.base.json ./
+COPY --link .gitignore turbo.jsonc tsconfig.base.json ./
 
 ENV NEXT_BUILD_IGNORE_ESLINT=true
 ENV NEXT_BUILD_IGNORE_TYPECHECK=true

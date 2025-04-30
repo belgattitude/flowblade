@@ -52,6 +52,12 @@ module.exports = {
       },
     },
     {
+      files: ['**/ux/*.tsx'],
+      rules: {
+        'jsx-a11y/anchor-is-valid': 'off',
+      },
+    },
+    {
       files: ['**/*/chart.tsx'],
       rules: {
         '@typescript-eslint/no-unsafe-member-access': 'off',

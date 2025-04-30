@@ -5,12 +5,12 @@ import * as v from 'valibot';
  */
 export const vCoercedIntSchema = v.pipe(
   v.unknown(),
-  v.transform((v) => {
+  v.transform((v): number | undefined => {
     if (v !== undefined) {
       if (typeof v === 'number') {
         // Ensure we're dealing with integers, not floating point
         if (!Number.isInteger(v)) {
-          throw new Error(`Value must be an integer, got: ${v}`);
+          throw new TypeError(`Value must be an integer, got: ${v}`);
         }
         return v;
       }
@@ -20,11 +20,11 @@ export const vCoercedIntSchema = v.pipe(
           return parsed;
         }
       }
-      throw new Error(
-        `Invalid value: ${String(v)} (type: '${typeof v}'). Expected a number or numeric string.`
+      throw new TypeError(
+        `Invalid value: ${typeof v === 'string' ? v : ''} (type: '${typeof v}'). Expected a number or numeric string.`
       );
     }
-    return undefined; // Return undefined if input is undefined
+    return;
   }),
   v.optional(v.number())
 );
