@@ -16,14 +16,11 @@ module.exports = {
     '@belgattitude/eslint-config-bases/simple-import-sort',
     '@belgattitude/eslint-config-bases/import-x',
     // '@belgattitude/eslint-config-bases/perfectionist',
+    '@belgattitude/eslint-config-bases/storybook',
     '@belgattitude/eslint-config-bases/sonar',
     '@belgattitude/eslint-config-bases/regexp',
     '@belgattitude/eslint-config-bases/vitest',
 
-    // Group 2: Helps to avoid complexity (cyclomatic...)
-    // '@belgattitude/eslint-config-bases/sonar',
-
-    // Group 3: When working with react
     '@belgattitude/eslint-config-bases/react',
     '@belgattitude/eslint-config-bases/react-query',
     '@belgattitude/eslint-config-bases/rtl',

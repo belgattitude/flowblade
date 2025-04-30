@@ -1,19 +1,21 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import ky from 'ky';
 import type { FC } from 'react';
 
 import {
   QueryResultDebugger,
   type SerializedQResult,
 } from '@/components/devtools/QueryResultDebugger';
+import { apiFetcher } from '@/config/ky.config';
 
 const useSearch = () => {
   return useQuery({
     queryKey: ['demo/duckdb/search'],
     queryFn: async (): Promise<SerializedQResult> => {
-      return await ky.get<SerializedQResult>('/api/demo/duckdb/search').json();
+      return await apiFetcher
+        .get<SerializedQResult>('/api/demo/duckdb/search')
+        .json();
     },
   });
 };
