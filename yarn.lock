@@ -1227,8 +1227,8 @@ __metadata:
     eslint: "npm:8.57.1"
     eslint-config-next: "npm:15.3.1"
     next: "npm:15.3.1"
-    nextra: "npm:4.3.0-alpha.21"
-    nextra-theme-docs: "npm:4.3.0-alpha.21"
+    nextra: "npm:4.3.0-alpha.22"
+    nextra-theme-docs: "npm:4.3.0-alpha.22"
     npm-run-all2: "npm:7.0.2"
     pagefind: "npm:1.3.0"
     prettier: "npm:3.5.3"
@@ -9038,6 +9038,13 @@ __metadata:
   version: 4.2.2
   resolution: "@xtuc/long@npm:4.2.2"
   checksum: 10c0/8582cbc69c79ad2d31568c412129bf23d2b1210a1dfb60c82d5a1df93334da4ee51f3057051658569e2c196d8dc33bc05ae6b974a711d0d16e801e1d0647ccd1
+  languageName: node
+  linkType: hard
+
+"@zod/core@npm:0.9.0":
+  version: 0.9.0
+  resolution: "@zod/core@npm:0.9.0"
+  checksum: 10c0/a13c4ae7c6c1d724fcc515d245e4c10addd9447e09afa6de98157245562e7225470365731b5a14c899cb07db6b5911a2d7f88311530019d47e790d6a6b5940ce
   languageName: node
   linkType: hard
 
@@ -18130,30 +18137,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nextra-theme-docs@npm:4.3.0-alpha.21":
-  version: 4.3.0-alpha.21
-  resolution: "nextra-theme-docs@npm:4.3.0-alpha.21"
+"nextra-theme-docs@npm:4.3.0-alpha.22":
+  version: 4.3.0-alpha.22
+  resolution: "nextra-theme-docs@npm:4.3.0-alpha.22"
   dependencies:
     "@headlessui/react": "npm:^2.1.2"
     clsx: "npm:^2.1.0"
     next-themes: "npm:^0.4.0"
     react-compiler-runtime: "npm:0.0.0-experimental-e993439-20250328"
     scroll-into-view-if-needed: "npm:^3.1.0"
-    zod: "npm:^3.22.3"
-    zod-validation-error: "npm:^3.0.0"
+    zod: "npm:4.0.0-beta.20250424T163858"
     zustand: "npm:^5.0.1"
   peerDependencies:
     next: ">=14"
-    nextra: 4.3.0-alpha.21
+    nextra: 4.3.0-alpha.22
     react: ">=18"
     react-dom: ">=18"
-  checksum: 10c0/37c4ee7776b08ad07fed90294bb74c107dedc648dd6a1bb2a31375d3d91a0ab4d505eeae80debfc482d3b2cc6a9cf0370a2ef78e6007a66ef614c0aae23561a3
+  checksum: 10c0/10ff91479e6d96a8efb843ca6296c13f5267870aee6f2770b399a2dc26095cd1256d97517efd4225cf1d5618a9faeee65cbb46429f6a9134fda2563449a8fdc1
   languageName: node
   linkType: hard
 
-"nextra@npm:4.3.0-alpha.21":
-  version: 4.3.0-alpha.21
-  resolution: "nextra@npm:4.3.0-alpha.21"
+"nextra@npm:4.3.0-alpha.22":
+  version: 4.3.0-alpha.22
+  resolution: "nextra@npm:4.3.0-alpha.22"
   dependencies:
     "@formatjs/intl-localematcher": "npm:^0.6.0"
     "@headlessui/react": "npm:^2.1.2"
@@ -18193,13 +18199,12 @@ __metadata:
     unist-util-visit: "npm:^5.0.0"
     unist-util-visit-children: "npm:^3.0.0"
     yaml: "npm:^2.3.2"
-    zod: "npm:^3.22.3"
-    zod-validation-error: "npm:^3.0.0"
+    zod: "npm:4.0.0-beta.20250424T163858"
   peerDependencies:
     next: ">=14"
     react: ">=18"
     react-dom: ">=18"
-  checksum: 10c0/4c89ccef1f15b396c29f11721bcca50c30bd2ef1735db3d0fad710423a766ac91ce3fcd1d4b9927cb312e23dde0292ced4ea3d8befe9a36ea0ddfe08b5bc7093
+  checksum: 10c0/2a6c474d62313cc5aad7ed9a7c21f8c539fc7d68ede601e8d33c2b074df629a26b89f641a5b02664960c7058167f1f7eafeb9437aad13bc271a05ab7d3899b96
   languageName: node
   linkType: hard
 
@@ -24641,19 +24646,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod-validation-error@npm:^3.0.0":
-  version: 3.4.0
-  resolution: "zod-validation-error@npm:3.4.0"
-  peerDependencies:
-    zod: ^3.18.0
-  checksum: 10c0/aaadb0e65c834aacb12fa088663d52d9f4224b5fe6958f09b039f4ab74145fda381c8a7d470bfddf7ddd9bbb5fdfbb52739cd66958ce6d388c256a44094d1fba
-  languageName: node
-  linkType: hard
-
-"zod@npm:3.24.3, zod@npm:^3.22.2, zod@npm:^3.22.3, zod@npm:^3.23.8":
+"zod@npm:3.24.3, zod@npm:^3.22.2, zod@npm:^3.23.8":
   version: 3.24.3
   resolution: "zod@npm:3.24.3"
   checksum: 10c0/ab0369810968d0329a1a141e9418e01e5c9c2a4905cbb7cb7f5a131d6e9487596e1400e21eeff24c4a8ee28dacfa5bd6103893765c055b7a98c2006a5a4fc68d
+  languageName: node
+  linkType: hard
+
+"zod@npm:4.0.0-beta.20250424T163858":
+  version: 4.0.0-beta.20250424T163858
+  resolution: "zod@npm:4.0.0-beta.20250424T163858"
+  dependencies:
+    "@zod/core": "npm:0.9.0"
+  checksum: 10c0/bc63eee829ff6906d13a832522cbcceeb1a0cd159eaa0a258fa3c6bbeb5c7d9866c3534f6f693fd610f38c5edb06802bb2f28f3d0f7875e014d513a76494b00c
   languageName: node
   linkType: hard
 
