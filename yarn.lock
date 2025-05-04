@@ -1229,7 +1229,7 @@ __metadata:
     next: "npm:15.3.1"
     nextra: "npm:4.3.0-alpha.22"
     nextra-theme-docs: "npm:4.3.0-alpha.22"
-    npm-run-all2: "npm:7.0.2"
+    npm-run-all2: "npm:8.0.1"
     pagefind: "npm:1.3.0"
     prettier: "npm:3.5.3"
     react: "npm:19.1.0"
@@ -2246,7 +2246,7 @@ __metadata:
     esbuild: "npm:0.25.3"
     eslint: "npm:8.57.1"
     execa: "npm:9.5.2"
-    npm-run-all2: "npm:7.0.2"
+    npm-run-all2: "npm:8.0.1"
     prettier: "npm:3.5.3"
     publint: "npm:0.3.12"
     rimraf: "npm:6.0.1"
@@ -2288,7 +2288,7 @@ __metadata:
     esbuild: "npm:0.25.3"
     eslint: "npm:8.57.1"
     execa: "npm:9.5.2"
-    npm-run-all2: "npm:7.0.2"
+    npm-run-all2: "npm:8.0.1"
     prettier: "npm:3.5.3"
     publint: "npm:0.3.12"
     rimraf: "npm:6.0.1"
@@ -2334,7 +2334,7 @@ __metadata:
     eslint: "npm:8.57.1"
     execa: "npm:9.5.2"
     kysely: "npm:0.28.2"
-    npm-run-all2: "npm:7.0.2"
+    npm-run-all2: "npm:8.0.1"
     prettier: "npm:3.5.3"
     prisma: "npm:6.7.0"
     prisma-kysely: "npm:1.8.0"
@@ -2387,7 +2387,7 @@ __metadata:
     esbuild: "npm:0.25.3"
     eslint: "npm:8.57.1"
     execa: "npm:9.5.2"
-    npm-run-all2: "npm:7.0.2"
+    npm-run-all2: "npm:8.0.1"
     prettier: "npm:3.5.3"
     publint: "npm:0.3.12"
     rimraf: "npm:6.0.1"
@@ -2427,7 +2427,7 @@ __metadata:
     esbuild: "npm:0.25.3"
     eslint: "npm:8.57.1"
     execa: "npm:9.5.2"
-    npm-run-all2: "npm:7.0.2"
+    npm-run-all2: "npm:8.0.1"
     prettier: "npm:3.5.3"
     publint: "npm:0.3.12"
     rimraf: "npm:6.0.1"
@@ -13572,7 +13572,7 @@ __metadata:
     husky: "npm:9.1.7"
     is-ci: "npm:4.1.0"
     lint-staged: "npm:15.5.1"
-    npm-run-all2: "npm:7.0.2"
+    npm-run-all2: "npm:8.0.1"
     picocolors: "npm:1.1.1"
     prettier: "npm:3.5.3"
     rimraf: "npm:6.0.1"
@@ -17704,7 +17704,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^10.0.0, minimatch@npm:^9.0.3 || ^10.0.1":
+"minimatch@npm:^10.0.0, minimatch@npm:^10.0.1, minimatch@npm:^9.0.3 || ^10.0.1":
   version: 10.0.1
   resolution: "minimatch@npm:10.0.1"
   dependencies:
@@ -18401,6 +18401,27 @@ __metadata:
     run-p: bin/run-p/index.js
     run-s: bin/run-s/index.js
   checksum: 10c0/4606c0cdaad9dc7dbe5a6ae432b1aabea25e2ffd541f959307e5c34247d0658952f98352b8ce45f925241af304c6718b2198b425f234e0e9fbc30b342cedb121
+  languageName: node
+  linkType: hard
+
+"npm-run-all2@npm:8.0.1":
+  version: 8.0.1
+  resolution: "npm-run-all2@npm:8.0.1"
+  dependencies:
+    ansi-styles: "npm:^6.2.1"
+    cross-spawn: "npm:^7.0.6"
+    memorystream: "npm:^0.3.1"
+    minimatch: "npm:^10.0.1"
+    pidtree: "npm:^0.6.0"
+    read-package-json-fast: "npm:^4.0.0"
+    shell-quote: "npm:^1.7.3"
+    which: "npm:^5.0.0"
+  bin:
+    npm-run-all: bin/npm-run-all/index.js
+    npm-run-all2: bin/npm-run-all/index.js
+    run-p: bin/run-p/index.js
+    run-s: bin/run-s/index.js
+  checksum: 10c0/e97980a66b64e51f57f57804a8d93e4fb0845867db7a558db224c480a987c9b1e9a0d148d01cad351d4f53077c7f93f56bba5625938d213ebb3f652c1d615d86
   languageName: node
   linkType: hard
 
