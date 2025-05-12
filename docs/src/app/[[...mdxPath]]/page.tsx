@@ -19,7 +19,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   return metadata;
 }
 
-// eslint-disable-next-line react-hooks/rules-of-hooks
+// eslint-disable-next-line react-hooks/rules-of-hooks,@typescript-eslint/unbound-method
 const Wrapper = useMDXComponents({}).wrapper;
 
 export default async function Page(props: Props) {
