@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.2.9
+
+### Patch Changes
+
+- [#643](https://github.com/belgattitude/flowblade/pull/643) [`8733fad`](https://github.com/belgattitude/flowblade/commit/8733fada4a93582e499f5533755a033af2bc49f7) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild with latest esbuild 0.25.4
+
 ## 0.2.8
 
 ### Patch Changes
