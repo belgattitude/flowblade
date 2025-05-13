@@ -1,5 +1,5 @@
 import { handle } from '@hono/node-server/vercel';
-import { apiReference } from '@scalar/hono-api-reference';
+import { Scalar } from '@scalar/hono-api-reference';
 import { Hono } from 'hono';
 import { openAPISpecs } from 'hono-openapi';
 import type { PageConfig } from 'next';
@@ -44,10 +44,7 @@ app.get(
 
 app.get(
   '/reference',
-  apiReference({
-    theme: 'default',
-    url: '/api/openapi',
-  })
+  Scalar({ url: '/api/openapi', theme: 'purple', pageTitle: 'Flowblade API' })
 );
 
 export type HonoLocalApiAppType = typeof app;
