@@ -29,7 +29,13 @@ let nextConfig = {
     ignoreDuringBuilds: buildEnv.NEXT_BUILD_IGNORE_ESLINT === 'true',
   },
   // transpilePackages: ['@duckdb/duckdb-wasm'],
-  serverExternalPackages: ['@duckdb/node-api', 'tedious', 'mssql', 'tarn'],
+  serverExternalPackages: [
+    '@duckdb/node-api',
+    '@duckdb/node-bindings',
+    'tedious',
+    'mssql',
+    'tarn',
+  ],
   outputFileTracingRoot: monorepoRoot,
   experimental: {
     // Prefer loading of ES Modules over CommonJS

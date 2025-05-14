@@ -5,8 +5,6 @@ import {
 } from '@flowblade/source-kysely';
 import { Kysely } from 'kysely';
 
-import { getHmrSafeKyselyInstance } from '@/lib/kysely/get-hmr-safe-kysely-instance';
-
 import { serverEnv } from '../../env/server.env.mjs';
 
 const config = TediousConnUtils.fromJdbcDsn(
@@ -52,7 +50,16 @@ const createDbKysely = () => {
   });
 };
 
-export const dbKyselyMssql = getHmrSafeKyselyInstance({
-  name: 'dbkysely',
-  factory: createDbKysely,
-});
+// @see instrumentation.ts
+export const initializeDbKyselyMssqlConn = (): Kysely<DBKyselySqlServer> => {
+  return createDbKysely();
+};
+
+export const dbKyselyMssql =
+  process.env.NODE_ENV === 'production'
+    ? createDbKysely()
+    : (
+        globalThis as unknown as {
+          dbKyselyMssqlConn: Kysely<DBKyselySqlServer>;
+        }
+      ).dbKyselyMssqlConn;
