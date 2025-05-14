@@ -1,5 +1,5 @@
 /*
-export { default } from '@examples/design-system/postcss.config.mjs';
+export { default } from '@examples/base-ui/postcss.config.mjs';
 */
 
 /** @type {import('postcss-load-config').Config} */
