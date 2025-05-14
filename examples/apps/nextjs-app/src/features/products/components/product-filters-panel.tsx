@@ -41,11 +41,15 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
           options={data}
           optionLabel="name"
           display="chip"
-          filterMatchMode={'contains'}
           inline={false}
           placeholder="Choose Brands"
           maxSelectedLabels={3}
           filter={true}
+          filterDelay={100}
+          filterMatchMode={'contains'}
+          virtualScrollerOptions={{
+            itemSize: 40,
+          }}
         />
         <Dropdown
           value={draftFilters.slowdownApiMs}

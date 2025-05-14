@@ -1214,7 +1214,7 @@ __metadata:
     "@t3-oss/env-nextjs": "npm:0.13.4"
     "@tailwindcss/postcss": "npm:4.1.6"
     "@total-typescript/ts-reset": "npm:0.6.1"
-    "@types/node": "npm:22.15.17"
+    "@types/node": "npm:22.15.18"
     "@types/react": "npm:19.1.4"
     "@types/react-dom": "npm:19.1.5"
     "@typescript-eslint/eslint-plugin": "npm:8.32.1"
@@ -1609,55 +1609,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@examples/db-sqlserver@workspace:^, @examples/db-sqlserver@workspace:examples/shared/db-sqlserver":
+"@examples/base-ui@workspace:^, @examples/base-ui@workspace:examples/shared/base-ui":
   version: 0.0.0-use.local
-  resolution: "@examples/db-sqlserver@workspace:examples/shared/db-sqlserver"
-  dependencies:
-    "@belgattitude/eslint-config-bases": "npm:6.37.0"
-    "@faker-js/faker": "npm:9.7.0"
-    "@flowblade/core": "workspace:^"
-    "@flowblade/sql-tag": "workspace:^"
-    "@httpx/assert": "npm:0.15.3"
-    "@prisma/client": "npm:6.7.0"
-    "@total-typescript/ts-reset": "npm:0.6.1"
-    "@types/node": "npm:22.15.17"
-    "@typescript-eslint/eslint-plugin": "npm:8.32.1"
-    "@typescript-eslint/parser": "npm:8.32.1"
-    "@vitest/coverage-v8": "npm:3.1.3"
-    "@vitest/ui": "npm:3.1.3"
-    cross-env: "npm:7.0.3"
-    dotenv-expand: "npm:12.0.2"
-    dotenv-flow: "npm:4.1.0"
-    dotenv-flow-cli: "npm:1.1.1"
-    eslint: "npm:8.57.1"
-    execa: "npm:9.5.3"
-    kysely: "npm:0.28.2"
-    npm-run-all2: "npm:8.0.1"
-    prettier: "npm:3.5.3"
-    prisma: "npm:6.7.0"
-    prisma-kysely: "npm:1.8.0"
-    prisma-markdown: "npm:2.0.0"
-    regexp.escape: "npm:2.0.1"
-    rimraf: "npm:6.0.1"
-    tedious: "npm:19.0.0"
-    tinyrainbow: "npm:2.0.0"
-    tsx: "npm:4.19.4"
-    typescript: "npm:5.8.3"
-    vite-tsconfig-paths: "npm:5.1.4"
-    vitest: "npm:3.1.3"
-  peerDependencies:
-    "@prisma/client": ^6.6.0
-    kysely: ^0.28.0
-    tedious: ^19.0.0
-  peerDependenciesMeta:
-    "@prisma/client":
-      optional: true
-  languageName: unknown
-  linkType: soft
-
-"@examples/design-system@workspace:^, @examples/design-system@workspace:examples/shared/design-system":
-  version: 0.0.0-use.local
-  resolution: "@examples/design-system@workspace:examples/shared/design-system"
+  resolution: "@examples/base-ui@workspace:examples/shared/base-ui"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:6.37.0"
     "@hookform/resolvers": "npm:5.0.1"
@@ -1697,7 +1651,7 @@ __metadata:
     "@testing-library/dom": "npm:10.4.0"
     "@testing-library/react": "npm:16.3.0"
     "@testing-library/user-event": "npm:14.6.1"
-    "@types/node": "npm:22.15.17"
+    "@types/node": "npm:22.15.18"
     "@types/react": "npm:19.1.4"
     "@types/react-dom": "npm:19.1.5"
     "@typescript-eslint/eslint-plugin": "npm:8.32.1"
@@ -1736,6 +1690,52 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@examples/db-sqlserver@workspace:^, @examples/db-sqlserver@workspace:examples/shared/db-sqlserver":
+  version: 0.0.0-use.local
+  resolution: "@examples/db-sqlserver@workspace:examples/shared/db-sqlserver"
+  dependencies:
+    "@belgattitude/eslint-config-bases": "npm:6.37.0"
+    "@faker-js/faker": "npm:9.7.0"
+    "@flowblade/core": "workspace:^"
+    "@flowblade/sql-tag": "workspace:^"
+    "@httpx/assert": "npm:0.15.3"
+    "@prisma/client": "npm:6.7.0"
+    "@total-typescript/ts-reset": "npm:0.6.1"
+    "@types/node": "npm:22.15.18"
+    "@typescript-eslint/eslint-plugin": "npm:8.32.1"
+    "@typescript-eslint/parser": "npm:8.32.1"
+    "@vitest/coverage-v8": "npm:3.1.3"
+    "@vitest/ui": "npm:3.1.3"
+    cross-env: "npm:7.0.3"
+    dotenv-expand: "npm:12.0.2"
+    dotenv-flow: "npm:4.1.0"
+    dotenv-flow-cli: "npm:1.1.1"
+    eslint: "npm:8.57.1"
+    execa: "npm:9.5.3"
+    kysely: "npm:0.28.2"
+    npm-run-all2: "npm:8.0.1"
+    prettier: "npm:3.5.3"
+    prisma: "npm:6.7.0"
+    prisma-kysely: "npm:1.8.0"
+    prisma-markdown: "npm:2.0.0"
+    regexp.escape: "npm:2.0.1"
+    rimraf: "npm:6.0.1"
+    tedious: "npm:19.0.0"
+    tinyrainbow: "npm:2.0.0"
+    tsx: "npm:4.19.4"
+    typescript: "npm:5.8.3"
+    vite-tsconfig-paths: "npm:5.1.4"
+    vitest: "npm:3.1.3"
+  peerDependencies:
+    "@prisma/client": ^6.6.0
+    kysely: ^0.28.0
+    tedious: ^19.0.0
+  peerDependenciesMeta:
+    "@prisma/client":
+      optional: true
+  languageName: unknown
+  linkType: soft
+
 "@examples/duckdb-openfoodfact@workspace:examples/shared/duckb-openfoodfact":
   version: 0.0.0-use.local
   resolution: "@examples/duckdb-openfoodfact@workspace:examples/shared/duckb-openfoodfact"
@@ -1754,7 +1754,7 @@ __metadata:
     "@httpx/memo-intl": "npm:1.3.2"
     "@httpx/stable-hash": "npm:0.2.1"
     "@total-typescript/ts-reset": "npm:0.6.1"
-    "@types/node": "npm:22.15.17"
+    "@types/node": "npm:22.15.18"
     "@typescript-eslint/eslint-plugin": "npm:8.32.1"
     "@typescript-eslint/parser": "npm:8.32.1"
     "@vitest/coverage-v8": "npm:3.1.3"
@@ -1812,7 +1812,7 @@ __metadata:
     "@httpx/treeu": "npm:0.4.13"
     "@sinclair/typebox": "npm:0.34.33"
     "@total-typescript/ts-reset": "npm:0.6.1"
-    "@types/node": "npm:22.15.17"
+    "@types/node": "npm:22.15.18"
     "@typescript-eslint/eslint-plugin": "npm:8.32.1"
     "@typescript-eslint/parser": "npm:8.32.1"
     "@vitest/coverage-v8": "npm:3.1.3"
@@ -1823,7 +1823,7 @@ __metadata:
     dotenv-flow: "npm:4.1.0"
     eslint: "npm:8.57.1"
     execa: "npm:9.5.3"
-    fastify: "npm:5.3.2"
+    fastify: "npm:5.3.3"
     fastify-cli: "npm:7.4.0"
     fastify-plugin: "npm:5.0.1"
     kysely: "npm:0.28.2"
@@ -1848,8 +1848,8 @@ __metadata:
     "@belgattitude/eslint-config-bases": "npm:6.37.0"
     "@duckdb/duckdb-wasm": "npm:1.29.1-dev132.0"
     "@duckdb/node-api": "npm:1.2.2-alpha.18"
+    "@examples/base-ui": "workspace:^"
     "@examples/db-sqlserver": "workspace:^"
-    "@examples/design-system": "workspace:^"
     "@faker-js/faker": "npm:9.7.0"
     "@flowblade/core": "workspace:^"
     "@flowblade/source-duckdb": "workspace:^"
@@ -1884,17 +1884,17 @@ __metadata:
     "@reduxjs/toolkit": "npm:2.8.1"
     "@scalar/hono-api-reference": "npm:0.8.9"
     "@sentry/nextjs": "npm:9.18.0"
-    "@shikijs/transformers": "npm:3.4.0"
+    "@shikijs/transformers": "npm:3.4.1"
     "@t3-oss/env-nextjs": "npm:0.13.4"
     "@tailwindcss/postcss": "npm:4.1.6"
     "@tanstack/react-form": "npm:1.11.1"
-    "@tanstack/react-query": "npm:5.76.0"
-    "@tanstack/react-query-devtools": "npm:5.76.0"
+    "@tanstack/react-query": "npm:5.76.1"
+    "@tanstack/react-query-devtools": "npm:5.76.1"
     "@testing-library/dom": "npm:10.4.0"
     "@testing-library/react": "npm:16.3.0"
     "@testing-library/user-event": "npm:14.6.1"
     "@total-typescript/ts-reset": "npm:0.6.1"
-    "@types/node": "npm:22.15.17"
+    "@types/node": "npm:22.15.18"
     "@types/react": "npm:19.1.4"
     "@types/react-dom": "npm:19.1.5"
     "@typescript-eslint/eslint-plugin": "npm:8.32.1"
@@ -1929,7 +1929,7 @@ __metadata:
     lodash: "npm:4.17.21"
     lucide-react: "npm:0.510.0"
     marked: "npm:15.0.11"
-    next: "npm:15.4.0-canary.33"
+    next: "npm:15.4.0-canary.34"
     npm-run-all2: "npm:8.0.1"
     openapi-fetch: "npm:0.14.0"
     openapi-react-query: "npm:0.5.0"
@@ -1943,7 +1943,7 @@ __metadata:
     react-redux: "npm:9.2.0"
     react-responsive-carousel: "npm:3.2.23"
     rimraf: "npm:6.0.1"
-    shiki: "npm:3.4.0"
+    shiki: "npm:3.4.1"
     tailwind-merge: "npm:3.3.0"
     tailwindcss: "npm:4.1.6"
     tarn: "npm:3.0.2"
@@ -2227,7 +2227,7 @@ __metadata:
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:6.37.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
-    "@types/node": "npm:22.15.17"
+    "@types/node": "npm:22.15.18"
     "@typescript-eslint/eslint-plugin": "npm:8.32.1"
     "@typescript-eslint/parser": "npm:8.32.1"
     autocannon: "npm:8.0.0"
@@ -3350,10 +3350,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/env@npm:15.4.0-canary.33":
-  version: 15.4.0-canary.33
-  resolution: "@next/env@npm:15.4.0-canary.33"
-  checksum: 10c0/f4c377706c6d733a2e3420bcc55c77dd4c94c2bdd77519722b983afc25e4959a07c2b376e608a84c05aa0dccaede9dc8f0619b210bd6506a161889c6c720072c
+"@next/env@npm:15.4.0-canary.34":
+  version: 15.4.0-canary.34
+  resolution: "@next/env@npm:15.4.0-canary.34"
+  checksum: 10c0/64affcc4fd25372a51a6b5341cb2dfde11fd358f99865480a02435fb33053b57e2e5d2aeff37aaab4bfa16a77ad0066ff70c10f5b262757e516d6fd94a2ad9fe
   languageName: node
   linkType: hard
 
@@ -3373,9 +3373,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-arm64@npm:15.4.0-canary.33":
-  version: 15.4.0-canary.33
-  resolution: "@next/swc-darwin-arm64@npm:15.4.0-canary.33"
+"@next/swc-darwin-arm64@npm:15.4.0-canary.34":
+  version: 15.4.0-canary.34
+  resolution: "@next/swc-darwin-arm64@npm:15.4.0-canary.34"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
@@ -3387,9 +3387,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-x64@npm:15.4.0-canary.33":
-  version: 15.4.0-canary.33
-  resolution: "@next/swc-darwin-x64@npm:15.4.0-canary.33"
+"@next/swc-darwin-x64@npm:15.4.0-canary.34":
+  version: 15.4.0-canary.34
+  resolution: "@next/swc-darwin-x64@npm:15.4.0-canary.34"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
@@ -3401,9 +3401,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-gnu@npm:15.4.0-canary.33":
-  version: 15.4.0-canary.33
-  resolution: "@next/swc-linux-arm64-gnu@npm:15.4.0-canary.33"
+"@next/swc-linux-arm64-gnu@npm:15.4.0-canary.34":
+  version: 15.4.0-canary.34
+  resolution: "@next/swc-linux-arm64-gnu@npm:15.4.0-canary.34"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
@@ -3415,9 +3415,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-musl@npm:15.4.0-canary.33":
-  version: 15.4.0-canary.33
-  resolution: "@next/swc-linux-arm64-musl@npm:15.4.0-canary.33"
+"@next/swc-linux-arm64-musl@npm:15.4.0-canary.34":
+  version: 15.4.0-canary.34
+  resolution: "@next/swc-linux-arm64-musl@npm:15.4.0-canary.34"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
@@ -3429,9 +3429,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-gnu@npm:15.4.0-canary.33":
-  version: 15.4.0-canary.33
-  resolution: "@next/swc-linux-x64-gnu@npm:15.4.0-canary.33"
+"@next/swc-linux-x64-gnu@npm:15.4.0-canary.34":
+  version: 15.4.0-canary.34
+  resolution: "@next/swc-linux-x64-gnu@npm:15.4.0-canary.34"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
@@ -3443,9 +3443,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-musl@npm:15.4.0-canary.33":
-  version: 15.4.0-canary.33
-  resolution: "@next/swc-linux-x64-musl@npm:15.4.0-canary.33"
+"@next/swc-linux-x64-musl@npm:15.4.0-canary.34":
+  version: 15.4.0-canary.34
+  resolution: "@next/swc-linux-x64-musl@npm:15.4.0-canary.34"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
@@ -3457,9 +3457,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/swc-win32-arm64-msvc@npm:15.4.0-canary.33":
-  version: 15.4.0-canary.33
-  resolution: "@next/swc-win32-arm64-msvc@npm:15.4.0-canary.33"
+"@next/swc-win32-arm64-msvc@npm:15.4.0-canary.34":
+  version: 15.4.0-canary.34
+  resolution: "@next/swc-win32-arm64-msvc@npm:15.4.0-canary.34"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
@@ -3471,9 +3471,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/swc-win32-x64-msvc@npm:15.4.0-canary.33":
-  version: 15.4.0-canary.33
-  resolution: "@next/swc-win32-x64-msvc@npm:15.4.0-canary.33"
+"@next/swc-win32-x64-msvc@npm:15.4.0-canary.34":
+  version: 15.4.0-canary.34
+  resolution: "@next/swc-win32-x64-msvc@npm:15.4.0-canary.34"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -6349,64 +6349,64 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shikijs/core@npm:3.4.0":
-  version: 3.4.0
-  resolution: "@shikijs/core@npm:3.4.0"
+"@shikijs/core@npm:3.4.1":
+  version: 3.4.1
+  resolution: "@shikijs/core@npm:3.4.1"
   dependencies:
-    "@shikijs/types": "npm:3.4.0"
+    "@shikijs/types": "npm:3.4.1"
     "@shikijs/vscode-textmate": "npm:^10.0.2"
     "@types/hast": "npm:^3.0.4"
     hast-util-to-html: "npm:^9.0.5"
-  checksum: 10c0/715d1e994dcbcbcd76bbe64d0f7f703a561b01e3d8d17392352039ec65a621ce7fd9866833ec9bdb4dd2fad8c2415fa92c055ac61bcc3f64cae87b646e8405b2
+  checksum: 10c0/adcdc90d2454c2dd56c4c3da944d89679f4ec9777676478ab03f92822e29281cb4d2fa98480c1eefde10ec2bd1f767458b4948c0246063a5043bbb9a99b82de6
   languageName: node
   linkType: hard
 
-"@shikijs/engine-javascript@npm:3.4.0":
-  version: 3.4.0
-  resolution: "@shikijs/engine-javascript@npm:3.4.0"
+"@shikijs/engine-javascript@npm:3.4.1":
+  version: 3.4.1
+  resolution: "@shikijs/engine-javascript@npm:3.4.1"
   dependencies:
-    "@shikijs/types": "npm:3.4.0"
+    "@shikijs/types": "npm:3.4.1"
     "@shikijs/vscode-textmate": "npm:^10.0.2"
     oniguruma-to-es: "npm:^4.3.3"
-  checksum: 10c0/98abc6990c63ded2602b7c70e1d9761937ed174b6a639057dee8a6b96e45364ec823827e8563140f5b74b94e6aef8bb657d06146f51d8253ced8776ad9d896f6
+  checksum: 10c0/dcc3810faac21b8f51099c447bea897c4a7676fa328856621f402e90ed0a0525f02cffb5d336c730c02abafc42f3749383770f30a0770713f61935a997151075
   languageName: node
   linkType: hard
 
-"@shikijs/engine-oniguruma@npm:3.4.0, @shikijs/engine-oniguruma@npm:^3.2.2":
-  version: 3.4.0
-  resolution: "@shikijs/engine-oniguruma@npm:3.4.0"
+"@shikijs/engine-oniguruma@npm:3.4.1, @shikijs/engine-oniguruma@npm:^3.2.2":
+  version: 3.4.1
+  resolution: "@shikijs/engine-oniguruma@npm:3.4.1"
   dependencies:
-    "@shikijs/types": "npm:3.4.0"
+    "@shikijs/types": "npm:3.4.1"
     "@shikijs/vscode-textmate": "npm:^10.0.2"
-  checksum: 10c0/7a8b6c5ad27e28e7483df5cb939963571bb7df90a77b571c654d3de0ae3678d37d6b0bf5f77ecdf9ecbc6a2dbccc32719f96ced0d303561c4d945c7ac642bf29
+  checksum: 10c0/2c3d928c57ce1a50b6d33d5968d50eb8e5290230b62295365aca7b2e147a6791551c437a858ba57dc0ed55fcf8c10c8e59f553909867d63cdaa6f3c1f0dd63dc
   languageName: node
   linkType: hard
 
-"@shikijs/langs@npm:3.4.0, @shikijs/langs@npm:^3.2.2":
-  version: 3.4.0
-  resolution: "@shikijs/langs@npm:3.4.0"
+"@shikijs/langs@npm:3.4.1, @shikijs/langs@npm:^3.2.2":
+  version: 3.4.1
+  resolution: "@shikijs/langs@npm:3.4.1"
   dependencies:
-    "@shikijs/types": "npm:3.4.0"
-  checksum: 10c0/73f464e7e433b42fa9c25ebc4bcca1832f861ee9342ccc63090328f3516af6d4fc685cae84e330b9a4aee69f095922403b2b345d0412e7dc7b0be66a1e3bbf68
+    "@shikijs/types": "npm:3.4.1"
+  checksum: 10c0/2eea12a6ece9808e1a9910f551267310cdd42dfd4f6495cb39032543de21140ac0b6a5a07e59801cf2563b3e62ea57c78ee1822115f86d0a6091f4b03e66fca5
   languageName: node
   linkType: hard
 
-"@shikijs/themes@npm:3.4.0, @shikijs/themes@npm:^3.2.2":
-  version: 3.4.0
-  resolution: "@shikijs/themes@npm:3.4.0"
+"@shikijs/themes@npm:3.4.1, @shikijs/themes@npm:^3.2.2":
+  version: 3.4.1
+  resolution: "@shikijs/themes@npm:3.4.1"
   dependencies:
-    "@shikijs/types": "npm:3.4.0"
-  checksum: 10c0/adca4a5b2ce2d663b39caed2f9002cda5cab96c938cd594e2924e78e9a360a8cb886d3e87ce2773b5c1f4ef94f96281667b41dcb55dbd7e655ef1edcf775c6cd
+    "@shikijs/types": "npm:3.4.1"
+  checksum: 10c0/8e2830161d3dfa387136aca0045e9a62aae2b4e2b43f988d3ef6028c850ceba15c214822fdfb5c2d8cbef06b1aa8512143ccf8de9def2c3852a4b9970443decd
   languageName: node
   linkType: hard
 
-"@shikijs/transformers@npm:3.4.0":
-  version: 3.4.0
-  resolution: "@shikijs/transformers@npm:3.4.0"
+"@shikijs/transformers@npm:3.4.1":
+  version: 3.4.1
+  resolution: "@shikijs/transformers@npm:3.4.1"
   dependencies:
-    "@shikijs/core": "npm:3.4.0"
-    "@shikijs/types": "npm:3.4.0"
-  checksum: 10c0/ada3e08f8617b2a1a2da7494ef42353f0095fc9294cf08e732a78a8b5f64f5e6f6dd7112d90cdca3325e567c8b09c3f300569daef8ac96dd06962245995e8304
+    "@shikijs/core": "npm:3.4.1"
+    "@shikijs/types": "npm:3.4.1"
+  checksum: 10c0/442fd92823b55668410a0cdb60b976b0f3e65f8390bcb5ed9e9785a2f06e1e228419c19a1a097b569e8e52fd3c7a1489954929c91c271581d4c90798100856cf
   languageName: node
   linkType: hard
 
@@ -6433,13 +6433,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shikijs/types@npm:3.4.0, @shikijs/types@npm:^3.2.2":
-  version: 3.4.0
-  resolution: "@shikijs/types@npm:3.4.0"
+"@shikijs/types@npm:3.4.1, @shikijs/types@npm:^3.2.2":
+  version: 3.4.1
+  resolution: "@shikijs/types@npm:3.4.1"
   dependencies:
     "@shikijs/vscode-textmate": "npm:^10.0.2"
     "@types/hast": "npm:^3.0.4"
-  checksum: 10c0/3a2d51208981e1ca70101dc5575e60cffca223cdc0aeb1683b3b4a582205edf185c104b41c5092b2dfca96d1f81a88d12e16161cb8288287949b90ac5eabf531
+  checksum: 10c0/5537d4e032b4c39826cfe08c4dec34a482e096f62b6b29dd453f74c2af3c66829cde966e2eb63f3871a51ae8c6f45ed21d9eebcb8464e38ab568845eb1b05788
   languageName: node
   linkType: hard
 
@@ -7304,26 +7304,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:5.76.0":
-  version: 5.76.0
-  resolution: "@tanstack/react-query-devtools@npm:5.76.0"
+"@tanstack/react-query-devtools@npm:5.76.1":
+  version: 5.76.1
+  resolution: "@tanstack/react-query-devtools@npm:5.76.1"
   dependencies:
     "@tanstack/query-devtools": "npm:5.76.0"
   peerDependencies:
-    "@tanstack/react-query": ^5.76.0
+    "@tanstack/react-query": ^5.76.1
     react: ^18 || ^19
-  checksum: 10c0/2ddbc85aa0909fd6da6f0729fe24eb8c3e54d516ee5f8f2371bd4b1ba9b9c00315ba52d6a2fe993b5b57c68d972d2a667651def45d41acd0479a360e9ae0d098
+  checksum: 10c0/f15e462493c96fce50de7852358c1d2865bbfee59de4eff6b124e06c3afabfda05df121229e22f4e25014163edddb3492901d1302485268847ed2eabe26f5f2a
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:5.76.0":
-  version: 5.76.0
-  resolution: "@tanstack/react-query@npm:5.76.0"
+"@tanstack/react-query@npm:5.76.1":
+  version: 5.76.1
+  resolution: "@tanstack/react-query@npm:5.76.1"
   dependencies:
     "@tanstack/query-core": "npm:5.76.0"
   peerDependencies:
     react: ^18 || ^19
-  checksum: 10c0/d17b7840f00a6f6d6253f436f9d32d63d255e6945e81930a36b58deb39a5fb63f6911f4ccdf393570ccfc8675cf0439c1db1d8c87532fd09d93807aa9771f819
+  checksum: 10c0/35757f185ccd577e0763b18c2e29db621b40fb85419507d43a2a136fd47d8a4410f219fa9697142f7199577cc42c23dd117021cc8c072545eca133d5114148d9
   languageName: node
   linkType: hard
 
@@ -7991,12 +7991,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:22.15.17, @types/node@npm:>=18":
-  version: 22.15.17
-  resolution: "@types/node@npm:22.15.17"
+"@types/node@npm:*, @types/node@npm:22.15.18, @types/node@npm:>=18":
+  version: 22.15.18
+  resolution: "@types/node@npm:22.15.18"
   dependencies:
     undici-types: "npm:~6.21.0"
-  checksum: 10c0/fb92aa10b628683c5b965749f955bc2322485ecb0ea6c2f4cae5f2c7537a16834607e67083a9e9281faaae8d7dee9ada8d6a5c0de9a52c17d82912ef00c0fdd4
+  checksum: 10c0/e23178c568e2dc6b93b6aa3b8dfb45f9556e527918c947fe7406a4c92d2184c7396558912400c3b1b8d0fa952ec63819aca2b8e4d3545455fc6f1e9623e09ca6
   languageName: node
   linkType: hard
 
@@ -13178,9 +13178,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify@npm:5.3.2, fastify@npm:^5.0.0":
-  version: 5.3.2
-  resolution: "fastify@npm:5.3.2"
+"fastify@npm:5.3.3, fastify@npm:^5.0.0":
+  version: 5.3.3
+  resolution: "fastify@npm:5.3.3"
   dependencies:
     "@fastify/ajv-compiler": "npm:^4.0.0"
     "@fastify/error": "npm:^4.0.0"
@@ -13197,7 +13197,7 @@ __metadata:
     secure-json-parse: "npm:^4.0.0"
     semver: "npm:^7.6.0"
     toad-cache: "npm:^3.7.0"
-  checksum: 10c0/86ec8d6af1ddf779d9350958424d985e274d867786efa677ff88c1d1db9d7a3ee05e25dff29b3893e835a61893cf4df52d696f6ea193da1a29b8d098866914e8
+  checksum: 10c0/77202ef5b3968ce52fec52abc8f0d9ee7302816b000e2226d1ffdd8fb7e67dcc87711382aa5fa3d142c2eab6aa1d2f3a23667823bf121327e421ea5d97678064
   languageName: node
   linkType: hard
 
@@ -17911,19 +17911,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next@npm:15.4.0-canary.33":
-  version: 15.4.0-canary.33
-  resolution: "next@npm:15.4.0-canary.33"
+"next@npm:15.4.0-canary.34":
+  version: 15.4.0-canary.34
+  resolution: "next@npm:15.4.0-canary.34"
   dependencies:
-    "@next/env": "npm:15.4.0-canary.33"
-    "@next/swc-darwin-arm64": "npm:15.4.0-canary.33"
-    "@next/swc-darwin-x64": "npm:15.4.0-canary.33"
-    "@next/swc-linux-arm64-gnu": "npm:15.4.0-canary.33"
-    "@next/swc-linux-arm64-musl": "npm:15.4.0-canary.33"
-    "@next/swc-linux-x64-gnu": "npm:15.4.0-canary.33"
-    "@next/swc-linux-x64-musl": "npm:15.4.0-canary.33"
-    "@next/swc-win32-arm64-msvc": "npm:15.4.0-canary.33"
-    "@next/swc-win32-x64-msvc": "npm:15.4.0-canary.33"
+    "@next/env": "npm:15.4.0-canary.34"
+    "@next/swc-darwin-arm64": "npm:15.4.0-canary.34"
+    "@next/swc-darwin-x64": "npm:15.4.0-canary.34"
+    "@next/swc-linux-arm64-gnu": "npm:15.4.0-canary.34"
+    "@next/swc-linux-arm64-musl": "npm:15.4.0-canary.34"
+    "@next/swc-linux-x64-gnu": "npm:15.4.0-canary.34"
+    "@next/swc-linux-x64-musl": "npm:15.4.0-canary.34"
+    "@next/swc-win32-arm64-msvc": "npm:15.4.0-canary.34"
+    "@next/swc-win32-x64-msvc": "npm:15.4.0-canary.34"
     "@swc/helpers": "npm:0.5.15"
     caniuse-lite: "npm:^1.0.30001579"
     postcss: "npm:8.4.31"
@@ -17966,7 +17966,7 @@ __metadata:
       optional: true
   bin:
     next: dist/bin/next
-  checksum: 10c0/c74b279dab80be261f7722bb113d0457c831ef693dc41b2bbac74032141aad7278878be470f79c74cde269f7cb222803660e61269f7856e0739027e831c0a77c
+  checksum: 10c0/0c7d57219550abd7864d9902f82e56c658699abb8043efb4bf36f93c265009f1addb982ab6dcd609548ae6dc4ac52d9ba4324ccae52018589c025bdbdd202e04
   languageName: node
   linkType: hard
 
@@ -21335,19 +21335,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shiki@npm:3.4.0, shiki@npm:^3.2.1":
-  version: 3.4.0
-  resolution: "shiki@npm:3.4.0"
+"shiki@npm:3.4.1, shiki@npm:^3.2.1":
+  version: 3.4.1
+  resolution: "shiki@npm:3.4.1"
   dependencies:
-    "@shikijs/core": "npm:3.4.0"
-    "@shikijs/engine-javascript": "npm:3.4.0"
-    "@shikijs/engine-oniguruma": "npm:3.4.0"
-    "@shikijs/langs": "npm:3.4.0"
-    "@shikijs/themes": "npm:3.4.0"
-    "@shikijs/types": "npm:3.4.0"
+    "@shikijs/core": "npm:3.4.1"
+    "@shikijs/engine-javascript": "npm:3.4.1"
+    "@shikijs/engine-oniguruma": "npm:3.4.1"
+    "@shikijs/langs": "npm:3.4.1"
+    "@shikijs/themes": "npm:3.4.1"
+    "@shikijs/types": "npm:3.4.1"
     "@shikijs/vscode-textmate": "npm:^10.0.2"
     "@types/hast": "npm:^3.0.4"
-  checksum: 10c0/00a61c86f5ef676dc0e6917a09ec18e9b3bbafc892ff7c22278bf542e425487dd7d96f31b981aa17d278072a5be81f38703401a8e12f702d9bb3c81fdc65083c
+  checksum: 10c0/f2f0ca5b936f813f773e9410ab3367af5a3f206068557427386eb709b8963a627decc2101c44dea51782558e4af79caf7c31e1d080ad95c7e52013b6eacf535d
   languageName: node
   linkType: hard
 

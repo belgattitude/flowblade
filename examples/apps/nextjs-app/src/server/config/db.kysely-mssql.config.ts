@@ -5,6 +5,8 @@ import {
 } from '@flowblade/source-kysely';
 import { Kysely } from 'kysely';
 
+import { getHmrSafeKyselyInstance } from '@/lib/kysely/get-hmr-safe-kysely-instance';
+
 import { serverEnv } from '../../env/server.env.mjs';
 
 const config = TediousConnUtils.fromJdbcDsn(
@@ -28,22 +30,29 @@ const maskPII = (param: unknown) => {
   return param;
 };
 
-export const dbKyselyMssql = new Kysely<DBKyselySqlServer>({
-  dialect: dialect,
-  log: (event) => {
-    if (event.level === 'error') {
-      console.error('Query failed :', {
-        durationMs: event.queryDurationMillis,
-        error: event.error,
-        sql: event.query.sql,
-        params: event.query.parameters.map((param) => maskPII(param)),
-      });
-    } else {
-      console.log('Query executed :', {
-        durationMs: event.queryDurationMillis,
-        sql: event.query.sql,
-        params: event.query.parameters.map((param) => maskPII(param)),
-      });
-    }
-  },
+const createDbKysely = () => {
+  return new Kysely<DBKyselySqlServer>({
+    dialect: dialect,
+    log: (event) => {
+      if (event.level === 'error') {
+        console.error('Query failed :', {
+          durationMs: event.queryDurationMillis,
+          error: event.error,
+          sql: event.query.sql,
+          params: event.query.parameters.map((param) => maskPII(param)),
+        });
+      } else {
+        console.log('Query executed :', {
+          durationMs: event.queryDurationMillis,
+          sql: event.query.sql,
+          params: event.query.parameters.map((param) => maskPII(param)),
+        });
+      }
+    },
+  });
+};
+
+export const dbKyselyMssql = getHmrSafeKyselyInstance({
+  name: 'dbkysely',
+  factory: createDbKysely,
 });
