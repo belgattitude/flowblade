@@ -14,6 +14,8 @@ type Props = {
   className?: string;
 };
 
+const correction = new Map([['Hemp Backpack', { category: 'Hello' }]]);
+
 const productColDefs: ColDef<EthicalProduct>[] = [
   { field: 'brand' },
   { field: 'label' },
@@ -32,8 +34,38 @@ const productColDefs: ColDef<EthicalProduct>[] = [
   },
   { field: 'stock' },
   { field: 'weight' },
-  { field: 'category' },
+  {
+    field: 'category',
+    editable: true,
+    valueFormatter: (params) => {
+      const { label } = params.data!;
+      return correction.has(label)
+        ? `${correction.get(label)!.category} (*)`
+        : `${params.data?.category} (untouched)`;
+    },
+    valueSetter: (params) => {
+      correction.set(params.data.label, {
+        category: params.newValue as unknown as string,
+      });
+      return false;
+    },
+    cellStyle: (params) => {
+      const { label } = params.data!;
+      return correction.has(label)
+        ? { backgroundColor: 'yellow' }
+        : { backgroundColor: 'white' };
+    },
+  },
   { field: 'color' },
+  {
+    colId: '88',
+    valueGetter: (params) => {
+      const { label } = params.data!;
+      return correction.has(label)
+        ? `Changed ${correction.get(label)!.category} (*)`
+        : `No changes`;
+    },
+  },
 ];
 
 const autoSizeStrategy: GridOptions['autoSizeStrategy'] = {
