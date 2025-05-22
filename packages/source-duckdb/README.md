@@ -14,7 +14,7 @@ yarn add @flowblade/source-duckdb @flowblade/core @duckdb/node-api
 ```
 
 > Note that at this time [@duckdb/node-api](https://github.com/duckdb/duckdb-node-neo) 
-> is still in alpha. To install use the latest tag, ie: `@duckdb/node-api@1.2.1-alpha.18`
+> is still in alpha. To install use the latest tag, ie: `@duckdb/node-api@1.3.0-alpha.21`
 
 ### Create a duckdb instance
 
