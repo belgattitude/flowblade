@@ -41,6 +41,17 @@ module.exports = {
         'sonarjs/class-name': 'off',
       },
     },
+    {
+      files: ['src/features/api/generated/**/*.ts'],
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-redundant-type-constituents': 'off',
+        '@typescript-eslint/no-unsafe-return': 'off',
+        'import-x/no-named-as-default': 'off',
+      },
+    },
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
