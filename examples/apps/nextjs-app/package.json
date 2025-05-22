@@ -32,6 +32,7 @@
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../.cache/eslint/nextjs-app.eslintcache",
     "fix-staged": "lint-staged --allow-empty",
     "codegen": "run-s codegen-api",
+    "codegen-kubb": "yarn kubb",
     "codegen-api": "tsx ./scripts/generate-openapi-local.ts"
   },
   "dependencies": {
@@ -73,9 +74,9 @@
     "@sentry/nextjs": "9.22.0",
     "@shikijs/transformers": "3.4.2",
     "@t3-oss/env-nextjs": "0.13.4",
-    "@tanstack/react-form": "1.11.2",
+    "@tanstack/react-form": "1.11.3",
     "@tanstack/react-query": "5.76.1",
-    "@vercel/blob": "1.0.2",
+    "@vercel/blob": "1.1.0",
     "@vercel/otel": "1.12.0",
     "ag-charts-community": "11.3.0",
     "ag-charts-react": "11.3.0",
@@ -113,6 +114,13 @@
   "devDependencies": {
     "@belgattitude/eslint-config-bases": "6.37.0",
     "@faker-js/faker": "9.8.0",
+    "@kubb/cli": "3.10.12",
+    "@kubb/core": "3.10.12",
+    "@kubb/oas": "3.10.12",
+    "@kubb/plugin-client": "3.10.12",
+    "@kubb/plugin-oas": "3.10.12",
+    "@kubb/plugin-react-query": "3.10.12",
+    "@kubb/plugin-ts": "3.10.12",
     "@next/bundle-analyzer": "15.3.2",
     "@tailwindcss/postcss": "4.1.7",
     "@tanstack/react-query-devtools": "5.76.1",

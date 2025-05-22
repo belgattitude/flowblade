@@ -7,7 +7,7 @@ import {
   QueryResultDebugger,
   type SerializedQResult,
 } from '@/components/devtools/QueryResultDebugger';
-import { apiFetcher } from '@/config/ky.config';
+import { apiFetcher } from '@/config/api-fetcher.config.ts';
 
 const useSearch = () => {
   return useQuery({

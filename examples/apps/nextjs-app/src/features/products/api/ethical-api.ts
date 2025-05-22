@@ -1,7 +1,7 @@
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import type z from 'zod';
 
-import { apiFetcher } from '@/config/ky.config';
+import { apiFetcher } from '@/config/api-fetcher.config.ts';
 import type { EthicalProduct } from '@/features/products/data/ethical-products.data';
 import type { EthicalBrand } from '@/features/products/server/ethical-product.repo';
 import type { ethicalProductSearchRequestSchema } from '@/features/products/server/ethical-product.router';
