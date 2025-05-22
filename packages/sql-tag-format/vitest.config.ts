@@ -12,7 +12,7 @@ export default defineConfig({
     target: ['node18'],
   },
   plugins: [tsconfigPaths(), ...[cspeed].filter(Boolean)],
-  cacheDir: '../../.cache/vite/core',
+  cacheDir: '../../.cache/vite/sql-tag-format',
   test: {
     // @link https://vitest.dev/config/#clearmocks
     clearMocks: true,

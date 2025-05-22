@@ -45,7 +45,7 @@ describe('DuckDBAsyncDatasource e2e', async () => {
 
     it('should return expected data', async () => {
       const result = await ds.query(rawSql);
-
+      // throw new Error('cool');
       const { data, error } = result;
 
       expect(error).toBeUndefined();
