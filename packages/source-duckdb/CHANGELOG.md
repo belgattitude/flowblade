@@ -1,5 +1,15 @@
 # @flowblade/source-duckdb
 
+## 0.7.2
+
+### Patch Changes
+
+- [#652](https://github.com/belgattitude/flowblade/pull/652) [`092d4a0`](https://github.com/belgattitude/flowblade/commit/092d4a055202723520ad49c507b2b66fac7739e3) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild with tsup 8.5.0
+
+- Updated dependencies [[`092d4a0`](https://github.com/belgattitude/flowblade/commit/092d4a055202723520ad49c507b2b66fac7739e3)]:
+  - @flowblade/sql-tag@0.1.12
+  - @flowblade/core@0.2.10
+
 ## 0.7.1
 
 ### Patch Changes
