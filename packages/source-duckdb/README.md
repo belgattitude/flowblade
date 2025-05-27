@@ -16,6 +16,64 @@ yarn add @flowblade/source-duckdb @flowblade/core @duckdb/node-api
 > Note that at this time [@duckdb/node-api](https://github.com/duckdb/duckdb-node-neo) 
 > is still in alpha. To install use the latest tag, ie: `@duckdb/node-api@1.3.0-alpha.21`
 
+### Query the database
+
+```typescript
+import { DuckdbDatasource, sql } from '@flowblade/source-duckdb';
+
+// See setup below
+import { ds } from "./config.ts";
+
+const params = {
+    min: 10,
+    max: 99,
+    name: 'test',
+    createdAt: new Date().toISOString(),
+};
+
+type Row = { id: number; name: 'test'; createdAt: Date };
+
+const rawSql = sql<Row>`
+
+      WITH products(productId, createdAt)
+          AS MATERIALIZED (
+               FROM RANGE(1,100) SELECT 
+               range::INT,
+               TIMESTAMPTZ '2025-01-01 12:30:00.123456789+01:00'
+          )
+      
+      SELECT productId, 
+             ${params.name} as name,
+             createdAt
+             
+      FROM products 
+      WHERE productId BETWEEN ${params.min}::INTEGER AND ${params.max}::INTEGER
+      AND createdAt < ${params.createdAt}::TIMESTAMPTZ
+    `;
+
+const result = await ds.query(rawSql);
+
+const { data, meta, error } = result;
+
+if (data) {
+    // Typed as Row[]
+    console.log(data);
+}
+if (error) {
+    // Typed as QError
+    console.log(error);
+}
+
+// Optionally: map over the data to transform it
+const { data: mappedData } = result.map((row) => {
+    return {
+        id: row.productId,
+        key: `key-${row.productId}`
+    }
+});
+```
+
+
 ### Create a duckdb instance
 
 ```typescript
@@ -50,62 +108,6 @@ const duckdb = await createConnection();
 export const ds = new DuckdbDatasource({ connection: duckdb });
 ```
 
-### Query the database
-
-```typescript
-import { DuckdbDatasource, sql } from '@flowblade/source-duckdb';
-
-import { ds } from "./config.ts";
-
-const params = {
-    min: 10,
-    max: 99,
-    name: 'test',
-    createdAt: new Date().toISOString(),
-};
-
-type Row = { id: number; name: 'test'; createdAt: Date };
-
-const rawSql = sql<Row>`
-
-      WITH products(productId, createdAt)
-          AS MATERIALIZED (
-               FROM RANGE(1,100) SELECT 
-               range::INT,
-               TIMESTAMPTZ '2025-01-01 12:30:00.123456789+01:00'
-          )
-      
-      SELECT productId, 
-             ${params.name} as name,
-             createdAt
-             
-      FROM products 
-      WHERE productId BETWEEN ${params.min}::INTEGER AND ${params.max}::INTEGER
-      AND createdAt < ${params.createdAt}::TIMESTAMPTZ
-    `;
-
-const result = await ds.query(rawSql);
-
-// Option 1: The QResult object contains the data, metadata and error
-//  - data:  the result rows (TData or undefined if error)
-//  - error: the error (QError or undefined if success)
-//  - meta:  the metadata (always present)
-
-const { data, meta, error } = result;
-
-// Option 2: You operate over the result, ie: mapping the data
-
-const { data: data2 } = result.map((row) => {
-    return {
-        id: row.productId,
-        key: `key-${row.productId}`
-    }
-});
-
-if (data) {
-    console.log(data);
-}
-```
 
 
 ## Compatibility

@@ -1,7 +1,12 @@
 import { expectTypeOf } from 'vitest';
 
-import { QMeta, type QMetaSqlSpan } from '../meta/q-meta';
+import {
+  QMeta,
+  type QMetaJsonifiable,
+  type QMetaSqlSpan,
+} from '../meta/q-meta';
 import { QResult } from './q-result';
+import type { QError } from './types';
 
 describe('QResult', () => {
   const initialSqlSpan: QMetaSqlSpan = {
@@ -14,37 +19,114 @@ describe('QResult', () => {
 
   const createSuccessResult = () =>
     new QResult({
-      error: undefined,
-      data: [
-        {
-          name: 'Sébastien',
-        },
-        {
-          name: 'Damien',
-        },
-      ],
-      meta: new QMeta({
-        spans: initialSqlSpan,
-      }),
+      data: [{ name: 'Sébastien' }],
+      meta: new QMeta({ spans: initialSqlSpan }),
     });
 
-  describe('type inference from constructor', () => {
-    it('should', () => {
-      const result = new QResult({
-        error: undefined,
-        data: [
-          {
-            name: 'Sébastien',
-          },
-          {
-            name: 'Damien',
-          },
-        ],
+  const createErrorResult = () =>
+    new QResult<{ name: string }[], QError>({
+      error: {
+        message: 'An error occurred',
+      },
+      meta: new QMeta({ spans: initialSqlSpan }),
+    });
+
+  describe('Constructor', () => {
+    describe('With a success result', () => {
+      const successResult = createSuccessResult();
+      it('should type the data as optional', () => {
+        expectTypeOf(successResult.data).toEqualTypeOf<
+          { name: string }[] | undefined
+        >();
+      });
+      it('should type the error as optional', () => {
+        expectTypeOf(successResult.error).toEqualTypeOf<QError | undefined>();
+      });
+      it('should type the meta as required', () => {
+        expectTypeOf(successResult.meta).toEqualTypeOf<QMeta>();
+      });
+    });
+    describe('When  dereferencing the result', () => {
+      const arbitraryResult = new QResult({
+        data: [{ name: 'Seb' }],
+        meta: new QMeta({
+          spans: initialSqlSpan,
+        }),
+      }) as QResult<{ name: string }[], QError>;
+
+      it('should to remove undefined', () => {
+        const { data, error } = arbitraryResult;
+        if (data) {
+          expectTypeOf(data).toEqualTypeOf<
+            {
+              name: string;
+            }[]
+          >();
+        }
+        if (error) {
+          expectTypeOf(error).toEqualTypeOf<QError>();
+        }
+      });
+    });
+    describe('With a error result', () => {
+      const errorResult = new QResult<{ name: string }[], QError>({
+        error: {
+          message: 'error',
+        },
         meta: new QMeta({
           spans: initialSqlSpan,
         }),
       });
-      expectTypeOf(result.data).toEqualTypeOf<{ name: string }[] | undefined>();
+      it('should type the data as optional', () => {
+        expectTypeOf(errorResult.data).toEqualTypeOf<
+          { name: string }[] | undefined
+        >();
+      });
+      it('should type the error as optional', () => {
+        expectTypeOf(errorResult.error).toEqualTypeOf<QError | undefined>();
+      });
+      it('should type the meta as required', () => {
+        expectTypeOf(errorResult.meta).toEqualTypeOf<QMeta>();
+      });
+    });
+  });
+
+  describe('toJsonifiable', () => {
+    describe('when a result is success', () => {
+      it('should return a jsonifiable success paybload', () => {
+        const result = createSuccessResult();
+        const jsonifiable = result.toJsonifiable();
+        expect(jsonifiable).toStrictEqual({
+          data: [{ name: 'Sébastien' }],
+          meta: {
+            spans: [initialSqlSpan],
+          },
+        });
+        expectTypeOf(jsonifiable).toEqualTypeOf<{
+          data?: { name: string }[] | undefined;
+          error?: QError;
+          meta: QMetaJsonifiable;
+        }>();
+      });
+    });
+    describe('when a result is an error', () => {
+      it('should return a jsonifiable error payload', () => {
+        const result = createErrorResult();
+        const jsonifiable = result.toJsonifiable();
+        expect(jsonifiable).toStrictEqual({
+          error: {
+            message: 'An error occurred',
+          },
+          meta: {
+            spans: [initialSqlSpan],
+          },
+        });
+        expectTypeOf(jsonifiable).toEqualTypeOf<{
+          data?: { name: string }[] | undefined;
+          error?: QError;
+          meta: QMetaJsonifiable;
+        }>();
+      });
     });
   });
 
@@ -67,16 +149,13 @@ describe('QResult', () => {
             capitalized: 'SÉBASTIEN',
             name: 9,
           },
-          {
-            capitalized: 'DAMIEN',
-            name: 6,
-          },
         ]);
-        expectTypeOf(data!).toEqualTypeOf<
-          {
-            name: number;
-            capitalized: string;
-          }[]
+        expectTypeOf(data).toEqualTypeOf<
+          | {
+              name: number;
+              capitalized: string;
+            }[]
+          | undefined
         >();
       });
     });
