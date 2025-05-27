@@ -1,4 +1,4 @@
-ARG NODE_VERSION=22.15
+ARG NODE_VERSION=22.16
 ARG DEBIAN_VERSION=bookworm-slim
 
 #############################################################
@@ -119,10 +119,10 @@ COPY --from=app-installer --chown=nextjs:nodejs /app/examples/apps/nextjs-app/ne
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=app-installer --chown=nextjs:nodejs /app/examples/apps/nextjs-app/.next/standalone ./
-COPY --from=app-installer --chown=nextjs:nodejs /app/examples/apps/nextjs-app/.next/static ./apps/nextjs-app/.next/static
-COPY --from=app-installer --chown=nextjs:nodejs /app/examples/apps/nextjs-app/public ./apps/nextjs-app/public
+COPY --from=app-installer --chown=nextjs:nodejs /app/examples/apps/nextjs-app/.next/static ./examples/apps/nextjs-app/.next/static
+COPY --from=app-installer --chown=nextjs:nodejs /app/examples/apps/nextjs-app/public ./examples/apps/nextjs-app/public
 
 EXPOSE ${PORT}
 
-CMD ["node", "apps/nextjs-app/server.js"]
+CMD ["node", "examples/apps/nextjs-app/server.js"]
 
