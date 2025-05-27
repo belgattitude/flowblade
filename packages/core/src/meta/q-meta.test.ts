@@ -1,4 +1,6 @@
-import { QMeta, type QMetaSqlSpan } from './q-meta';
+import { expectTypeOf } from 'vitest';
+
+import { QMeta, type QMetaJsonifiable, type QMetaSqlSpan } from './q-meta';
 
 describe('QMeta', () => {
   const sqlSpan: QMetaSqlSpan = {
@@ -74,6 +76,10 @@ describe('QMeta', () => {
         name: 'test-unit',
         spans: [sqlSpan],
       });
+    });
+    it('should return a json serializable content type', () => {
+      const jsonifiable = meta.toJSON();
+      expectTypeOf(jsonifiable).toEqualTypeOf<QMetaJsonifiable>();
     });
     it('jsonifiable content should match a native JSON.stringify call', () => {
       const jsonifiable = meta.toJSON();

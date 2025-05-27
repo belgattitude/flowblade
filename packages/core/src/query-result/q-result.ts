@@ -1,6 +1,6 @@
 import { Result } from 'typescript-result';
 
-import type { QMeta } from '../meta/q-meta';
+import type { QMeta, QMetaJsonifiable } from '../meta/q-meta';
 import type { QError } from './types';
 
 interface ConstructorParams<
@@ -11,6 +11,15 @@ interface ConstructorParams<
   data?: TData;
   error?: TError;
 }
+
+export type QResultJsonifiable<
+  TData extends unknown[] | undefined,
+  TError extends QError | undefined,
+> = {
+  data?: TData;
+  error?: TError;
+  meta: QMetaJsonifiable;
+};
 
 export class QResult<
   TData extends unknown[] | undefined,
@@ -36,6 +45,47 @@ export class QResult<
     TError
   >;
 
+  /**
+   * Create a new QResult instance.
+   *
+   * ```typescript
+   *  const initialSqlSpan: QMetaSqlSpan = {
+   *     type: 'sql',
+   *     timeMs: 10.334,
+   *     sql: 'SELECT name FROM users',
+   *     affectedRows: 10,
+   *     params: [],
+   *   };
+   *
+   *  const result = new QResult({
+   *     data: [{ name: 'Seb' }],
+   *     meta: new QMeta({
+   *        spans: initialSqlSpan,
+   *     }),
+   *  });
+   *
+   *  const { data, meta, error } = result;
+   *  if (data) {
+   *    // typed in this case to { name: string }[]
+   *    console.log(data); // [{ name: 'Seb' }]
+   *  }
+   *
+   *  if (error) {
+   *    // typed in this case to QError
+   *    console.error(error); // QError object
+   *  }
+   *
+   *  const errorResult = new QResult<{ name: string }[], QError>({
+   *    error: {
+   *       message: 'error',
+   *    },
+   *    meta: new QMeta({
+   *       spans: initialSqlSpan,
+   *    }),
+   *  });
+   *
+   * ```
+   */
   constructor(private params: ConstructorParams<TData, TError>) {
     const { data, error, meta } = this.params;
     this._result =
@@ -47,6 +97,32 @@ export class QResult<
         : Result.error(error);
   }
 
+  /**
+   * Return meta information about the query result.
+   *
+   * This generally includes the query execution time,
+   * affected rows, and other metadata.
+   *
+   * ```typescript
+   *
+   *  const initialSqlSpan: QMetaSqlSpan = {
+   *     type: 'sql',
+   *     timeMs: 10.334,
+   *     sql: 'SELECT name FROM users',
+   *     affectedRows: 10,
+   *     params: [],
+   *   };
+   *
+   *  const result = new QResult({
+   *     data: [{ name: 'Seb' }],
+   *     meta: new QMeta({
+   *        spans: initialSqlSpan,
+   *     }),
+   *  });
+   *
+   *  const { meta } = result;
+   * ```
+   */
   get meta(): QMeta {
     return this.params.meta;
   }
@@ -65,9 +141,9 @@ export class QResult<
     return this._result.error;
   }
 
-  isOk(): boolean {
+  isOk = (): boolean => {
     return this._result.isOk();
-  }
+  };
 
   map = <ReturnType>(fn: (row: NonNullable<TData>[number]) => ReturnType) => {
     const start = performance.now();
@@ -95,14 +171,28 @@ export class QResult<
   };
 
   /**
-   * Allows to transform the result into a JSONifiable object.
-   * Warning if the underlying data isn't serializable (ie: bigint, dates, etc), this method will throw an error.
+   * Transforms the result into a JSON-serializable object with `data`, `error`, and `meta`.
+   *
+   * ```typescript
+   *  const initialSqlSpan: QMetaSqlSpan = {
+   *     type: 'sql',
+   *     timeMs: 10.334,
+   *     sql: 'SELECT name FROM users',
+   *     affectedRows: 10,
+   *     params: [],
+   *   };
+   *
+   *  const result = new QResult({
+   *     data: [{ name: 'Seb' }],
+   *     meta: new QMeta({
+   *        spans: initialSqlSpan,
+   *     }),
+   *  });
+   *  const jsonifiable = result.toJsonifiable();
+   * ```
+   *
    */
-  toJsonifiable = (): {
-    data?: TData;
-    error?: TError;
-    meta: ReturnType<QMeta['toJSON']>;
-  } => {
+  toJsonifiable = (): QResultJsonifiable<TData, TError> => {
     return {
       ...(this.data === undefined ? {} : { data: this.data }),
       ...(this.error === undefined ? {} : { error: this.error }),

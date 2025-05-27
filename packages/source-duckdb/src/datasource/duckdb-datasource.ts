@@ -41,7 +41,11 @@ export class DuckdbDatasource implements DatasourceInterface {
    *
    * const ds = new DuckdbDatasource({ connection: duckdb });
    *
-   * const rawSql = sql<{productId: number}>`
+   * type ProductRow = {
+   *   productId: number
+   * };
+   *
+   * const rawSql = sql<ProductRow>`
    *   WITH products(productId) AS MATERIALIZED (SELECT COLUMNS(*)::INTEGER FROM RANGE(1,100))
    *   SELECT productId FROM products
    *   WHERE productId between ${params.min}::INTEGER and ${params.max}::INTEGER
@@ -49,20 +53,25 @@ export class DuckdbDatasource implements DatasourceInterface {
    *
    * const result = await ds.query(rawSql);
    *
-   * // Option 1: the QResult object contains the data, metadata and error
-   * //  - data:  the result rows (TData or undefined if error)
-   * //  - error: the error (QError or undefined if success)
-   * //  - meta:  the metadata (always present)
-   *
    * const { data, meta, error } = result;
    *
-   * // Option 2: You operate over the result, ie: mapping the data
+   * if (data) {
+   *   // Typed as ProductRow[]
+   *   console.log(data);
+   * }
+   * if (error) {
+   *   // Typed as QError
+   *   console.log(error);
+   * }
    *
-   * const { data } = result.map((row) => {
+   * // Optionally: map over the data to transform it
+   *
+   * const { data: mappedData } = result.map((row) => {
    *   return {
    *    id: row.productId,
    *    key: `key-${row.productId}`
-   * })
+   *   }
+   * });
    * ```
    */
   query = async <TData extends unknown[]>(

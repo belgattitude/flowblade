@@ -21,6 +21,11 @@ type ConstructorParams = {
   name?: string;
 };
 
+export type QMetaJsonifiable = {
+  name?: string;
+  spans: QMetaSpan[];
+};
+
 export class QMeta {
   public readonly name?: string;
   private spans: QMetaSpan[] = [];
@@ -123,9 +128,7 @@ export class QMeta {
    * Profide a JSON serializable representation of the QMeta instance.
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#description
    */
-  toJSON = (): {
-    spans: QMetaSpan[];
-  } => {
+  toJSON = (): QMetaJsonifiable => {
     const { name } = this;
     return {
       spans: this.spans,

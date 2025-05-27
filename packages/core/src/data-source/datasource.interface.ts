@@ -15,6 +15,12 @@ export interface DatasourceInterface {
    */
   getConnection: () => VoluntaryAny;
 
+  /**
+   *
+   * ```typescript
+   * const ds = new Datasource();
+   * ```
+   */
   query: (
     query: VoluntaryAny,
     info?: DatasourceQueryInfo
