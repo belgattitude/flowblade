@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/@changesets/config@3.0.5/schema.json",
+  "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
   "changelog": [
     "@changesets/changelog-github",
     { "repo": "belgattitude/flowblade" }
@@ -11,5 +11,6 @@
   "updateInternalDependencies": "patch",
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
-  }
+  },
+  "ignore": ["@examples/*", "@docs/*", "@flowblade/benchmark"]
 }
