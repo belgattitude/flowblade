@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.2.11
+
+### Patch Changes
+
+- [#658](https://github.com/belgattitude/flowblade/pull/658) [`fb12c6e`](https://github.com/belgattitude/flowblade/commit/fb12c6ef77f87df6aea105018ecd19d1e77e52fc) Thanks [@belgattitude](https://github.com/belgattitude)! - Doc fixes
+
 ## 0.2.10
 
 ### Patch Changes
