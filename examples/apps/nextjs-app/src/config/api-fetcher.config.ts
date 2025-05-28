@@ -7,6 +7,7 @@ const prefixUrl =
 
 export const apiFetcher = ky.create({
   prefixUrl,
+  timeout: 60_000,
   retry: {
     limit: 2,
     methods: ['get', 'put', 'head', 'delete', 'options', 'trace'],
