@@ -1,5 +1,11 @@
 # @flowblade/sql-tag
 
+## 0.1.14
+
+### Patch Changes
+
+- [#662](https://github.com/belgattitude/flowblade/pull/662) [`a0b28d6`](https://github.com/belgattitude/flowblade/commit/a0b28d6091190cb81527f549df8e10f8a7e89b08) Thanks [@belgattitude](https://github.com/belgattitude)! - Fix missing dependency on sql-template-tag
+
 ## 0.1.13
 
 ### Patch Changes
