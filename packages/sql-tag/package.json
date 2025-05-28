@@ -64,6 +64,9 @@
     "typecheck-build": "tsc --project tsconfig.build.json --noEmit",
     "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-sql-tag --dir ./coverage"
   },
+  "dependencies": {
+    "sql-template-tag": "^5.2.1"
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.1",
     "@belgattitude/eslint-config-bases": "7.0.0",
@@ -88,7 +91,6 @@
     "rollup": "4.41.1",
     "size-limit": "11.2.0",
     "sql-formatter": "15.6.2",
-    "sql-template-tag": "5.2.1",
     "tsup": "8.5.0",
     "tsx": "4.19.4",
     "typedoc": "0.28.5",
