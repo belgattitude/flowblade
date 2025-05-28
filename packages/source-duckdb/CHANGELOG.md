@@ -1,5 +1,13 @@
 # @flowblade/source-duckdb
 
+## 0.8.2
+
+### Patch Changes
+
+- Updated dependencies [[`a30f5e3`](https://github.com/belgattitude/flowblade/commit/a30f5e3ce23d18e9a9291b9cf3dd319dd3e40786)]:
+  - @flowblade/sql-tag@0.1.13
+  - @flowblade/core@0.2.11
+
 ## 0.8.1
 
 ### Patch Changes
