@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.2.12
+
+### Patch Changes
+
+- [#667](https://github.com/belgattitude/flowblade/pull/667) [`d568d76`](https://github.com/belgattitude/flowblade/commit/d568d76e104ad656c96638228089a036aaf9b7a8) Thanks [@belgattitude](https://github.com/belgattitude)! - Fix QResult.map inference
+
 ## 0.2.11
 
 ### Patch Changes
