@@ -54,7 +54,7 @@ describe('QResult', () => {
         }),
       }) as QResult<{ name: string }[], QError>;
 
-      it('should to remove undefined', () => {
+      it('should remove undefined when known', () => {
         const { data, error } = arbitraryResult;
         if (data) {
           expectTypeOf(data).toEqualTypeOf<
@@ -134,14 +134,22 @@ describe('QResult', () => {
     describe('when a result is success', () => {
       const successResult = createSuccessResult();
       it('should apply transformation with updated metadata', () => {
-        const result = successResult.map((row) => {
+        const mappedResult = successResult.map((row) => {
           return {
             name: row.name.length,
             capitalized: row.name.toUpperCase(),
           };
         });
-        expect(result.isOk()).toBe(true);
-        const { meta, data } = result;
+
+        expectTypeOf(mappedResult).toEqualTypeOf<
+          QResult<
+            { name: number; capitalized: string }[] | undefined,
+            QError | undefined
+          >
+        >();
+
+        expect(mappedResult.isOk()).toBe(true);
+        const { meta, data } = mappedResult;
         expect(meta.getSpans().length).toBe(2);
         expect(meta.getTotalTimeMs()).toBeGreaterThan(initialSqlSpan.timeMs);
         expect(data).toStrictEqual([
@@ -150,6 +158,7 @@ describe('QResult', () => {
             name: 9,
           },
         ]);
+        expectTypeOf(meta).toEqualTypeOf<QMeta>();
         expectTypeOf(data).toEqualTypeOf<
           | {
               name: number;

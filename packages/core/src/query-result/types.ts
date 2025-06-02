@@ -1,8 +1,8 @@
 import type { QResult } from './q-result';
 
-export interface QError {
+export type QError = {
   message: string;
-}
+};
 
 export type AsyncQResult<
   TData extends unknown[],

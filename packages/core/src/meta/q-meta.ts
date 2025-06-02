@@ -27,7 +27,12 @@ export type QMetaJsonifiable = {
 };
 
 export class QMeta {
-  public readonly name?: string;
+  #name: string | undefined;
+
+  get name(): string | undefined {
+    return this.#name;
+  }
+
   private spans: QMetaSpan[] = [];
 
   /**
@@ -54,7 +59,7 @@ export class QMeta {
     } else if (spans !== undefined) {
       this.spans.push(spans);
     }
-    this.name = name;
+    this.#name = name;
   }
   getSpans = (): Readonly<QMetaSpan>[] => {
     return this.spans;
@@ -132,7 +137,7 @@ export class QMeta {
     const { name } = this;
     return {
       spans: this.spans,
-      ...(name === undefined ? {} : { name }),
+      ...(name === undefined ? {} : { name: name }),
     };
   };
 }
