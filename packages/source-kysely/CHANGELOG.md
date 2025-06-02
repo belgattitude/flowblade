@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.15.0
+
+### Minor Changes
+
+- [#665](https://github.com/belgattitude/flowblade/pull/665) [`b95ca5c`](https://github.com/belgattitude/flowblade/commit/b95ca5c9d73ccb07b299028a4ec1f6846adaef84) Thanks [@belgattitude](https://github.com/belgattitude)! - Export KyselyMssqlDialectParams and KyselyMssqlPoolOptions types
+
 ## 0.14.5
 
 ### Patch Changes
