@@ -1,7 +1,7 @@
 ---
-"@flowblade/source-duckdb": minor
-"@flowblade/source-kysely": minor
-"@flowblade/core": minor
+"@flowblade/source-duckdb": patch
+"@flowblade/source-kysely": patch
+"@flowblade/core": patch
 ---
 
 Fix QResult.map inference
