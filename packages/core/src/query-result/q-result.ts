@@ -141,11 +141,13 @@ export class QResult<
     return this._result.error;
   }
 
-  isOk = (): boolean => {
+  isOk(): boolean {
     return this._result.isOk();
-  };
+  }
 
-  map = <ReturnType>(fn: (row: NonNullable<TData>[number]) => ReturnType) => {
+  map<TMappedRow extends Record<string, unknown>>(
+    fn: (row: NonNullable<TData>[number]) => TMappedRow
+  ): QResult<TMappedRow[] | undefined, TError | undefined> {
     const start = performance.now();
     if (this._result.isOk()) {
       const result = this._result.map((value) => {
@@ -154,7 +156,7 @@ export class QResult<
           rows: value.rows!.map((row) => fn(row)),
         };
       });
-      return new QResult({
+      return new QResult<typeof result.value.rows, undefined>({
         data: result.value.rows,
         meta: this.params.meta.withSpan({
           type: 'map',
@@ -163,12 +165,12 @@ export class QResult<
         error: undefined,
       });
     }
-    return new QResult({
+    return new QResult<undefined, TError>({
       data: undefined,
       meta: this.params.meta,
       error: this.params.error,
     });
-  };
+  }
 
   /**
    * Transforms the result into a JSON-serializable object with `data`, `error`, and `meta`.
@@ -192,11 +194,11 @@ export class QResult<
    * ```
    *
    */
-  toJsonifiable = (): QResultJsonifiable<TData, TError> => {
+  toJsonifiable(): QResultJsonifiable<TData, TError> {
     return {
       ...(this.data === undefined ? {} : { data: this.data }),
       ...(this.error === undefined ? {} : { error: this.error }),
       meta: this.meta.toJSON(),
     };
-  };
+  }
 }

@@ -94,7 +94,7 @@ export class DummyDatasource implements DatasourceInterface {
           message: (err as Error).message,
         },
         new QMeta({
-          name,
+          name: name,
           spans: meta,
         })
       );
