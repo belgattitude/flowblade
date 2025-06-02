@@ -7,16 +7,16 @@ import {
   type TarnPoolOptions,
 } from './create-tarn-pool-options';
 
-type PoolOptions = {
+export type KyselyMssqlPoolOptions = {
   /**
    * Logger function, noop by default
    */
   log?: MssqlDialectConfig['tarn']['options']['log'];
 } & TarnPoolOptions;
 
-type Params = {
+export type KyselyMssqlDialectParams = {
   tediousConfig: Tedious.ConnectionConfiguration;
-  poolOptions?: PoolOptions;
+  poolOptions?: KyselyMssqlPoolOptions;
   dialectConfig?: {
     /**
      * When true, connections are reset to their initial states when released back to the pool,
@@ -75,7 +75,9 @@ type Params = {
  * })
  * ```
  */
-export const createKyselyMssqlDialect = (params: Params): MssqlDialect => {
+export const createKyselyMssqlDialect = (
+  params: KyselyMssqlDialectParams
+): MssqlDialect => {
   const { tediousConfig, poolOptions = {}, dialectConfig } = params;
 
   const {
