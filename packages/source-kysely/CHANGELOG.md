@@ -1,5 +1,14 @@
 # @flowblade/source-kysely
 
+## 0.15.2
+
+### Patch Changes
+
+- [#669](https://github.com/belgattitude/flowblade/pull/669) [`d1daef2`](https://github.com/belgattitude/flowblade/commit/d1daef252b3761d6ad39ea4cc5e4313e2e73e393) Thanks [@belgattitude](https://github.com/belgattitude)! - Export missing QResultJsonifiable type
+
+- Updated dependencies [[`d1daef2`](https://github.com/belgattitude/flowblade/commit/d1daef252b3761d6ad39ea4cc5e4313e2e73e393)]:
+  - @flowblade/core@0.2.13
+
 ## 0.15.1
 
 ### Patch Changes
