@@ -53,6 +53,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     | 'selectFrom'
     | 'selectNoFrom'
     | 'deleteFrom'
+    | 'updateTable'
     | 'insertInto'
     | 'replaceInto'
     | 'with'
