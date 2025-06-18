@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.15.3
+
+### Patch Changes
+
+- [#675](https://github.com/belgattitude/flowblade/pull/675) [`c6d039d`](https://github.com/belgattitude/flowblade/commit/c6d039d711436155620c8469ba16e048341c488d) Thanks [@belgattitude](https://github.com/belgattitude)! - Fiw missing updateTable in kysely
+
 ## 0.15.2
 
 ### Patch Changes
