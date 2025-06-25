@@ -1,5 +1,11 @@
 # @flowblade/sql-tag
 
+## 0.1.15
+
+### Patch Changes
+
+- [#678](https://github.com/belgattitude/flowblade/pull/678) [`8a77da6`](https://github.com/belgattitude/flowblade/commit/8a77da6a2e12880e5655c3efdd7185822c99589a) Thanks [@belgattitude](https://github.com/belgattitude)! - Drop node 18.x, requires node 20.9.0 or higher and add node 24.x to the CI.
+
 ## 0.1.14
 
 ### Patch Changes
@@ -63,7 +69,6 @@
 ### Patch Changes
 
 - [#279](https://github.com/belgattitude/flowblade/pull/279) [`2c61d77`](https://github.com/belgattitude/flowblade/commit/2c61d77025259157fe2e4e4917f52682dcd578aa) Thanks [@belgattitude](https://github.com/belgattitude)! - - Improve README with recipes for conditionals and query composition
-
   - Add `sql.if` helper for alternative conditional syntax.
 
   ```typescript
