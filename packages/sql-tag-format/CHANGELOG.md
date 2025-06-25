@@ -1,5 +1,14 @@
 # @flowblade/sql-tag-format
 
+## 0.0.16
+
+### Patch Changes
+
+- [#678](https://github.com/belgattitude/flowblade/pull/678) [`8a77da6`](https://github.com/belgattitude/flowblade/commit/8a77da6a2e12880e5655c3efdd7185822c99589a) Thanks [@belgattitude](https://github.com/belgattitude)! - Drop node 18.x, requires node 20.9.0 or higher and add node 24.x to the CI.
+
+- Updated dependencies [[`8a77da6`](https://github.com/belgattitude/flowblade/commit/8a77da6a2e12880e5655c3efdd7185822c99589a)]:
+  - @flowblade/sql-tag@0.1.15
+
 ## 0.0.15
 
 ### Patch Changes
