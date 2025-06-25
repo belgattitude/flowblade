@@ -5,6 +5,8 @@
 # Add here exclusions on packages if any
 reject: [
   "eslint",
+  # Till shadcn supports v3
+  "recharts",
   "apache-arrow",
   # Till @vercel/otel support offers support for v2
   "@opentelemetry/api",
