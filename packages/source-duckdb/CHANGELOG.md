@@ -1,5 +1,11 @@
 # @flowblade/source-duckdb
 
+## 0.10.0
+
+### Minor Changes
+
+- [#680](https://github.com/belgattitude/flowblade/pull/680) [`3b9bda0`](https://github.com/belgattitude/flowblade/commit/3b9bda0de1ab42cf596bf0076dd6d8bab1b71ecf) Thanks [@belgattitude](https://github.com/belgattitude)! - Updated to latest @duckdb/node-api@1.3.1-alpha.23
+
 ## 0.9.1
 
 ### Patch Changes
