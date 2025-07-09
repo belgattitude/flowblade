@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.2.15
+
+### Patch Changes
+
+- [#683](https://github.com/belgattitude/flowblade/pull/683) [`5f4b2a9`](https://github.com/belgattitude/flowblade/commit/5f4b2a9cda5521bd03d569d0cf6af7c015baa92e) Thanks [@belgattitude](https://github.com/belgattitude)! - Update internal typescript result to 3.3.0
+
 ## 0.2.14
 
 ### Patch Changes
