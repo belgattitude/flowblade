@@ -17,58 +17,58 @@ import type {
 } from '@/config/api-fetcher-kubb.config.ts';
 import type fetch from '@/config/api-fetcher-kubb.config.ts';
 
-import { getApiDemoDuckdbSearch } from '../../getApiDemoDuckdbSearch';
+import { getApiProductEthicalSearch } from '../../getApiProductEthicalSearch';
 import type {
-  GetApiDemoDuckdbSearchQueryParams,
-  GetApiDemoDuckdbSearchQueryResponse,
-} from '../../models/GetApiDemoDuckdbSearch';
+  GetApiProductEthicalSearchQueryParams,
+  GetApiProductEthicalSearchQueryResponse,
+} from '../../models/GetApiProductEthicalSearch';
 
-export const getApiDemoDuckdbSearchQueryKey = (
-  params?: GetApiDemoDuckdbSearchQueryParams
+export const getApiProductEthicalSearchQueryKey = (
+  params?: GetApiProductEthicalSearchQueryParams
 ) =>
   [
     'v5',
-    { url: '/api/demo/duckdb/search' },
+    { url: '/api/product/ethical/search' },
     ...(params ? [params] : []),
   ] as const;
 
-export type GetApiDemoDuckdbSearchQueryKey = ReturnType<
-  typeof getApiDemoDuckdbSearchQueryKey
+export type GetApiProductEthicalSearchQueryKey = ReturnType<
+  typeof getApiProductEthicalSearchQueryKey
 >;
 
-export function getApiDemoDuckdbSearchQueryOptionsHook(
-  params?: GetApiDemoDuckdbSearchQueryParams,
+export function getApiProductEthicalSearchQueryOptionsHook(
+  params?: GetApiProductEthicalSearchQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
-  const queryKey = getApiDemoDuckdbSearchQueryKey(params);
+  const queryKey = getApiProductEthicalSearchQueryKey(params);
   return queryOptions<
-    GetApiDemoDuckdbSearchQueryResponse,
+    GetApiProductEthicalSearchQueryResponse,
     ResponseErrorConfig<Error>,
-    GetApiDemoDuckdbSearchQueryResponse,
+    GetApiProductEthicalSearchQueryResponse,
     typeof queryKey
   >({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal;
-      return getApiDemoDuckdbSearch(params, config);
+      return getApiProductEthicalSearch(params, config);
     },
   });
 }
 
 /**
- * @description Search
- * {@link /api/demo/duckdb/search}
+ * @description Search for ethical products
+ * {@link /api/product/ethical/search}
  */
-export function useGetApiDemoDuckdbSearchHook<
-  TData = GetApiDemoDuckdbSearchQueryResponse,
-  TQueryData = GetApiDemoDuckdbSearchQueryResponse,
-  TQueryKey extends QueryKey = GetApiDemoDuckdbSearchQueryKey,
+export function useGetApiProductEthicalSearchHook<
+  TData = GetApiProductEthicalSearchQueryResponse,
+  TQueryData = GetApiProductEthicalSearchQueryResponse,
+  TQueryKey extends QueryKey = GetApiProductEthicalSearchQueryKey,
 >(
-  params?: GetApiDemoDuckdbSearchQueryParams,
+  params?: GetApiProductEthicalSearchQueryParams,
   options: {
     query?: Partial<
       QueryObserverOptions<
-        GetApiDemoDuckdbSearchQueryResponse,
+        GetApiProductEthicalSearchQueryResponse,
         ResponseErrorConfig<Error>,
         TData,
         TQueryData,
@@ -85,11 +85,11 @@ export function useGetApiDemoDuckdbSearchHook<
     client: config = {},
   } = options ?? {};
   const queryKey =
-    queryOptions?.queryKey ?? getApiDemoDuckdbSearchQueryKey(params);
+    queryOptions?.queryKey ?? getApiProductEthicalSearchQueryKey(params);
 
   const query = useQuery(
     {
-      ...getApiDemoDuckdbSearchQueryOptionsHook(params, config),
+      ...getApiProductEthicalSearchQueryOptionsHook(params, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

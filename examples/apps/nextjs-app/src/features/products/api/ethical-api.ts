@@ -1,5 +1,5 @@
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
-import type z from 'zod';
+import type * as v from 'valibot';
 
 import { apiFetcher } from '@/config/api-fetcher.config.ts';
 import type { EthicalProduct } from '@/features/products/data/ethical-products.data';
@@ -7,7 +7,7 @@ import type { EthicalBrand } from '@/features/products/server/ethical-product.re
 import type { ethicalProductSearchRequestSchema } from '@/features/products/server/ethical-product.router';
 
 type EthicalProductsParams = Omit<
-  z.infer<typeof ethicalProductSearchRequestSchema.query>,
+  v.InferOutput<typeof ethicalProductSearchRequestSchema>,
   'brands'
 > & {
   brands?: string[];

@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+
 import type { UserConfig } from '@kubb/core';
 import { defineConfig } from '@kubb/core';
 import { pluginClient } from '@kubb/plugin-client';
@@ -6,13 +8,27 @@ import { pluginReactQuery } from '@kubb/plugin-react-query';
 import { QueryKey } from '@kubb/plugin-react-query/components';
 import { pluginTs } from '@kubb/plugin-ts';
 
+import { honoApiSchemaConfig } from './src/server/config/hono-api-schema.config';
+
 const featureFolder = './src/features/api';
 const outputPath = `${featureFolder}/generated`;
+
+const openapiJsonFile = honoApiSchemaConfig.file;
+
+if (!fs.existsSync(openapiJsonFile)) {
+  throw new Error(`Can't locate openapi file at: ${openapiJsonFile}`);
+}
+
+const openapiSchema = fs.readFileSync(openapiJsonFile).toString();
+if (openapiSchema.trim().length === 0) {
+  throw new Error('Openapi file is empty, please generate it first.');
+}
 
 export const config: UserConfig = {
   root: '.',
   input: {
-    path: 'http://localhost:3000/api/openapi',
+    // path: 'http://localhost:3000/api/openapi',
+    data: openapiSchema,
   },
   output: {
     path: outputPath,
