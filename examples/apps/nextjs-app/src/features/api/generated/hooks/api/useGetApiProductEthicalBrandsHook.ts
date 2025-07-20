@@ -17,58 +17,47 @@ import type {
 } from '@/config/api-fetcher-kubb.config.ts';
 import type fetch from '@/config/api-fetcher-kubb.config.ts';
 
-import { getApiDemoDuckdbSearch } from '../../getApiDemoDuckdbSearch';
-import type {
-  GetApiDemoDuckdbSearchQueryParams,
-  GetApiDemoDuckdbSearchQueryResponse,
-} from '../../models/GetApiDemoDuckdbSearch';
+import { getApiProductEthicalBrands } from '../../getApiProductEthicalBrands';
+import type { GetApiProductEthicalBrandsQueryResponse } from '../../models/GetApiProductEthicalBrands';
 
-export const getApiDemoDuckdbSearchQueryKey = (
-  params?: GetApiDemoDuckdbSearchQueryParams
-) =>
-  [
-    'v5',
-    { url: '/api/demo/duckdb/search' },
-    ...(params ? [params] : []),
-  ] as const;
+export const getApiProductEthicalBrandsQueryKey = () =>
+  ['v5', { url: '/api/product/ethical/brands' }] as const;
 
-export type GetApiDemoDuckdbSearchQueryKey = ReturnType<
-  typeof getApiDemoDuckdbSearchQueryKey
+export type GetApiProductEthicalBrandsQueryKey = ReturnType<
+  typeof getApiProductEthicalBrandsQueryKey
 >;
 
-export function getApiDemoDuckdbSearchQueryOptionsHook(
-  params?: GetApiDemoDuckdbSearchQueryParams,
+export function getApiProductEthicalBrandsQueryOptionsHook(
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
-  const queryKey = getApiDemoDuckdbSearchQueryKey(params);
+  const queryKey = getApiProductEthicalBrandsQueryKey();
   return queryOptions<
-    GetApiDemoDuckdbSearchQueryResponse,
+    GetApiProductEthicalBrandsQueryResponse,
     ResponseErrorConfig<Error>,
-    GetApiDemoDuckdbSearchQueryResponse,
+    GetApiProductEthicalBrandsQueryResponse,
     typeof queryKey
   >({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal;
-      return getApiDemoDuckdbSearch(params, config);
+      return getApiProductEthicalBrands(config);
     },
   });
 }
 
 /**
- * @description Search
- * {@link /api/demo/duckdb/search}
+ * @description Get list of ethical brands
+ * {@link /api/product/ethical/brands}
  */
-export function useGetApiDemoDuckdbSearchHook<
-  TData = GetApiDemoDuckdbSearchQueryResponse,
-  TQueryData = GetApiDemoDuckdbSearchQueryResponse,
-  TQueryKey extends QueryKey = GetApiDemoDuckdbSearchQueryKey,
+export function useGetApiProductEthicalBrandsHook<
+  TData = GetApiProductEthicalBrandsQueryResponse,
+  TQueryData = GetApiProductEthicalBrandsQueryResponse,
+  TQueryKey extends QueryKey = GetApiProductEthicalBrandsQueryKey,
 >(
-  params?: GetApiDemoDuckdbSearchQueryParams,
   options: {
     query?: Partial<
       QueryObserverOptions<
-        GetApiDemoDuckdbSearchQueryResponse,
+        GetApiProductEthicalBrandsQueryResponse,
         ResponseErrorConfig<Error>,
         TData,
         TQueryData,
@@ -85,11 +74,11 @@ export function useGetApiDemoDuckdbSearchHook<
     client: config = {},
   } = options ?? {};
   const queryKey =
-    queryOptions?.queryKey ?? getApiDemoDuckdbSearchQueryKey(params);
+    queryOptions?.queryKey ?? getApiProductEthicalBrandsQueryKey();
 
   const query = useQuery(
     {
-      ...getApiDemoDuckdbSearchQueryOptionsHook(params, config),
+      ...getApiProductEthicalBrandsQueryOptionsHook(config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

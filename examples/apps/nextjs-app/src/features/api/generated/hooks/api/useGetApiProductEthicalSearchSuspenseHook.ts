@@ -17,57 +17,57 @@ import type {
 } from '@/config/api-fetcher-kubb.config.ts';
 import type fetch from '@/config/api-fetcher-kubb.config.ts';
 
-import { getApiDemoDuckdbSearch } from '../../getApiDemoDuckdbSearch';
+import { getApiProductEthicalSearch } from '../../getApiProductEthicalSearch';
 import type {
-  GetApiDemoDuckdbSearchQueryParams,
-  GetApiDemoDuckdbSearchQueryResponse,
-} from '../../models/GetApiDemoDuckdbSearch';
+  GetApiProductEthicalSearchQueryParams,
+  GetApiProductEthicalSearchQueryResponse,
+} from '../../models/GetApiProductEthicalSearch';
 
-export const getApiDemoDuckdbSearchSuspenseQueryKey = (
-  params?: GetApiDemoDuckdbSearchQueryParams
+export const getApiProductEthicalSearchSuspenseQueryKey = (
+  params?: GetApiProductEthicalSearchQueryParams
 ) =>
   [
     'v5',
-    { url: '/api/demo/duckdb/search' },
+    { url: '/api/product/ethical/search' },
     ...(params ? [params] : []),
   ] as const;
 
-export type GetApiDemoDuckdbSearchSuspenseQueryKey = ReturnType<
-  typeof getApiDemoDuckdbSearchSuspenseQueryKey
+export type GetApiProductEthicalSearchSuspenseQueryKey = ReturnType<
+  typeof getApiProductEthicalSearchSuspenseQueryKey
 >;
 
-export function getApiDemoDuckdbSearchSuspenseQueryOptionsHook(
-  params?: GetApiDemoDuckdbSearchQueryParams,
+export function getApiProductEthicalSearchSuspenseQueryOptionsHook(
+  params?: GetApiProductEthicalSearchQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
-  const queryKey = getApiDemoDuckdbSearchSuspenseQueryKey(params);
+  const queryKey = getApiProductEthicalSearchSuspenseQueryKey(params);
   return queryOptions<
-    GetApiDemoDuckdbSearchQueryResponse,
+    GetApiProductEthicalSearchQueryResponse,
     ResponseErrorConfig<Error>,
-    GetApiDemoDuckdbSearchQueryResponse,
+    GetApiProductEthicalSearchQueryResponse,
     typeof queryKey
   >({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal;
-      return getApiDemoDuckdbSearch(params, config);
+      return getApiProductEthicalSearch(params, config);
     },
   });
 }
 
 /**
- * @description Search
- * {@link /api/demo/duckdb/search}
+ * @description Search for ethical products
+ * {@link /api/product/ethical/search}
  */
-export function useGetApiDemoDuckdbSearchSuspenseHook<
-  TData = GetApiDemoDuckdbSearchQueryResponse,
-  TQueryKey extends QueryKey = GetApiDemoDuckdbSearchSuspenseQueryKey,
+export function useGetApiProductEthicalSearchSuspenseHook<
+  TData = GetApiProductEthicalSearchQueryResponse,
+  TQueryKey extends QueryKey = GetApiProductEthicalSearchSuspenseQueryKey,
 >(
-  params?: GetApiDemoDuckdbSearchQueryParams,
+  params?: GetApiProductEthicalSearchQueryParams,
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
-        GetApiDemoDuckdbSearchQueryResponse,
+        GetApiProductEthicalSearchQueryResponse,
         ResponseErrorConfig<Error>,
         TData,
         TQueryKey
@@ -81,11 +81,12 @@ export function useGetApiDemoDuckdbSearchSuspenseHook<
     client: config = {},
   } = options ?? {};
   const queryKey =
-    queryOptions?.queryKey ?? getApiDemoDuckdbSearchSuspenseQueryKey(params);
+    queryOptions?.queryKey ??
+    getApiProductEthicalSearchSuspenseQueryKey(params);
 
   const query = useSuspenseQuery(
     {
-      ...getApiDemoDuckdbSearchSuspenseQueryOptionsHook(params, config),
+      ...getApiProductEthicalSearchSuspenseQueryOptionsHook(params, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

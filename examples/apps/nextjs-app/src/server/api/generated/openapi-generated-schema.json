@@ -1,0 +1,192 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Hono Documentation",
+    "description": "Development documentation",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/api/demo/duckdb/search": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "count"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "productId": {
+                            "type": "number"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "productId",
+                          "name",
+                          "createdAt"
+                        ]
+                      }
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "meta",
+                    "data"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getApiDemoDuckdbSearch",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "min",
+            "schema": {
+              "type": "number"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "createdAt",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "number"
+            },
+            "required": false
+          }
+        ],
+        "description": "Search"
+      }
+    },
+    "/api/product/ethical/search": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string"
+                      },
+                      "brand": {
+                        "type": "string"
+                      },
+                      "price": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "brand",
+                      "price"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getApiProductEthicalSearch",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "brands",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "slowdownApiMs",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "description": "Search for ethical products"
+      }
+    },
+    "/api/product/ethical/brands": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "name"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getApiProductEthicalBrands",
+        "parameters": [],
+        "description": "Get list of ethical brands"
+      }
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}

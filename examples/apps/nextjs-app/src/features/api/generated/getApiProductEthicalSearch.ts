@@ -10,31 +10,31 @@ import type {
 import fetch from '@/config/api-fetcher-kubb.config.ts';
 
 import type {
-  GetApiDemoDuckdbSearchQueryParams,
-  GetApiDemoDuckdbSearchQueryResponse,
-} from './models/GetApiDemoDuckdbSearch';
+  GetApiProductEthicalSearchQueryParams,
+  GetApiProductEthicalSearchQueryResponse,
+} from './models/GetApiProductEthicalSearch';
 
-function getGetApiDemoDuckdbSearchUrl() {
-  return `/api/demo/duckdb/search` as const;
+function getGetApiProductEthicalSearchUrl() {
+  return `/api/product/ethical/search` as const;
 }
 
 /**
- * @description Search
- * {@link /api/demo/duckdb/search}
+ * @description Search for ethical products
+ * {@link /api/product/ethical/search}
  */
-export async function getApiDemoDuckdbSearch(
-  params?: GetApiDemoDuckdbSearchQueryParams,
+export async function getApiProductEthicalSearch(
+  params?: GetApiProductEthicalSearchQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
   const { client: request = fetch, ...requestConfig } = config;
 
   const res = await request<
-    GetApiDemoDuckdbSearchQueryResponse,
+    GetApiProductEthicalSearchQueryResponse,
     ResponseErrorConfig<Error>,
     unknown
   >({
     method: 'GET',
-    url: getGetApiDemoDuckdbSearchUrl().toString(),
+    url: getGetApiProductEthicalSearchUrl().toString(),
     params,
     ...requestConfig,
   });
