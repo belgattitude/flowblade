@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.2.16
+
+### Patch Changes
+
+- [#685](https://github.com/belgattitude/flowblade/pull/685) [`4e9c0df`](https://github.com/belgattitude/flowblade/commit/4e9c0dfedd695d6a27df99f17318029bf298a7cb) Thanks [@belgattitude](https://github.com/belgattitude)! - Temporary lock typescript-result to 3.3.0
+
 ## 0.2.15
 
 ### Patch Changes
