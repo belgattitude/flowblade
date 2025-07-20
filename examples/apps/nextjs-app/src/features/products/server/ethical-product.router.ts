@@ -13,7 +13,7 @@ export const ethicalProductSearchRequestSchema = v.object({
   slowdownApiMs: v.optional(v.string()),
 });
 
-export const EthicalProductRequestSchema = app.get(
+app.get(
   '/search',
   describeRoute({
     description: 'Search for ethical products',
@@ -23,15 +23,13 @@ export const EthicalProductRequestSchema = app.get(
         content: {
           'application/json': {
             schema: resolver(
-              v.object({
-                data: v.array(
-                  v.object({
-                    label: v.string(),
-                    brand: v.string(),
-                    price: v.number(),
-                  })
-                ),
-              })
+              v.array(
+                v.object({
+                  label: v.string(),
+                  brand: v.string(),
+                  price: v.number(),
+                })
+              )
             ),
           },
         },
