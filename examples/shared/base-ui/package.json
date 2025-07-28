@@ -19,7 +19,7 @@
     "test": "vitest run",
     "test-unit": "vitest run",
     "test-unit-watch": "vitest --ui",
-    "bump-ui": "npx shadcn@latest add --all --overwrite -c . && yarn lint --fix",
+    "bump-ui": "npx shadcn@latest add --all --overwrite -c . && npx shadcn@latest migrate radix && yarn lint --fix",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../../.cache/eslint/base-ui.eslintcache",
     "fix-staged": "lint-staged --allow-empty",
     "storybook": "storybook dev -p 6006",
