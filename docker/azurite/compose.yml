@@ -2,7 +2,7 @@ name: flowblade-azurite
 
 services:
   azurite:
-    image: mcr.microsoft.com/azure-storage/azurite:3.34.0
+    image: mcr.microsoft.com/azure-storage/azurite:3.35.0
     restart: unless-stopped
     networks:
       - flowblade-net
