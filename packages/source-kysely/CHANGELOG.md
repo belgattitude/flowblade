@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.15.6
+
+### Patch Changes
+
+- [#716](https://github.com/belgattitude/flowblade/pull/716) [`96ca8a7`](https://github.com/belgattitude/flowblade/commit/96ca8a7dc0e81b8fcecc125d9ce546a5e74c50d5) Thanks [@belgattitude](https://github.com/belgattitude)! - Bump kysely minimum version to 0.28.5
+
 ## 0.15.5
 
 ### Patch Changes
