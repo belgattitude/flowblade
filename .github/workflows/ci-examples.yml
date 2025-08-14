@@ -22,7 +22,7 @@ jobs:
       TURBO_API: 'http://127.0.0.1:9080'
       TURBO_TEAM: 'flowblade'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # Fetch all git history so that yarn workspaces --since can compare with the correct commits
           # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
