@@ -1322,9 +1322,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@duckdb/node-api@npm:1.3.2-alpha.26":
+  version: 1.3.2-alpha.26
+  resolution: "@duckdb/node-api@npm:1.3.2-alpha.26"
+  dependencies:
+    "@duckdb/node-bindings": "npm:1.3.2-alpha.26"
+  checksum: 10c0/6c2572fa808785d22a1bd62e35868426f21de8024b9a081e668afa0e0776aed8f4e1f901e8caf894eee79ea6ba3d6eae9e6b5e0ac0b86ceb9c5d5f28c30df211
+  languageName: node
+  linkType: hard
+
 "@duckdb/node-bindings-darwin-arm64@npm:1.3.2-alpha.25":
   version: 1.3.2-alpha.25
   resolution: "@duckdb/node-bindings-darwin-arm64@npm:1.3.2-alpha.25"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@duckdb/node-bindings-darwin-arm64@npm:1.3.2-alpha.26":
+  version: 1.3.2-alpha.26
+  resolution: "@duckdb/node-bindings-darwin-arm64@npm:1.3.2-alpha.26"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
@@ -1336,9 +1352,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@duckdb/node-bindings-darwin-x64@npm:1.3.2-alpha.26":
+  version: 1.3.2-alpha.26
+  resolution: "@duckdb/node-bindings-darwin-x64@npm:1.3.2-alpha.26"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
 "@duckdb/node-bindings-linux-arm64@npm:1.3.2-alpha.25":
   version: 1.3.2-alpha.25
   resolution: "@duckdb/node-bindings-linux-arm64@npm:1.3.2-alpha.25"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@duckdb/node-bindings-linux-arm64@npm:1.3.2-alpha.26":
+  version: 1.3.2-alpha.26
+  resolution: "@duckdb/node-bindings-linux-arm64@npm:1.3.2-alpha.26"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
@@ -1350,9 +1380,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@duckdb/node-bindings-linux-x64@npm:1.3.2-alpha.26":
+  version: 1.3.2-alpha.26
+  resolution: "@duckdb/node-bindings-linux-x64@npm:1.3.2-alpha.26"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
 "@duckdb/node-bindings-win32-x64@npm:1.3.2-alpha.25":
   version: 1.3.2-alpha.25
   resolution: "@duckdb/node-bindings-win32-x64@npm:1.3.2-alpha.25"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@duckdb/node-bindings-win32-x64@npm:1.3.2-alpha.26":
+  version: 1.3.2-alpha.26
+  resolution: "@duckdb/node-bindings-win32-x64@npm:1.3.2-alpha.26"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -1378,6 +1422,30 @@ __metadata:
     "@duckdb/node-bindings-win32-x64":
       optional: true
   checksum: 10c0/27828b57169bb8e7472d1b41059fb116755f8ebc231774c4b3b012a9d57f548e9b3adb5ae7c48a607d82eeff9c0b7a028016596e19d15a83537756b814ffd88b
+  languageName: node
+  linkType: hard
+
+"@duckdb/node-bindings@npm:1.3.2-alpha.26":
+  version: 1.3.2-alpha.26
+  resolution: "@duckdb/node-bindings@npm:1.3.2-alpha.26"
+  dependencies:
+    "@duckdb/node-bindings-darwin-arm64": "npm:1.3.2-alpha.26"
+    "@duckdb/node-bindings-darwin-x64": "npm:1.3.2-alpha.26"
+    "@duckdb/node-bindings-linux-arm64": "npm:1.3.2-alpha.26"
+    "@duckdb/node-bindings-linux-x64": "npm:1.3.2-alpha.26"
+    "@duckdb/node-bindings-win32-x64": "npm:1.3.2-alpha.26"
+  dependenciesMeta:
+    "@duckdb/node-bindings-darwin-arm64":
+      optional: true
+    "@duckdb/node-bindings-darwin-x64":
+      optional: true
+    "@duckdb/node-bindings-linux-arm64":
+      optional: true
+    "@duckdb/node-bindings-linux-x64":
+      optional: true
+    "@duckdb/node-bindings-win32-x64":
+      optional: true
+  checksum: 10c0/d0a47b9dcdbfa4b2c41fc673d1bbb918d6e70293cbdc36cfd8772b49880c509764441a2ba75353ab238d814bf752ad84a5c6a3b2340a72e62acada433951555e
   languageName: node
   linkType: hard
 
@@ -2333,7 +2401,7 @@ __metadata:
     "@arethetypeswrong/cli": "npm:0.18.2"
     "@belgattitude/eslint-config-bases": "npm:7.6.1"
     "@codspeed/vitest-plugin": "npm:4.0.1"
-    "@duckdb/node-api": "npm:1.3.2-alpha.25"
+    "@duckdb/node-api": "npm:1.3.2-alpha.26"
     "@edge-runtime/vm": "npm:5.0.0"
     "@faker-js/faker": "npm:9.9.0"
     "@flowblade/core": "workspace:^"
@@ -2364,7 +2432,7 @@ __metadata:
     vitest: "npm:3.2.4"
     webpack: "npm:5.101.2"
   peerDependencies:
-    "@duckdb/node-api": 1.3.2-alpha.25
+    "@duckdb/node-api": 1.3.2-alpha.26
     "@flowblade/core": "workspace:^"
   languageName: unknown
   linkType: soft
