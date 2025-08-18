@@ -13,7 +13,7 @@ export const serverEnv = createEnv({
     DB_FLOWBLADE_MSSQL_JDBC: v.optional(v.string()),
     DB_FLOWBLADE_MARIADB_DSN: v.optional(vDsn),
     DB_FLOWBLADE_POSTGRES_DSN: v.optional(vDsn),
-    BETTER_AUTH_SECRET: v.pipe(v.string(), v.minLength(32)),
+    BETTER_AUTH_SECRET: v.optional(v.pipe(v.string(), v.minLength(32))),
     BLOB_READ_WRITE_TOKEN: v.optional(v.pipe(v.string(), v.minLength(10))),
     MOTHERDUCK_READ_SCALING_TOKEN: v.optional(
       v.pipe(v.string(), v.minLength(10))
