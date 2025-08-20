@@ -1,4 +1,4 @@
-## @flowblade-examples/db-sqlserver
+## @examples/db-sqlserver
 
 Example of a product database using SQL Server, Prisma and Kysely. 
 
