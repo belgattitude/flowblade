@@ -42,6 +42,12 @@ module.exports = {
       },
     },
     {
+      files: ['next-env.d.ts'],
+      rules: {
+        '@typescript-eslint/triple-slash-reference': 'off',
+      },
+    },
+    {
       files: ['src/features/api/generated/**/*.ts'],
       rules: {
         '@typescript-eslint/no-explicit-any': 'off',
