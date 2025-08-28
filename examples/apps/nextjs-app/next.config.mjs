@@ -5,6 +5,7 @@ import url from 'node:url';
 
 import pc from 'tinyrainbow';
 
+import packageJson from './package.json' with { type: 'json' };
 import { buildEnv } from './src/env/build.env.mjs';
 import { clientEnv } from './src/env/client.env.mjs';
 import { serverEnv } from './src/env/server.env.mjs';
@@ -48,6 +49,7 @@ let nextConfig = {
     externalDir: true,
   },
 
+  /*
   turbopack: {
     rules: {
       '*.wasm': {
@@ -62,8 +64,9 @@ let nextConfig = {
         as: '*.js',
       },
     },
-  },
+  }, */
 
+  /*
   webpack: (config, { isServer }) => {
     config.module.rules.push({
       test: /\.wasm/,
@@ -81,7 +84,8 @@ let nextConfig = {
     //   type: 'asset/resource', // Treat .wasm files as assets
     // });
     return config;
-  },
+  }, */
+
   async headers() {
     return [
       {
@@ -105,6 +109,11 @@ let nextConfig = {
   typescript: {
     ignoreBuildErrors: buildEnv.NEXT_BUILD_IGNORE_TYPECHECK === 'true',
     tsconfigPath: buildEnv.NEXT_BUILD_TSCONFIG,
+  },
+  env: {
+    APP_NAME: packageJson.name,
+    APP_VERSION: packageJson.version,
+    BUILD_TIME: new Date().toISOString(),
   },
 };
 
@@ -130,7 +139,7 @@ if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true') {
       // This can increase your server load as well as your hosting bill.
       // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
       // side errors will fail.
-      tunnelRoute: '/monitoring',
+      // tunnelRoute: '/monitoring',
 
       // Automatically tree-shake Sentry logger statements to reduce bundle size
       disableLogger: true,

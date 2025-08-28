@@ -1,3 +1,4 @@
+import type { Kysely } from 'kysely';
 import { generate, getDialect } from 'kysely-codegen';
 import pc from 'picocolors';
 
@@ -20,6 +21,16 @@ const conn = createDbBaseAuthConn({
   },
 });
 
+const closeDbAndExit = async (
+  exitCode: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  conn: Kysely<any>
+): Promise<never> => {
+  await conn.destroy();
+  // eslint-disable-next-line unicorn/no-process-exit
+  process.exit(exitCode);
+};
+
 try {
   await generate({
     db: conn,
@@ -33,11 +44,10 @@ try {
 } catch (e) {
   console.error(`- ${pc.red('error')} ${(e as Error).message}`);
   console.error(e);
-  // eslint-disable-next-line unicorn/no-process-exit
-  process.exit(1);
+  await closeDbAndExit(1, conn);
 } finally {
   await conn.destroy();
 }
+
 console.info(`- ${pc.green('success')} Successfully saved types in ${outFile}`);
-// eslint-disable-next-line unicorn/no-process-exit
-process.exit(0);
+await closeDbAndExit(0, conn);

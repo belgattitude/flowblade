@@ -16,6 +16,7 @@ export const DuckdbWasmDemoPage: FC = () => {
       console.log('DuckDB connection established');
 
       console.log(
+        'Duckdb query result...',
         await connectionRef.current.query(`
         WITH products(productId, createdAt) AS MATERIALIZED (
         FROM RANGE(1,1000) SELECT
