@@ -35,6 +35,12 @@ module.exports = {
       },
     },
     {
+      files: ['next-env.d.ts'],
+      rules: {
+        '@typescript-eslint/triple-slash-reference': 'off',
+      },
+    },
+    {
       files: ['./src/mdx-components.tsx'],
       rules: {
         '@typescript-eslint/no-unsafe-member-access': 'off',

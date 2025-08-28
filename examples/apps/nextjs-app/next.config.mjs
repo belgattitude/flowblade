@@ -49,6 +49,7 @@ let nextConfig = {
     externalDir: true,
   },
 
+  /*
   turbopack: {
     rules: {
       '*.wasm': {
@@ -63,8 +64,9 @@ let nextConfig = {
         as: '*.js',
       },
     },
-  },
+  }, */
 
+  /*
   webpack: (config, { isServer }) => {
     config.module.rules.push({
       test: /\.wasm/,
@@ -82,7 +84,8 @@ let nextConfig = {
     //   type: 'asset/resource', // Treat .wasm files as assets
     // });
     return config;
-  },
+  }, */
+
   async headers() {
     return [
       {
