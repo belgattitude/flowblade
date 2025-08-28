@@ -1,14 +1,16 @@
+import { config as loadEnv } from '@dotenvx/dotenvx';
 import { TediousConnUtils } from '@flowblade/source-kysely';
 import { assertStringNonEmpty } from '@httpx/assert';
 
-import { getScriptsEnv } from './get-scripts-env';
+loadEnv({
+  path: ['.env.local', '.env.development', '.env'],
+  ignore: ['MISSING_ENV_FILE'],
+});
 
-const env = getScriptsEnv() ?? {};
+const jdbcDsn = process.env.DB_FLOWBLADE_MSSQL_JDBC;
 
-assertStringNonEmpty(env?.DB_FLOWBLADE_AZURE_SQL_EDGE_JDBC);
+assertStringNonEmpty(jdbcDsn);
 
-const tediousConfig = TediousConnUtils.fromJdbcDsn(
-  env.DB_FLOWBLADE_AZURE_SQL_EDGE_JDBC
-);
+const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
 
 console.log({ tediousConfig });

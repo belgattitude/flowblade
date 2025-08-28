@@ -1242,6 +1242,7 @@ __metadata:
   resolution: "@docs/website@workspace:docs"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:7.7.0"
+    "@dotenvx/dotenvx": "npm:1.49.0"
     "@t3-oss/env-nextjs": "npm:0.13.8"
     "@tailwindcss/postcss": "npm:4.1.12"
     "@total-typescript/ts-reset": "npm:0.6.1"
@@ -1252,9 +1253,6 @@ __metadata:
     "@typescript-eslint/parser": "npm:8.41.0"
     clsx: "npm:2.1.1"
     cross-env: "npm:10.0.0"
-    dotenv-expand: "npm:12.0.2"
-    dotenv-flow: "npm:4.1.0"
-    dotenv-flow-cli: "npm:1.1.1"
     eslint: "npm:8.57.1"
     eslint-config-next: "npm:15.5.2"
     next: "npm:15.5.2"
@@ -1278,6 +1276,25 @@ __metadata:
     zod: "npm:4.1.4"
   languageName: unknown
   linkType: soft
+
+"@dotenvx/dotenvx@npm:1.49.0":
+  version: 1.49.0
+  resolution: "@dotenvx/dotenvx@npm:1.49.0"
+  dependencies:
+    commander: "npm:^11.1.0"
+    dotenv: "npm:^17.2.1"
+    eciesjs: "npm:^0.4.10"
+    execa: "npm:^5.1.1"
+    fdir: "npm:^6.2.0"
+    ignore: "npm:^5.3.0"
+    object-treeify: "npm:1.1.33"
+    picomatch: "npm:^4.0.2"
+    which: "npm:^4.0.0"
+  bin:
+    dotenvx: src/cli/dotenvx.js
+  checksum: 10c0/a130e3cc1bfe32ba5510da2b0cfe0083e5139eea568fc0d8587ccb577446d0ba31b98e9ef581f23e9f86ce4ca811b0c8eeaad0521d518cfa8fb7f15a6638d0d4
+  languageName: node
+  linkType: hard
 
 "@duckdb/duckdb-wasm@npm:1.29.1-dev278.0":
   version: 1.29.1-dev278.0
@@ -1356,6 +1373,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ecies/ciphers@npm:^0.2.3":
+  version: 0.2.4
+  resolution: "@ecies/ciphers@npm:0.2.4"
+  peerDependencies:
+    "@noble/ciphers": ^1.0.0
+  checksum: 10c0/fc9a1be681b3509e6a828269d8c08dfe156276b5378a1f5fe85cd389fe43c46d6efad0438219b08a99951e918c32a9e07ce7b6d72adfd71b42dcae92a613286b
+  languageName: node
+  linkType: hard
+
 "@edge-runtime/primitives@npm:6.0.0":
   version: 6.0.0
   resolution: "@edge-runtime/primitives@npm:6.0.0"
@@ -1398,12 +1424,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emnapi/wasi-threads@npm:1.0.4, @emnapi/wasi-threads@npm:^1.0.4":
+"@emnapi/wasi-threads@npm:1.0.4":
   version: 1.0.4
   resolution: "@emnapi/wasi-threads@npm:1.0.4"
   dependencies:
     tslib: "npm:^2.4.0"
   checksum: 10c0/2c91a53e62f875800baf035c4d42c9c0d18e5afd9a31ca2aac8b435aeaeaeaac386b5b3d0d0e70aa7a5a9852bbe05106b1f680cd82cce03145c703b423d41313
+  languageName: node
+  linkType: hard
+
+"@emnapi/wasi-threads@npm:^1.0.4":
+  version: 1.1.0
+  resolution: "@emnapi/wasi-threads@npm:1.1.0"
+  dependencies:
+    tslib: "npm:^2.4.0"
+  checksum: 10c0/e6d54bf2b1e64cdd83d2916411e44e579b6ae35d5def0dea61a3c452d9921373044dff32a8b8473ae60c80692bdc39323e98b96a3f3d87ba6886b24dd0ef7ca1
   languageName: node
   linkType: hard
 
@@ -1660,6 +1695,7 @@ __metadata:
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:7.7.0"
     "@better-auth/sso": "npm:1.3.7"
+    "@dotenvx/dotenvx": "npm:1.49.0"
     "@flowblade/core": "npm:0.2.16"
     "@flowblade/source-kysely": "npm:0.15.6"
     "@flowblade/sql-tag": "npm:0.1.15"
@@ -1677,8 +1713,6 @@ __metadata:
     "@vitest/ui": "npm:3.2.4"
     better-auth: "npm:1.3.7"
     dotenv: "npm:17.2.1"
-    dotenv-flow: "npm:4.1.0"
-    dotenv-flow-cli: "npm:1.1.1"
     eslint: "npm:8.57.1"
     happy-dom: "npm:18.0.1"
     jose: "npm:6.1.0"
@@ -1762,6 +1796,7 @@ __metadata:
   resolution: "@examples/db-sqlserver@workspace:examples/shared/db-sqlserver"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:7.7.0"
+    "@dotenvx/dotenvx": "npm:1.49.0"
     "@faker-js/faker": "npm:10.0.0"
     "@flowblade/core": "workspace:^"
     "@flowblade/sql-tag": "workspace:^"
@@ -1774,9 +1809,6 @@ __metadata:
     "@vitest/coverage-v8": "npm:3.2.4"
     "@vitest/ui": "npm:3.2.4"
     cross-env: "npm:10.0.0"
-    dotenv-expand: "npm:12.0.2"
-    dotenv-flow: "npm:4.1.0"
-    dotenv-flow-cli: "npm:1.1.1"
     eslint: "npm:8.57.1"
     execa: "npm:9.6.0"
     kysely: "npm:0.28.5"
@@ -1808,6 +1840,7 @@ __metadata:
   resolution: "@examples/duckdb-openfoodfact@workspace:examples/shared/duckb-openfoodfact"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:7.7.0"
+    "@dotenvx/dotenvx": "npm:1.49.0"
     "@duckdb/node-api": "npm:1.3.2-alpha.26"
     "@faker-js/faker": "npm:10.0.0"
     "@flowblade/core": "workspace:^"
@@ -1829,9 +1862,6 @@ __metadata:
     boxen: "npm:8.0.1"
     cross-env: "npm:10.0.0"
     dedent: "npm:1.6.0"
-    dotenv-expand: "npm:12.0.2"
-    dotenv-flow: "npm:4.1.0"
-    dotenv-flow-cli: "npm:1.1.1"
     eslint: "npm:8.57.1"
     execa: "npm:9.6.0"
     hono: "npm:4.9.4"
@@ -1857,6 +1887,7 @@ __metadata:
   resolution: "@examples/fastify-app@workspace:examples/apps/fastify-app"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:7.7.0"
+    "@dotenvx/dotenvx": "npm:1.49.0"
     "@duckdb/node-api": "npm:1.3.2-alpha.26"
     "@examples/db-sqlserver": "workspace:^"
     "@fast-csv/format": "npm:5.0.5"
@@ -1886,8 +1917,6 @@ __metadata:
     "@vitest/ui": "npm:3.2.4"
     close-with-grace: "npm:2.2.0"
     cross-env: "npm:10.0.0"
-    dotenv-expand: "npm:12.0.2"
-    dotenv-flow: "npm:4.1.0"
     eslint: "npm:8.57.1"
     execa: "npm:9.6.0"
     fastify: "npm:5.5.0"
@@ -1913,6 +1942,7 @@ __metadata:
   resolution: "@examples/nextjs-app@workspace:examples/apps/nextjs-app"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:7.7.0"
+    "@dotenvx/dotenvx": "npm:1.49.0"
     "@duckdb/duckdb-wasm": "npm:1.29.1-dev278.0"
     "@duckdb/node-api": "npm:1.3.2-alpha.26"
     "@examples/base-auth": "workspace:^"
@@ -1991,9 +2021,6 @@ __metadata:
     class-variance-authority: "npm:0.7.1"
     clsx: "npm:2.1.1"
     cross-env: "npm:10.0.0"
-    dotenv-expand: "npm:12.0.2"
-    dotenv-flow: "npm:4.1.0"
-    dotenv-flow-cli: "npm:1.1.1"
     eslint: "npm:8.57.1"
     eslint-config-next: "npm:15.5.2"
     fs-extra: "npm:11.3.1"
@@ -2002,7 +2029,7 @@ __metadata:
     hono: "npm:4.9.4"
     hono-openapi: "npm:0.4.8"
     hono-zod-openapi: "npm:0.5.0"
-    ky: "npm:1.9.0"
+    ky: "npm:1.9.1"
     kysely: "npm:0.28.5"
     lodash: "npm:4.17.21"
     lucide-react: "npm:0.542.0"
@@ -3770,7 +3797,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/hashes@npm:^1.8.0":
+"@noble/ciphers@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "@noble/ciphers@npm:1.3.0"
+  checksum: 10c0/3ba6da645ce45e2f35e3b2e5c87ceba86b21dfa62b9466ede9edfb397f8116dae284f06652c0cd81d99445a2262b606632e868103d54ecc99fd946ae1af8cd37
+  languageName: node
+  linkType: hard
+
+"@noble/curves@npm:^1.9.1":
+  version: 1.9.7
+  resolution: "@noble/curves@npm:1.9.7"
+  dependencies:
+    "@noble/hashes": "npm:1.8.0"
+  checksum: 10c0/150014751ebe8ca06a8654ca2525108452ea9ee0be23430332769f06808cddabfe84f248b6dbf836916bc869c27c2092957eec62c7506d68a1ed0a624017c2a3
+  languageName: node
+  linkType: hard
+
+"@noble/hashes@npm:1.8.0, @noble/hashes@npm:^1.8.0":
   version: 1.8.0
   resolution: "@noble/hashes@npm:1.8.0"
   checksum: 10c0/06a0b52c81a6fa7f04d67762e08b2c476a00285858150caeaaff4037356dd5e119f45b2a530f638b77a5eeca013168ec1b655db41bae3236cb2e9d511484fc77
@@ -11182,6 +11225,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"commander@npm:^11.1.0":
+  version: 11.1.0
+  resolution: "commander@npm:11.1.0"
+  checksum: 10c0/13cc6ac875e48780250f723fb81c1c1178d35c5decb1abb1b628b3177af08a8554e76b2c0f29de72d69eef7c864d12613272a71fabef8047922bc622ab75a179
+  languageName: node
+  linkType: hard
+
 "commander@npm:^2.19.0, commander@npm:^2.20.0":
   version: 2.20.3
   resolution: "commander@npm:2.20.3"
@@ -12392,35 +12442,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv-expand@npm:*, dotenv-expand@npm:12.0.2, dotenv-expand@npm:^12.0.2":
+"dotenv-expand@npm:^12.0.2":
   version: 12.0.2
   resolution: "dotenv-expand@npm:12.0.2"
   dependencies:
     dotenv: "npm:^16.4.5"
   checksum: 10c0/c96fd1b74d1dbb72fda6ad5df4f0ae83cba438c8090231c4da4344f8aa0448d67eb70f7fcb317c8a9bf44191545b393e8cdc1fa9f301a66b6414a22d1135f81e
-  languageName: node
-  linkType: hard
-
-"dotenv-flow-cli@npm:1.1.1":
-  version: 1.1.1
-  resolution: "dotenv-flow-cli@npm:1.1.1"
-  dependencies:
-    cross-spawn: "npm:^7.0.3"
-    dotenv-expand: "npm:*"
-    dotenv-flow: "npm:*"
-    minimist: "npm:^1.2.6"
-  bin:
-    dotenv-flow: cli.js
-  checksum: 10c0/5453dcdb19350bdad37e0d08b17d832dcd8b5dbf1bb9281eb8db5665d95b515cc74a83ac8d144078e4fd598cb99f5e58e4965e954ab8007671fdb54a160abdd1
-  languageName: node
-  linkType: hard
-
-"dotenv-flow@npm:*, dotenv-flow@npm:4.1.0":
-  version: 4.1.0
-  resolution: "dotenv-flow@npm:4.1.0"
-  dependencies:
-    dotenv: "npm:^16.0.0"
-  checksum: 10c0/1f88bc4edfede3b3066b3980e25f7df1e008233f5a2506580378289aa042574a68c7fdb2433e3b96c9456aa9534de1e173f2fe8eb815476bec9d4b8812198ad9
   languageName: node
   linkType: hard
 
@@ -12431,7 +12458,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:17.2.1":
+"dotenv@npm:17.2.1, dotenv@npm:^17.2.1":
   version: 17.2.1
   resolution: "dotenv@npm:17.2.1"
   checksum: 10c0/918dd2f9d8b8f86b0afabad9534793d51de3718c437f9e7b6525628cf68c1d4ae768cc37a5afff38c066f58a8ecf549f4ac6cd5617485bd328e826112cc2650a
@@ -12507,6 +12534,18 @@ __metadata:
   dependencies:
     safe-buffer: "npm:^5.0.1"
   checksum: 10c0/ebfbf19d4b8be938f4dd4a83b8788385da353d63307ede301a9252f9f7f88672e76f2191618fd8edfc2f24679236064176fab0b78131b161ee73daa37125408c
+  languageName: node
+  linkType: hard
+
+"eciesjs@npm:^0.4.10":
+  version: 0.4.15
+  resolution: "eciesjs@npm:0.4.15"
+  dependencies:
+    "@ecies/ciphers": "npm:^0.2.3"
+    "@noble/ciphers": "npm:^1.3.0"
+    "@noble/curves": "npm:^1.9.1"
+    "@noble/hashes": "npm:^1.8.0"
+  checksum: 10c0/b5fc236810ff50e02f4d3155ab07f3a5d817ed7611fc63acef348e796a198a10bedf4adb152f512bcdc6ec90eb04a6f66606776bd56078d6d20bf3815bdc3f1c
   languageName: node
   linkType: hard
 
@@ -13779,7 +13818,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"execa@npm:5.1.1":
+"execa@npm:5.1.1, execa@npm:^5.1.1":
   version: 5.1.1
   resolution: "execa@npm:5.1.1"
   dependencies:
@@ -15612,7 +15651,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ignore@npm:^5.2.0":
+"ignore@npm:^5.2.0, ignore@npm:^5.3.0":
   version: 5.3.2
   resolution: "ignore@npm:5.3.2"
   checksum: 10c0/f9f652c957983634ded1e7f02da3b559a0d4cc210fca3792cb67f1b153623c9c42efdc1c4121af171e295444459fc4a9201101fb041b1104a3c000bccb188337
@@ -16891,10 +16930,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ky@npm:1.9.0, ky@npm:^1.2.0":
-  version: 1.9.0
-  resolution: "ky@npm:1.9.0"
-  checksum: 10c0/68ba5d690cde38b987a508c370f9479dd56517fb9926832196770028119a461aa2073fba97a67782f22d4b1bdf4ff28ce32ddde89353e14a8ce169e23e542901
+"ky@npm:1.9.1, ky@npm:^1.2.0":
+  version: 1.9.1
+  resolution: "ky@npm:1.9.1"
+  checksum: 10c0/7cb39d6e036653c9a96d2f4d7b9b80360ba824c8c090e6d11d0dbb47b7a11e9d1603465cebeca8ed6aa0eeeb1d07982fdad88b5c76373430a5402134d03642a6
   languageName: node
   linkType: hard
 
@@ -19597,6 +19636,13 @@ __metadata:
   version: 1.1.1
   resolution: "object-keys@npm:1.1.1"
   checksum: 10c0/b11f7ccdbc6d406d1f186cdadb9d54738e347b2692a14439ca5ac70c225fa6db46db809711b78589866d47b25fc3e8dee0b4c722ac751e11180f9380e3d8601d
+  languageName: node
+  linkType: hard
+
+"object-treeify@npm:1.1.33":
+  version: 1.1.33
+  resolution: "object-treeify@npm:1.1.33"
+  checksum: 10c0/5b735ac552200bf14f9892ce58295303e8d15a8cc7a0fd4fe6ff99923ab0c196fb70a870ab2a0eefc6820c4acb49e614b88c72d344b9c6bd22584a3efbd386fe
   languageName: node
   linkType: hard
 
@@ -25903,6 +25949,17 @@ __metadata:
   bin:
     node-which: ./bin/node-which
   checksum: 10c0/66522872a768b60c2a65a57e8ad184e5372f5b6a9ca6d5f033d4b0dc98aff63995655a7503b9c0a2598936f532120e81dd8cc155e2e92ed662a2b9377cc4374f
+  languageName: node
+  linkType: hard
+
+"which@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "which@npm:4.0.0"
+  dependencies:
+    isexe: "npm:^3.1.1"
+  bin:
+    node-which: bin/which.js
+  checksum: 10c0/449fa5c44ed120ccecfe18c433296a4978a7583bf2391c50abce13f76878d2476defde04d0f79db8165bdf432853c1f8389d0485ca6e8ebce3bbcded513d5e6a
   languageName: node
   linkType: hard
 
