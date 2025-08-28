@@ -1,9 +1,15 @@
+import { config as loadEnv } from '@dotenvx/dotenvx';
 import type { Kysely } from 'kysely';
 import { generate, getDialect } from 'kysely-codegen';
 import pc from 'picocolors';
 
 import { dbBaseAuthConfig } from '../src';
 import { createDbBaseAuthConn } from '../src/create-db-base-auth-conn';
+
+loadEnv({
+  path: ['.env.local', '.env.development', '.env'],
+  ignore: ['MISSING_ENV_FILE'],
+});
 
 const jdbcDsn = process.env.DB_BASE_AUTH_JDBC_URL ?? '';
 const outFile = 'src/generated/db-base-auth.kysely.types.ts';

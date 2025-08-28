@@ -14,7 +14,7 @@
     "test-unit": "vitest run",
     "test-unit-watch": "vitest --ui",
     "generate-better-auth-migration": "npx @better-auth/cli generate",
-    "codegen-db": "dotenvx run -- tsx scripts/generate-db-base-auth-types.ts",
+    "codegen-db": "tsx scripts/generate-db-base-auth-types.ts",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../.cache/eslint/base-auth.eslintcache",
     "fix-staged": "lint-staged --allow-empty"
   },
