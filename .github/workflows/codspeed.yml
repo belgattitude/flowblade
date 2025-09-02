@@ -31,7 +31,7 @@ jobs:
         uses: ./.github/actions/yarn-nm-install
 
       - name: 🌠 Run benchmarks
-        uses: CodSpeedHQ/action@v3
+        uses: CodSpeedHQ/action@v4
         with:
           run: yarn g:bench-codspeed
           token: ${{ secrets.CODSPEED_TOKEN }}
