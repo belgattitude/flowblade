@@ -1,5 +1,13 @@
 # @flowblade/source-duckdb
 
+## 0.10.4
+
+### Patch Changes
+
+- [#755](https://github.com/belgattitude/flowblade/pull/755) [`e7de984`](https://github.com/belgattitude/flowblade/commit/e7de984a830b8959653f5faabad3458ba4fd0b19) Thanks [@belgattitude](https://github.com/belgattitude)! - Update to @httpx/dsn-parser to ^1.9.3 to fix an upstream issue
+
+  See: https://github.com/belgattitude/httpx/releases/tag/%40httpx%2Fdsn-parser%401.9.3
+
 ## 0.10.3
 
 ### Patch Changes
