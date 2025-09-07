@@ -1,5 +1,11 @@
 # @flowblade/sql-tag-format
 
+## 0.1.0
+
+### Minor Changes
+
+- [#770](https://github.com/belgattitude/flowblade/pull/770) [`ae2b9d0`](https://github.com/belgattitude/flowblade/commit/ae2b9d08b6d8a85a1e8762b522d2d67ec8fbdeac) Thanks [@belgattitude](https://github.com/belgattitude)! - Update to latest sql-formatter with duckdb support
+
 ## 0.0.16
 
 ### Patch Changes
