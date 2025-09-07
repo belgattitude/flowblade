@@ -1942,6 +1942,7 @@ __metadata:
     "@kubb/plugin-oas": "npm:3.18.3"
     "@kubb/plugin-react-query": "npm:3.18.3"
     "@kubb/plugin-ts": "npm:3.18.3"
+    "@kubb/react": "npm:3.18.3"
     "@motherduck/wasm-client": "npm:0.6.6"
     "@next/bundle-analyzer": "npm:15.5.2"
     "@opentelemetry/api": "npm:1.9.0"
@@ -1996,7 +1997,6 @@ __metadata:
     hast-util-to-jsx-runtime: "npm:2.3.6"
     hono: "npm:4.9.6"
     hono-openapi: "npm:1.0.2"
-    hono-zod-openapi: "npm:0.5.0"
     json-schema-walker: "npm:3.1.0"
     ky: "npm:1.10.0"
     kysely: "npm:0.28.5"
@@ -15062,19 +15062,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hono-zod-openapi@npm:0.5.0":
-  version: 0.5.0
-  resolution: "hono-zod-openapi@npm:0.5.0"
-  dependencies:
-    "@hono/zod-validator": "npm:^0.4.1"
-    zod-openapi: "npm:^4.0.0"
-  peerDependencies:
-    hono: ^4.6.10
-    zod: ^3.21.4
-  checksum: 10c0/0fabbe444f2dcee7420ed4942c5a1eef32b0ef47965c53df8bf8f83dd4408c539d4957dacb16f38b5c85a48abaf918e83d5a98b20982219c3022950aacee5d70
-  languageName: node
-  linkType: hard
-
 "hono@npm:4.9.6, hono@npm:^4.9.5":
   version: 4.9.6
   resolution: "hono@npm:4.9.6"
@@ -25634,15 +25621,6 @@ __metadata:
   version: 2.1.2
   resolution: "yoctocolors@npm:2.1.2"
   checksum: 10c0/b220f30f53ebc2167330c3adc86a3c7f158bcba0236f6c67e25644c3188e2571a6014ffc1321943bb619460259d3d27eb4c9cc58c2d884c1b195805883ec7066
-  languageName: node
-  linkType: hard
-
-"zod-openapi@npm:^4.0.0":
-  version: 4.2.4
-  resolution: "zod-openapi@npm:4.2.4"
-  peerDependencies:
-    zod: ^3.21.4
-  checksum: 10c0/6c7f70ae57270cfb1afdcae6dd34ae77d1f2c0e229d0e7f223f86ffc108defbfe69f6aaaa5ec304f7032133d10ccfa507d937a4ef3b40d51cf9c7d897fc1e368
   languageName: node
   linkType: hard
 

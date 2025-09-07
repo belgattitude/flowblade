@@ -17,30 +17,30 @@ import type {
 } from '@/config/api-fetcher-kubb.config.ts';
 import type fetch from '@/config/api-fetcher-kubb.config.ts';
 
-import { getApiProductEthicalBrands } from '../../getApiProductEthicalBrands';
-import type { GetApiProductEthicalBrandsQueryResponse } from '../../models/GetApiProductEthicalBrands';
+import { GETApiProductEthicalBrands } from '../../GETApiProductEthicalBrands';
+import type { GETApiProductEthicalBrandsQueryResponse } from '../../models/GETApiProductEthicalBrands';
 
-export const getApiProductEthicalBrandsQueryKey = () =>
+export const GETApiProductEthicalBrandsQueryKey = () =>
   ['v5', { url: '/api/product/ethical/brands' }] as const;
 
-export type GetApiProductEthicalBrandsQueryKey = ReturnType<
-  typeof getApiProductEthicalBrandsQueryKey
+export type GETApiProductEthicalBrandsQueryKey = ReturnType<
+  typeof GETApiProductEthicalBrandsQueryKey
 >;
 
-export function getApiProductEthicalBrandsQueryOptionsHook(
+export function GETApiProductEthicalBrandsQueryOptionsHook(
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
-  const queryKey = getApiProductEthicalBrandsQueryKey();
+  const queryKey = GETApiProductEthicalBrandsQueryKey();
   return queryOptions<
-    GetApiProductEthicalBrandsQueryResponse,
+    GETApiProductEthicalBrandsQueryResponse,
     ResponseErrorConfig<Error>,
-    GetApiProductEthicalBrandsQueryResponse,
+    GETApiProductEthicalBrandsQueryResponse,
     typeof queryKey
   >({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal;
-      return getApiProductEthicalBrands(config);
+      return GETApiProductEthicalBrands(config);
     },
   });
 }
@@ -49,36 +49,32 @@ export function getApiProductEthicalBrandsQueryOptionsHook(
  * @description Get list of ethical brands
  * {@link /api/product/ethical/brands}
  */
-export function useGetApiProductEthicalBrandsHook<
-  TData = GetApiProductEthicalBrandsQueryResponse,
-  TQueryData = GetApiProductEthicalBrandsQueryResponse,
-  TQueryKey extends QueryKey = GetApiProductEthicalBrandsQueryKey,
+export function useGETApiProductEthicalBrandsHook<
+  TData = GETApiProductEthicalBrandsQueryResponse,
+  TQueryData = GETApiProductEthicalBrandsQueryResponse,
+  TQueryKey extends QueryKey = GETApiProductEthicalBrandsQueryKey,
 >(
   options: {
     query?: Partial<
       QueryObserverOptions<
-        GetApiProductEthicalBrandsQueryResponse,
+        GETApiProductEthicalBrandsQueryResponse,
         ResponseErrorConfig<Error>,
         TData,
         TQueryData,
         TQueryKey
       >
-    > & {
-      client?: QueryClient;
-    };
+    > & { client?: QueryClient };
     client?: Partial<RequestConfig> & { client?: typeof fetch };
   } = {}
 ) {
-  const {
-    query: { client: queryClient, ...queryOptions } = {},
-    client: config = {},
-  } = options ?? {};
+  const { query: queryConfig = {}, client: config = {} } = options ?? {};
+  const { client: queryClient, ...queryOptions } = queryConfig;
   const queryKey =
-    queryOptions?.queryKey ?? getApiProductEthicalBrandsQueryKey();
+    queryOptions?.queryKey ?? GETApiProductEthicalBrandsQueryKey();
 
   const query = useQuery(
     {
-      ...getApiProductEthicalBrandsQueryOptionsHook(config),
+      ...GETApiProductEthicalBrandsQueryOptionsHook(config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

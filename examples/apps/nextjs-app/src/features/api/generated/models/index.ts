@@ -1,17 +1,15 @@
 export type {
-  GetApiDemoDuckdbSearch200,
-  GetApiDemoDuckdbSearchQuery,
-  GetApiDemoDuckdbSearchQueryParams,
-  GetApiDemoDuckdbSearchQueryResponse,
-} from './GetApiDemoDuckdbSearch';
+  GETApiDemoDuckdbSearch200,
+  GETApiDemoDuckdbSearchQuery,
+  GETApiDemoDuckdbSearchQueryResponse,
+} from './GETApiDemoDuckdbSearch';
 export type {
-  GetApiProductEthicalBrands200,
-  GetApiProductEthicalBrandsQuery,
-  GetApiProductEthicalBrandsQueryResponse,
-} from './GetApiProductEthicalBrands';
+  GETApiProductEthicalBrands200,
+  GETApiProductEthicalBrandsQuery,
+  GETApiProductEthicalBrandsQueryResponse,
+} from './GETApiProductEthicalBrands';
 export type {
-  GetApiProductEthicalSearch200,
-  GetApiProductEthicalSearchQuery,
-  GetApiProductEthicalSearchQueryParams,
-  GetApiProductEthicalSearchQueryResponse,
-} from './GetApiProductEthicalSearch';
+  GETApiProductEthicalSearch200,
+  GETApiProductEthicalSearchQuery,
+  GETApiProductEthicalSearchQueryResponse,
+} from './GETApiProductEthicalSearch';

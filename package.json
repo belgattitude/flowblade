@@ -38,7 +38,7 @@
     "g:ci-coverage-upload": "yarn workspaces foreach --all -tv run ci-coverage-upload",
     "deps:check": "npx npm-check-updates@latest --configFileName .ncurc.json",
     "deps:update": "npx npm-check-updates@latest --configFileName .ncurc.json -u",
-    "check:install": "yarn dlx @yarnpkg/doctor .",
+    "check:install": "yarn dlx @yarnpkg/doctor@3 .",
     "postinstall": "is-ci || husky",
     "syncpack:format": "syncpack format",
     "syncpack:check": "syncpack lint-semver-ranges --types prod,dev --source \"package.json\" --source \"packages/*/package.json\"",
