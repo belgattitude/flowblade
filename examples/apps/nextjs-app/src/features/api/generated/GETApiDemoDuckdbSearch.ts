@@ -9,28 +9,29 @@ import type {
 } from '@/config/api-fetcher-kubb.config.ts';
 import fetch from '@/config/api-fetcher-kubb.config.ts';
 
-import type { GetApiProductEthicalBrandsQueryResponse } from './models/GetApiProductEthicalBrands';
+import type { GETApiDemoDuckdbSearchQueryResponse } from './models/GETApiDemoDuckdbSearch';
 
-function getGetApiProductEthicalBrandsUrl() {
-  return `/api/product/ethical/brands` as const;
+function getGETApiDemoDuckdbSearchUrl() {
+  const res = { method: 'GET', url: `/api/demo/duckdb/search` as const };
+  return res;
 }
 
 /**
- * @description Get list of ethical brands
- * {@link /api/product/ethical/brands}
+ * @description Search
+ * {@link /api/demo/duckdb/search}
  */
-export async function getApiProductEthicalBrands(
+export async function GETApiDemoDuckdbSearch(
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
   const { client: request = fetch, ...requestConfig } = config;
 
   const res = await request<
-    GetApiProductEthicalBrandsQueryResponse,
+    GETApiDemoDuckdbSearchQueryResponse,
     ResponseErrorConfig<Error>,
     unknown
   >({
     method: 'GET',
-    url: getGetApiProductEthicalBrandsUrl().toString(),
+    url: getGETApiDemoDuckdbSearchUrl().url.toString(),
     ...requestConfig,
   });
   return res.data;

@@ -1,6 +1,6 @@
+import { vValidator } from '@hono/valibot-validator';
 import { Hono } from 'hono';
-import { describeRoute } from 'hono-openapi';
-import { resolver, validator as vValidator } from 'hono-openapi/valibot';
+import { describeRoute, resolver } from 'hono-openapi';
 import * as v from 'valibot';
 
 import { EthicalProductRepo } from '@/features/products/server/ethical-product.repo';

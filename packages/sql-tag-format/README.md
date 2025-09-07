@@ -25,8 +25,8 @@ yarn add @flowblade/sql-tag-format @flowblade/sql-tag
 ## Usage
 
 ```typescript
-import {sql} from '@flowblade/sql-tag';
-import {SqlFormatter} from "@flowblade/sql-tag-format";
+import { sql } from '@flowblade/sql-tag';
+import { SqlFormatter } from "@flowblade/sql-tag-format";
 
 // 👈 Unvalidated parameters
 const params = {

@@ -8,12 +8,15 @@
   "paths": {
     "/api/demo/duckdb/search": {
       "get": {
+        "operationId": "GETApiDemoDuckdbSearch",
+        "description": "Search",
         "responses": {
           "200": {
             "description": "Successful response",
             "content": {
               "text/plain": {
                 "schema": {
+                  "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "object",
                   "properties": {
                     "meta": {
@@ -61,53 +64,20 @@
               }
             }
           }
-        },
-        "operationId": "getApiDemoDuckdbSearch",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "min",
-            "schema": {
-              "type": "number"
-            },
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "name",
-            "schema": {
-              "type": "string"
-            },
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "createdAt",
-            "schema": {
-              "type": "string"
-            },
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "limit",
-            "schema": {
-              "type": "number"
-            },
-            "required": false
-          }
-        ],
-        "description": "Search"
+        }
       }
     },
     "/api/product/ethical/search": {
       "get": {
+        "operationId": "GETApiProductEthicalSearch",
+        "description": "Search for ethical products",
         "responses": {
           "200": {
             "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
+                  "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "array",
                   "items": {
                     "type": "object",
@@ -132,37 +102,20 @@
               }
             }
           }
-        },
-        "operationId": "getApiProductEthicalSearch",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "brands",
-            "schema": {
-              "type": "string"
-            },
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "slowdownApiMs",
-            "schema": {
-              "type": "string"
-            },
-            "required": false
-          }
-        ],
-        "description": "Search for ethical products"
+        }
       }
     },
     "/api/product/ethical/brands": {
       "get": {
+        "operationId": "GETApiProductEthicalBrands",
+        "description": "Get list of ethical brands",
         "responses": {
           "200": {
             "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
+                  "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "array",
                   "items": {
                     "type": "object",
@@ -179,14 +132,9 @@
               }
             }
           }
-        },
-        "operationId": "getApiProductEthicalBrands",
-        "parameters": [],
-        "description": "Get list of ethical brands"
+        }
       }
     }
   },
-  "components": {
-    "schemas": {}
-  }
+  "components": {}
 }

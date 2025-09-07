@@ -17,46 +17,46 @@ import type {
 } from '@/config/api-fetcher-kubb.config.ts';
 import type fetch from '@/config/api-fetcher-kubb.config.ts';
 
-import { getApiProductEthicalBrands } from '../../getApiProductEthicalBrands';
-import type { GetApiProductEthicalBrandsQueryResponse } from '../../models/GetApiProductEthicalBrands';
+import { GETApiDemoDuckdbSearch } from '../../GETApiDemoDuckdbSearch';
+import type { GETApiDemoDuckdbSearchQueryResponse } from '../../models/GETApiDemoDuckdbSearch';
 
-export const getApiProductEthicalBrandsSuspenseQueryKey = () =>
-  ['v5', { url: '/api/product/ethical/brands' }] as const;
+export const GETApiDemoDuckdbSearchSuspenseQueryKey = () =>
+  ['v5', { url: '/api/demo/duckdb/search' }] as const;
 
-export type GetApiProductEthicalBrandsSuspenseQueryKey = ReturnType<
-  typeof getApiProductEthicalBrandsSuspenseQueryKey
+export type GETApiDemoDuckdbSearchSuspenseQueryKey = ReturnType<
+  typeof GETApiDemoDuckdbSearchSuspenseQueryKey
 >;
 
-export function getApiProductEthicalBrandsSuspenseQueryOptionsHook(
+export function GETApiDemoDuckdbSearchSuspenseQueryOptionsHook(
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
-  const queryKey = getApiProductEthicalBrandsSuspenseQueryKey();
+  const queryKey = GETApiDemoDuckdbSearchSuspenseQueryKey();
   return queryOptions<
-    GetApiProductEthicalBrandsQueryResponse,
+    GETApiDemoDuckdbSearchQueryResponse,
     ResponseErrorConfig<Error>,
-    GetApiProductEthicalBrandsQueryResponse,
+    GETApiDemoDuckdbSearchQueryResponse,
     typeof queryKey
   >({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal;
-      return getApiProductEthicalBrands(config);
+      return GETApiDemoDuckdbSearch(config);
     },
   });
 }
 
 /**
- * @description Get list of ethical brands
- * {@link /api/product/ethical/brands}
+ * @description Search
+ * {@link /api/demo/duckdb/search}
  */
-export function useGetApiProductEthicalBrandsSuspenseHook<
-  TData = GetApiProductEthicalBrandsQueryResponse,
-  TQueryKey extends QueryKey = GetApiProductEthicalBrandsSuspenseQueryKey,
+export function useGETApiDemoDuckdbSearchSuspenseHook<
+  TData = GETApiDemoDuckdbSearchQueryResponse,
+  TQueryKey extends QueryKey = GETApiDemoDuckdbSearchSuspenseQueryKey,
 >(
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
-        GetApiProductEthicalBrandsQueryResponse,
+        GETApiDemoDuckdbSearchQueryResponse,
         ResponseErrorConfig<Error>,
         TData,
         TQueryKey
@@ -65,16 +65,14 @@ export function useGetApiProductEthicalBrandsSuspenseHook<
     client?: Partial<RequestConfig> & { client?: typeof fetch };
   } = {}
 ) {
-  const {
-    query: { client: queryClient, ...queryOptions } = {},
-    client: config = {},
-  } = options ?? {};
+  const { query: queryConfig = {}, client: config = {} } = options ?? {};
+  const { client: queryClient, ...queryOptions } = queryConfig;
   const queryKey =
-    queryOptions?.queryKey ?? getApiProductEthicalBrandsSuspenseQueryKey();
+    queryOptions?.queryKey ?? GETApiDemoDuckdbSearchSuspenseQueryKey();
 
   const query = useSuspenseQuery(
     {
-      ...getApiProductEthicalBrandsSuspenseQueryOptionsHook(config),
+      ...GETApiDemoDuckdbSearchSuspenseQueryOptionsHook(config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
