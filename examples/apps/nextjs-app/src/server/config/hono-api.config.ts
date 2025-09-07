@@ -1,7 +1,7 @@
 import { Scalar } from '@scalar/hono-api-reference';
 import { Hono } from 'hono';
 import { compress } from 'hono/compress';
-import { openAPISpecs } from 'hono-openapi';
+import { openAPIRouteHandler } from 'hono-openapi';
 
 import { demoDuckdbRouter } from '@/features/demo/duckdb/server/demo-duckdb.router.ts';
 import { ethicalProductRouter } from '@/features/products/server/ethical-product.router.ts';
@@ -28,8 +28,8 @@ export const createHonoApp = () => {
   const { baseUrl } = getNextjsHostInfo();
 
   app.get(
-    '/openapi',
-    openAPISpecs(app, {
+    '/openapi.json',
+    openAPIRouteHandler(app, {
       documentation: {
         info: {
           title: 'Flowblade example API',
@@ -44,7 +44,7 @@ export const createHonoApp = () => {
   app.get(
     '/reference',
     Scalar({
-      url: '/api/openapi',
+      url: '/api/openapi.json',
       theme: 'purple',
       pageTitle: 'Flowblade example API',
     })

@@ -41,7 +41,7 @@ export const QueryResultDebugger = (props: Props) => {
   const firstSqlSpan = meta.getSpans().find((span) => span.type === 'sql');
   const { sql } = firstSqlSpan ?? {};
   if (sql !== undefined) {
-    const sqlFormatter = new SqlFormatter('postgresql');
+    const sqlFormatter = new SqlFormatter('duckdb');
     try {
       formattedSql = sqlFormatter.formatOrThrow(sql);
     } catch (e) {

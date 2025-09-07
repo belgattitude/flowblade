@@ -11,7 +11,7 @@ type Props = {
   }>;
 };
 
-export async function generateMetadata(props: Props): Promise<Metadata> {
+export async function generateMetadataOld(props: Props): Promise<Metadata> {
   const params = await props.params;
   const { metadata } = (await importPage(params.mdxPath)) as {
     metadata: Metadata;
@@ -24,13 +24,14 @@ const Wrapper = useMDXComponents({}).wrapper;
 
 export default async function Page(props: Props) {
   const params = await props.params;
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const result = await importPage(params.mdxPath);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { default: MDXContent, toc, metadata } = result;
+  const {
+    default: MDXContent,
+    toc,
+    metadata,
+    sourceCode,
+  } = await importPage(params.mdxPath);
   return (
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    <Wrapper toc={toc} metadata={metadata}>
+    <Wrapper toc={toc} metadata={metadata} sourceCode={sourceCode}>
       <MDXContent {...props} params={params} />
     </Wrapper>
   );

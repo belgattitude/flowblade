@@ -1,9 +1,9 @@
+import { vValidator } from '@hono/valibot-validator';
 import { Hono } from 'hono';
-import { describeRoute } from 'hono-openapi';
+import { describeRoute, resolver } from 'hono-openapi';
 import * as v from 'valibot';
 
 import { DemoDuckdbRepo } from '@/features/demo/duckdb/server/demo-duckdb.repo';
-import { vResolver, vValidator } from '@/lib/utils/hono-openapi-utils';
 import { vCoercedIntSchema } from '@/lib/utils/valibot-utils';
 import { dsDuckdbMemory } from '@/server/config/ds.duckdb-memory.config';
 
@@ -37,7 +37,7 @@ app.get(
       200: {
         description: 'Successful response',
         content: {
-          'text/plain': { schema: vResolver(searchResponseSchema) },
+          'text/plain': { schema: resolver(searchResponseSchema) },
         },
       },
     },
