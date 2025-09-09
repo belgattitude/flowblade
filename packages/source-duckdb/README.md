@@ -7,14 +7,13 @@
 [![downloads](https://img.shields.io/npm/dm/@flowblade/source-duckdb?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/source-duckdb)
 [![license](https://img.shields.io/npm/l/@flowblade/source-duckdb?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
 
+Duckdb datasource adapter based on [@duckdb/node-api](https://github.com/duckdb/duckdb-node-neo) 
+
 ## Install
 
 ```bash
 yarn add @flowblade/source-duckdb @flowblade/core @duckdb/node-api
 ```
-
-> Note that at this time [@duckdb/node-api](https://github.com/duckdb/duckdb-node-neo) 
-> is still in alpha. To install use the latest tag, ie: `@duckdb/node-api@1.3.2-alpha.26`
 
 ### Query the database
 
@@ -107,7 +106,6 @@ const duckdb = await createConnection();
 // Create a duckdb datasource
 export const ds = new DuckdbDatasource({ connection: duckdb });
 ```
-
 
 
 ## Compatibility
