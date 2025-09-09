@@ -1279,59 +1279,59 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@duckdb/node-api@npm:1.3.3":
-  version: 1.3.3
-  resolution: "@duckdb/node-api@npm:1.3.3"
+"@duckdb/node-api@npm:1.3.4-alpha.27":
+  version: 1.3.4-alpha.27
+  resolution: "@duckdb/node-api@npm:1.3.4-alpha.27"
   dependencies:
-    "@duckdb/node-bindings": "npm:1.3.2-alpha.26"
-  checksum: 10c0/8a6fbe2b2a0094ee8de28a08d1ddeb7cf6a6aebe5789c70b5ebe881cca5626430aa5f1ee821a4f3838ebdb9b4b2bcbc85d2b03c500299b5d38772d5581efe5e2
+    "@duckdb/node-bindings": "npm:1.3.4-alpha.27"
+  checksum: 10c0/ac0a4639f3ef3623b8bcf667ae15ce2303ee29d170a9695cf46c89b889f6276adccdc19de1e06f585d248b259d9546ac8b47c28ddb4013ccbb9d3ee117ed6049
   languageName: node
   linkType: hard
 
-"@duckdb/node-bindings-darwin-arm64@npm:1.3.2-alpha.26":
-  version: 1.3.2-alpha.26
-  resolution: "@duckdb/node-bindings-darwin-arm64@npm:1.3.2-alpha.26"
+"@duckdb/node-bindings-darwin-arm64@npm:1.3.4-alpha.27":
+  version: 1.3.4-alpha.27
+  resolution: "@duckdb/node-bindings-darwin-arm64@npm:1.3.4-alpha.27"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@duckdb/node-bindings-darwin-x64@npm:1.3.2-alpha.26":
-  version: 1.3.2-alpha.26
-  resolution: "@duckdb/node-bindings-darwin-x64@npm:1.3.2-alpha.26"
+"@duckdb/node-bindings-darwin-x64@npm:1.3.4-alpha.27":
+  version: 1.3.4-alpha.27
+  resolution: "@duckdb/node-bindings-darwin-x64@npm:1.3.4-alpha.27"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@duckdb/node-bindings-linux-arm64@npm:1.3.2-alpha.26":
-  version: 1.3.2-alpha.26
-  resolution: "@duckdb/node-bindings-linux-arm64@npm:1.3.2-alpha.26"
+"@duckdb/node-bindings-linux-arm64@npm:1.3.4-alpha.27":
+  version: 1.3.4-alpha.27
+  resolution: "@duckdb/node-bindings-linux-arm64@npm:1.3.4-alpha.27"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@duckdb/node-bindings-linux-x64@npm:1.3.2-alpha.26":
-  version: 1.3.2-alpha.26
-  resolution: "@duckdb/node-bindings-linux-x64@npm:1.3.2-alpha.26"
+"@duckdb/node-bindings-linux-x64@npm:1.3.4-alpha.27":
+  version: 1.3.4-alpha.27
+  resolution: "@duckdb/node-bindings-linux-x64@npm:1.3.4-alpha.27"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@duckdb/node-bindings-win32-x64@npm:1.3.2-alpha.26":
-  version: 1.3.2-alpha.26
-  resolution: "@duckdb/node-bindings-win32-x64@npm:1.3.2-alpha.26"
+"@duckdb/node-bindings-win32-x64@npm:1.3.4-alpha.27":
+  version: 1.3.4-alpha.27
+  resolution: "@duckdb/node-bindings-win32-x64@npm:1.3.4-alpha.27"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@duckdb/node-bindings@npm:1.3.2-alpha.26":
-  version: 1.3.2-alpha.26
-  resolution: "@duckdb/node-bindings@npm:1.3.2-alpha.26"
+"@duckdb/node-bindings@npm:1.3.4-alpha.27":
+  version: 1.3.4-alpha.27
+  resolution: "@duckdb/node-bindings@npm:1.3.4-alpha.27"
   dependencies:
-    "@duckdb/node-bindings-darwin-arm64": "npm:1.3.2-alpha.26"
-    "@duckdb/node-bindings-darwin-x64": "npm:1.3.2-alpha.26"
-    "@duckdb/node-bindings-linux-arm64": "npm:1.3.2-alpha.26"
-    "@duckdb/node-bindings-linux-x64": "npm:1.3.2-alpha.26"
-    "@duckdb/node-bindings-win32-x64": "npm:1.3.2-alpha.26"
+    "@duckdb/node-bindings-darwin-arm64": "npm:1.3.4-alpha.27"
+    "@duckdb/node-bindings-darwin-x64": "npm:1.3.4-alpha.27"
+    "@duckdb/node-bindings-linux-arm64": "npm:1.3.4-alpha.27"
+    "@duckdb/node-bindings-linux-x64": "npm:1.3.4-alpha.27"
+    "@duckdb/node-bindings-win32-x64": "npm:1.3.4-alpha.27"
   dependenciesMeta:
     "@duckdb/node-bindings-darwin-arm64":
       optional: true
@@ -1343,7 +1343,7 @@ __metadata:
       optional: true
     "@duckdb/node-bindings-win32-x64":
       optional: true
-  checksum: 10c0/d0a47b9dcdbfa4b2c41fc673d1bbb918d6e70293cbdc36cfd8772b49880c509764441a2ba75353ab238d814bf752ad84a5c6a3b2340a72e62acada433951555e
+  checksum: 10c0/edb4dc670560eb70e17e01963139323a4e5603e7d1ded2079a9f54df59b5d7e193653b25d7d864fcce14556b3b4cb2f9ed5a83ee968358482e916b74fe43ae55
   languageName: node
   linkType: hard
 
@@ -1731,7 +1731,7 @@ __metadata:
     eslint: "npm:8.57.1"
     happy-dom: "npm:18.0.1"
     input-otp: "npm:1.4.2"
-    lucide-react: "npm:0.542.0"
+    lucide-react: "npm:0.543.0"
     next-themes: "npm:0.4.6"
     playwright: "npm:1.55.0"
     prettier: "npm:3.6.2"
@@ -1806,7 +1806,7 @@ __metadata:
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:7.8.0"
     "@dotenvx/dotenvx": "npm:1.49.0"
-    "@duckdb/node-api": "npm:1.3.3"
+    "@duckdb/node-api": "npm:1.3.4-alpha.27"
     "@faker-js/faker": "npm:10.0.0"
     "@flowblade/core": "workspace:^"
     "@flowblade/source-duckdb": "workspace:^"
@@ -1853,7 +1853,7 @@ __metadata:
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:7.8.0"
     "@dotenvx/dotenvx": "npm:1.49.0"
-    "@duckdb/node-api": "npm:1.3.3"
+    "@duckdb/node-api": "npm:1.3.4-alpha.27"
     "@examples/db-sqlserver": "workspace:^"
     "@fast-csv/format": "npm:5.0.5"
     "@fastify/autoload": "npm:6.3.1"
@@ -1909,7 +1909,7 @@ __metadata:
     "@belgattitude/eslint-config-bases": "npm:7.8.0"
     "@dotenvx/dotenvx": "npm:1.49.0"
     "@duckdb/duckdb-wasm": "npm:1.29.1-dev283.0"
-    "@duckdb/node-api": "npm:1.3.3"
+    "@duckdb/node-api": "npm:1.3.4-alpha.27"
     "@examples/base-auth": "workspace:^"
     "@examples/base-ui": "workspace:^"
     "@examples/db-sqlserver": "workspace:^"
@@ -1919,7 +1919,7 @@ __metadata:
     "@flowblade/source-kysely": "workspace:^"
     "@flowblade/sql-tag": "workspace:^"
     "@flowblade/sql-tag-format": "workspace:^"
-    "@glideapps/glide-data-grid": "npm:6.0.4-alpha20"
+    "@glideapps/glide-data-grid": "npm:6.0.4-alpha23"
     "@hono/node-server": "npm:1.19.1"
     "@hono/standard-validator": "npm:0.1.5"
     "@hono/swagger-ui": "npm:0.5.2"
@@ -2001,7 +2001,7 @@ __metadata:
     ky: "npm:1.10.0"
     kysely: "npm:0.28.5"
     lodash: "npm:4.17.21"
-    lucide-react: "npm:0.542.0"
+    lucide-react: "npm:0.543.0"
     marked: "npm:16.2.1"
     next: "npm:15.5.2"
     npm-run-all2: "npm:8.0.4"
@@ -2352,7 +2352,7 @@ __metadata:
     "@arethetypeswrong/cli": "npm:0.18.2"
     "@belgattitude/eslint-config-bases": "npm:7.8.0"
     "@codspeed/vitest-plugin": "npm:4.0.1"
-    "@duckdb/node-api": "npm:1.3.3"
+    "@duckdb/node-api": "npm:1.3.4-alpha.27"
     "@edge-runtime/vm": "npm:5.0.0"
     "@faker-js/faker": "npm:10.0.0"
     "@flowblade/core": "workspace:^"
@@ -2383,7 +2383,7 @@ __metadata:
     vitest: "npm:3.2.4"
     webpack: "npm:5.101.3"
   peerDependencies:
-    "@duckdb/node-api": ^1.3.3
+    "@duckdb/node-api": 1.3.4-alpha.27
     "@flowblade/core": "workspace:^"
   languageName: unknown
   linkType: soft
@@ -2544,9 +2544,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@glideapps/glide-data-grid@npm:6.0.4-alpha20":
-  version: 6.0.4-alpha20
-  resolution: "@glideapps/glide-data-grid@npm:6.0.4-alpha20"
+"@glideapps/glide-data-grid@npm:6.0.4-alpha23":
+  version: 6.0.4-alpha23
+  resolution: "@glideapps/glide-data-grid@npm:6.0.4-alpha23"
   dependencies:
     "@linaria/react": "npm:^6.3.0"
     canvas-hypertxt: "npm:^1.0.3"
@@ -2557,7 +2557,7 @@ __metadata:
     react: ^16.12.0 || 17.x || 18.x || 19.x
     react-dom: ^16.12.0 || 17.x || 18.x || 19.x
     react-responsive-carousel: ^3.2.7
-  checksum: 10c0/1e098e62993a49cbbe3b7559cca0ee4f586f9989799cb6f1e361d0e4f2fdfd2569e41f1319f209f4659bc5a86013b887db18ca6615c2b88a91625224e22a5f19
+  checksum: 10c0/4152ca8a1f81d931ddc187b99929fdc8940e1187816b679338ef3ef47c5bff967811989dc6c46e3bb9c7fb44f25a290c0b0ed719dcf1403f6f5bb690cade3f9b
   languageName: node
   linkType: hard
 
@@ -17190,12 +17190,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lucide-react@npm:0.542.0":
-  version: 0.542.0
-  resolution: "lucide-react@npm:0.542.0"
+"lucide-react@npm:0.543.0":
+  version: 0.543.0
+  resolution: "lucide-react@npm:0.543.0"
   peerDependencies:
     react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10c0/3ccdb898a480f0194f93abef0b6f0347bc2647db24051e65a17c1dbd22ca0d10a7636d9af68c92665b42b6c9e761567a0d65944fe8568fb0e30a7ea57281ccec
+  checksum: 10c0/76bb54f9c602ff5d44ec66f2786c035d92aaabca1e1abb380b0c8101dfb3290e52c82fa4d630e286ef07c05b63696e187f0ca3ae186535d9c5b4de7aa8825bd3
   languageName: node
   linkType: hard
 
@@ -21532,11 +21532,11 @@ __metadata:
   linkType: hard
 
 "remeda@npm:^2.30.0":
-  version: 2.31.0
-  resolution: "remeda@npm:2.31.0"
+  version: 2.31.1
+  resolution: "remeda@npm:2.31.1"
   dependencies:
     type-fest: "npm:^4.41.0"
-  checksum: 10c0/2cb5d5946c0ce5bda59fb21be33a30c8bd5b39296e6c086ea7df3affb4b2a0adb2fb162793a1b8bd85b16eb5c5dfca2e6e67bf88f5f6ca629a211a80902219be
+  checksum: 10c0/cd35b18fed483cbb35e411da15d2196a907fb709135e4ff767af1d5905a4b922eed2bc69d717291da0096c9ee24ddd043e661336d7446fac83de0361ef3bf35d
   languageName: node
   linkType: hard
 
