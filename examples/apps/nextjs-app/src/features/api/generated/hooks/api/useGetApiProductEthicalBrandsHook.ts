@@ -17,47 +17,47 @@ import type {
 } from '@/config/api-fetcher-kubb.config.ts';
 import type fetch from '@/config/api-fetcher-kubb.config.ts';
 
-import { GETApiDemoDuckdbSearch } from '../../GETApiDemoDuckdbSearch';
-import type { GETApiDemoDuckdbSearchQueryResponse } from '../../models/GETApiDemoDuckdbSearch';
+import { getApiProductEthicalBrands } from '../../getApiProductEthicalBrands';
+import type { GetApiProductEthicalBrandsQueryResponse } from '../../models/GetApiProductEthicalBrands';
 
-export const GETApiDemoDuckdbSearchQueryKey = () =>
-  ['v5', { url: '/api/demo/duckdb/search' }] as const;
+export const getApiProductEthicalBrandsQueryKey = () =>
+  ['v5', { url: '/api/product/ethical/brands' }] as const;
 
-export type GETApiDemoDuckdbSearchQueryKey = ReturnType<
-  typeof GETApiDemoDuckdbSearchQueryKey
+export type GetApiProductEthicalBrandsQueryKey = ReturnType<
+  typeof getApiProductEthicalBrandsQueryKey
 >;
 
-export function GETApiDemoDuckdbSearchQueryOptionsHook(
+export function getApiProductEthicalBrandsQueryOptionsHook(
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
-  const queryKey = GETApiDemoDuckdbSearchQueryKey();
+  const queryKey = getApiProductEthicalBrandsQueryKey();
   return queryOptions<
-    GETApiDemoDuckdbSearchQueryResponse,
+    GetApiProductEthicalBrandsQueryResponse,
     ResponseErrorConfig<Error>,
-    GETApiDemoDuckdbSearchQueryResponse,
+    GetApiProductEthicalBrandsQueryResponse,
     typeof queryKey
   >({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal;
-      return GETApiDemoDuckdbSearch(config);
+      return getApiProductEthicalBrands(config);
     },
   });
 }
 
 /**
- * @description Search
- * {@link /api/demo/duckdb/search}
+ * @description Get list of ethical brands
+ * {@link /api/product/ethical/brands}
  */
-export function useGETApiDemoDuckdbSearchHook<
-  TData = GETApiDemoDuckdbSearchQueryResponse,
-  TQueryData = GETApiDemoDuckdbSearchQueryResponse,
-  TQueryKey extends QueryKey = GETApiDemoDuckdbSearchQueryKey,
+export function useGetApiProductEthicalBrandsHook<
+  TData = GetApiProductEthicalBrandsQueryResponse,
+  TQueryData = GetApiProductEthicalBrandsQueryResponse,
+  TQueryKey extends QueryKey = GetApiProductEthicalBrandsQueryKey,
 >(
   options: {
     query?: Partial<
       QueryObserverOptions<
-        GETApiDemoDuckdbSearchQueryResponse,
+        GetApiProductEthicalBrandsQueryResponse,
         ResponseErrorConfig<Error>,
         TData,
         TQueryData,
@@ -69,11 +69,12 @@ export function useGETApiDemoDuckdbSearchHook<
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};
   const { client: queryClient, ...queryOptions } = queryConfig;
-  const queryKey = queryOptions?.queryKey ?? GETApiDemoDuckdbSearchQueryKey();
+  const queryKey =
+    queryOptions?.queryKey ?? getApiProductEthicalBrandsQueryKey();
 
   const query = useQuery(
     {
-      ...GETApiDemoDuckdbSearchQueryOptionsHook(config),
+      ...getApiProductEthicalBrandsQueryOptionsHook(config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

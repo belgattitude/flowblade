@@ -10,3 +10,5 @@ const content = await generateSpecs(honoApiConfig.app);
 
 // eslint-disable-next-line import-x/no-named-as-default-member
 fse.outputFileSync(openApiJsonFile, JSON.stringify(content, null, 2), 'utf8');
+
+console.log('Successfully generated OpenAPI JSON schema at:', openApiJsonFile);

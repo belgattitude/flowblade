@@ -17,30 +17,40 @@ import type {
 } from '@/config/api-fetcher-kubb.config.ts';
 import type fetch from '@/config/api-fetcher-kubb.config.ts';
 
-import { GETApiProductEthicalSearch } from '../../GETApiProductEthicalSearch';
-import type { GETApiProductEthicalSearchQueryResponse } from '../../models/GETApiProductEthicalSearch';
+import { getApiProductEthicalSearch } from '../../getApiProductEthicalSearch';
+import type {
+  GetApiProductEthicalSearchQueryParams,
+  GetApiProductEthicalSearchQueryResponse,
+} from '../../models/GetApiProductEthicalSearch';
 
-export const GETApiProductEthicalSearchQueryKey = () =>
-  ['v5', { url: '/api/product/ethical/search' }] as const;
+export const getApiProductEthicalSearchQueryKey = (
+  params?: GetApiProductEthicalSearchQueryParams
+) =>
+  [
+    'v5',
+    { url: '/api/product/ethical/search' },
+    ...(params ? [params] : []),
+  ] as const;
 
-export type GETApiProductEthicalSearchQueryKey = ReturnType<
-  typeof GETApiProductEthicalSearchQueryKey
+export type GetApiProductEthicalSearchQueryKey = ReturnType<
+  typeof getApiProductEthicalSearchQueryKey
 >;
 
-export function GETApiProductEthicalSearchQueryOptionsHook(
+export function getApiProductEthicalSearchQueryOptionsHook(
+  params?: GetApiProductEthicalSearchQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
-  const queryKey = GETApiProductEthicalSearchQueryKey();
+  const queryKey = getApiProductEthicalSearchQueryKey(params);
   return queryOptions<
-    GETApiProductEthicalSearchQueryResponse,
+    GetApiProductEthicalSearchQueryResponse,
     ResponseErrorConfig<Error>,
-    GETApiProductEthicalSearchQueryResponse,
+    GetApiProductEthicalSearchQueryResponse,
     typeof queryKey
   >({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal;
-      return GETApiProductEthicalSearch(config);
+      return getApiProductEthicalSearch(params, config);
     },
   });
 }
@@ -49,15 +59,16 @@ export function GETApiProductEthicalSearchQueryOptionsHook(
  * @description Search for ethical products
  * {@link /api/product/ethical/search}
  */
-export function useGETApiProductEthicalSearchHook<
-  TData = GETApiProductEthicalSearchQueryResponse,
-  TQueryData = GETApiProductEthicalSearchQueryResponse,
-  TQueryKey extends QueryKey = GETApiProductEthicalSearchQueryKey,
+export function useGetApiProductEthicalSearchHook<
+  TData = GetApiProductEthicalSearchQueryResponse,
+  TQueryData = GetApiProductEthicalSearchQueryResponse,
+  TQueryKey extends QueryKey = GetApiProductEthicalSearchQueryKey,
 >(
+  params?: GetApiProductEthicalSearchQueryParams,
   options: {
     query?: Partial<
       QueryObserverOptions<
-        GETApiProductEthicalSearchQueryResponse,
+        GetApiProductEthicalSearchQueryResponse,
         ResponseErrorConfig<Error>,
         TData,
         TQueryData,
@@ -70,11 +81,11 @@ export function useGETApiProductEthicalSearchHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {};
   const { client: queryClient, ...queryOptions } = queryConfig;
   const queryKey =
-    queryOptions?.queryKey ?? GETApiProductEthicalSearchQueryKey();
+    queryOptions?.queryKey ?? getApiProductEthicalSearchQueryKey(params);
 
   const query = useQuery(
     {
-      ...GETApiProductEthicalSearchQueryOptionsHook(config),
+      ...getApiProductEthicalSearchQueryOptionsHook(params, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

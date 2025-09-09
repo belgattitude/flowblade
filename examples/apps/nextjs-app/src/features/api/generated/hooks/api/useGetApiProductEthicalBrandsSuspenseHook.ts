@@ -17,46 +17,46 @@ import type {
 } from '@/config/api-fetcher-kubb.config.ts';
 import type fetch from '@/config/api-fetcher-kubb.config.ts';
 
-import { GETApiProductEthicalSearch } from '../../GETApiProductEthicalSearch';
-import type { GETApiProductEthicalSearchQueryResponse } from '../../models/GETApiProductEthicalSearch';
+import { getApiProductEthicalBrands } from '../../getApiProductEthicalBrands';
+import type { GetApiProductEthicalBrandsQueryResponse } from '../../models/GetApiProductEthicalBrands';
 
-export const GETApiProductEthicalSearchSuspenseQueryKey = () =>
-  ['v5', { url: '/api/product/ethical/search' }] as const;
+export const getApiProductEthicalBrandsSuspenseQueryKey = () =>
+  ['v5', { url: '/api/product/ethical/brands' }] as const;
 
-export type GETApiProductEthicalSearchSuspenseQueryKey = ReturnType<
-  typeof GETApiProductEthicalSearchSuspenseQueryKey
+export type GetApiProductEthicalBrandsSuspenseQueryKey = ReturnType<
+  typeof getApiProductEthicalBrandsSuspenseQueryKey
 >;
 
-export function GETApiProductEthicalSearchSuspenseQueryOptionsHook(
+export function getApiProductEthicalBrandsSuspenseQueryOptionsHook(
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
-  const queryKey = GETApiProductEthicalSearchSuspenseQueryKey();
+  const queryKey = getApiProductEthicalBrandsSuspenseQueryKey();
   return queryOptions<
-    GETApiProductEthicalSearchQueryResponse,
+    GetApiProductEthicalBrandsQueryResponse,
     ResponseErrorConfig<Error>,
-    GETApiProductEthicalSearchQueryResponse,
+    GetApiProductEthicalBrandsQueryResponse,
     typeof queryKey
   >({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal;
-      return GETApiProductEthicalSearch(config);
+      return getApiProductEthicalBrands(config);
     },
   });
 }
 
 /**
- * @description Search for ethical products
- * {@link /api/product/ethical/search}
+ * @description Get list of ethical brands
+ * {@link /api/product/ethical/brands}
  */
-export function useGETApiProductEthicalSearchSuspenseHook<
-  TData = GETApiProductEthicalSearchQueryResponse,
-  TQueryKey extends QueryKey = GETApiProductEthicalSearchSuspenseQueryKey,
+export function useGetApiProductEthicalBrandsSuspenseHook<
+  TData = GetApiProductEthicalBrandsQueryResponse,
+  TQueryKey extends QueryKey = GetApiProductEthicalBrandsSuspenseQueryKey,
 >(
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
-        GETApiProductEthicalSearchQueryResponse,
+        GetApiProductEthicalBrandsQueryResponse,
         ResponseErrorConfig<Error>,
         TData,
         TQueryKey
@@ -68,11 +68,11 @@ export function useGETApiProductEthicalSearchSuspenseHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {};
   const { client: queryClient, ...queryOptions } = queryConfig;
   const queryKey =
-    queryOptions?.queryKey ?? GETApiProductEthicalSearchSuspenseQueryKey();
+    queryOptions?.queryKey ?? getApiProductEthicalBrandsSuspenseQueryKey();
 
   const query = useSuspenseQuery(
     {
-      ...GETApiProductEthicalSearchSuspenseQueryOptionsHook(config),
+      ...getApiProductEthicalBrandsSuspenseQueryOptionsHook(config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

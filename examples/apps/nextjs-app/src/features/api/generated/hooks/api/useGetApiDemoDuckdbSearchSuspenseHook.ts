@@ -17,30 +17,40 @@ import type {
 } from '@/config/api-fetcher-kubb.config.ts';
 import type fetch from '@/config/api-fetcher-kubb.config.ts';
 
-import { GETApiDemoDuckdbSearch } from '../../GETApiDemoDuckdbSearch';
-import type { GETApiDemoDuckdbSearchQueryResponse } from '../../models/GETApiDemoDuckdbSearch';
+import { getApiDemoDuckdbSearch } from '../../getApiDemoDuckdbSearch';
+import type {
+  GetApiDemoDuckdbSearchQueryParams,
+  GetApiDemoDuckdbSearchQueryResponse,
+} from '../../models/GetApiDemoDuckdbSearch';
 
-export const GETApiDemoDuckdbSearchSuspenseQueryKey = () =>
-  ['v5', { url: '/api/demo/duckdb/search' }] as const;
+export const getApiDemoDuckdbSearchSuspenseQueryKey = (
+  params?: GetApiDemoDuckdbSearchQueryParams
+) =>
+  [
+    'v5',
+    { url: '/api/demo/duckdb/search' },
+    ...(params ? [params] : []),
+  ] as const;
 
-export type GETApiDemoDuckdbSearchSuspenseQueryKey = ReturnType<
-  typeof GETApiDemoDuckdbSearchSuspenseQueryKey
+export type GetApiDemoDuckdbSearchSuspenseQueryKey = ReturnType<
+  typeof getApiDemoDuckdbSearchSuspenseQueryKey
 >;
 
-export function GETApiDemoDuckdbSearchSuspenseQueryOptionsHook(
+export function getApiDemoDuckdbSearchSuspenseQueryOptionsHook(
+  params?: GetApiDemoDuckdbSearchQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
-  const queryKey = GETApiDemoDuckdbSearchSuspenseQueryKey();
+  const queryKey = getApiDemoDuckdbSearchSuspenseQueryKey(params);
   return queryOptions<
-    GETApiDemoDuckdbSearchQueryResponse,
+    GetApiDemoDuckdbSearchQueryResponse,
     ResponseErrorConfig<Error>,
-    GETApiDemoDuckdbSearchQueryResponse,
+    GetApiDemoDuckdbSearchQueryResponse,
     typeof queryKey
   >({
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal;
-      return GETApiDemoDuckdbSearch(config);
+      return getApiDemoDuckdbSearch(params, config);
     },
   });
 }
@@ -49,14 +59,15 @@ export function GETApiDemoDuckdbSearchSuspenseQueryOptionsHook(
  * @description Search
  * {@link /api/demo/duckdb/search}
  */
-export function useGETApiDemoDuckdbSearchSuspenseHook<
-  TData = GETApiDemoDuckdbSearchQueryResponse,
-  TQueryKey extends QueryKey = GETApiDemoDuckdbSearchSuspenseQueryKey,
+export function useGetApiDemoDuckdbSearchSuspenseHook<
+  TData = GetApiDemoDuckdbSearchQueryResponse,
+  TQueryKey extends QueryKey = GetApiDemoDuckdbSearchSuspenseQueryKey,
 >(
+  params?: GetApiDemoDuckdbSearchQueryParams,
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
-        GETApiDemoDuckdbSearchQueryResponse,
+        GetApiDemoDuckdbSearchQueryResponse,
         ResponseErrorConfig<Error>,
         TData,
         TQueryKey
@@ -68,11 +79,11 @@ export function useGETApiDemoDuckdbSearchSuspenseHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {};
   const { client: queryClient, ...queryOptions } = queryConfig;
   const queryKey =
-    queryOptions?.queryKey ?? GETApiDemoDuckdbSearchSuspenseQueryKey();
+    queryOptions?.queryKey ?? getApiDemoDuckdbSearchSuspenseQueryKey(params);
 
   const query = useSuspenseQuery(
     {
-      ...GETApiDemoDuckdbSearchSuspenseQueryOptionsHook(config),
+      ...getApiDemoDuckdbSearchSuspenseQueryOptionsHook(params, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

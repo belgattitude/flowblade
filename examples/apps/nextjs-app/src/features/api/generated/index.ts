@@ -1,48 +1,56 @@
-export { GETApiDemoDuckdbSearch } from './GETApiDemoDuckdbSearch';
-export { GETApiProductEthicalBrands } from './GETApiProductEthicalBrands';
-export { GETApiProductEthicalSearch } from './GETApiProductEthicalSearch';
-export type { GETApiDemoDuckdbSearchQueryKey } from './hooks/api/useGETApiDemoDuckdbSearchHook';
+export { getApiDemoDuckdbSearch } from './getApiDemoDuckdbSearch';
+export { getApiProductEthicalBrands } from './getApiProductEthicalBrands';
+export { getApiProductEthicalSearch } from './getApiProductEthicalSearch';
+export type { GetApiDemoDuckdbSearchQueryKey } from './hooks/api/useGetApiDemoDuckdbSearchHook';
 export {
-  GETApiDemoDuckdbSearchQueryOptionsHook,
-  useGETApiDemoDuckdbSearchHook,
-} from './hooks/api/useGETApiDemoDuckdbSearchHook';
-export type { GETApiDemoDuckdbSearchSuspenseQueryKey } from './hooks/api/useGETApiDemoDuckdbSearchSuspenseHook';
+  getApiDemoDuckdbSearchQueryKey,
+  getApiDemoDuckdbSearchQueryOptionsHook,
+  useGetApiDemoDuckdbSearchHook,
+} from './hooks/api/useGetApiDemoDuckdbSearchHook';
+export type { GetApiDemoDuckdbSearchSuspenseQueryKey } from './hooks/api/useGetApiDemoDuckdbSearchSuspenseHook';
 export {
-  GETApiDemoDuckdbSearchSuspenseQueryOptionsHook,
-  useGETApiDemoDuckdbSearchSuspenseHook,
-} from './hooks/api/useGETApiDemoDuckdbSearchSuspenseHook';
-export type { GETApiProductEthicalBrandsQueryKey } from './hooks/api/useGETApiProductEthicalBrandsHook';
+  getApiDemoDuckdbSearchSuspenseQueryKey,
+  getApiDemoDuckdbSearchSuspenseQueryOptionsHook,
+  useGetApiDemoDuckdbSearchSuspenseHook,
+} from './hooks/api/useGetApiDemoDuckdbSearchSuspenseHook';
+export type { GetApiProductEthicalBrandsQueryKey } from './hooks/api/useGetApiProductEthicalBrandsHook';
 export {
-  GETApiProductEthicalBrandsQueryOptionsHook,
-  useGETApiProductEthicalBrandsHook,
-} from './hooks/api/useGETApiProductEthicalBrandsHook';
-export type { GETApiProductEthicalBrandsSuspenseQueryKey } from './hooks/api/useGETApiProductEthicalBrandsSuspenseHook';
+  getApiProductEthicalBrandsQueryKey,
+  getApiProductEthicalBrandsQueryOptionsHook,
+  useGetApiProductEthicalBrandsHook,
+} from './hooks/api/useGetApiProductEthicalBrandsHook';
+export type { GetApiProductEthicalBrandsSuspenseQueryKey } from './hooks/api/useGetApiProductEthicalBrandsSuspenseHook';
 export {
-  GETApiProductEthicalBrandsSuspenseQueryOptionsHook,
-  useGETApiProductEthicalBrandsSuspenseHook,
-} from './hooks/api/useGETApiProductEthicalBrandsSuspenseHook';
-export type { GETApiProductEthicalSearchQueryKey } from './hooks/api/useGETApiProductEthicalSearchHook';
+  getApiProductEthicalBrandsSuspenseQueryKey,
+  getApiProductEthicalBrandsSuspenseQueryOptionsHook,
+  useGetApiProductEthicalBrandsSuspenseHook,
+} from './hooks/api/useGetApiProductEthicalBrandsSuspenseHook';
+export type { GetApiProductEthicalSearchQueryKey } from './hooks/api/useGetApiProductEthicalSearchHook';
 export {
-  GETApiProductEthicalSearchQueryOptionsHook,
-  useGETApiProductEthicalSearchHook,
-} from './hooks/api/useGETApiProductEthicalSearchHook';
-export type { GETApiProductEthicalSearchSuspenseQueryKey } from './hooks/api/useGETApiProductEthicalSearchSuspenseHook';
+  getApiProductEthicalSearchQueryKey,
+  getApiProductEthicalSearchQueryOptionsHook,
+  useGetApiProductEthicalSearchHook,
+} from './hooks/api/useGetApiProductEthicalSearchHook';
+export type { GetApiProductEthicalSearchSuspenseQueryKey } from './hooks/api/useGetApiProductEthicalSearchSuspenseHook';
 export {
-  GETApiProductEthicalSearchSuspenseQueryOptionsHook,
-  useGETApiProductEthicalSearchSuspenseHook,
-} from './hooks/api/useGETApiProductEthicalSearchSuspenseHook';
+  getApiProductEthicalSearchSuspenseQueryKey,
+  getApiProductEthicalSearchSuspenseQueryOptionsHook,
+  useGetApiProductEthicalSearchSuspenseHook,
+} from './hooks/api/useGetApiProductEthicalSearchSuspenseHook';
 export type {
-  GETApiDemoDuckdbSearch200,
-  GETApiDemoDuckdbSearchQuery,
-  GETApiDemoDuckdbSearchQueryResponse,
-} from './models/GETApiDemoDuckdbSearch';
+  GetApiDemoDuckdbSearch200,
+  GetApiDemoDuckdbSearchQuery,
+  GetApiDemoDuckdbSearchQueryParams,
+  GetApiDemoDuckdbSearchQueryResponse,
+} from './models/GetApiDemoDuckdbSearch';
 export type {
-  GETApiProductEthicalBrands200,
-  GETApiProductEthicalBrandsQuery,
-  GETApiProductEthicalBrandsQueryResponse,
-} from './models/GETApiProductEthicalBrands';
+  GetApiProductEthicalBrands200,
+  GetApiProductEthicalBrandsQuery,
+  GetApiProductEthicalBrandsQueryResponse,
+} from './models/GetApiProductEthicalBrands';
 export type {
-  GETApiProductEthicalSearch200,
-  GETApiProductEthicalSearchQuery,
-  GETApiProductEthicalSearchQueryResponse,
-} from './models/GETApiProductEthicalSearch';
+  GetApiProductEthicalSearch200,
+  GetApiProductEthicalSearchQuery,
+  GetApiProductEthicalSearchQueryParams,
+  GetApiProductEthicalSearchQueryResponse,
+} from './models/GetApiProductEthicalSearch';

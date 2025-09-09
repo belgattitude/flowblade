@@ -9,9 +9,12 @@ import type {
 } from '@/config/api-fetcher-kubb.config.ts';
 import fetch from '@/config/api-fetcher-kubb.config.ts';
 
-import type { GETApiDemoDuckdbSearchQueryResponse } from './models/GETApiDemoDuckdbSearch';
+import type {
+  GetApiDemoDuckdbSearchQueryParams,
+  GetApiDemoDuckdbSearchQueryResponse,
+} from './models/GetApiDemoDuckdbSearch';
 
-function getGETApiDemoDuckdbSearchUrl() {
+function getGetApiDemoDuckdbSearchUrl() {
   const res = { method: 'GET', url: `/api/demo/duckdb/search` as const };
   return res;
 }
@@ -20,18 +23,20 @@ function getGETApiDemoDuckdbSearchUrl() {
  * @description Search
  * {@link /api/demo/duckdb/search}
  */
-export async function GETApiDemoDuckdbSearch(
+export async function getApiDemoDuckdbSearch(
+  params?: GetApiDemoDuckdbSearchQueryParams,
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
   const { client: request = fetch, ...requestConfig } = config;
 
   const res = await request<
-    GETApiDemoDuckdbSearchQueryResponse,
+    GetApiDemoDuckdbSearchQueryResponse,
     ResponseErrorConfig<Error>,
     unknown
   >({
     method: 'GET',
-    url: getGETApiDemoDuckdbSearchUrl().url.toString(),
+    url: getGetApiDemoDuckdbSearchUrl().url.toString(),
+    params,
     ...requestConfig,
   });
   return res.data;

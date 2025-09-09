@@ -9,29 +9,29 @@ import type {
 } from '@/config/api-fetcher-kubb.config.ts';
 import fetch from '@/config/api-fetcher-kubb.config.ts';
 
-import type { GETApiProductEthicalSearchQueryResponse } from './models/GETApiProductEthicalSearch';
+import type { GetApiProductEthicalBrandsQueryResponse } from './models/GetApiProductEthicalBrands';
 
-function getGETApiProductEthicalSearchUrl() {
-  const res = { method: 'GET', url: `/api/product/ethical/search` as const };
+function getGetApiProductEthicalBrandsUrl() {
+  const res = { method: 'GET', url: `/api/product/ethical/brands` as const };
   return res;
 }
 
 /**
- * @description Search for ethical products
- * {@link /api/product/ethical/search}
+ * @description Get list of ethical brands
+ * {@link /api/product/ethical/brands}
  */
-export async function GETApiProductEthicalSearch(
+export async function getApiProductEthicalBrands(
   config: Partial<RequestConfig> & { client?: typeof fetch } = {}
 ) {
   const { client: request = fetch, ...requestConfig } = config;
 
   const res = await request<
-    GETApiProductEthicalSearchQueryResponse,
+    GetApiProductEthicalBrandsQueryResponse,
     ResponseErrorConfig<Error>,
     unknown
   >({
     method: 'GET',
-    url: getGETApiProductEthicalSearchUrl().url.toString(),
+    url: getGetApiProductEthicalBrandsUrl().url.toString(),
     ...requestConfig,
   });
   return res.data;
