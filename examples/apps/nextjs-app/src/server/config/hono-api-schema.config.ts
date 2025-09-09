@@ -1,8 +1,10 @@
+import { fileURLToPath } from 'node:url';
+
 export const honoApiSchemaConfig = {
-  file: new URL(
+  file: fileURLToPath(
     import.meta.resolve(
       '../lib/api/generated-openapi.referential.json',
       import.meta.url
     )
-  ).pathname,
+  ),
 } as const;

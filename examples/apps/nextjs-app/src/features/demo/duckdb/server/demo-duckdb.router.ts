@@ -36,7 +36,7 @@ app.get(
       200: {
         description: 'Successful response',
         content: {
-          'text/plain': { schema: resolver(searchResponseSchema) },
+          'application/json': { schema: resolver(searchResponseSchema) },
         },
       },
     },
