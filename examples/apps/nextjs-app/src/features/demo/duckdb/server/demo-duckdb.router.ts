@@ -1,6 +1,5 @@
-import { vValidator } from '@hono/valibot-validator';
 import { Hono } from 'hono';
-import { describeRoute, resolver } from 'hono-openapi';
+import { describeRoute, resolver, validator } from 'hono-openapi';
 import * as v from 'valibot';
 
 import { DemoDuckdbRepo } from '@/features/demo/duckdb/server/demo-duckdb.repo';
@@ -42,7 +41,9 @@ app.get(
       },
     },
   }),
-  vValidator('query', searchRequestSchema),
+  validator('query', searchRequestSchema, undefined, {
+    typeMode: 'output',
+  }),
   async (c) => {
     const params = c.req.valid('query');
 

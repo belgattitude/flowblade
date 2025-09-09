@@ -1,6 +1,5 @@
-import { vValidator } from '@hono/valibot-validator';
 import { Hono } from 'hono';
-import { describeRoute, resolver } from 'hono-openapi';
+import { describeRoute, resolver, validator } from 'hono-openapi';
 import * as v from 'valibot';
 
 import { EthicalProductRepo } from '@/features/products/server/ethical-product.repo';
@@ -36,12 +35,16 @@ app.get(
       },
     },
   }),
-  vValidator(
+  validator(
     'query',
     v.object({
       brands: v.optional(v.string()),
       slowdownApiMs: v.optional(v.string()),
-    })
+    }),
+    undefined,
+    {
+      typeMode: 'output',
+    }
   ),
   async (c) => {
     const query = c.req.valid('query');

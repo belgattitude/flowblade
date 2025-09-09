@@ -1,3 +1,8 @@
 export const honoApiSchemaConfig = {
-  file: import.meta.dirname + '/../api/generated/openapi-generated-schema.json',
+  file: new URL(
+    import.meta.resolve(
+      '../lib/api/generated-openapi.referential.json',
+      import.meta.url
+    )
+  ).pathname,
 } as const;
