@@ -1,5 +1,13 @@
 # @flowblade/source-duckdb
 
+## 0.12.0
+
+### Minor Changes
+
+- [#778](https://github.com/belgattitude/flowblade/pull/778) [`45645a7`](https://github.com/belgattitude/flowblade/commit/45645a750aedb3f7e4eb691b0932020bf767e15c) Thanks [@belgattitude](https://github.com/belgattitude)! - **[security]** Revert upgrade to duckdb 1.3.3 !
+
+  See https://github.com/duckdb/duckdb-node/security/advisories/GHSA-w62p-hx95-gf2c
+
 ## 0.11.0
 
 ### Minor Changes
