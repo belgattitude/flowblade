@@ -60,7 +60,6 @@
     "test-unit": "vitest run",
     "test-e2e": "vitest --config=vitest.e2e.config.ts run",
     "test-unit-coverage": "vitest run --coverage",
-    "test-unit-edge": "vitest run --environment edge-runtime",
     "test-unit-watch": "vitest --ui --api 4515",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-build": "tsc --project tsconfig.build.json --noEmit",
