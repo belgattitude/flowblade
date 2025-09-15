@@ -1,5 +1,11 @@
 # @flowblade/source-duckdb
 
+## 0.12.1
+
+### Patch Changes
+
+- [`ca4ce8e`](https://github.com/belgattitude/flowblade/commit/ca4ce8ea3d71dbf05cdec18204cccea5d4418e06) Thanks [@belgattitude](https://github.com/belgattitude)! - Update to kysely ^0.28.7
+
 ## 0.12.0
 
 ### Minor Changes
