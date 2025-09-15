@@ -172,7 +172,7 @@ const sqlRaw = sql<{ id: number, name: string }>`
   DECLARE @Products NVARCHAR(MAX); -- WARNING LIMIT TO 2GB
   SET @Products = ${JSON.stringify(products)};
 
-  -- DDL (# prefix is equivalent to CREATE TEMPORATY TABLE on other db)
+  -- DDL (# prefix is equivalent to CREATE TEMPORAEY TABLE on other db)
   CREATE TABLE #products (
     productId INT,
     name NVARCHAR(255),
