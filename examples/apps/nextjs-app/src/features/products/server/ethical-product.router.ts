@@ -44,7 +44,9 @@ app.get(
     }),
     undefined,
     {
-      typeMode: 'output',
+      options: {
+        typeMode: 'output',
+      },
     }
   ),
   async (c) => {
