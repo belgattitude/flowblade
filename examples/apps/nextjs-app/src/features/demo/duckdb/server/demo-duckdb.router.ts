@@ -42,7 +42,9 @@ app.get(
     },
   }),
   validator('query', searchRequestSchema, undefined, {
-    typeMode: 'output',
+    options: {
+      typeMode: 'output',
+    },
   }),
   async (c) => {
     const params = c.req.valid('query');

@@ -16,7 +16,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "object",
                   "properties": {
                     "meta": {
@@ -62,32 +61,28 @@
             "name": "min",
             "schema": {
               "type": "number"
-            },
-            "required": false
+            }
           },
           {
             "in": "query",
             "name": "name",
             "schema": {
               "type": "string"
-            },
-            "required": false
+            }
           },
           {
             "in": "query",
             "name": "createdAt",
             "schema": {
               "type": "string"
-            },
-            "required": false
+            }
           },
           {
             "in": "query",
             "name": "limit",
             "schema": {
               "type": "number"
-            },
-            "required": false
+            }
           }
         ]
       }
@@ -102,22 +97,43 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
                       "label": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The name of the product"
                       },
                       "brand": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The brand of the product"
                       },
                       "price": {
                         "type": "number"
+                      },
+                      "stock": {
+                        "type": "number"
+                      },
+                      "weight": {
+                        "type": "string"
+                      },
+                      "color": {
+                        "type": "string"
+                      },
+                      "category": {
+                        "type": "string"
                       }
                     },
-                    "required": ["label", "brand", "price"]
+                    "required": [
+                      "label",
+                      "brand",
+                      "price",
+                      "stock",
+                      "weight",
+                      "color",
+                      "category"
+                    ]
                   }
                 }
               }
@@ -130,16 +146,22 @@
             "name": "brands",
             "schema": {
               "type": "string"
-            },
-            "required": false
+            }
+          },
+          {
+            "in": "query",
+            "name": "minPrice",
+            "schema": {
+              "type": "number"
+            }
           },
           {
             "in": "query",
             "name": "slowdownApiMs",
             "schema": {
-              "type": "string"
+              "type": "integer"
             },
-            "required": false
+            "description": "Artificially slow down the API by this many milliseconds."
           }
         ]
       }
@@ -154,7 +176,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "array",
                   "items": {
                     "type": "object",

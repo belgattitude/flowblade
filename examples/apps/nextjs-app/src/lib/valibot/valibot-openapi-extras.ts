@@ -22,22 +22,7 @@ export const vPipeDelimitedStringSchema = v.pipe(
   }),
   v.array(v.string()),
   v.metadata({
-    description: 'String with multiple values separated by a pipe.',
+    description: 'Pipe delimited strings',
+    example: 'string1|string2|string3',
   })
-);
-
-export const vCoercedStringArraySchema = v.pipe(
-  v.unknown(),
-  v.transform((v): string[] | undefined => {
-    if (typeof v === 'string') {
-      return v
-        .split(',')
-        .map((s) => s.trim())
-        .filter((v) => v.length > 0);
-    }
-    throw new TypeError(
-      `Invalid value: ${typeof v === 'string' ? v : ''} (type: '${typeof v}'). Expected a number or numeric string.`
-    );
-  }),
-  v.optional(v.array(v.string()))
 );

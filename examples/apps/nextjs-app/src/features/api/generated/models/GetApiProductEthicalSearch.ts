@@ -10,9 +10,14 @@ export type GetApiProductEthicalSearchQueryParams = {
    */
   brands?: string;
   /**
-   * @type string | undefined
+   * @type number | undefined
    */
-  slowdownApiMs?: string;
+  minPrice?: number;
+  /**
+   * @description Artificially slow down the API by this many milliseconds.
+   * @type integer | undefined
+   */
+  slowdownApiMs?: number;
 };
 
 /**
@@ -20,10 +25,12 @@ export type GetApiProductEthicalSearchQueryParams = {
  */
 export type GetApiProductEthicalSearch200 = {
   /**
+   * @description The name of the product
    * @type string
    */
   label: string;
   /**
+   * @description The brand of the product
    * @type string
    */
   brand: string;
@@ -31,6 +38,22 @@ export type GetApiProductEthicalSearch200 = {
    * @type number
    */
   price: number;
+  /**
+   * @type number
+   */
+  stock: number;
+  /**
+   * @type string
+   */
+  weight: string;
+  /**
+   * @type string
+   */
+  color: string;
+  /**
+   * @type string
+   */
+  category: string;
 }[];
 
 export type GetApiProductEthicalSearchQueryResponse =

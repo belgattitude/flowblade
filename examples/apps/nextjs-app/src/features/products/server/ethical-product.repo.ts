@@ -1,6 +1,7 @@
 import * as v from 'valibot';
 
 import { ethicalProducts } from '@/features/products/data/ethical-products.data';
+import { vPipeDelimitedStringSchema } from '@/lib/valibot/valibot-openapi-extras';
 
 export type SearchEthicalProductsParams = {
   brands?: string[];
@@ -11,7 +12,7 @@ export type EthicalBrand = {
 };
 
 export const ethicalProductSearchParamsSchema = v.object({
-  brands: v.optional(v.string()),
+  brands: v.optional(vPipeDelimitedStringSchema),
   minPrice: v.optional(
     v.pipe(
       v.string(),
@@ -55,12 +56,10 @@ export class EthicalProductRepo {
 
     return ethicalProducts.filter((product) => {
       let matching = true;
-      console.log('sdkljflsdjklfjsdlkjf', brands);
       if (Array.isArray(brands) && brands.length > 0) {
-        console.log('Filtering by brands:', brands);
         matching = matching && brands.includes(product.brand);
       }
-      if (minPrice) {
+      if (minPrice !== undefined) {
         matching = matching && product.price >= minPrice;
       }
       return matching;
