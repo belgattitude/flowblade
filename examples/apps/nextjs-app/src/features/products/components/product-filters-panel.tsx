@@ -6,7 +6,7 @@ import { MultiSelect } from 'primereact/multiselect';
 import type { FC } from 'react';
 
 import { cn } from '@/components/utils';
-import { useEthicalBrands } from '@/features/products/api/ethical-api';
+import { useGetApiProductEthicalBrandsHook } from '@/features/api/generated';
 import { productFiltersSlice } from '@/features/products/redux/product-filters-slice';
 import { useDispatch, useSelector } from '@/redux/redux-hooks';
 
@@ -18,7 +18,7 @@ type Props = {
 
 export const ProductFiltersPanel: FC<Props> = (props) => {
   const { className } = props;
-  const { data } = useEthicalBrands();
+  const { data } = useGetApiProductEthicalBrandsHook();
   const dispatch = useDispatch();
   const draftFilters = useSelector(
     (state) => state.productFilters.draftFilters

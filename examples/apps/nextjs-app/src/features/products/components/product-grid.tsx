@@ -1,13 +1,13 @@
 'use client';
 
 import { MIntl } from '@httpx/memo-intl';
-import type { ColDef, GridOptions } from 'ag-grid-community';
-import { type FC, useState } from 'react';
+import type { ColDef, GetRowIdParams, GridOptions } from 'ag-grid-community';
+import { type FC, useCallback, useState } from 'react';
 
 import { ReportAgGrid } from '@/components/grid/ag-grid/report-ag-grid';
 import { cn } from '@/components/utils';
-import { useSuspenseEthicalProducts } from '@/features/products/api/ethical-api';
-import type { EthicalProduct } from '@/features/products/data/ethical-products.data';
+import { useGetApiProductEthicalSearchSuspenseHook } from '@/features/api/generated';
+import type { EthicalProduct } from '@/features/products/server/ethical-product.repo.ts';
 import { useSelector } from '@/redux/redux-hooks';
 
 type Props = {
@@ -76,20 +76,29 @@ const autoSizeStrategy: GridOptions['autoSizeStrategy'] = {
 export const ProductGrid: FC<Props> = (props) => {
   const { className } = props;
   const filter = useSelector((state) => state.productFilters.filters);
-  const { data } = useSuspenseEthicalProducts({
-    brands: filter.brands.map((brand) => brand.name),
-    slowdownApiMs: filter.slowdownApiMs.toString(10),
+  const { data } = useGetApiProductEthicalSearchSuspenseHook({
+    brands: filter.brands.map((brand) => brand.name).join('|'),
+    slowdownApiMs: filter.slowdownApiMs,
   });
 
   const [colDefs, _setColDefs] = useState<ColDef[]>(productColDefs);
 
+  const getRowId = useCallback(
+    (params: GetRowIdParams<EthicalProduct>): string => {
+      return [params.data.label, params.data.brand].join('|');
+    },
+    []
+  );
+
   return (
     <div className={cn('flex w-full h-full', className)}>
-      <ReportAgGrid
+      <ReportAgGrid<EthicalProduct>
         className={'flex-1'}
         rowData={data}
         columnDefs={colDefs}
+        getRowId={getRowId}
         autoSizeStrategy={autoSizeStrategy}
+        debug
       />
     </div>
   );

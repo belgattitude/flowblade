@@ -2,15 +2,14 @@ import { Hono } from 'hono';
 import { describeRoute, resolver, validator } from 'hono-openapi';
 import * as v from 'valibot';
 
-import { EthicalProductRepo } from '@/features/products/server/ethical-product.repo';
+import {
+  EthicalProductRepo,
+  ethicalProductSchema,
+  ethicalProductSearchParamsSchema,
+} from '@/features/products/server/ethical-product.repo';
 import { wait } from '@/lib/utils/wait';
 
 const app = new Hono();
-
-export const ethicalProductSearchRequestSchema = v.object({
-  brands: v.optional(v.string()),
-  slowdownApiMs: v.optional(v.string()),
-});
 
 app.get(
   '/search',
@@ -21,15 +20,7 @@ app.get(
         description: 'Successful response',
         content: {
           'application/json': {
-            schema: resolver(
-              v.array(
-                v.object({
-                  label: v.string(),
-                  brand: v.string(),
-                  price: v.number(),
-                })
-              )
-            ),
+            schema: resolver(v.array(ethicalProductSchema)),
           },
         },
       },
@@ -38,23 +29,37 @@ app.get(
   validator(
     'query',
     v.object({
-      brands: v.optional(v.string()),
-      slowdownApiMs: v.optional(v.string()),
+      ...ethicalProductSearchParamsSchema.entries,
+      slowdownApiMs: v.optional(
+        v.pipe(
+          v.string(),
+          v.transform((val) => Number.parseInt(val, 10)),
+          v.integer(),
+          v.metadata({
+            description:
+              'Artificially slow down the API by this many milliseconds.',
+          })
+        )
+      ),
     }),
     undefined,
     {
-      typeMode: 'output',
+      options: {
+        typeMode: 'output',
+      },
     }
   ),
   async (c) => {
-    const query = c.req.valid('query');
-    const slowdownApiMs = Number.parseInt(query.slowdownApiMs ?? '0', 10) ?? 0;
-    if (slowdownApiMs > 0) {
+    const { slowdownApiMs, brands, minPrice } = c.req.valid('query');
+    if (slowdownApiMs) {
       await wait(slowdownApiMs);
     }
-    const brands =
-      query.brands === undefined ? undefined : query.brands.split(',');
-    return c.json(await new EthicalProductRepo().search({ brands }));
+    return c.json(
+      await new EthicalProductRepo().search({
+        brands: brands,
+        minPrice,
+      })
+    );
   }
 );
 

@@ -11,8 +11,14 @@
     "typescript-result",
     // Till shadcn supports v3
     "recharts",
-    // Cause latest is obsolete
-    "@duckdb/duckdb-wasm",
+
+    // hono-api can be challenging to auto-update, uncomment
+    // if needed
+
+    // "@standard-community/standard-json",
+    // "@standard-community/standard-openapi",
+    // "hono-openapi",
+
     // Cause duckdb depends on an old version of apache-arrow
     "apache-arrow",
     // Till @vercel/otel support offers support for v2

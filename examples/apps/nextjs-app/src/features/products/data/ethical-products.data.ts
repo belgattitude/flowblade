@@ -1,12 +1,4 @@
-export type EthicalProduct = {
-  brand: string;
-  label: string;
-  price: number;
-  stock: number;
-  weight: string;
-  color: string;
-  category: string;
-};
+import type { EthicalProduct } from '@/features/products/server/ethical-product.repo.ts';
 
 export const ethicalProducts: EthicalProduct[] = [
   {
