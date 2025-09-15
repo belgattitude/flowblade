@@ -1,11 +1,10 @@
-import type { SearchParamsOption } from 'ky';
-
-import { apiFetcher } from './api-fetcher.config';
+import { apiFetcher } from '@/config/api-fetcher.config.ts';
+import { apiLocalConfig } from '@/config/api-local.config.ts';
 
 export type RequestConfig<TData = unknown> = {
   url?: string;
   method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE';
-  params?: object;
+  params?: Record<string, string | number | boolean | undefined>;
   data?: TData | FormData;
   responseType?:
     | 'arraybuffer'
@@ -26,22 +25,53 @@ export type ResponseConfig<TData = unknown> = {
 
 export type ResponseErrorConfig<TError = unknown> = TError;
 
+const isBrowser = globalThis.window !== undefined;
+
+const getIsomorphicUrl = (url: string): string => {
+  if (isBrowser) {
+    return url;
+  }
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return `${apiLocalConfig.baseUrl}${url}`;
+};
 const kubbApiFetcher = async <TData, TError = unknown, TVariables = unknown>(
   config: RequestConfig<TVariables>
 ): Promise<ResponseConfig<TData>> => {
-  const { signal, headers, url = '', params } = config;
+  const {
+    signal,
+    headers,
+    url = '',
+    params: searchParams = {},
+    data: formData,
+  } = config;
   const method = config.method.toUpperCase();
 
-  const response = await apiFetcher(url, {
+  const isFormData = formData instanceof FormData && method === 'POST';
+  const safeHeaders = isFormData
+    ? {
+        ...headers,
+        // Hack for ky, that doesn't support setting Content-Type when using FormData
+        'Content-Type': undefined,
+      }
+    : {
+        ...headers,
+      };
+
+  const response = await apiFetcher(getIsomorphicUrl(url), {
     prefixUrl: undefined,
     method,
-    ...(params === undefined
-      ? {}
-      : { searchParams: params as unknown as SearchParamsOption }),
+    timeout: 90_000,
+    credentials: 'same-origin',
+    searchParams,
+    ...(formData instanceof FormData ? { body: formData } : {}),
     ...(signal === undefined ? {} : { signal }),
-    ...(headers === undefined ? {} : { headers }),
+    ...(safeHeaders === undefined ? {} : { headers: safeHeaders }),
   });
+
   const data = await response.json<TData>();
+
   return {
     data,
     status: response.status,
