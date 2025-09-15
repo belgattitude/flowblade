@@ -1,8 +1,8 @@
 'use client';
 
 import { MIntl } from '@httpx/memo-intl';
-import type { ColDef, GridOptions } from 'ag-grid-community';
-import { type FC, useState } from 'react';
+import type { ColDef, GetRowIdParams, GridOptions } from 'ag-grid-community';
+import { type FC, useCallback, useState } from 'react';
 
 import { ReportAgGrid } from '@/components/grid/ag-grid/report-ag-grid';
 import { cn } from '@/components/utils';
@@ -83,13 +83,22 @@ export const ProductGrid: FC<Props> = (props) => {
 
   const [colDefs, _setColDefs] = useState<ColDef[]>(productColDefs);
 
+  const getRowId = useCallback(
+    (params: GetRowIdParams<EthicalProduct>): string => {
+      return [params.data.label, params.data.brand].join('|');
+    },
+    []
+  );
+
   return (
     <div className={cn('flex w-full h-full', className)}>
-      <ReportAgGrid
+      <ReportAgGrid<EthicalProduct>
         className={'flex-1'}
         rowData={data}
         columnDefs={colDefs}
+        getRowId={getRowId}
         autoSizeStrategy={autoSizeStrategy}
+        debug
       />
     </div>
   );
