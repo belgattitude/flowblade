@@ -1,3 +1,5 @@
+import { isPlainObject } from '@httpx/plain-object';
+
 import { apiFetcher } from '@/config/api-fetcher.config.ts';
 import { apiLocalConfig } from '@/config/api-local.config.ts';
 
@@ -47,8 +49,16 @@ const kubbApiFetcher = async <TData, TError = unknown, TVariables = unknown>(
     data: formData,
   } = config;
   const method = config.method.toUpperCase();
+  const mutationMethods = ['POST', 'PUT', 'PATCH'];
 
-  const isFormData = formData instanceof FormData && method === 'POST';
+  const isFormData =
+    formData instanceof FormData && mutationMethods.includes(method);
+
+  const isJsonData =
+    !isFormData &&
+    mutationMethods.includes(method) &&
+    (Array.isArray(formData) || isPlainObject(formData));
+
   const safeHeaders = isFormData
     ? {
         ...headers,
@@ -58,13 +68,13 @@ const kubbApiFetcher = async <TData, TError = unknown, TVariables = unknown>(
     : {
         ...headers,
       };
-
   const response = await apiFetcher(getIsomorphicUrl(url), {
     prefixUrl: undefined,
     method,
     timeout: 90_000,
     credentials: 'same-origin',
     searchParams,
+    ...(isJsonData ? { json: formData } : {}),
     ...(formData instanceof FormData ? { body: formData } : {}),
     ...(signal === undefined ? {} : { signal }),
     ...(safeHeaders === undefined ? {} : { headers: safeHeaders }),
