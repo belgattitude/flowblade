@@ -1270,7 +1270,7 @@ __metadata:
   resolution: "@docs/website@workspace:docs"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:7.9.0"
-    "@dotenvx/dotenvx": "npm:1.49.1"
+    "@dotenvx/dotenvx": "npm:1.50.1"
     "@t3-oss/env-nextjs": "npm:0.13.8"
     "@tailwindcss/postcss": "npm:4.1.13"
     "@total-typescript/ts-reset": "npm:0.6.1"
@@ -1321,6 +1321,25 @@ __metadata:
   bin:
     dotenvx: src/cli/dotenvx.js
   checksum: 10c0/86311b495e41445712139071db22ad05b4bf75d792e199e5734b272195a72c6d738350649e0906c8482fa97d25983933c059826d9df773fc7fe91c2d4daf79fd
+  languageName: node
+  linkType: hard
+
+"@dotenvx/dotenvx@npm:1.50.1":
+  version: 1.50.1
+  resolution: "@dotenvx/dotenvx@npm:1.50.1"
+  dependencies:
+    commander: "npm:^11.1.0"
+    dotenv: "npm:^17.2.1"
+    eciesjs: "npm:^0.4.10"
+    execa: "npm:^5.1.1"
+    fdir: "npm:^6.2.0"
+    ignore: "npm:^5.3.0"
+    object-treeify: "npm:1.1.33"
+    picomatch: "npm:^4.0.2"
+    which: "npm:^4.0.0"
+  bin:
+    dotenvx: src/cli/dotenvx.js
+  checksum: 10c0/742c1b59b2c8e910a734263f4715b77a165f19e09acc1407ae81d61a533e217f99dfd83ace65c8bdddff27b7bea501147d76938debb1e96da886b39cc057f85f
   languageName: node
   linkType: hard
 
