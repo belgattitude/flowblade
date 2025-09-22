@@ -77,7 +77,7 @@ export const ProductGrid: FC<Props> = (props) => {
   const { className } = props;
   const filter = useSelector((state) => state.productFilters.filters);
   const { data } = useGetApiProductEthicalSearchSuspenseHook({
-    brands: filter.brands.map((brand) => brand.name).join('|'),
+    brands: filter.brands.map((b) => b.name),
     slowdownApiMs: filter.slowdownApiMs,
   });
 

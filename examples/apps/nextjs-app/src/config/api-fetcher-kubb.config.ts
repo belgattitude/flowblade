@@ -2,11 +2,19 @@ import { isPlainObject } from '@httpx/plain-object';
 
 import { apiFetcher } from '@/config/api-fetcher.config.ts';
 import { apiLocalConfig } from '@/config/api-local.config.ts';
+import {
+  type ExtendedQuerySearchParams,
+  parseQuerySearchParams,
+} from '@/lib/utils/parse-query-search-params.ts';
 
 export type RequestConfig<TData = unknown> = {
   url?: string;
   method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE';
-  params?: Record<string, string | number | boolean | undefined>;
+  /**
+   * How to serialize array (search)params to string
+   */
+  serializeArrayStyle?: 'pipe-delimited';
+  params?: ExtendedQuerySearchParams;
   data?: TData | FormData;
   responseType?:
     | 'arraybuffer'
@@ -45,7 +53,8 @@ const kubbApiFetcher = async <TData, TError = unknown, TVariables = unknown>(
     signal,
     headers,
     url = '',
-    params: searchParams = {},
+    params = {},
+    serializeArrayStyle = 'pipe-delimited',
     data: formData,
   } = config;
   const method = config.method.toUpperCase();
@@ -68,6 +77,12 @@ const kubbApiFetcher = async <TData, TError = unknown, TVariables = unknown>(
     : {
         ...headers,
       };
+
+  // Transform array of strings to pipe-delimited string
+  const searchParams = parseQuerySearchParams({
+    searchParams: params,
+    serializeArrayStyle: serializeArrayStyle,
+  });
   const response = await apiFetcher(getIsomorphicUrl(url), {
     prefixUrl: undefined,
     method,
