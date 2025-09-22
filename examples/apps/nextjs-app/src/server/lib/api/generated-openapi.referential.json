@@ -145,8 +145,13 @@
             "in": "query",
             "name": "brands",
             "schema": {
-              "type": "string"
-            }
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "example": "string1|string2|string3"
+            },
+            "description": "Pipe delimited strings"
           },
           {
             "in": "query",
