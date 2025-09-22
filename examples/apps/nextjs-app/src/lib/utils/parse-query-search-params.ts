@@ -14,7 +14,7 @@ export type SupportedSearchParams = Record<string, SupportedSearchParamValues>;
  */
 export const parseQuerySearchParams = (params: {
   searchParams: ExtendedQuerySearchParams;
-  serializeArrayStyle: 'pipe-delimited' | 'comma-delimited' | 'repeat';
+  serializeArrayStyle: 'pipe-delimited' | 'comma-delimited';
 }): SupportedSearchParams => {
   const { searchParams, serializeArrayStyle } = params;
   const out: SupportedSearchParams = {};
@@ -31,10 +31,6 @@ export const parseQuerySearchParams = (params: {
           joined = items.join('|');
           break;
         case 'comma-delimited':
-          joined = items.join(',');
-          break;
-        case 'repeat':
-          // Unable to represent repeated keys in a flat object; fallback to comma-delimited
           joined = items.join(',');
           break;
         default:

@@ -40,17 +40,6 @@ describe('parseQuerySearchParams', () => {
     expect(out).toEqual({ tags: 'a|b|c' });
   });
 
-  it('should fallback to comma when repeat is requested (cannot repeat in object)', () => {
-    const input: ExtendedQuerySearchParams = {
-      tags: ['x', 'y'],
-    };
-    const out = parseQuerySearchParams({
-      searchParams: input,
-      serializeArrayStyle: 'repeat',
-    });
-    expect(out).toEqual({ tags: 'x,y' });
-  });
-
   it('should coerce numbers and booleans in arrays to strings before joining', () => {
     const input: ExtendedQuerySearchParams = {
       mixed: [1 as unknown as string, true as unknown as string, 'z'],
