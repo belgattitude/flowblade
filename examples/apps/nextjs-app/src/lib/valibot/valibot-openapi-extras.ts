@@ -3,7 +3,7 @@ import * as v from 'valibot';
 /**
  * Schema to parse openapi pipeDelimited style strings into string arrays.
  *
- * @todo request build-in support for @valibot/schema or zod 4.
+ * @todo request built-in support for @valibot/schema or zod 4.
  *
  * @see https://blog.scalar.com/p/an-introduction-to-openapi-variables
  */
