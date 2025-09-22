@@ -6,9 +6,10 @@
 
 export type GetApiProductEthicalSearchQueryParams = {
   /**
-   * @type string | undefined
+   * @description Pipe delimited strings
+   * @type array | undefined
    */
-  brands?: string;
+  brands?: string[];
   /**
    * @type number | undefined
    */
