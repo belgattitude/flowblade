@@ -1228,8 +1228,8 @@ __metadata:
     eslint: "npm:8.57.1"
     eslint-config-next: "npm:15.5.3"
     next: "npm:15.5.3"
-    nextra: "npm:4.5.0"
-    nextra-theme-docs: "npm:4.5.0"
+    nextra: "npm:4.5.1"
+    nextra-theme-docs: "npm:4.5.1"
     npm-run-all2: "npm:8.0.4"
     pagefind: "npm:1.4.0"
     prettier: "npm:3.6.2"
@@ -7970,14 +7970,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ts-morph/common@npm:~0.27.0":
-  version: 0.27.0
-  resolution: "@ts-morph/common@npm:0.27.0"
+"@ts-morph/common@npm:~0.28.0":
+  version: 0.28.0
+  resolution: "@ts-morph/common@npm:0.28.0"
   dependencies:
-    fast-glob: "npm:^3.3.3"
     minimatch: "npm:^10.0.1"
     path-browserify: "npm:^1.0.1"
-  checksum: 10c0/3daa267bd78114ff504eb064c5215da6e46589e775b781ec0da4998d999b0d7130eff287e70d6e13e0a0a897ea16e9387f4cd885b4b9d6d628f318cecb81d473
+    tinyglobby: "npm:^0.2.14"
+  checksum: 10c0/4b72240719afa33e0dc454cda693b65a040fc5c2d926abc77ecb7e548e5b2d7cb60c6ace05bacdc16068072d2e3df581a9db69c9db7ebee34129b825aee7ed6c
   languageName: node
   linkType: hard
 
@@ -18795,9 +18795,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nextra-theme-docs@npm:4.5.0":
-  version: 4.5.0
-  resolution: "nextra-theme-docs@npm:4.5.0"
+"nextra-theme-docs@npm:4.5.1":
+  version: 4.5.1
+  resolution: "nextra-theme-docs@npm:4.5.1"
   dependencies:
     "@headlessui/react": "npm:^2.1.2"
     clsx: "npm:^2.1.0"
@@ -18808,16 +18808,16 @@ __metadata:
     zustand: "npm:^5.0.1"
   peerDependencies:
     next: ">=14"
-    nextra: 4.5.0
+    nextra: 4.5.1
     react: ">=18"
     react-dom: ">=18"
-  checksum: 10c0/580d265018bc099e7564b0f942532978a95ccea1a803f18de0f1cb4374cf98787b18baf97387af5cf88206624a9dfe7419379f64a144f9bd9871df5f4375e68a
+  checksum: 10c0/4ad860a31bd0295e00d1da9e89965a6398bd02dee2f79518e9beb6329308c94def5ea3e7b58a84732e416eeb2ce878ec4ec66194a059bf8f974d23b7ca7f88a6
   languageName: node
   linkType: hard
 
-"nextra@npm:4.5.0":
-  version: 4.5.0
-  resolution: "nextra@npm:4.5.0"
+"nextra@npm:4.5.1":
+  version: 4.5.1
+  resolution: "nextra@npm:4.5.1"
   dependencies:
     "@formatjs/intl-localematcher": "npm:^0.6.0"
     "@headlessui/react": "npm:^2.1.2"
@@ -18852,7 +18852,7 @@ __metadata:
     shiki: "npm:^3.2.1"
     slash: "npm:^5.1.0"
     title: "npm:^4.0.1"
-    ts-morph: "npm:^26.0.0"
+    ts-morph: "npm:^27.0.0"
     unist-util-remove: "npm:^4.0.0"
     unist-util-visit: "npm:^5.0.0"
     unist-util-visit-children: "npm:^3.0.0"
@@ -18862,7 +18862,7 @@ __metadata:
     next: ">=14"
     react: ">=18"
     react-dom: ">=18"
-  checksum: 10c0/351af483de02c0e4124f8dcfc2ae08a36787e6cc27c22174a8d4894cc8a4d3fe8ea8364af6e4e85766d3c1de88fbf3116a9f8c36701b6ad0bc78a6a4f2e26d74
+  checksum: 10c0/f57388acc2aaa1e6730756a53fa35fbffed2f19669b06b5fb5db0574a289088638f6ab37929b3be67852a022460ec673c86092b43dae9a117442a5c1a2a6210b
   languageName: node
   linkType: hard
 
@@ -23860,13 +23860,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-morph@npm:^26.0.0":
-  version: 26.0.0
-  resolution: "ts-morph@npm:26.0.0"
+"ts-morph@npm:^27.0.0":
+  version: 27.0.0
+  resolution: "ts-morph@npm:27.0.0"
   dependencies:
-    "@ts-morph/common": "npm:~0.27.0"
+    "@ts-morph/common": "npm:~0.28.0"
     code-block-writer: "npm:^13.0.3"
-  checksum: 10c0/c6880d90a1eefe0ce6555bf8c11cc104b1f36f84bd36a37a82b9ae0b974f51fe6b1bc91bb0ec42550158dc1c812329d6433e1237cba64f1ef515c129b321dd5d
+  checksum: 10c0/ea2033b181d6a7907b9505cba4612ee468130d7b5c44c5e87364f75ab4a176e5ad931e1ead393a8fb9446606e7f204ee660adb95f0a1400ae7e9434229591c80
   languageName: node
   linkType: hard
 
