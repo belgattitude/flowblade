@@ -277,7 +277,6 @@ export const OutdatedBrowserHtml: FC<Props> = async (props) => {
               </svg>
               Download Chrome
             </a>
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/" className="btn btn-outline">
               <svg
                 className="icon"
