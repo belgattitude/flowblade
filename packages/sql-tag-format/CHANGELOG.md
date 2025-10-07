@@ -1,5 +1,11 @@
 # @flowblade/sql-tag-format
 
+## 0.1.2
+
+### Patch Changes
+
+- [#823](https://github.com/belgattitude/flowblade/pull/823) [`2da2d9d`](https://github.com/belgattitude/flowblade/commit/2da2d9deaaf1d541fd987919ab1258e7ef3bd2b4) Thanks [@belgattitude](https://github.com/belgattitude)! - Update sql-formatter to ^15.6.10
+
 ## 0.1.1
 
 ### Patch Changes
