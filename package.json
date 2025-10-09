@@ -39,6 +39,7 @@
     "deps:check": "npm-check-updates --configFileName .ncurc.json",
     "deps:update": "npm-check-updates --configFileName .ncurc.json -u",
     "check:install": "yarn dlx @yarnpkg/doctor@3 .",
+    "check:security": "yarn npm audit --no-deprecations --all",
     "postinstall": "is-ci || husky",
     "syncpack:format": "syncpack format",
     "syncpack:check": "syncpack lint-semver-ranges --types prod,dev --source \"package.json\" --source \"packages/*/package.json\"",
