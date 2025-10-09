@@ -4,7 +4,7 @@
   enabled: true,
   enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
   postUpdateOptions: ["yarnDedupeHighest"],
-  stabilityDays: 1,
+  minimumReleaseAge: "1 day",
   packageRules: [
     {
       matchPackageNames: [],
