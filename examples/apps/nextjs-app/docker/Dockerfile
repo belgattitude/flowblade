@@ -1,4 +1,4 @@
-ARG NODE_VERSION=22.19
+ARG NODE_VERSION=22.20
 ARG DEBIAN_VERSION=trixie-slim
 
 #############################################################
