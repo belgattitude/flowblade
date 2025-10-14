@@ -1,0 +1,36 @@
+name: CD-pkg-pr-new
+on: [push, pull_request]
+
+permissions: 
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      TURBO_API: 'http://127.0.0.1:9080'
+      TURBO_TEAM: 'flowblade'
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: ⚙️ Use Node.js 24.x
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24.x
+          package-manager-cache: false
+
+      - name: 📥 Monorepo install
+        uses: ./.github/actions/yarn-nm-install
+
+      - name: ⏩ TurboRepo local server
+        uses: felixmosh/turborepo-gh-artifacts@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
+
+      - name: 🏗 Build packages
+        run: yarn turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+
+      - name: 📦 Publish on pkg.pr.new
+        run: yarn exec pkg-pr-new publish "./packages/*"
