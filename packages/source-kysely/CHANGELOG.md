@@ -1,5 +1,14 @@
 # @flowblade/source-kysely
 
+## 0.15.7
+
+### Patch Changes
+
+- [#840](https://github.com/belgattitude/flowblade/pull/840) [`55160db`](https://github.com/belgattitude/flowblade/commit/55160db8ae25f01829e8b4a3a80ee8d5183113dd) Thanks [@belgattitude](https://github.com/belgattitude)! - Update type-fest dependency
+
+- Updated dependencies [[`55160db`](https://github.com/belgattitude/flowblade/commit/55160db8ae25f01829e8b4a3a80ee8d5183113dd)]:
+  - @flowblade/core@0.2.17
+
 ## 0.15.6
 
 ### Patch Changes
