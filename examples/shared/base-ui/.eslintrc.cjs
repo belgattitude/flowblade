@@ -58,6 +58,12 @@ module.exports = {
       },
     },
     {
+      files: ['src/components/ui/sidebar.tsx'],
+      rules: {
+        'react-hooks/purity': 'off',
+      },
+    },
+    {
       files: ['**/*/chart.tsx'],
       rules: {
         '@typescript-eslint/no-unsafe-member-access': 'off',
