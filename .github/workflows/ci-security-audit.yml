@@ -1,0 +1,41 @@
+name: CI-security-audit
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'yarn.lock'
+      - '.github/workflows/**'
+
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - '**'
+    paths:
+      - 'yarn.lock'
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.x]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: ⚙️ Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+          package-manager-cache: false
+
+      - name: 📥 Monorepo install
+        uses: ./.github/actions/yarn-nm-install
+
+      - name: 🛡️ Check for security vulnerabilities
+        run: yarn npm audit --no-deprecations --all
