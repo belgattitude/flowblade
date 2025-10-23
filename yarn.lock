@@ -1273,7 +1273,7 @@ __metadata:
     "@t3-oss/env-nextjs": "npm:0.13.8"
     "@tailwindcss/postcss": "npm:4.1.14"
     "@total-typescript/ts-reset": "npm:0.6.1"
-    "@types/node": "npm:24.8.1"
+    "@types/node": "npm:24.9.1"
     "@types/react": "npm:19.2.2"
     "@types/react-dom": "npm:19.2.2"
     "@typescript-eslint/eslint-plugin": "npm:8.46.1"
@@ -2346,7 +2346,7 @@ __metadata:
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.3.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
-    "@types/node": "npm:24.8.1"
+    "@types/node": "npm:24.9.1"
     "@typescript-eslint/eslint-plugin": "npm:8.46.1"
     "@typescript-eslint/parser": "npm:8.46.1"
     autocannon: "npm:8.0.0"
@@ -8798,7 +8798,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:24.8.1, @types/node@npm:>=18":
+"@types/node@npm:*, @types/node@npm:24.9.1, @types/node@npm:>=18":
+  version: 24.9.1
+  resolution: "@types/node@npm:24.9.1"
+  dependencies:
+    undici-types: "npm:~7.16.0"
+  checksum: 10c0/c52f8168080ef9a7c3dc23d8ac6061fab5371aad89231a0f6f4c075869bc3de7e89b075b1f3e3171d9e5143d0dda1807c3dab8e32eac6d68f02e7480e7e78576
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:24.8.1":
   version: 24.8.1
   resolution: "@types/node@npm:24.8.1"
   dependencies:
@@ -24877,6 +24886,13 @@ __metadata:
   version: 7.14.0
   resolution: "undici-types@npm:7.14.0"
   checksum: 10c0/e7f3214b45d788f03c51ceb33817be99c65dae203863aa9386b3ccc47201a245a7955fc721fb581da9c888b6ebad59fa3f53405214afec04c455a479908f0f14
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~7.16.0":
+  version: 7.16.0
+  resolution: "undici-types@npm:7.16.0"
+  checksum: 10c0/3033e2f2b5c9f1504bdc5934646cb54e37ecaca0f9249c983f7b1fc2e87c6d18399ebb05dc7fd5419e02b2e915f734d872a65da2e3eeed1813951c427d33cc9a
   languageName: node
   linkType: hard
 
