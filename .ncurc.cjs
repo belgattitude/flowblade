@@ -41,9 +41,11 @@ module.exports = defineConfig({
     'typescript-result',
     'recharts',
 
+    // duckdb-wasm depends on an older version of arrow
     'apache-arrow',
 
-    // Till @vercel/otel support offers support for v2
+    // Depending on v1/v2 support you might want to disable these updates
+    /*
     '@opentelemetry/api',
     '@opentelemetry/api-logs',
     '@opentelemetry/instrumentation',
@@ -51,5 +53,6 @@ module.exports = defineConfig({
     '@opentelemetry/sdk-logs',
     '@opentelemetry/sdk-metrics',
     '@opentelemetry/sdk-trace-base'
+     */
   ],
 });

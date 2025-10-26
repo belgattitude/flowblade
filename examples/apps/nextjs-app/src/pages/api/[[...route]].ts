@@ -1,9 +1,8 @@
 import { handle } from '@hono/node-server/vercel';
-import type { PageConfig } from 'next';
 
 import { honoApiConfig } from '@/server/config/hono-api.config.ts';
 
-export const config: PageConfig = {
+export const config = {
   runtime: 'nodejs',
   api: {
     bodyParser: false,

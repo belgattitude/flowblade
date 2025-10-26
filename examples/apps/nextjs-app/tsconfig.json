@@ -11,7 +11,7 @@
     "noUncheckedIndexedAccess": true,
     "incremental": true,
     "lib": ["dom", "dom.iterable", "esnext"],
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "paths": {
       "@examples/base-auth": ["../../../shared/base-auth/src/index"],
       "@examples/db-sqlserver/kysely-types": [
@@ -55,7 +55,7 @@
       }
     ]
   },
-  "exclude": ["**/node_modules", "**/.*/*"],
+  "exclude": ["**/node_modules"],
   "include": [
     ".eslintrc.*",
     "next-env.d.ts",
@@ -68,6 +68,7 @@
     "**/*.json",
     ".next/types/**/*.ts",
     ".storybook/**/*.ts",
-    ".storybook/**/*.tsx"
+    ".storybook/**/*.tsx",
+    ".next/dev/types/**/*.ts"
   ]
 }

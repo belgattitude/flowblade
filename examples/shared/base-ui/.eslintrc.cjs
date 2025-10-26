@@ -58,6 +58,14 @@ module.exports = {
       },
     },
     {
+      files: ['src/components/ui/*.tsx'],
+      rules: {
+        'sonarjs/function-return-type': 'off',
+        'jsx-a11y/click-events-have-key-events': 'off',
+        'jsx-a11y/no-noninteractive-element-interactions': 'off',
+      },
+    },
+    {
       files: ['src/components/ui/sidebar.tsx'],
       rules: {
         'react-hooks/purity': 'off',
