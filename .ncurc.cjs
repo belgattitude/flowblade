@@ -33,7 +33,7 @@ module.exports = defineConfig({
       npmPreapprovedPackages.some((allowed) =>
       {
           if (allowed.endsWith('/*')) {
-           return packageName.startsWith(allowed.slice(0, -2));
+           return packageName.startsWith(allowed.slice(0, -1));
           } else {
             return packageName === allowed;
           }
