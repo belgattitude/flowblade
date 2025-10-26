@@ -18,9 +18,6 @@ const withNextra = nextra({
 export default withNextra({
   ...(basePath ? { basePath } : {}),
   ...(output ? { output } : {}),
-  eslint: {
-    ignoreDuringBuilds: buildEnv.NEXT_BUILD_IGNORE_ESLINT === 'true',
-  },
   productionBrowserSourceMaps:
     buildEnv.NEXT_BUILD_PRODUCTION_SOURCEMAPS === 'true',
   typescript: {

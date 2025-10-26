@@ -44,6 +44,7 @@ module.exports = {
     {
       files: ['next-env.d.ts'],
       rules: {
+        'prettier/prettier': 'off',
         '@typescript-eslint/triple-slash-reference': 'off',
       },
     },

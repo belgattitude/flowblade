@@ -20,7 +20,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'clover'],
-      extension: ['js', 'jsx', 'ts', 'tsx'],
+      include: ['src/**/*.{js,jsx,ts,tsx}'],
     },
     include: testFiles,
     css: false,

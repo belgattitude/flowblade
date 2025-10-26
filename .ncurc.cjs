@@ -3,19 +3,24 @@
 const { defineConfig } = require('npm-check-updates');
 
 // @todo read the content from .yarnrc.yml
-const npmPreapprovedPackagesPrefixes = [
-  '@belgattitude/',
-  '@flowblade/',
-  '@httpx/',
+const npmPreapprovedPackages = [
+  '@belgattitude/*',
+  '@flowblade/*',
+  '@httpx/*',
+  'hono',
   'next',
-  '@next/',
-  '@azure/',
+  '@next/*',
+  '@azure/*',
   'prisma',
-  '@prisma/',
-  '@duckdb/',
+  '@prisma/*',
+  '@duckdb/*',
   'turbo',
-  '@sentry/',
-  '@sentry-internal/'
+  'vite',
+  '@vitejs/*',
+  'vitest',
+  '@vitest/*',
+  '@sentry/*',
+  '@sentry-internal/*'
 ];
 
 module.exports = defineConfig({
@@ -25,9 +30,14 @@ module.exports = defineConfig({
   packageManager: 'yarn',
   cooldown: (packageName) => {
     if (
-      npmPreapprovedPackagesPrefixes.some((prefix) =>
-        packageName.startsWith(prefix)
-      )
+      npmPreapprovedPackages.some((allowed) =>
+      {
+          if (allowed.endsWith('/*')) {
+           return packageName.startsWith(allowed.slice(0, -1));
+          } else {
+            return packageName === allowed;
+          }
+      })
     ) {
       return 0;
     }
@@ -41,9 +51,11 @@ module.exports = defineConfig({
     'typescript-result',
     'recharts',
 
+    // duckdb-wasm depends on an older version of arrow
     'apache-arrow',
 
-    // Till @vercel/otel support offers support for v2
+    // Depending on v1/v2 support you might want to disable these updates
+    /*
     '@opentelemetry/api',
     '@opentelemetry/api-logs',
     '@opentelemetry/instrumentation',
@@ -51,5 +63,6 @@ module.exports = defineConfig({
     '@opentelemetry/sdk-logs',
     '@opentelemetry/sdk-metrics',
     '@opentelemetry/sdk-trace-base'
+     */
   ],
 });

@@ -11,7 +11,6 @@ import { clientEnv } from './src/env/client.env.mjs';
 import { serverEnv } from './src/env/server.env.mjs';
 
 const _isDev = process.env.NODE_ENV === 'development';
-const _isTurbo = process.env.TURBOPACK !== undefined;
 const buildOutput = buildEnv.NEXT_BUILD_OUTPUT ?? undefined;
 
 const monorepoRoot = path.resolve(
@@ -25,10 +24,6 @@ const monorepoRoot = path.resolve(
 let nextConfig = {
   compress: serverEnv.NEXT_CONFIG_COMPRESS === 'true',
   ...(buildOutput === undefined ? {} : { output: buildOutput }),
-  eslint: {
-    dirs: ['src'],
-    ignoreDuringBuilds: buildEnv.NEXT_BUILD_IGNORE_ESLINT === 'true',
-  },
   // transpilePackages: ['@duckdb/duckdb-wasm'],
   serverExternalPackages: [
     '@duckdb/node-api',
@@ -106,6 +101,7 @@ let nextConfig = {
   productionBrowserSourceMaps:
     buildEnv.NEXT_BUILD_PRODUCTION_SOURCEMAPS === 'true',
   reactStrictMode: true,
+  typedRoutes: true,
   typescript: {
     ignoreBuildErrors: buildEnv.NEXT_BUILD_IGNORE_TYPECHECK === 'true',
     tsconfigPath: buildEnv.NEXT_BUILD_TSCONFIG,
