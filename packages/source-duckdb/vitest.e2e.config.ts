@@ -5,7 +5,7 @@ const testFiles = ['./e2e/**/*.test.ts'];
 
 export default defineConfig({
   esbuild: {
-    target: ['node18'],
+    target: ['node20'],
   },
   plugins: [tsconfigPaths()],
   test: {
