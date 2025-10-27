@@ -28,11 +28,22 @@ let nextConfig = {
   serverExternalPackages: [
     '@duckdb/node-api',
     '@duckdb/node-bindings',
+    '@duckdb/node-bindings-linux-x64',
     'tedious',
     'mssql',
     'tarn',
   ],
   outputFileTracingRoot: monorepoRoot,
+  outputFileTracingIncludes: {
+    // Since nextjs 16 turbopack in standalone mode (vercel included)
+    // the tracing of the libduckdb.so is broken although duckdb.node is
+    // correctly traced (included).
+    // This bug might be more general and impact optional dependencies
+    '/api/\\[\\[\\.\\.\\.route\\]\\]': [
+      '../../../node_modules/@duckdb/node-bindings-linux-x64/*.so',
+      '../../../node_modules/@duckdb/node-bindings-linux-x64/*.node',
+    ],
+  },
   experimental: {
     // Prefer loading of ES Modules over CommonJS
     // @link {https://nextjs.org/blog/next-11-1#es-modules-support|Blog 11.1.0}
