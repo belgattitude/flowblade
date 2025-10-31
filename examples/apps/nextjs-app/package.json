@@ -16,6 +16,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "bun-dev": "bun --bun next dev",
     "build": "next build",
     "typegen": "next typegen",
     "build-no-paths": "cross-env NEXT_BUILD_TSCONFIG=./tsconfig.no-paths.json next build",
