@@ -1,7 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "baseUrl": "./src",
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -13,8 +12,7 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "preserve",
     "paths": {
-      "@/test-utils": ["../tests/setup/test-utils"],
-      "@examples/base-ui/*": ["./*"]
+      "@/test-utils": ["./tests/setup/test-utils"]
     },
     "allowJs": true,
     "skipLibCheck": true,
@@ -23,7 +21,7 @@
     "resolveJsonModule": true,
     "types": ["vitest/globals"]
   },
-  "exclude": ["**/node_modules", "**/.*/*"],
+  "exclude": ["**/node_modules"],
   "include": [
     ".eslintrc.*",
     "next-env.d.ts",

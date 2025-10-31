@@ -1,7 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "baseUrl": "./src",
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -13,33 +12,29 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "react-jsx",
     "paths": {
-      "@examples/base-auth": ["../../../shared/base-auth/src/index"],
+      "@examples/base-auth": ["../../shared/base-auth/src/index"],
       "@examples/db-sqlserver/kysely-types": [
-        "../../../shared/db-sqlserver/src/kysely-types.ts"
+        "../../shared/db-sqlserver/src/kysely-types.ts"
       ],
       "@examples/base-ui/postcss.config.mjs": [
-        "../../../shared/base-ui/postcss.config.mjs"
+        "../../shared/base-ui/postcss.config.mjs"
       ],
-      "@examples/base-ui/*": ["../../../shared/base-ui/src/*"],
-      "@flowblade/core": ["../../../../packages/core/src/index"],
-      "@flowblade/source-duckdb": [
-        "../../../../packages/source-duckdb/src/index"
-      ],
-      "@flowblade/source-kysely": [
-        "../../../../packages/source-kysely/src/index"
-      ],
-      "@flowblade/sql-tag": ["../../../../packages/sql-tag/src/index"],
+      "@examples/base-ui/*": ["../../shared/base-ui/src/*"],
+      "@flowblade/core": ["../../../packages/core/src/index"],
+      "@flowblade/source-duckdb": ["../../../packages/source-duckdb/src/index"],
+      "@flowblade/source-kysely": ["../../../packages/source-kysely/src/index"],
+      "@flowblade/sql-tag": ["../../../packages/sql-tag/src/index"],
       "@flowblade/sql-tag-format": [
-        "../../../../packages/sql-tag-format/src/index"
+        "../../../packages/sql-tag-format/src/index"
       ],
-      "@/components/*": ["./components/*"],
-      "@/config/*": ["./config/*"],
-      "@/env/*": ["./env/index/*"],
-      "@/features/*": ["./features/*"],
-      "@/providers/*": ["./providers/*"],
-      "@/redux/*": ["./redux/*"],
-      "@/server/*": ["./server/*"],
-      "@/lib/*": ["./lib/*"]
+      "@/components/*": ["./src/components/*"],
+      "@/config/*": ["./src/config/*"],
+      "@/env/*": ["./src/env/index/*"],
+      "@/features/*": ["./src/features/*"],
+      "@/providers/*": ["./src/providers/*"],
+      "@/redux/*": ["./src/redux/*"],
+      "@/server/*": ["./src/server/*"],
+      "@/lib/*": ["./src/lib/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,

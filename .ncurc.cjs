@@ -20,7 +20,9 @@ const npmPreapprovedPackages = [
   'vitest',
   '@vitest/*',
   '@sentry/*',
-  '@sentry-internal/*'
+  '@sentry-internal/*',
+  'storybook',
+  '@storybook/*'
 ];
 
 module.exports = defineConfig({

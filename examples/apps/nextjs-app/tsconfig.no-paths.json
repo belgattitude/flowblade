@@ -3,14 +3,14 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@/components/*": ["./components/*"],
-      "@/config/*": ["./config/*"],
-      "@/env/*": ["./env/index/*"],
-      "@/features/*": ["./features/*"],
-      "@/providers/*": ["./providers/*"],
-      "@/redux/*": ["./redux/*"],
-      "@/server/*": ["./server/*"],
-      "@/lib/*": ["./lib/*"]
+      "@/components/*": ["./src/components/*"],
+      "@/config/*": ["./src/config/*"],
+      "@/env/*": ["./src/env/index/*"],
+      "@/features/*": ["./src/features/*"],
+      "@/providers/*": ["./src/providers/*"],
+      "@/redux/*": ["./src/redux/*"],
+      "@/server/*": ["./src/server/*"],
+      "@/lib/*": ["./src/lib/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,
