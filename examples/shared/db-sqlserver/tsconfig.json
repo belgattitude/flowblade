@@ -1,7 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "baseUrl": "./src",
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "Bundler",
@@ -12,14 +11,10 @@
     "incremental": true,
     "lib": ["esnext"],
     "paths": {
-      "@flowblade/core": ["../../../../packages/core/src/index"],
-      "@flowblade/source-duckdb": [
-        "../../../../packages/source-duckdb/src/index"
-      ],
-      "@flowblade/source-kysely": [
-        "../../../../packages/source-kysely/src/index"
-      ],
-      "@flowblade/sql-tag": ["../../../../packages/sql-tag/src/index"]
+      "@flowblade/core": ["../../../packages/core/src/index"],
+      "@flowblade/source-duckdb": ["../../../packages/source-duckdb/src/index"],
+      "@flowblade/source-kysely": ["../../../packages/source-kysely/src/index"],
+      "@flowblade/sql-tag": ["../../../packages/sql-tag/src/index"]
     },
     "allowJs": true,
     "skipLibCheck": true,
@@ -29,7 +24,7 @@
     "resolveJsonModule": true,
     "types": ["vitest/globals"]
   },
-  "exclude": ["**/node_modules", "**/.*/*"],
+  "exclude": ["**/node_modules"],
   "include": [
     ".eslintrc.*",
     "**/*.ts",
