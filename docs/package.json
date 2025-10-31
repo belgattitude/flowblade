@@ -17,6 +17,7 @@
   "scripts": {
     "dev": "next dev --port 3008",
     "bun-dev": "bun --bun next dev --port 3008",
+    "typegen": "next typegen",
     "build": "next build && run generate-search-idx",
     "build-static": "cross-env NEXT_BUILD_OUTPUT=export next build && run generate-search-idx-static",
     "generate-search-idx": "pagefind --site .next/server/app --output-path public/_pagefind",
@@ -25,7 +26,7 @@
     "start": "next start",
     "serve": "sirv out --port 3009",
     "clean": "rimraf ./.next ./out ./public/_pagefind ./coverage ./tsconfig.tsbuildinfo",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "typecheck": "next typegen && tsc --project tsconfig.json --noEmit",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../.cache/eslint/docs.eslintcache",
     "fix-staged": "lint-staged --allow-empty"
   },
