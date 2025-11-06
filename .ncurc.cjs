@@ -22,7 +22,9 @@ const npmPreapprovedPackages = [
   '@sentry/*',
   '@sentry-internal/*',
   'storybook',
-  '@storybook/*'
+  '@storybook/*',
+  'esbuild',
+  '@esbuild/*'
 ];
 
 module.exports = defineConfig({
