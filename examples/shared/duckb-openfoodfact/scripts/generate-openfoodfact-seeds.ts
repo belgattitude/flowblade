@@ -11,7 +11,8 @@ import pc from 'tinyrainbow';
 import type { OpenfoodfactImage } from '../src/internal/generate-openfoodfact-image';
 import { scriptsConfig } from './config/scripts.config';
 import { formatTimeMsToSeconds } from './utils/formatter';
-const sqlFormatter = new SqlFormatter('postgresql');
+
+const sqlFormatter = new SqlFormatter('duckdb');
 
 const getQueryCreateEtlLoadProductTable = () => {
   type Row = {
