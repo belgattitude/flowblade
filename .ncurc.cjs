@@ -58,6 +58,10 @@ module.exports = defineConfig({
     // duckdb-wasm depends on an older version of arrow
     'apache-arrow',
 
+    // prisma
+    'prisma',
+    '@prisma/client',
+
     // Depending on v1/v2 support you might want to disable these updates
     /*
     '@opentelemetry/api',

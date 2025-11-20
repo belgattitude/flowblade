@@ -6,7 +6,7 @@ datasource db {
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["multiSchema", "views"]
+  previewFeatures = ["views"]
   output          = "../src/generated/client"
   moduleFormat    = "esm"
 }
