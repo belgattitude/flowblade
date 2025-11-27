@@ -24,7 +24,9 @@ const npmPreapprovedPackages = [
   'storybook',
   '@storybook/*',
   'esbuild',
-  '@esbuild/*'
+  '@esbuild/*',
+  'better-auth',
+  '@better-auth/*'
 ];
 
 module.exports = defineConfig({
