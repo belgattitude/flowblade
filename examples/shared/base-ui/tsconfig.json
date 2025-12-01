@@ -12,7 +12,8 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "preserve",
     "paths": {
-      "@/test-utils": ["./tests/setup/test-utils"]
+      "@/test-utils": ["./tests/setup/test-utils"],
+      "@examples/base-ui/*": ["./src/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,
