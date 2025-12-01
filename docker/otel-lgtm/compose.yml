@@ -2,7 +2,7 @@ name: flowblade-otel-lgtm
 
 services:
   otel-lgtm:
-    image: grafana/otel-lgtm:0.11.17
+    image: grafana/otel-lgtm:0.11.18
     # 4000 is for the web ui
     ports: ['4000:3000', '4317:4317', '4318:4318']
     networks:
