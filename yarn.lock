@@ -2394,7 +2394,7 @@ __metadata:
     tsup: "npm:8.5.1"
     tsx: "npm:4.20.6"
     type-fest: "npm:5.2.0"
-    typedoc: "npm:0.28.14"
+    typedoc: "npm:0.28.15"
     typedoc-plugin-markdown: "npm:4.9.0"
     typescript: "npm:5.9.3"
     typescript-result: "npm:3.3.0"
@@ -2435,7 +2435,7 @@ __metadata:
     sql-template-tag: "npm:5.2.1"
     tsup: "npm:8.5.1"
     tsx: "npm:4.20.6"
-    typedoc: "npm:0.28.14"
+    typedoc: "npm:0.28.15"
     typedoc-plugin-markdown: "npm:4.9.0"
     typescript: "npm:5.9.3"
     vite-tsconfig-paths: "npm:5.1.4"
@@ -2484,7 +2484,7 @@ __metadata:
     tsup: "npm:8.5.1"
     tsx: "npm:4.20.6"
     type-fest: "npm:^5.2.0"
-    typedoc: "npm:0.28.14"
+    typedoc: "npm:0.28.15"
     typedoc-plugin-markdown: "npm:4.9.0"
     typescript: "npm:5.9.3"
     valibot: "npm:^1.2.0"
@@ -2532,7 +2532,7 @@ __metadata:
     sql-formatter: "npm:^15.6.10"
     tsup: "npm:8.5.1"
     tsx: "npm:4.20.6"
-    typedoc: "npm:0.28.14"
+    typedoc: "npm:0.28.15"
     typedoc-plugin-markdown: "npm:4.9.0"
     typescript: "npm:5.9.3"
     vite-tsconfig-paths: "npm:5.1.4"
@@ -2572,7 +2572,7 @@ __metadata:
     sql-template-tag: "npm:^5.2.1"
     tsup: "npm:8.5.1"
     tsx: "npm:4.20.6"
-    typedoc: "npm:0.28.14"
+    typedoc: "npm:0.28.15"
     typedoc-plugin-markdown: "npm:4.9.0"
     typescript: "npm:5.9.3"
     vite-tsconfig-paths: "npm:5.1.4"
@@ -2590,16 +2590,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gerrit0/mini-shiki@npm:^3.12.0":
-  version: 3.15.0
-  resolution: "@gerrit0/mini-shiki@npm:3.15.0"
+"@gerrit0/mini-shiki@npm:^3.17.0":
+  version: 3.17.0
+  resolution: "@gerrit0/mini-shiki@npm:3.17.0"
   dependencies:
-    "@shikijs/engine-oniguruma": "npm:^3.15.0"
-    "@shikijs/langs": "npm:^3.15.0"
-    "@shikijs/themes": "npm:^3.15.0"
-    "@shikijs/types": "npm:^3.15.0"
+    "@shikijs/engine-oniguruma": "npm:^3.17.0"
+    "@shikijs/langs": "npm:^3.17.0"
+    "@shikijs/themes": "npm:^3.17.0"
+    "@shikijs/types": "npm:^3.17.0"
     "@shikijs/vscode-textmate": "npm:^10.0.2"
-  checksum: 10c0/8d0d9591267a634a09a8d1abafa92d6fc83385470ff008945b2f370223eb91682d6356e13481499bf824c42ae4b4393cfa16c30103c52161ec25a9559e39c87b
+  checksum: 10c0/c748c21564ca71729c0a806f1204bc32e62a4e2195e1f96880ec2280bafb50cf1b5bf5ee6a14ca8c502e133c08c1188c354375ad47dff25364bc6ff91791e463
   languageName: node
   linkType: hard
 
@@ -7164,7 +7164,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shikijs/engine-oniguruma@npm:3.15.0, @shikijs/engine-oniguruma@npm:^3.15.0":
+"@shikijs/engine-oniguruma@npm:3.15.0":
   version: 3.15.0
   resolution: "@shikijs/engine-oniguruma@npm:3.15.0"
   dependencies:
@@ -7174,7 +7174,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shikijs/langs@npm:3.15.0, @shikijs/langs@npm:^3.15.0":
+"@shikijs/engine-oniguruma@npm:^3.17.0":
+  version: 3.17.0
+  resolution: "@shikijs/engine-oniguruma@npm:3.17.0"
+  dependencies:
+    "@shikijs/types": "npm:3.17.0"
+    "@shikijs/vscode-textmate": "npm:^10.0.2"
+  checksum: 10c0/f5fcb38db6f255084f4893050bc1961b7f840af5adde9f16612a191555fa6c8ecc95c422a77b385104424132ffcd089ad26a769c40bc92ac1ecf51e164b24be3
+  languageName: node
+  linkType: hard
+
+"@shikijs/langs@npm:3.15.0":
   version: 3.15.0
   resolution: "@shikijs/langs@npm:3.15.0"
   dependencies:
@@ -7183,12 +7193,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shikijs/themes@npm:3.15.0, @shikijs/themes@npm:^3.15.0":
+"@shikijs/langs@npm:^3.17.0":
+  version: 3.17.0
+  resolution: "@shikijs/langs@npm:3.17.0"
+  dependencies:
+    "@shikijs/types": "npm:3.17.0"
+  checksum: 10c0/7d44816e469802d0a80cfb76fe34a2dc759950536a4b2efbe70daa90b1afd5780b0015e43fb2af5d4dc93b9a65d60198b344c184d0c00772cd9959ec61707c4f
+  languageName: node
+  linkType: hard
+
+"@shikijs/themes@npm:3.15.0":
   version: 3.15.0
   resolution: "@shikijs/themes@npm:3.15.0"
   dependencies:
     "@shikijs/types": "npm:3.15.0"
   checksum: 10c0/2b6a435d991d1fd924622e437c5546ecc5ab3d5c0843edbe2ca444e4e91a9c4d8d9c0a673a32afdb1c262dffcd7839518a9f9154121be8dfa7553f99458d9bab
+  languageName: node
+  linkType: hard
+
+"@shikijs/themes@npm:^3.17.0":
+  version: 3.17.0
+  resolution: "@shikijs/themes@npm:3.17.0"
+  dependencies:
+    "@shikijs/types": "npm:3.17.0"
+  checksum: 10c0/a6dd8353b78963252d59aeed2536532a2834f2853e8d1eaf12e068b8d7e0cc605b3030c7d958f459a938b056e8778659bbd9e05ea23281683cb19b2e1e5990b6
   languageName: node
   linkType: hard
 
@@ -7215,13 +7243,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shikijs/types@npm:3.15.0, @shikijs/types@npm:^3.15.0":
+"@shikijs/types@npm:3.15.0":
   version: 3.15.0
   resolution: "@shikijs/types@npm:3.15.0"
   dependencies:
     "@shikijs/vscode-textmate": "npm:^10.0.2"
     "@types/hast": "npm:^3.0.4"
   checksum: 10c0/bc18c7e8b83fbf73f88a26dcf06e777566f8d8568a26ace4dacf5373c51e95213af1181eb389c4d0d7dc57c21824396278d6cbebf57a905676923bfdab00bb23
+  languageName: node
+  linkType: hard
+
+"@shikijs/types@npm:3.17.0, @shikijs/types@npm:^3.17.0":
+  version: 3.17.0
+  resolution: "@shikijs/types@npm:3.17.0"
+  dependencies:
+    "@shikijs/vscode-textmate": "npm:^10.0.2"
+    "@types/hast": "npm:^3.0.4"
+  checksum: 10c0/18ea167ce61716041a415f1c8d2249e80b748ae8ac3e188d59e30d5a0951911a63fd2bc46b908f5b2a4d4dd216af1461d7768aabb5e62236df3058214cfab64f
   languageName: node
   linkType: hard
 
@@ -23855,11 +23893,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc@npm:0.28.14":
-  version: 0.28.14
-  resolution: "typedoc@npm:0.28.14"
+"typedoc@npm:0.28.15":
+  version: 0.28.15
+  resolution: "typedoc@npm:0.28.15"
   dependencies:
-    "@gerrit0/mini-shiki": "npm:^3.12.0"
+    "@gerrit0/mini-shiki": "npm:^3.17.0"
     lunr: "npm:^2.3.9"
     markdown-it: "npm:^14.1.0"
     minimatch: "npm:^9.0.5"
@@ -23868,7 +23906,7 @@ __metadata:
     typescript: 5.0.x || 5.1.x || 5.2.x || 5.3.x || 5.4.x || 5.5.x || 5.6.x || 5.7.x || 5.8.x || 5.9.x
   bin:
     typedoc: bin/typedoc
-  checksum: 10c0/a8727134991ba3f9a982e9f6ceecfbcf0fac531e4865e4865cdee68ea6fe1a594228b8654011d38ffa2332b7e84e4eaa3d0dac04a8bdf36a0686d1c3f327e80b
+  checksum: 10c0/b5988ebebb367fed44f110bbd37baee85fe95fe10c8d5a511c33d787eb1e924e66ba54cb0763d63ed2c406adbd32fcb87bcbc3fd61b0bc8ab6f3a6c06f2de978
   languageName: node
   linkType: hard
 
