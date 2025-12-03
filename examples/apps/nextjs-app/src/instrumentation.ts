@@ -24,9 +24,10 @@ export async function register() {
     process.env.NEXT_RUNTIME === 'nodejs'
   ) {
     try {
-      const { initializeDbKyselyMssqlConn } = await import(
-        '@/server/config/db.kysely-mssql.config'
-      ).then((mod) => mod);
+      const { initializeDbKyselyMssqlConn } =
+        await import('@/server/config/db.kysely-mssql.config').then(
+          (mod) => mod
+        );
       console.log(
         '✅ Registering global "dbKyselyMssqlConn" connection from instrumentation.ts'
       );
@@ -42,9 +43,10 @@ export async function register() {
     }
 
     try {
-      const { initializeDuckDbMemoryConn } = await import(
-        '@/server/config/db.duckdb-memory.config'
-      ).then((mod) => mod);
+      const { initializeDuckDbMemoryConn } =
+        await import('@/server/config/db.duckdb-memory.config').then(
+          (mod) => mod
+        );
 
       console.log(
         '✅ Registering global "dbDuckDbMemoryConn" connection from instrumentation.ts'
