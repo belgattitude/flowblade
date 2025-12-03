@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.2.19
+
+### Patch Changes
+
+- [#915](https://github.com/belgattitude/flowblade/pull/915) [`22f1611`](https://github.com/belgattitude/flowblade/commit/22f1611702d8cd8cba2549cfb1d41e8ebaafbedf) Thanks [@belgattitude](https://github.com/belgattitude)! - Support for latest typescript-result
+
 ## 0.2.18
 
 ### Patch Changes
