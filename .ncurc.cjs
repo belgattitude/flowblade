@@ -55,8 +55,6 @@ module.exports = defineConfig({
     // Cause v9 isn't yet supported
     'eslint',
 
-    // Cause flowblade does not yet support latest typescript-result
-    'typescript-result',
     'recharts',
 
     // duckdb-wasm depends on an older version of arrow

@@ -37,13 +37,12 @@ export class QResult<
    */
   declare $inferError: TError;
 
-  private _result: Result<
-    {
-      rows: TData;
-      meta: QMeta;
-    },
-    TError
-  >;
+  private _result:
+    | Result.Ok<{
+        rows: TData;
+        meta: QMeta;
+      }>
+    | Result.Error<TError>;
 
   /**
    * Create a new QResult instance.
