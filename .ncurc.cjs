@@ -26,7 +26,9 @@ const npmPreapprovedPackages = [
   'esbuild',
   '@esbuild/*',
   'better-auth',
-  '@better-auth/*'
+  'better-call',
+  '@better-auth/*',
+  '@typescript-eslint/*'
 ];
 
 module.exports = defineConfig({

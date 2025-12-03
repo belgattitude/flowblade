@@ -27,7 +27,7 @@
     "serve": "sirv out --port 3009",
     "clean": "rimraf ./.next ./out ./public/_pagefind ./coverage ./tsconfig.tsbuildinfo",
     "typecheck": "next typegen && tsc --project tsconfig.json --noEmit",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../.cache/eslint/docs.eslintcache",
+    "lint": "next typegen && eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../.cache/eslint/docs.eslintcache",
     "fix-staged": "lint-staged --allow-empty"
   },
   "dependencies": {
@@ -43,15 +43,15 @@
     "zod": "4.1.13"
   },
   "devDependencies": {
-    "@belgattitude/eslint-config-bases": "8.7.0",
+    "@belgattitude/eslint-config-bases": "8.7.1",
     "@dotenvx/dotenvx": "1.51.1",
     "@tailwindcss/postcss": "4.1.17",
     "@total-typescript/ts-reset": "0.6.1",
     "@types/node": "24.10.1",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
-    "@typescript-eslint/eslint-plugin": "8.48.0",
-    "@typescript-eslint/parser": "8.48.0",
+    "@typescript-eslint/eslint-plugin": "8.48.1",
+    "@typescript-eslint/parser": "8.48.1",
     "cross-env": "10.1.0",
     "eslint": "8.57.1",
     "npm-run-all2": "8.0.4",
@@ -61,7 +61,7 @@
     "sirv-cli": "3.0.1",
     "tailwindcss": "4.1.17",
     "tinyrainbow": "3.0.3",
-    "tsx": "4.20.6",
+    "tsx": "4.21.0",
     "typescript": "5.9.3",
     "vite-tsconfig-paths": "5.1.4",
     "webpack": "5.103.0"
