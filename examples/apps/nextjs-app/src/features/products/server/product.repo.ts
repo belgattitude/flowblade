@@ -26,8 +26,8 @@ type SearchParams = z.infer<typeof validators.search.params>;
 type SearchResult = QResult<z.infer<typeof validators.search.result>, QError>;
 
 export class ProductRepo<
-  T extends
-    KyselyDatasource<DBKyselySqlServer> = KyselyDatasource<DBKyselySqlServer>,
+  T extends KyselyDatasource<DBKyselySqlServer> =
+    KyselyDatasource<DBKyselySqlServer>,
 > {
   private ds: T;
   public static readonly validators = validators;
