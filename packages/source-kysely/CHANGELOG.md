@@ -1,5 +1,14 @@
 # @flowblade/source-kysely
 
+## 0.15.9
+
+### Patch Changes
+
+- [#915](https://github.com/belgattitude/flowblade/pull/915) [`22f1611`](https://github.com/belgattitude/flowblade/commit/22f1611702d8cd8cba2549cfb1d41e8ebaafbedf) Thanks [@belgattitude](https://github.com/belgattitude)! - Support for latest typescript-result
+
+- Updated dependencies [[`22f1611`](https://github.com/belgattitude/flowblade/commit/22f1611702d8cd8cba2549cfb1d41e8ebaafbedf)]:
+  - @flowblade/core@0.2.19
+
 ## 0.15.8
 
 ### Patch Changes
