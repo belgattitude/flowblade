@@ -65,8 +65,14 @@ export type KyselyMssqlDialectParams = {
  *    validateConnections: true,
  *    // 👉 Reset connection on pool release, default false
  *    resetConnectionsOnRelease: false,
- *    // 👉 Example based on https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
- *    tediousTypes: { ...Tedious.TYPES, NVarChar: Tedious.TYPES.VarChar}
+ *    // 👉 Override Tedious types to enhance compatibility and modern support
+ *    tediousTypes: {
+ *      ...Tedious.TYPES,
+ *      // see https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
+ *      NVarChar: Tedious.TYPES.VarChar,
+ *      // see https://github.com/kysely-org/kysely/issues/1596#issuecomment-3341591075
+ *      DateTime: Tedious.TYPES.DateTime2,
+ *    }
  *  }
  * });
  *
