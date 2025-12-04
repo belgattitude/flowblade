@@ -1,5 +1,17 @@
 # @flowblade/source-kysely
 
+## 0.15.11
+
+### Patch Changes
+
+- [#922](https://github.com/belgattitude/flowblade/pull/922) [`3e2633f`](https://github.com/belgattitude/flowblade/commit/3e2633fd49b53af2b0a5c446b741d61dbc7a224b) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild with esbuild 0.27.1
+
+- [#924](https://github.com/belgattitude/flowblade/pull/924) [`15bdbd4`](https://github.com/belgattitude/flowblade/commit/15bdbd42bd8d904b13e8eb7629139a409cf56026) Thanks [@belgattitude](https://github.com/belgattitude)! - Update internal @httpx packages
+
+- Updated dependencies [[`3e2633f`](https://github.com/belgattitude/flowblade/commit/3e2633fd49b53af2b0a5c446b741d61dbc7a224b), [`15bdbd4`](https://github.com/belgattitude/flowblade/commit/15bdbd42bd8d904b13e8eb7629139a409cf56026)]:
+  - @flowblade/sql-tag@0.1.17
+  - @flowblade/core@0.2.21
+
 ## 0.15.10
 
 ### Patch Changes
