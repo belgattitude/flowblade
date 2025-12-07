@@ -30,6 +30,7 @@ const npmPreapprovedPackages = [
   '@better-auth/*',
   '@typescript-eslint/*',
   'prettier',
+  '@kubb/*',
 ];
 
 module.exports = defineConfig({
