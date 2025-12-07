@@ -1983,13 +1983,13 @@ __metadata:
     "@httpx/stable-hash": "npm:0.3.7"
     "@httpx/treeu": "npm:0.5.7"
     "@httpx/xcache": "npm:0.4.9"
-    "@kubb/cli": "npm:4.7.2"
-    "@kubb/core": "npm:4.7.2"
-    "@kubb/oas": "npm:4.7.2"
-    "@kubb/plugin-client": "npm:4.7.2"
-    "@kubb/plugin-oas": "npm:4.7.2"
-    "@kubb/plugin-react-query": "npm:4.7.2"
-    "@kubb/plugin-ts": "npm:4.7.2"
+    "@kubb/cli": "npm:4.8.1"
+    "@kubb/core": "npm:4.8.1"
+    "@kubb/oas": "npm:4.8.1"
+    "@kubb/plugin-client": "npm:4.8.1"
+    "@kubb/plugin-oas": "npm:4.8.1"
+    "@kubb/plugin-react-query": "npm:4.8.1"
+    "@kubb/plugin-ts": "npm:4.8.1"
     "@kubb/react": "npm:4.3.1"
     "@motherduck/wasm-client": "npm:0.8.0"
     "@opentelemetry/api": "npm:1.9.0"
@@ -3222,17 +3222,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kubb/cli@npm:4.7.2":
-  version: 4.7.2
-  resolution: "@kubb/cli@npm:4.7.2"
+"@kubb/cli@npm:4.8.1":
+  version: 4.8.1
+  resolution: "@kubb/cli@npm:4.8.1"
   dependencies:
-    "@kubb/core": "npm:4.7.2"
+    "@kubb/core": "npm:4.8.1"
     chokidar: "npm:^4.0.3"
     citty: "npm:^0.1.6"
     cli-progress: "npm:^3.12.0"
     consola: "npm:^3.4.2"
     cosmiconfig: "npm:^9.0.0"
-    execa: "npm:^9.6.0"
+    execa: "npm:^9.6.1"
     gradient-string: "npm:^3.0.0"
     jiti: "npm:^2.6.1"
     latest-version: "npm:^9.0.0"
@@ -3241,15 +3241,15 @@ __metadata:
     string-argv: "npm:^0.3.2"
   bin:
     kubb: bin/kubb.cjs
-  checksum: 10c0/64a22746927bbaae7d3119efc98fef1737745953296fb99adb9895f294f2db60ea1afe00a0be85bef259a631de2414b6bb37c5f604db68a2cb36dd9bce2dc690
+  checksum: 10c0/3a98f3326a16338b15225ed1cbfece9066d3210d46d69e220b49ee1dbed19462c88e79f670642b96c801138de32909e4f2e306f770a900d01b1dbed77992ed7c
   languageName: node
   linkType: hard
 
-"@kubb/core@npm:4.7.2":
-  version: 4.7.2
-  resolution: "@kubb/core@npm:4.7.2"
+"@kubb/core@npm:4.8.1":
+  version: 4.8.1
+  resolution: "@kubb/core@npm:4.8.1"
   dependencies:
-    "@kubb/react-fabric": "npm:0.5.2"
+    "@kubb/react-fabric": "npm:0.5.4"
     camelcase: "npm:^8.0.0"
     find-up: "npm:^7.0.0"
     fs-extra: "npm:^11.3.2"
@@ -3263,8 +3263,8 @@ __metadata:
     seedrandom: "npm:^3.0.5"
     semver: "npm:^7.7.3"
   peerDependencies:
-    "@kubb/react-fabric": 0.5.2
-  checksum: 10c0/99a89a0899f158af67011c9da1e56ff6187c13215e07159e29e732c00b5766629d88d445cd1a32856f7e79f7318aa1b1f4282bd46d47e9363cffe9e86a0b3527
+    "@kubb/react-fabric": 0.5.4
+  checksum: 10c0/2f6cd9fe9cb76660283d0e542a25ec921eb602bd97e51823cdcceca898e26b7954d08b1c23ab22ced9df878c465e9865fbcf21791074c2193cbc59efd9b7a899
   languageName: node
   linkType: hard
 
@@ -3282,9 +3282,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kubb/fabric-core@npm:0.5.2":
-  version: 0.5.2
-  resolution: "@kubb/fabric-core@npm:0.5.2"
+"@kubb/fabric-core@npm:0.5.4":
+  version: 0.5.4
+  resolution: "@kubb/fabric-core@npm:0.5.4"
   dependencies:
     cli-progress: "npm:^3.12.0"
     consola: "npm:^3.4.2"
@@ -3294,15 +3294,15 @@ __metadata:
     serve-handler: "npm:^6.1.6"
     typescript: "npm:5.9.3"
     ws: "npm:^8.18.3"
-  checksum: 10c0/072c5de157ea0652fe0788fe8ca64664e31a0bf0e31891773300eb1741cebf5bd12162931c0161e85923fb827e6c74497945eb027690d1c4229e166bb28d9d62
+  checksum: 10c0/a60978b5eb2a5c5c63ab1c9737f9ade8eb81995149d8c5bcf7f95b64691ad75f73c0694c3c0b0baa6276562626af973103a8d124a1ecb98ae49f4a574ab9dc94
   languageName: node
   linkType: hard
 
-"@kubb/oas@npm:4.7.2":
-  version: 4.7.2
-  resolution: "@kubb/oas@npm:4.7.2"
+"@kubb/oas@npm:4.8.1":
+  version: 4.8.1
+  resolution: "@kubb/oas@npm:4.8.1"
   dependencies:
-    "@redocly/openapi-core": "npm:^2.11.1"
+    "@redocly/openapi-core": "npm:^2.12.3"
     hotscript: "npm:^1.0.13"
     json-schema-to-ts: "npm:^3.1.1"
     jsonpointer: "npm:^5.0.1"
@@ -3312,92 +3312,92 @@ __metadata:
     remeda: "npm:^2.32.0"
     swagger2openapi: "npm:^7.0.8"
     ts-toolbelt: "npm:^9.6.0"
-  checksum: 10c0/cb5f6399ee1c58c80197a8c3b7abd67e5d2abf4a3a3657fa3eccd5329deb0c3c2c749af589972274bd0484a7d4744c35a78c7d584b8dddbe6539e1d829acdcdd
+  checksum: 10c0/65d6315a39d3bd71fef2cd8036b5260fa02848ba30d10e8785d2eed3c87c2676b6554d8f2ce8f73bff11fff87a7e59ab63e64ab0aeb357da016b7b1b8c26277c
   languageName: node
   linkType: hard
 
-"@kubb/plugin-client@npm:4.7.2":
-  version: 4.7.2
-  resolution: "@kubb/plugin-client@npm:4.7.2"
+"@kubb/plugin-client@npm:4.8.1":
+  version: 4.8.1
+  resolution: "@kubb/plugin-client@npm:4.8.1"
   dependencies:
-    "@kubb/core": "npm:4.7.2"
-    "@kubb/oas": "npm:4.7.2"
-    "@kubb/plugin-oas": "npm:4.7.2"
-    "@kubb/plugin-ts": "npm:4.7.2"
-    "@kubb/plugin-zod": "npm:4.7.2"
-    "@kubb/react-fabric": "npm:0.5.2"
+    "@kubb/core": "npm:4.8.1"
+    "@kubb/oas": "npm:4.8.1"
+    "@kubb/plugin-oas": "npm:4.8.1"
+    "@kubb/plugin-ts": "npm:4.8.1"
+    "@kubb/plugin-zod": "npm:4.8.1"
+    "@kubb/react-fabric": "npm:0.5.4"
     jiti: "npm:^2.6.1"
   peerDependencies:
-    "@kubb/react-fabric": 0.5.2
+    "@kubb/react-fabric": 0.5.4
     axios: ^1.7.2
   peerDependenciesMeta:
     axios:
       optional: true
-  checksum: 10c0/263c73931b32682127e31052aeea0c11e88ff19b668e9cc60a64a3bc72c21e623d9b774d8b6de06b60da4b2bd0b46e809fce1615982a816862de177d6f7b0e99
+  checksum: 10c0/f1593137ab2081f5471cc0e5563d882bd1fae70e3bd87c906152d070e06fbba1d51b20c0d3432b7d5e2ae74d6b063f31fc09d1bf9dde73d17dd273850e49b0cb
   languageName: node
   linkType: hard
 
-"@kubb/plugin-oas@npm:4.7.2":
-  version: 4.7.2
-  resolution: "@kubb/plugin-oas@npm:4.7.2"
+"@kubb/plugin-oas@npm:4.8.1":
+  version: 4.8.1
+  resolution: "@kubb/plugin-oas@npm:4.8.1"
   dependencies:
-    "@kubb/core": "npm:4.7.2"
-    "@kubb/oas": "npm:4.7.2"
-    "@kubb/react-fabric": "npm:0.5.2"
+    "@kubb/core": "npm:4.8.1"
+    "@kubb/oas": "npm:4.8.1"
+    "@kubb/react-fabric": "npm:0.5.4"
     "@stoplight/yaml": "npm:^4.3.0"
     p-limit: "npm:^7.2.0"
     remeda: "npm:^2.32.0"
   peerDependencies:
-    "@kubb/react-fabric": 0.5.2
-  checksum: 10c0/03306af56d5fee80bfc76909488de58f994651ba3c3ae37bbef77adf899910deb99383b8cbf2a9787571271c9a5a6b8dff81af164b5bff76b6d58818b8731228
+    "@kubb/react-fabric": 0.5.4
+  checksum: 10c0/f411ced7780a24b42d30231cf5e3f4046c8bf19943afa637f210df76b6899dec9046e595d478f9f64f9a2bdc80e6503429a7bf08304ba1caa7fe3a9cc8bba710
   languageName: node
   linkType: hard
 
-"@kubb/plugin-react-query@npm:4.7.2":
-  version: 4.7.2
-  resolution: "@kubb/plugin-react-query@npm:4.7.2"
+"@kubb/plugin-react-query@npm:4.8.1":
+  version: 4.8.1
+  resolution: "@kubb/plugin-react-query@npm:4.8.1"
   dependencies:
-    "@kubb/core": "npm:4.7.2"
-    "@kubb/oas": "npm:4.7.2"
-    "@kubb/plugin-client": "npm:4.7.2"
-    "@kubb/plugin-oas": "npm:4.7.2"
-    "@kubb/plugin-ts": "npm:4.7.2"
-    "@kubb/plugin-zod": "npm:4.7.2"
-    "@kubb/react-fabric": "npm:0.5.2"
+    "@kubb/core": "npm:4.8.1"
+    "@kubb/oas": "npm:4.8.1"
+    "@kubb/plugin-client": "npm:4.8.1"
+    "@kubb/plugin-oas": "npm:4.8.1"
+    "@kubb/plugin-ts": "npm:4.8.1"
+    "@kubb/plugin-zod": "npm:4.8.1"
+    "@kubb/react-fabric": "npm:0.5.4"
     remeda: "npm:^2.32.0"
   peerDependencies:
-    "@kubb/react-fabric": 0.5.2
-  checksum: 10c0/eef9825b82cbf784bde30374c8fcb703c6cc6a8c576f3561165a5f3d458cb6fbf9cc0d86ffc2bc9a94b19cc3e3c5d5d9bf31792ff0e44e343c6185849f2447bb
+    "@kubb/react-fabric": 0.5.4
+  checksum: 10c0/20083b454c73d17952f74064425482d20db47de134392aba22fe8cb721e2ecd5a4f7882fcda61237fe4d1916c2d231faf425e54344741b3b86dd7251f67611fa
   languageName: node
   linkType: hard
 
-"@kubb/plugin-ts@npm:4.7.2":
-  version: 4.7.2
-  resolution: "@kubb/plugin-ts@npm:4.7.2"
+"@kubb/plugin-ts@npm:4.8.1":
+  version: 4.8.1
+  resolution: "@kubb/plugin-ts@npm:4.8.1"
   dependencies:
-    "@kubb/core": "npm:4.7.2"
-    "@kubb/fabric-core": "npm:0.5.2"
-    "@kubb/oas": "npm:4.7.2"
-    "@kubb/plugin-oas": "npm:4.7.2"
-    "@kubb/react-fabric": "npm:0.5.2"
+    "@kubb/core": "npm:4.8.1"
+    "@kubb/fabric-core": "npm:0.5.4"
+    "@kubb/oas": "npm:4.8.1"
+    "@kubb/plugin-oas": "npm:4.8.1"
+    "@kubb/react-fabric": "npm:0.5.4"
     remeda: "npm:^2.32.0"
     typescript: "npm:5.9.3"
   peerDependencies:
-    "@kubb/react-fabric": 0.5.2
-  checksum: 10c0/cff9abbb8f93d45409f820f7a6510b62df526538df9cb46b6371d7f26d27f8f439e3d710e919def31ba86ab22a1fca6df243f39e1e93c3b7f71f0efda35e774e
+    "@kubb/react-fabric": 0.5.4
+  checksum: 10c0/677ed977d21393bd06110deb96b87c2eecba760d0ef44f10165addd32f15c398067a91a52a7505b275c22178eec38981c5023d68d287fb7b17c267d72df82d36
   languageName: node
   linkType: hard
 
-"@kubb/plugin-zod@npm:4.7.2":
-  version: 4.7.2
-  resolution: "@kubb/plugin-zod@npm:4.7.2"
+"@kubb/plugin-zod@npm:4.8.1":
+  version: 4.8.1
+  resolution: "@kubb/plugin-zod@npm:4.8.1"
   dependencies:
-    "@kubb/core": "npm:4.7.2"
-    "@kubb/oas": "npm:4.7.2"
-    "@kubb/plugin-oas": "npm:4.7.2"
-    "@kubb/plugin-ts": "npm:4.7.2"
-    "@kubb/react-fabric": "npm:0.5.2"
-  checksum: 10c0/4c29a3ff56fa57883edd87ca01bac4db222af807f9351cbf59d41fd1b9fee28be278fbb4a9158961df6bc3eca82b693742f44acad7c9ca9cd40727de2c9ce693
+    "@kubb/core": "npm:4.8.1"
+    "@kubb/oas": "npm:4.8.1"
+    "@kubb/plugin-oas": "npm:4.8.1"
+    "@kubb/plugin-ts": "npm:4.8.1"
+    "@kubb/react-fabric": "npm:0.5.4"
+  checksum: 10c0/929a89359329c91fb432a0e023178a841effa66ab30bcd2e3937ccc9846d1e19958d5e54a066c1d9bab71d8ff23703749ba4cfad62cf989e17ae848b1e243e67
   languageName: node
   linkType: hard
 
@@ -3419,19 +3419,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kubb/react-fabric@npm:0.5.2":
-  version: 0.5.2
-  resolution: "@kubb/react-fabric@npm:0.5.2"
+"@kubb/react-fabric@npm:0.5.4":
+  version: 0.5.4
+  resolution: "@kubb/react-fabric@npm:0.5.4"
   dependencies:
-    "@kubb/fabric-core": "npm:0.5.2"
+    "@kubb/fabric-core": "npm:0.5.4"
     dedent: "npm:^1.7.0"
-    execa: "npm:^9.6.0"
+    execa: "npm:^9.6.1"
     indent-string: "npm:^5.0.0"
     natural-orderby: "npm:^5.0.0"
     react-devtools-core: "npm:6.1.2"
     signal-exit: "npm:^4.1.0"
     ws: "npm:8.18.0"
-  checksum: 10c0/372046e3230e37fb65fd07ad5013f74e43580c2d75ee207b1e9e8a25a6074d93e8c48eba3f12fc8cc6aa15df769768a02bd671fcecee09ee784cdcdfeb556a64
+  checksum: 10c0/58fbc7af9423d03d7e443870f186c74394556903d71e8a1add95731d51df75ca948c0b4330a8a0cedc9f8ecde3ad6acfa3bebe274a87ea33864b0c4c898d7d0e
   languageName: node
   linkType: hard
 
@@ -6469,9 +6469,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@redocly/openapi-core@npm:^2.11.1":
-  version: 2.12.1
-  resolution: "@redocly/openapi-core@npm:2.12.1"
+"@redocly/openapi-core@npm:^2.12.3":
+  version: 2.12.3
+  resolution: "@redocly/openapi-core@npm:2.12.3"
   dependencies:
     "@redocly/ajv": "npm:^8.17.1"
     "@redocly/config": "npm:^0.40.0"
@@ -6482,7 +6482,7 @@ __metadata:
     picomatch: "npm:^4.0.3"
     pluralize: "npm:^8.0.0"
     yaml-ast-parser: "npm:0.0.43"
-  checksum: 10c0/b715827ccfa7d630779b5484bbcca2a65b80547edc6913e761d48993cf526d222e46ea1e6bfb15762599986bdb7d571ec51960f85ecf2c2b8d2414307325ef53
+  checksum: 10c0/0cf35a92f99e0e81e5162dd0c6231e8d579591acf18f47cd79bc9bc3c7b0c252965b6298cbc27bd9cfe9e65ccca4e8f189798cad07a11bdb6d8eed514705e92a
   languageName: node
   linkType: hard
 
@@ -13516,7 +13516,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"execa@npm:9.6.1, execa@npm:^9.6.0":
+"execa@npm:9.6.1, execa@npm:^9.6.0, execa@npm:^9.6.1":
   version: 9.6.1
   resolution: "execa@npm:9.6.1"
   dependencies:

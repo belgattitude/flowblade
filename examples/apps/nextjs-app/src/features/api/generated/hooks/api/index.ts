@@ -1,36 +1,24 @@
 export type { GetApiDemoDuckdbSearchQueryKey } from './useGetApiDemoDuckdbSearchHook';
-export {
-  getApiDemoDuckdbSearchQueryKey,
-  getApiDemoDuckdbSearchQueryOptionsHook,
-  useGetApiDemoDuckdbSearchHook,
-} from './useGetApiDemoDuckdbSearchHook';
+export { getApiDemoDuckdbSearchQueryKey } from './useGetApiDemoDuckdbSearchHook';
+export { getApiDemoDuckdbSearchQueryOptionsHook } from './useGetApiDemoDuckdbSearchHook';
+export { useGetApiDemoDuckdbSearchHook } from './useGetApiDemoDuckdbSearchHook';
 export type { GetApiDemoDuckdbSearchSuspenseQueryKey } from './useGetApiDemoDuckdbSearchSuspenseHook';
-export {
-  getApiDemoDuckdbSearchSuspenseQueryKey,
-  getApiDemoDuckdbSearchSuspenseQueryOptionsHook,
-  useGetApiDemoDuckdbSearchSuspenseHook,
-} from './useGetApiDemoDuckdbSearchSuspenseHook';
+export { getApiDemoDuckdbSearchSuspenseQueryKey } from './useGetApiDemoDuckdbSearchSuspenseHook';
+export { getApiDemoDuckdbSearchSuspenseQueryOptionsHook } from './useGetApiDemoDuckdbSearchSuspenseHook';
+export { useGetApiDemoDuckdbSearchSuspenseHook } from './useGetApiDemoDuckdbSearchSuspenseHook';
 export type { GetApiProductEthicalBrandsQueryKey } from './useGetApiProductEthicalBrandsHook';
-export {
-  getApiProductEthicalBrandsQueryKey,
-  getApiProductEthicalBrandsQueryOptionsHook,
-  useGetApiProductEthicalBrandsHook,
-} from './useGetApiProductEthicalBrandsHook';
+export { getApiProductEthicalBrandsQueryKey } from './useGetApiProductEthicalBrandsHook';
+export { getApiProductEthicalBrandsQueryOptionsHook } from './useGetApiProductEthicalBrandsHook';
+export { useGetApiProductEthicalBrandsHook } from './useGetApiProductEthicalBrandsHook';
 export type { GetApiProductEthicalBrandsSuspenseQueryKey } from './useGetApiProductEthicalBrandsSuspenseHook';
-export {
-  getApiProductEthicalBrandsSuspenseQueryKey,
-  getApiProductEthicalBrandsSuspenseQueryOptionsHook,
-  useGetApiProductEthicalBrandsSuspenseHook,
-} from './useGetApiProductEthicalBrandsSuspenseHook';
+export { getApiProductEthicalBrandsSuspenseQueryKey } from './useGetApiProductEthicalBrandsSuspenseHook';
+export { getApiProductEthicalBrandsSuspenseQueryOptionsHook } from './useGetApiProductEthicalBrandsSuspenseHook';
+export { useGetApiProductEthicalBrandsSuspenseHook } from './useGetApiProductEthicalBrandsSuspenseHook';
 export type { GetApiProductEthicalSearchQueryKey } from './useGetApiProductEthicalSearchHook';
-export {
-  getApiProductEthicalSearchQueryKey,
-  getApiProductEthicalSearchQueryOptionsHook,
-  useGetApiProductEthicalSearchHook,
-} from './useGetApiProductEthicalSearchHook';
+export { getApiProductEthicalSearchQueryKey } from './useGetApiProductEthicalSearchHook';
+export { getApiProductEthicalSearchQueryOptionsHook } from './useGetApiProductEthicalSearchHook';
+export { useGetApiProductEthicalSearchHook } from './useGetApiProductEthicalSearchHook';
 export type { GetApiProductEthicalSearchSuspenseQueryKey } from './useGetApiProductEthicalSearchSuspenseHook';
-export {
-  getApiProductEthicalSearchSuspenseQueryKey,
-  getApiProductEthicalSearchSuspenseQueryOptionsHook,
-  useGetApiProductEthicalSearchSuspenseHook,
-} from './useGetApiProductEthicalSearchSuspenseHook';
+export { getApiProductEthicalSearchSuspenseQueryKey } from './useGetApiProductEthicalSearchSuspenseHook';
+export { getApiProductEthicalSearchSuspenseQueryOptionsHook } from './useGetApiProductEthicalSearchSuspenseHook';
+export { useGetApiProductEthicalSearchSuspenseHook } from './useGetApiProductEthicalSearchSuspenseHook';
