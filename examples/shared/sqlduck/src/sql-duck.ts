@@ -3,32 +3,47 @@ import {
   DuckDBDataChunk,
   type DuckDBValue,
   INTEGER,
+  TIMESTAMP,
   VARCHAR,
 } from '@duckdb/node-api';
-import type { DatasourceInterface } from '@flowblade/core';
 
 export type SqlDuckParams = {
-  ds?: DatasourceInterface;
   conn: DuckDBConnection;
 };
 export class SqlDuck {
-  private params: SqlDuckParams;
   private duck: DuckDBConnection;
   constructor(params: SqlDuckParams) {
-    this.params = params;
     this.duck = params.conn;
   }
-  test = async <TCol extends DuckDBValue[]>(columns: TCol[]) => {
-    await this.duck.run(
-      `create or replace table target_table(i integer, v varchar)`
-    );
 
-    const appender = await this.duck.createAppender('target_table');
-    const chunk = DuckDBDataChunk.create([INTEGER, VARCHAR]);
+  /**
+   *
+   * @param columns
+   */
+  test = async <TCol extends DuckDBValue[]>(table: string, columns: TCol[]) => {
+    try {
+      await this.duck.run(
+        `create or replace table ${table}(id integer, name varchar, created_at timestamp default current_localtimestamp() )`
+      );
+    } catch (e) {
+      throw new Error(
+        `Failed to create table '${table}': ${(e as Error).message}`,
+        {
+          cause: e as Error,
+        }
+      );
+    }
+
+    const appender = await this.duck.createAppender(
+      'test',
+      'main',
+      'memory_db'
+    );
+    const chunk = DuckDBDataChunk.create([INTEGER, VARCHAR, TIMESTAMP]);
     chunk.setColumns(columns);
     appender.appendDataChunk(chunk);
     appender.flushSync();
-    const result = this.duck.streamAndRead(`select * from target_table`);
+    const result = await this.duck.streamAndRead(`select * from ${table}`);
     return result;
   };
 }
