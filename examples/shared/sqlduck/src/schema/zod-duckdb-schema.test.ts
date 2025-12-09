@@ -1,9 +1,12 @@
+import type { DuckDBTypeId } from '@duckdb/node-api';
 import * as z from 'zod';
+
+import { getZodDuckDBSchema } from './zod-duckdb-schema';
 
 describe('test idea', () => {
   describe('zod to table', () => {
     const duckRegistry = z.registry<{
-      duckdb: { type: 'VARCHAR' | 'INTEGER' | 'TIMESTAMP' };
+      duckdb: { type: keyof typeof DuckDBTypeId };
     }>();
 
     const userSchema = z.object({
@@ -25,12 +28,15 @@ describe('test idea', () => {
     type User = z.infer<typeof userSchema>;
 
     it('should extract duckdb metadata from zod schema', () => {
+      const a = getZodDuckDBSchema(userSchema);
+
       const entries = userSchema.shape;
       const meta = [];
       for (const [key, schema] of Object.entries(entries)) {
         const fieldMeta = schema.meta();
-        meta.push({ key, duckdb: schema.meta() });
+        meta.push({ key, duckdb: fieldMeta });
       }
+      expect(meta).toStrictEqual(a);
       expect(meta).toMatchSnapshot();
     });
   });

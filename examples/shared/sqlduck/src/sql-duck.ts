@@ -16,11 +16,10 @@ export class SqlDuck {
     this.duck = params.conn;
   }
 
-  /**
-   *
-   * @param columns
-   */
-  test = async <TCol extends DuckDBValue[]>(table: string, columns: TCol[]) => {
+  toTable = async <TCol extends DuckDBValue[]>(
+    table: string,
+    columns: TCol[]
+  ) => {
     try {
       await this.duck.run(
         `create or replace table ${table}(id integer, name varchar, created_at timestamp default current_localtimestamp() )`

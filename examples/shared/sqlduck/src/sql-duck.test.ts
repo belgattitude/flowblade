@@ -21,7 +21,7 @@ describe('Duckdb tests', () => {
         { id: 2, name: 'Bob', created_at: new Date('2022-12-01 11:00:00z') },
       ];
       const columns = convertRowsToCols(rows);
-      const reader = await sqlDuck.test('memory_db.test', columns);
+      const reader = await sqlDuck.toTable('memory_db.test', columns);
       await reader.readAll();
       const data = reader.getRowObjects();
       // expect(data).toStrictEqual(rows);
