@@ -15,7 +15,7 @@
     "test-unit-watch": "vitest --ui",
     "generate-better-auth-migrations": "better-auth generate",
     "codegen-db": "tsx scripts/generate-db-base-auth-types.ts",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../.cache/eslint/base-auth.eslintcache",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/base-auth.eslintcache",
     "fix-staged": "lint-staged --allow-empty"
   },
   "dependencies": {

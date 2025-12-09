@@ -36,7 +36,7 @@
     "test-e2e": "vitest -c vitest.e2e.config.ts run",
     "test-unit-watch": "vitest --ui",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../../.cache/eslint/sqlduck.eslintcache",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../.cache/eslint/sqlduck.eslintcache",
     "fix-staged": "lint-staged --allow-empty"
   },
   "dependencies": {
