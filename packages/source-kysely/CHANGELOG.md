@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 0.16.0
+
+### Minor Changes
+
+- [#929](https://github.com/belgattitude/flowblade/pull/929) [`6ffc26d`](https://github.com/belgattitude/flowblade/commit/6ffc26d4a9248ef83993a59a6723eb93cbbdd796) Thanks [@belgattitude](https://github.com/belgattitude)! - Add support for withPlugins, withoutPlugins, withSchema and withTables in query builder
+
 ## 0.15.11
 
 ### Patch Changes
