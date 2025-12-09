@@ -46,7 +46,6 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *
    * ```
    */
-
   public get queryBuilder(): Pick<
     Kysely<TDatabase>,
     | 'mergeInto'
@@ -58,6 +57,10 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     | 'replaceInto'
     | 'with'
     | 'withRecursive'
+    | 'withSchema'
+    | 'withPlugin'
+    | 'withoutPlugins'
+    | 'withTables'
   > {
     return this.db;
   }
