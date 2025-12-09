@@ -20,23 +20,30 @@ export class SqlDuck {
    *
    * @param columns
    */
-  test = async <TCol extends DuckDBValue[]>(columns: TCol[]) => {
+  test = async <TCol extends DuckDBValue[]>(table: string, columns: TCol[]) => {
     try {
       await this.duck.run(
-        `create or replace table target_table(id integer, name varchar, created_at timestamp default current_localtimestamp() )`
+        `create or replace table ${table}(id integer, name varchar, created_at timestamp default current_localtimestamp() )`
       );
     } catch (e) {
-      throw new Error(`Failed to create table: ${(e as Error).message}`, {
-        cause: e as Error,
-      });
+      throw new Error(
+        `Failed to create table '${table}': ${(e as Error).message}`,
+        {
+          cause: e as Error,
+        }
+      );
     }
 
-    const appender = await this.duck.createAppender('target_table');
+    const appender = await this.duck.createAppender(
+      'test',
+      'main',
+      'memory_db'
+    );
     const chunk = DuckDBDataChunk.create([INTEGER, VARCHAR, TIMESTAMP]);
     chunk.setColumns(columns);
     appender.appendDataChunk(chunk);
     appender.flushSync();
-    const result = await this.duck.streamAndRead(`select * from target_table`);
+    const result = await this.duck.streamAndRead(`select * from ${table}`);
     return result;
   };
 }
