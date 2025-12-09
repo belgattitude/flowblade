@@ -16,10 +16,6 @@ export class SqlDuck {
     this.duck = params.conn;
   }
 
-  /**
-   *
-   * @param columns
-   */
   test = async <TCol extends DuckDBValue[]>(table: string, columns: TCol[]) => {
     try {
       await this.duck.run(
