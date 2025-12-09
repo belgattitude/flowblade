@@ -1990,13 +1990,13 @@ __metadata:
     "@httpx/stable-hash": "npm:0.3.7"
     "@httpx/treeu": "npm:0.5.7"
     "@httpx/xcache": "npm:0.4.9"
-    "@kubb/cli": "npm:4.9.3"
-    "@kubb/core": "npm:4.9.3"
-    "@kubb/oas": "npm:4.9.3"
-    "@kubb/plugin-client": "npm:4.9.3"
-    "@kubb/plugin-oas": "npm:4.9.3"
-    "@kubb/plugin-react-query": "npm:4.9.3"
-    "@kubb/plugin-ts": "npm:4.9.3"
+    "@kubb/cli": "npm:4.10.0"
+    "@kubb/core": "npm:4.10.0"
+    "@kubb/oas": "npm:4.10.0"
+    "@kubb/plugin-client": "npm:4.10.0"
+    "@kubb/plugin-oas": "npm:4.10.0"
+    "@kubb/plugin-react-query": "npm:4.10.0"
+    "@kubb/plugin-ts": "npm:4.10.0"
     "@kubb/react": "npm:4.3.1"
     "@motherduck/wasm-client": "npm:0.8.0"
     "@opentelemetry/api": "npm:1.9.0"
@@ -2101,8 +2101,10 @@ __metadata:
     "@flowblade/sql-tag": "workspace:^"
     "@httpx/assert": "npm:0.16.7"
     "@prisma/client": "npm:6.19.0"
+    "@standard-schema/spec": "npm:1.0.0"
     "@testcontainers/mssqlserver": "npm:11.9.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
+    "@traversable/zod": "npm:0.0.57"
     "@types/node": "npm:24.10.1"
     "@typescript-eslint/eslint-plugin": "npm:8.49.0"
     "@typescript-eslint/parser": "npm:8.49.0"
@@ -2126,6 +2128,7 @@ __metadata:
     typescript: "npm:5.9.3"
     vite-tsconfig-paths: "npm:5.1.4"
     vitest: "npm:4.0.15"
+    zod: "npm:4.1.13"
   peerDependencies:
     "@flowblade/source-kysely": "workspace:^"
   peerDependenciesMeta:
@@ -3321,11 +3324,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kubb/cli@npm:4.9.3":
-  version: 4.9.3
-  resolution: "@kubb/cli@npm:4.9.3"
+"@kubb/cli@npm:4.10.0":
+  version: 4.10.0
+  resolution: "@kubb/cli@npm:4.10.0"
   dependencies:
-    "@kubb/core": "npm:4.9.3"
+    "@kubb/core": "npm:4.10.0"
     chokidar: "npm:^4.0.3"
     citty: "npm:^0.1.6"
     cli-progress: "npm:^3.12.0"
@@ -3340,13 +3343,13 @@ __metadata:
     string-argv: "npm:^0.3.2"
   bin:
     kubb: bin/kubb.cjs
-  checksum: 10c0/7abce95dfb321e49eaf00ce4967ca37d0a0469c3f506683f7a56d3c0686a5f779336fbec133eb32e4deb671a939531f0b22ea85d66bec8ab22d03d49805bd94e
+  checksum: 10c0/2fd535cf93ef56e940ab22e9d06c48d61965f55dd428f708096028f17f8ec466f2a175a012c03e7d3673195fe2ba72213af97326aab527cbbcff49dfd6d1041c
   languageName: node
   linkType: hard
 
-"@kubb/core@npm:4.9.3":
-  version: 4.9.3
-  resolution: "@kubb/core@npm:4.9.3"
+"@kubb/core@npm:4.10.0":
+  version: 4.10.0
+  resolution: "@kubb/core@npm:4.10.0"
   dependencies:
     "@kubb/react-fabric": "npm:0.5.4"
     camelcase: "npm:^8.0.0"
@@ -3363,7 +3366,7 @@ __metadata:
     semver: "npm:^7.7.3"
   peerDependencies:
     "@kubb/react-fabric": 0.5.4
-  checksum: 10c0/663a37aebd53b32f8c0ba873626d9976e06fa8ca9a9833a5ed0e22e21d881e3c0e1ab7f320d5819f1e24c6a2f17f389f289647875b251c56576cc205d672190e
+  checksum: 10c0/1f1e16482b2c7d2d42afb06ba600a46ecf29b790f2992bf5fdcf898da136464ff46415f2ad669743de91fe2e4a74881ba6c2df16cbbbd77a4ccf65c687325890
   languageName: node
   linkType: hard
 
@@ -3397,11 +3400,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kubb/oas@npm:4.9.3":
-  version: 4.9.3
-  resolution: "@kubb/oas@npm:4.9.3"
+"@kubb/oas@npm:4.10.0":
+  version: 4.10.0
+  resolution: "@kubb/oas@npm:4.10.0"
   dependencies:
-    "@redocly/openapi-core": "npm:^2.12.4"
+    "@redocly/openapi-core": "npm:^2.12.5"
     hotscript: "npm:^1.0.13"
     json-schema-to-ts: "npm:^3.1.1"
     jsonpointer: "npm:^5.0.1"
@@ -3411,19 +3414,19 @@ __metadata:
     remeda: "npm:^2.32.0"
     swagger2openapi: "npm:^7.0.8"
     ts-toolbelt: "npm:^9.6.0"
-  checksum: 10c0/fec1fe92a1178880c273f1a6e613b5ff2f62e683585f7ef96024226d3c6a6e549140496b1b6b68cc48db0abc843e0dd148918a6e445f978264a9ed40570c991f
+  checksum: 10c0/0a80a4474431da86c89c5b91a6df7b020a469a1726f59e65d8c19d9330c90ace4c2b1ac464963aaa630d34a5b28025fc2d0ceba23f09a8c09caf026081d6e124
   languageName: node
   linkType: hard
 
-"@kubb/plugin-client@npm:4.9.3":
-  version: 4.9.3
-  resolution: "@kubb/plugin-client@npm:4.9.3"
+"@kubb/plugin-client@npm:4.10.0":
+  version: 4.10.0
+  resolution: "@kubb/plugin-client@npm:4.10.0"
   dependencies:
-    "@kubb/core": "npm:4.9.3"
-    "@kubb/oas": "npm:4.9.3"
-    "@kubb/plugin-oas": "npm:4.9.3"
-    "@kubb/plugin-ts": "npm:4.9.3"
-    "@kubb/plugin-zod": "npm:4.9.3"
+    "@kubb/core": "npm:4.10.0"
+    "@kubb/oas": "npm:4.10.0"
+    "@kubb/plugin-oas": "npm:4.10.0"
+    "@kubb/plugin-ts": "npm:4.10.0"
+    "@kubb/plugin-zod": "npm:4.10.0"
     "@kubb/react-fabric": "npm:0.5.4"
     jiti: "npm:^2.6.1"
   peerDependencies:
@@ -3432,71 +3435,71 @@ __metadata:
   peerDependenciesMeta:
     axios:
       optional: true
-  checksum: 10c0/da2f65c64d1a015bc056a595d68699d20fdb1b820444f7155f12778c9f96c00b3f88bc28ac4a59bd1b1bb0e9624fbca599367c54ea4a7007c99d6190214b831e
+  checksum: 10c0/0cf2e58bc63ce4f156a359fc07da0e7de244a025646dcd79ac20c99cd1c8745d3f529d1ae828e3fd07288c726b9cea577ac6836ef19dd3440247c62fdcb2f27c
   languageName: node
   linkType: hard
 
-"@kubb/plugin-oas@npm:4.9.3":
-  version: 4.9.3
-  resolution: "@kubb/plugin-oas@npm:4.9.3"
+"@kubb/plugin-oas@npm:4.10.0":
+  version: 4.10.0
+  resolution: "@kubb/plugin-oas@npm:4.10.0"
   dependencies:
-    "@kubb/core": "npm:4.9.3"
-    "@kubb/oas": "npm:4.9.3"
+    "@kubb/core": "npm:4.10.0"
+    "@kubb/oas": "npm:4.10.0"
     "@kubb/react-fabric": "npm:0.5.4"
     "@stoplight/yaml": "npm:^4.3.0"
     p-limit: "npm:^7.2.0"
     remeda: "npm:^2.32.0"
   peerDependencies:
     "@kubb/react-fabric": 0.5.4
-  checksum: 10c0/20f31fc1d4dbbe46c7647d9502c99a888c8355c2b1555811a752ce8f040b7182155e8b2692e4161ca5050a27300f0e9bec6363377ec721d4ba06d07148f5c88c
+  checksum: 10c0/a96c3c885d2d40da27087200302182acc462b38f2d40ace3f460efb81888b6e09ab0f10bbeccf1e8bd22b30c6ad28a02ae36ca4e3fe21314071def0a6cc480b0
   languageName: node
   linkType: hard
 
-"@kubb/plugin-react-query@npm:4.9.3":
-  version: 4.9.3
-  resolution: "@kubb/plugin-react-query@npm:4.9.3"
+"@kubb/plugin-react-query@npm:4.10.0":
+  version: 4.10.0
+  resolution: "@kubb/plugin-react-query@npm:4.10.0"
   dependencies:
-    "@kubb/core": "npm:4.9.3"
-    "@kubb/oas": "npm:4.9.3"
-    "@kubb/plugin-client": "npm:4.9.3"
-    "@kubb/plugin-oas": "npm:4.9.3"
-    "@kubb/plugin-ts": "npm:4.9.3"
-    "@kubb/plugin-zod": "npm:4.9.3"
+    "@kubb/core": "npm:4.10.0"
+    "@kubb/oas": "npm:4.10.0"
+    "@kubb/plugin-client": "npm:4.10.0"
+    "@kubb/plugin-oas": "npm:4.10.0"
+    "@kubb/plugin-ts": "npm:4.10.0"
+    "@kubb/plugin-zod": "npm:4.10.0"
     "@kubb/react-fabric": "npm:0.5.4"
     remeda: "npm:^2.32.0"
   peerDependencies:
     "@kubb/react-fabric": 0.5.4
-  checksum: 10c0/129e45196b16e1018941cac06e97f0614a5892835b6b97b5947cf684f3320c6c90ee9c049328eb421910c32b0cc626fab93b8c5644bed5c53d1e634a23f69296
+  checksum: 10c0/b8ca66d22b940a1e88fee927eb57eed42f1b14e8ddc5d3ff0d787ca97522783885a49cb2d93f511ad36be0423fc5e34cec311802f8c03a16949e63ceac5e72d8
   languageName: node
   linkType: hard
 
-"@kubb/plugin-ts@npm:4.9.3":
-  version: 4.9.3
-  resolution: "@kubb/plugin-ts@npm:4.9.3"
+"@kubb/plugin-ts@npm:4.10.0":
+  version: 4.10.0
+  resolution: "@kubb/plugin-ts@npm:4.10.0"
   dependencies:
-    "@kubb/core": "npm:4.9.3"
+    "@kubb/core": "npm:4.10.0"
     "@kubb/fabric-core": "npm:0.5.4"
-    "@kubb/oas": "npm:4.9.3"
-    "@kubb/plugin-oas": "npm:4.9.3"
+    "@kubb/oas": "npm:4.10.0"
+    "@kubb/plugin-oas": "npm:4.10.0"
     "@kubb/react-fabric": "npm:0.5.4"
     remeda: "npm:^2.32.0"
     typescript: "npm:5.9.3"
   peerDependencies:
     "@kubb/react-fabric": 0.5.4
-  checksum: 10c0/34f44b1d0daf25208bce9493699e258d5621f66d6e2e3d1c5b73a11f78cfb35e27f5159091d8a64637255af6f07e0770f6262ac04cf99b995a2380f108c2cc02
+  checksum: 10c0/54f4cf11be497c5428e0dcef706e41686a80de56bd3a774caac67e5dd5a27344347947886e6eb3765db673c505b98b9a3da306274faa88b3e26775b9cc460129
   languageName: node
   linkType: hard
 
-"@kubb/plugin-zod@npm:4.9.3":
-  version: 4.9.3
-  resolution: "@kubb/plugin-zod@npm:4.9.3"
+"@kubb/plugin-zod@npm:4.10.0":
+  version: 4.10.0
+  resolution: "@kubb/plugin-zod@npm:4.10.0"
   dependencies:
-    "@kubb/core": "npm:4.9.3"
-    "@kubb/oas": "npm:4.9.3"
-    "@kubb/plugin-oas": "npm:4.9.3"
-    "@kubb/plugin-ts": "npm:4.9.3"
+    "@kubb/core": "npm:4.10.0"
+    "@kubb/oas": "npm:4.10.0"
+    "@kubb/plugin-oas": "npm:4.10.0"
+    "@kubb/plugin-ts": "npm:4.10.0"
     "@kubb/react-fabric": "npm:0.5.4"
-  checksum: 10c0/205e87e558857f294a67b6a67b59d566a8789e36bab11804fb04013214251c9c0c46d482bc4b56d1d9fe5945d7823bf802ff918ea7a8dedc4eca22e1be99e416
+  checksum: 10c0/f41293dacaec65681ea1e1666e4af40a223da491843b84767d57fc29ada9f1339408bb3ce1c149d8209fe3a0935f1ea8151556f9cbd3e9c1febce598f83faa2f
   languageName: node
   linkType: hard
 
@@ -6664,7 +6667,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@redocly/openapi-core@npm:^2.12.4":
+"@redocly/openapi-core@npm:^2.12.5":
   version: 2.12.5
   resolution: "@redocly/openapi-core@npm:2.12.5"
   dependencies:
@@ -8380,6 +8383,62 @@ __metadata:
   version: 0.6.1
   resolution: "@total-typescript/ts-reset@npm:0.6.1"
   checksum: 10c0/c42c592054d33e86ac870065820888f89f05e47b2cfbc6bed95f3084b1f6d13b0231b5b8577eabf461aeb3f37c63ae3216f343b573f7136766eb750aac0dd1ab
+  languageName: node
+  linkType: hard
+
+"@traversable/json@npm:^0.0.52":
+  version: 0.0.52
+  resolution: "@traversable/json@npm:0.0.52"
+  peerDependencies:
+    "@traversable/registry": ^0.0.49
+    fast-check: 3 - 4
+  peerDependenciesMeta:
+    "@traversable/registry":
+      optional: false
+    fast-check:
+      optional: true
+  checksum: 10c0/9a41cad5102309a6ec70eb3ba8c12f21adec4c160adc38843f5a111d9e1ed36075bc1974f713362fa968bf4f386e6c50409529b67a0ffdd13e2effbfee2e7826
+  languageName: node
+  linkType: hard
+
+"@traversable/registry@npm:^0.0.49":
+  version: 0.0.49
+  resolution: "@traversable/registry@npm:0.0.49"
+  checksum: 10c0/dbdb986388680174689a8c0a74c084013bad9c08ddf58510c4a6a43e736fa3cb74dfb52266c9a76adfc91007bd0008dbe84a5eeb09478fae3968d34c82081cec
+  languageName: node
+  linkType: hard
+
+"@traversable/zod-types@npm:^0.0.30":
+  version: 0.0.30
+  resolution: "@traversable/zod-types@npm:0.0.30"
+  peerDependencies:
+    "@traversable/json": ^0.0.52
+    "@traversable/registry": ^0.0.49
+    zod: 4
+  peerDependenciesMeta:
+    "@traversable/json":
+      optional: false
+    "@traversable/registry":
+      optional: false
+    zod:
+      optional: false
+  checksum: 10c0/cd0627d5272046c611ff8cc23d37c8210fc383d65335e9df00c0692646adc15df4eda84066b875be43ac7569d66682bba746c6b39a9fe31f603907d1bbb82abf
+  languageName: node
+  linkType: hard
+
+"@traversable/zod@npm:0.0.57":
+  version: 0.0.57
+  resolution: "@traversable/zod@npm:0.0.57"
+  dependencies:
+    "@traversable/json": "npm:^0.0.52"
+    "@traversable/registry": "npm:^0.0.49"
+    "@traversable/zod-types": "npm:^0.0.30"
+  peerDependencies:
+    zod: 4
+  peerDependenciesMeta:
+    zod:
+      optional: false
+  checksum: 10c0/00ec4018b3e4e401e32016da268d997c2b1f8c14998761b69103b40e8f3a9de00ef53ef6de425dfbf5eb77d84b06803c777758f7ef4ddc521eee69eda753710d
   languageName: node
   linkType: hard
 
