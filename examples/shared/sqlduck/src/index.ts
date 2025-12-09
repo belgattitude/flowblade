@@ -1,1 +1,2 @@
-export const a = 1;
+export type { SqlDuckParams } from './sql-duck';
+export { SqlDuck } from './sql-duck';
