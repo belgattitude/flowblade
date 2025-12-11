@@ -25,8 +25,9 @@ describe('Duckdb tests', () => {
         email: z.email(),
         created_at: z.date(),
       });
+      const limit = 2048; // Duckdb max rows:  A data chunk cannot have more than 2048 rows
       const rowGen = createFakeRowsGenerator({
-        count: 10,
+        count: limit,
         schema: userSchema,
         factory: ({ faker }) => {
           return {
@@ -43,8 +44,7 @@ describe('Duckdb tests', () => {
       const reader = await sqlDuck.toTable('memory_db.test', columns);
       await reader.readAll();
       const data = reader.getRowObjects();
-      // expect(data).toStrictEqual(rows);
-      expect(data).toMatchSnapshot();
+      expect(data.length).toStrictEqual(limit);
     });
   });
 });

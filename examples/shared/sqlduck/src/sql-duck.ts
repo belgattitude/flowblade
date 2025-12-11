@@ -22,7 +22,7 @@ export class SqlDuck {
   ) => {
     try {
       await this.duck.run(
-        `create or replace table ${table}(id integer, name varchar, created_at timestamp default current_localtimestamp() )`
+        `CREATE OR REPLACE TABLE ${table}(id INTEGER, name VARCHAR, email VARCHAR, created_at TIMESTAMP DEFAULT current_localtimestamp() )`
       );
     } catch (e) {
       throw new Error(
@@ -38,7 +38,13 @@ export class SqlDuck {
       'main',
       'memory_db'
     );
-    const chunk = DuckDBDataChunk.create([INTEGER, VARCHAR, TIMESTAMP]);
+
+    const chunk = DuckDBDataChunk.create([
+      INTEGER,
+      VARCHAR,
+      VARCHAR,
+      TIMESTAMP,
+    ]);
     chunk.setColumns(columns);
     appender.appendDataChunk(chunk);
     appender.flushSync();

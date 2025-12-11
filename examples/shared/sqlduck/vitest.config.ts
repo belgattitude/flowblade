@@ -14,7 +14,7 @@ export default defineConfig({
     },
     environment: 'happy-dom',
     passWithNoTests: true,
-    // setupFiles: './setup/tests/setupVitest.ts',
+    setupFiles: './tests/vitest.setup.ts',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'clover'],
