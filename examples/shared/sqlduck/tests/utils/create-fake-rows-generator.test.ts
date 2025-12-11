@@ -110,6 +110,7 @@ describe('Generate fake data', () => {
     const received: z.infer<typeof userSchema>[] = [];
     for await (const row of rowsGenAsync()) {
       received.push(row);
+      expect(() => userSchema.parse(row)).not.toThrow();
     }
     expect(received.length).toBe(5);
     expect(received[0]).toStrictEqual(firstRow);
@@ -118,6 +119,7 @@ describe('Generate fake data', () => {
     const rows = await Array.fromAsync(rowsGenAsync());
     expect(rows).toBeInstanceOf(Array);
     expect(rows.length).toBe(5);
+
     expect(rows[0]).toStrictEqual(firstRow);
   });
 });
