@@ -1,7 +1,10 @@
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
-const testFiles = ['./src/**/*.test.{js,jsx,ts,tsx}'];
+const testFiles = [
+  './src/**/*.test.{js,jsx,ts,tsx}',
+  './tests/utils/**/*.test.{js,jsx,ts,tsx}',
+];
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
