@@ -7,6 +7,7 @@ type FakerFactory<T> = {
 };
 
 type Params<T extends ZodObject> = {
+  count: number;
   schema: T;
   factory: (params: {
     faker: Faker;
@@ -14,7 +15,6 @@ type Params<T extends ZodObject> = {
     remaining: number;
     total: number;
   }) => FakerFactory<z.infer<T>>;
-  count: number;
 };
 
 function* getFakeRowsGenerator<T extends ZodObject>(
@@ -22,7 +22,7 @@ function* getFakeRowsGenerator<T extends ZodObject>(
 ): Generator<FakerFactory<z.infer<T>>> {
   const { schema, factory, count } = params;
   let i = 0;
-  while (count === undefined || i < count) {
+  while (i < count) {
     const row = {} as FakerFactory<z.infer<T>>;
     const generatedFakeRow = factory({
       rowIdx: i,
