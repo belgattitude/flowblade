@@ -73,3 +73,37 @@ export function createFakeRowsGenerator<T extends ZodObject>(
 ): () => Generator<FakerFactory<z.infer<T>>> {
   return () => getFakeRowsGenerator(params);
 }
+
+/**
+ * Same as `createFakeRowsGenerator` but returns an async iterable iterator.
+ * Useful when a consumer API expects an `AsyncIterableIterator`.
+ *
+ * @example
+ * ```ts
+ * const rowsGenAsync = createFakeRowsAsyncGenerator({
+ *   count: 5,
+ *   schema: userSchema,
+ *   factory: ({ faker }) => ({ id: faker.number.int() })
+ * });
+ *
+ * for await (const row of rowsGenAsync()) {
+ *   // use row
+ * }
+ *
+ * // Collect all
+ * const rows = await Array.fromAsync(rowsGenAsync());
+ * ```
+ */
+export function createFakeRowsAsyncGenerator<T extends ZodObject>(
+  params: Params<T>
+): () => AsyncIterableIterator<FakerFactory<z.infer<T>>> {
+  async function* getAsync(): AsyncIterableIterator<FakerFactory<z.infer<T>>> {
+    // Reuse the synchronous generator to produce values
+    for (const row of getFakeRowsGenerator(params)) {
+      // Yield on next microtask to behave asynchronously without delays
+      await Promise.resolve();
+      yield row;
+    }
+  }
+  return () => getAsync();
+}
