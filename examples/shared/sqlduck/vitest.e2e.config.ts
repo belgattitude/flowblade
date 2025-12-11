@@ -11,7 +11,7 @@ export default defineConfig({
     },
     environment: 'node',
     passWithNoTests: true,
-    // setupFiles: './setup/tests/setupVitest.ts',
+    setupFiles: './tests/vitest.setup.ts',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'clover'],
