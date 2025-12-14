@@ -3,7 +3,7 @@ import * as z from 'zod';
 
 import { createDuckdbTestMemoryDb } from '../tests/e2e/utils/create-duckdb-test-memory-db';
 import { createFakeRowsIterator } from '../tests/utils/create-fake-rows-iterator';
-import { convertRowsToCols } from './convert/convert-rows-to-cols';
+import { rowsToColumnsChunk } from '../tests/utils/rows-to-columns';
 import { SqlDuck } from './sql-duck';
 
 describe('Duckdb tests', () => {
@@ -25,7 +25,8 @@ describe('Duckdb tests', () => {
         email: z.email(),
         created_at: z.date(),
       });
-      const limit = 2048; // Duckdb max rows:  A data chunk cannot have more than 2048 rows
+      const limit = 1_000_000;
+
       const rowGen = createFakeRowsIterator({
         count: limit,
         schema: userSchema,
@@ -38,13 +39,18 @@ describe('Duckdb tests', () => {
           };
         },
       });
-      const rows = await Array.fromAsync(rowGen());
+      const chunkedCols = rowsToColumnsChunk(rowGen(), 2000);
+      const _inserted = await sqlDuck.toTable('memory_db.test', chunkedCols);
 
-      const columns = convertRowsToCols(rows);
-      const reader = await sqlDuck.toTable('memory_db.test', columns);
-      await reader.readAll();
-      const data = reader.getRowObjects();
-      expect(data.length).toStrictEqual(limit);
+      const query = await conn.runAndReadAll(
+        'SELECT count(*) as count_star from memory_db.test'
+      );
+      const data = query.getRowObjects();
+      expect(data).toStrictEqual([
+        {
+          count_star: BigInt(limit),
+        },
+      ]);
     });
-  });
+  }, 10_000);
 });

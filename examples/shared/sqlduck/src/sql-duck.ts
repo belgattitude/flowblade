@@ -18,7 +18,7 @@ export class SqlDuck {
 
   toTable = async <TCol extends DuckDBValue[]>(
     table: string,
-    columns: TCol[]
+    columns: AsyncIterableIterator<TCol[]>
   ) => {
     try {
       await this.duck.run(
@@ -46,9 +46,11 @@ export class SqlDuck {
       TIMESTAMP,
     ]);
 
-    chunk.setColumns(columns);
-    appender.appendDataChunk(chunk);
-    appender.flushSync();
+    for await (const dataChunk of columns) {
+      chunk.setColumns(dataChunk);
+      appender.appendDataChunk(chunk);
+      appender.flushSync();
+    }
     const result = await this.duck.streamAndRead(`select * from ${table}`);
     return result;
   };

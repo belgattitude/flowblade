@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { rowsToColumns } from './rows-to-columns';
+import { rowsToColumns, rowsToColumnsChunk } from './rows-to-columns';
 
 type Row = { id: string; name: string };
 
@@ -44,5 +44,43 @@ describe('rowsToColumns', () => {
     // Expect first column corresponds to "id" values, second to "name" values
     expect(cols![0]).toStrictEqual(['10', '11']);
     expect(cols![1]).toStrictEqual(['Zoe', 'Max']);
+  });
+});
+
+describe('rowsToColumnsChunk', () => {
+  type Row = { id: string; name: string };
+
+  async function* makeRows(rows: Row[]): AsyncGenerator<Row> {
+    for (const r of rows) yield r;
+  }
+
+  it('yields column chunks according to chunkSize', async () => {
+    const input: Row[] = [
+      { id: '1', name: 'A' },
+      { id: '2', name: 'B' },
+      { id: '3', name: 'C' },
+      { id: '4', name: 'D' },
+      { id: '5', name: 'E' },
+    ];
+
+    const gen = rowsToColumnsChunk<Row>(makeRows(input), 2);
+    const out = await Array.fromAsync(gen);
+
+    expect(out.length).toBe(3);
+    expect(out[0]).toStrictEqual([
+      ['1', '2'],
+      ['A', 'B'],
+    ]);
+    expect(out[1]).toStrictEqual([
+      ['3', '4'],
+      ['C', 'D'],
+    ]);
+    expect(out[2]).toStrictEqual([['5'], ['E']]);
+  });
+
+  it('yields nothing for empty input', async () => {
+    const gen = rowsToColumnsChunk<Row>(makeRows([]), 3);
+    const out = await Array.fromAsync(gen);
+    expect(out.length).toBe(0);
   });
 });
