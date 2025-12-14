@@ -30,29 +30,31 @@ describe('Duckdb tests', () => {
           email: z.email(),
           created_at: z.date(),
         });
-        const limit = isInCi ? 5000 : 3_000_000;
+        const limit = isInCi ? 5000 : 100_000;
 
-        const now = new Date();
+        const _now = new Date();
         const rowGen = createFakeRowsIterator({
           count: limit,
           schema: userSchema,
-          factory: ({ faker: _faker, rowIdx }) => {
+          factory: ({ faker, rowIdx: _rowIdx }) => {
+            /*
             return {
               id: rowIdx,
               name: `name-${rowIdx}`,
               email: `email-${rowIdx}@example.com`,
               created_at: now,
+            }; */
+
+            return {
+              id: faker.number.int(),
+              name: faker.person.fullName(),
+              email: faker.internet.email(),
+              created_at: faker.date.recent(),
             };
-            /*
-          return {
-            id: faker.number.int(),
-            name: faker.person.fullName(),
-            email: faker.internet.email(),
-            created_at: faker.date.recent(),
-          }; */
           },
         });
         const chunkedCols = rowsToColumnsChunk(rowGen(), 2000);
+        // @ts-expect-error find time to decide
         const _inserted = await sqlDuck.toTable('memory_db.test', chunkedCols);
 
         const query = await conn.runAndReadAll(

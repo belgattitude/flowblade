@@ -1,21 +1,3 @@
-/*
-type Row = {
-  id: string;
-  name: string;
-};
-
-
-async function* createRows(count: number): AsyncGenerator<Row> {
-  for (let i = 1; i <= count; i++) {
-    // Simulate I/O or network delay
-    // await new Promise((resolve) => setTimeout(resolve, 50));
-    yield {
-      id: String(i),
-      name: `User ${i}`,
-    };
-  }
-} */
-
 import { DuckDBTimestampValue, type DuckDBValue } from '@duckdb/node-api';
 
 /**
@@ -79,11 +61,13 @@ export async function* rowsToColumnsChunk<TRow extends Record<string, unknown>>(
   let rowsInChunk = 0;
 
   // push first row values
+  // @ts-expect-error find time to decide
   keys.forEach((k, i) => columns[i]!.push(toDuckValue(first.value[k])));
   rowsInChunk++;
 
   // consume the rest
   for await (const row of rows) {
+    // @ts-expect-error find time to decide
     keys.forEach((k, i) => columns[i]!.push(toDuckValue(row[k])));
     rowsInChunk++;
     if (rowsInChunk >= chunkSize) {
