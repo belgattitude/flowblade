@@ -78,6 +78,46 @@ describe('rowsToColumnsChunk', () => {
     expect(out[2]).toStrictEqual([['5'], ['E']]);
   });
 
+  it('handles chunkSize = 1 without merging rows', async () => {
+    const input: Row[] = [
+      { id: '1', name: 'A' },
+      { id: '2', name: 'B' },
+      { id: '3', name: 'C' },
+    ];
+
+    const gen = rowsToColumnsChunks<Row>(makeRows(input), 1);
+    const out = await Array.fromAsync(gen);
+
+    expect(out).toStrictEqual([
+      [['1'], ['A']],
+      [['2'], ['B']],
+      [['3'], ['C']],
+    ]);
+  });
+
+  it('does not emit an empty final chunk when rows are multiple of chunkSize', async () => {
+    const input: Row[] = [
+      { id: '1', name: 'A' },
+      { id: '2', name: 'B' },
+      { id: '3', name: 'C' },
+      { id: '4', name: 'D' },
+    ];
+
+    const gen = rowsToColumnsChunks<Row>(makeRows(input), 2);
+    const out = await Array.fromAsync(gen);
+
+    expect(out).toStrictEqual([
+      [
+        ['1', '2'],
+        ['A', 'B'],
+      ],
+      [
+        ['3', '4'],
+        ['C', 'D'],
+      ],
+    ]);
+  });
+
   it('yields nothing for empty input', async () => {
     const gen = rowsToColumnsChunks<Row>(makeRows([]), 3);
     const out = await Array.fromAsync(gen);

@@ -66,6 +66,13 @@ export async function* rowsToColumnsChunks<
   // @ts-expect-error find time to decide
   keys.forEach((k, i) => columns[i]!.push(toDuckValue(first.value[k])));
   rowsInChunk++;
+  // In case chunkSize === 1 (or generally if threshold already reached),
+  // flush immediately after the first row to avoid off-by-one errors.
+  if (rowsInChunk >= chunkSize) {
+    yield columns;
+    columns = keys.map(() => []);
+    rowsInChunk = 0;
+  }
 
   // consume the rest
   for await (const row of rows) {

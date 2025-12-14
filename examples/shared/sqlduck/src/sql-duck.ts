@@ -55,18 +55,21 @@ export class SqlDuck {
       'memory_db'
     );
 
-    const chunk = DuckDBDataChunk.create([
-      INTEGER,
-      VARCHAR,
-      VARCHAR,
-      TIMESTAMP,
-    ]);
-
     for await (const dataChunk of columns) {
+      const chunk = DuckDBDataChunk.create([
+        INTEGER,
+        VARCHAR,
+        VARCHAR,
+        TIMESTAMP,
+      ]);
+
       chunk.setColumns(dataChunk);
       appender.appendDataChunk(chunk);
+
       appender.flushSync();
+      // chunk.reset();
     }
+
     const result = await this.duck.streamAndRead(`select * from ${table}`);
     return result;
   };

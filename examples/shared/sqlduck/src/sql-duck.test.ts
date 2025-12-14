@@ -16,7 +16,8 @@ describe('Duckdb tests', () => {
       it('should', async () => {
         const conn = await createDuckdbTestMemoryDb({
           // Keep it high to prevent going to .tmp directory
-          max_memory: isInCi ? '64M' : '256M',
+          max_memory: isInCi ? '128M' : '256M',
+          threads: 1,
         });
         await conn.run(`ATTACH ':memory:' AS memory_db (COMPRESS 'true')`);
         const _databases = await conn.runAndReadAll('SHOW DATABASES');
@@ -30,20 +31,19 @@ describe('Duckdb tests', () => {
           email: z.email(),
           created_at: z.date(),
         });
-        const limit = isInCi ? 5000 : 100_000;
+        const limit = isInCi ? 10_000 : 1_000_000;
 
-        const _now = new Date();
+        const now = new Date();
         const rowGen = createFakeRowsIterator({
           count: limit,
           schema: userSchema,
-          factory: ({ faker, rowIdx: _rowIdx }) => {
-            /*
+          factory: ({ faker, rowIdx }) => {
             return {
               id: rowIdx,
               name: `name-${rowIdx}`,
               email: `email-${rowIdx}@example.com`,
               created_at: now,
-            }; */
+            };
 
             return {
               id: faker.number.int(),
@@ -53,7 +53,9 @@ describe('Duckdb tests', () => {
             };
           },
         });
-        const chunkedCols = rowsToColumnsChunks(rowGen(), 2000);
+        // console.log('fake', await Array.fromAsync(rowGen()));
+        const chunkedCols = rowsToColumnsChunks(rowGen(), 2048);
+        // console.log('fake', await Array.fromAsync(chunkedCols));
         // @ts-expect-error find time to decide
         const _inserted = await sqlDuck.toTable('memory_db.test', chunkedCols);
 
