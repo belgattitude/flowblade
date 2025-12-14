@@ -13,7 +13,9 @@ describe('Duckdb tests', () => {
     'toDuckdb',
     () => {
       it('should', async () => {
-        const conn = await createDuckdbTestMemoryDb();
+        const conn = await createDuckdbTestMemoryDb({
+          max_memory: '10M',
+        });
         await conn.run(
           // `ATTACH ':memory:' AS memory_db (ACCESS_MODE 'READ_WRITE', COMPRESS 'true')`
           `ATTACH ':memory:' AS memory_db (COMPRESS 'true')`
