@@ -1,3 +1,4 @@
+import isInCi from 'is-in-ci';
 import { describe } from 'vitest';
 import * as z from 'zod';
 
@@ -14,12 +15,10 @@ describe('Duckdb tests', () => {
     () => {
       it('should', async () => {
         const conn = await createDuckdbTestMemoryDb({
-          max_memory: '10M',
+          // Keep it high to prevent going to .tmp directory
+          max_memory: isInCi ? '64M' : '256M',
         });
-        await conn.run(
-          // `ATTACH ':memory:' AS memory_db (ACCESS_MODE 'READ_WRITE', COMPRESS 'true')`
-          `ATTACH ':memory:' AS memory_db (COMPRESS 'true')`
-        );
+        await conn.run(`ATTACH ':memory:' AS memory_db (COMPRESS 'true')`);
         const _databases = await conn.runAndReadAll('SHOW DATABASES');
         const test = await conn.runAndReadAll('SHOW TABLES FROM memory_db');
         expect(test.getRowObjects()).toStrictEqual([]);
@@ -31,13 +30,13 @@ describe('Duckdb tests', () => {
           email: z.email(),
           created_at: z.date(),
         });
-        const limit = 3_000_000;
+        const limit = isInCi ? 5000 : 3_000_000;
 
         const now = new Date();
         const rowGen = createFakeRowsIterator({
           count: limit,
           schema: userSchema,
-          factory: ({ faker, rowIdx }) => {
+          factory: ({ faker: _faker, rowIdx }) => {
             return {
               id: rowIdx,
               name: `name-${rowIdx}`,

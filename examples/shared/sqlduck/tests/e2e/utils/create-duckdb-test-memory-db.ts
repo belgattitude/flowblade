@@ -16,7 +16,7 @@ export const createDuckdbTestMemoryDb = async (options?: {
     access_mode,
     max_memory,
     threads: String(threads),
-    // temp_directory: '/tmp',
+    temp_directory: '.tmp',
   });
   return await instance.connect();
 };
