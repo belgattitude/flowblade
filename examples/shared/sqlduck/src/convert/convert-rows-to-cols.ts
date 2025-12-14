@@ -1,5 +1,12 @@
 import { DuckDBTimestampValue, type DuckDBValue } from '@duckdb/node-api';
 
+const toDuckValue = (value: unknown): DuckDBValue => {
+  if (value instanceof Date) {
+    return new DuckDBTimestampValue(BigInt(value.getTime() * 1000));
+  }
+  return value === undefined ? null : (value as DuckDBValue);
+};
+
 /**
  * @example
  * ```typescript
@@ -24,13 +31,6 @@ export const convertRowsToCols = <TRow extends Record<string, unknown>>(
   const keys = Object.keys(first);
 
   const columns: DuckDBValue[][] = keys.map(() => []);
-
-  const toDuckValue = (value: unknown): DuckDBValue => {
-    if (value instanceof Date) {
-      return new DuckDBTimestampValue(BigInt(value.getTime() * 1000));
-    }
-    return value === undefined ? null : (value as DuckDBValue);
-  };
 
   const pushRow = (row: TRow) => {
     for (const [i, key_] of keys.entries()) {
