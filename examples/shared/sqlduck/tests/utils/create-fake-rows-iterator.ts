@@ -68,7 +68,7 @@ function* getFakeRowsGenerator<T extends ZodObject>(
  * await Array.fromAsync(rowsGen());
  * ```
  */
-export function createFakeRowsGenerator<T extends ZodObject>(
+export function createFakeRowsIterator<T extends ZodObject>(
   params: Params<T>
 ): () => Generator<FakerFactory<z.infer<T>>> {
   return () => getFakeRowsGenerator(params);
@@ -80,21 +80,21 @@ export function createFakeRowsGenerator<T extends ZodObject>(
  *
  * @example
  * ```ts
- * const rowsGenAsync = createFakeRowsAsyncGenerator({
+ * const iter = createFakeRowsAsyncIterator({
  *   count: 5,
  *   schema: userSchema,
  *   factory: ({ faker }) => ({ id: faker.number.int() })
  * });
  *
- * for await (const row of rowsGenAsync()) {
+ * for await (const row of iter()) {
  *   // use row
  * }
  *
  * // Collect all
- * const rows = await Array.fromAsync(rowsGenAsync());
+ * const rows = await Array.fromAsync(iter());
  * ```
  */
-export function createFakeRowsAsyncGenerator<T extends ZodObject>(
+export function createFakeRowsAsyncIterator<T extends ZodObject>(
   params: Params<T>
 ): () => AsyncIterableIterator<FakerFactory<z.infer<T>>> {
   async function* getAsync(): AsyncIterableIterator<FakerFactory<z.infer<T>>> {

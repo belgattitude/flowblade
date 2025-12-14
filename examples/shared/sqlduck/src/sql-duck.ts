@@ -18,8 +18,24 @@ export class SqlDuck {
 
   toTable = async <TCol extends DuckDBValue[]>(
     table: string,
-    columns: TCol[]
+    columns: AsyncIterableIterator<TCol[]>
   ) => {
+    type ColdDef = {
+      name: string;
+      type: 'INTEGER' | 'VARCHAR' | 'TIMESTAMP';
+      default?: string;
+    };
+    const _colDef = [
+      { name: 'id', type: 'INTEGER' },
+      { name: 'name', type: 'VARCHAR' },
+      { name: 'email', type: 'VARCHAR' },
+      {
+        name: 'created_at',
+        type: 'TIMESTAMP',
+        default: 'current_localtimestamp()',
+      },
+    ] as const satisfies ColdDef[];
+
     try {
       await this.duck.run(
         `CREATE OR REPLACE TABLE ${table}(id INTEGER, name VARCHAR, email VARCHAR, created_at TIMESTAMP DEFAULT current_localtimestamp() )`
@@ -39,15 +55,21 @@ export class SqlDuck {
       'memory_db'
     );
 
-    const chunk = DuckDBDataChunk.create([
-      INTEGER,
-      VARCHAR,
-      VARCHAR,
-      TIMESTAMP,
-    ]);
-    chunk.setColumns(columns);
-    appender.appendDataChunk(chunk);
-    appender.flushSync();
+    for await (const dataChunk of columns) {
+      const chunk = DuckDBDataChunk.create([
+        INTEGER,
+        VARCHAR,
+        VARCHAR,
+        TIMESTAMP,
+      ]);
+
+      chunk.setColumns(dataChunk);
+      appender.appendDataChunk(chunk);
+
+      appender.flushSync();
+      // chunk.reset();
+    }
+
     const result = await this.duck.streamAndRead(`select * from ${table}`);
     return result;
   };
