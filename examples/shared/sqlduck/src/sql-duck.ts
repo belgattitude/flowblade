@@ -45,6 +45,7 @@ export class SqlDuck {
       VARCHAR,
       TIMESTAMP,
     ]);
+
     chunk.setColumns(columns);
     appender.appendDataChunk(chunk);
     appender.flushSync();

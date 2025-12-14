@@ -2,7 +2,7 @@ import { describe } from 'vitest';
 import * as z from 'zod';
 
 import { createDuckdbTestMemoryDb } from '../tests/e2e/utils/create-duckdb-test-memory-db';
-import { createFakeRowsGenerator } from '../tests/utils/create-fake-rows-generator';
+import { createFakeRowsIterator } from '../tests/utils/create-fake-rows-iterator';
 import { convertRowsToCols } from './convert/convert-rows-to-cols';
 import { SqlDuck } from './sql-duck';
 
@@ -26,7 +26,7 @@ describe('Duckdb tests', () => {
         created_at: z.date(),
       });
       const limit = 2048; // Duckdb max rows:  A data chunk cannot have more than 2048 rows
-      const rowGen = createFakeRowsGenerator({
+      const rowGen = createFakeRowsIterator({
         count: limit,
         schema: userSchema,
         factory: ({ faker }) => {

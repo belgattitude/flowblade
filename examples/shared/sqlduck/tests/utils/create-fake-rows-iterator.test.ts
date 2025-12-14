@@ -1,9 +1,9 @@
 import * as z from 'zod';
 
 import {
-  createFakeRowsAsyncGenerator,
-  createFakeRowsGenerator,
-} from './create-fake-rows-generator';
+  createFakeRowsAsyncIterator,
+  createFakeRowsIterator,
+} from './create-fake-rows-iterator';
 
 describe('Generate fake data', () => {
   it('should generate fake data', async () => {
@@ -33,7 +33,7 @@ describe('Generate fake data', () => {
       created_at: new Date(),
     } satisfies z.infer<typeof userSchema>;
 
-    const rowGenerator = createFakeRowsGenerator({
+    const iter = createFakeRowsIterator({
       schema: userSchema,
       factory: ({ faker, rowIdx }) => {
         if (rowIdx === 0) {
@@ -48,13 +48,13 @@ describe('Generate fake data', () => {
       },
       count: 5,
     });
-    const rowGen = rowGenerator();
+    const rowGen = iter();
     expect(rowGen.next()).toStrictEqual({
       done: false,
       value: firstRow,
     });
 
-    const rows = await Array.fromAsync(rowGenerator());
+    const rows = await Array.fromAsync(iter());
     expect(rows).toBeInstanceOf(Array);
     expect(rows.length).toBe(5);
   });
@@ -86,7 +86,7 @@ describe('Generate fake data', () => {
       created_at: new Date(),
     } satisfies z.infer<typeof userSchema>;
 
-    const rowsGenAsync = createFakeRowsAsyncGenerator({
+    const rowsGenAsync = createFakeRowsAsyncIterator({
       schema: userSchema,
       factory: ({ faker, rowIdx }) => {
         if (rowIdx === 0) {
