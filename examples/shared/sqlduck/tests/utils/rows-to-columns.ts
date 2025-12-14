@@ -44,12 +44,14 @@ const toDuckValue = (value: unknown): DuckDBValue => {
  *   input rows: [{id:'1',name:'A'}, {id:'2',name:'B'}, {id:'3',name:'C'}]
  *   yields: [[['1','2'], ['A','B']], [['3'], ['C']]]
  */
-export async function* rowsToColumnsChunk<TRow extends Record<string, unknown>>(
+export async function* rowsToColumnsChunks<
+  TRow extends Record<string, unknown>,
+>(
   rows: AsyncGenerator<TRow> | Generator<TRow>,
   chunkSize: number
 ): AsyncIterableIterator<TRow[keyof TRow][][]> {
-  if (!Number.isFinite(chunkSize) || chunkSize <= 0) {
-    throw new Error(`chunkSize must be a positive number, got ${chunkSize}`);
+  if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
+    throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
   }
 
   // Pull the first row to determine column order

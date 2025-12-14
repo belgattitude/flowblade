@@ -4,7 +4,7 @@ import * as z from 'zod';
 
 import { createDuckdbTestMemoryDb } from '../tests/e2e/utils/create-duckdb-test-memory-db';
 import { createFakeRowsIterator } from '../tests/utils/create-fake-rows-iterator';
-import { rowsToColumnsChunk } from '../tests/utils/rows-to-columns';
+import { rowsToColumnsChunks } from '../tests/utils/rows-to-columns';
 import { SqlDuck } from './sql-duck';
 
 const testTimeout = 10_000;
@@ -53,7 +53,7 @@ describe('Duckdb tests', () => {
             };
           },
         });
-        const chunkedCols = rowsToColumnsChunk(rowGen(), 2000);
+        const chunkedCols = rowsToColumnsChunks(rowGen(), 2000);
         // @ts-expect-error find time to decide
         const _inserted = await sqlDuck.toTable('memory_db.test', chunkedCols);
 

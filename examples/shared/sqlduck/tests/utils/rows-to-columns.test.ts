@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { rowsToColumns, rowsToColumnsChunk } from './rows-to-columns';
+import { rowsToColumns, rowsToColumnsChunks } from './rows-to-columns';
 
 type Row = { id: string; name: string };
 
@@ -63,7 +63,7 @@ describe('rowsToColumnsChunk', () => {
       { id: '5', name: 'E' },
     ];
 
-    const gen = rowsToColumnsChunk<Row>(makeRows(input), 2);
+    const gen = rowsToColumnsChunks<Row>(makeRows(input), 2);
     const out = await Array.fromAsync(gen);
 
     expect(out.length).toBe(3);
@@ -79,7 +79,7 @@ describe('rowsToColumnsChunk', () => {
   });
 
   it('yields nothing for empty input', async () => {
-    const gen = rowsToColumnsChunk<Row>(makeRows([]), 3);
+    const gen = rowsToColumnsChunks<Row>(makeRows([]), 3);
     const out = await Array.fromAsync(gen);
     expect(out.length).toBe(0);
   });
