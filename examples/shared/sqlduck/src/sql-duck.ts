@@ -20,6 +20,22 @@ export class SqlDuck {
     table: string,
     columns: AsyncIterableIterator<TCol[]>
   ) => {
+    type ColdDef = {
+      name: string;
+      type: 'INTEGER' | 'VARCHAR' | 'TIMESTAMP';
+      default?: string;
+    };
+    const _colDef = [
+      { name: 'id', type: 'INTEGER' },
+      { name: 'name', type: 'VARCHAR' },
+      { name: 'email', type: 'VARCHAR' },
+      {
+        name: 'created_at',
+        type: 'TIMESTAMP',
+        default: 'current_localtimestamp()',
+      },
+    ] as const satisfies ColdDef[];
+
     try {
       await this.duck.run(
         `CREATE OR REPLACE TABLE ${table}(id INTEGER, name VARCHAR, email VARCHAR, created_at TIMESTAMP DEFAULT current_localtimestamp() )`
