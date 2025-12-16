@@ -1785,6 +1785,7 @@ __metadata:
     date-fns: "npm:4.1.0"
     embla-carousel-react: "npm:8.6.0"
     eslint: "npm:8.57.1"
+    eslint-plugin-storybook: "npm:10.1.8"
     happy-dom: "npm:20.0.11"
     input-otp: "npm:1.4.2"
     lucide-react: "npm:0.561.0"
@@ -9283,7 +9284,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:8.50.0, @typescript-eslint/utils@npm:^8.0.0, @typescript-eslint/utils@npm:^8.15.0, @typescript-eslint/utils@npm:^8.38.0, @typescript-eslint/utils@npm:^8.44.1, @typescript-eslint/utils@npm:^8.46.1, @typescript-eslint/utils@npm:^8.49.0":
+"@typescript-eslint/utils@npm:8.50.0, @typescript-eslint/utils@npm:^8.0.0, @typescript-eslint/utils@npm:^8.15.0, @typescript-eslint/utils@npm:^8.38.0, @typescript-eslint/utils@npm:^8.44.1, @typescript-eslint/utils@npm:^8.46.1, @typescript-eslint/utils@npm:^8.49.0, @typescript-eslint/utils@npm:^8.8.1":
   version: 8.50.0
   resolution: "@typescript-eslint/utils@npm:8.50.0"
   dependencies:
@@ -13912,6 +13913,18 @@ __metadata:
   peerDependencies:
     eslint: ^8.0.0 || ^9.0.0
   checksum: 10c0/e771084f7d01ed32be882cf341a3e78f76655e73bd7916080a798d2323ea650a0330f4cd6c5b9cd020696eab4a931184df37de1fd38a3109083ecf28b97362f5
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-storybook@npm:10.1.8":
+  version: 10.1.8
+  resolution: "eslint-plugin-storybook@npm:10.1.8"
+  dependencies:
+    "@typescript-eslint/utils": "npm:^8.8.1"
+  peerDependencies:
+    eslint: ">=8"
+    storybook: ^10.1.8
+  checksum: 10c0/4f9ee981eb23ba6a417bab62851bdd061378b560565169b9ba4a6323e7fd6c5ef349339b96bceabe813ad841f2a1de0709b17930166e7f8c5d0d04d3a7827533
   languageName: node
   linkType: hard
 
