@@ -2,41 +2,29 @@ export { getApiDemoDuckdbSearch } from './getApiDemoDuckdbSearch';
 export { getApiProductEthicalBrands } from './getApiProductEthicalBrands';
 export { getApiProductEthicalSearch } from './getApiProductEthicalSearch';
 export type { GetApiDemoDuckdbSearchQueryKey } from './hooks/api/useGetApiDemoDuckdbSearchHook';
-export {
-  getApiDemoDuckdbSearchQueryKey,
-  getApiDemoDuckdbSearchQueryOptionsHook,
-  useGetApiDemoDuckdbSearchHook,
-} from './hooks/api/useGetApiDemoDuckdbSearchHook';
+export { getApiDemoDuckdbSearchQueryKey } from './hooks/api/useGetApiDemoDuckdbSearchHook';
+export { getApiDemoDuckdbSearchQueryOptionsHook } from './hooks/api/useGetApiDemoDuckdbSearchHook';
+export { useGetApiDemoDuckdbSearchHook } from './hooks/api/useGetApiDemoDuckdbSearchHook';
 export type { GetApiDemoDuckdbSearchSuspenseQueryKey } from './hooks/api/useGetApiDemoDuckdbSearchSuspenseHook';
-export {
-  getApiDemoDuckdbSearchSuspenseQueryKey,
-  getApiDemoDuckdbSearchSuspenseQueryOptionsHook,
-  useGetApiDemoDuckdbSearchSuspenseHook,
-} from './hooks/api/useGetApiDemoDuckdbSearchSuspenseHook';
+export { getApiDemoDuckdbSearchSuspenseQueryKey } from './hooks/api/useGetApiDemoDuckdbSearchSuspenseHook';
+export { getApiDemoDuckdbSearchSuspenseQueryOptionsHook } from './hooks/api/useGetApiDemoDuckdbSearchSuspenseHook';
+export { useGetApiDemoDuckdbSearchSuspenseHook } from './hooks/api/useGetApiDemoDuckdbSearchSuspenseHook';
 export type { GetApiProductEthicalBrandsQueryKey } from './hooks/api/useGetApiProductEthicalBrandsHook';
-export {
-  getApiProductEthicalBrandsQueryKey,
-  getApiProductEthicalBrandsQueryOptionsHook,
-  useGetApiProductEthicalBrandsHook,
-} from './hooks/api/useGetApiProductEthicalBrandsHook';
+export { getApiProductEthicalBrandsQueryKey } from './hooks/api/useGetApiProductEthicalBrandsHook';
+export { getApiProductEthicalBrandsQueryOptionsHook } from './hooks/api/useGetApiProductEthicalBrandsHook';
+export { useGetApiProductEthicalBrandsHook } from './hooks/api/useGetApiProductEthicalBrandsHook';
 export type { GetApiProductEthicalBrandsSuspenseQueryKey } from './hooks/api/useGetApiProductEthicalBrandsSuspenseHook';
-export {
-  getApiProductEthicalBrandsSuspenseQueryKey,
-  getApiProductEthicalBrandsSuspenseQueryOptionsHook,
-  useGetApiProductEthicalBrandsSuspenseHook,
-} from './hooks/api/useGetApiProductEthicalBrandsSuspenseHook';
+export { getApiProductEthicalBrandsSuspenseQueryKey } from './hooks/api/useGetApiProductEthicalBrandsSuspenseHook';
+export { getApiProductEthicalBrandsSuspenseQueryOptionsHook } from './hooks/api/useGetApiProductEthicalBrandsSuspenseHook';
+export { useGetApiProductEthicalBrandsSuspenseHook } from './hooks/api/useGetApiProductEthicalBrandsSuspenseHook';
 export type { GetApiProductEthicalSearchQueryKey } from './hooks/api/useGetApiProductEthicalSearchHook';
-export {
-  getApiProductEthicalSearchQueryKey,
-  getApiProductEthicalSearchQueryOptionsHook,
-  useGetApiProductEthicalSearchHook,
-} from './hooks/api/useGetApiProductEthicalSearchHook';
+export { getApiProductEthicalSearchQueryKey } from './hooks/api/useGetApiProductEthicalSearchHook';
+export { getApiProductEthicalSearchQueryOptionsHook } from './hooks/api/useGetApiProductEthicalSearchHook';
+export { useGetApiProductEthicalSearchHook } from './hooks/api/useGetApiProductEthicalSearchHook';
 export type { GetApiProductEthicalSearchSuspenseQueryKey } from './hooks/api/useGetApiProductEthicalSearchSuspenseHook';
-export {
-  getApiProductEthicalSearchSuspenseQueryKey,
-  getApiProductEthicalSearchSuspenseQueryOptionsHook,
-  useGetApiProductEthicalSearchSuspenseHook,
-} from './hooks/api/useGetApiProductEthicalSearchSuspenseHook';
+export { getApiProductEthicalSearchSuspenseQueryKey } from './hooks/api/useGetApiProductEthicalSearchSuspenseHook';
+export { getApiProductEthicalSearchSuspenseQueryOptionsHook } from './hooks/api/useGetApiProductEthicalSearchSuspenseHook';
+export { useGetApiProductEthicalSearchSuspenseHook } from './hooks/api/useGetApiProductEthicalSearchSuspenseHook';
 export type {
   GetApiDemoDuckdbSearch200,
   GetApiDemoDuckdbSearchQuery,

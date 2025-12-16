@@ -1,7 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "baseUrl": "./src",
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -11,7 +10,7 @@
     "noUncheckedIndexedAccess": true,
     "incremental": true,
     "lib": ["dom", "dom.iterable", "esnext"],
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "paths": {},
     "allowJs": true,
     "skipLibCheck": true,
@@ -25,7 +24,7 @@
       }
     ]
   },
-  "exclude": ["**/node_modules", "**/.*/*"],
+  "exclude": ["**/node_modules"],
   "include": [
     ".eslintrc.*",
     "next-env.d.ts",
@@ -38,6 +37,7 @@
     "**/*.json",
     ".next/types/**/*.ts",
     ".storybook/**/*.ts",
-    ".storybook/**/*.tsx"
+    ".storybook/**/*.tsx",
+    ".next/dev/types/**/*.ts"
   ]
 }

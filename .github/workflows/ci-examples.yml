@@ -17,19 +17,19 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [24.x]
     env:
       TURBO_API: 'http://127.0.0.1:9080'
       TURBO_TEAM: 'flowblade'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # Fetch all git history so that yarn workspaces --since can compare with the correct commits
           # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           fetch-depth: 0
 
       - name: ⚙️ Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           package-manager-cache: false

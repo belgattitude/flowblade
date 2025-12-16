@@ -1,5 +1,17 @@
 # @flowblade/sql-tag
 
+## 0.1.17
+
+### Patch Changes
+
+- [#922](https://github.com/belgattitude/flowblade/pull/922) [`3e2633f`](https://github.com/belgattitude/flowblade/commit/3e2633fd49b53af2b0a5c446b741d61dbc7a224b) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild with esbuild 0.27.1
+
+## 0.1.16
+
+### Patch Changes
+
+- [#870](https://github.com/belgattitude/flowblade/pull/870) [`3cff1d0`](https://github.com/belgattitude/flowblade/commit/3cff1d0c37fde777341a12b596c4ccafb05bae4e) Thanks [@belgattitude](https://github.com/belgattitude)! - No code change, republish from CI
+
 ## 0.1.15
 
 ### Patch Changes

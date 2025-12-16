@@ -1,5 +1,39 @@
 # @flowblade/core
 
+## 0.2.21
+
+### Patch Changes
+
+- [#922](https://github.com/belgattitude/flowblade/pull/922) [`3e2633f`](https://github.com/belgattitude/flowblade/commit/3e2633fd49b53af2b0a5c446b741d61dbc7a224b) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild with esbuild 0.27.1
+
+- [#924](https://github.com/belgattitude/flowblade/pull/924) [`15bdbd4`](https://github.com/belgattitude/flowblade/commit/15bdbd42bd8d904b13e8eb7629139a409cf56026) Thanks [@belgattitude](https://github.com/belgattitude)! - Update internal @httpx packages
+
+## 0.2.20
+
+### Patch Changes
+
+- [`d878ad8`](https://github.com/belgattitude/flowblade/commit/d878ad8579dae8ff202377df99693b139e5c2fee) Thanks [@belgattitude](https://github.com/belgattitude)! - Use latest typescript-result
+
+  Re-release https://github.com/belgattitude/flowblade/pull/915
+
+## 0.2.19
+
+### Patch Changes
+
+- [#915](https://github.com/belgattitude/flowblade/pull/915) [`22f1611`](https://github.com/belgattitude/flowblade/commit/22f1611702d8cd8cba2549cfb1d41e8ebaafbedf) Thanks [@belgattitude](https://github.com/belgattitude)! - Support for latest typescript-result
+
+## 0.2.18
+
+### Patch Changes
+
+- [#870](https://github.com/belgattitude/flowblade/pull/870) [`3cff1d0`](https://github.com/belgattitude/flowblade/commit/3cff1d0c37fde777341a12b596c4ccafb05bae4e) Thanks [@belgattitude](https://github.com/belgattitude)! - No code change, republish from CI
+
+## 0.2.17
+
+### Patch Changes
+
+- [#840](https://github.com/belgattitude/flowblade/pull/840) [`55160db`](https://github.com/belgattitude/flowblade/commit/55160db8ae25f01829e8b4a3a80ee8d5183113dd) Thanks [@belgattitude](https://github.com/belgattitude)! - Update type-fest dependency
+
 ## 0.2.16
 
 ### Patch Changes

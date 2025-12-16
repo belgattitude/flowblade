@@ -16,7 +16,7 @@ module.exports = {
     '@belgattitude/eslint-config-bases/simple-import-sort',
     '@belgattitude/eslint-config-bases/import-x',
     // '@belgattitude/eslint-config-bases/perfectionist',
-    '@belgattitude/eslint-config-bases/storybook',
+    // '@belgattitude/eslint-config-bases/storybook',
     '@belgattitude/eslint-config-bases/sonar',
     '@belgattitude/eslint-config-bases/regexp',
     '@belgattitude/eslint-config-bases/vitest',

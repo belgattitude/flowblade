@@ -11,7 +11,6 @@ import { clientEnv } from './src/env/client.env.mjs';
 import { serverEnv } from './src/env/server.env.mjs';
 
 const _isDev = process.env.NODE_ENV === 'development';
-const _isTurbo = process.env.TURBOPACK !== undefined;
 const buildOutput = buildEnv.NEXT_BUILD_OUTPUT ?? undefined;
 
 const monorepoRoot = path.resolve(
@@ -25,19 +24,26 @@ const monorepoRoot = path.resolve(
 let nextConfig = {
   compress: serverEnv.NEXT_CONFIG_COMPRESS === 'true',
   ...(buildOutput === undefined ? {} : { output: buildOutput }),
-  eslint: {
-    dirs: ['src'],
-    ignoreDuringBuilds: buildEnv.NEXT_BUILD_IGNORE_ESLINT === 'true',
-  },
   // transpilePackages: ['@duckdb/duckdb-wasm'],
   serverExternalPackages: [
     '@duckdb/node-api',
     '@duckdb/node-bindings',
+    '@duckdb/node-bindings-linux-x64',
     'tedious',
     'mssql',
     'tarn',
   ],
   outputFileTracingRoot: monorepoRoot,
+  outputFileTracingIncludes: {
+    // Since nextjs 16 turbopack in standalone mode (vercel included)
+    // the tracing of the libduckdb.so is broken although duckdb.node is
+    // correctly traced (included).
+    // This bug might be more general and impact optional dependencies
+    '/api/\\[\\[\\.\\.\\.route\\]\\]': [
+      '../../../node_modules/@duckdb/node-bindings-linux-x64/*.so',
+      '../../../node_modules/@duckdb/node-bindings-linux-x64/*.node',
+    ],
+  },
   experimental: {
     // Prefer loading of ES Modules over CommonJS
     // @link {https://nextjs.org/blog/next-11-1#es-modules-support|Blog 11.1.0}
@@ -106,6 +112,7 @@ let nextConfig = {
   productionBrowserSourceMaps:
     buildEnv.NEXT_BUILD_PRODUCTION_SOURCEMAPS === 'true',
   reactStrictMode: true,
+  typedRoutes: true,
   typescript: {
     ignoreBuildErrors: buildEnv.NEXT_BUILD_IGNORE_TYPECHECK === 'true',
     tsconfigPath: buildEnv.NEXT_BUILD_TSCONFIG,
@@ -158,16 +165,4 @@ if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true') {
   console.log(`- ${pc.green('info')} Sentry integration not enabled`);
 }
 
-if (process.env.ANALYZE === 'true') {
-  try {
-    const withBundleAnalyzer = await import('@next/bundle-analyzer').then(
-      (mod) => mod.default
-    );
-    nextConfig = withBundleAnalyzer({
-      enabled: true,
-    })(nextConfig);
-  } catch {
-    // Do nothing, @next/bundle-analyzer is probably purged in prod or not installed
-  }
-}
 export default nextConfig;

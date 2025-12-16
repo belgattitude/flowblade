@@ -1,7 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "baseUrl": "./src",
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -13,19 +12,15 @@
     "jsx": "preserve",
     "paths": {
       "@examples/db-sqlserver/kysely-types": [
-        "../../../shared/db-sqlserver/src/kysely-types.ts"
+        "../../shared/db-sqlserver/src/kysely-types.ts"
       ],
-      "@flowblade/core": ["../../../../packages/core/src/index"],
-      "@flowblade/source-duckdb": [
-        "../../../../packages/source-duckdb/src/index"
-      ],
-      "@flowblade/source-kysely": [
-        "../../../../packages/source-kysely/src/index"
-      ],
-      "@flowblade/sql-tag": ["../../../../packages/sql-tag/src/index"],
-      "@/config/*": ["./config/*"],
-      "@/routes/*": ["./routes/*"],
-      "@/plugins/*": ["./plugins/*"]
+      "@flowblade/core": ["../../../packages/core/src/index"],
+      "@flowblade/source-duckdb": ["../../../packages/source-duckdb/src/index"],
+      "@flowblade/source-kysely": ["../../../packages/source-kysely/src/index"],
+      "@flowblade/sql-tag": ["../../../packages/sql-tag/src/index"],
+      "@/config/*": ["./src/config/*"],
+      "@/routes/*": ["./src/routes/*"],
+      "@/plugins/*": ["./src/plugins/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,

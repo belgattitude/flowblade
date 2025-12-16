@@ -36,9 +36,10 @@
     "g:check-pub": "turbo run check-pub --filter='!@examples/**' --filter='!docs/**'",
     "g:release": "yarn g:build-release && yarn exec changeset publish",
     "g:ci-coverage-upload": "yarn workspaces foreach --all -tv run ci-coverage-upload",
-    "deps:check": "npm-check-updates --configFileName .ncurc.json",
-    "deps:update": "npm-check-updates --configFileName .ncurc.json -u",
+    "deps:check": "npm-check-updates --configFileName .ncurc.cjs",
+    "deps:update": "npm-check-updates --configFileName .ncurc.cjs -u",
     "check:install": "yarn dlx @yarnpkg/doctor@3 .",
+    "check:security": "yarn npm audit --no-deprecations --all",
     "postinstall": "is-ci || husky",
     "syncpack:format": "syncpack format",
     "syncpack:check": "syncpack lint-semver-ranges --types prod,dev --source \"package.json\" --source \"packages/*/package.json\"",
@@ -53,7 +54,7 @@
     "integrations/*",
     "packages/*"
   ],
-  "packageManager": "yarn@4.10.3",
+  "packageManager": "yarn@4.12.0",
   "dependenciesMeta": {
     "@sentry/cli": {
       "built": true
@@ -66,30 +67,31 @@
     }
   },
   "devDependencies": {
-    "@belgattitude/eslint-config-bases": "8.0.1",
-    "@changesets/changelog-github": "0.5.1",
-    "@changesets/cli": "2.29.7",
-    "@commitlint/cli": "20.1.0",
-    "@commitlint/config-conventional": "20.0.0",
-    "@commitlint/types": "20.0.0",
+    "@belgattitude/eslint-config-bases": "8.8.0",
+    "@changesets/changelog-github": "0.5.2",
+    "@changesets/cli": "2.29.8",
+    "@commitlint/cli": "20.2.0",
+    "@commitlint/config-conventional": "20.2.0",
+    "@commitlint/types": "20.2.0",
     "@types/shell-quote": "1.7.5",
     "cross-env": "10.1.0",
     "eslint": "8.57.1",
     "husky": "9.1.7",
     "is-ci": "4.1.0",
-    "lint-staged": "16.2.3",
-    "npm-check-updates": "19.0.0",
+    "lint-staged": "16.2.7",
+    "npm-check-updates": "19.2.0",
     "npm-run-all2": "8.0.4",
     "picocolors": "1.1.1",
-    "prettier": "3.6.2",
-    "rimraf": "6.0.1",
+    "pkg-pr-new": "0.0.62",
+    "prettier": "3.7.4",
+    "rimraf": "6.1.2",
     "shell-quote": "1.8.3",
     "syncpack": "13.0.4",
-    "turbo": "2.5.8",
+    "turbo": "2.6.3",
     "typescript": "5.9.3"
   },
   "resolutions": {
-    "esbuild": "^0.25.10"
+    "esbuild": "^0.27.1"
   },
   "resolutions-help": {
     "esbuild": "Generally is safe to keep only the latest version (vite, vitest, tsup...)"

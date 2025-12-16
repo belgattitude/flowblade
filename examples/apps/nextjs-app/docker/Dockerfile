@@ -1,4 +1,4 @@
-ARG NODE_VERSION=22.19
+ARG NODE_VERSION=24.11
 ARG DEBIAN_VERSION=trixie-slim
 
 #############################################################
@@ -74,6 +74,7 @@ COPY --link .gitignore turbo.jsonc tsconfig.base.json ./
 ENV NEXT_BUILD_IGNORE_ESLINT=true
 ENV NEXT_BUILD_IGNORE_TYPECHECK=true
 ENV NEXT_BUILD_OUTPUT=standalone
+ENV NODE_ENV=production
 # ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
 # ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
 
@@ -93,6 +94,7 @@ ARG NEXTJS_APP_PORT
 ENV HOSTNAME=0.0.0.0
 ENV PORT=${NEXTJS_APP_PORT:-3000}
 ENV TZ=Etc/UTC
+ENV NODE_ENV=production
 
 #RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
 #    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \

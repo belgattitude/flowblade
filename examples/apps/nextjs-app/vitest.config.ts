@@ -13,14 +13,6 @@ export default defineConfig({
   ],
   test: {
     globals: true,
-    deps: {
-      optimizer: {
-        web: {
-          enabled: true,
-        },
-        ssr: { enabled: true },
-      },
-    },
     typecheck: {
       enabled: false,
     },
@@ -30,7 +22,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'clover'],
-      extension: ['js', 'jsx', 'ts', 'tsx'],
+      include: ['src/**/*.{js,jsx,ts,tsx}'],
     },
     include: testFiles,
     // you might want to disable it, if you don't have tests that rely on CSS

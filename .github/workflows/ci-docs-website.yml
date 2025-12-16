@@ -32,14 +32,14 @@ jobs:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.12.1
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: ⚙️ Setup node 22.x
-        uses: actions/setup-node@v5
+      - name: ⚙️ Setup node 24.x
+        uses: actions/setup-node@v6
         with:
-          node-version: "22.x"
+          node-version: "24.x"
           package-manager-cache: false
 
       - name: ⏩ TurboRepo local server

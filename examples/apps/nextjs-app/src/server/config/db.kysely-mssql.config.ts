@@ -4,6 +4,7 @@ import {
   TediousConnUtils,
 } from '@flowblade/source-kysely';
 import { Kysely } from 'kysely';
+import * as Tedious from 'tedious';
 
 import { serverEnv } from '../../env/server.env.mjs';
 
@@ -20,6 +21,13 @@ const dialect = createKyselyMssqlDialect({
   dialectConfig: {
     validateConnections: false,
     resetConnectionsOnRelease: false,
+    tediousTypes: {
+      ...Tedious.TYPES,
+      // see https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
+      NVarChar: Tedious.TYPES.VarChar,
+      // see https://github.com/kysely-org/kysely/issues/1596#issuecomment-3341591075
+      DateTime: Tedious.TYPES.DateTime2,
+    },
   },
 });
 

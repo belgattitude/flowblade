@@ -1,5 +1,62 @@
 # @flowblade/source-kysely
 
+## 0.16.0
+
+### Minor Changes
+
+- [#929](https://github.com/belgattitude/flowblade/pull/929) [`6ffc26d`](https://github.com/belgattitude/flowblade/commit/6ffc26d4a9248ef83993a59a6723eb93cbbdd796) Thanks [@belgattitude](https://github.com/belgattitude)! - Add support for withPlugins, withoutPlugins, withSchema and withTables in query builder
+
+## 0.15.11
+
+### Patch Changes
+
+- [#922](https://github.com/belgattitude/flowblade/pull/922) [`3e2633f`](https://github.com/belgattitude/flowblade/commit/3e2633fd49b53af2b0a5c446b741d61dbc7a224b) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild with esbuild 0.27.1
+
+- [#924](https://github.com/belgattitude/flowblade/pull/924) [`15bdbd4`](https://github.com/belgattitude/flowblade/commit/15bdbd42bd8d904b13e8eb7629139a409cf56026) Thanks [@belgattitude](https://github.com/belgattitude)! - Update internal @httpx packages
+
+- Updated dependencies [[`3e2633f`](https://github.com/belgattitude/flowblade/commit/3e2633fd49b53af2b0a5c446b741d61dbc7a224b), [`15bdbd4`](https://github.com/belgattitude/flowblade/commit/15bdbd42bd8d904b13e8eb7629139a409cf56026)]:
+  - @flowblade/sql-tag@0.1.17
+  - @flowblade/core@0.2.21
+
+## 0.15.10
+
+### Patch Changes
+
+- [`d878ad8`](https://github.com/belgattitude/flowblade/commit/d878ad8579dae8ff202377df99693b139e5c2fee) Thanks [@belgattitude](https://github.com/belgattitude)! - Use latest typescript-result
+
+  Re-release https://github.com/belgattitude/flowblade/pull/915
+
+- Updated dependencies [[`d878ad8`](https://github.com/belgattitude/flowblade/commit/d878ad8579dae8ff202377df99693b139e5c2fee)]:
+  - @flowblade/core@0.2.20
+
+## 0.15.9
+
+### Patch Changes
+
+- [#915](https://github.com/belgattitude/flowblade/pull/915) [`22f1611`](https://github.com/belgattitude/flowblade/commit/22f1611702d8cd8cba2549cfb1d41e8ebaafbedf) Thanks [@belgattitude](https://github.com/belgattitude)! - Support for latest typescript-result
+
+- Updated dependencies [[`22f1611`](https://github.com/belgattitude/flowblade/commit/22f1611702d8cd8cba2549cfb1d41e8ebaafbedf)]:
+  - @flowblade/core@0.2.19
+
+## 0.15.8
+
+### Patch Changes
+
+- [#870](https://github.com/belgattitude/flowblade/pull/870) [`3cff1d0`](https://github.com/belgattitude/flowblade/commit/3cff1d0c37fde777341a12b596c4ccafb05bae4e) Thanks [@belgattitude](https://github.com/belgattitude)! - No code change, republish from CI
+
+- Updated dependencies [[`3cff1d0`](https://github.com/belgattitude/flowblade/commit/3cff1d0c37fde777341a12b596c4ccafb05bae4e)]:
+  - @flowblade/core@0.2.18
+  - @flowblade/sql-tag@0.1.16
+
+## 0.15.7
+
+### Patch Changes
+
+- [#840](https://github.com/belgattitude/flowblade/pull/840) [`55160db`](https://github.com/belgattitude/flowblade/commit/55160db8ae25f01829e8b4a3a80ee8d5183113dd) Thanks [@belgattitude](https://github.com/belgattitude)! - Update type-fest dependency
+
+- Updated dependencies [[`55160db`](https://github.com/belgattitude/flowblade/commit/55160db8ae25f01829e8b4a3a80ee8d5183113dd)]:
+  - @flowblade/core@0.2.17
+
 ## 0.15.6
 
 ### Patch Changes

@@ -1,0 +1,28 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`test idea > zod to table > should extract duckdb metadata from zod schema 1`] = `
+[
+  {
+    "key": "id",
+  },
+  {
+    "duckdb": {
+      "type": "VARCHAR",
+    },
+    "key": "name",
+  },
+  {
+    "duckdb": {
+      "type": "VARCHAR",
+    },
+    "key": "email",
+  },
+  {
+    "description": "cool",
+    "duckdb": {
+      "type": "TIMESTAMP",
+    },
+    "key": "created_at",
+  },
+]
+`;

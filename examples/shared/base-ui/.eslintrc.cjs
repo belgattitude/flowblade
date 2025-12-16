@@ -43,11 +43,14 @@ module.exports = {
       rules: {
         // Disable some rules to allow shadcn/ui
         'sonarjs/pseudo-random': 'off',
+        'react-hooks/purity': 'off',
         'sonarjs/table-header': 'off',
         'sonarjs/no-nested-conditional': 'off',
         'unicorn/no-document-cookie': 'off',
         'unicorn/explicit-length-check': 'off',
         'jsx-a11y/anchor-has-content': 'off',
+        'jsx-a11y/click-events-have-key-events': 'off',
+        'jsx-a11y/no-noninteractive-element-interactions': 'off',
         '@typescript-eslint/prefer-nullish-coalescing': 'off',
       },
     },
@@ -55,6 +58,20 @@ module.exports = {
       files: ['**/ux/*.tsx'],
       rules: {
         'jsx-a11y/anchor-is-valid': 'off',
+      },
+    },
+    {
+      files: ['src/components/ui/*.tsx'],
+      rules: {
+        'sonarjs/function-return-type': 'off',
+        'jsx-a11y/click-events-have-key-events': 'off',
+        'jsx-a11y/no-noninteractive-element-interactions': 'off',
+      },
+    },
+    {
+      files: ['src/components/ui/sidebar.tsx'],
+      rules: {
+        'react-hooks/purity': 'off',
       },
     },
     {

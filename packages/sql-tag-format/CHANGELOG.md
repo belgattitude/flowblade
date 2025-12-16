@@ -1,5 +1,31 @@
 # @flowblade/sql-tag-format
 
+## 0.1.5
+
+### Patch Changes
+
+- [#937](https://github.com/belgattitude/flowblade/pull/937) [`0f9b563`](https://github.com/belgattitude/flowblade/commit/0f9b56340869c96abf5b0515aa858ab6faf8dd7d) Thanks [@belgattitude](https://github.com/belgattitude)! - Update sql-formatter to latest 15.6.11
+
+  See: [sql-formatter release notes](https://github.com/sql-formatter-org/sql-formatter/releases/tag/v15.6.11)
+
+## 0.1.4
+
+### Patch Changes
+
+- [#922](https://github.com/belgattitude/flowblade/pull/922) [`3e2633f`](https://github.com/belgattitude/flowblade/commit/3e2633fd49b53af2b0a5c446b741d61dbc7a224b) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild with esbuild 0.27.1
+
+- Updated dependencies [[`3e2633f`](https://github.com/belgattitude/flowblade/commit/3e2633fd49b53af2b0a5c446b741d61dbc7a224b)]:
+  - @flowblade/sql-tag@0.1.17
+
+## 0.1.3
+
+### Patch Changes
+
+- [#870](https://github.com/belgattitude/flowblade/pull/870) [`3cff1d0`](https://github.com/belgattitude/flowblade/commit/3cff1d0c37fde777341a12b596c4ccafb05bae4e) Thanks [@belgattitude](https://github.com/belgattitude)! - No code change, republish from CI
+
+- Updated dependencies [[`3cff1d0`](https://github.com/belgattitude/flowblade/commit/3cff1d0c37fde777341a12b596c4ccafb05bae4e)]:
+  - @flowblade/sql-tag@0.1.16
+
 ## 0.1.2
 
 ### Patch Changes

@@ -3,7 +3,7 @@ name: flowblade-e2e-mssql
 
 services:
   mssql:
-    image: mcr.microsoft.com/mssql/server:2022-CU16-ubuntu-22.04
+    image: mcr.microsoft.com/mssql/server:2025-latest
     # Only when docker is running as "root".
     cap_add: ['SYS_PTRACE']
     ports:
