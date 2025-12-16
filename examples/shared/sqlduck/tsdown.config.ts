@@ -6,12 +6,15 @@ export default defineConfig({
   clean: true,
   format: {
     esm: {
-      target: ['es2015'],
+      target: ['node20'],
     },
     cjs: {
       target: ['node20'],
     },
   },
   platform: 'node',
-  unbundle: true,
+  treeshake: true,
+  exports: false,
+  minify: 'dce-only',
+  unbundle: false,
 });
