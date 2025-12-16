@@ -22,3 +22,11 @@ export type { GetApiProductEthicalSearchSuspenseQueryKey } from './useGetApiProd
 export { getApiProductEthicalSearchSuspenseQueryKey } from './useGetApiProductEthicalSearchSuspenseHook';
 export { getApiProductEthicalSearchSuspenseQueryOptionsHook } from './useGetApiProductEthicalSearchSuspenseHook';
 export { useGetApiProductEthicalSearchSuspenseHook } from './useGetApiProductEthicalSearchSuspenseHook';
+export type { GetApiSystemStatsQueryKey } from './useGetApiSystemStatsHook';
+export { getApiSystemStatsQueryKey } from './useGetApiSystemStatsHook';
+export { getApiSystemStatsQueryOptionsHook } from './useGetApiSystemStatsHook';
+export { useGetApiSystemStatsHook } from './useGetApiSystemStatsHook';
+export type { GetApiSystemStatsSuspenseQueryKey } from './useGetApiSystemStatsSuspenseHook';
+export { getApiSystemStatsSuspenseQueryKey } from './useGetApiSystemStatsSuspenseHook';
+export { getApiSystemStatsSuspenseQueryOptionsHook } from './useGetApiSystemStatsSuspenseHook';
+export { useGetApiSystemStatsSuspenseHook } from './useGetApiSystemStatsSuspenseHook';

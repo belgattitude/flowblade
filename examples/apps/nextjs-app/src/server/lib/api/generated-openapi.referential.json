@@ -197,6 +197,53 @@
           }
         }
       }
+    },
+    "/api/system/stats": {
+      "get": {
+        "operationId": "getApiSystemStats",
+        "description": "System stats",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalMemory": {
+                      "type": "number"
+                    },
+                    "freeMemory": {
+                      "type": "number"
+                    },
+                    "availableParallelism": {
+                      "type": "number"
+                    },
+                    "prettyBytes": {
+                      "type": "object",
+                      "properties": {
+                        "totalMemory": {
+                          "type": "string"
+                        },
+                        "freeMemory": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["totalMemory", "freeMemory"]
+                    }
+                  },
+                  "required": [
+                    "totalMemory",
+                    "freeMemory",
+                    "availableParallelism",
+                    "prettyBytes"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {}

@@ -15,3 +15,8 @@ export type {
   GetApiProductEthicalSearchQueryParams,
   GetApiProductEthicalSearchQueryResponse,
 } from './GetApiProductEthicalSearch';
+export type {
+  GetApiSystemStats200,
+  GetApiSystemStatsQuery,
+  GetApiSystemStatsQueryResponse,
+} from './GetApiSystemStats';

@@ -5,6 +5,7 @@ import { openAPIRouteHandler } from 'hono-openapi';
 
 import { demoDuckdbRouter } from '@/features/demo/duckdb/server/demo-duckdb.router.ts';
 import { ethicalProductRouter } from '@/features/products/server/ethical-product.router.ts';
+import { systemRouter } from '@/features/system/system.router.ts';
 import { getNextjsHostInfo } from '@/lib/nextjs/get-nextjs-host-info.ts';
 
 import { serverEnv } from '../../env/server.env.mjs';
@@ -24,6 +25,7 @@ export const createHonoApp = () => {
 
   app.route('/demo/duckdb', demoDuckdbRouter);
   app.route('/product/ethical', ethicalProductRouter);
+  app.route('/system', systemRouter);
 
   const { baseUrl } = getNextjsHostInfo();
 

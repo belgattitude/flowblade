@@ -1,6 +1,7 @@
 export { getApiDemoDuckdbSearch } from './getApiDemoDuckdbSearch';
 export { getApiProductEthicalBrands } from './getApiProductEthicalBrands';
 export { getApiProductEthicalSearch } from './getApiProductEthicalSearch';
+export { getApiSystemStats } from './getApiSystemStats';
 export type { GetApiDemoDuckdbSearchQueryKey } from './hooks/api/useGetApiDemoDuckdbSearchHook';
 export { getApiDemoDuckdbSearchQueryKey } from './hooks/api/useGetApiDemoDuckdbSearchHook';
 export { getApiDemoDuckdbSearchQueryOptionsHook } from './hooks/api/useGetApiDemoDuckdbSearchHook';
@@ -25,6 +26,14 @@ export type { GetApiProductEthicalSearchSuspenseQueryKey } from './hooks/api/use
 export { getApiProductEthicalSearchSuspenseQueryKey } from './hooks/api/useGetApiProductEthicalSearchSuspenseHook';
 export { getApiProductEthicalSearchSuspenseQueryOptionsHook } from './hooks/api/useGetApiProductEthicalSearchSuspenseHook';
 export { useGetApiProductEthicalSearchSuspenseHook } from './hooks/api/useGetApiProductEthicalSearchSuspenseHook';
+export type { GetApiSystemStatsQueryKey } from './hooks/api/useGetApiSystemStatsHook';
+export { getApiSystemStatsQueryKey } from './hooks/api/useGetApiSystemStatsHook';
+export { getApiSystemStatsQueryOptionsHook } from './hooks/api/useGetApiSystemStatsHook';
+export { useGetApiSystemStatsHook } from './hooks/api/useGetApiSystemStatsHook';
+export type { GetApiSystemStatsSuspenseQueryKey } from './hooks/api/useGetApiSystemStatsSuspenseHook';
+export { getApiSystemStatsSuspenseQueryKey } from './hooks/api/useGetApiSystemStatsSuspenseHook';
+export { getApiSystemStatsSuspenseQueryOptionsHook } from './hooks/api/useGetApiSystemStatsSuspenseHook';
+export { useGetApiSystemStatsSuspenseHook } from './hooks/api/useGetApiSystemStatsSuspenseHook';
 export type {
   GetApiDemoDuckdbSearch200,
   GetApiDemoDuckdbSearchQuery,
@@ -42,3 +51,8 @@ export type {
   GetApiProductEthicalSearchQueryParams,
   GetApiProductEthicalSearchQueryResponse,
 } from './models/GetApiProductEthicalSearch';
+export type {
+  GetApiSystemStats200,
+  GetApiSystemStatsQuery,
+  GetApiSystemStatsQueryResponse,
+} from './models/GetApiSystemStats';
