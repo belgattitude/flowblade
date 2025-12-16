@@ -27,7 +27,7 @@ describe('test idea', () => {
     });
 
     const def = (userSchema as $ZodTypes)._zod.def;
-    console.log(userSchema.type, userSchema.shape, userSchema._zod);
+    // console.log(userSchema.type, userSchema.shape, userSchema._zod);
 
     // const openApi = z.toJSONSchema(userSchema, { target: 'openapi-3.0' });
     // console.log(openApi);

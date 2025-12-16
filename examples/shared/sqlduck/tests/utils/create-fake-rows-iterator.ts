@@ -14,7 +14,7 @@ type Params<T extends ZodObject> = {
     rowIdx: number;
     remaining: number;
     total: number;
-  }) => FakerFactory<z.infer<T>>;
+  }) => FakerFactory<z.input<T>>;
 };
 
 function* getFakeRowsGenerator<T extends ZodObject>(
