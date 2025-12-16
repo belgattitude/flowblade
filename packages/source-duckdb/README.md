@@ -7,7 +7,7 @@
 [![downloads](https://img.shields.io/npm/dm/@flowblade/source-duckdb?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/source-duckdb)
 [![license](https://img.shields.io/npm/l/@flowblade/source-duckdb?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
 
-Duckdb datasource adapter based on [@duckdb/node-api](https://github.com/duckdb/duckdb-node-neo) 
+Duckdb datasource adapter based on [@duckdb/node-api](https://github.com/duckdb/duckdb-node-neo)
 
 ## Install
 
@@ -18,19 +18,19 @@ yarn add @flowblade/source-duckdb @flowblade/core @duckdb/node-api
 ### Query the database
 
 ```typescript
-import { DuckdbDatasource, sql } from '@flowblade/source-duckdb';
+import { DuckdbDatasource, sql } from "@flowblade/source-duckdb";
 
 // See setup below
 import { ds } from "./config.ts";
 
 const params = {
-    min: 10,
-    max: 99,
-    name: 'test',
-    createdAt: new Date().toISOString(),
+  min: 10,
+  max: 99,
+  name: "test",
+  createdAt: new Date().toISOString(),
 };
 
-type Row = { id: number; name: 'test'; createdAt: Date };
+type Row = { id: number; name: "test"; createdAt: Date };
 
 const rawSql = sql<Row>`
 
@@ -55,46 +55,43 @@ const result = await ds.query(rawSql);
 const { data, meta, error } = result;
 
 if (data) {
-    // Typed as Row[]
-    console.log(data);
+  // Typed as Row[]
+  console.log(data);
 }
 if (error) {
-    // Typed as QError
-    console.log(error);
+  // Typed as QError
+  console.log(error);
 }
 
 // Optionally: map over the data to transform it
 const { data: mappedData } = result.map((row) => {
-    return {
-        id: row.productId,
-        key: `key-${row.productId}`
-    }
+  return {
+    id: row.productId,
+    key: `key-${row.productId}`,
+  };
 });
 ```
-
 
 ### Create a duckdb instance
 
 ```typescript
-import os from 'node:os';
+import os from "node:os";
 
-import { type DuckDBConnection, DuckDBInstance } from '@duckdb/node-api';
-import { DuckdbDatasource } from '@flowblade/source-duckdb';
+import { type DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
+import { DuckdbDatasource } from "@flowblade/source-duckdb";
 
 // Create a connection to a DuckDB instance
-const createConnection = async (
-  maxThreads = 4
-): Promise<DuckDBConnection> => {
+const createConnection = async (maxThreads = 4): Promise<DuckDBConnection> => {
   const availableThreads = os.availableParallelism();
   const maxParallelism = Math.min(maxThreads, availableThreads - 1);
   const threads = availableThreads > 1 ? maxParallelism : undefined;
 
-  const instance = await DuckDBInstance.create(':memory:', {
+  const instance = await DuckDBInstance.create(":memory:", {
     // Choose between READ_ONLY or READ_WRITE
     // Note that in READ_WRITE mode concurrency is limited to 1
     // See: https://duckdb.org/docs/connect/concurrency.html
-    access_mode: 'READ_WRITE',
-    max_memory: '64MB',
+    access_mode: "READ_WRITE",
+    max_memory: "64MB",
     // Using more threads may require additional memory
     ...(threads ? { threads: threads.toString(10) } : {}),
   });
@@ -107,18 +104,16 @@ const duckdb = await createConnection();
 export const ds = new DuckdbDatasource({ connection: duckdb });
 ```
 
-
 ## Compatibility
 
-| Level        | CI | Description                                                                                                                                                                                                                                                                                                                                                            |
-|--------------|----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|  
+| Level        | CI  | Description                                                                                                                                                                                                                                                                                                                                                            |
+| ------------ | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Node         | ✅  | CI for 20.x, 22.x & 24.x                                                                                                                                                                                                                                                                                                                                               |
 | Cloudflare   | ✅  | Ensured with @cloudflare/vitest-pool-workers (see [wrangler.toml](https://github.com/belgattitude/flowblade/blob/main/devtools/vitest/wrangler.toml)                                                                                                                                                                                                                   |
 | Browserslist | ✅  | [> 95%](https://browserslist.dev/?q=ZGVmYXVsdHMsIGNocm9tZSA%2BPSA5NiwgZmlyZWZveCA%2BPSAxMDUsIGVkZ2UgPj0gMTEzLCBzYWZhcmkgPj0gMTUsIGlvcyA%2BPSAxNSwgb3BlcmEgPj0gMTAzLCBub3QgZGVhZA%3D%3D) on 01/2025. [Chrome 96+, Firefox 90+, Edge 19+, ios 15+, Safari 15+ and Opera 77+](https://github.com/belgattitude/flowblade/blob/main/packages/source-duckdb/.browserslistrc) |
 | Typescript   | ✅  | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI.                                                                                                                                                                                                                                                          |
 | ES2022       | ✅  | Dist files checked with [es-check](https://github.com/yowainwright/es-check)                                                                                                                                                                                                                                                                                           |
 | Performance  | ✅  | Monitored with [codspeed.io](https://codspeed.io/belgattitude/flowblade)                                                                                                                                                                                                                                                                                               |
-
 
 ## Contributors
 
