@@ -1,4 +1,3 @@
-import type { ZodRecord } from 'zod';
 import * as z from 'zod';
 
 const columnSchema = z.object({
@@ -21,8 +20,4 @@ const a: z.infer<typeof tableSchema> = {
   ],
 };
 
-export class TableCreator {
-  createFromSchema = <T extends ZodRecord>(schema: T) => {
-    return void 0;
-  };
-}
+export class TableCreator {}

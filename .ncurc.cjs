@@ -32,6 +32,10 @@ const npmPreapprovedPackages = [
   'prettier',
   '@kubb/*',
   'tsdown',
+  'valibot',
+  'zod',
+  '@valibot/*',
+  '@standard-schema/*'
 ];
 
 module.exports = defineConfig({

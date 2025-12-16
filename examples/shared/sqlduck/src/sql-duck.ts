@@ -1,4 +1,5 @@
 import {
+  BIGINT,
   type DuckDBConnection,
   DuckDBDataChunk,
   type DuckDBValue,
@@ -6,6 +7,9 @@ import {
   TIMESTAMP,
   VARCHAR,
 } from '@duckdb/node-api';
+import type { ZodObject } from 'zod';
+
+import { getTableCreateFromZod } from './table/get-table-create-from-zod';
 
 export type SqlDuckParams = {
   conn: DuckDBConnection;
@@ -17,33 +21,16 @@ export class SqlDuck {
     this.duck = params.conn;
   }
 
-  toTable = async <TCol extends DuckDBValue[]>(
-    table: string,
+  toTable = async <TCol extends DuckDBValue[], TSchema extends ZodObject>(
+    tableName: string,
+    schema: TSchema,
     columns: AsyncIterableIterator<TCol[]>
   ) => {
-    type ColdDef = {
-      name: string;
-      type: 'INTEGER' | 'VARCHAR' | 'TIMESTAMP';
-      default?: string;
-    };
-    const _colDef = [
-      { name: 'id', type: 'INTEGER' },
-      { name: 'name', type: 'VARCHAR' },
-      { name: 'email', type: 'VARCHAR' },
-      {
-        name: 'created_at',
-        type: 'TIMESTAMP',
-        default: 'current_localtimestamp()',
-      },
-    ] as const satisfies ColdDef[];
-
     try {
-      await this.duck.run(
-        `CREATE OR REPLACE TABLE ${table}(id INTEGER, name VARCHAR, email VARCHAR, created_at TIMESTAMP DEFAULT current_localtimestamp() )`
-      );
+      await this.duck.run(getTableCreateFromZod(tableName, schema));
     } catch (e) {
       throw new Error(
-        `Failed to create table '${table}': ${(e as Error).message}`,
+        `Failed to create table '${tableName}': ${(e as Error).message}`,
         {
           cause: e as Error,
         }
@@ -61,6 +48,7 @@ export class SqlDuck {
         INTEGER,
         VARCHAR,
         VARCHAR,
+        BIGINT,
         TIMESTAMP,
       ]);
 
@@ -71,7 +59,10 @@ export class SqlDuck {
       // chunk.reset();
     }
 
-    const result = await this.duck.streamAndRead(`select * from ${table}`);
+    return void 0;
+    /**
+    const result = await this.duck.streamAndRead(`select * from ${tableName}`);
     return result;
+      */
   };
 }
