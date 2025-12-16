@@ -10,6 +10,7 @@ import {
 export type SqlDuckParams = {
   conn: DuckDBConnection;
 };
+
 export class SqlDuck {
   private duck: DuckDBConnection;
   constructor(params: SqlDuckParams) {

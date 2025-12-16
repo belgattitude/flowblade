@@ -3,31 +3,24 @@
 exports[`test idea > zod to table > should extract duckdb metadata from zod schema 1`] = `
 [
   {
-    "duckdb": undefined,
     "key": "id",
   },
   {
     "duckdb": {
-      "duckdb": {
-        "type": "VARCHAR",
-      },
+      "type": "VARCHAR",
     },
     "key": "name",
   },
   {
     "duckdb": {
-      "duckdb": {
-        "type": "VARCHAR",
-      },
+      "type": "VARCHAR",
     },
     "key": "email",
   },
   {
+    "description": "cool",
     "duckdb": {
-      "description": "cool",
-      "duckdb": {
-        "type": "TIMESTAMP",
-      },
+      "type": "TIMESTAMP",
     },
     "key": "created_at",
   },

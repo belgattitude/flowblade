@@ -31,6 +31,7 @@ const npmPreapprovedPackages = [
   '@typescript-eslint/*',
   'prettier',
   '@kubb/*',
+  'tsdown',
 ];
 
 module.exports = defineConfig({
