@@ -1,9 +1,12 @@
 import type { ZodObject } from 'zod';
 
+import type { Table } from './table';
+
 export const getTableCreateFromZod = <T extends ZodObject>(
-  table: string,
+  table: Table,
   schema: T
 ): string => {
+  const fqTable = table.getFullyQualifiedTableName();
   const json = schema.toJSONSchema({
     target: 'openapi-3.0',
   });
@@ -46,7 +49,7 @@ export const getTableCreateFromZod = <T extends ZodObject>(
     columns.push(colDDL.join(' '));
   }
   return [
-    `CREATE OR REPLACE TABLE ${table} (\n`,
+    `CREATE OR REPLACE TABLE ${fqTable} (\n`,
     columns.map((v) => `  ${v}`).join(',\n'),
     '\n)',
   ].join('');
