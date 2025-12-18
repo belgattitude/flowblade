@@ -115,7 +115,7 @@ describe('Duckdb tests', async () => {
               bignumber, 
               email, 
               strftime(created_at::TIMESTAMPTZ, '%Y-%m-%dT%H:%M:%S.%gZ') as created_at 
-             FROM ${sql.unsafeRaw(dbName + '.' + tableName)} 
+             FROM ${sql.unsafeRaw(testTable.getFullyQualifiedTableName())} 
              WHERE name = ${params.name} 
              LIMIT 1`
         );
