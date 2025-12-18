@@ -2,25 +2,29 @@
  * Fully qualified table information
  */
 type FQTable = {
-  /**
-   * Table name
-   */
   name: string;
   schema?: string;
   database?: string;
 };
 
 export class Table {
-  #fqTable: FQTable;
+  #fqTable: Readonly<FQTable>;
+
   get fqTable(): FQTable {
     return this.#fqTable;
   }
+
   constructor(fqTableOrName: FQTable | string) {
     this.#fqTable =
       typeof fqTableOrName === 'string'
         ? { name: fqTableOrName }
         : fqTableOrName;
   }
+
+  /**
+   * Return fully qualified table name by concatenating
+   * database, schema and table with a 'dot' separator.
+   */
   getFullyQualifiedTableName = (options?: {
     defaultDatabase?: string;
     defaultSchema?: string;

@@ -1,19 +1,36 @@
+import {
+  BIGINT,
+  type DuckDBType,
+  INTEGER,
+  TIMESTAMP,
+  VARCHAR,
+} from '@duckdb/node-api';
 import type { ZodObject } from 'zod';
 
 import type { Table } from './table';
 
+type ColumnDDL = {
+  name: string;
+  duckdbType: DuckDBType;
+  constraint?: 'NOT NULL' | 'PRIMARY KEY';
+};
+
 export const getTableCreateFromZod = <T extends ZodObject>(
   table: Table,
   schema: T
-): string => {
+): {
+  ddl: string;
+  columnTypes: [name: string, type: DuckDBType][];
+} => {
   const fqTable = table.getFullyQualifiedTableName();
   const json = schema.toJSONSchema({
     target: 'openapi-3.0',
   });
-  const columns: string[] = [];
+  const columns: ColumnDDL[] = [];
   if (json.properties === undefined) {
     throw new TypeError('Schema must have at least one property');
   }
+  const columnTypes: [name: string, type: DuckDBType][] = [];
   for (const [columnName, def] of Object.entries(json.properties)) {
     const { type, nullable, format, primaryKey } = def as {
       type: 'number' | 'string';
@@ -21,36 +38,54 @@ export const getTableCreateFromZod = <T extends ZodObject>(
       format: 'date-time' | 'int64' | undefined;
       primaryKey: boolean | undefined;
     };
-    const colDDL: string[] = [`${columnName}`];
+
+    const c: Partial<ColumnDDL> = {
+      name: columnName,
+    } satisfies Partial<ColumnDDL>;
+
     switch (type) {
       case 'string':
         switch (format) {
           case 'date-time':
-            colDDL.push(`TIMESTAMP`);
+            c.duckdbType = TIMESTAMP;
             break;
           case 'int64':
-            colDDL.push(`BIGINT`);
+            c.duckdbType = BIGINT;
             break;
           default:
-            colDDL.push(`VARCHAR`);
+            c.duckdbType = VARCHAR;
         }
         break;
       case 'number':
-        colDDL.push(`INTEGER`);
+        c.duckdbType = INTEGER;
         break;
       default:
         throw new Error('Not a supported type');
     }
     if (primaryKey === true) {
-      colDDL.push(`PRIMARY KEY`);
+      c.constraint = 'PRIMARY KEY';
     } else if (nullable !== true) {
-      colDDL.push('NOT NULL');
+      c.constraint = 'NOT NULL';
     }
-    columns.push(colDDL.join(' '));
+    columnTypes.push([columnName, c.duckdbType]);
+    columns.push(c as ColumnDDL);
   }
-  return [
+  const ddl = [
     `CREATE OR REPLACE TABLE ${fqTable} (\n`,
-    columns.map((v) => `  ${v}`).join(',\n'),
+    columns
+      .map((colDDL) => {
+        const { name, duckdbType, constraint } = colDDL;
+        const line = [name, duckdbType.toString(), constraint]
+          .filter(Boolean)
+          .join(' ');
+        return `  ${line}`;
+      })
+      .join(',\n'),
     '\n)',
   ].join('');
+
+  return {
+    ddl,
+    columnTypes,
+  };
 };

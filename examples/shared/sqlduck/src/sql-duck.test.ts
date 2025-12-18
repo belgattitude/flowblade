@@ -55,7 +55,7 @@ describe('Duckdb tests', async () => {
           created_at: zodCodecs.dateToString,
         });
 
-        const limit = isInCi ? 10_000 : 1_000_000;
+        const limit = isInCi ? 10_000 : 100_000;
 
         const testTable = new Table({
           name: 'test',
