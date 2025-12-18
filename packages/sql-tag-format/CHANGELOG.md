@@ -1,5 +1,11 @@
 # @flowblade/sql-tag-format
 
+## 0.1.6
+
+### Patch Changes
+
+- [#943](https://github.com/belgattitude/flowblade/pull/943) [`42feca4`](https://github.com/belgattitude/flowblade/commit/42feca48d19fe97f796f54a5e916b2ab2ea52b2c) Thanks [@belgattitude](https://github.com/belgattitude)! - Support postgres 18 new uuid by updating sql-formatter to latest
+
 ## 0.1.5
 
 ### Patch Changes
