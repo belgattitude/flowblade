@@ -77,7 +77,7 @@ describe('Duckdb tests', () => {
         );
 
         const query = await conn.runAndReadAll(
-          `SELECT count(*) as count_star from ${dbName}.${tableName}`
+          `SELECT count(*) as count_star from ${dbName}.main.${tableName}`
         );
         expect(query.getRowObjects()).toStrictEqual([
           {
