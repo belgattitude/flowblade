@@ -1,11 +1,7 @@
 import {
-  BIGINT,
   type DuckDBConnection,
   DuckDBDataChunk,
   type DuckDBValue,
-  INTEGER,
-  TIMESTAMP,
-  VARCHAR,
 } from '@duckdb/node-api';
 import type { ZodObject } from 'zod';
 
@@ -27,8 +23,10 @@ export class SqlDuck {
     schema: TSchema,
     columns: AsyncIterableIterator<TCol[]>
   ) => {
+    const { ddl, columnTypes } = getTableCreateFromZod(table, schema);
+
     try {
-      await this.duck.run(getTableCreateFromZod(table, schema));
+      await this.duck.run(ddl);
     } catch (e) {
       throw new Error(
         `Failed to create table '${table.getFullyQualifiedTableName()}': ${(e as Error).message}`,
@@ -39,19 +37,14 @@ export class SqlDuck {
     }
 
     const appender = await this.duck.createAppender(
-      'test',
-      'main',
-      'memory_db'
+      table.fqTable.name,
+      table.fqTable.schema,
+      table.fqTable.database
     );
 
+    const types = columnTypes.map((v) => v[1]);
     for await (const dataChunk of columns) {
-      const chunk = DuckDBDataChunk.create([
-        INTEGER,
-        VARCHAR,
-        VARCHAR,
-        BIGINT,
-        TIMESTAMP,
-      ]);
+      const chunk = DuckDBDataChunk.create(types);
 
       chunk.setColumns(dataChunk);
       appender.appendDataChunk(chunk);

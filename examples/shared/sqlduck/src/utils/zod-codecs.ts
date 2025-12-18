@@ -2,15 +2,15 @@ import * as z from 'zod';
 
 export const zodCodecs = {
   dateToString: z.codec(
-    z.date(), // input schema: ISO date string
-    z.iso.datetime(), // output schema: Date object
+    z.date(), // input schema: Date object
+    z.iso.datetime(), // output schema: ISO date string
     {
-      decode: (date) => date.toISOString(), // Date → ISO string
-      encode: (isoString) => new Date(isoString), // ISO string → Date
+      decode: (date) => date.toISOString(),
+      encode: (isoString) => new Date(isoString),
     }
   ),
   bigintToString: z.codec(
-    z.bigint(),
+    z.bigint(), // input schema
     z.string().meta({
       format: 'int64',
     }),
