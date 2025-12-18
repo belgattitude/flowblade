@@ -1,4 +1,4 @@
-import { duckdb, formatDialect } from 'sql-formatter';
+import { duckdb as duckDbDialect, formatDialect } from 'sql-formatter';
 import * as z from 'zod';
 
 import { zodCodecs } from '../utils/zod-codecs';
@@ -33,9 +33,10 @@ describe('getTableCreateFromZod', () => {
            email VARCHAR, 
            bignumber BIGINT,
            created_at TIMESTAMP NOT NULL
-         )`,
+         )
+       `,
       {
-        dialect: duckdb,
+        dialect: duckDbDialect,
         useTabs: false,
         tabWidth: 2,
       }
