@@ -3,6 +3,7 @@ import * as z from 'zod';
 
 import { zodCodecs } from '../utils/zod-codecs';
 import { getTableCreateFromZod } from './get-table-create-from-zod';
+import { Table } from './table';
 
 describe('getTableCreateFromZod', () => {
   const { dateToString, bigintToString } = zodCodecs;
@@ -15,7 +16,15 @@ describe('getTableCreateFromZod', () => {
     created_at: dateToString,
   });
 
-  expect(getTableCreateFromZod('test', userSchema)).toStrictEqual(
+  expect(
+    getTableCreateFromZod(
+      new Table({
+        name: 'test',
+        // schema: 'main',
+      }),
+      userSchema
+    )
+  ).toStrictEqual(
     formatDialect(
       `
          CREATE OR REPLACE TABLE test (

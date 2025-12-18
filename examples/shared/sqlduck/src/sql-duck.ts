@@ -10,6 +10,7 @@ import {
 import type { ZodObject } from 'zod';
 
 import { getTableCreateFromZod } from './table/get-table-create-from-zod';
+import type { Table } from './table/table';
 
 export type SqlDuckParams = {
   conn: DuckDBConnection;
@@ -22,15 +23,15 @@ export class SqlDuck {
   }
 
   toTable = async <TCol extends DuckDBValue[], TSchema extends ZodObject>(
-    tableName: string,
+    table: Table,
     schema: TSchema,
     columns: AsyncIterableIterator<TCol[]>
   ) => {
     try {
-      await this.duck.run(getTableCreateFromZod(tableName, schema));
+      await this.duck.run(getTableCreateFromZod(table, schema));
     } catch (e) {
       throw new Error(
-        `Failed to create table '${tableName}': ${(e as Error).message}`,
+        `Failed to create table '${table.getFullyQualifiedTableName()}': ${(e as Error).message}`,
         {
           cause: e as Error,
         }

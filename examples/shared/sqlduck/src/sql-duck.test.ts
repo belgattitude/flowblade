@@ -1,38 +1,51 @@
+import type { DuckDBConnection } from '@duckdb/node-api';
 import { DuckdbDatasource, sql } from '@flowblade/source-duckdb';
 import { isParsableStrictIsoDateZ } from '@httpx/assert';
 import isInCi from 'is-in-ci';
-import { describe } from 'vitest';
+import { beforeAll, describe } from 'vitest';
 import * as z from 'zod';
 
 import { createDuckdbTestMemoryDb } from '../tests/e2e/utils/create-duckdb-test-memory-db';
 import { createFakeRowsIterator } from '../tests/utils/create-fake-rows-iterator';
 import { rowsToColumnsChunks } from '../tests/utils/rows-to-columns';
 import { SqlDuck } from './sql-duck';
+import { Table } from './table/table';
 import { zodCodecs } from './utils/zod-codecs';
 
 const testTimeout = 15_000;
 
-describe('Duckdb tests', () => {
+describe('Duckdb tests', async () => {
+  let conn: DuckDBConnection;
+  beforeAll(async () => {
+    conn = await createDuckdbTestMemoryDb({
+      // Keep it high to prevent going to .tmp directory
+      max_memory: isInCi ? '128M' : '256M',
+      threads: 1,
+    });
+  });
+  afterAll(() => {
+    conn.closeSync();
+  });
+
   describe(
-    'toDuckdb',
+    'toTable',
     () => {
       it('toTable', async () => {
-        const conn = await createDuckdbTestMemoryDb({
-          // Keep it high to prevent going to .tmp directory
-          max_memory: isInCi ? '128M' : '256M',
-          threads: 1,
-        });
+        const dbName = 'memory_db';
 
-        await conn.run(`ATTACH ':memory:' AS memory_db (COMPRESS 'true')`);
-
+        // Arrange
+        await conn.run(`ATTACH ':memory:' AS ${dbName} (COMPRESS 'true')`);
         const ds = new DuckdbDatasource({
           connection: conn,
         });
 
+        const sqlDuck = new SqlDuck({ conn });
+
+        /*
         const _databases = await conn.runAndReadAll('SHOW DATABASES');
         const test = await conn.runAndReadAll('SHOW TABLES FROM memory_db');
         expect(test.getRowObjects()).toStrictEqual([]);
-        const sqlDuck = new SqlDuck({ conn });
+        */
 
         const userSchema = z.object({
           id: z.number().meta({ description: 'cool' }),
@@ -43,8 +56,11 @@ describe('Duckdb tests', () => {
         });
 
         const limit = isInCi ? 10_000 : 100_000;
-        const dbName = 'memory_db';
-        const tableName = 'test';
+
+        const testTable = new Table({
+          name: 'test',
+          database: dbName,
+        });
 
         const now = new Date('2025-12-16 00:00:00');
         const rowGen = createFakeRowsIterator({
@@ -72,13 +88,13 @@ describe('Duckdb tests', () => {
         const chunkedCols = rowsToColumnsChunks(rowGen(), 2048);
 
         const _inserted = await sqlDuck.toTable(
-          `${dbName}.main.${tableName}`,
+          testTable,
           userSchema,
           chunkedCols
         );
 
         const query = await conn.runAndReadAll(
-          `SELECT count(*) as count_star from ${dbName}.main.${tableName}`
+          `SELECT count(*) as count_star from ${testTable.getFullyQualifiedTableName()}`
         );
         expect(query.getRowObjects()).toStrictEqual([
           {
@@ -99,7 +115,7 @@ describe('Duckdb tests', () => {
               bignumber, 
               email, 
               strftime(created_at::TIMESTAMPTZ, '%Y-%m-%dT%H:%M:%S.%gZ') as created_at 
-             FROM ${sql.unsafeRaw(dbName + '.' + tableName)} 
+             FROM ${sql.unsafeRaw(testTable.getFullyQualifiedTableName())} 
              WHERE name = ${params.name} 
              LIMIT 1`
         );
