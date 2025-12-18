@@ -30,8 +30,8 @@ describe('getTableCreateFromZod', () => {
          CREATE OR REPLACE TABLE test (
            id INTEGER PRIMARY KEY, 
            name VARCHAR NOT NULL, 
-           email VARCHAR NOT NULL, 
-           bignumber BIGINT NOT NULL,
+           email VARCHAR, 
+           bignumber BIGINT,
            created_at TIMESTAMP NOT NULL
          )`,
       {

@@ -1,5 +1,6 @@
 import type { DuckDBConnection } from '@duckdb/node-api';
 import { DuckdbDatasource, sql } from '@flowblade/source-duckdb';
+import { isParsableStrictIsoDateZ } from '@httpx/assert';
 import isInCi from 'is-in-ci';
 import { beforeAll, describe } from 'vitest';
 import * as z from 'zod';
@@ -104,18 +105,25 @@ describe('Duckdb tests', async () => {
         const params = {
           name: 'name-1',
         } as const;
+
         const { data } = await ds.query(
-          sql`SELECT bignumber, email, strftime(created_at, '%Y-%m-%dT%H:%M:%S.%fZ') as created_at 
-              from ${sql.unsafeRaw(testTable.getFullyQualifiedTableName())} 
-              WHERE name = ${params.name} LIMIT 1`
+          sql<{
+            bignumber: string;
+            email: string;
+            created_at: string;
+          }>`SELECT 
+              bignumber, 
+              email, 
+              strftime(created_at::TIMESTAMPTZ, '%Y-%m-%dT%H:%M:%S.%gZ') as created_at 
+             FROM ${sql.unsafeRaw(dbName + '.' + tableName)} 
+             WHERE name = ${params.name} 
+             LIMIT 1`
         );
-        expect(data).toStrictEqual([
-          {
-            bignumber: '10',
-            created_at: '2025-12-15T23:00:00.000000Z',
-            email: 'email-1@example.com',
-          },
-        ]);
+        const { bignumber, email, created_at } = data?.[0] ?? {};
+        expect(bignumber).toStrictEqual('10');
+        expect(email).toStrictEqual('email-1@example.com');
+        expect(isParsableStrictIsoDateZ(created_at)).toBe(true);
+        expect(created_at).toBe(now.toISOString());
       });
     },
     testTimeout * 2

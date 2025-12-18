@@ -43,7 +43,7 @@ export const getTableCreateFromZod = <T extends ZodObject>(
     }
     if (primaryKey === true) {
       colDDL.push(`PRIMARY KEY`);
-    } else if (nullable !== false) {
+    } else if (nullable !== true) {
       colDDL.push('NOT NULL');
     }
     columns.push(colDDL.join(' '));
