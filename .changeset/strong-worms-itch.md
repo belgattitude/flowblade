@@ -2,4 +2,4 @@
 "@flowblade/sqlduck": patch
 ---
 
-Initial publish for experimental use
+Experimental playground for duckdb, don't use (yet)
