@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.0.3
+
+### Patch Changes
+
+- [#955](https://github.com/belgattitude/flowblade/pull/955) [`f545f3d`](https://github.com/belgattitude/flowblade/commit/f545f3da9a6af966c38516507acea8144257d470) Thanks [@belgattitude](https://github.com/belgattitude)! - Github oidc publish
+
 ## 0.0.2
 
 ### Patch Changes
