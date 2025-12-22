@@ -4,6 +4,7 @@ import type * as z from 'zod';
 
 import { rowsToColumnsChunks } from '../tests/utils/rows-to-columns';
 import { createTableFromZod } from './table/create-table-from-zod';
+import type { TableCreateOptions } from './table/get-table-create-from-zod';
 import type { Table } from './table/table';
 import type { TableSchemaZod } from './table/table-schema-zod.type';
 
@@ -17,6 +18,7 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
   schema: TSchema;
   rowStream: AsyncIterableIterator<z.infer<TSchema>>;
   chunkSize?: number;
+  createOptions?: TableCreateOptions;
 };
 
 export class SqlDuck {
@@ -31,12 +33,13 @@ export class SqlDuck {
   toTable = async <TSchema extends ZodObject>(
     params: ToTableParams<TSchema>
   ) => {
-    const { table, schema, chunkSize, rowStream } = params;
+    const { table, schema, chunkSize, rowStream, createOptions } = params;
 
     const { columnTypes } = await createTableFromZod({
       conn: this.#duck,
       schema,
       table,
+      options: createOptions,
     });
 
     const appender = await this.#duck.createAppender(

@@ -1,6 +1,9 @@
 import type { DuckDBConnection, DuckDBType } from '@duckdb/node-api';
 
-import { getTableCreateFromZod } from './get-table-create-from-zod';
+import {
+  getTableCreateFromZod,
+  type TableCreateOptions,
+} from './get-table-create-from-zod';
 import type { Table } from './table';
 import type { TableSchemaZod } from './table-schema-zod.type';
 
@@ -8,12 +11,13 @@ export const createTableFromZod = async (params: {
   conn: DuckDBConnection;
   table: Table;
   schema: TableSchemaZod;
+  options?: TableCreateOptions;
 }): Promise<{
   ddl: string;
   columnTypes: [name: string, type: DuckDBType][];
 }> => {
-  const { conn, table, schema } = params;
-  const { ddl, columnTypes } = getTableCreateFromZod(table, schema);
+  const { conn, table, schema, options } = params;
+  const { ddl, columnTypes } = getTableCreateFromZod(table, schema, options);
   try {
     await conn.run(ddl);
   } catch (e) {
