@@ -15,13 +15,25 @@ type ColumnDDL = {
   constraint?: 'NOT NULL' | 'PRIMARY KEY';
 };
 
+export type TableCreateOptions = {
+  create?: 'CREATE' | 'CREATE_OR_REPLACE' | 'IF_NOT_EXISTS';
+};
+
+const createMap = {
+  CREATE: 'CREATE TABLE',
+  CREATE_OR_REPLACE: 'CREATE OR REPLACE TABLE',
+  IF_NOT_EXISTS: 'CREATE TABLE IF NOT EXISTS',
+} as const satisfies Record<NonNullable<TableCreateOptions['create']>, string>;
+
 export const getTableCreateFromZod = <T extends ZodObject>(
   table: Table,
-  schema: T
+  schema: T,
+  options?: TableCreateOptions
 ): {
   ddl: string;
   columnTypes: [name: string, type: DuckDBType][];
 } => {
+  const { create = 'CREATE' } = options ?? {};
   const fqTable = table.getFullyQualifiedTableName();
   const json = schema.toJSONSchema({
     target: 'openapi-3.0',
@@ -70,8 +82,11 @@ export const getTableCreateFromZod = <T extends ZodObject>(
     columnTypes.push([columnName, c.duckdbType]);
     columns.push(c as ColumnDDL);
   }
+
+  const createDDL = createMap[create];
+
   const ddl = [
-    `CREATE OR REPLACE TABLE ${fqTable} (\n`,
+    `${createDDL} ${fqTable} (\n`,
     columns
       .map((colDDL) => {
         const { name, duckdbType, constraint } = colDDL;

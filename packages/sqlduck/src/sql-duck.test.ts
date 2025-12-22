@@ -89,6 +89,9 @@ describe('Duckdb tests', async () => {
           table: testTable,
           schema: userSchema,
           rowStream: getFakeRowStream(),
+          createOptions: {
+            create: 'CREATE_OR_REPLACE',
+          },
         });
 
         const query = await conn.runAndReadAll(

@@ -17,7 +17,9 @@ describe('getTableCreateFromZod', () => {
   });
 
   it('should return a correct table creation ddl', () => {
-    const { ddl } = getTableCreateFromZod(new Table('test'), userSchema);
+    const { ddl } = getTableCreateFromZod(new Table('test'), userSchema, {
+      create: 'CREATE_OR_REPLACE',
+    });
     expect(ddl).toStrictEqual(
       formatDialect(
         `
