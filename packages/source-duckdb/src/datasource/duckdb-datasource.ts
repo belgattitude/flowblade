@@ -6,6 +6,7 @@ import {
   createSqlSpan,
   type DatasourceInterface,
   type DatasourceQueryInfo,
+  type DatasourceStreamOptions,
   type QError,
   QMeta,
   type QResult,
@@ -107,7 +108,7 @@ export class DuckdbDatasource implements DatasourceInterface {
   // eslint-disable-next-line require-yield,sonarjs/generator-without-yield
   async *stream(
     _query: unknown,
-    _chunkSize: number
+    options?: DatasourceStreamOptions
   ): AsyncIterableIterator<QResult<unknown[], QError>> {
     throw new Error('Not implemented yet');
   }

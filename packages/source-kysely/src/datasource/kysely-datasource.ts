@@ -4,6 +4,7 @@ import {
   createSqlSpan,
   type DatasourceInterface,
   type DatasourceQueryInfo,
+  type DatasourceStreamOptions,
   type QError,
   QMeta,
   type QMetaSqlSpan,
@@ -12,7 +13,8 @@ import {
 import type { Compilable, InferResult, Kysely, RawBuilder } from 'kysely';
 import type { Writable } from 'type-fest';
 
-import { parseBigIntToSafeInt } from '../utils/internal/internal-utils';
+import { isKyselyStreamable } from '../internal/is-kysely-streamable';
+import { parseBigIntToSafeInt } from '../internal/parse-bigint-to-safeint';
 
 type Params<TDatabase> = {
   connection: Kysely<TDatabase>;
@@ -157,14 +159,51 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     }
   };
 
-  // eslint-disable-next-line require-yield,sonarjs/generator-without-yield
+  /**
+   * Stream query
+   *
+   * @example
+   * ```typescript
+   * import { KyselyDatasource } from '@flowblade/source-kysely';
+   *
+   * const ds = new KyselyDatasource({ db });
+   * const query = ds.queryBuilder // This gives access to Kysely expression builder
+   *         .selectFrom('brand as b')
+   *         .select(['b.id', 'b.name'])
+   *         .leftJoin('product as p', 'p.brand_id', 'b.id')
+   *         .select(['p.id as product_id', 'p.name as product_name'])
+   *         .where('b.created_at', '<', new Date())
+   *         .orderBy('b.name', 'desc');
+   *
+   * const stream = ds.stream(query, {
+   *    // Chunksize used when reading the database
+   *    // @default undefined
+   *    chunkSize: undefined
+   * });
+   *
+   * for await (const brand of stream) {
+   *   console.log(brand.name)
+   *   if (brand.name === 'Something') {
+   *     // Breaking or returning before the stream has ended will release
+   *     // the database connection and invalidate the stream.
+   *     break
+   *   }
+   * }
+   * ```
+   */
   async *stream<
     TQuery extends KyselyQueryOrRawQuery,
     TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
   >(
-    _query: TQuery,
-    _chunkSize: number
-  ): AsyncIterableIterator<QResult<TData, QError>> {
-    throw new Error('Not implemented yet');
+    query: TQuery,
+    options?: DatasourceStreamOptions
+  ): AsyncIterableIterator<TData[0]> {
+    const { chunkSize } = options ?? {};
+    if (!isKyselyStreamable(query)) {
+      throw new Error('Query is not streamable, be sure to check usage');
+    }
+    yield* query.stream(chunkSize) as unknown as AsyncIterableIterator<
+      TData[0]
+    >;
   }
 }

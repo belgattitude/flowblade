@@ -42,14 +42,13 @@ jobs:
 
       - name: 🧪 Start MSSQL docker server
         working-directory: "packages/source-kysely"
-        run: docker compose -f e2e/docker/mssql/compose.yml up -d --wait
+        run: docker compose -f ./tests/e2e/docker/mssql/compose.yml up -d --wait
 
       - name: 🧪 E2E Recreate MSSQL e2e database
         working-directory: "packages/source-kysely"
         run: yarn e2e-recreate-db
 
-      - name: 🧪 E2E Run MSSQL tests for source-kysely
-        working-directory: "packages/source-kysely"
-        run: yarn test-e2e
+      - name: 🧪 Run all e2e tests
+        run: yarn turbo run test-e2e --filter='!@examples/*' --filter='!@docs/*'
 
 

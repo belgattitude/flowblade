@@ -6,6 +6,13 @@ export interface DatasourceQueryInfo {
   name?: string;
 }
 
+export type DatasourceStreamOptions = {
+  /**
+   * Number of chunks to retrieve while reading the database
+   */
+  chunkSize?: number;
+};
+
 export interface DatasourceInterface {
   /**
    * Return underlying duckdb connection.
@@ -38,6 +45,6 @@ export interface DatasourceInterface {
 */
   stream: (
     query: VoluntaryAny,
-    chunkSize: number
+    options?: DatasourceStreamOptions
   ) => AsyncIterableIterator<VoluntaryAny>;
 }
