@@ -1,6 +1,8 @@
 import type { ZodObject } from 'zod';
 
-export const getZodDuckDBSchema = <T extends ZodObject>(schema: T) => {
+import type { TableSchemaZod } from '../table/table-schema-zod.type';
+
+export const getZodDuckDBSchema = <T extends TableSchemaZod>(schema: T) => {
   const entries = schema.shape as Record<string, ZodObject>;
   const meta = [];
   for (const [key, fieldSchema] of Object.entries(entries)) {

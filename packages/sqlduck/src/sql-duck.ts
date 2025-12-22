@@ -3,15 +3,16 @@ import type { ZodObject } from 'zod';
 import type * as z from 'zod';
 
 import { rowsToColumnsChunks } from '../tests/utils/rows-to-columns';
-import { getTableCreateFromZod } from './table/get-table-create-from-zod';
+import { createTableFromZod } from './table/create-table-from-zod';
 import type { Table } from './table/table';
+import type { TableSchemaZod } from './table/table-schema-zod.type';
 
 export type SqlDuckParams = {
   conn: DuckDBConnection;
   logger?: (msg: string) => void;
 };
 
-export type ToTableParams<TSchema extends ZodObject> = {
+export type ToTableParams<TSchema extends TableSchemaZod> = {
   table: Table;
   schema: TSchema;
   rowStream: AsyncIterableIterator<z.infer<TSchema>>;
@@ -31,17 +32,12 @@ export class SqlDuck {
     params: ToTableParams<TSchema>
   ) => {
     const { table, schema, chunkSize, rowStream } = params;
-    const { ddl, columnTypes } = getTableCreateFromZod(table, schema);
-    try {
-      await this.#duck.run(ddl);
-    } catch (e) {
-      throw new Error(
-        `Failed to create table '${table.getFullyQualifiedTableName()}': ${(e as Error).message}`,
-        {
-          cause: e as Error,
-        }
-      );
-    }
+
+    const { columnTypes } = await createTableFromZod({
+      conn: this.#duck,
+      schema,
+      table,
+    });
 
     const appender = await this.#duck.createAppender(
       table.fqTable.name,
@@ -67,13 +63,8 @@ export class SqlDuck {
       appender.appendDataChunk(chunk);
 
       appender.flushSync();
-      // chunk.reset();
     }
 
     return void 0;
-    /**
-    const result = await this.duck.streamAndRead(`select * from ${tableName}`);
-    return result;
-      */
   };
 }
