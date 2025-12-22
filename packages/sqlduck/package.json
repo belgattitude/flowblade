@@ -1,9 +1,8 @@
 {
-  "name": "@examples/sqlduck",
+  "name": "@flowblade/sqlduck",
   "version": "0.0.1",
   "type": "module",
   "sideEffects": false,
-  "private": true,
   "exports": {
     ".": {
       "import": {
@@ -26,7 +25,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/belgattitude/flowblade.git",
-    "directory": "examples/shared/sqlduck"
+    "directory": "packages/sqlduck"
   },
   "scripts": {
     "clean": "rimraf ./dist ./coverage ./tsconfig.tsbuildinfo",
