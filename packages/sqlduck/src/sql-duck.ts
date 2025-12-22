@@ -11,6 +11,13 @@ export type SqlDuckParams = {
   logger?: (msg: string) => void;
 };
 
+export type ToTableParams<TSchema extends ZodObject> = {
+  table: Table;
+  schema: TSchema;
+  rowStream: AsyncIterableIterator<z.infer<TSchema>>;
+  chunkSize?: number;
+};
+
 export class SqlDuck {
   #duck: DuckDBConnection;
   #logger: SqlDuckParams['logger'];
@@ -20,12 +27,10 @@ export class SqlDuck {
     this.#logger = params.logger;
   }
 
-  toTable = async <TSchema extends ZodObject, TRow>(
-    table: Table,
-    schema: TSchema,
-    rowStream: AsyncIterableIterator<z.infer<TSchema>>,
-    chunkSize?: number
+  toTable = async <TSchema extends ZodObject>(
+    params: ToTableParams<TSchema>
   ) => {
+    const { table, schema, chunkSize, rowStream } = params;
     const { ddl, columnTypes } = getTableCreateFromZod(table, schema);
     try {
       await this.#duck.run(ddl);

@@ -9,8 +9,7 @@ import { sql } from 'kysely';
 import { describe } from 'vitest';
 import * as z from 'zod';
 
-import { SqlDuck } from '../../../src';
-import { Table } from '../../../src/table/table';
+import { SqlDuck, Table } from '../../../src';
 import { createContainerMssql } from '../create-container-mssql';
 import { createDuckdbTestMemoryDb } from '../utils/create-duckdb-test-memory-db';
 
@@ -99,7 +98,9 @@ describe('MSSQL e2e tests', () => {
         .selectFrom('TestTable as t')
         .select(['t.id', 't.name']);
 
-      const rowStream = mssqlDs.stream(query, 10);
+      const rowStream = mssqlDs.stream(query, {
+        chunkSize: 1000,
+      });
 
       const dbName = 'memory_db';
       const testTable = new Table({
@@ -122,7 +123,11 @@ describe('MSSQL e2e tests', () => {
         name: z.string(),
       });
 
-      await sqlDuck.toTable(testTable, testSchema, rowStream);
+      await sqlDuck.toTable({
+        table: testTable,
+        schema: testSchema,
+        rowStream,
+      });
 
       const duckDs = new DuckdbDatasource({
         connection: duckConn,

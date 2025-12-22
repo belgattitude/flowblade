@@ -85,11 +85,11 @@ describe('Duckdb tests', async () => {
           },
         });
 
-        const _inserted = await sqlDuck.toTable(
-          testTable,
-          userSchema,
-          getFakeRowStream()
-        );
+        const _inserted = await sqlDuck.toTable({
+          table: testTable,
+          schema: userSchema,
+          rowStream: getFakeRowStream(),
+        });
 
         const query = await conn.runAndReadAll(
           `SELECT count(*) as count_star from ${testTable.getFullyQualifiedTableName()}`
