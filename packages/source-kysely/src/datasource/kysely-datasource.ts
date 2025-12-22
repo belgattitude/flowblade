@@ -4,6 +4,7 @@ import {
   createSqlSpan,
   type DatasourceInterface,
   type DatasourceQueryInfo,
+  type DatasourceStreamOptions,
   type QError,
   QMeta,
   type QMetaSqlSpan,
@@ -174,8 +175,11 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *         .where('b.created_at', '<', new Date())
    *         .orderBy('b.name', 'desc');
    *
-   * const chunkSize = 1000; // database read chunk sizes
-   * const stream = ds.stream(query, chunkSize);
+   * const stream = ds.stream(query, {
+   *    // Chunksize used when reading the database
+   *    // @default undefined
+   *    chunkSize: undefined
+   * );
    *
    * for await (const brand of stream) {
    *   console.log(brand.name)
@@ -190,7 +194,11 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   async *stream<
     TQuery extends KyselyQueryOrRawQuery,
     TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
-  >(query: TQuery, chunkSize?: number): AsyncIterableIterator<TData[0]> {
+  >(
+    query: TQuery,
+    options?: DatasourceStreamOptions
+  ): AsyncIterableIterator<TData[0]> {
+    const { chunkSize } = options ?? {};
     if (!isKyselyStreamable(query)) {
       throw new Error('Query is not streamable, be sure to check usage');
     }

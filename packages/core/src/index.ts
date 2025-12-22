@@ -1,6 +1,7 @@
 export type {
   DatasourceInterface,
   DatasourceQueryInfo,
+  DatasourceStreamOptions,
 } from './data-source/datasource.interface';
 export {
   QMeta,
