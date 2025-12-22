@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
+  "$schema": "https://unpkg.com/@changesets/config@3.1.2/schema.json",
   "changelog": [
     "@changesets/changelog-github",
     { "repo": "belgattitude/flowblade" }
@@ -10,5 +10,5 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "bumpVersionsWithWorkspaceProtocolOnly": true,
-  "ignore": ["@examples/*", "@docs/*", "@flowblade/benchmark"]
+  "ignore": ["@examples/*", "@docs/*", "@flowblade/benchmark", "@flowblade/sqlduck"]
 }
