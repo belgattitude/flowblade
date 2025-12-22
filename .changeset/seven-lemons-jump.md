@@ -2,4 +2,4 @@
 "@flowblade/sqlduck": patch
 ---
 
-Publish experimental sqlduck
+Publish experimental sqlduck on npm
