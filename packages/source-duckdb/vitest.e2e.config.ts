@@ -1,7 +1,7 @@
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
-const testFiles = ['./e2e/**/*.test.ts'];
+const testFiles = ['./tests/e2e/**/*.test.ts'];
 
 export default defineConfig({
   esbuild: {
@@ -20,6 +20,7 @@ export default defineConfig({
       '**/.{idea,git,cache,output,temp}/**',
     ],
     globals: true,
+    setupFiles: './tests/vitest.setup.ts',
     include: testFiles,
     // To mimic Jest behaviour regarding mocks.
     mockReset: true,

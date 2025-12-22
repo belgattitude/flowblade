@@ -54,15 +54,15 @@ const getMigrations = (
 const testTimeout = 10_000;
 describe('MSSQL e2e tests', () => {
   let container: StartedMSSQLServerContainer;
-  let sqlServerDs: KyselyDatasource<DB>;
+  let mssqlDs: KyselyDatasource<DB>;
   let duckConn: DuckDBConnection;
 
   beforeAll(async () => {
     container = await new MSSQLServerContainer(mssqlImage)
       .acceptLicense()
       .start();
-    sqlServerDs = createContainerMssql(container);
-    await getMigrations(sqlServerDs).up();
+    mssqlDs = createContainerMssql(container);
+    await getMigrations(mssqlDs).up();
 
     duckConn = await createDuckdbTestMemoryDb({
       // Keep it high to prevent going to .tmp directory
@@ -72,8 +72,8 @@ describe('MSSQL e2e tests', () => {
   }, startupTimeout);
 
   afterAll(async () => {
-    await getMigrations(sqlServerDs).down();
-    await sqlServerDs.getConnection().destroy();
+    await getMigrations(mssqlDs).down();
+    await mssqlDs.getConnection().destroy();
     await container.stop();
     duckConn.closeSync();
   });
@@ -82,10 +82,11 @@ describe('MSSQL e2e tests', () => {
     it(
       'should retrieve dataset from source',
       async () => {
-        const query = sqlServerDs.queryBuilder
+        const query = mssqlDs.queryBuilder
           .selectFrom('TestTable as t')
           .select(['t.id', 't.name']);
-        const { data, error } = await sqlServerDs.query(query);
+
+        const { data, error } = await mssqlDs.query(query);
         expect(error).toBeUndefined();
         expect(data?.[0]).toStrictEqual({ id: 0, name: 'name-0' });
       },
@@ -94,10 +95,11 @@ describe('MSSQL e2e tests', () => {
   });
   describe('ToTable', () => {
     it('should store the data into duckdb', async () => {
-      const rowStream = sqlServerDs.queryBuilder
+      const query = mssqlDs.queryBuilder
         .selectFrom('TestTable as t')
-        .select(['t.id', 't.name'])
-        .stream(10);
+        .select(['t.id', 't.name']);
+
+      const rowStream = mssqlDs.stream(query, 10);
 
       const dbName = 'memory_db';
       const testTable = new Table({
@@ -110,6 +112,9 @@ describe('MSSQL e2e tests', () => {
 
       const sqlDuck = new SqlDuck({
         conn: duckConn,
+        logger: (msg) => {
+          console.log(msg);
+        },
       });
 
       const testSchema = z.object({

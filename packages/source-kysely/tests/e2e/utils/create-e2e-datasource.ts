@@ -5,7 +5,7 @@ import {
   createKyselyMssqlDialect,
   KyselyDatasource,
   TediousConnUtils,
-} from '../../src';
+} from '../../../src';
 import { envE2EConfig } from '../env.e2e.config';
 import type { E2EDbTypes } from './e2e-db.types';
 

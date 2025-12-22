@@ -25,6 +25,7 @@ export default defineConfig({
       reporters: ['default'],
       outputJson: './bench/output/benchmark-results.json',
     },
+    setupFiles: './tests/vitest.setup.ts',
     environment: 'node',
     exclude: [
       '**/node_modules/**',

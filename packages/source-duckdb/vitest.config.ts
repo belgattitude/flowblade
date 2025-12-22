@@ -39,6 +39,7 @@ export default defineConfig({
     ],
     globals: true,
     include: testFiles,
+    setupFiles: './tests/vitest.setup.ts',
     // To mimic Jest behaviour regarding mocks.
     mockReset: true,
     passWithNoTests: true,

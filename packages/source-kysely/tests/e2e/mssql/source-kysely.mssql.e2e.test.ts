@@ -117,4 +117,16 @@ describe('Datasource sqlserver', () => {
       expectTypeOf(data!).toEqualTypeOf<InferResult<typeof query>>();
     });
   });
+
+  describe('Streams with query builder', () => {
+    it('select: get some brands', async () => {
+      const query = ds.queryBuilder
+        .selectFrom('brand as b')
+        .select(['b.id', 'b.name']);
+
+      const result = ds.stream(query);
+      const data = await Array.fromAsync(result);
+      expect(data).toStrictEqual([]);
+    });
+  });
 });

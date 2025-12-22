@@ -1,5 +1,5 @@
-import { envE2EConfig } from '../e2e/env.e2e.config';
-import { execPrismaCliOrThrow } from '../e2e/utils/prisma-cli.utils';
+import { envE2EConfig } from '../tests/e2e/env.e2e.config';
+import { execPrismaCliOrThrow } from '../tests/e2e/utils/prisma-cli.utils';
 
 const { schema } = envE2EConfig.sqlServer.prisma;
 

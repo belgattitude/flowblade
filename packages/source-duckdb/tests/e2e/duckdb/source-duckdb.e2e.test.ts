@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expectTypeOf } from 'vitest';
 
-import { DuckdbDatasource, sql } from '../../src';
+import { DuckdbDatasource, sql } from '../../../src';
 import { createDuckDBE2EMemoryDb } from '../utils/create-duckdb-e2e-memory-db';
 
 describe('DuckDBAsyncDatasource e2e', async () => {

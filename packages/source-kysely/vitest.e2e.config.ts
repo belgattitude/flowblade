@@ -1,7 +1,7 @@
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
-const testFiles = ['./e2e/**/*.test.ts'];
+const testFiles = ['./tests/e2e/**/*.test.ts'];
 
 export default defineConfig({
   esbuild: {

@@ -5,7 +5,7 @@ export const envE2EConfig = {
   sqlServer: {
     dsn: sqlServerDsn,
     prisma: {
-      schema: 'e2e/mssql/db/schema-sql-server.e2e.prisma',
+      schema: 'tests/e2e/mssql/db/schema-sql-server.e2e.prisma',
       env: {
         E2E_DB_AZURE_SQL_EDGE: sqlServerDsn,
       },

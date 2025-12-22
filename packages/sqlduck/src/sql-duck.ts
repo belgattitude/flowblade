@@ -8,12 +8,16 @@ import type { Table } from './table/table';
 
 export type SqlDuckParams = {
   conn: DuckDBConnection;
+  logger?: (msg: string) => void;
 };
 
 export class SqlDuck {
-  private duck: DuckDBConnection;
+  #duck: DuckDBConnection;
+  #logger: SqlDuckParams['logger'];
+
   constructor(params: SqlDuckParams) {
-    this.duck = params.conn;
+    this.#duck = params.conn;
+    this.#logger = params.logger;
   }
 
   toTable = async <TSchema extends ZodObject, TRow>(
@@ -24,7 +28,7 @@ export class SqlDuck {
   ) => {
     const { ddl, columnTypes } = getTableCreateFromZod(table, schema);
     try {
-      await this.duck.run(ddl);
+      await this.#duck.run(ddl);
     } catch (e) {
       throw new Error(
         `Failed to create table '${table.getFullyQualifiedTableName()}': ${(e as Error).message}`,
@@ -34,7 +38,7 @@ export class SqlDuck {
       );
     }
 
-    const appender = await this.duck.createAppender(
+    const appender = await this.#duck.createAppender(
       table.fqTable.name,
       table.fqTable.schema,
       table.fqTable.database
@@ -47,6 +51,10 @@ export class SqlDuck {
     const columnStream = rowsToColumnsChunks(rowStream, chunkLimit);
     for await (const dataChunk of columnStream) {
       const chunk = DuckDBDataChunk.create(chunkTypes);
+
+      if (this.#logger) {
+        this.#logger(`Inserting chunk of ${dataChunk.length} rows`);
+      }
 
       // @ts-expect-error will check this out when we know where
       //                  to place toDuckDbType
