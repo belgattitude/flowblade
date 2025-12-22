@@ -1,5 +1,40 @@
 # @flowblade/source-kysely
 
+## 0.17.0
+
+### Minor Changes
+
+- [#951](https://github.com/belgattitude/flowblade/pull/951) [`b3df6f8`](https://github.com/belgattitude/flowblade/commit/b3df6f8f3cbc7b5bbc83f075b8ab90c51acfee24) Thanks [@belgattitude](https://github.com/belgattitude)! - Add streaming capabilities
+
+  ```typescript
+  import { KyselyDatasource } from "@flowblade/source-kysely";
+
+  const ds = new KyselyDatasource({ db });
+  const query = ds.queryBuilder // This gives access to Kysely expression builder
+    .selectFrom("brand as b")
+    .select(["b.id", "b.name"]);
+
+  const stream = ds.stream(query, {
+    // Chunksize used when reading the database
+    // @default undefined
+    chunkSize: undefined,
+  });
+
+  for await (const brand of stream) {
+    console.log(brand.name);
+    if (brand.name === "Something") {
+      // Breaking or returning before the stream has ended will release
+      // the database connection and invalidate the stream.
+      break;
+    }
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`b3df6f8`](https://github.com/belgattitude/flowblade/commit/b3df6f8f3cbc7b5bbc83f075b8ab90c51acfee24)]:
+  - @flowblade/core@0.2.22
+
 ## 0.16.0
 
 ### Minor Changes

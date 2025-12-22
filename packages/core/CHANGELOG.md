@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.2.22
+
+### Patch Changes
+
+- [#951](https://github.com/belgattitude/flowblade/pull/951) [`b3df6f8`](https://github.com/belgattitude/flowblade/commit/b3df6f8f3cbc7b5bbc83f075b8ab90c51acfee24) Thanks [@belgattitude](https://github.com/belgattitude)! - Add stream options
+
 ## 0.2.21
 
 ### Patch Changes
