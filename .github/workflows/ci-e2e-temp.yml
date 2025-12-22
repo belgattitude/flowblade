@@ -48,8 +48,7 @@ jobs:
         working-directory: "packages/source-kysely"
         run: yarn e2e-recreate-db
 
-      - name: 🧪 E2E Run MSSQL tests for source-kysely
-        working-directory: "packages/source-kysely"
-        run: yarn test-e2e
+      - name: 🧪 Run all e2e tests
+        run: yarn turbo run test-e2e --filter='!@examples/*' --filter='!@docs/*'
 
 
