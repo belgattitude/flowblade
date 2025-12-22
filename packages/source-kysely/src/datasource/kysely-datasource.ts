@@ -179,7 +179,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *    // Chunksize used when reading the database
    *    // @default undefined
    *    chunkSize: undefined
-   * );
+   * });
    *
    * for await (const brand of stream) {
    *   console.log(brand.name)
