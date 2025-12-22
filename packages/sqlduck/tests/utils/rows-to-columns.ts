@@ -7,7 +7,7 @@ import { DuckDBTimestampValue, type DuckDBValue } from '@duckdb/node-api';
  *   output: [["1", "2"], ["Seb", "Ada"]]
  */
 export async function* rowsToColumns<TRow extends Record<string, unknown>>(
-  rows: AsyncGenerator<TRow>
+  rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>
 ): AsyncIterableIterator<TRow[keyof TRow][][]> {
   // Pull the first row to determine column order
   const first = await rows.next();
@@ -47,7 +47,7 @@ const toDuckValue = (value: unknown): DuckDBValue => {
 export async function* rowsToColumnsChunks<
   TRow extends Record<string, unknown>,
 >(
-  rows: AsyncGenerator<TRow> | Generator<TRow>,
+  rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>,
   chunkSize: number
 ): AsyncIterableIterator<TRow[keyof TRow][][]> {
   if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {

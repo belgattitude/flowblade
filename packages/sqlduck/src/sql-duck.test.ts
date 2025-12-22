@@ -6,8 +6,7 @@ import { beforeAll, describe } from 'vitest';
 import * as z from 'zod';
 
 import { createDuckdbTestMemoryDb } from '../tests/e2e/utils/create-duckdb-test-memory-db';
-import { createFakeRowsIterator } from '../tests/utils/create-fake-rows-iterator';
-import { rowsToColumnsChunks } from '../tests/utils/rows-to-columns';
+import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator';
 import { SqlDuck } from './sql-duck';
 import { Table } from './table/table';
 import { zodCodecs } from './utils/zod-codecs';
@@ -63,7 +62,7 @@ describe('Duckdb tests', async () => {
         });
 
         const now = new Date('2025-12-16 00:00:00');
-        const rowGen = createFakeRowsIterator({
+        const getFakeRowStream = createFakeRowsAsyncIterator({
           count: limit,
           schema: userSchema,
           factory: ({ faker: faker, rowIdx }) => {
@@ -85,12 +84,11 @@ describe('Duckdb tests', async () => {
             };
           },
         });
-        const chunkedCols = rowsToColumnsChunks(rowGen(), 2048);
 
         const _inserted = await sqlDuck.toTable(
           testTable,
           userSchema,
-          chunkedCols
+          getFakeRowStream()
         );
 
         const query = await conn.runAndReadAll(

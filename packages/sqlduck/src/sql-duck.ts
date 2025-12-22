@@ -1,10 +1,8 @@
-import {
-  type DuckDBConnection,
-  DuckDBDataChunk,
-  type DuckDBValue,
-} from '@duckdb/node-api';
+import { type DuckDBConnection, DuckDBDataChunk } from '@duckdb/node-api';
 import type { ZodObject } from 'zod';
+import type * as z from 'zod';
 
+import { rowsToColumnsChunks } from '../tests/utils/rows-to-columns';
 import { getTableCreateFromZod } from './table/get-table-create-from-zod';
 import type { Table } from './table/table';
 
@@ -18,13 +16,13 @@ export class SqlDuck {
     this.duck = params.conn;
   }
 
-  toTable = async <TCol extends DuckDBValue[], TSchema extends ZodObject>(
+  toTable = async <TSchema extends ZodObject, TRow>(
     table: Table,
     schema: TSchema,
-    columns: AsyncIterableIterator<TCol[]>
+    rowStream: AsyncIterableIterator<z.infer<TSchema>>,
+    chunkSize?: number
   ) => {
     const { ddl, columnTypes } = getTableCreateFromZod(table, schema);
-
     try {
       await this.duck.run(ddl);
     } catch (e) {
@@ -42,10 +40,16 @@ export class SqlDuck {
       table.fqTable.database
     );
 
-    const types = columnTypes.map((v) => v[1]);
-    for await (const dataChunk of columns) {
-      const chunk = DuckDBDataChunk.create(types);
+    const chunkTypes = columnTypes.map((v) => v[1]);
 
+    const chunkLimit = chunkSize ?? 2048;
+
+    const columnStream = rowsToColumnsChunks(rowStream, chunkLimit);
+    for await (const dataChunk of columnStream) {
+      const chunk = DuckDBDataChunk.create(chunkTypes);
+
+      // @ts-expect-error will check this out when we know where
+      //                  to place toDuckDbType
       chunk.setColumns(dataChunk);
       appender.appendDataChunk(chunk);
 
