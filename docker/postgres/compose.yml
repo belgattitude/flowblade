@@ -3,7 +3,7 @@ name: flowblade-postgres
 services:
   postgres:
     container_name: flowblade-postgres
-    image: postgres:18-alpine3.22
+    image: postgres:18.1-alpine3.23
     ports:
       - target: 5432
         published: 5432
@@ -12,6 +12,11 @@ services:
       - flowblade-net
     env_file:
       - .env.postgres.development
+    healthcheck:
+      test: ['CMD-SHELL', "sh -c 'pg_isready -U postgres -d flowblade'"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres_db_data:/var/lib/postgresql/data:rw
       # you may use a bind-mounted host directory instead,
