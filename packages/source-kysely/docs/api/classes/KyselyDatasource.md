@@ -143,7 +143,7 @@ const { data, meta, error } = result;
 
 const { data } = result.map((row) => {
   return {
-    ...data,
+    ...row,
     key: `key-${row.productId}`,
   };
 });

@@ -114,7 +114,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *
    * const { data } = result.map((row) => {
    *   return {
-   *    ...data,
+   *    ...row,
    *    key: `key-${row.productId}`
    * }})
    * ```

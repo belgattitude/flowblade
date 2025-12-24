@@ -42,7 +42,6 @@ const dialect = createKyselyMssqlDialect({
     propagateCreateError: false, // Propagate connection creation errors, default false
     log: (msg) => console.log(msg), // Custom logger, default noop
   },
-  // 👉 Optional tarn pool options
   dialectConfig: {
     // 👉 Validate connections before being acquired from the pool, default true
     validateConnections: true,
