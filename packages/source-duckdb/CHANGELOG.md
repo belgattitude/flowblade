@@ -1,5 +1,14 @@
 # @flowblade/source-duckdb
 
+## 0.16.1
+
+### Patch Changes
+
+- [#957](https://github.com/belgattitude/flowblade/pull/957) [`1d5aa8e`](https://github.com/belgattitude/flowblade/commit/1d5aa8e3514c78ab8018089001f33eabcece9fda) Thanks [@belgattitude](https://github.com/belgattitude)! - Use Date.now() rather than performance.now() for internal spans
+
+- Updated dependencies [[`1d5aa8e`](https://github.com/belgattitude/flowblade/commit/1d5aa8e3514c78ab8018089001f33eabcece9fda), [`1d5aa8e`](https://github.com/belgattitude/flowblade/commit/1d5aa8e3514c78ab8018089001f33eabcece9fda), [`1d5aa8e`](https://github.com/belgattitude/flowblade/commit/1d5aa8e3514c78ab8018089001f33eabcece9fda), [`1d5aa8e`](https://github.com/belgattitude/flowblade/commit/1d5aa8e3514c78ab8018089001f33eabcece9fda), [`1d5aa8e`](https://github.com/belgattitude/flowblade/commit/1d5aa8e3514c78ab8018089001f33eabcece9fda)]:
+  - @flowblade/core@0.2.23
+
 ## 0.16.0
 
 ### Minor Changes

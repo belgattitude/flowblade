@@ -1,5 +1,19 @@
 # @flowblade/core
 
+## 0.2.23
+
+### Patch Changes
+
+- [#957](https://github.com/belgattitude/flowblade/pull/957) [`1d5aa8e`](https://github.com/belgattitude/flowblade/commit/1d5aa8e3514c78ab8018089001f33eabcece9fda) Thanks [@belgattitude](https://github.com/belgattitude)! - QResult properly return a Failure when the transformation function throws
+
+- [#957](https://github.com/belgattitude/flowblade/pull/957) [`1d5aa8e`](https://github.com/belgattitude/flowblade/commit/1d5aa8e3514c78ab8018089001f33eabcece9fda) Thanks [@belgattitude](https://github.com/belgattitude)! - Use Date.now() rather than performance.now() for internal spans
+
+- [#957](https://github.com/belgattitude/flowblade/pull/957) [`1d5aa8e`](https://github.com/belgattitude/flowblade/commit/1d5aa8e3514c78ab8018089001f33eabcece9fda) Thanks [@belgattitude](https://github.com/belgattitude)! - QResult make meta optional
+
+- [#957](https://github.com/belgattitude/flowblade/pull/957) [`1d5aa8e`](https://github.com/belgattitude/flowblade/commit/1d5aa8e3514c78ab8018089001f33eabcece9fda) Thanks [@belgattitude](https://github.com/belgattitude)! - Mark internal typescript-result as js private
+
+- [#957](https://github.com/belgattitude/flowblade/pull/957) [`1d5aa8e`](https://github.com/belgattitude/flowblade/commit/1d5aa8e3514c78ab8018089001f33eabcece9fda) Thanks [@belgattitude](https://github.com/belgattitude)! - Add QResult.getOrThrow() helper method
+
 ## 0.2.22
 
 ### Patch Changes
