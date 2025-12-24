@@ -96,7 +96,7 @@ export class SqlFormatter {
    *     'SELECT * FROM table WHERE id = 1'
    *  );
    * } catch (e) {
-   *   // Might throw something similat to: Parse error: Unexpected "[col] from" at line 1 column 8
+   *   // Might throw something similar to: Parse error: Unexpected "[col] from" at line 1 column 8
    *   console.log('Error:', e);
    * }
    * ```

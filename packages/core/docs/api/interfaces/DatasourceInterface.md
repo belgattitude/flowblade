@@ -1,6 +1,6 @@
-[**@flowblade/core v0.2.8**](../README.md)
+[**@flowblade/core v0.2.22**](../README.md)
 
-***
+---
 
 [@flowblade/core](../README.md) / DatasourceInterface
 
@@ -15,17 +15,21 @@
 Return underlying duckdb connection.
 
 Warning: using the underling driver connection isn't recommended
-         and not covered by api stability. Use at your own risks.
+and not covered by api stability. Use at your own risks.
 
 #### Returns
 
 `any`
 
-***
+---
 
 ### query()
 
 > **query**: (`query`, `info?`) => [`AsyncQResult`](../type-aliases/AsyncQResult.md)\<`any`, `any`\>
+
+```typescript
+const ds = new Datasource();
+```
 
 #### Parameters
 
@@ -41,11 +45,11 @@ Warning: using the underling driver connection isn't recommended
 
 [`AsyncQResult`](../type-aliases/AsyncQResult.md)\<`any`, `any`\>
 
-***
+---
 
 ### stream()
 
-> **stream**: (`query`, `chunkSize`) => `AsyncIterableIterator`\<`any`\>
+> **stream**: (`query`, `options?`) => `AsyncIterableIterator`\<`any`\>
 
 #### Parameters
 
@@ -53,9 +57,9 @@ Warning: using the underling driver connection isn't recommended
 
 `any`
 
-##### chunkSize
+##### options?
 
-`number`
+[`DatasourceStreamOptions`](../type-aliases/DatasourceStreamOptions.md)
 
 #### Returns
 

@@ -1,6 +1,6 @@
-[**@flowblade/source-kysely v0.13.12**](../README.md)
+[**@flowblade/source-kysely v0.17.0**](../README.md)
 
-***
+---
 
 [@flowblade/source-kysely](../README.md) / KyselyDatasource
 
@@ -38,28 +38,26 @@
 
 #### Get Signature
 
-> **get** **queryBuilder**(): `Pick`\<`Kysely`\<`TDatabase`\>, `"with"` \| `"mergeInto"` \| `"selectFrom"` \| `"selectNoFrom"` \| `"deleteFrom"` \| `"insertInto"` \| `"replaceInto"` \| `"withRecursive"`\>
+> **get** **queryBuilder**(): `Pick`\<`Kysely`\<`TDatabase`\>, `"mergeInto"` \| `"selectFrom"` \| `"selectNoFrom"` \| `"deleteFrom"` \| `"updateTable"` \| `"insertInto"` \| `"replaceInto"` \| `"with"` \| `"withRecursive"` \| `"withSchema"` \| `"withPlugin"` \| `"withoutPlugins"` \| `"withTables"`\>
 
 Return a new Kysely expression builder.
 
 ##### Example
 
 ```typescript
-import { KyselyDatasource } from '@flowblade/source-kysely';
+import { KyselyDatasource } from "@flowblade/source-kysely";
 
 const ds = new KyselyDatasource({ db });
 
 // Kysely Expression builder (query, update, delete, merge...)
 const eb = ds.queryBuilder;
 
-const query = eb.selectFrom('brand as b')
-                .select(['b.id', 'b.name']);
-
+const query = eb.selectFrom("brand as b").select(["b.id", "b.name"]);
 ```
 
 ##### Returns
 
-`Pick`\<`Kysely`\<`TDatabase`\>, `"with"` \| `"mergeInto"` \| `"selectFrom"` \| `"selectNoFrom"` \| `"deleteFrom"` \| `"insertInto"` \| `"replaceInto"` \| `"withRecursive"`\>
+`Pick`\<`Kysely`\<`TDatabase`\>, `"mergeInto"` \| `"selectFrom"` \| `"selectNoFrom"` \| `"deleteFrom"` \| `"updateTable"` \| `"insertInto"` \| `"replaceInto"` \| `"with"` \| `"withRecursive"` \| `"withSchema"` \| `"withPlugin"` \| `"withoutPlugins"` \| `"withTables"`\>
 
 ## Methods
 
@@ -79,7 +77,7 @@ Warning: this isn't covered by api stability. Use at your own risks.
 
 `DatasourceInterface.getConnection`
 
-***
+---
 
 ### query()
 
@@ -91,11 +89,11 @@ Run a query on the datasource and return the result.
 
 ##### TQuery
 
-`TQuery` *extends* `KyselyQueryOrRawQuery`\<`unknown`\>
+`TQuery` _extends_ `KyselyQueryOrRawQuery`\<`unknown`\>
 
 ##### TData
 
-`TData` *extends* `unknown`[] = `KyselyInferQueryOrRawQuery`\<`TQuery`\>
+`TData` _extends_ `unknown`[] = `KyselyInferQueryOrRawQuery`\<`TQuery`\>
 
 #### Parameters
 
@@ -114,16 +112,16 @@ Run a query on the datasource and return the result.
 #### Example
 
 ```typescript
-import { KyselyDatasource, isQueryResultError } from '@flowblade/source-kysely';
+import { KyselyDatasource, isQueryResultError } from "@flowblade/source-kysely";
 
 const ds = new KyselyDatasource({ db });
 const query = ds.queryBuilder // This gives access to Kysely expression builder
-        .selectFrom('brand as b')
-        .select(['b.id', 'b.name'])
-        .leftJoin('product as p', 'p.brand_id', 'b.id')
-        .select(['p.id as product_id', 'p.name as product_name'])
-        .where('b.created_at', '<', new Date())
-        .orderBy('b.name', 'desc');
+  .selectFrom("brand as b")
+  .select(["b.id", "b.name"])
+  .leftJoin("product as p", "p.brand_id", "b.id")
+  .select(["p.id as product_id", "p.name as product_name"])
+  .where("b.created_at", "<", new Date())
+  .orderBy("b.name", "desc");
 
 const result = await ds.query(query);
 
@@ -145,44 +143,77 @@ const { data, meta, error } = result;
 
 const { data } = result.map((row) => {
   return {
-   ...data,
-   key: `key-${row.productId}`
-}})
+    ...row,
+    key: `key-${row.productId}`,
+  };
+});
 ```
 
 #### Implementation of
 
 `DatasourceInterface.query`
 
-***
+---
 
 ### stream()
 
-> **stream**\<`TQuery`, `TData`\>(`_query`, `_chunkSize`): `AsyncIterableIterator`\<`QResult`\<`TData`, `QError`\>\>
+> **stream**\<`TQuery`, `TData`\>(`query`, `options?`): `AsyncIterableIterator`\<`TData`\[`0`\]\>
+
+Stream query
 
 #### Type Parameters
 
 ##### TQuery
 
-`TQuery` *extends* `KyselyQueryOrRawQuery`\<`unknown`\>
+`TQuery` _extends_ `KyselyQueryOrRawQuery`\<`unknown`\>
 
 ##### TData
 
-`TData` *extends* `unknown`[] = `KyselyInferQueryOrRawQuery`\<`TQuery`\>
+`TData` _extends_ `unknown`[] = `KyselyInferQueryOrRawQuery`\<`TQuery`\>
 
 #### Parameters
 
-##### \_query
+##### query
 
 `TQuery`
 
-##### \_chunkSize
+##### options?
 
-`number`
+`DatasourceStreamOptions`
 
 #### Returns
 
-`AsyncIterableIterator`\<`QResult`\<`TData`, `QError`\>\>
+`AsyncIterableIterator`\<`TData`\[`0`\]\>
+
+#### Example
+
+```typescript
+import { KyselyDatasource } from "@flowblade/source-kysely";
+
+const ds = new KyselyDatasource({ db });
+const query = ds.queryBuilder // This gives access to Kysely expression builder
+  .selectFrom("brand as b")
+  .select(["b.id", "b.name"])
+  .leftJoin("product as p", "p.brand_id", "b.id")
+  .select(["p.id as product_id", "p.name as product_name"])
+  .where("b.created_at", "<", new Date())
+  .orderBy("b.name", "desc");
+
+const stream = ds.stream(query, {
+  // Chunksize used when reading the database
+  // @default undefined
+  chunkSize: undefined,
+});
+
+for await (const brand of stream) {
+  console.log(brand.name);
+  if (brand.name === "Something") {
+    // Breaking or returning before the stream has ended will release
+    // the database connection and invalidate the stream.
+    break;
+  }
+}
+```
 
 #### Implementation of
 

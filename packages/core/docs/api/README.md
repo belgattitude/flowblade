@@ -1,8 +1,8 @@
-**@flowblade/core v0.2.8**
+**@flowblade/core v0.2.22**
 
-***
+---
 
-# @flowblade/core v0.2.8
+# @flowblade/core v0.2.22
 
 ## Classes
 
@@ -13,15 +13,17 @@
 
 - [DatasourceInterface](interfaces/DatasourceInterface.md)
 - [DatasourceQueryInfo](interfaces/DatasourceQueryInfo.md)
-- [QError](interfaces/QError.md)
 - [QMetaMapSpan](interfaces/QMetaMapSpan.md)
 - [QMetaSqlSpan](interfaces/QMetaSqlSpan.md)
 
 ## Type Aliases
 
 - [AsyncQResult](type-aliases/AsyncQResult.md)
+- [DatasourceStreamOptions](type-aliases/DatasourceStreamOptions.md)
 - [InferQResult](type-aliases/InferQResult.md)
+- [QError](type-aliases/QError.md)
 - [QMetaSpan](type-aliases/QMetaSpan.md)
+- [QResultJsonifiable](type-aliases/QResultJsonifiable.md)
 
 ## Functions
 

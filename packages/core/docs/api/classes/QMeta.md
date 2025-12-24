@@ -1,6 +1,6 @@
-[**@flowblade/core v0.2.8**](../README.md)
+[**@flowblade/core v0.2.22**](../README.md)
 
-***
+---
 
 [@flowblade/core](../README.md) / QMeta
 
@@ -28,22 +28,28 @@ Construct a new span
 
 ```typescript
 const sqlSpan: QMetaSqlSpan = {
-   type: 'sql',
-   sql: 'SELECT * FROM users',
-   params: [],
-   timeMs: 10.334,
-   affectedRows: 10
-}
+  type: "sql",
+  sql: "SELECT * FROM users",
+  params: [],
+  timeMs: 12,
+  affectedRows: 10,
+};
 const meta = new QMeta({
-  spans: sqlSpan
+  spans: sqlSpan,
 });
 ```
 
-## Properties
+## Accessors
 
-### name?
+### name
 
-> `readonly` `optional` **name**: `string`
+#### Get Signature
+
+> **get** **name**(): `string` \| `undefined`
+
+##### Returns
+
+`string` \| `undefined`
 
 ## Methods
 
@@ -66,15 +72,27 @@ const meta = new QMeta({
 ```typescript
 const meta = new QMeta();
 meta.addSpan({
-   type: 'sql',
-   sql: 'SELECT * FROM users',
-   params: [],
-   timeMs: 10.334,
-   affectedRows: 10
+  type: "sql",
+  sql: "SELECT * FROM users",
+  params: [],
+  timeMs: 13,
+  affectedRows: 10,
 });
 ```
 
-***
+---
+
+### getLatestSpan()
+
+> **getLatestSpan**(): `Readonly`\<[`QMetaSpan`](../type-aliases/QMetaSpan.md)\> \| `undefined`
+
+Return the most recent span or undefined if non was found
+
+#### Returns
+
+`Readonly`\<[`QMetaSpan`](../type-aliases/QMetaSpan.md)\> \| `undefined`
+
+---
 
 ### getSpans()
 
@@ -84,7 +102,7 @@ meta.addSpan({
 
 `Readonly`\<[`QMetaSpan`](../type-aliases/QMetaSpan.md)\>[]
 
-***
+---
 
 ### getTotalTimeMs()
 
@@ -99,37 +117,35 @@ Return the total time of all spans.
 #### Example
 
 ```typescript
-const meta = new QMeta({}).withSpan({
-  type: 'map',
-  timeMs: 1000,
-}).withSpan({
-  type: 'map',
-  timeMs: 2000,
-});
+const meta = new QMeta({})
+  .withSpan({
+    type: "map",
+    timeMs: 1000,
+  })
+  .withSpan({
+    type: "map",
+    timeMs: 2000,
+  });
 console.log(meta.getTotalTimeMs()); // 3000
 ```
 
-***
+---
 
 ### toJSON()
 
-> **toJSON**(): `object`
+> **toJSON**(): `QMetaJsonifiable`
 
 Profide a JSON serializable representation of the QMeta instance.
 
 #### Returns
 
-`object`
-
-##### spans
-
-> **spans**: [`QMetaSpan`](../type-aliases/QMetaSpan.md)[]
+`QMetaJsonifiable`
 
 #### See
 
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#description
 
-***
+---
 
 ### withSpan()
 
@@ -151,18 +167,18 @@ Return a new instance of QMeta with the provided span added.
 
 ```typescript
 const sqlSpan: QMetaSqlSpan = {
-   type: 'sql',
-   sql: 'SELECT * FROM users',
-   params: [],
-   timeMs: 10.334,
-   affectedRows: 10
-}
+  type: "sql",
+  sql: "SELECT * FROM users",
+  params: [],
+  timeMs: 13,
+  affectedRows: 10,
+};
 const meta = new QMeta({
-  spans: sqlSpan
+  spans: sqlSpan,
 });
 const newMeta = meta.withSpan({
-  type: 'transform',
-  name: 'calculate user discount',
-  timeMs: 5.123,
+  type: "transform",
+  name: "calculate user discount",
+  timeMs: 14,
 });
 ```

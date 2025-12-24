@@ -1,6 +1,6 @@
-[**@flowblade/sql-tag-format v0.0.10**](../README.md)
+[**@flowblade/sql-tag-format v0.1.6**](../README.md)
 
-***
+---
 
 [@flowblade/sql-tag-format](../README.md) / SqlFormatter
 
@@ -18,7 +18,7 @@ SqlFormatter constructor
 
 ##### dialect
 
-`"bigquery"` | `"db2"` | `"db2i"` | `"hive"` | `"mariadb"` | `"mysql"` | `"tidb"` | `"n1ql"` | `"plsql"` | `"postgresql"` | `"redshift"` | `"spark"` | `"sqlite"` | `"sql"` | `"trino"` | `"transactsql"` | `"singlestoredb"` | `"snowflake"` | `"tsql"`
+`"bigquery"` | `"db2"` | `"db2i"` | `"duckdb"` | `"hive"` | `"mariadb"` | `"mysql"` | `"tidb"` | `"n1ql"` | `"plsql"` | `"postgresql"` | `"redshift"` | `"spark"` | `"sqlite"` | `"sql"` | `"trino"` | `"transactsql"` | `"singlestoredb"` | `"snowflake"` | `"tsql"`
 
 ##### formatterOptions?
 
@@ -31,32 +31,32 @@ SqlFormatter constructor
 #### Example
 
 ```typescript
-const sqlFormatter = new SqlFormatter('postgresql');
+const sqlFormatter = new SqlFormatter("postgresql");
 
 // Alternatively, you can pass in options
 // @see https://github.com/sql-formatter-org/sql-formatter/tree/master?tab=readme-ov-file#configuration-options
 
-const pgsqlFormatter = new SqlFormatter('postgresql', {
-   keywordCase: 'preserve',
-   identifierCase: 'preserve',
-   dataTypeCase: 'preserve',
-   functionCase: 'preserve',
-   logicalOperatorNewline: 'before',
-   expressionWidth: 50,
-   linesBetweenQueries: 1,
-   denseOperators: false,
-   newlineBeforeSemicolon: false,
-   useTabs: false,
-   tabWidth: 2,
+const pgsqlFormatter = new SqlFormatter("postgresql", {
+  keywordCase: "preserve",
+  identifierCase: "preserve",
+  dataTypeCase: "preserve",
+  functionCase: "preserve",
+  logicalOperatorNewline: "before",
+  expressionWidth: 50,
+  linesBetweenQueries: 1,
+  denseOperators: false,
+  newlineBeforeSemicolon: false,
+  useTabs: false,
+  tabWidth: 2,
 });
 
 try {
- const formatted = pgsqlFormatter.formatOrThrow(
-    'SELECT * FROM table WHERE id = 1'
- );
+  const formatted = pgsqlFormatter.formatOrThrow(
+    "SELECT * FROM table WHERE id = 1"
+  );
 } catch (e) {
   // Might throw something similar to: Parse error: Unexpected "[col] from" at line 1 column 8
-  console.log('Error:', e);
+  console.log("Error:", e);
 }
 ```
 
@@ -64,7 +64,7 @@ try {
 
 ### formatOrNull()
 
-> **formatOrNull**(`sql`, `params?`): `null` \| `string`
+> **formatOrNull**(`sql`, `params?`): `string` \| `null`
 
 Format sql to string or return null if sql cannot be parsed
 
@@ -80,21 +80,19 @@ Format sql to string or return null if sql cannot be parsed
 
 #### Returns
 
-`null` \| `string`
+`string` \| `null`
 
 string if sql can be parsed, null otherwise
 
 #### Example
 
 ```typescript
-const sqlFormatter = new SqlFormatter('postgresql');
+const sqlFormatter = new SqlFormatter("postgresql");
 
-const formatted = sqlFormatter.formatOrNull(
-    'SELECT * FROM table WHERE id = 1'
-);
+const formatted = sqlFormatter.formatOrNull("SELECT * FROM table WHERE id = 1");
 ```
 
-***
+---
 
 ### formatOrThrow()
 
@@ -119,15 +117,15 @@ Format sql to string or throw an error if sql cannot be parsed
 #### Example
 
 ```typescript
-const sqlFormatter = new SqlFormatter('postgresql');
+const sqlFormatter = new SqlFormatter("postgresql");
 
 try {
- const formatted = sqlFormatter.formatOrThrow(
-    'SELECT * FROM table WHERE id = 1'
- );
+  const formatted = sqlFormatter.formatOrThrow(
+    "SELECT * FROM table WHERE id = 1"
+  );
 } catch (e) {
   // Might throw something similat to: Parse error: Unexpected "[col] from" at line 1 column 8
-  console.log('Error:', e);
+  console.log("Error:", e);
 }
 ```
 

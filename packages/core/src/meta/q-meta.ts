@@ -2,6 +2,9 @@ import type { QColumnModel } from '../cm/q-column-model';
 
 export interface QMetaMapSpan {
   type: 'map';
+  /**
+   * Time in milliseconds
+   */
   timeMs: number;
 }
 
@@ -44,7 +47,7 @@ export class QMeta {
    *    type: 'sql',
    *    sql: 'SELECT * FROM users',
    *    params: [],
-   *    timeMs: 10.334,
+   *    timeMs: 12,
    *    affectedRows: 10
    * }
    * const meta = new QMeta({
@@ -64,6 +67,14 @@ export class QMeta {
   getSpans = (): Readonly<QMetaSpan>[] => {
     return this.spans;
   };
+
+  /**
+   * Return the most recent span or undefined there isn't any
+   */
+  getLatestSpan = (): Readonly<QMetaSpan> | undefined => {
+    return this.spans.at(-1)!;
+  };
+
   /**
    * @example
    * ```typescript
@@ -72,7 +83,7 @@ export class QMeta {
    *    type: 'sql',
    *    sql: 'SELECT * FROM users',
    *    params: [],
-   *    timeMs: 10.334,
+   *    timeMs: 13,
    *    affectedRows: 10
    * });
    * ```
@@ -90,7 +101,7 @@ export class QMeta {
    *    type: 'sql',
    *    sql: 'SELECT * FROM users',
    *    params: [],
-   *    timeMs: 10.334,
+   *    timeMs: 13,
    *    affectedRows: 10
    * }
    * const meta = new QMeta({
@@ -99,7 +110,7 @@ export class QMeta {
    * const newMeta = meta.withSpan({
    *   type: 'transform',
    *   name: 'calculate user discount',
-   *   timeMs: 5.123,
+   *   timeMs: 14,
    * });
    * ```
    */
@@ -126,11 +137,11 @@ export class QMeta {
    * ```
    */
   getTotalTimeMs = (): number => {
-    return this.spans.reduce((acc, span) => acc + span.timeMs, 0);
+    return Math.round(this.spans.reduce((acc, span) => acc + span.timeMs, 0));
   };
 
   /**
-   * Profide a JSON serializable representation of the QMeta instance.
+   * Provide a JSON serializable representation of the QMeta instance.
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#description
    */
   toJSON = (): QMetaJsonifiable => {

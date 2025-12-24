@@ -1,6 +1,6 @@
-[**@flowblade/source-kysely v0.13.12**](../README.md)
+[**@flowblade/source-kysely v0.17.0**](../README.md)
 
-***
+---
 
 [@flowblade/source-kysely](../README.md) / createKyselyMssqlDialect
 
@@ -14,7 +14,7 @@ Create a Kysely dialect for Microsoft SQL Server.
 
 ### params
 
-`Params`
+[`KyselyMssqlDialectParams`](../type-aliases/KyselyMssqlDialectParams.md)
 
 ## Returns
 
@@ -23,33 +23,42 @@ Create a Kysely dialect for Microsoft SQL Server.
 ## Example
 
 ```typescript
-import { default as Tedious } from 'tedious';
-import { TediousConnUtils, createKyselyMssqlDialect } from '@flowblade/source-kysely';
+import { default as Tedious } from "tedious";
+import {
+  TediousConnUtils,
+  createKyselyMssqlDialect,
+} from "@flowblade/source-kysely";
 
-const jdbcDsn = "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
+const jdbcDsn =
+  "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
 const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
 
 const dialect = createKyselyMssqlDialect({
- tediousConfig,
- // 👉 Optional tarn pool options
- poolOptions: {
-   min: 0,                        // Minimum number of connections, default 0
-   max: 10,                       // Minimum number of connections, default 10
-   propagateCreateError: false,   // Propagate connection creation errors, default false
-   log: (msg) => console.log(msg) // Custom logger, default noop
- },
- // 👉 Optional tarn pool options
- dialectConfig: {
-   // 👉 Validate connections before being acquired from the pool, default true
-   validateConnections: true,
-   // 👉 Reset connection on pool release, default false
-   resetConnectionsOnRelease: false,
-   // 👉 Example based on https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
-   tediousTypes: { ...Tedious.TYPES, NVarChar: Tedious.TYPES.VarChar}
- }
+  tediousConfig,
+  // 👉 Optional tarn pool options
+  poolOptions: {
+    min: 0, // Minimum number of connections, default 0
+    max: 10, // Minimum number of connections, default 10
+    propagateCreateError: false, // Propagate connection creation errors, default false
+    log: (msg) => console.log(msg), // Custom logger, default noop
+  },
+  dialectConfig: {
+    // 👉 Validate connections before being acquired from the pool, default true
+    validateConnections: true,
+    // 👉 Reset connection on pool release, default false
+    resetConnectionsOnRelease: false,
+    // 👉 Override Tedious types to enhance compatibility and modern support
+    tediousTypes: {
+      ...Tedious.TYPES,
+      // see https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
+      NVarChar: Tedious.TYPES.VarChar,
+      // see https://github.com/kysely-org/kysely/issues/1596#issuecomment-3341591075
+      DateTime: Tedious.TYPES.DateTime2,
+    },
+  },
 });
 
 const db = new Kysely<DB>({
-  dialect
-})
+  dialect,
+});
 ```

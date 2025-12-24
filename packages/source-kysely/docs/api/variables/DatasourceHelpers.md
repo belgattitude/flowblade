@@ -1,6 +1,6 @@
-[**@flowblade/source-kysely v0.13.12**](../README.md)
+[**@flowblade/source-kysely v0.17.0**](../README.md)
 
-***
+---
 
 [@flowblade/source-kysely](../README.md) / DatasourceHelpers
 
@@ -8,7 +8,7 @@
 
 > `const` **DatasourceHelpers**: `object`
 
-## Type declaration
+## Type Declaration
 
 ### toJsonified()
 
@@ -18,7 +18,7 @@
 
 ##### T
 
-`T` *extends* `QResult`\<`unknown`[], `QError`\>
+`T` _extends_ `QResult`\<`unknown`[], `QError`\>
 
 #### Parameters
 

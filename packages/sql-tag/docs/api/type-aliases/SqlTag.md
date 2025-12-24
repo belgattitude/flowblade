@@ -1,6 +1,6 @@
-[**@flowblade/sql-tag v0.1.10**](../README.md)
+[**@flowblade/sql-tag v0.1.17**](../README.md)
 
-***
+---
 
 [@flowblade/sql-tag](../README.md) / SqlTag
 
@@ -8,7 +8,7 @@
 
 > **SqlTag**\<`T`\> = `Sql` & `object`
 
-## Type declaration
+## Type Declaration
 
 ### \_columns
 

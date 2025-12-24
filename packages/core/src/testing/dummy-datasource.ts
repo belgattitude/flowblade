@@ -79,17 +79,17 @@ export class DummyDatasource implements DatasourceInterface {
     const { name } = info ?? {};
     const { text: sql, values: params } = rawQuery;
     const meta = createSqlSpan({ sql, params });
-    const start = performance.now();
+    const start = Date.now();
     try {
       const rows = [] as VoluntaryAny[];
       meta.affectedRows = 0;
-      meta.timeMs = performance.now() - start;
+      meta.timeMs = Date.now() - start;
       return createQResultSuccess(
         rows as TData,
         new QMeta({ name, spans: meta })
       );
     } catch (err) {
-      meta.timeMs = performance.now() - start;
+      meta.timeMs = Date.now() - start;
       return createQResultError(
         {
           message: (err as Error).message,

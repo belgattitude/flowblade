@@ -1,6 +1,6 @@
-[**@flowblade/source-duckdb v0.7.0**](../README.md)
+[**@flowblade/source-duckdb v0.16.0**](../README.md)
 
-***
+---
 
 [@flowblade/source-duckdb](../README.md) / sql
 
@@ -10,7 +10,7 @@
 
 Tagged Sql template literal function.
 
-## Type declaration
+## Type Declaration
 
 ### empty
 
@@ -24,7 +24,7 @@ equivalent to sql.raw("").
 ##### Example
 
 ```typescript
-import { sql } from '@flowblade/sql-tag';
+import { sql } from "@flowblade/sql-tag";
 
 const excludeDeleted = true;
 
@@ -78,20 +78,20 @@ readonly readonly `unknown`[][]
 #### Example
 
 ```typescript
-import { sql } from '@flowblade/sql-tag';
+import { sql } from "@flowblade/sql-tag";
 
 const insert = sql`
    INSERT INTO product (name, price, stock, status)
    VALUES ${sql.bulk([
-     ['Laptop', 999.99, 50, 'active'],
-     ['Keyboard', 79.99, 100, 'active'],
+     ["Laptop", 999.99, 50, "active"],
+     ["Keyboard", 79.99, 100, "active"],
    ])}
   `;
 
 const { text, sql, statement, values } = insert;
 
-insert.text;   //=> "INSERT INTO product (name, price, stock, status) VALUES ($1,$2,$3,$4),($5,$6,$7,$8)"
-insert.sql;    //=> "INSERT INTO product (name, price, stock, status) VALUES (?,?,?,?),(?,?,?,?),(?,?,?,?)"
+insert.text; //=> "INSERT INTO product (name, price, stock, status) VALUES ($1,$2,$3,$4),($5,$6,$7,$8)"
+insert.sql; //=> "INSERT INTO product (name, price, stock, status) VALUES (?,?,?,?),(?,?,?,?),(?,?,?,?)"
 insert.values; //=> ["Laptop", 999.99, 50, "active", "Keyboard", 79.99, 100, "active"]
 ```
 
@@ -167,20 +167,20 @@ readonly `unknown`[]
 #### Example
 
 ```typescript
-import { sql } from '@flowblade/sql-tag';
+import { sql } from "@flowblade/sql-tag";
 
 const ids = [1, 2, 3];
-const tenant = 'acme';
-const organization = 'acme';
+const tenant = "acme";
+const organization = "acme";
 
 const query = sql<{ id: number }>`
       SELECT id
       FROM products
       WHERE id in ${sql.join(ids)}
-      AND ${sql.join([
-        sql`tenant = ${tenant}`,
-        sql`organization = ${organization}`
-      ], 'AND')}
+      AND ${sql.join(
+        [sql`tenant = ${tenant}`, sql`organization = ${organization}`],
+        "AND"
+      )}
     `;
 ```
 
@@ -212,21 +212,19 @@ to be dynamic.
 #### Example
 
 ```typescript
-import { sql } from '@flowblade/sql-tag';
+import { sql } from "@flowblade/sql-tag";
 
-const query = sql.unsafeRaw(
-  "SELECT * FROM products WHERE id = 1",
-);
+const query = sql.unsafeRaw("SELECT * FROM products WHERE id = 1");
 ```
 
 ## Example
 
 ```typescript
-import { sql } from '@flowblade/sql-tag';
+import { sql } from "@flowblade/sql-tag";
 
 const params = {
-  ids: [1, 2, 3]
-}
+  ids: [1, 2, 3],
+};
 
 const query = sql<{ id: number }>`
       SELECT id
@@ -234,8 +232,8 @@ const query = sql<{ id: number }>`
       WHERE id IN ${sql.join(params.ids)}
     `;
 
-query.sql;       // 'SELECT id FROM products WHERE id IN (?, ?, ?)'
-query.text;      // 'SELECT id FROM products WHERE id IN ($1, $2, $3)'
+query.sql; // 'SELECT id FROM products WHERE id IN (?, ?, ?)'
+query.text; // 'SELECT id FROM products WHERE id IN ($1, $2, $3)'
 query.statement; // 'SELECT id FROM products WHERE id IN (:1, :2, :3)'
-query.values;    // [1, 2, 3]
+query.values; // [1, 2, 3]
 ```
