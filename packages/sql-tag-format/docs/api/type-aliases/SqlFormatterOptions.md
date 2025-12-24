@@ -1,6 +1,6 @@
-[**@flowblade/sql-tag-format v0.0.10**](../README.md)
+[**@flowblade/sql-tag-format v0.1.6**](../README.md)
 
-***
+---
 
 [@flowblade/sql-tag-format](../README.md) / SqlFormatterOptions
 

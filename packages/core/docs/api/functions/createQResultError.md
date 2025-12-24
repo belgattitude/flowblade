@@ -1,18 +1,18 @@
-[**@flowblade/core v0.2.8**](../README.md)
+[**@flowblade/core v0.2.22**](../README.md)
 
-***
+---
 
 [@flowblade/core](../README.md) / createQResultError
 
 # Function: createQResultError()
 
-> **createQResultError**(`error`, `meta`): [`QResult`](../classes/QResult.md)\<`never`, [`QError`](../interfaces/QError.md)\>
+> **createQResultError**(`error`, `meta`): [`QResult`](../classes/QResult.md)\<`never`, [`QError`](../type-aliases/QError.md)\>
 
 ## Parameters
 
 ### error
 
-[`QError`](../interfaces/QError.md)
+[`QError`](../type-aliases/QError.md)
 
 ### meta
 
@@ -20,4 +20,4 @@
 
 ## Returns
 
-[`QResult`](../classes/QResult.md)\<`never`, [`QError`](../interfaces/QError.md)\>
+[`QResult`](../classes/QResult.md)\<`never`, [`QError`](../type-aliases/QError.md)\>

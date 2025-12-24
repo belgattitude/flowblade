@@ -1,8 +1,8 @@
-**@flowblade/source-kysely v0.13.12**
+**@flowblade/source-kysely v0.17.0**
 
-***
+---
 
-# @flowblade/source-kysely v0.13.12
+# @flowblade/source-kysely v0.17.0
 
 ## Classes
 
@@ -11,6 +11,8 @@
 ## Type Aliases
 
 - [JsonifiedDataSourceResponse](type-aliases/JsonifiedDataSourceResponse.md)
+- [KyselyMssqlDialectParams](type-aliases/KyselyMssqlDialectParams.md)
+- [KyselyMssqlPoolOptions](type-aliases/KyselyMssqlPoolOptions.md)
 
 ## Variables
 

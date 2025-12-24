@@ -11,25 +11,38 @@ import type { QError } from './types';
 describe('QResult', () => {
   const initialSqlSpan: QMetaSqlSpan = {
     type: 'sql',
-    timeMs: 10.334,
+    timeMs: 12,
     sql: 'SELECT name FROM users',
     affectedRows: 10,
     params: [],
   };
 
+  type SuccessData = { name: string }[];
+  const successData: SuccessData = [{ name: 'Sébastien' }];
+
   const createSuccessResult = () =>
     new QResult({
-      data: [{ name: 'Sébastien' }],
+      data: successData,
       meta: new QMeta({ spans: initialSqlSpan }),
     });
 
-  const createErrorResult = () =>
+  const createErrorResult = (errMsg?: string) =>
     new QResult<{ name: string }[], QError>({
       error: {
-        message: 'An error occurred',
+        message: errMsg ?? 'An error occurred',
       },
       meta: new QMeta({ spans: initialSqlSpan }),
     });
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    // Start from a known point in time
+    vi.setSystemTime(0);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   describe('Constructor', () => {
     describe('With a success result', () => {
@@ -78,9 +91,7 @@ describe('QResult', () => {
         }),
       });
       it('should type the data as optional', () => {
-        expectTypeOf(errorResult.data).toEqualTypeOf<
-          { name: string }[] | undefined
-        >();
+        expectTypeOf(errorResult.data).toEqualTypeOf<SuccessData | undefined>();
       });
       it('should type the error as optional', () => {
         expectTypeOf(errorResult.error).toEqualTypeOf<QError | undefined>();
@@ -130,11 +141,35 @@ describe('QResult', () => {
     });
   });
 
+  describe('getOrThrow', () => {
+    it('should return the result value if a success', () => {
+      const successResult = createSuccessResult();
+      const value = successResult.getOrThrow();
+      expect(value).toStrictEqual(successData);
+      expectTypeOf(value).toEqualTypeOf<SuccessData>();
+    });
+    it('should throw the error if a failure', () => {
+      const errorResult = createErrorResult('errorMessage');
+      expect(() => errorResult.getOrThrow()).toThrowError(
+        new Error('errorMessage')
+      );
+    });
+    it('should throw custom error if a failure', () => {
+      const errorResult = createErrorResult('qErrMsg');
+      expect(() =>
+        errorResult.getOrThrow((qErr) => {
+          return new EvalError(`${qErr.message} & custom`);
+        })
+      ).toThrowError(new EvalError(`qErrMsg & custom`));
+    });
+  });
+
   describe('map', () => {
     describe('when a result is success', () => {
       const successResult = createSuccessResult();
       it('should apply transformation with updated metadata', () => {
         const mappedResult = successResult.map((row) => {
+          vi.advanceTimersByTime(1000);
           return {
             name: row.name.length,
             capitalized: row.name.toUpperCase(),
@@ -151,6 +186,8 @@ describe('QResult', () => {
         expect(mappedResult.isOk()).toBe(true);
         const { meta, data } = mappedResult;
         expect(meta.getSpans().length).toBe(2);
+        expect(meta.getLatestSpan()?.type).toStrictEqual('map');
+        expect(meta.getLatestSpan()?.timeMs).toBeGreaterThanOrEqual(1000);
         expect(meta.getTotalTimeMs()).toBeGreaterThan(initialSqlSpan.timeMs);
         expect(data).toStrictEqual([
           {
@@ -167,6 +204,36 @@ describe('QResult', () => {
           | undefined
         >();
       });
+    });
+    it('should return an error when the transform function throws', () => {
+      const successResult = createSuccessResult();
+      const mappedResult = successResult.map((_data) => {
+        vi.advanceTimersByTime(10);
+        throw new Error('Hello');
+      });
+      expect(mappedResult.isError()).toBe(true);
+      expect(mappedResult.error).toStrictEqual({
+        message: 'Hello',
+      });
+      const span = mappedResult.meta.getLatestSpan();
+      expect(span?.type).toStrictEqual('map');
+      expect(span?.timeMs).toBeGreaterThanOrEqual(10);
+    });
+
+    it('should be chainable', () => {
+      const successResult = createSuccessResult();
+      const mappedResult = successResult
+        .map((row) => {
+          return { ...row, first: true };
+        })
+        .map((row) => {
+          return { ...row, second: true };
+        });
+      expect(mappedResult.data).toStrictEqual(
+        successData.map((row) => {
+          return { ...row, first: true, second: true };
+        })
+      );
     });
   });
 });

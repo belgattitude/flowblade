@@ -1,6 +1,6 @@
-[**@flowblade/core v0.2.8**](../README.md)
+[**@flowblade/core v0.2.22**](../README.md)
 
-***
+---
 
 [@flowblade/core](../README.md) / QMetaSqlSpan
 
@@ -12,25 +12,25 @@
 
 > **affectedRows**: `number`
 
-***
+---
 
 ### params
 
 > **params**: `unknown`[]
 
-***
+---
 
 ### sql
 
 > **sql**: `string`
 
-***
+---
 
 ### timeMs
 
 > **timeMs**: `number`
 
-***
+---
 
 ### type
 

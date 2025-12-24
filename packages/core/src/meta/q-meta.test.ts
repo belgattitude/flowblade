@@ -7,7 +7,7 @@ describe('QMeta', () => {
     type: 'sql',
     sql: 'SELECT * FROM users',
     params: [],
-    timeMs: 10.334,
+    timeMs: 12,
     affectedRows: 10,
   };
   const createMeta = () =>
@@ -33,7 +33,7 @@ describe('QMeta', () => {
       // @ts-expect-error for the sake of testing, we force a modification
       metaFirstSpan.timeMs = 0;
       expect(meta.getSpans()[0]!.timeMs).toBe(0);
-      expect(newMeta.getSpans()[0]!.timeMs).toBe(10.334);
+      expect(newMeta.getSpans()[0]!.timeMs).toBe(12);
     });
   });
   describe('getTotalTimeMs', () => {

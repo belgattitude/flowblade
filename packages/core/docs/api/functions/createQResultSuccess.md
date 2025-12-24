@@ -1,6 +1,6 @@
-[**@flowblade/core v0.2.8**](../README.md)
+[**@flowblade/core v0.2.22**](../README.md)
 
-***
+---
 
 [@flowblade/core](../README.md) / createQResultSuccess
 
@@ -12,7 +12,7 @@
 
 ### T
 
-`T` *extends* `unknown`[]
+`T` _extends_ `unknown`[]
 
 ## Parameters
 

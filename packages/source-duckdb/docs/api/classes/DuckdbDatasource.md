@@ -1,6 +1,6 @@
-[**@flowblade/source-duckdb v0.7.0**](../README.md)
+[**@flowblade/source-duckdb v0.16.0**](../README.md)
 
-***
+---
 
 [@flowblade/source-duckdb](../README.md) / DuckdbDatasource
 
@@ -35,7 +35,7 @@
 Return underlying duckdb connection.
 
 Warning: using the underling driver connection isn't recommended
-         and not covered by api stability. Use at your own risks.
+and not covered by api stability. Use at your own risks.
 
 #### Returns
 
@@ -45,7 +45,7 @@ Warning: using the underling driver connection isn't recommended
 
 `DatasourceInterface.getConnection`
 
-***
+---
 
 ### query()
 
@@ -57,7 +57,7 @@ Run a raw query on the datasource and return a query result (QResult).
 
 ##### TData
 
-`TData` *extends* `unknown`[]
+`TData` _extends_ `unknown`[]
 
 #### Parameters
 
@@ -76,12 +76,16 @@ Run a raw query on the datasource and return a query result (QResult).
 #### Example
 
 ```typescript
-import { DuckdbDatasource } from '@flowblade/source-duckdb';
-import { sql } from '@flowblade/sql-tag';
+import { DuckdbDatasource } from "@flowblade/source-duckdb";
+import { sql } from "@flowblade/sql-tag";
 
 const ds = new DuckdbDatasource({ connection: duckdb });
 
-const rawSql = sql<{productId: number}>`
+type ProductRow = {
+  productId: number;
+};
+
+const rawSql = sql<ProductRow>`
   WITH products(productId) AS MATERIALIZED (SELECT COLUMNS(*)::INTEGER FROM RANGE(1,100))
   SELECT productId FROM products
   WHERE productId between ${params.min}::INTEGER and ${params.max}::INTEGER
@@ -89,31 +93,36 @@ const rawSql = sql<{productId: number}>`
 
 const result = await ds.query(rawSql);
 
-// Option 1: the QResult object contains the data, metadata and error
-//  - data:  the result rows (TData or undefined if error)
-//  - error: the error (QError or undefined if success)
-//  - meta:  the metadata (always present)
-
 const { data, meta, error } = result;
 
-// Option 2: You operate over the result, ie: mapping the data
+if (data) {
+  // Typed as ProductRow[]
+  console.log(data);
+}
+if (error) {
+  // Typed as QError
+  console.log(error);
+}
 
-const { data } = result.map((row) => {
+// Optionally: map over the data to transform it
+
+const { data: mappedData } = result.map((row) => {
   return {
-   id: row.productId,
-   key: `key-${row.productId}`
-})
+    id: row.productId,
+    key: `key-${row.productId}`,
+  };
+});
 ```
 
 #### Implementation of
 
 `DatasourceInterface.query`
 
-***
+---
 
 ### stream()
 
-> **stream**(`_query`, `_chunkSize`): `AsyncIterableIterator`\<`QResult`\<`unknown`[], `QError`\>\>
+> **stream**(`_query`, `options?`): `AsyncIterableIterator`\<`QResult`\<`unknown`[], `QError`\>\>
 
 #### Parameters
 
@@ -121,9 +130,9 @@ const { data } = result.map((row) => {
 
 `unknown`
 
-##### \_chunkSize
+##### options?
 
-`number`
+`DatasourceStreamOptions`
 
 #### Returns
 

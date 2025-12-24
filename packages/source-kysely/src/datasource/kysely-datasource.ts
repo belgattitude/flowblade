@@ -134,19 +134,19 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       params: compiled.parameters as Writable<QMetaSqlSpan['params']>,
     });
 
-    const start = performance.now();
+    const start = Date.now();
 
     try {
       const r = await this.db.executeQuery(compiled);
       const { numAffectedRows, ...result } = r;
-      meta.timeMs = performance.now() - start;
+      meta.timeMs = Date.now() - start;
       meta.affectedRows = parseBigIntToSafeInt(numAffectedRows) ?? 0;
       return createQResultSuccess(
         result.rows as TData,
         new QMeta({ name, spans: meta })
       );
     } catch (err) {
-      meta.timeMs = performance.now() - start;
+      meta.timeMs = Date.now() - start;
       return createQResultError(
         {
           message: (err as Error).message,

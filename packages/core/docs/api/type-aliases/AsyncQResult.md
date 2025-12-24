@@ -1,6 +1,6 @@
-[**@flowblade/core v0.2.8**](../README.md)
+[**@flowblade/core v0.2.22**](../README.md)
 
-***
+---
 
 [@flowblade/core](../README.md) / AsyncQResult
 
@@ -12,8 +12,8 @@
 
 ### TData
 
-`TData` *extends* `unknown`[]
+`TData` _extends_ `unknown`[]
 
 ### TError
 
-`TError` *extends* [`QError`](../interfaces/QError.md) \| `undefined` = [`QError`](../interfaces/QError.md)
+`TError` _extends_ [`QError`](QError.md) \| `undefined` = [`QError`](QError.md)

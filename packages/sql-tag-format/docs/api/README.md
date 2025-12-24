@@ -1,8 +1,8 @@
-**@flowblade/sql-tag-format v0.0.10**
+**@flowblade/sql-tag-format v0.1.6**
 
-***
+---
 
-# @flowblade/sql-tag-format v0.0.10
+# @flowblade/sql-tag-format v0.1.6
 
 ## Classes
 

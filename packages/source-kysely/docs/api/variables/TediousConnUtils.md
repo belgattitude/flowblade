@@ -1,6 +1,6 @@
-[**@flowblade/source-kysely v0.13.12**](../README.md)
+[**@flowblade/source-kysely v0.17.0**](../README.md)
 
-***
+---
 
 [@flowblade/source-kysely](../README.md) / TediousConnUtils
 
@@ -8,7 +8,7 @@
 
 > `const` **TediousConnUtils**: `object`
 
-## Type declaration
+## Type Declaration
 
 ### fromJdbcDsn()
 
@@ -29,7 +29,8 @@ Parse and validate a JDBC connection string and return a Tedious connection conf
 #### Example
 
 ```typescript
-const jdbcDsn = "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
+const jdbcDsn =
+  "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
 const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
 const tediousConnection = new Tedious.Connection(tediousConfig);
 ```

@@ -82,17 +82,17 @@ export class DuckdbDatasource implements DatasourceInterface {
     const { name } = info ?? {};
     const { text: sql, values: params } = rawQuery;
     const meta = createSqlSpan({ sql, params });
-    const start = performance.now();
+    const start = Date.now();
     try {
       const rows = await this.db.runAndReadAll(sql, params as DuckDBValue[]);
       meta.affectedRows = rows.currentRowCount;
-      meta.timeMs = performance.now() - start;
+      meta.timeMs = Date.now() - start;
       return createQResultSuccess(
         rows.getRowObjectsJson() as TData,
         new QMeta({ name, spans: meta })
       );
     } catch (err) {
-      meta.timeMs = performance.now() - start;
+      meta.timeMs = Math.round(Date.now() - start);
       return createQResultError(
         {
           message: (err as Error).message,

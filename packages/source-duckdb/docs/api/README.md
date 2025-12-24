@@ -1,8 +1,8 @@
-**@flowblade/source-duckdb v0.7.0**
+**@flowblade/source-duckdb v0.16.0**
 
-***
+---
 
-# @flowblade/source-duckdb v0.7.0
+# @flowblade/source-duckdb v0.16.0
 
 ## Classes
 
