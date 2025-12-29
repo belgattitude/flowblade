@@ -12,7 +12,7 @@ Duckdb datasource adapter based on [@duckdb/node-api](https://github.com/duckdb/
 ## Install
 
 ```bash
-yarn add @flowblade/source-duckdb @flowblade/core @duckdb/node-api
+yarn add @flowblade/source-duckdb @duckdb/node-api
 ```
 
 ### Query the database

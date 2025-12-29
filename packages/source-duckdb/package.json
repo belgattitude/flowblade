@@ -66,11 +66,11 @@
     "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-source-duckdb --dir ./coverage"
   },
   "dependencies": {
+    "@flowblade/core": "workspace:^",
     "@flowblade/sql-tag": "workspace:^"
   },
   "peerDependencies": {
-    "@duckdb/node-api": "^1.4.3-r.2",
-    "@flowblade/core": "workspace:^"
+    "@duckdb/node-api": "^1.4.3-r.2"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.2",

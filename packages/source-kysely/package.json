@@ -75,24 +75,27 @@
     "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-source-kysely --dir ./coverage"
   },
   "dependencies": {
+    "@flowblade/core": "workspace:^",
+    "@flowblade/sql-tag": "workspace:^",
     "@httpx/assert": "^0.16.7",
     "@httpx/dsn-parser": "^1.9.8",
     "@httpx/plain-object": "^2.1.7",
-    "type-fest": "^5.3.1",
-    "valibot": "^1.2.0"
+    "type-fest": "^5.3.1"
   },
   "peerDependencies": {
-    "@flowblade/core": "workspace:^",
-    "@flowblade/sql-tag": "workspace:^",
     "kysely": "^0.28.9",
     "tarn": "^3.0.2",
-    "tedious": "^19.2.0"
+    "tedious": "^19.2.0",
+    "valibot": "^1.2.0"
   },
   "peerDependenciesMeta": {
     "tarn": {
       "optional": true
     },
     "tedious": {
+      "optional": true
+    },
+    "valibot": {
       "optional": true
     }
   },
@@ -130,6 +133,7 @@
     "typedoc": "0.28.15",
     "typedoc-plugin-markdown": "4.9.0",
     "typescript": "5.9.3",
+    "valibot": "1.2.0",
     "vite-tsconfig-paths": "6.0.3",
     "vitest": "4.0.16"
   },
