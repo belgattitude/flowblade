@@ -2,27 +2,25 @@
 
 Data store and transformation library for data-driven applications.
 
-### Core
-
-| Datasource                                                                                  | Description                           |
-|---------------------------------------------------------------------------------------------|---------------------------------------|
-| [@flowblade/core](https://github.com/belgattitude/flowblade/tree/main/packages/core#readme) | Base contracts, interfaces and utils. |
-
 ### Datasources
 
 | Datasource                                                                                                    | Description              |
-|---------------------------------------------------------------------------------------------------------------|--------------------------|
+| ------------------------------------------------------------------------------------------------------------- | ------------------------ |
 | [@flowblade/source-kysely](https://github.com/belgattitude/flowblade/tree/main/packages/source-kysely#readme) | Kysely datasource reader |
 | [@flowblade/source-duckdb](https://github.com/belgattitude/flowblade/tree/main/packages/source-duckdb#readme) | Duckdb nodejs datasource |
-
 
 ### Utilities
 
 | Utilities                                                                                                       | Description                                     |
-|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
+| --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
 | [@flowblade/sql-tag](https://github.com/belgattitude/flowblade/tree/main/packages/sql-tag#readme)               | Tagged SQL template literal                     |
 | [@flowblade/sql-tag-format](https://github.com/belgattitude/flowblade/tree/main/packages/sql-tag-format#readme) | Tagged SQL template literal formatter utilities |
 
+### Core (mostly internal)
+
+| Datasource                                                                                  | Description                             |
+| ------------------------------------------------------------------------------------------- | --------------------------------------- |
+| [@flowblade/core](https://github.com/belgattitude/flowblade/tree/main/packages/core#readme) | Shared contracts, interfaces and utils. |
 
 ### Examples
 
@@ -33,11 +31,11 @@ NextJs: https://flowblade-next-app.vercel.app/demo/duckdb
 ```
 .
 ├── examples
-│   │── apps  
+│   │── apps
 │   │   │── fastify-app
 │   │   └── nextjs-app
-│   └── shared  
-│       │── db-sqlserver 
+│   └── shared
+│       │── db-sqlserver
 │       └── duckdb-openfoodfact
 └── packages
     │── source-duckdb

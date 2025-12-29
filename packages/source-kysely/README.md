@@ -15,7 +15,7 @@ A source adapter for [Kysely](https://github.com/kysely-org/kysely).
 ## Install
 
 ```bash
-yarn add @flowblade/core @flowblade/source-kysely kysely
+yarn add @flowblade/source-kysely kysely
 
 # Install optional drivers
 # 01. for Ms SqlServer or Azure Sql Edge
