@@ -1,5 +1,16 @@
 # @flowblade/sql-tag-format
 
+## 0.1.7
+
+### Patch Changes
+
+- [#964](https://github.com/belgattitude/flowblade/pull/964) [`9c51757`](https://github.com/belgattitude/flowblade/commit/9c51757e484cb90a375eda78808700457e4a9eb8) Thanks [@belgattitude](https://github.com/belgattitude)! - Replace tsup by tsdown to build packages
+
+- [#964](https://github.com/belgattitude/flowblade/pull/964) [`9c51757`](https://github.com/belgattitude/flowblade/commit/9c51757e484cb90a375eda78808700457e4a9eb8) Thanks [@belgattitude](https://github.com/belgattitude)! - Add bun support tests (unit & e2e)
+
+- Updated dependencies [[`9c51757`](https://github.com/belgattitude/flowblade/commit/9c51757e484cb90a375eda78808700457e4a9eb8), [`9c51757`](https://github.com/belgattitude/flowblade/commit/9c51757e484cb90a375eda78808700457e4a9eb8)]:
+  - @flowblade/sql-tag@0.1.18
+
 ## 0.1.6
 
 ### Patch Changes
