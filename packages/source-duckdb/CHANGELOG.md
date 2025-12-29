@@ -1,5 +1,15 @@
 # @flowblade/source-duckdb
 
+## 0.16.3
+
+### Patch Changes
+
+- [`ffc7285`](https://github.com/belgattitude/flowblade/commit/ffc7285ba0addad8b1776d47e101fe42c1742d57) Thanks [@belgattitude](https://github.com/belgattitude)! - Update to duckdb/node-api 1.4.3-r.2
+
+- Updated dependencies [[`ffc7285`](https://github.com/belgattitude/flowblade/commit/ffc7285ba0addad8b1776d47e101fe42c1742d57)]:
+  - @flowblade/sql-tag@0.2.0
+  - @flowblade/core@0.2.24
+
 ## 0.16.2
 
 ### Patch Changes
