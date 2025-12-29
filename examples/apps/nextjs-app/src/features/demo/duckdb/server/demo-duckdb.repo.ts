@@ -34,7 +34,7 @@ export class DemoDuckdbRepo {
 
       WITH products(productId, createdAt)
           AS MATERIALIZED (
-               FROM RANGE(1,${sql.unsafeRaw(String(limit))}) SELECT 
+               FROM RANGE(1,${sql.raw(String(limit))}) SELECT 
                range::INT,
                TIMESTAMPTZ '2025-01-01 12:30:00.123456789+01:00'
           )

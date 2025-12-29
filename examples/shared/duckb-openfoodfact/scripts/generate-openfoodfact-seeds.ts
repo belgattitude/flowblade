@@ -49,7 +49,7 @@ const getQueryCreateEtlLoadProductTable = () => {
         product_name, -- array of string prefixed by locales
         quantity -- string
             
-    FROM '${sql.unsafeRaw(scriptsConfig.openfoodfact.foodData.local)}'  
+    FROM '${sql.raw(scriptsConfig.openfoodfact.foodData.local)}'  
     WHERE code IS NOT NULL
       AND date_diff('year', to_timestamp(created_t), current_timestamp) <= 3     
     LIMIT 5000000;
