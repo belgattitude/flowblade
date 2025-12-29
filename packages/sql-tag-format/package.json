@@ -67,10 +67,8 @@
     "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-sql-tag-format --dir ./coverage"
   },
   "dependencies": {
+    "@flowblade/sql-tag": "workspace:^",
     "sql-formatter": "^15.6.12"
-  },
-  "peerDependencies": {
-    "@flowblade/sql-tag": "workspace:^"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.2",
