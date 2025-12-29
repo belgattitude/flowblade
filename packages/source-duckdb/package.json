@@ -16,13 +16,10 @@
   "keywords": [],
   "sideEffects": false,
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.cts",
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/index.d.ts",
+        "types": "./dist/index.d.mts",
         "default": "./dist/index.mjs"
       },
       "require": {
@@ -40,7 +37,7 @@
   },
   "scripts": {
     "?build-release": "When https://github.com/atlassian/changesets/issues/432 has a solution we can remove this trick",
-    "build": "run clean && yarn run tsup",
+    "build": "tsdown",
     "build-release": "yarn build && rimraf ./_release && yarn pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz",
     "bench-disabled": "vitest bench --run",
     "bench-codspeed-disabled": "cross-env CODSPEED=1 vitest bench --run",
@@ -53,11 +50,12 @@
     "check-pub": "attw --pack && publint",
     "check-size": "size-limit",
     "clean": "rimraf --glob ./dist ./build ./coverage ./_release './tsconfig*.tsbuildinfo'",
-    "dev": "tsup --watch",
+    "dev": "tsdown --watch",
     "fix-staged": "lint-staged --allow-empty",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/source-duckdb.eslintcache",
     "test": "vitest run",
     "test-unit": "vitest run",
+    "test-unit-bun": "bun --bun run vitest run",
     "test-e2e": "vitest --config=vitest.e2e.config.ts run",
     "test-unit-coverage": "vitest run --coverage",
     "test-unit-watch": "vitest --ui --api 4515",
@@ -76,7 +74,7 @@
     "@arethetypeswrong/cli": "0.18.2",
     "@belgattitude/eslint-config-bases": "8.8.0",
     "@codspeed/vitest-plugin": "5.0.1",
-    "@duckdb/node-api": "1.4.3-r.1",
+    "@duckdb/node-api": "1.4.3-r.2",
     "@edge-runtime/vm": "5.0.0",
     "@faker-js/faker": "10.1.0",
     "@flowblade/core": "workspace:^",
@@ -99,7 +97,7 @@
     "rimraf": "6.1.2",
     "size-limit": "12.0.0",
     "sql-template-tag": "5.2.1",
-    "tsup": "8.5.1",
+    "tsdown": "0.18.3",
     "tsx": "4.21.0",
     "typedoc": "0.28.15",
     "typedoc-plugin-markdown": "4.9.0",
