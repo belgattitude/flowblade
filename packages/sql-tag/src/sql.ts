@@ -99,18 +99,18 @@ export const sql = Object.assign(
      * Accepts a string and returns a TaggedSql instance, useful if you want some part of the SQL
      * to be dynamic.
      *
-     * ⚠️ Do not forget to sanitize user input to unsafeRaw to prevent SQL injection vulnerability.
+     * ⚠️ Do not forget to sanitize user input to raw to prevent SQL injection vulnerability.
      *
      * @example
      * ```typescript
      * import { sql } from '@flowblade/sql-tag';
      *
-     * const query = sql.unsafeRaw(
+     * const query = sql.raw(
      *   "SELECT * FROM products WHERE id = 1",
      * );
      * ```
      */
-    unsafeRaw<T = unknown>(sql: string): SqlTag<T> {
+    raw<T = unknown>(sql: string): SqlTag<T> {
       return raw(sql) as SqlTag<T>;
     },
     /**
