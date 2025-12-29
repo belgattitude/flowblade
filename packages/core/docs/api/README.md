@@ -1,8 +1,8 @@
-**@flowblade/core v0.2.22**
+**@flowblade/core v0.2.24**
 
 ---
 
-# @flowblade/core v0.2.22
+# @flowblade/core v0.2.24
 
 ## Classes
 

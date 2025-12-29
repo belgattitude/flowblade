@@ -1,4 +1,4 @@
-[**@flowblade/core v0.2.22**](../README.md)
+[**@flowblade/core v0.2.24**](../README.md)
 
 ---
 

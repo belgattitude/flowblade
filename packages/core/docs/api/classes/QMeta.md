@@ -1,4 +1,4 @@
-[**@flowblade/core v0.2.22**](../README.md)
+[**@flowblade/core v0.2.24**](../README.md)
 
 ---
 
@@ -86,7 +86,7 @@ meta.addSpan({
 
 > **getLatestSpan**(): `Readonly`\<[`QMetaSpan`](../type-aliases/QMetaSpan.md)\> \| `undefined`
 
-Return the most recent span or undefined if non was found
+Return the most recent span or undefined there isn't any
 
 #### Returns
 
@@ -135,7 +135,7 @@ console.log(meta.getTotalTimeMs()); // 3000
 
 > **toJSON**(): `QMetaJsonifiable`
 
-Profide a JSON serializable representation of the QMeta instance.
+Provide a JSON serializable representation of the QMeta instance.
 
 #### Returns
 

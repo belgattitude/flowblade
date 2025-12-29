@@ -1,4 +1,4 @@
-[**@flowblade/source-duckdb v0.16.0**](../README.md)
+[**@flowblade/source-duckdb v0.16.2**](../README.md)
 
 ---
 
@@ -184,14 +184,14 @@ const query = sql<{ id: number }>`
     `;
 ```
 
-### unsafeRaw()
+### raw()
 
-> **unsafeRaw**\<`T`\>(`sql`): [`SqlTag`](../type-aliases/SqlTag.md)\<`T`\>
+> **raw**\<`T`\>(`sql`): [`SqlTag`](../type-aliases/SqlTag.md)\<`T`\>
 
 Accepts a string and returns a TaggedSql instance, useful if you want some part of the SQL
 to be dynamic.
 
-⚠️ Do not forget to sanitize user input to unsafeRaw to prevent SQL injection vulnerability.
+⚠️ Do not forget to sanitize user input to raw to prevent SQL injection vulnerability.
 
 #### Type Parameters
 
@@ -214,7 +214,7 @@ to be dynamic.
 ```typescript
 import { sql } from "@flowblade/sql-tag";
 
-const query = sql.unsafeRaw("SELECT * FROM products WHERE id = 1");
+const query = sql.raw("SELECT * FROM products WHERE id = 1");
 ```
 
 ## Example

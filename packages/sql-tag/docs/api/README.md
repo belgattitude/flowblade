@@ -1,8 +1,8 @@
-**@flowblade/sql-tag v0.1.17**
+**@flowblade/sql-tag v0.1.18**
 
 ---
 
-# @flowblade/sql-tag v0.1.17
+# @flowblade/sql-tag v0.1.18
 
 ## Type Aliases
 

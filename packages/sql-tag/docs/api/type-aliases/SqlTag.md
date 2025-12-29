@@ -1,4 +1,4 @@
-[**@flowblade/sql-tag v0.1.17**](../README.md)
+[**@flowblade/sql-tag v0.1.18**](../README.md)
 
 ---
 
