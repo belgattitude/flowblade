@@ -1,5 +1,11 @@
 # @flowblade/sql-tag
 
+## 0.2.0
+
+### Minor Changes
+
+- [`ffc7285`](https://github.com/belgattitude/flowblade/commit/ffc7285ba0addad8b1776d47e101fe42c1742d57) Thanks [@belgattitude](https://github.com/belgattitude)! - BC unsafeRaw is now renamed to raw
+
 ## 0.1.18
 
 ### Patch Changes
