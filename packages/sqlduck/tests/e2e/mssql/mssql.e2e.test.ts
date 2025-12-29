@@ -23,7 +23,7 @@ type DB = {
   };
 };
 
-const data = Array.from({ length: 100 }).map((_v, idx) => {
+const data = Array.from({ length: 5000 }).map((_v, idx) => {
   return { id: idx, name: `name-${idx}` };
 });
 
@@ -36,13 +36,23 @@ const getMigrations = (
   return {
     up: async () => {
       await sqlServerDs.query(
-        sql`CREATE TABLE TestTable (id INT PRIMARY KEY, name NVARCHAR(100));`
+        sql`CREATE TABLE TestTable (id INT PRIMARY KEY, name NVARCHAR(255));`
       );
-      await sqlServerDs
-        .getConnection()
-        .insertInto('TestTable')
-        .values(data)
-        .execute();
+
+      const insert = sql`
+
+        DECLARE @Data NVARCHAR(MAX); -- WARNING LIMIT TO 2GB
+        SET @Data = ${JSON.stringify(data)};
+
+        INSERT INTO TestTable (id, name)
+        SELECT id, name
+        FROM OPENJSON(@Data) WITH (
+          id INT,
+          name NVARCHAR(255)
+          );
+      `;
+
+      await sqlServerDs.query(insert);
     },
     down: async () => {
       await sqlServerDs.query(sql`DROP TABLE TestTable;`);
