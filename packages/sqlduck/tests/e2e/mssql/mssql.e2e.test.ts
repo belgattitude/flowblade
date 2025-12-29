@@ -14,7 +14,7 @@ import { createContainerMssql } from '../create-container-mssql';
 import { createDuckdbTestMemoryDb } from '../utils/create-duckdb-test-memory-db';
 
 const mssqlImage = 'mcr.microsoft.com/mssql/server:2025-latest';
-const startupTimeout = isInCi ? 120_000 : 60_000;
+const startupTimeout = isInCi ? 200_000 : 60_000;
 
 type DB = {
   TestTable: {

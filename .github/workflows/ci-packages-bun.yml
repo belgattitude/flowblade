@@ -1,0 +1,49 @@
+name: CI-packages
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+
+jobs:
+  test-packages-bun:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        bun-version: ['latest']
+    env:
+      TURBO_API: 'http://127.0.0.1:9080'
+      TURBO_TEAM: 'flowblade'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Fetch all git history so that yarn workspaces --since can compare with the correct commits
+          # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          fetch-depth: 0
+
+      - name: ⚙️ Use Bun ${{ matrix.bun-version }}
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ matrix.bun-version }}
+
+      - name: ⏩ TurboRepo local server
+        uses: felixmosh/turborepo-gh-artifacts@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
+
+      - name: 📥 Monorepo install
+        uses: ./.github/actions/yarn-nm-install
+
+      - name: 🧪 Bun unit tests
+        run: yarn turbo run test-unit-bun --filter='!@examples/*' --filter='!@docs/*'
+
+      - name: 🧪 Bun e2e tests
+        run: yarn turbo run test-e2e-bun --filter='!@examples/*' --filter='!@docs/*'

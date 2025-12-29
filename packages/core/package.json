@@ -17,13 +17,13 @@
   "sideEffects": false,
   "type": "module",
   "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.cts",
   "exports": {
     ".": {
       "import": {
         "types": "./dist/index.d.ts",
-        "default": "./dist/index.mjs"
+        "default": "./dist/index.js"
       },
       "require": {
         "types": "./dist/index.d.cts",
@@ -37,7 +37,7 @@
   ],
   "scripts": {
     "?build-release": "When https://github.com/atlassian/changesets/issues/432 has a solution we can remove this trick",
-    "build": "run clean && yarn run tsup",
+    "build": "tsdown",
     "build-release": "run build",
     "bench": "vitest bench --run",
     "bench-codspeed-disabled": "cross-env CODSPEED=1 vitest bench --run",
@@ -46,15 +46,16 @@
     "docgen-typedoc": "rimraf ./docs/api && typedoc --plugin typedoc-plugin-markdown --out ./docs/api",
     "check-dist": "run-s check-dist-esm check-dist-cjs",
     "check-dist-cjs": "es-check es2022 './dist/**/*.cjs' --not './dist/*.map.js'",
-    "check-dist-esm": "es-check es2022 './dist/**/*.mjs' --not './dist/*.map.js' --module",
+    "check-dist-esm": "es-check es2022 './dist/**/*.js' --not './dist/*.map.js' --module",
     "check-pub": "attw --pack && publint",
     "check-size": "size-limit",
     "clean": "rimraf --glob ./dist ./build ./coverage ./_release './tsconfig*.tsbuildinfo'",
-    "dev": "tsup --watch",
+    "dev": "tsdown --watch",
     "fix-staged": "lint-staged --allow-empty",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../.cache/eslint/core.eslintcache",
     "test": "vitest run",
     "test-unit": "vitest run",
+    "test-unit-bun": "bun --bun run vitest run",
     "test-unit-coverage": "vitest run --coverage",
     "test-unit-edge": "vitest run --environment edge-runtime",
     "test-unit-watch": "vitest --ui --api 4515",
@@ -73,8 +74,8 @@
     "@edge-runtime/vm": "5.0.0",
     "@faker-js/faker": "10.1.0",
     "@flowblade/sql-tag": "workspace:^",
+    "@size-limit/esbuild": "12.0.0",
     "@size-limit/file": "12.0.0",
-    "@size-limit/webpack": "12.0.0",
     "@vitest/coverage-istanbul": "4.0.16",
     "@vitest/ui": "4.0.16",
     "browserslist": "4.28.1",
@@ -89,15 +90,14 @@
     "publint": "0.3.16",
     "rimraf": "6.1.2",
     "size-limit": "12.0.0",
-    "tsup": "8.5.1",
+    "tsdown": "0.18.3",
     "tsx": "4.21.0",
     "type-fest": "5.3.1",
     "typedoc": "0.28.15",
     "typedoc-plugin-markdown": "4.9.0",
     "typescript": "5.9.3",
     "vite-tsconfig-paths": "6.0.3",
-    "vitest": "4.0.16",
-    "webpack": "5.104.1"
+    "vitest": "4.0.16"
   },
   "engines": {
     "node": ">=20.9.0"
