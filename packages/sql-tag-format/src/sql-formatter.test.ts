@@ -122,7 +122,7 @@ describe('Sql tag formatter', () => {
           ON tNewData.productId = T.productId and T.countryId = tNewData.countryId;    
           
           -- SELECT
-          SELECT TOP ${sql.unsafeRaw(String(10))} productId, countryId, productName, createdAt, updatedAt 
+          SELECT TOP ${sql.raw(String(10))} productId, countryId, productName, createdAt, updatedAt 
           FROM #correctedProducts;
       `;
 
