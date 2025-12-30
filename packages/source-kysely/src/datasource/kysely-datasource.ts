@@ -3,12 +3,12 @@ import {
   createQResultSuccess,
   createSqlSpan,
   type DatasourceInterface,
-  type DatasourceQueryInfo,
   type DatasourceStreamOptions,
   type QError,
   QMeta,
   type QMetaSqlSpan,
   type QResult,
+  type QueryOptions,
 } from '@flowblade/core';
 import type { Compilable, InferResult, Kysely, RawBuilder } from 'kysely';
 import type { Writable } from 'type-fest';
@@ -124,9 +124,9 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
   >(
     query: TQuery,
-    info?: DatasourceQueryInfo
+    options?: QueryOptions
   ): Promise<QResult<TData, QError>> => {
-    const { name } = info ?? {};
+    const { name } = options ?? {};
 
     const compiled = query.compile(this.db);
     const meta = createSqlSpan({
@@ -157,6 +157,39 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         })
       );
     }
+  };
+
+  /**
+   * Run the query or throw on error
+   *
+   * @example
+   * ```typescript
+   * const ds = new KyselyDatasource();
+   * try {
+   *  const { data, meta } = await ds.query(sql`select 1`);
+   * } catch (e) {
+   *   //
+   * }
+   * ```
+   */
+  queryOrThrow = async <
+    TQuery extends KyselyQueryOrRawQuery,
+    TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
+  >(
+    query: TQuery,
+    options?: QueryOptions
+  ): Promise<{
+    data: TData;
+    meta: QMeta;
+  }> => {
+    const { data, meta, error } = await this.query(query, options);
+    if (error !== undefined) {
+      throw new Error(`Query failed: ${error.message}`);
+    }
+    return {
+      data: data! as unknown as TData,
+      meta,
+    };
   };
 
   /**
