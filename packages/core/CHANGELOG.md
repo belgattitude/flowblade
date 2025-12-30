@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.2.25
+
+### Patch Changes
+
+- [#971](https://github.com/belgattitude/flowblade/pull/971) [`fba8cf0`](https://github.com/belgattitude/flowblade/commit/fba8cf0d13ffb1225cad6895a39447d5255befc7) Thanks [@belgattitude](https://github.com/belgattitude)! - Add convenience method queryOrThrow
+
 ## 0.2.24
 
 ### Patch Changes

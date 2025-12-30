@@ -1,5 +1,14 @@
 # @flowblade/source-duckdb
 
+## 0.17.1
+
+### Patch Changes
+
+- [#971](https://github.com/belgattitude/flowblade/pull/971) [`fba8cf0`](https://github.com/belgattitude/flowblade/commit/fba8cf0d13ffb1225cad6895a39447d5255befc7) Thanks [@belgattitude](https://github.com/belgattitude)! - Add convenience method queryOrThrow
+
+- Updated dependencies [[`fba8cf0`](https://github.com/belgattitude/flowblade/commit/fba8cf0d13ffb1225cad6895a39447d5255befc7)]:
+  - @flowblade/core@0.2.25
+
 ## 0.17.0
 
 ### Minor Changes
