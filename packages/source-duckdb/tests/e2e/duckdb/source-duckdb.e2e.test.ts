@@ -83,7 +83,7 @@ describe('DuckDBAsyncDatasource e2e', async () => {
           name: 'nok query',
         });
       }).rejects.toThrowError(
-        'Failed to extract statements: Parser Error: syntax error at or near "1"'
+        'Query failed: Failed to extract statements: Parser Error: syntax error at or near "1"'
       );
     });
   });
