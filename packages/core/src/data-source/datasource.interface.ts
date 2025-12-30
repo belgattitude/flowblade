@@ -1,8 +1,9 @@
-import type { AsyncQResult } from '../query-result/types';
+import type { QMeta } from '../meta/q-meta';
+import type { QResult } from '../query-result/q-result';
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-export interface DatasourceQueryInfo {
+export interface QueryOptions {
   name?: string;
 }
 
@@ -23,26 +24,37 @@ export interface DatasourceInterface {
   getConnection: () => VoluntaryAny;
 
   /**
+   * Run a query and return a QResult object
    *
+   * @example
    * ```typescript
-   * const ds = new Datasource();
+   * const ds = new XXDatasource();
+   * const { data, meta, error } = await ds.query('select 1');
    * ```
    */
   query: (
     query: VoluntaryAny,
-    info?: DatasourceQueryInfo
-  ) => AsyncQResult<VoluntaryAny, VoluntaryAny>;
+    options?: QueryOptions
+  ) => Promise<QResult<VoluntaryAny, VoluntaryAny>>;
 
-  /*
-  query: <
-    TData extends unknown[] = VoluntaryAny,
-    TError extends QError | undefined = VoluntaryAny,
-  >(
-    query: TData,
-    info?: DatasourceQueryInfo
-  ) => AsyncQResult<VoluntaryAny, TError>;
+  /**
+   * Run the query or throw on error
+   *
+   * const ds = new XXDatasource();
+   * try {
+   *  const { data, meta } = await ds.query('select 1');
+   * } catch (e) {
+   *   //
+   * }
+   */
+  queryOrThrow: (
+    query: VoluntaryAny,
+    options?: QueryOptions
+  ) => Promise<{
+    data: VoluntaryAny;
+    meta: QMeta;
+  }>;
 
-*/
   stream: (
     query: VoluntaryAny,
     options?: DatasourceStreamOptions

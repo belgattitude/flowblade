@@ -6,11 +6,11 @@ import {
   createQResultSuccess,
   createSqlSpan,
   type DatasourceInterface,
-  type DatasourceQueryInfo,
   type DatasourceStreamOptions,
   type QError,
   QMeta,
   type QResult,
+  type QueryOptions,
 } from '../index';
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -74,9 +74,9 @@ export class DummyDatasource implements DatasourceInterface {
    */
   query = async <TData extends unknown[]>(
     rawQuery: SqlTag<TData>,
-    info?: DatasourceQueryInfo
+    options?: QueryOptions
   ): AsyncQResult<TData> => {
-    const { name } = info ?? {};
+    const { name } = options ?? {};
     const { text: sql, values: params } = rawQuery;
     const meta = createSqlSpan({ sql, params });
     const start = Date.now();
@@ -100,6 +100,34 @@ export class DummyDatasource implements DatasourceInterface {
         })
       );
     }
+  };
+
+  /**
+   * Run the query or throw on error
+   *
+   * @example
+   * ```typescript
+   * const ds = new DummyDatasource();
+   * try {
+   *  const { data, meta } = await ds.query('select 1');
+   * } catch (e) {
+   *   //
+   * }
+   * ```
+   */
+  queryOrThrow = async <TData extends unknown[]>(
+    rawQuery: SqlTag<TData>,
+    options?: QueryOptions
+  ): Promise<{
+    data: TData;
+    meta: QMeta;
+  }> => {
+    const { data, meta, error } = await this.query<TData>(rawQuery, options);
+    if (error) throw new Error(`Query failed: ${error.message}`);
+    return {
+      data: data!,
+      meta,
+    };
   };
 
   // eslint-disable-next-line require-yield,sonarjs/generator-without-yield

@@ -5,11 +5,11 @@ import {
   createQResultSuccess,
   createSqlSpan,
   type DatasourceInterface,
-  type DatasourceQueryInfo,
   type DatasourceStreamOptions,
   type QError,
   QMeta,
   type QResult,
+  type QueryOptions,
 } from '@flowblade/core';
 import type { SqlTag } from '@flowblade/sql-tag';
 
@@ -77,9 +77,9 @@ export class DuckdbDatasource implements DatasourceInterface {
    */
   query = async <TData extends unknown[]>(
     rawQuery: SqlTag<TData>,
-    info?: DatasourceQueryInfo
+    options?: QueryOptions
   ): AsyncQResult<TData> => {
-    const { name } = info ?? {};
+    const { name } = options ?? {};
     const { text: sql, values: params } = rawQuery;
     const meta = createSqlSpan({ sql, params });
     const start = Date.now();
@@ -103,6 +103,36 @@ export class DuckdbDatasource implements DatasourceInterface {
         })
       );
     }
+  };
+
+  /**
+   * Run the query or throw on error
+   *
+   * @example
+   * ```typescript
+   * const ds = new DuckDbDatasource();
+   * try {
+   *  const { data, meta } = await ds.query(sql`select 1`);
+   * } catch (e) {
+   *   //
+   * }
+   * ```
+   */
+  queryOrThrow = async <TData extends unknown[]>(
+    rawQuery: SqlTag<TData>,
+    options?: QueryOptions
+  ): Promise<{
+    data: TData;
+    meta: QMeta;
+  }> => {
+    const { data, meta, error } = await this.query<TData>(rawQuery, options);
+    if (error !== undefined) {
+      throw new Error(`Query failed: ${error.message}`);
+    }
+    return {
+      data: data!,
+      meta,
+    };
   };
 
   // eslint-disable-next-line require-yield,sonarjs/generator-without-yield

@@ -68,4 +68,23 @@ describe('DuckDBAsyncDatasource e2e', async () => {
       ).toMatchSnapshot();
     });
   });
+
+  describe('queryOrThow', () => {
+    it('should not throw when the query is ok', async () => {
+      const rawSql = sql<{ ok: number }>`SELECT 1 as ok`;
+      const { data } = await ds.queryOrThrow(rawSql);
+      expect(data).toStrictEqual([{ ok: 1 }]);
+    });
+
+    it("should throw when the query couldn't be executed", async () => {
+      const rawSql = sql<{ ok: number }>`SELECT FRM 1`;
+      await expect(() => {
+        return ds.queryOrThrow(rawSql, {
+          name: 'nok query',
+        });
+      }).rejects.toThrowError(
+        'Query failed: Failed to extract statements: Parser Error: syntax error at or near "1"'
+      );
+    });
+  });
 });
