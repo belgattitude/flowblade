@@ -95,7 +95,7 @@ describe('Duckdb tests', async () => {
         expect(timeMs).toBeGreaterThan(100);
 
         const query = await conn.runAndReadAll(
-          `SELECT count(*) as count_star from ${testTable.getFullyQualifiedTableName()}`
+          `SELECT count(*) as count_star from ${testTable.getFullName()}`
         );
         expect(query.getRowObjects()).toStrictEqual([
           {
@@ -116,7 +116,7 @@ describe('Duckdb tests', async () => {
               bignumber, 
               email, 
               strftime(created_at::TIMESTAMPTZ, '%Y-%m-%dT%H:%M:%S.%gZ') as created_at 
-             FROM ${sql.raw(testTable.getFullyQualifiedTableName())} 
+             FROM ${sql.raw(testTable.getFullName())} 
              WHERE name = ${params.name} 
              LIMIT 1`
         );

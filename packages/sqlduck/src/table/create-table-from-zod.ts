@@ -22,7 +22,7 @@ export const createTableFromZod = async (params: {
     await conn.run(ddl);
   } catch (e) {
     throw new Error(
-      `Failed to create table '${table.getFullyQualifiedTableName()}': ${(e as Error).message}`,
+      `Failed to create table '${table.getFullName()}': ${(e as Error).message}`,
       {
         cause: e as Error,
       }

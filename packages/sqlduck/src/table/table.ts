@@ -35,7 +35,7 @@ export class Table {
    * Return fully qualified table name by concatenating
    * database, schema and table with a 'dot' separator.
    */
-  getFullyQualifiedTableName = (options?: {
+  getFullName = (options?: {
     defaultDatabase?: string;
     defaultSchema?: string;
   }) => {
