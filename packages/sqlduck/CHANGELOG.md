@@ -1,5 +1,19 @@
 # @flowblade/sqlduck
 
+## 0.1.0
+
+### Minor Changes
+
+- [#973](https://github.com/belgattitude/flowblade/pull/973) [`33c6eca`](https://github.com/belgattitude/flowblade/commit/33c6ecac7ea4b094ac27d55ea9a6704dbb5cf772) Thanks [@belgattitude](https://github.com/belgattitude)! - toTable now returns number of inserted rows and time in milliseconds
+
+- [#973](https://github.com/belgattitude/flowblade/pull/973) [`33c6eca`](https://github.com/belgattitude/flowblade/commit/33c6ecac7ea4b094ac27d55ea9a6704dbb5cf772) Thanks [@belgattitude](https://github.com/belgattitude)! - Expose tableName, databaseName, schemaName from the Table object
+
+- [#973](https://github.com/belgattitude/flowblade/pull/973) [`33c6eca`](https://github.com/belgattitude/flowblade/commit/33c6ecac7ea4b094ac27d55ea9a6704dbb5cf772) Thanks [@belgattitude](https://github.com/belgattitude)! - Rename getFullyQualifiedName into getFullName
+
+### Patch Changes
+
+- [#973](https://github.com/belgattitude/flowblade/pull/973) [`33c6eca`](https://github.com/belgattitude/flowblade/commit/33c6ecac7ea4b094ac27d55ea9a6704dbb5cf772) Thanks [@belgattitude](https://github.com/belgattitude)! - Test bigint types in e2e
+
 ## 0.0.6
 
 ### Patch Changes
