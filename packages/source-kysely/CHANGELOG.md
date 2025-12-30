@@ -1,5 +1,17 @@
 # @flowblade/source-kysely
 
+## 1.1.0
+
+### Minor Changes
+
+- [#970](https://github.com/belgattitude/flowblade/pull/970) [`33641ee`](https://github.com/belgattitude/flowblade/commit/33641eea6b411d8e0b5650f4c3ddb28f3017a39a) Thanks [@belgattitude](https://github.com/belgattitude)! - Expose QResult class and QError type
+
+### Patch Changes
+
+- [#969](https://github.com/belgattitude/flowblade/pull/969) [`704de76`](https://github.com/belgattitude/flowblade/commit/704de76a464fcfd0c8b0a30cc6460038bb80e54a) Thanks [@belgattitude](https://github.com/belgattitude)! - Move valibot as regular dep
+
+- [#967](https://github.com/belgattitude/flowblade/pull/967) [`d9403ae`](https://github.com/belgattitude/flowblade/commit/d9403ae24963728d7ecd8afe25e320c9a6eed074) Thanks [@belgattitude](https://github.com/belgattitude)! - Moved @flowblade/core and @flowblade/sql-tag to regular deps instead of peer deps
+
 ## 1.0.0
 
 ### Patch Changes
