@@ -9,22 +9,35 @@ import { sql } from 'kysely';
 import { describe } from 'vitest';
 import * as z from 'zod';
 
-import { SqlDuck, Table } from '../../../src';
+import { SqlDuck, Table, zodCodecs } from '../../../src';
 import { createContainerMssql } from '../create-container-mssql';
 import { createDuckdbTestMemoryDb } from '../utils/create-duckdb-test-memory-db';
 
 const mssqlImage = 'mcr.microsoft.com/mssql/server:2025-latest';
 const startupTimeout = isInCi ? 200_000 : 60_000;
 
+const positiveBigint = 9_223_372_036_854_775_807n;
+const negativeBigint = -9_223_372_036_854_775_808n;
+
 type DB = {
   TestTable: {
     id: number;
     name: string;
+    // tedious doesn't support returning numbers as bigint,
+    // they're send as string
+    positive_bigint: string | null;
+    negative_bigint: string | null;
+    null_column: number | null;
   };
 };
 
-const data = Array.from({ length: 5000 }).map((_v, idx) => {
-  return { id: idx, name: `name-${idx}` };
+const testDataCount = isInCi ? 2500 : 5000;
+
+const data = Array.from({ length: testDataCount }).map((_v, idx) => {
+  return {
+    id: idx,
+    name: `name-${idx}`,
+  };
 });
 
 const getMigrations = (
@@ -35,8 +48,14 @@ const getMigrations = (
 } => {
   return {
     up: async () => {
-      await sqlServerDs.query(
-        sql`CREATE TABLE TestTable (id INT PRIMARY KEY, name NVARCHAR(255));`
+      await sqlServerDs.queryOrThrow(
+        sql`CREATE TABLE TestTable (
+               id INT PRIMARY KEY, 
+               name NVARCHAR(255) NOT NULL,
+               positive_bigint BIGINT,
+               negative_bigint BIGINT,
+               null_column INT 
+        );`
       );
 
       const insert = sql`
@@ -52,7 +71,13 @@ const getMigrations = (
           );
       `;
 
-      await sqlServerDs.query(insert);
+      await sqlServerDs.queryOrThrow(insert);
+
+      await sqlServerDs.queryOrThrow(sql`
+           update TestTable set 
+             positive_bigint = ${positiveBigint},
+             negative_bigint = ${negativeBigint}          
+      `);
     },
     down: async () => {
       await sqlServerDs.query(sql`DROP TABLE TestTable;`);
@@ -93,11 +118,24 @@ describe('MSSQL e2e tests', () => {
       async () => {
         const query = mssqlDs.queryBuilder
           .selectFrom('TestTable as t')
-          .select(['t.id', 't.name']);
+          .select([
+            't.id',
+            't.name',
+            't.positive_bigint',
+            't.negative_bigint',
+            't.null_column',
+          ]);
 
         const { data, error } = await mssqlDs.query(query);
         expect(error).toBeUndefined();
-        expect(data?.[0]).toStrictEqual({ id: 0, name: 'name-0' });
+        expect(data?.[0]).toStrictEqual({
+          id: 0,
+          name: 'name-0',
+          // Cause mssql / tedious sends bigint as strings
+          positive_bigint: positiveBigint.toString(10),
+          negative_bigint: negativeBigint.toString(10),
+          null_column: null,
+        });
       },
       testTimeout
     );
@@ -106,7 +144,13 @@ describe('MSSQL e2e tests', () => {
     it('should store the data into duckdb', async () => {
       const query = mssqlDs.queryBuilder
         .selectFrom('TestTable as t')
-        .select(['t.id', 't.name']);
+        .select([
+          't.id',
+          't.name',
+          't.positive_bigint',
+          'negative_bigint',
+          'null_column',
+        ]);
 
       const rowStream = mssqlDs.stream(query, {
         chunkSize: 1000,
@@ -131,13 +175,17 @@ describe('MSSQL e2e tests', () => {
       const testSchema = z.object({
         id: z.number().meta({ primaryKey: true }),
         name: z.string(),
+        positive_bigint: z.nullable(zodCodecs.bigintToString),
+        negative_bigint: z.nullable(zodCodecs.bigintToString),
+        null_column: z.nullable(z.number()),
       });
 
-      await sqlDuck.toTable({
+      const { totalRows } = await sqlDuck.toTable({
         table: testTable,
         schema: testSchema,
         rowStream,
       });
+      expect(totalRows).toBe(testDataCount);
 
       const duckDs = new DuckdbDatasource({
         connection: duckConn,
@@ -149,7 +197,16 @@ describe('MSSQL e2e tests', () => {
         }>`select columns(*) from memory_db.test_table`
       );
       expect(result.error).toBeUndefined();
-      expect(result.data).toStrictEqual(data);
+      expect(result.data).toStrictEqual(
+        data.map((row) => {
+          return {
+            ...row,
+            negative_bigint: negativeBigint.toString(10),
+            positive_bigint: positiveBigint.toString(10),
+            null_column: null,
+          };
+        })
+      );
     });
   });
 });

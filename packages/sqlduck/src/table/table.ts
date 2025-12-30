@@ -10,8 +10,14 @@ type FQTable = {
 export class Table {
   #fqTable: Readonly<FQTable>;
 
-  get fqTable(): FQTable {
-    return this.#fqTable;
+  get tableName(): string {
+    return this.#fqTable.name;
+  }
+  get schemaName(): string | undefined {
+    return this.#fqTable.schema;
+  }
+  get databaseName(): string | undefined {
+    return this.#fqTable.database;
   }
 
   constructor(fqTableOrName: FQTable | string) {
@@ -25,7 +31,7 @@ export class Table {
    * Return fully qualified table name by concatenating
    * database, schema and table with a 'dot' separator.
    */
-  getFullyQualifiedTableName = (options?: {
+  getFullName = (options?: {
     defaultDatabase?: string;
     defaultSchema?: string;
   }) => {

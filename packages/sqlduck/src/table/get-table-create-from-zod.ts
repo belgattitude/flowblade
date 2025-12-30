@@ -34,7 +34,7 @@ export const getTableCreateFromZod = <T extends ZodObject>(
   columnTypes: [name: string, type: DuckDBType][];
 } => {
   const { create = 'CREATE' } = options ?? {};
-  const fqTable = table.getFullyQualifiedTableName();
+  const fqTable = table.getFullName();
   const json = schema.toJSONSchema({
     target: 'openapi-3.0',
   });
