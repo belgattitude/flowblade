@@ -10,18 +10,14 @@ type FQTable = {
 export class Table {
   #fqTable: Readonly<FQTable>;
 
-  get fqTable(): FQTable {
-    return this.#fqTable;
-  }
-
   get tableName(): string {
     return this.#fqTable.name;
   }
-  get schemaName(): string {
-    return this.#fqTable.name;
+  get schemaName(): string | undefined {
+    return this.#fqTable.schema;
   }
-  get databaseName(): string {
-    return this.#fqTable.name;
+  get databaseName(): string | undefined {
+    return this.#fqTable.database;
   }
 
   constructor(fqTableOrName: FQTable | string) {

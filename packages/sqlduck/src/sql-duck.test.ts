@@ -109,7 +109,7 @@ describe('Duckdb tests', async () => {
 
         const { data } = await ds.query(
           sql<{
-            bignumber: bigint;
+            bignumber: string;
             email: string;
             created_at: string;
           }>`SELECT 
