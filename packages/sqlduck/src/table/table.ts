@@ -14,6 +14,16 @@ export class Table {
     return this.#fqTable;
   }
 
+  get tableName(): string {
+    return this.#fqTable.name;
+  }
+  get schemaName(): string {
+    return this.#fqTable.name;
+  }
+  get databaseName(): string {
+    return this.#fqTable.name;
+  }
+
   constructor(fqTableOrName: FQTable | string) {
     this.#fqTable =
       typeof fqTableOrName === 'string'

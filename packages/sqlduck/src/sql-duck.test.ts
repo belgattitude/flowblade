@@ -31,20 +31,17 @@ describe('Duckdb tests', async () => {
     () => {
       it('toTable', async () => {
         const dbName = 'memory_db';
+        const bignumberExample = 9_223_372_036_854_775_807n;
 
         // Arrange
-        await conn.run(`ATTACH ':memory:' AS ${dbName} (COMPRESS 'true')`);
+        await conn.run(
+          `ATTACH IF NOT EXISTS ':memory:' AS ${dbName} (COMPRESS 'true')`
+        );
         const ds = new DuckdbDatasource({
           connection: conn,
         });
 
         const sqlDuck = new SqlDuck({ conn });
-
-        /*
-        const _databases = await conn.runAndReadAll('SHOW DATABASES');
-        const test = await conn.runAndReadAll('SHOW TABLES FROM memory_db');
-        expect(test.getRowObjects()).toStrictEqual([]);
-        */
 
         const userSchema = z.object({
           id: z.number().meta({ description: 'cool' }),
@@ -71,7 +68,7 @@ describe('Duckdb tests', async () => {
                 id: rowIdx,
                 name: `name-${rowIdx}`,
                 email: `email-${rowIdx}@example.com`,
-                bignumber: 10n,
+                bignumber: bignumberExample,
                 created_at: now,
               };
             }
@@ -85,7 +82,7 @@ describe('Duckdb tests', async () => {
           },
         });
 
-        const _inserted = await sqlDuck.toTable({
+        const { timeMs, totalRows } = await sqlDuck.toTable({
           table: testTable,
           schema: userSchema,
           rowStream: getFakeRowStream(),
@@ -93,6 +90,9 @@ describe('Duckdb tests', async () => {
             create: 'CREATE_OR_REPLACE',
           },
         });
+
+        expect(totalRows).toBe(limit);
+        expect(timeMs).toBeGreaterThan(100);
 
         const query = await conn.runAndReadAll(
           `SELECT count(*) as count_star from ${testTable.getFullyQualifiedTableName()}`
@@ -109,7 +109,7 @@ describe('Duckdb tests', async () => {
 
         const { data } = await ds.query(
           sql<{
-            bignumber: string;
+            bignumber: bigint;
             email: string;
             created_at: string;
           }>`SELECT 
@@ -122,7 +122,7 @@ describe('Duckdb tests', async () => {
         );
 
         const { bignumber, email, created_at } = data?.[0] ?? {};
-        expect(bignumber).toStrictEqual('10');
+        expect(bignumber).toStrictEqual(bignumberExample.toString(10));
         expect(email).toStrictEqual('email-1@example.com');
         expect(isParsableStrictIsoDateZ(created_at)).toBe(true);
         expect(created_at).toBe(now.toISOString());

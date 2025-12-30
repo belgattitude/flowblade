@@ -21,6 +21,11 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
   createOptions?: TableCreateOptions;
 };
 
+export type ToTableStats = {
+  timeMs: number;
+  totalRows: number;
+};
+
 export class SqlDuck {
   #duck: DuckDBConnection;
   #logger: SqlDuckParams['logger'];
@@ -32,8 +37,10 @@ export class SqlDuck {
 
   toTable = async <TSchema extends ZodObject>(
     params: ToTableParams<TSchema>
-  ) => {
+  ): Promise<ToTableStats> => {
     const { table, schema, chunkSize, rowStream, createOptions } = params;
+
+    const timeStart = Date.now();
 
     const { columnTypes } = await createTableFromZod({
       conn: this.#duck,
@@ -52,6 +59,7 @@ export class SqlDuck {
 
     const chunkLimit = chunkSize ?? 2048;
 
+    let totalRows = 0;
     const columnStream = rowsToColumnsChunks(rowStream, chunkLimit);
     for await (const dataChunk of columnStream) {
       const chunk = DuckDBDataChunk.create(chunkTypes);
@@ -59,6 +67,8 @@ export class SqlDuck {
       if (this.#logger) {
         this.#logger(`Inserting chunk of ${dataChunk.length} rows`);
       }
+
+      totalRows += dataChunk?.[0]?.length ?? 0;
 
       // @ts-expect-error will check this out when we know where
       //                  to place toDuckDbType
@@ -68,6 +78,9 @@ export class SqlDuck {
       appender.flushSync();
     }
 
-    return void 0;
+    return {
+      timeMs: Math.round(Date.now() - timeStart),
+      totalRows: totalRows,
+    };
   };
 }
