@@ -50,9 +50,9 @@ export class SqlDuck {
     });
 
     const appender = await this.#duck.createAppender(
-      table.fqTable.name,
-      table.fqTable.schema,
-      table.fqTable.database
+      table.tableName,
+      table.schemaName,
+      table.databaseName
     );
 
     const chunkTypes = columnTypes.map((v) => v[1]);
