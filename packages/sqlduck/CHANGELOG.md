@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.2.0
+
+### Minor Changes
+
+- [#982](https://github.com/belgattitude/flowblade/pull/982) [`e892dcb`](https://github.com/belgattitude/flowblade/commit/e892dcb42e6f54c8aa8bd8e39462ad9fe3a3e5bb) Thanks [@belgattitude](https://github.com/belgattitude)! - Include latest zod 3.4
+
 ## 0.1.0
 
 ### Minor Changes
