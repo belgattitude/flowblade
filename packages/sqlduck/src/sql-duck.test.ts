@@ -8,6 +8,7 @@ import * as z from 'zod';
 import { createDuckdbTestMemoryDb } from '../tests/e2e/utils/create-duckdb-test-memory-db';
 import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator';
 import { SqlDuck } from './sql-duck';
+import { getTableCreateFromZod } from './table/get-table-create-from-zod';
 import { Table } from './table/table';
 import { zodCodecs } from './utils/zod-codecs';
 
@@ -82,7 +83,7 @@ describe('Duckdb tests', async () => {
           },
         });
 
-        const { timeMs, totalRows } = await sqlDuck.toTable({
+        const { timeMs, totalRows, createTableDDL } = await sqlDuck.toTable({
           table: testTable,
           schema: userSchema,
           rowStream: getFakeRowStream(),
@@ -93,6 +94,11 @@ describe('Duckdb tests', async () => {
 
         expect(totalRows).toBe(limit);
         expect(timeMs).toBeGreaterThan(100);
+        expect(createTableDDL).toStrictEqual(
+          getTableCreateFromZod(testTable, userSchema, {
+            create: 'CREATE_OR_REPLACE',
+          }).ddl
+        );
 
         const query = await conn.runAndReadAll(
           `SELECT count(*) as count_star from ${testTable.getFullName()}`
