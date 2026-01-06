@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.3.0
+
+### Minor Changes
+
+- [#986](https://github.com/belgattitude/flowblade/pull/986) [`bd06bef`](https://github.com/belgattitude/flowblade/commit/bd06befba52513723393188f3da7614890d7d560) Thanks [@belgattitude](https://github.com/belgattitude)! - Return createTableDDL to ease debugging
+
 ## 0.2.1
 
 ### Patch Changes
