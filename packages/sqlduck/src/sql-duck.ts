@@ -21,9 +21,13 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
   createOptions?: TableCreateOptions;
 };
 
-export type ToTableStats = {
+export type ToTableResult = {
   timeMs: number;
   totalRows: number;
+  /**
+   * The DDL statement used to create the table.
+   */
+  createTableDDL: string;
 };
 
 export class SqlDuck {
@@ -37,12 +41,12 @@ export class SqlDuck {
 
   toTable = async <TSchema extends ZodObject>(
     params: ToTableParams<TSchema>
-  ): Promise<ToTableStats> => {
+  ): Promise<ToTableResult> => {
     const { table, schema, chunkSize, rowStream, createOptions } = params;
 
     const timeStart = Date.now();
 
-    const { columnTypes } = await createTableFromZod({
+    const { columnTypes, ddl } = await createTableFromZod({
       conn: this.#duck,
       schema,
       table,
@@ -81,6 +85,7 @@ export class SqlDuck {
     return {
       timeMs: Math.round(Date.now() - timeStart),
       totalRows: totalRows,
+      createTableDDL: ddl,
     };
   };
 }
