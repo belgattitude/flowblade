@@ -30,7 +30,7 @@ describe('Duckdb tests', async () => {
   describe(
     'toTable',
     () => {
-      it('toTable', async () => {
+      it('Should append data into duckdb memory table', async () => {
         const dbName = 'memory_db';
         const bignumberExample = 9_223_372_036_854_775_807n;
 
@@ -83,15 +83,28 @@ describe('Duckdb tests', async () => {
           },
         });
 
+        const cb = vi.fn();
+
         const { timeMs, totalRows, createTableDDL } = await sqlDuck.toTable({
           table: testTable,
           schema: userSchema,
           rowStream: getFakeRowStream(),
+          onDataAppendedBatchSize: 2048,
+          chunkSize: 2048,
+          onDataAppended: cb,
           createOptions: {
             create: 'CREATE_OR_REPLACE',
           },
         });
 
+        expect(cb).toHaveBeenCalledTimes(Math.ceil(limit / 2048));
+
+        expect(cb).toHaveBeenLastCalledWith({
+          total: totalRows,
+        });
+        expect(cb).toHaveBeenNthCalledWith(1, {
+          total: 2048,
+        });
         expect(totalRows).toBe(limit);
         expect(timeMs).toBeGreaterThan(100);
         expect(createTableDDL).toStrictEqual(

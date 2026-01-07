@@ -31,6 +31,8 @@
     "clean": "rimraf ./dist ./coverage ./tsconfig.tsbuildinfo",
     "build": "tsdown",
     "build-release": "yarn build && rimraf ./_release && yarn pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz",
+    "docgen": "run-s docgen-typedoc",
+    "docgen-typedoc": "rimraf ./docs/api && typedoc --plugin typedoc-plugin-markdown --out ./docs/api",
     "test": "vitest run",
     "test-unit": "vitest run",
     "test-unit-bun": "bun --bun run vitest run",
@@ -96,6 +98,8 @@
     "testcontainers": "11.11.0",
     "tsdown": "0.18.3",
     "tsx": "4.21.0",
+    "typedoc": "0.28.15",
+    "typedoc-plugin-markdown": "4.9.0",
     "typescript": "5.9.3",
     "vite-tsconfig-paths": "6.0.3",
     "vitest": "4.0.16"
