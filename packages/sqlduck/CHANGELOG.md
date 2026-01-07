@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.5.0
+
+### Minor Changes
+
+- [#992](https://github.com/belgattitude/flowblade/pull/992) [`b907d5a`](https://github.com/belgattitude/flowblade/commit/b907d5ac3f76b41bd2ead570ffa40d4cfbf74ae3) Thanks [@belgattitude](https://github.com/belgattitude)! - Add statistics to OnDataAppended callback
+
 ## 0.4.0
 
 ### Minor Changes
