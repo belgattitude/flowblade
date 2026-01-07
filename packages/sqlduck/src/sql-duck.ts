@@ -13,16 +13,58 @@ export type SqlDuckParams = {
   logger?: (msg: string) => void;
 };
 
+type RowStream<T> = AsyncIterableIterator<T>;
+
 export type ToTableParams<TSchema extends TableSchemaZod> = {
+  /**
+   * Used to create and fill the data into the table
+   */
   table: Table;
+  /**
+   * Schema describing the table structure and rowStream content
+   */
   schema: TSchema;
-  rowStream: AsyncIterableIterator<z.infer<TSchema>>;
+  /**
+   * Stream of rows to insert into the table
+   */
+  rowStream: RowStream<z.infer<TSchema>>;
+  /**
+   * Chunk size when using appender to insert data.
+   * Valid numbers between 1 and 2048.
+   * @default 2048
+   */
   chunkSize?: number;
+  /**
+   * Extra options when creating the table
+   */
   createOptions?: TableCreateOptions;
+  /**
+   * Callback called each time data is appended to the table
+   * See also `onDataAppendedBatchSize` to limit the number of calls
+   * when appending a lot of data
+   */
+  onDataAppended?: (params: {
+    /**
+     * Total number of rows appended so far
+     */
+    total: number;
+  }) => void;
+
+  /**
+   * Number of rows appended before calling `onDataAppended` callback
+   * @default chunkSize
+   */
+  onDataAppendedBatchSize?: number;
 };
 
 export type ToTableResult = {
+  /**
+   * Total time taken to insert the data in milliseconds.
+   */
   timeMs: number;
+  /**
+   * Total number of rows inserted into the table.
+   */
   totalRows: number;
   /**
    * The DDL statement used to create the table.
@@ -39,10 +81,69 @@ export class SqlDuck {
     this.#logger = params.logger;
   }
 
+  /**
+   * Create a table from a Zod schema and fill it with data from a row stream.
+   *
+   *
+   * @example
+   * ```typescript
+   * import * as z from 'zod';
+   *
+   * const sqlDuck = new SqlDuck({ conn: duckDbConnection });
+   *
+   * // Schema of the table, not that you can use meta to add information
+   * const userSchema = z.object({
+   *  id: z.number().int().meta({ primaryKey: true }),
+   *  name: z.string(),
+   * });
+   *
+   * // Async generator function that yields rows to insert
+   * async function* getUserRows(): AsyncIterableIterator<z.infer<typeof userSchema>> {
+   *   // database or api call
+   * }
+   *
+   * const result = sqlDuck.toTable({
+   *  table: new Table({ name: 'user', database: 'mydb' }),
+   *  schema: userSchema,
+   *  rowStream: getUserRows(),
+   *  chunkSize: 2048,
+   *  onDataAppended: ({ total }) => {
+   *    console.log(`Appended ${total} rows so far`);
+   *  },
+   *  onDataAppendedBatchSize: 4096, // Call onDataAppended every 4096 rows
+   *  createOptions: {
+   *    create: 'CREATE_OR_REPLACE',
+   *  },
+   * });
+   *
+   * console.log(`Inserted ${result.totalRows} rows in ${result.timeMs}ms`);
+   * console.log(`Table created with DDL: ${result.createTableDDL}`);
+   * ```
+   */
   toTable = async <TSchema extends ZodObject>(
     params: ToTableParams<TSchema>
   ): Promise<ToTableResult> => {
-    const { table, schema, chunkSize, rowStream, createOptions } = params;
+    const {
+      table,
+      schema,
+      chunkSize = 2048,
+      rowStream,
+      createOptions,
+      onDataAppended,
+      onDataAppendedBatchSize,
+    } = params;
+
+    if (!Number.isSafeInteger(chunkSize) || chunkSize < 1 || chunkSize > 2048) {
+      throw new Error('chunkSize must be a number between 1 and 2048');
+    }
+
+    const callbackBatchSize = onDataAppendedBatchSize ?? chunkSize;
+
+    if (!Number.isSafeInteger(callbackBatchSize) || callbackBatchSize < 1) {
+      throw new Error(
+        'onDataAppendedBatchSize must be a number greater than 0'
+      );
+    }
 
     const timeStart = Date.now();
 
@@ -61,10 +162,10 @@ export class SqlDuck {
 
     const chunkTypes = columnTypes.map((v) => v[1]);
 
-    const chunkLimit = chunkSize ?? 2048;
-
     let totalRows = 0;
-    const columnStream = rowsToColumnsChunks(rowStream, chunkLimit);
+
+    // @todo opportunity to optimize further by using duck datatype information
+    const columnStream = rowsToColumnsChunks(rowStream, chunkSize);
     for await (const dataChunk of columnStream) {
       const chunk = DuckDBDataChunk.create(chunkTypes);
 
@@ -80,6 +181,13 @@ export class SqlDuck {
       appender.appendDataChunk(chunk);
 
       appender.flushSync();
+      if (onDataAppended !== undefined && totalRows % callbackBatchSize === 0) {
+        onDataAppended({ total: totalRows });
+      }
+    }
+
+    if (onDataAppended !== undefined && totalRows % callbackBatchSize !== 0) {
+      onDataAppended({ total: totalRows });
     }
 
     return {
