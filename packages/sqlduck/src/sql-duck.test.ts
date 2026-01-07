@@ -89,7 +89,6 @@ describe('Duckdb tests', async () => {
           table: testTable,
           schema: userSchema,
           rowStream: getFakeRowStream(),
-          onDataAppendedBatchSize: 2048,
           chunkSize: 2048,
           onDataAppended: cb,
           createOptions: {
@@ -99,12 +98,18 @@ describe('Duckdb tests', async () => {
 
         expect(cb).toHaveBeenCalledTimes(Math.ceil(limit / 2048));
 
-        expect(cb).toHaveBeenLastCalledWith({
-          total: totalRows,
-        });
         expect(cb).toHaveBeenNthCalledWith(1, {
-          total: 2048,
+          rowsCount: 2048,
+          timeMs: expect.any(Number),
+          rowsPerSecond: expect.any(Number),
         });
+
+        expect(cb).toHaveBeenLastCalledWith({
+          rowsCount: totalRows % 2048,
+          timeMs: expect.any(Number),
+          rowsPerSecond: expect.any(Number),
+        });
+
         expect(totalRows).toBe(limit);
         expect(timeMs).toBeGreaterThan(100);
         expect(createTableDDL).toStrictEqual(

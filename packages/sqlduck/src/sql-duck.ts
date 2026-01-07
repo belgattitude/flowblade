@@ -3,6 +3,11 @@ import type { ZodObject } from 'zod';
 import type * as z from 'zod';
 
 import { rowsToColumnsChunks } from '../tests/utils/rows-to-columns';
+import {
+  createOnDataAppendedCollector,
+  isOnDataAppendedAsyncCb,
+  type OnDataAppendedCb,
+} from './appender/data-appender-callback';
 import { createTableFromZod } from './table/create-table-from-zod';
 import type { TableCreateOptions } from './table/get-table-create-from-zod';
 import type { Table } from './table/table';
@@ -39,22 +44,9 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
    */
   createOptions?: TableCreateOptions;
   /**
-   * Callback called each time data is appended to the table
-   * See also `onDataAppendedBatchSize` to limit the number of calls
-   * when appending a lot of data
+   * Callback called each time a datachunk is appended to the table
    */
-  onDataAppended?: (params: {
-    /**
-     * Total number of rows appended so far
-     */
-    total: number;
-  }) => void;
-
-  /**
-   * Number of rows appended before calling `onDataAppended` callback
-   * @default chunkSize
-   */
-  onDataAppendedBatchSize?: number;
+  onDataAppended?: OnDataAppendedCb;
 };
 
 export type ToTableResult = {
@@ -130,19 +122,10 @@ export class SqlDuck {
       rowStream,
       createOptions,
       onDataAppended,
-      onDataAppendedBatchSize,
     } = params;
 
     if (!Number.isSafeInteger(chunkSize) || chunkSize < 1 || chunkSize > 2048) {
       throw new Error('chunkSize must be a number between 1 and 2048');
-    }
-
-    const callbackBatchSize = onDataAppendedBatchSize ?? chunkSize;
-
-    if (!Number.isSafeInteger(callbackBatchSize) || callbackBatchSize < 1) {
-      throw new Error(
-        'onDataAppendedBatchSize must be a number greater than 0'
-      );
     }
 
     const timeStart = Date.now();
@@ -164,6 +147,8 @@ export class SqlDuck {
 
     let totalRows = 0;
 
+    const dataAppendedCollector = createOnDataAppendedCollector();
+
     // @todo opportunity to optimize further by using duck datatype information
     const columnStream = rowsToColumnsChunks(rowStream, chunkSize);
     for await (const dataChunk of columnStream) {
@@ -174,20 +159,21 @@ export class SqlDuck {
       }
 
       totalRows += dataChunk?.[0]?.length ?? 0;
-
       // @ts-expect-error will check this out when we know where
       //                  to place toDuckDbType
       chunk.setColumns(dataChunk);
       appender.appendDataChunk(chunk);
 
       appender.flushSync();
-      if (onDataAppended !== undefined && totalRows % callbackBatchSize === 0) {
-        onDataAppended({ total: totalRows });
-      }
-    }
 
-    if (onDataAppended !== undefined && totalRows % callbackBatchSize !== 0) {
-      onDataAppended({ total: totalRows });
+      if (onDataAppended !== undefined) {
+        const payload = dataAppendedCollector(totalRows);
+        if (isOnDataAppendedAsyncCb(onDataAppended)) {
+          await onDataAppended(payload);
+        } else {
+          onDataAppended(payload);
+        }
+      }
     }
 
     return {
