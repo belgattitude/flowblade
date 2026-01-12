@@ -1,14 +1,14 @@
 export type OnDataAppendedStats = {
   /**
-   * Total number of rows appended (in this chunk)
+   * Total number of rows appended so far (all batches included)
    */
-  rowsCount: number;
+  totalRows: number;
   /**
    * Time taken to append the last batch in milliseconds
    */
   timeMs: number;
   /**
-   * Estimated rows per seconds
+   * Estimated rows per seconds based on the current batch
    */
   rowsPerSecond: number;
 };
@@ -31,7 +31,7 @@ export const createOnDataAppendedCollector = () => {
     const cbTimeMs = Math.round(Date.now() - lastCallbackTimeStart);
     const cbTotalRows = currentTotalRows - appendedTotalRows;
     const stats: OnDataAppendedStats = {
-      rowsCount: cbTotalRows,
+      totalRows: currentTotalRows,
       timeMs: cbTimeMs,
       rowsPerSecond: Math.round((cbTotalRows / cbTimeMs) * 1000),
     };

@@ -99,13 +99,13 @@ describe('Duckdb tests', async () => {
         expect(cb).toHaveBeenCalledTimes(Math.ceil(limit / 2048));
 
         expect(cb).toHaveBeenNthCalledWith(1, {
-          rowsCount: 2048,
+          totalRows: 2048,
           timeMs: expect.any(Number),
           rowsPerSecond: expect.any(Number),
         });
 
         expect(cb).toHaveBeenLastCalledWith({
-          rowsCount: totalRows % 2048,
+          totalRows: totalRows,
           timeMs: expect.any(Number),
           rowsPerSecond: expect.any(Number),
         });
