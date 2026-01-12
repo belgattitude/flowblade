@@ -1,5 +1,11 @@
 # @flowblade/sql-tag
 
+## 0.3.0
+
+### Minor Changes
+
+- [#1001](https://github.com/belgattitude/flowblade/pull/1001) [`1067e72`](https://github.com/belgattitude/flowblade/commit/1067e72ea26c4cc1e4268a160fbaee72fbb4b8b4) Thanks [@belgattitude](https://github.com/belgattitude)! - raw now accepts number as valid argument
+
 ## 0.2.0
 
 ### Minor Changes

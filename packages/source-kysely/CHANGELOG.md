@@ -1,5 +1,13 @@
 # @flowblade/source-kysely
 
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`1067e72`](https://github.com/belgattitude/flowblade/commit/1067e72ea26c4cc1e4268a160fbaee72fbb4b8b4)]:
+  - @flowblade/sql-tag@0.3.0
+  - @flowblade/core@0.2.25
+
 ## 1.2.0
 
 ### Minor Changes
