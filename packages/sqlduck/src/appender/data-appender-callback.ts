@@ -1,4 +1,4 @@
-export type OnDataAppendedParams = {
+export type OnDataAppendedStats = {
   /**
    * Total number of rows appended (in this chunk)
    */
@@ -13,8 +13,8 @@ export type OnDataAppendedParams = {
   rowsPerSecond: number;
 };
 
-type OnDataAppendedSyncCb = (params: OnDataAppendedParams) => void;
-type OnDataAppendedAsyncCb = (params: OnDataAppendedParams) => Promise<void>;
+type OnDataAppendedSyncCb = (stats: OnDataAppendedStats) => void;
+type OnDataAppendedAsyncCb = (stats: OnDataAppendedStats) => Promise<void>;
 
 export type OnDataAppendedCb = OnDataAppendedSyncCb | OnDataAppendedAsyncCb;
 
@@ -30,13 +30,13 @@ export const createOnDataAppendedCollector = () => {
   return (currentTotalRows: number) => {
     const cbTimeMs = Math.round(Date.now() - lastCallbackTimeStart);
     const cbTotalRows = currentTotalRows - appendedTotalRows;
-    const payload: OnDataAppendedParams = {
+    const stats: OnDataAppendedStats = {
       rowsCount: cbTotalRows,
       timeMs: cbTimeMs,
       rowsPerSecond: Math.round((cbTotalRows / cbTimeMs) * 1000),
     };
     appendedTotalRows = currentTotalRows;
     lastCallbackTimeStart = Date.now();
-    return payload;
+    return stats;
   };
 };
