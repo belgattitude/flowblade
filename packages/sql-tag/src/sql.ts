@@ -105,13 +105,18 @@ export const sql = Object.assign(
      * ```typescript
      * import { sql } from '@flowblade/sql-tag';
      *
-     * const query = sql.raw(
-     *   "SELECT * FROM products WHERE id = 1",
+     * const validatedTableName = 'products';
+     * const validatedParam = 1;
+     *
+     * const query = sql`
+     *   SELECT * FROM ${sql.raw(validatedTableName)}
+     *   WHERE id = ${sql.raw(validatedParam)}
      * );
      * ```
      */
-    raw<T = unknown>(sql: string): SqlTag<T> {
-      return raw(sql) as SqlTag<T>;
+    raw<T = unknown>(sql: string | number): SqlTag<T> {
+      const sqlString = typeof sql === 'string' ? sql : String(sql);
+      return raw(sqlString) as SqlTag<T>;
     },
     /**
      * Joins the array of values with an optional separator (default to ', ').

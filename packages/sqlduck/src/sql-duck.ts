@@ -102,7 +102,6 @@ export class SqlDuck {
    *  onDataAppended: ({ total }) => {
    *    console.log(`Appended ${total} rows so far`);
    *  },
-   *  onDataAppendedBatchSize: 4096, // Call onDataAppended every 4096 rows
    *  createOptions: {
    *    create: 'CREATE_OR_REPLACE',
    *  },
