@@ -1,6 +1,6 @@
 export type OnDataAppendedParams = {
   /**
-   * Total number of rows appended so far
+   * Total number of rows appended (in this chunk)
    */
   rowsCount: number;
   /**
