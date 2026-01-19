@@ -12,13 +12,13 @@ export class DuckExec {
     sql: string
   ): Promise<T> => {
     const res = await this.#conn.run(sql);
-    return (await res.getRowObjectsJS()) as unknown as T;
+    return res.getRowObjectsJS() as unknown as T;
   };
   getRowObjectJson = async <T extends GenericJSRowObject[]>(
     sql: string
   ): Promise<T> => {
     const res = await this.#conn.run(sql);
-    return (await res.getRowObjectsJson()) as unknown as T;
+    return res.getRowObjectsJson() as unknown as T;
   };
   getOneRowObjectJS = async <T extends GenericJsonRowObject>(
     sql: string
