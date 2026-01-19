@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.7.0
+
+### Minor Changes
+
+- [#1006](https://github.com/belgattitude/flowblade/pull/1006) [`8b605b9`](https://github.com/belgattitude/flowblade/commit/8b605b9bd1195c422ee9b1afa9b3c188b145c5fb) Thanks [@belgattitude](https://github.com/belgattitude)! - Expose DuckMemory helper
+
 ## 0.6.0
 
 ### Minor Changes
