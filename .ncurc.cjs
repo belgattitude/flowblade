@@ -15,6 +15,7 @@ const npmPreapprovedPackages = [
   '@prisma/*',
   '@duckdb/*',
   'turbo',
+  'kysely',
   'vite',
   '@vitejs/*',
   'vitest',
