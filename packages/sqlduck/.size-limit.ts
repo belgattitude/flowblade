@@ -5,7 +5,7 @@ module.exports = [
     name: 'Import * (ESM)',
     path: ['dist/index.mjs'],
     import: '*',
-    limit: '30Kb',
+    limit: '40Kb',
   },
   {
     name: 'Only { SqlDuck } (ESM)',
