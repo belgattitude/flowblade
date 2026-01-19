@@ -86,17 +86,21 @@ export class DuckMemory {
 
   getSummary = async (): Promise<DuckMemorySummary> => {
     const rows = await this.getAll();
-    const summary: DuckMemorySummary = {
-      totalMB: 0,
-      totalTempMB: 0,
+    const summaryInBytes: {
+      total: number;
+      totalTemp: number;
+    } = {
+      total: 0,
+      totalTemp: 0,
     };
     for (const row of rows) {
-      summary.totalMB += Math.round(row.memory_usage_bytes / (1024 * 1024));
-      summary.totalTempMB += Math.round(
-        row.temporary_storage_bytes / (1024 * 1024)
-      );
+      summaryInBytes.total += row.memory_usage_bytes;
+      summaryInBytes.totalTemp += row.temporary_storage_bytes;
     }
-    return summary;
+    return {
+      totalMB: Math.round(summaryInBytes.total / 1_048_576),
+      totalTempMB: Math.round(summaryInBytes.totalTemp / 1_048_576),
+    };
   };
 
   #applyOrderBy = (query: string, orderBy?: OrderByParams): string => {
