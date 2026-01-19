@@ -22,17 +22,15 @@ export const duckMemoryTags = [
 export type DuckMemoryTag = (typeof duckMemoryTags)[number];
 
 export type DuckMemoryValues = {
-  memory_usage_bytes: number;
-  temporary_storage_bytes: number;
+  memory_usage_bytes: bigint;
+  temporary_storage_bytes: bigint;
 };
 
 export type DuckMemoryRow = {
   tag: DuckMemoryTag;
-  memory_usage_bytes: number;
-  temporary_storage_bytes: number;
+  memory_usage_bytes: bigint;
+  temporary_storage_bytes: bigint;
 };
-
-export type DuckDBMemoryMap = Map<DuckMemoryTag, DuckMemoryValues>;
 
 const orderByParams = {
   memory_usage_bytes_desc: 'memory_usage_bytes DESC',
@@ -60,9 +58,7 @@ export class DuckMemory {
   }): Promise<DuckMemoryRow[]> => {
     const { orderBy } = params ?? {};
     const query = this.#applyOrderBy(
-      `SELECT tag, 
-                    CAST(m.memory_usage_bytes AS INTEGER) AS memory_usage_bytes, 
-                    CAST(m.temporary_storage_bytes as INTEGER) as temporary_storage_bytes 
+      `SELECT tag, memory_usage_bytes, temporary_storage_bytes 
              FROM duckdb_memory() as m`,
       orderBy
     );
@@ -75,9 +71,7 @@ export class DuckMemory {
     if (!duckMemoryTags.includes(tag)) {
       throw new Error(`Invalid DuckDB memory tag: ${tag}`);
     }
-    const query = `SELECT tag,
-                          CAST(m.memory_usage_bytes AS INTEGER) AS memory_usage_bytes,
-                          CAST(m.temporary_storage_bytes as INTEGER) as temporary_storage_bytes
+    const query = `SELECT tag, memory_usage_bytes, temporary_storage_bytes
                    FROM duckdb_memory() as m
                    WHERE tag = '${tag}'`;
 
@@ -87,19 +81,19 @@ export class DuckMemory {
   getSummary = async (): Promise<DuckMemorySummary> => {
     const rows = await this.getAll();
     const summaryInBytes: {
-      total: number;
-      totalTemp: number;
+      total: bigint;
+      totalTemp: bigint;
     } = {
-      total: 0,
-      totalTemp: 0,
+      total: 0n,
+      totalTemp: 0n,
     };
     for (const row of rows) {
       summaryInBytes.total += row.memory_usage_bytes;
       summaryInBytes.totalTemp += row.temporary_storage_bytes;
     }
     return {
-      totalMB: Math.round(summaryInBytes.total / 1_048_576),
-      totalTempMB: Math.round(summaryInBytes.totalTemp / 1_048_576),
+      totalMB: Math.round(Number(summaryInBytes.total / 1_048_576n)),
+      totalTempMB: Math.round(Number(summaryInBytes.totalTemp / 1_048_576n)),
     };
   };
 

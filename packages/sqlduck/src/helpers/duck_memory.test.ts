@@ -29,8 +29,8 @@ describe('DuckMemory tests', async () => {
         expect(rows.length).toBe(duckMemoryTags.length);
         expect(rows[0]).toMatchObject({
           tag: expect.any(String),
-          memory_usage_bytes: 0,
-          temporary_storage_bytes: 0,
+          memory_usage_bytes: 0n,
+          temporary_storage_bytes: 0n,
         });
       },
       testTimeout
@@ -56,8 +56,8 @@ describe('DuckMemory tests', async () => {
         const mem = await duckMem.getByTag(tag);
         expect(mem).toMatchObject({
           tag: tag,
-          memory_usage_bytes: 0,
-          temporary_storage_bytes: 0,
+          memory_usage_bytes: 0n,
+          temporary_storage_bytes: 0n,
         });
       },
       testTimeout
