@@ -24,7 +24,7 @@ import type { SqlTag } from './types';
  * const query = sql<{ id: number }>`
  *       SELECT id
  *       FROM products
- *       WHERE id IN ${sql.join(params.ids)}
+ *       WHERE id IN (${sql.join(params.ids)})
  *     `;
  *
  * query.sql;       // 'SELECT id FROM products WHERE id IN (?, ?, ?)'
