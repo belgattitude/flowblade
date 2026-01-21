@@ -32,7 +32,7 @@ yarn add @flowblade/sql-tag
 
 | Helpers   | Description                               | Example                                              |
 | --------- | ----------------------------------------- | ---------------------------------------------------- |
-| sql.join  | Join array values with optional separator | `AND id IN ${sql.join(['1', '3'])`                   |
+| sql.join  | Join array values with optional separator | `AND id IN (${sql.join(['1', '3']))`                 |
 | sql.if    | Conditionally add a statement             | `AND ${sql.if(true, () => sql'deleted_at is null')}` |
 | sql.bulk  | Ease bulk inserts                         |                                                      |
 | sql.raw   | Allow to pass unsafe values in the query. | `ORDER BY ${sql.raw('name desc')}`                   |
