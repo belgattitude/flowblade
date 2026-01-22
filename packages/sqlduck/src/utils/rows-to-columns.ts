@@ -48,11 +48,16 @@ export async function* rowsToColumnsChunks<
   TRow extends Record<string, unknown>,
 >(
   rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>,
-  chunkSize: number
+  chunkSize: number,
+  params?: {
+    transform?: (row: TRow) => TRow;
+  }
 ): AsyncIterableIterator<TRow[keyof TRow][][]> {
   if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
     throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
   }
+
+  const { transform } = params ?? {};
 
   // Pull the first row to determine column order
   const first = await rows.next();
