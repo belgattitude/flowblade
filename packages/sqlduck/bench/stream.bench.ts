@@ -70,7 +70,6 @@ describe(`Bench stream`, async () => {
 
   bench('mapFakeRowStream with chunkSize 2048', async () => {
     const a = rowsToColumnsChunks(mapFakeRowStream(getFakeRowStream()), 2048);
-    await a.next();
     for await (const row of a) {
       const _a = row;
       // console.log(a, _a);
