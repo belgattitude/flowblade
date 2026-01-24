@@ -3,8 +3,8 @@ import isInCi from 'is-in-ci';
 import { bench, describe } from 'vitest';
 import * as z from 'zod';
 
-import { zodCodecs } from '../src';
-import { rowsToColumnsChunks } from '../src/utils/rows-to-columns';
+import { rowsToColumnsChunks } from '../src/utils/rows-to-columns-chunks';
+import { zodCodecs } from '../src/utils/zod-codecs';
 import { createDuckdbTestMemoryDb } from '../tests/e2e/utils/create-duckdb-test-memory-db';
 import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator';
 

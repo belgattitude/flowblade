@@ -2,7 +2,7 @@ import isInCi from 'is-in-ci';
 import { bench, boxplot, run, summary } from 'mitata';
 import * as z from 'zod';
 
-import { rowsToColumnsChunks } from '../src/utils/rows-to-columns.ts';
+import { rowsToColumnsChunks } from '../src/utils/rows-to-columns-chunks.ts';
 import { zodCodecs } from '../src/utils/zod-codecs.ts';
 import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator.ts';
 
