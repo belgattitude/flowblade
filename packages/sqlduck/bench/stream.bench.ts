@@ -31,7 +31,7 @@ describe(`Bench stream`, async () => {
     bignumber: z.nullable(zodCodecs.bigintToString),
   });
 
-  const limit = isInCi ? 10_000 : 10_000_000;
+  const limit = isInCi ? 10_000 : 1_000_000;
 
   const getFakeRowStream = createFakeRowsAsyncIterator({
     count: limit,
@@ -61,13 +61,19 @@ describe(`Bench stream`, async () => {
   }
 
   bench('rowToColumnsChunk with chunkSize 2048', async () => {
-    const a = rowsToColumnsChunks(fakeRowStream, 2048);
-    await a.next();
+    const a = rowsToColumnsChunks(getFakeRowStream(), 2048);
+    for await (const row of a) {
+      const _a = row;
+      // console.log(a, _a);
+    }
   });
 
   bench('mapFakeRowStream with chunkSize 2048', async () => {
-    const a = rowsToColumnsChunks(mapFakeRowStream(fakeRowStream), 2048);
+    const a = rowsToColumnsChunks(mapFakeRowStream(getFakeRowStream()), 2048);
     await a.next();
-    // console.log(await a.next());
+    for await (const row of a) {
+      const _a = row;
+      // console.log(a, _a);
+    }
   });
 });
