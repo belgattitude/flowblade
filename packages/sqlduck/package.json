@@ -34,6 +34,7 @@
     "docgen": "run-s docgen-typedoc",
     "docgen-typedoc": "rimraf ./docs/api && typedoc --plugin typedoc-plugin-markdown --out ./docs/api",
     "bench": "vitest bench --run",
+    "bench-bun": "bun --bun run vitest bench --run",
     "bench-mitata": "node --experimental-strip-types --expose-gc ./bench/stream.mitata.ts ",
     "bench-mitata-bun": "bun --expose-gc ./bench/stream.mitata.ts ",
     "bench-codspeed": "cross-env CODSPEED=1 vitest bench --run",
