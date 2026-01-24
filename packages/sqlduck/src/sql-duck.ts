@@ -2,7 +2,6 @@ import { type DuckDBConnection, DuckDBDataChunk } from '@duckdb/node-api';
 import type { ZodObject } from 'zod';
 import type * as z from 'zod';
 
-import { rowsToColumnsChunks } from '../tests/utils/rows-to-columns';
 import {
   createOnDataAppendedCollector,
   isOnDataAppendedAsyncCb,
@@ -12,6 +11,7 @@ import { createTableFromZod } from './table/create-table-from-zod';
 import type { TableCreateOptions } from './table/get-table-create-from-zod';
 import type { Table } from './table/table';
 import type { TableSchemaZod } from './table/table-schema-zod.type';
+import { rowsToColumnsChunks } from './utils/rows-to-columns-chunks';
 
 export type SqlDuckParams = {
   conn: DuckDBConnection;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { rowsToColumns, rowsToColumnsChunks } from './rows-to-columns';
+import { rowsToColumnsChunks } from './rows-to-columns-chunks';
 
 type Row = { id: string; name: string };
 
@@ -9,43 +9,6 @@ async function* makeRows(rows: Row[]): AsyncGenerator<Row> {
     yield r;
   }
 }
-
-describe('rowsToColumns', () => {
-  it('should convert rows to columns (two rows)', async () => {
-    const input: Row[] = [
-      { id: '1', name: 'Seb' },
-      { id: '2', name: 'Ada' },
-    ];
-
-    const gen = rowsToColumns<Row>(makeRows(input));
-    const out = await Array.fromAsync(gen);
-
-    // rowsToColumns yields exactly one columns array [[ids...], [names...]]
-    expect(out.length).toBe(1);
-    expect(out[0]).toStrictEqual([
-      ['1', '2'],
-      ['Seb', 'Ada'],
-    ]);
-  });
-
-  it('should yield nothing for empty input', async () => {
-    const gen = rowsToColumns<Row>(makeRows([]));
-    const out = await Array.fromAsync(gen);
-    expect(out.length).toBe(0);
-  });
-
-  it('preserves column order based on first row keys', async () => {
-    const input: Row[] = [
-      { id: '10', name: 'Zoe' },
-      { id: '11', name: 'Max' },
-    ];
-    const gen = rowsToColumns<Row>(makeRows(input));
-    const [cols] = await Array.fromAsync(gen);
-    // Expect first column corresponds to "id" values, second to "name" values
-    expect(cols![0]).toStrictEqual(['10', '11']);
-    expect(cols![1]).toStrictEqual(['Zoe', 'Max']);
-  });
-});
 
 describe('rowsToColumnsChunk', () => {
   type Row = { id: string; name: string };
