@@ -10,7 +10,7 @@ const userSchema = z.object({
   id: z.number().meta({ description: 'cool' }),
   name: z.string(),
   email: z.email().nullable(),
-  bignumber: z.nullable(zodCodecs.bigintToString),
+  bignumber: zodCodecs.bigintToString,
 });
 
 const limit = isInCi ? 10_000 : 100_000;
@@ -23,23 +23,81 @@ const getFakeRowStream = createFakeRowsAsyncIterator({
       id: rowIdx,
       name: `name-${rowIdx}`,
       email: email,
-      bignumber: 0n,
+      bignumber: BigInt(rowIdx),
     };
   },
 });
 
-/**
- *
- * @param stream
- */
 async function* mapFakeRowStream(
   stream: ReturnType<typeof getFakeRowStream>
-): AsyncIterableIterator<z.input<typeof userSchema>> {
+): AsyncIterableIterator<z.output<typeof userSchema>> {
   for await (const row of stream) {
-    yield {
-      ...row,
-      bignumber: 1n,
-    };
+    row.bignumber = row.bignumber + 1n;
+    yield row;
+  }
+}
+
+function mapFakeRowStreamChunked(
+  stream: ReturnType<typeof getFakeRowStream>,
+  chunkSize = 2048
+): ReadableStream<z.output<typeof userSchema>> {
+  const readableStream = ReadableStream.from(stream);
+
+  const { readable, writable } = new TransformStream<
+    z.output<typeof userSchema>,
+    z.output<typeof userSchema>
+  >(
+    {
+      transform(row, controller) {
+        // Mutate in-place to avoid allocation
+        row.bignumber = row.bignumber + 1n;
+        controller.enqueue(row);
+      },
+    },
+    {
+      highWaterMark: chunkSize,
+    }
+  );
+
+  void readableStream.pipeTo(writable);
+  return readable;
+}
+
+async function* rowsToColumnsChunksFromReader<
+  T extends Record<string, unknown>,
+>(
+  stream: ReadableStream<T>,
+  chunkSize: number
+): AsyncGenerator<unknown[][], void, unknown> {
+  const reader = stream.getReader();
+  let buffer: T[] = [];
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (value !== undefined) {
+        buffer.push(value);
+      }
+
+      // Yield when buffer reaches chunk size or stream ends
+      if (buffer.length >= chunkSize || (done && buffer.length > 0)) {
+        // Extract columns from buffered rows
+        const columns: unknown[][] = [];
+        const keys = Object.keys(buffer[0]!);
+
+        for (const key of keys) {
+          columns.push(buffer.map((row) => row[key]));
+        }
+
+        yield columns;
+        buffer = [];
+      }
+
+      if (done) break;
+    }
+  } finally {
+    reader.releaseLock();
   }
 }
 
@@ -58,7 +116,8 @@ boxplot(() => {
       return do_not_optimize(count);
     }).gc('inner');
     bench('stream with mapper 2048', async () => {
-      const a = rowsToColumnsChunks(mapFakeRowStream(getFakeRowStream()), 2048);
+      const fakeRowStream = getFakeRowStream();
+      const a = rowsToColumnsChunks(mapFakeRowStream(fakeRowStream), 2048);
       let count = 0;
       for await (const row of a) {
         count += row[0]!.length;
@@ -69,8 +128,25 @@ boxplot(() => {
         );
       return do_not_optimize(count);
     }).gc('inner');
+
+    bench('stream with web transform', async () => {
+      const readable = mapFakeRowStreamChunked(getFakeRowStream(), 2048);
+      const a = rowsToColumnsChunksFromReader(readable, 2048);
+      let count = 0;
+      for await (const row of a) {
+        count += row[0]!.length;
+      }
+      if (count !== limit)
+        throw new Error(
+          `Expected ${limit} rows, got ${count} rows from stream`
+        );
+      return do_not_optimize(count);
+    }).gc('inner');
+
     bench('stream with mapper 1024', async () => {
-      const a = rowsToColumnsChunks(mapFakeRowStream(getFakeRowStream()), 1024);
+      const fakeRowStream = getFakeRowStream();
+
+      const a = rowsToColumnsChunks(mapFakeRowStream(fakeRowStream), 1024);
       let count = 0;
 
       for await (const row of a) {
