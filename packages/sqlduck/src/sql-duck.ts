@@ -6,12 +6,12 @@ import {
   createOnDataAppendedCollector,
   isOnDataAppendedAsyncCb,
   type OnDataAppendedCb,
-} from './appender/data-appender-callback';
-import { createTableFromZod } from './table/create-table-from-zod';
-import type { TableCreateOptions } from './table/get-table-create-from-zod';
-import type { Table } from './table/table';
-import type { TableSchemaZod } from './table/table-schema-zod.type';
-import { rowsToColumnsChunks } from './utils/rows-to-columns-chunks';
+} from './appender/data-appender-callback.ts';
+import { createTableFromZod } from './table/create-table-from-zod.ts';
+import type { TableCreateOptions } from './table/get-table-create-from-zod.ts';
+import type { Table } from './table/table.ts';
+import type { TableSchemaZod } from './table/table-schema-zod.type.ts';
+import { rowsToColumnsChunks } from './utils/rows-to-columns-chunks.ts';
 
 export type SqlDuckParams = {
   conn: DuckDBConnection;
