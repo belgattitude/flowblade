@@ -3,9 +3,9 @@ import type { DuckDBConnection, DuckDBType } from '@duckdb/node-api';
 import {
   getTableCreateFromZod,
   type TableCreateOptions,
-} from './get-table-create-from-zod';
-import type { Table } from './table';
-import type { TableSchemaZod } from './table-schema-zod.type';
+} from './get-table-create-from-zod.ts';
+import type { Table } from './table.ts';
+import type { TableSchemaZod } from './table-schema-zod.type.ts';
 
 export const createTableFromZod = async (params: {
   conn: DuckDBConnection;
