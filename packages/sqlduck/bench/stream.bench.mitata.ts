@@ -1,5 +1,5 @@
 import isInCi from 'is-in-ci';
-import { bench, boxplot, run, summary } from 'mitata';
+import { bench, boxplot, do_not_optimize, run, summary } from 'mitata';
 import * as z from 'zod';
 
 import { rowsToColumnsChunks } from '../src/utils/rows-to-columns-chunks.ts';
@@ -13,8 +13,8 @@ const userSchema = z.object({
   bignumber: z.nullable(zodCodecs.bigintToString),
 });
 
-const limit = isInCi ? 10_000 : 1_000_000;
-
+const limit = isInCi ? 10_000 : 100_000;
+const email = `email@example.com`.repeat(400);
 const getFakeRowStream = createFakeRowsAsyncIterator({
   count: limit,
   schema: userSchema,
@@ -22,16 +22,18 @@ const getFakeRowStream = createFakeRowsAsyncIterator({
     return {
       id: rowIdx,
       name: `name-${rowIdx}`,
-      email: `email-${rowIdx}@example.com`.repeat(150),
+      email: email,
       bignumber: 0n,
     };
   },
 });
 
-const fakeRowStream = getFakeRowStream();
-
+/**
+ *
+ * @param stream
+ */
 async function* mapFakeRowStream(
-  stream: typeof fakeRowStream
+  stream: ReturnType<typeof getFakeRowStream>
 ): AsyncIterableIterator<z.input<typeof userSchema>> {
   for await (const row of stream) {
     yield {
@@ -45,25 +47,42 @@ boxplot(() => {
   summary(() => {
     bench('stream', async () => {
       const a = rowsToColumnsChunks(getFakeRowStream(), 2048);
+      let count = 0;
       for await (const row of a) {
-        const _a = row;
+        count += row[0]!.length;
       }
+      if (count !== limit)
+        throw new Error(
+          `Expected ${limit} rows, got ${count} rows from stream`
+        );
+      return do_not_optimize(count);
     }).gc('inner');
     bench('stream with mapper 2048', async () => {
       const a = rowsToColumnsChunks(mapFakeRowStream(getFakeRowStream()), 2048);
+      let count = 0;
       for await (const row of a) {
-        const _a = row;
-        // console.log(a, _a);
+        count += row[0]!.length;
       }
+      if (count !== limit)
+        throw new Error(
+          `Expected ${limit} rows, got ${count} rows from stream`
+        );
+      return do_not_optimize(count);
     }).gc('inner');
     bench('stream with mapper 1024', async () => {
       const a = rowsToColumnsChunks(mapFakeRowStream(getFakeRowStream()), 1024);
+      let count = 0;
+
       for await (const row of a) {
-        const _a = row;
-        // console.log(a, _a);
+        count += row[0]!.length;
       }
+      if (count !== limit)
+        throw new Error(
+          `Expected ${limit} rows, got ${count} rows from stream`
+        );
+      return do_not_optimize(count);
     }).gc('inner');
   });
 });
 
-await run();
+await run({ throw: true });
