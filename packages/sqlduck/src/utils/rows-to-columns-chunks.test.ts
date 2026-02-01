@@ -2,14 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import { rowsToColumnsChunks } from './rows-to-columns-chunks';
 
-type Row = { id: string; name: string };
-
-async function* makeRows(rows: Row[]): AsyncGenerator<Row> {
-  for (const r of rows) {
-    yield r;
-  }
-}
-
 describe('rowsToColumnsChunk', () => {
   type Row = { id: string; name: string };
 
