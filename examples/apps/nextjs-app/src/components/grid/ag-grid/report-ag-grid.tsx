@@ -1,8 +1,4 @@
-import type {
-  SizeColumnsToContentStrategy,
-  SizeColumnsToFitGridStrategy,
-  SizeColumnsToFitProvidedWidthStrategy,
-} from 'ag-grid-community';
+import type { AutoSizeStrategy } from 'ag-grid-community';
 import type { AgGridReact, AgGridReactProps } from 'ag-grid-react';
 import { useRef } from 'react';
 
@@ -15,10 +11,11 @@ type Props<T = unknown> = AgGridReactProps<T> & {
   gridClassName?: string;
 };
 
-const defaultAutosizeStrategy = { type: 'fitCellContents' } as const satisfies
-  | SizeColumnsToFitGridStrategy
-  | SizeColumnsToFitProvidedWidthStrategy
-  | SizeColumnsToContentStrategy;
+const defaultAutosizeStrategy = {
+  type: 'fitCellContents',
+  scaleUpToFitGridWidth: true,
+  skipHeader: false,
+} as const satisfies AutoSizeStrategy;
 
 export const ReportAgGrid = <TData = unknown,>(props: Props<TData>) => {
   const { className, gridClassName, ...restProps } = props;
