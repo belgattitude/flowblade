@@ -33,22 +33,22 @@ export type RecordToColumnar<T extends Record<string, unknown>> = {
  * ```typescript
  * type Row = { id:string, name:string, email:string };
  *
- * async function* streamFromDb(): AsyncGenerator<Row> {
+ * async function* getStreamFromDb(): AsyncGenerator<Row> {
  *   yield { id:'1', name:'A','email': 'a@b.com' };
  *   yield { id:'2', name:'B','email': 'a@b.com' };
  *   yield { id:'3', name:'C','email': 'a@b.com' };
  * }
  *
- * const chunkedDataframes = await rowsToColumnarChunks({
- *  rows: streamFromDb,
+ * const chunkedDataframes = rowsToColumnarChunks({
+ *  rows: getStreamFromDb(),
  *  chunkSize: 2,
  *  // Optional, will pick all keys if not specified
  *  // if specified will pick the keys and maintain order
- *  pickKeys: ['id','name'],
+ *  pickKeys: ['name','id'],
  * });
  *
  * const firstChunk = await chunkedDataframes.next();
- * // firstChunk.value === { id: ['1','2'], name: ['A','B'] }
+ * // firstChunk.value === { name: ['A','B'], id: ['1','2'] }
  * ```
  */
 export async function* rowsToColumnarChunks<
