@@ -36,6 +36,7 @@ const config: UserConfig = {
         'test',
         'translation',
         'security',
+        'bench',
       ],
     ],
   },
