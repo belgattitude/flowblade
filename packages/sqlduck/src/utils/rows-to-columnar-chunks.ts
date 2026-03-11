@@ -1,25 +1,11 @@
 // type SupportedRowTypes = string | number | boolean | Date | bigint | null;
 type SupportedRowTypes = unknown;
 
-type IsUnique<
-  T extends readonly unknown[],
-  Acc extends readonly unknown[] = [],
-> = T extends readonly [infer First, ...infer Rest]
-  ? First extends Acc[number]
-    ? false
-    : IsUnique<Rest, readonly [...Acc, First]>
-  : true;
-
-type EnsureUniqueArray<T extends readonly unknown[]> =
-  IsUnique<T> extends true ? T : never;
-
 type RowsToColumnarChunksParams<
   TRow extends Record<string, SupportedRowTypes>,
 > = {
   rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>;
   chunkSize: number;
-  // pickKeys?: (keyof TRow)[];
-  pickKeys?: EnsureUniqueArray<readonly (keyof TRow)[]>;
 };
 
 export type RecordToColumnar<T extends Record<string, unknown>> = {
@@ -41,10 +27,7 @@ export type RecordToColumnar<T extends Record<string, unknown>> = {
  *
  * const chunkedDataframes = rowsToColumnarChunks({
  *  rows: getStreamFromDb(),
- *  chunkSize: 2,
- *  // Optional, will pick all keys if not specified
- *  // if specified will pick the keys and maintain order
- *  pickKeys: ['name','id'],
+ *  chunkSize: 2
  * });
  *
  * const firstChunk = await chunkedDataframes.next();

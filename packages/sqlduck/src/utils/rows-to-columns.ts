@@ -12,16 +12,18 @@ export async function* rowsToColumns<TRow extends Record<string, unknown>>(
   if (first.done) return; // empty input → yield nothing
 
   const keys = Object.keys(first.value) as (keyof TRow)[]; // column order comes from the first row
+  const keyCount = keys.length;
   const columns: TRow[keyof TRow][][] = keys.map(() => []);
-
-  // push first row values
-  keys.forEach((k, i) => columns[i]!.push(first.value[k]));
-
+  // push first row values as they were skipped by the first .next
+  for (let i = 0; i < keyCount; i++) {
+    columns[i] = [first.value[keys[i]!]];
+  }
   // consume the rest
   for await (const row of rows) {
-    keys.forEach((k, i) => columns[i]!.push(row[k]));
+    for (let i = 0; i < keyCount; i++) {
+      columns[i]!.push(row[keys[i]!]);
+    }
   }
-
   // Yield one columns block: [[ids...], [names...], ...]
   yield columns;
 }

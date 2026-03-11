@@ -1,13 +1,15 @@
 import {
   BIGINT,
+  BOOLEAN,
   type DuckDBType,
-  INTEGER,
+  HUGEINT,
   TIMESTAMP,
   VARCHAR,
 } from '@duckdb/node-api';
-import type { ZodObject } from 'zod';
 
+import { getDuckdbNumberColumnType } from './get-duckdb-number-column-type.ts';
 import type { Table } from './table';
+import type { TableSchemaZod } from './table-schema-zod.type.ts';
 
 type ColumnDDL = {
   name: string;
@@ -19,37 +21,59 @@ export type TableCreateOptions = {
   create?: 'CREATE' | 'CREATE_OR_REPLACE' | 'IF_NOT_EXISTS';
 };
 
-const createMap = {
+export type DuckdbColumnTypeMap<TKeys extends string> = Map<TKeys, DuckDBType>;
+
+export type DuckdbColumnTypes<TKeys extends string> = [TKeys, DuckDBType][];
+
+export type TableCreateFromZodResult<TSchema extends TableSchemaZod> = {
+  ddl: string;
+  columnTypes: DuckdbColumnTypeMap<
+    Exclude<keyof TSchema['shape'], symbol | number>
+  >;
+};
+
+export type GetTableCreateFromZodParams<TSchema extends TableSchemaZod> = {
+  table: Table;
+  schema: TSchema;
+  options?: TableCreateOptions;
+};
+
+const createOptions = {
   CREATE: 'CREATE TABLE',
   CREATE_OR_REPLACE: 'CREATE OR REPLACE TABLE',
   IF_NOT_EXISTS: 'CREATE TABLE IF NOT EXISTS',
 } as const satisfies Record<NonNullable<TableCreateOptions['create']>, string>;
 
-export const getTableCreateFromZod = <T extends ZodObject>(
-  table: Table,
-  schema: T,
-  options?: TableCreateOptions
-): {
-  ddl: string;
-  columnTypes: [name: string, type: DuckDBType][];
-} => {
+export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
+  params: GetTableCreateFromZodParams<TSchema>
+): TableCreateFromZodResult<TSchema> => {
+  const { table, schema, options } = params;
   const { create = 'CREATE' } = options ?? {};
   const fqTable = table.getFullName();
   const json = schema.toJSONSchema({
     target: 'openapi-3.0',
+    unrepresentable: 'throw',
   });
   const columns: ColumnDDL[] = [];
   if (json.properties === undefined) {
     throw new TypeError('Schema must have at least one property');
   }
-  const columnTypes: [name: string, type: DuckDBType][] = [];
-  for (const [columnName, def] of Object.entries(json.properties)) {
-    const { type, nullable, format, primaryKey } = def as {
-      type: 'number' | 'string';
+  const columnTypesMap = new Map<
+    Exclude<keyof TSchema['shape'], symbol | number>,
+    DuckDBType
+  >();
+  for (const [columnName, def] of Object.entries(json.properties) as [
+    columnName: string,
+    def: {
+      type: 'number' | 'integer' | 'string' | 'boolean';
       nullable: boolean | undefined;
-      format: 'date-time' | 'int64' | undefined;
+      format: 'date-time' | 'int64' | 'uuid' | 'cuid' | 'cuid2' | undefined;
       primaryKey: boolean | undefined;
-    };
+      minimum?: number;
+      maximum?: number;
+    },
+  ][]) {
+    const { type, nullable, format, primaryKey, minimum, maximum } = def;
 
     const c: Partial<ColumnDDL> = {
       name: columnName,
@@ -64,26 +88,41 @@ export const getTableCreateFromZod = <T extends ZodObject>(
           case 'int64':
             c.duckdbType = BIGINT;
             break;
+          case 'uuid':
+            c.duckdbType = HUGEINT;
+            break;
           default:
             c.duckdbType = VARCHAR;
         }
         break;
       case 'number':
-        c.duckdbType = INTEGER;
+        c.duckdbType = getDuckdbNumberColumnType({ minimum, maximum });
+        break;
+      // special case for z.int32()
+      case 'integer':
+        c.duckdbType = getDuckdbNumberColumnType({ minimum, maximum });
+        break;
+      case 'boolean':
+        c.duckdbType = BOOLEAN;
         break;
       default:
-        throw new Error('Not a supported type');
+        throw new Error(
+          `Cannot guess '${columnName}' type - ${JSON.stringify(def)}`
+        );
     }
     if (primaryKey === true) {
       c.constraint = 'PRIMARY KEY';
     } else if (nullable !== true) {
       c.constraint = 'NOT NULL';
     }
-    columnTypes.push([columnName, c.duckdbType]);
+    columnTypesMap.set(
+      columnName as Exclude<keyof TSchema['shape'], symbol | number>,
+      c.duckdbType
+    );
     columns.push(c as ColumnDDL);
   }
 
-  const createDDL = createMap[create];
+  const createDDL = createOptions[create];
 
   const ddl = [
     `${createDDL} ${fqTable} (\n`,
@@ -101,6 +140,6 @@ export const getTableCreateFromZod = <T extends ZodObject>(
 
   return {
     ddl,
-    columnTypes,
+    columnTypes: columnTypesMap,
   };
 };

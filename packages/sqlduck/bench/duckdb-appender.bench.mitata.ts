@@ -1,3 +1,5 @@
+import v8 from 'node:v8';
+
 import isInCi from 'is-in-ci';
 import { bench, boxplot, run, summary } from 'mitata';
 import * as z from 'zod';
@@ -57,6 +59,13 @@ boxplot(() => {
         schema: userSchema,
         rowStream: getFakeRowStream(),
         chunkSize: 2048,
+        onDataAppended: (stats) => {
+          const heap = v8.getHeapStatistics();
+          console.log({
+            ...stats,
+            mem: Math.round(heap.used_heap_size / 1024 / 1024),
+          });
+        },
         createOptions: {
           create: 'CREATE_OR_REPLACE',
         },

@@ -24,6 +24,7 @@ describe('Generate fake data', () => {
       created_at: z.date().meta({
         duckdb: { type: 'TIMESTAMP' },
       }),
+      test_int32: z.int32(),
     });
 
     const firstRow = {
@@ -31,6 +32,7 @@ describe('Generate fake data', () => {
       name: 'cool',
       email: 'test@example.com',
       created_at: new Date(),
+      test_int32: z.parse(z.int32(), 123),
     } satisfies z.infer<typeof userSchema>;
 
     const iter = createFakeRowsIterator({
@@ -44,6 +46,7 @@ describe('Generate fake data', () => {
           name: faker.person.fullName(),
           email: faker.internet.email(),
           created_at: faker.date.recent(),
+          test_int32: z.parse(z.int32(), 123),
         };
       },
       count: 5,

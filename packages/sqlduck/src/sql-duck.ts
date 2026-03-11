@@ -1,6 +1,5 @@
 import { type DuckDBConnection, DuckDBDataChunk } from '@duckdb/node-api';
 import type { ZodObject } from 'zod';
-import type * as z from 'zod';
 
 import {
   createOnDataAppendedCollector,
@@ -32,7 +31,7 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
   /**
    * Stream of rows to insert into the table
    */
-  rowStream: RowStream<z.infer<TSchema>>;
+  rowStream: RowStream<TSchema['shape']>;
   /**
    * Chunk size when using appender to insert data.
    * Valid numbers between 1 and 2048.
@@ -142,24 +141,25 @@ export class SqlDuck {
       table.databaseName
     );
 
-    const chunkTypes = columnTypes.map((v) => v[1]);
+    const chunkTypes = Array.from(columnTypes.values());
 
     let totalRows = 0;
 
     const dataAppendedCollector = createOnDataAppendedCollector();
 
     // @todo opportunity to optimize further by using duck datatype information
-    const columnStream = rowsToColumnsChunks(rowStream, chunkSize);
+    const columnStream = rowsToColumnsChunks({
+      rows: rowStream,
+      chunkSize: chunkSize,
+    });
+
     for await (const dataChunk of columnStream) {
       const chunk = DuckDBDataChunk.create(chunkTypes);
-
       if (this.#logger) {
         this.#logger(`Inserting chunk of ${dataChunk.length} rows`);
       }
 
       totalRows += dataChunk?.[0]?.length ?? 0;
-      // @ts-expect-error will check this out when we know where
-      //                  to place toDuckDbType
       chunk.setColumns(dataChunk);
       appender.appendDataChunk(chunk);
 

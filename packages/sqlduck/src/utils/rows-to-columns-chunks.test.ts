@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
 
 import { rowsToColumnsChunks } from './rows-to-columns-chunks';
 
 describe('rowsToColumnsChunk', () => {
-  type Row = { id: string; name: string };
+  type Row = { id: string; name: string | null };
 
   async function* makeRows(rows: Row[]): AsyncGenerator<Row> {
     for (const r of rows) yield r;
@@ -15,11 +15,15 @@ describe('rowsToColumnsChunk', () => {
       { id: '2', name: 'B' },
       { id: '3', name: 'C' },
       { id: '4', name: 'D' },
-      { id: '5', name: 'E' },
+      { id: '5', name: null },
     ];
 
-    const gen = rowsToColumnsChunks<Row>(makeRows(input), 2);
+    const gen = rowsToColumnsChunks({
+      rows: makeRows(input),
+      chunkSize: 2,
+    });
     const out = await Array.fromAsync(gen);
+    expectTypeOf(out).toEqualTypeOf<(string | null)[][][]>();
 
     expect(out.length).toBe(3);
     expect(out[0]).toStrictEqual([
@@ -30,7 +34,7 @@ describe('rowsToColumnsChunk', () => {
       ['3', '4'],
       ['C', 'D'],
     ]);
-    expect(out[2]).toStrictEqual([['5'], ['E']]);
+    expect(out[2]).toStrictEqual([['5'], [null]]);
   });
 
   it('handles chunkSize = 1 without merging rows', async () => {
@@ -40,7 +44,10 @@ describe('rowsToColumnsChunk', () => {
       { id: '3', name: 'C' },
     ];
 
-    const gen = rowsToColumnsChunks<Row>(makeRows(input), 1);
+    const gen = rowsToColumnsChunks({
+      rows: makeRows(input),
+      chunkSize: 1,
+    });
     const out = await Array.fromAsync(gen);
 
     expect(out).toStrictEqual([
@@ -58,7 +65,10 @@ describe('rowsToColumnsChunk', () => {
       { id: '4', name: 'D' },
     ];
 
-    const gen = rowsToColumnsChunks<Row>(makeRows(input), 2);
+    const gen = rowsToColumnsChunks({
+      rows: makeRows(input),
+      chunkSize: 2,
+    });
     const out = await Array.fromAsync(gen);
 
     expect(out).toStrictEqual([
@@ -74,7 +84,10 @@ describe('rowsToColumnsChunk', () => {
   });
 
   it('yields nothing for empty input', async () => {
-    const gen = rowsToColumnsChunks<Row>(makeRows([]), 3);
+    const gen = rowsToColumnsChunks<Row>({
+      rows: makeRows([]),
+      chunkSize: 3,
+    });
     const out = await Array.fromAsync(gen);
     expect(out.length).toBe(0);
   });

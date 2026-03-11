@@ -1,11 +1,23 @@
 import { DuckDBTimestampValue, type DuckDBValue } from '@duckdb/node-api';
 
-const toDuckValue = (value: unknown): DuckDBValue => {
+// type SupportedRowTypes = string | number | boolean | Date | bigint | null;
+type SupportedRowTypes = unknown;
+
+const toDuckValue = (value: SupportedRowTypes): DuckDBValue => {
   if (value instanceof Date) {
     return new DuckDBTimestampValue(BigInt(value.getTime() * 1000));
   }
+  if (value instanceof BigInt) {
+    return value.toString(10);
+  }
   return value === undefined ? null : (value as DuckDBValue);
 };
+
+type RowsToColumnsChunksParams<TRow extends Record<string, SupportedRowTypes>> =
+  {
+    rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>;
+    chunkSize: number;
+  };
 
 /**
  * Similar to `rowsToColumns` but yields results in chunks to avoid buffering
@@ -17,11 +29,11 @@ const toDuckValue = (value: unknown): DuckDBValue => {
  *   yields: [[['1','2'], ['A','B']], [['3'], ['C']]]
  */
 export async function* rowsToColumnsChunks<
-  TRow extends Record<string, unknown>,
+  TRow extends Record<string, SupportedRowTypes>,
 >(
-  rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>,
-  chunkSize: number
+  params: RowsToColumnsChunksParams<TRow>
 ): AsyncIterableIterator<TRow[keyof TRow][][]> {
+  const { rows, chunkSize } = params;
   if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
     throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
   }
@@ -38,7 +50,7 @@ export async function* rowsToColumnsChunks<
   // @ts-expect-error find time to decide
   keys.forEach((k, i) => columns[i]!.push(toDuckValue(first.value[k])));
   rowsInChunk++;
-  // In case chunkSize === 1 (or generally if threshold already reached),
+  // In case chunkSize === 1 (or generally if the threshold already reached),
   // flush immediately after the first row to avoid off-by-one errors.
   if (rowsInChunk >= chunkSize) {
     yield columns;
