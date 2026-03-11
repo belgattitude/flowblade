@@ -1,13 +1,16 @@
-import { type Static, Type } from '@sinclair/typebox';
 import type { FastifyInstance } from 'fastify';
+import { type Static, Type } from 'typebox';
 
 const categorySchema = Type.Array(
-  Type.Recursive((self) =>
-    Type.Object({
-      id: Type.String(),
-      name: Type.String(),
-      children: Type.Union([Type.Null(), Type.Array(self)]),
-    })
+  Type.Cyclic(
+    {
+      Node: Type.Object({
+        id: Type.String(),
+        name: Type.String(),
+        children: Type.Union([Type.Null(), Type.Array(Type.Ref('Node'))]),
+      }),
+    },
+    'Node'
   )
 );
 
@@ -33,7 +36,7 @@ export default async function TreeRoute(fastify: FastifyInstance) {
             {
               id: '1_1',
               name: 'category1_1',
-              children: null,
+              children: [],
             },
           ],
         },

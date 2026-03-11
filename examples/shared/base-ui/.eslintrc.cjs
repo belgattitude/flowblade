@@ -69,9 +69,15 @@ module.exports = {
       },
     },
     {
-      files: ['src/components/ui/sidebar.tsx'],
+      files: ['src/components/ui/label.tsx'],
       rules: {
-        'react-hooks/purity': 'off',
+        'jsx-a11y/label-has-associated-control': 'off',
+      },
+    },
+    {
+      files: ['src/components/ui/slider.tsx'],
+      rules: {
+        '@typescript-eslint/no-unsafe-return': 'off',
       },
     },
     {
