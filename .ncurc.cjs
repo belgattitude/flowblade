@@ -29,6 +29,7 @@ const npmPreapprovedPackages = [
   'better-auth',
   'better-call',
   '@better-auth/*',
+  'typescript-eslint',
   '@typescript-eslint/*',
   'prettier',
   '@kubb/*',
@@ -36,7 +37,7 @@ const npmPreapprovedPackages = [
   'valibot',
   'zod',
   '@valibot/*',
-  '@standard-schema/*'
+  '@standard-schema/*',
 ];
 
 module.exports = defineConfig({

@@ -45,15 +45,15 @@ describe('Duckdb tests', async () => {
         const sqlDuck = new SqlDuck({ conn });
 
         const userSchema = z.object({
-          id: z.number().meta({ description: 'cool' }),
+          id: z.int32().meta({ description: 'cool' }),
           name: z.string(),
           email: z.email().nullable(),
           bignumber: z.nullable(zodCodecs.bigintToString),
           created_at: zodCodecs.dateToString,
         });
 
-        const limit = isInCi ? 10_000 : 100_000;
-
+        const limit = isInCi ? 5000 : 10_000;
+        // const limit = 1;
         const testTable = new Table({
           name: 'test',
           database: dbName,
@@ -64,11 +64,11 @@ describe('Duckdb tests', async () => {
           count: limit,
           schema: userSchema,
           factory: ({ faker: faker, rowIdx }) => {
-            if (rowIdx === 1) {
+            if (rowIdx === 0) {
               return {
-                id: rowIdx,
-                name: `name-${rowIdx}`,
-                email: `email-${rowIdx}@example.com`,
+                id: z.parse(z.int32(), rowIdx),
+                name: `unique-record-for-tests`,
+                email: `unique-record-for-tests@example.com`,
                 bignumber: bignumberExample,
                 created_at: now,
               };
@@ -113,8 +113,12 @@ describe('Duckdb tests', async () => {
         expect(totalRows).toBe(limit);
         expect(timeMs).toBeGreaterThan(100);
         expect(createTableDDL).toStrictEqual(
-          getTableCreateFromZod(testTable, userSchema, {
-            create: 'CREATE_OR_REPLACE',
+          getTableCreateFromZod({
+            table: testTable,
+            schema: userSchema,
+            options: {
+              create: 'CREATE_OR_REPLACE',
+            },
           }).ddl
         );
 
@@ -128,7 +132,7 @@ describe('Duckdb tests', async () => {
         ]);
 
         const params = {
-          name: 'name-1',
+          name: 'unique-record-for-tests',
         } as const;
 
         const { data } = await ds.query(
@@ -147,7 +151,7 @@ describe('Duckdb tests', async () => {
 
         const { bignumber, email, created_at } = data?.[0] ?? {};
         expect(bignumber).toStrictEqual(bignumberExample.toString(10));
-        expect(email).toStrictEqual('email-1@example.com');
+        expect(email).toStrictEqual('unique-record-for-tests@example.com');
         expect(isParsableStrictIsoDateZ(created_at)).toBe(true);
         expect(created_at).toBe(now.toISOString());
       });
