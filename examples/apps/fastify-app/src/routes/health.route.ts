@@ -1,5 +1,5 @@
-import { type Static, Type } from '@sinclair/typebox';
 import type { FastifyInstance } from 'fastify';
+import { type Static, Type } from 'typebox';
 
 const healthSchema = Type.Object({
   time: Type.String(),
