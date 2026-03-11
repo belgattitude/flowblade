@@ -17,6 +17,8 @@ export const duckMemoryTags = [
   'EXTENSION',
   'TRANSACTION',
   'EXTERNAL_FILE_CACHE',
+  'WINDOW',
+  'OBJECT_CACHE',
 ] as const;
 
 export type DuckMemoryTag = (typeof duckMemoryTags)[number];

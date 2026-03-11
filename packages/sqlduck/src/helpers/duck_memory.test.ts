@@ -42,7 +42,7 @@ describe('DuckMemory tests', async () => {
         const rows = await duckMem.getAll({
           orderBy: 'tag_desc',
         });
-        expect(rows?.[0]?.tag).toBe('TRANSACTION');
+        expect(rows?.[0]?.tag).toBe('WINDOW');
       },
       testTimeout
     );
