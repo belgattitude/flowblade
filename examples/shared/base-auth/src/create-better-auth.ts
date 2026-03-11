@@ -1,7 +1,8 @@
+import { apiKey } from '@better-auth/api-key';
 import { sso } from '@better-auth/sso';
 import { betterAuth } from 'better-auth';
 import { nextCookies } from 'better-auth/next-js';
-import { apiKey, jwt, openAPI } from 'better-auth/plugins';
+import { jwt, openAPI } from 'better-auth/plugins';
 import type { Kysely } from 'kysely';
 
 import type { DBBaseAuth } from './db-base-auth-types';
