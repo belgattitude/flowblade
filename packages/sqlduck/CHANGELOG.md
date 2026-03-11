@@ -1,5 +1,18 @@
 # @flowblade/sqlduck
 
+## 0.8.1
+
+### Patch Changes
+
+- [#1018](https://github.com/belgattitude/flowblade/pull/1018) [`5889baa`](https://github.com/belgattitude/flowblade/commit/5889baa123a53dfd2a917ab4d70040726c32418b) Thanks [@belgattitude](https://github.com/belgattitude)! - Build with latest tsdown 0.21.1
+
+- [#1018](https://github.com/belgattitude/flowblade/pull/1018) [`5889baa`](https://github.com/belgattitude/flowblade/commit/5889baa123a53dfd2a917ab4d70040726c32418b) Thanks [@belgattitude](https://github.com/belgattitude)! - Updated to duckdb 1.5.0
+
+- Updated dependencies [[`5889baa`](https://github.com/belgattitude/flowblade/commit/5889baa123a53dfd2a917ab4d70040726c32418b), [`5889baa`](https://github.com/belgattitude/flowblade/commit/5889baa123a53dfd2a917ab4d70040726c32418b)]:
+  - @flowblade/source-duckdb@0.19.0
+  - @flowblade/sql-tag@0.3.2
+  - @flowblade/core@0.2.26
+
 ## 0.8.0
 
 ### Minor Changes
