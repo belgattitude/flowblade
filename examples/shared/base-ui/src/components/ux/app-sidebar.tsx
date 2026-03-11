@@ -12,16 +12,16 @@ import { NavProjects } from '@examples/base-ui/components/ux/nav-projects';
 import { NavUser } from '@examples/base-ui/components/ux/nav-user';
 import { TeamSwitcher } from '@examples/base-ui/components/ux/team-switcher';
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
+  AudioLinesIcon,
+  BookOpenIcon,
+  BotIcon,
+  FrameIcon,
+  GalleryVerticalEndIcon,
+  MapIcon,
+  PieChartIcon,
+  Settings2Icon,
+  TerminalIcon,
+  TerminalSquareIcon,
 } from 'lucide-react';
 import * as React from 'react';
 
@@ -35,17 +35,17 @@ const data = {
   teams: [
     {
       name: 'Acme Inc',
-      logo: GalleryVerticalEnd,
+      logo: <GalleryVerticalEndIcon />,
       plan: 'Enterprise',
     },
     {
       name: 'Acme Corp.',
-      logo: AudioWaveform,
+      logo: <AudioLinesIcon />,
       plan: 'Startup',
     },
     {
       name: 'Evil Corp.',
-      logo: Command,
+      logo: <TerminalIcon />,
       plan: 'Free',
     },
   ],
@@ -53,7 +53,7 @@ const data = {
     {
       title: 'Playground',
       url: '#',
-      icon: SquareTerminal,
+      icon: <TerminalSquareIcon />,
       isActive: true,
       items: [
         {
@@ -73,7 +73,7 @@ const data = {
     {
       title: 'Models',
       url: '#',
-      icon: Bot,
+      icon: <BotIcon />,
       items: [
         {
           title: 'Genesis',
@@ -92,7 +92,7 @@ const data = {
     {
       title: 'Documentation',
       url: '#',
-      icon: BookOpen,
+      icon: <BookOpenIcon />,
       items: [
         {
           title: 'Introduction',
@@ -115,7 +115,7 @@ const data = {
     {
       title: 'Settings',
       url: '#',
-      icon: Settings2,
+      icon: <Settings2Icon />,
       items: [
         {
           title: 'General',
@@ -140,17 +140,17 @@ const data = {
     {
       name: 'Design Engineering',
       url: '#',
-      icon: Frame,
+      icon: <FrameIcon />,
     },
     {
       name: 'Sales & Marketing',
       url: '#',
-      icon: PieChart,
+      icon: <PieChartIcon />,
     },
     {
       name: 'Travel',
       url: '#',
-      icon: Map,
+      icon: <MapIcon />,
     },
   ],
 };
