@@ -1,5 +1,11 @@
 # @flowblade/sql-tag
 
+## 0.3.2
+
+### Patch Changes
+
+- [#1018](https://github.com/belgattitude/flowblade/pull/1018) [`5889baa`](https://github.com/belgattitude/flowblade/commit/5889baa123a53dfd2a917ab4d70040726c32418b) Thanks [@belgattitude](https://github.com/belgattitude)! - Build with latest tsdown 0.21.1
+
 ## 0.3.1
 
 ### Patch Changes
