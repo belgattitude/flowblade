@@ -19,7 +19,9 @@ export class DemoDuckdbRepo {
   constructor(private ds: DuckdbDatasource) {}
 
   search = async (params?: SearchParams) => {
-    return await this.ds.query(this.getSqlSearch(params));
+    return await this.ds.query(this.getSqlSearch(params), {
+      name: 'duckdb-demo-search',
+    });
   };
 
   getSqlSearch = (params?: SearchParams): SqlTag<SearchResult[]> => {
@@ -31,7 +33,6 @@ export class DemoDuckdbRepo {
       createdAt = '2025-01-22T23:54:41.114Z',
     } = params ?? {};
     const query = sql<SearchResult>`
-
       WITH products(productId, createdAt)
           AS MATERIALIZED (
                FROM RANGE(1,${sql.raw(String(limit))}) SELECT 
