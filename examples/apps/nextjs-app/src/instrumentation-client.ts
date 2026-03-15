@@ -4,7 +4,7 @@
 
 import * as Sentry from '@sentry/nextjs';
 
-import { clientEnv } from './src/env/client.env.mjs';
+import { clientEnv } from './env/client.env.mjs';
 
 if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true') {
   Sentry.init({
