@@ -7,14 +7,6 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    deps: {
-      optimizer: {
-        web: {
-          enabled: true,
-        },
-        ssr: { enabled: true },
-      },
-    },
     typecheck: {
       enabled: false,
     },
