@@ -10,14 +10,22 @@ import {
   type QResult,
   type QueryOptions,
 } from '@flowblade/core';
+import type { Logger } from '@logtape/logtape';
 import type { Compilable, InferResult, Kysely, RawBuilder } from 'kysely';
 import type { Writable } from 'type-fest';
 
 import { isKyselyStreamable } from '../internal/is-kysely-streamable';
 import { parseBigIntToSafeInt } from '../internal/parse-bigint-to-safeint';
+import { kyselyDefaultLogtapeLogger } from '../logger/kysely-default-logtape-logger';
 
 type Params<TDatabase> = {
   connection: Kysely<TDatabase>;
+  /**
+   * Optional logtape/logger to use for logging.
+   * If not provided, a default logger will be used.
+   * @see {@link https://github.com/logtape/logtape}
+   */
+  logger?: Logger;
 };
 
 type KyselyQueryOrRawQuery<T = unknown> = Compilable<T> | RawBuilder<T>;
@@ -30,6 +38,7 @@ type KyselyInferQueryOrRawQuery<T extends KyselyQueryOrRawQuery> =
 
 export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   private db: Kysely<TDatabase>;
+  private logger: Logger;
 
   /**
    * Return a new Kysely expression builder.
@@ -69,6 +78,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
 
   constructor(params: Params<TDatabase>) {
     this.db = params.connection;
+    this.logger = params.logger ?? kyselyDefaultLogtapeLogger;
   }
 
   /**
@@ -126,10 +136,10 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     query: TQuery,
     options?: QueryOptions
   ): Promise<QResult<TData, QError>> => {
-    const { name } = options ?? {};
+    const name = options?.name ?? 'anonymous';
 
     const compiled = query.compile(this.db);
-    const meta = createSqlSpan({
+    const span = createSqlSpan({
       sql: compiled.sql,
       params: compiled.parameters as Writable<QMetaSqlSpan['params']>,
     });
@@ -137,23 +147,59 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     const start = Date.now();
 
     try {
+      this.logger.debug(`Executing query "{queryName}"`, {
+        queryName: name,
+        sql: compiled.sql,
+        params: compiled.parameters,
+      });
+
       const r = await this.db.executeQuery(compiled);
       const { numAffectedRows, ...result } = r;
-      meta.timeMs = Date.now() - start;
-      meta.affectedRows = parseBigIntToSafeInt(numAffectedRows) ?? 0;
+      span.timeMs = Date.now() - start;
+      span.affectedRows = parseBigIntToSafeInt(numAffectedRows) ?? 0;
+
+      this.logger.info(
+        'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
+        this.getLogFromSpan(name, span)
+      );
+
       return createQResultSuccess(
         result.rows as TData,
-        new QMeta({ name, spans: meta })
+        new QMeta({ name, spans: span })
       );
     } catch (err) {
-      meta.timeMs = Date.now() - start;
+      span.timeMs = Date.now() - start;
+      this.logger.error(
+        `Query "{queryName}" failed`,
+        this.getLogFromSpan(name, span)
+      );
+      console.log(
+        'ERROR',
+        err,
+        'QUERY',
+        compiled.sql,
+        'PARAMS',
+        compiled.parameters
+      );
+
+      // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
+      // This behaviour exists for example in Tedious/Mssql
+      let message = 'Unknown error';
+      if (Array.isArray(err)) {
+        message = err
+          .map((e) => (e instanceof Error ? e.message : String(e)))
+          .join('; ');
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+
       return createQResultError(
         {
-          message: (err as Error).message,
+          message,
         },
         new QMeta({
           name,
-          spans: meta,
+          spans: span,
         })
       );
     }
@@ -239,4 +285,16 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       TData[0]
     >;
   }
+
+  private getLogFromSpan = (queryName: string, span: QMetaSqlSpan) => {
+    return {
+      queryName,
+      source: 'kysely',
+      type: span.type,
+      sql: span.sql,
+      params: span.params,
+      affectedRows: span.affectedRows,
+      timeMs: span.timeMs,
+    };
+  };
 }
