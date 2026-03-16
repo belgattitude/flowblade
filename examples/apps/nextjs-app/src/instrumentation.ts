@@ -7,7 +7,9 @@ import type { Kysely } from 'kysely';
 import { logtapeServerConfig } from '@/server/config/logtape-server.config.ts';
 
 export async function register() {
-  await configure(logtapeServerConfig);
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    await configure(logtapeServerConfig);
+  }
 
   // #######################################################
   // # Sentry                                              #
