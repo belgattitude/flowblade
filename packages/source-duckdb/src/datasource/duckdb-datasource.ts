@@ -8,24 +8,36 @@ import {
   type DatasourceStreamOptions,
   type QError,
   QMeta,
+  type QMetaSqlSpan,
   type QResult,
   type QueryOptions,
 } from '@flowblade/core';
 import type { SqlTag } from '@flowblade/sql-tag';
+import type { Logger } from '@logtape/logtape';
+
+import { duckdbDefaultLogtapeLogger } from '../logger/duckdb-default-logtape-logger';
 
 export type DuckdbDatasourceParams = {
   connection: DuckDBConnection;
+  /**
+   * Optional logtape/logger to use for logging.
+   * If not provided, a default logger will be used.
+   * @see {@link https://github.com/logtape/logtape}
+   */
+  logger?: Logger;
 };
 
 export class DuckdbDatasource implements DatasourceInterface {
   private db: DuckDBConnection;
+  private logger: Logger;
 
   constructor(params: DuckdbDatasourceParams) {
     this.db = params.connection;
+    this.logger = params.logger ?? duckdbDefaultLogtapeLogger;
   }
 
   /**
-   * Return underlying duckdb connection.
+   * Return the underlying duckdb connection.
    *
    * Warning: using the underling driver connection isn't recommended
    *          and not covered by api stability. Use at your own risks.
@@ -79,27 +91,43 @@ export class DuckdbDatasource implements DatasourceInterface {
     rawQuery: SqlTag<TData>,
     options?: QueryOptions
   ): AsyncQResult<TData> => {
-    const { name } = options ?? {};
+    const name = options?.name ?? 'anonymous';
     const { text: sql, values: params } = rawQuery;
-    const meta = createSqlSpan({ sql, params });
+    const span = createSqlSpan({ sql, params });
     const start = Date.now();
     try {
+      this.logger.debug(`Executing query "{queryName}"`, {
+        queryName: name,
+        sql,
+        params,
+      });
       const rows = await this.db.runAndReadAll(sql, params as DuckDBValue[]);
-      meta.affectedRows = rows.currentRowCount;
-      meta.timeMs = Date.now() - start;
+      span.affectedRows = rows.currentRowCount;
+      span.timeMs = Date.now() - start;
+
+      this.logger.info(
+        'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
+        this.getLogFromSpan(name, span)
+      );
+
       return createQResultSuccess(
         rows.getRowObjectsJson() as TData,
-        new QMeta({ name, spans: meta })
+        new QMeta({ name, spans: span })
       );
     } catch (err) {
-      meta.timeMs = Math.round(Date.now() - start);
+      span.timeMs = Math.round(Date.now() - start);
+      this.logger.error(
+        `Query "{queryName}" failed`,
+        this.getLogFromSpan(name, span)
+      );
+
       return createQResultError(
         {
           message: (err as Error).message,
         },
         new QMeta({
           name,
-          spans: meta,
+          spans: span,
         })
       );
     }
@@ -138,8 +166,20 @@ export class DuckdbDatasource implements DatasourceInterface {
   // eslint-disable-next-line require-yield,sonarjs/generator-without-yield
   async *stream(
     _query: unknown,
-    options?: DatasourceStreamOptions
+    _options?: DatasourceStreamOptions
   ): AsyncIterableIterator<QResult<unknown[], QError>> {
     throw new Error('Not implemented yet');
   }
+
+  private getLogFromSpan = (queryName: string, span: QMetaSqlSpan) => {
+    return {
+      queryName,
+      source: 'duckdb',
+      type: span.type,
+      sql: span.sql,
+      params: span.params,
+      affectedRows: span.affectedRows,
+      timeMs: span.timeMs,
+    };
+  };
 }

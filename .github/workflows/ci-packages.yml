@@ -102,3 +102,7 @@ jobs:
       - name: 🛟 Check publishable dist (arethetypeswrong,publint)
         if: matrix.node-version == '20.x'
         run: yarn turbo run check-pub --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+
+      - name: 🧪 Integration tests
+        if: matrix.node-version == '24.x'
+        run: yarn turbo run test-e2e --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"

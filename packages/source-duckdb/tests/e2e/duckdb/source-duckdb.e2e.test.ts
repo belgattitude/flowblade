@@ -1,6 +1,17 @@
-import { afterEach, beforeEach, expectTypeOf } from 'vitest';
+import {
+  configure,
+  getConsoleSink,
+  type LogRecord,
+  reset,
+} from '@logtape/logtape';
+import { prettyFormatter } from '@logtape/pretty';
+import { afterEach, beforeEach, expect, expectTypeOf } from 'vitest';
 
-import { DuckdbDatasource, sql } from '../../../src';
+import {
+  DuckdbDatasource,
+  flowbladeLogtapeDuckdbConfig,
+  sql,
+} from '../../../src';
 import { createDuckDBE2EMemoryDb } from '../utils/create-duckdb-e2e-memory-db';
 
 describe('DuckDBAsyncDatasource e2e', async () => {
@@ -26,7 +37,6 @@ describe('DuckDBAsyncDatasource e2e', async () => {
     type Row = { id: number; name: 'test'; createdAt: Date };
 
     const rawSql = sql<Row>`
-
       WITH products(productId, createdAt)
           AS MATERIALIZED (
                FROM RANGE(1,100) SELECT 
@@ -69,7 +79,7 @@ describe('DuckDBAsyncDatasource e2e', async () => {
     });
   });
 
-  describe('queryOrThow', () => {
+  describe('queryOrThrow', () => {
     it('should not throw when the query is ok', async () => {
       const rawSql = sql<{ ok: number }>`SELECT 1 as ok`;
       const { data } = await ds.queryOrThrow(rawSql);
@@ -85,6 +95,110 @@ describe('DuckDBAsyncDatasource e2e', async () => {
       }).rejects.toThrowError(
         'Query failed: Failed to extract statements: Parser Error: syntax error at or near "1"'
       );
+    });
+  });
+
+  describe('Logger', () => {
+    let logBuffer: LogRecord[] = [];
+    beforeEach(async () => {
+      await configure({
+        sinks: {
+          buffer: logBuffer.push.bind(logBuffer),
+          console: getConsoleSink({
+            nonBlocking: {
+              bufferSize: 1000, // Flush after 1000 records
+              flushInterval: 50, // Flush every 50ms
+            },
+            formatter: prettyFormatter,
+          }),
+        },
+        loggers: [
+          {
+            category: ['logtape', 'meta'],
+            lowestLevel: 'error',
+            sinks: ['console'],
+          },
+          {
+            category: ['flowblade', 'duckdb'],
+            lowestLevel: 'debug',
+            sinks: ['buffer'],
+          },
+        ],
+      });
+    });
+
+    afterEach(async () => {
+      await reset();
+      logBuffer = [];
+    });
+
+    it('should log success', async () => {
+      const { meta } = await ds.query(sql`SELECT 'test'`, {
+        name: 'TEST',
+      });
+      expect(logBuffer[0]!).toMatchObject({
+        category: flowbladeLogtapeDuckdbConfig.categories,
+        level: 'debug',
+        rawMessage: 'Executing query "{queryName}"',
+        message: ['Executing query "', 'TEST', '"'],
+        properties: {
+          queryName: 'TEST',
+          sql: "SELECT 'test'",
+          params: [],
+        },
+      });
+      expect(logBuffer[1]!).toMatchObject({
+        category: flowbladeLogtapeDuckdbConfig.categories,
+        level: 'info',
+        rawMessage:
+          'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
+        message: [
+          'Query "',
+          'TEST',
+          '" executed in ',
+          meta.getTotalTimeMs(),
+          'ms, affected ',
+          1,
+          ' row(s)',
+        ],
+        properties: {
+          queryName: 'TEST',
+          sql: "SELECT 'test'",
+          params: [],
+          affectedRows: 1,
+          timeMs: meta.getTotalTimeMs(),
+        },
+      });
+    });
+
+    it('should log error', async () => {
+      const { meta } = await ds.query(sql`SELECT err`, {
+        name: 'ERROR',
+      });
+      expect(logBuffer[0]!).toMatchObject({
+        category: flowbladeLogtapeDuckdbConfig.categories,
+        level: 'debug',
+        rawMessage: 'Executing query "{queryName}"',
+        message: ['Executing query "', 'ERROR', '"'],
+        properties: {
+          queryName: 'ERROR',
+          sql: 'SELECT err',
+          params: [],
+        },
+      });
+      expect(logBuffer[1]!).toMatchObject({
+        category: flowbladeLogtapeDuckdbConfig.categories,
+        level: 'error',
+        message: ['Query "', 'ERROR', '" failed'],
+        rawMessage: 'Query "{queryName}" failed',
+        properties: {
+          queryName: 'ERROR',
+          sql: 'SELECT err',
+          params: [],
+          affectedRows: 0,
+          timeMs: meta.getTotalTimeMs(),
+        },
+      });
     });
   });
 });

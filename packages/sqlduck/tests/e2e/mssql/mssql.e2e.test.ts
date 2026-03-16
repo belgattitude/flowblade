@@ -86,6 +86,7 @@ const getMigrations = (
 };
 
 const testTimeout = 10_000;
+
 describe('MSSQL e2e tests', () => {
   let container: StartedMSSQLServerContainer;
   let mssqlDs: KyselyDatasource<DB>;

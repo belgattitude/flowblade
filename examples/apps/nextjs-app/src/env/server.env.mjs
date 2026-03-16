@@ -19,6 +19,13 @@ export const serverEnv = createEnv({
       v.pipe(v.string(), v.minLength(10))
     ),
     MOTHERDUCK_TOKEN: v.optional(v.pipe(v.string(), v.minLength(10))),
+    OTEL_EXPORTER_OTLP_LOGS_PROTOCOL: v.optional(
+      v.picklist(['http/json', 'http/protobuf', 'grpc'], 'http/json')
+    ),
+    OTEL_EXPORTER_OTLP_PROTOCOL: v.optional(
+      v.picklist(['http/json', 'http/protobuf', 'grpc'], 'http/json')
+    ),
+    OTEL_EXPORTER_OTLP_ENDPOINT: v.optional(v.pipe(v.string(), v.url())),
   },
   // If you're using Next.js < 13.4.4, you'll need to specify the runtimeEnv manually
   // runtimeEnv: {

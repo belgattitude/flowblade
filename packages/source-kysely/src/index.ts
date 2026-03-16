@@ -1,5 +1,7 @@
+export { flowbladeLogtapeKyselyConfig } from './config/flowblade-logtape-kysely.config';
 export * from './datasource/kysely-datasource';
 export * from './helpers/datasource-helpers';
+export { kyselyDefaultLogtapeLogger } from './logger/kysely-default-logtape-logger';
 export type {
   KyselyMssqlDialectParams,
   KyselyMssqlPoolOptions,

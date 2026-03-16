@@ -1,9 +1,16 @@
 import type { DuckDBConnection } from '@duckdb/node-api';
 import type { DBKyselySqlServer } from '@examples/db-sqlserver/kysely-types';
+import { configure } from '@logtape/logtape';
 import type * as Sentry from '@sentry/nextjs';
 import type { Kysely } from 'kysely';
 
+import { logtapeServerConfig } from '@/server/config/logtape-server.config.ts';
+
 export async function register() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    await configure(logtapeServerConfig);
+  }
+
   // #######################################################
   // # Sentry                                              #
   // #######################################################
