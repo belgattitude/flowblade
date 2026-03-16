@@ -173,14 +173,6 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         `Query "{queryName}" failed`,
         this.getLogFromSpan(name, span)
       );
-      console.log(
-        'ERROR',
-        err,
-        'QUERY',
-        compiled.sql,
-        'PARAMS',
-        compiled.parameters
-      );
 
       // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
       // This behaviour exists for example in Tedious/Mssql

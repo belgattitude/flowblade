@@ -79,7 +79,7 @@ describe('DuckDBAsyncDatasource e2e', async () => {
     });
   });
 
-  describe('queryOrThow', () => {
+  describe('queryOrThrow', () => {
     it('should not throw when the query is ok', async () => {
       const rawSql = sql<{ ok: number }>`SELECT 1 as ok`;
       const { data } = await ds.queryOrThrow(rawSql);

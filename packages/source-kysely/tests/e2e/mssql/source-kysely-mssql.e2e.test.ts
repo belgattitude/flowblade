@@ -101,6 +101,7 @@ const getMigrations = (
     },
     down: async () => {
       await sqlServerDs.query(sql`DROP TABLE TestTable;`);
+      await sqlServerDs.query(sql`DROP TABLE TestTableLinked;`);
     },
   };
 };
@@ -295,7 +296,7 @@ describe('MSSQL e2e tests', () => {
     );
 
     describe(
-      'queryOrThow',
+      'queryOrThrow',
       () => {
         it('should not throw when the query is ok', async () => {
           const rawSql = sql<{ ok: number }>`SELECT 1 as ok`;
