@@ -1,5 +1,4 @@
 import codspeedPlugin from '@codspeed/vitest-plugin';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
 const testFiles = ['./src/**/*.test.{js,ts}', './test/**/*.test.{js,ts}'];
@@ -11,7 +10,10 @@ export default defineConfig({
   esbuild: {
     target: ['node20'],
   },
-  plugins: [tsconfigPaths(), ...[cspeed].filter(Boolean)],
+  plugins: [cspeed].filter(Boolean),
+  resolve: {
+    tsconfigPaths: true,
+  },
   cacheDir: '../../.cache/vite/sql-tag-format',
   test: {
     // @link https://vitest.dev/config/#clearmocks

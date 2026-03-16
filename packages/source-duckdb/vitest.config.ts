@@ -1,5 +1,4 @@
 import codspeedPlugin from '@codspeed/vitest-plugin';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
 const testFiles = [
@@ -15,7 +14,10 @@ export default defineConfig({
   esbuild: {
     target: ['node20'],
   },
-  plugins: [tsconfigPaths(), ...[cspeed].filter(Boolean)],
+  plugins: [cspeed].filter(Boolean),
+  resolve: {
+    tsconfigPaths: true,
+  },
   cacheDir: '../../.cache/vite/source-duckdb',
   test: {
     globalSetup: './vitest.setup.ts',

@@ -1,4 +1,3 @@
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
 const testFiles = ['./tests/e2e/**/*.test.ts'];
@@ -7,7 +6,9 @@ export default defineConfig({
   esbuild: {
     target: ['node20'],
   },
-  plugins: [tsconfigPaths()],
+  resolve: {
+    tsconfigPaths: true,
+  },
   test: {
     // @link https://vitest.dev/config/#clearmocks
     clearMocks: true,
