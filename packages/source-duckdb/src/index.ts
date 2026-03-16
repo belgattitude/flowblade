@@ -6,6 +6,6 @@ export { duckdbDefaultLogger } from './logger/duckdb-default-logger';
 // re-export from @flowblade/sql-tag
 export { sql, type SqlTag } from '@flowblade/sql-tag';
 
-// re-export from @flowblade/code
+// re-export from @flowblade/core
 export type { QError } from '@flowblade/core';
 export { QResult } from '@flowblade/core';
