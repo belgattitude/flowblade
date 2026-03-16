@@ -1,4 +1,3 @@
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
 const testFiles = [
@@ -6,7 +5,9 @@ const testFiles = [
   './tests/utils/**/*.test.{js,jsx,ts,tsx}',
 ];
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  resolve: {
+    tsconfigPaths: true,
+  },
   test: {
     globals: true,
     typecheck: {

@@ -1,19 +1,12 @@
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
 const testFiles = ['./src/**/*.test.{js,jsx,ts,tsx}'];
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  resolve: {
+    tsconfigPaths: true,
+  },
   test: {
     globals: true,
-    deps: {
-      optimizer: {
-        web: {
-          enabled: true,
-        },
-        ssr: { enabled: true },
-      },
-    },
     typecheck: {
       enabled: false,
     },

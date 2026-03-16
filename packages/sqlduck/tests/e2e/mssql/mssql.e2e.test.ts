@@ -14,7 +14,7 @@ import { createContainerMssql } from '../create-container-mssql';
 import { createDuckdbTestMemoryDb } from '../utils/create-duckdb-test-memory-db';
 
 const mssqlImage = 'mcr.microsoft.com/mssql/server:2025-latest';
-const startupTimeout = isInCi ? 200_000 : 60_000;
+const startupTimeout = isInCi ? 300_000 : 60_000;
 
 const positiveBigint = 9_223_372_036_854_775_807n;
 const negativeBigint = -9_223_372_036_854_775_808n;

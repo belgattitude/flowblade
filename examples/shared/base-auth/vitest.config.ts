@@ -1,5 +1,4 @@
 import react from '@vitejs/plugin-react-swc';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 
 const testFiles = ['./src/**/*.test.{js,jsx,ts,tsx}'];
@@ -9,8 +8,10 @@ export default defineConfig({
     react({
       devTarget: 'es2022',
     }),
-    tsconfigPaths(),
   ],
+  resolve: {
+    tsconfigPaths: true,
+  },
   test: {
     globalSetup: './vitest.setup.ts',
     globals: true,
