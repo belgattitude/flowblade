@@ -15,7 +15,7 @@ import {
 import type { SqlTag } from '@flowblade/sql-tag';
 import type { Logger } from '@logtape/logtape';
 
-import { duckdbDefaultLogger } from '../logger/duckdb-default-logger';
+import { duckdbDefaultLogtapeLogger } from '../logger/duckdb-default-logtape-logger';
 
 export type DuckdbDatasourceParams = {
   connection: DuckDBConnection;
@@ -33,7 +33,7 @@ export class DuckdbDatasource implements DatasourceInterface {
 
   constructor(params: DuckdbDatasourceParams) {
     this.db = params.connection;
-    this.logger = params.logger ?? duckdbDefaultLogger;
+    this.logger = params.logger ?? duckdbDefaultLogtapeLogger;
   }
 
   /**
@@ -174,6 +174,7 @@ export class DuckdbDatasource implements DatasourceInterface {
   private getLogFromSpan = (queryName: string, span: QMetaSqlSpan) => {
     return {
       queryName,
+      source: 'duckdb',
       type: span.type,
       sql: span.sql,
       params: span.params,

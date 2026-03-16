@@ -2,6 +2,6 @@ import { getLogger } from '@logtape/logtape';
 
 import { flowbladeLogtapeDuckdbConfig } from '../config/flowblade-logtape-duckdb.config';
 
-export const duckdbDefaultLogger = getLogger(
+export const duckdbDefaultLogtapeLogger = getLogger(
   flowbladeLogtapeDuckdbConfig.categories
 );

@@ -137,7 +137,7 @@ describe('DuckDBAsyncDatasource e2e', async () => {
         name: 'TEST',
       });
       expect(logBuffer[0]!).toMatchObject({
-        category: flowbladeLogtapeDuckdbConfig,
+        category: flowbladeLogtapeDuckdbConfig.categories,
         level: 'debug',
         rawMessage: 'Executing query "{queryName}"',
         message: ['Executing query "', 'TEST', '"'],
@@ -148,7 +148,7 @@ describe('DuckDBAsyncDatasource e2e', async () => {
         },
       });
       expect(logBuffer[1]!).toMatchObject({
-        category: flowbladeLogtapeDuckdbConfig,
+        category: flowbladeLogtapeDuckdbConfig.categories,
         level: 'info',
         rawMessage:
           'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
@@ -176,7 +176,7 @@ describe('DuckDBAsyncDatasource e2e', async () => {
         name: 'ERROR',
       });
       expect(logBuffer[0]!).toMatchObject({
-        category: flowbladeLogtapeDuckdbConfig,
+        category: flowbladeLogtapeDuckdbConfig.categories,
         level: 'debug',
         rawMessage: 'Executing query "{queryName}"',
         message: ['Executing query "', 'ERROR', '"'],
@@ -187,7 +187,7 @@ describe('DuckDBAsyncDatasource e2e', async () => {
         },
       });
       expect(logBuffer[1]!).toMatchObject({
-        category: flowbladeLogtapeDuckdbConfig,
+        category: flowbladeLogtapeDuckdbConfig.categories,
         level: 'error',
         message: ['Query "', 'ERROR', '" failed'],
         rawMessage: 'Query "{queryName}" failed',
