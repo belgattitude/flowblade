@@ -1,5 +1,6 @@
 import '../styles/globals.css';
 
+import { TooltipProvider } from '@examples/base-ui/components/ui/tooltip';
 import type { Metadata } from 'next';
 import type { PropsWithChildren } from 'react';
 
@@ -8,7 +9,6 @@ import { fontJetbrainsMono } from '@/components/fonts/font-jetbrains-mono';
 import { MainLayout } from '@/components/layout/main-layout';
 import { ReactQueryClientProvider } from '@/providers/ReactQueryClientProvider';
 import { ReduxStoreProvider } from '@/providers/ReduxProvider';
-
 export const metadata: Metadata = {
   title: 'Flowblade nextjs app',
   description: 'Example',
@@ -20,11 +20,13 @@ export default function RootLayout({ children }: PropsWithChildren) {
       <body className={`${fontInter.variable} ${fontJetbrainsMono.variable}`}>
         <ReduxStoreProvider>
           <ReactQueryClientProvider>
-            <MainLayout
-              className={'font-[family-name:var(--font-inter)] antialiased'}
-            >
-              {children}
-            </MainLayout>
+            <TooltipProvider>
+              <MainLayout
+                className={'font-[family-name:var(--font-inter)] antialiased'}
+              >
+                {children}
+              </MainLayout>
+            </TooltipProvider>
           </ReactQueryClientProvider>
         </ReduxStoreProvider>
       </body>
