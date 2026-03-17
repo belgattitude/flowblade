@@ -1,14 +1,10 @@
-import react from '@vitejs/plugin-react-swc';
+import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
 const testFiles = ['./src/**/*.test.{js,jsx,ts,tsx}'];
 export default defineConfig({
   cacheDir: '../../../.cache/vitest/base-ui',
-  plugins: [
-    react({
-      devTarget: 'es2022',
-    }),
-  ],
+  plugins: [react()],
   resolve: {
     tsconfigPaths: true,
   },
