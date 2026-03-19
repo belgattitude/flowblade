@@ -61,8 +61,8 @@
     "test-unit-bun": "bun --bun run vitest run",
     "test-unit-edge": "vitest run --environment edge-runtime",
     "test-unit-watch": "vitest --ui --api 4515",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
-    "typecheck-build": "tsc --project tsconfig.build.json --noEmit",
+    "typecheck": "tsgo --project tsconfig.json --noEmit",
+    "typecheck-build": "tsgo --project tsconfig.build.json --noEmit",
     "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-sql-tag --dir ./coverage"
   },
   "dependencies": {
@@ -76,6 +76,7 @@
     "@electric-sql/pglite": "0.3.16",
     "@size-limit/esbuild": "12.0.1",
     "@size-limit/file": "12.0.1",
+    "@typescript/native-preview": "catalog:",
     "@vitest/coverage-istanbul": "4.1.0",
     "@vitest/ui": "4.1.0",
     "browserslist": "4.28.1",
