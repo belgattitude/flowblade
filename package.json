@@ -11,7 +11,7 @@
   "scripts": {
     "g:clean": "rimraf ./out && run clean:global-cache && yarn workspaces foreach --all -pv run clean && run clean:turbo",
     "clean:global-cache": "rimraf ./.cache",
-    "clean:turbo": "turbo daemon clean && turbo daemon stop && rimraf .turbo",
+    "clean:turbo": "rimraf .turbo",
     "g:bench": "turbo run bench --concurrency 1",
     "g:bench-codspeed": "turbo run bench --concurrency 1",
     "g:build": "turbo run build --filter='!@examples/*' --filter='!@docs/*'",

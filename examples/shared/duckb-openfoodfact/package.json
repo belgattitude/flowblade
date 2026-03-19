@@ -27,7 +27,7 @@
     "test": "vitest run",
     "test-unit": "vitest run",
     "test-unit-watch": "vitest --ui",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "typecheck": "tsgo --project tsconfig.json --noEmit",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../.cache/eslint/duckdb-openfoodfact.eslintcache",
     "fix-staged": "lint-staged --allow-empty"
   },
@@ -50,6 +50,7 @@
     "@types/node": "25.5.0",
     "@typescript-eslint/eslint-plugin": "8.57.1",
     "@typescript-eslint/parser": "8.57.1",
+    "@typescript/native-preview": "catalog:",
     "@vitest/coverage-istanbul": "4.1.0",
     "@vitest/ui": "4.1.0",
     "boxen": "8.0.1",
