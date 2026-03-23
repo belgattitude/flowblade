@@ -7,8 +7,8 @@ ARG ALPINE_VERSION=3.23
 
 FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS app-builder
 
-# gcompat is required for duckdb neo to work
-RUN apk add --no-cache git jq && corepack enable
+# You might want to add gcompat for duckdb neo to work
+RUN apk add --no-cache git jq && rm -rf /var/cache/apk/* && npm i -g corepack && corepack enable
 
 WORKDIR /app
 
@@ -89,7 +89,7 @@ ENV HOSTNAME=0.0.0.0
 ENV PORT=${NEXTJS_APP_PORT:-3000}
 ENV TZ=Europe/Brussels
 
-RUN apk add --no-cache tzdata bash && corepack enable
+RUN apk add --no-cache tzdata && rm -rf /var/cache/apk/* && npm i -g corepack && corepack enable
 
 WORKDIR /app
 

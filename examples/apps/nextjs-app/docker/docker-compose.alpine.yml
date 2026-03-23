@@ -4,14 +4,12 @@ services:
     build:
       # Start from root of the monorepo
       context: ../../../../
-      dockerfile: ./examples/apps/nextjs-app/docker/Dockerfile
+      dockerfile: ./examples/apps/nextjs-app/docker/Dockerfile.alpine
     restart: no
     networks:
       - flowblade-net
     ports:
       - 3000:3000
-    environment:
-      - DOCKER_BUILDKIT=1
 
 networks:
   flowblade-net:
