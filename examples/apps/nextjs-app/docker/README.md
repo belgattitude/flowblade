@@ -34,7 +34,7 @@ docker run --rm -it --entrypoint bash flowblade-nextjs-app-nextjs-app
 #### Get the exported size
 
 ```bash
-export IMAGE=flowblade-nextjs-app
+export IMAGE=flowblade-example-nextjs-app
 
 # Inspect the image
 docker image inspect ${IMAGE}

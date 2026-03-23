@@ -12,7 +12,7 @@ RUN apk add --no-cache git jq && rm -rf /var/cache/apk/* && npm i -g corepack &&
 
 WORKDIR /app
 
-COPY --link package.json turbo.json ./
+COPY --link package.json turbo.jsonc ./
 
 # We can't run turbo without yarn install first, let's install locally and make sure
 # both local and docker are aligned on the package.json version.
@@ -39,7 +39,7 @@ ENV NEXT_BUILD_ENV_OUTPUT=standalone
 # ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
 # ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
 
-ENV TZ=Europe/Brussels
+ENV TZ=Etc/UTC
 
 # Optimize for YARN installation speed
 ENV YARN_ENABLE_GLOBAL_CACHE=false
@@ -70,8 +70,8 @@ RUN yarn install --inline-builds
 #    yarn install --inline-builds
 
 # Build the project
-COPY --from=app-builder /app/out/nextjs-app/full/ .
-COPY --link .gitignore turbo.json tsconfig.base.json ./
+COPY --link --from=app-builder /app/out/nextjs-app/full/ .
+COPY --link .gitignore turbo.jsonc tsconfig.base.json ./
 
 RUN yarn workspace @examples/db-sqlserver prisma-generate
 RUN yarn turbo run build --filter=@examples/nextjs-app...
@@ -87,7 +87,8 @@ ARG NEXTJS_APP_PORT
 # Bort PORT / HOSTNAME envs are respected by nextjs start/dev.
 ENV HOSTNAME=0.0.0.0
 ENV PORT=${NEXTJS_APP_PORT:-3000}
-ENV TZ=Europe/Brussels
+
+ENV TZ=Etc/UTC
 
 RUN apk add --no-cache tzdata && rm -rf /var/cache/apk/* && npm i -g corepack && corepack enable
 
