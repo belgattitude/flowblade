@@ -1,5 +1,5 @@
 import isInCi from 'is-in-ci';
-import { bench, type BenchOptions } from 'vitest';
+import { bench, type BenchOptions, describe } from 'vitest';
 import * as z from 'zod';
 
 import { zodCodecs } from '../src';

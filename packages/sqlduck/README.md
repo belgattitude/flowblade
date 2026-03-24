@@ -54,6 +54,37 @@ const queryResult = await dbDuckDbMemoryConn.query<{
 `);
 ```
 
+### Benchmarks
+
+```
+ RUN  v4.1.1 /home/sebastien/github/flowblade/packages/sqlduck
+
+
+ ✓ bench/appender.bench.ts > appender benches 6396ms
+     name                                                 hz       min       max      mean       p75       p99      p995      p999     rme  samples
+   · duckdb appender, count: 100000, chunk size 2048  0.6967  1,435.36  1,435.36  1,435.36  1,435.36  1,435.36  1,435.36  1,435.36  ±0.00%        1
+   · duckdb appender, count: 100000, chunk size 1024  0.6863  1,457.18  1,457.18  1,457.18  1,457.18  1,457.18  1,457.18  1,457.18  ±0.00%        1
+
+ ✓ bench/stream.bench.ts > Bench stream 2000ms
+     name                                                        hz      min     max     mean      p75     p99    p995    p999      rme  samples
+   · rowToColumnsChunk with chunkSize 2048 (count: 100000)  13.2020  62.1579  108.09  75.7462  76.3741  108.09  108.09  108.09  ±14.47%       10
+   · mapFakeRowStream with chunkSize 2048 (count: 100000)   10.1410  88.9860  112.13  98.6096   106.68  112.13  112.13  112.13   ±6.17%       10
+
+ ✓ bench/table-create.bench.ts > Bench getTableCreateFromZod 613ms
+     name                          hz     min     max    mean     p75     p99    p995    p999     rme  samples
+   · getTableCreateFromZod  26,049.34  0.0235  1.3650  0.0384  0.0384  0.1470  0.2167  0.6172  ±1.80%    13025
+
+ BENCH  Summary
+
+  duckdb appender, count: 100000, chunk size 2048 - bench/appender.bench.ts > appender benches
+    1.02x faster than duckdb appender, count: 100000, chunk size 1024
+
+  rowToColumnsChunk with chunkSize 2048 (count: 100000) - bench/stream.bench.ts > Bench stream
+    1.30x faster than mapFakeRowStream with chunkSize 2048 (count: 100000)
+
+  getTableCreateFromZod - bench/table-create.bench.ts > Bench getTableCreateFromZod
+```
+
 ### Local scripts
 
 | Name              | Description                    |
