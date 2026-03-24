@@ -94,10 +94,12 @@ export function createFakeRowsIterator<T extends ZodObject>(
  * const rows = await Array.fromAsync(iter());
  * ```
  */
-export function createFakeRowsAsyncIterator<T extends ZodObject>(
-  params: Params<T>
-): () => AsyncIterableIterator<FakerFactory<z.infer<T>>> {
-  async function* getAsync(): AsyncIterableIterator<FakerFactory<z.infer<T>>> {
+export function createFakeRowsAsyncIterator<TSchema extends ZodObject>(
+  params: Params<TSchema>
+): () => AsyncIterableIterator<FakerFactory<z.infer<TSchema>>> {
+  async function* getAsync(): AsyncIterableIterator<
+    FakerFactory<z.infer<TSchema>>
+  > {
     // Reuse the synchronous generator to produce values
     for (const row of getFakeRowsGenerator(params)) {
       // Yield on next microtask to behave asynchronously without delays
