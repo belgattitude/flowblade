@@ -114,17 +114,18 @@ WORKDIR /app
 #RUN mkdir .next
 #RUN chown nextjs:nodejs .next
 
-#USER nextjs
+# Default distroless user
+USER 65532:65532
 
 COPY --from=builder  /app/examples/apps/nextjs-app/next.config.mjs \
-                    /app/examples/apps/nextjs-app/package.json \
+                    /app/examples/apps/nextjs-app/package.json --chown=65532:65532 \
                     ./
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder /app/examples/apps/nextjs-app/.next/standalone ./
-COPY --from=builder /app/examples/apps/nextjs-app/.next/static ./examples/apps/nextjs-app/.next/static
-COPY --from=builder /app/examples/apps/nextjs-app/public ./examples/apps/nextjs-app/public
+COPY --from=builder --chown=65532:65532 /app/examples/apps/nextjs-app/.next/standalone ./
+COPY --from=builder --chown=65532:65532 /app/examples/apps/nextjs-app/.next/static ./examples/apps/nextjs-app/.next/static
+COPY --from=builder --chown=65532:65532 /app/examples/apps/nextjs-app/public ./examples/apps/nextjs-app/public
 
 EXPOSE ${PORT}
 
