@@ -30,7 +30,7 @@ const getFakeRowStream = createFakeRowsAsyncIterator({
 
 async function* mapFakeRowStream(
   stream: ReturnType<typeof getFakeRowStream>
-): AsyncIterableIterator<z.input<typeof userSchema>> {
+): AsyncIterableIterator<z.output<typeof userSchema>> {
   for await (const row of stream) {
     row.bignumber = row.bignumber + 1n;
     yield row;
