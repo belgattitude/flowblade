@@ -13,6 +13,7 @@ cd ./docker
 docker buildx bake --file docker-compose.yml
 
 # Alternatives
+# DOCKER_BUILDKIT=1 docker compose build
 # docker compose build
 # docker compose build --progress=plain # More verbose
 # docker compose build --parallel       # Might be faster
