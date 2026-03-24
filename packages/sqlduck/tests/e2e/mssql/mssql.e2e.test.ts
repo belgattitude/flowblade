@@ -142,7 +142,7 @@ describe('MSSQL e2e tests', () => {
     );
   });
   describe('ToTable', () => {
-    it('should store the data into duckdb', async () => {
+    it('should append the mssql query results into duckdb', async () => {
       const query = mssqlDs.queryBuilder
         .selectFrom('TestTable as t')
         .select([
@@ -174,7 +174,7 @@ describe('MSSQL e2e tests', () => {
       });
 
       const testSchema = z.object({
-        id: z.number().meta({ primaryKey: true }),
+        id: z.int32().meta({ primaryKey: true }),
         name: z.string(),
         positive_bigint: z.nullable(zodCodecs.bigintToString),
         negative_bigint: z.nullable(zodCodecs.bigintToString),
