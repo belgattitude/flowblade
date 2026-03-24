@@ -111,9 +111,9 @@ WORKDIR /app
 
 # Set the correct permission for prerender cache
 RUN addgroup --system --gid 1001 nodejs \
-    adduser --system --uid 1001 nextjs \
-    mkdir .next \
-    chown nextjs:nodejs .next
+    && adduser --system --uid 1001 nextjs \
+    && mkdir .next \
+    && chown nextjs:nodejs .next
 
 USER nextjs
 
