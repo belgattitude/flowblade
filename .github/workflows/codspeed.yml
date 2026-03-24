@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 22.x ]
+        node-version: [ 24.x ]
     steps:
       - uses: actions/checkout@v5
         with:
@@ -35,5 +35,5 @@ jobs:
         uses: CodSpeedHQ/action@v4
         with:
           run: yarn g:bench-codspeed
-          mode: "instrumentation"
+          mode: "simulation"
           token: ${{ secrets.CODSPEED_TOKEN }}
