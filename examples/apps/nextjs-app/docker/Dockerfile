@@ -1,5 +1,6 @@
 ARG NODE_VERSION=24.14
 ARG DEBIAN_VERSION=trixie-slim
+ARG COREPACK_VERSION=0.34.6
 
 #############################################################
 # Stage 1 - App extraction / pruning                        #
@@ -7,15 +8,12 @@ ARG DEBIAN_VERSION=trixie-slim
 
 FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS prepare
 
-#RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
-#RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
-#    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
 RUN apt-get update \
   #&& apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
   && apt-get install git jq --no-install-recommends -y \
   && rm -rf /var/cache/apt/* \
-  && npm i -g corepack \
-  && corepack enable
+  ## Corepack won't be bundled in node 25+
+  && npm i -g corepack@${COREPACK_VERSION} && corepack enable
 
 
 WORKDIR /app
@@ -82,7 +80,10 @@ ENV NODE_ENV=production
 # ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
 
 RUN yarn workspace @examples/db-sqlserver prisma-generate
-RUN yarn turbo run build --filter=@examples/nextjs-app...
+
+RUN yarn turbo run build --filter=@examples/nextjs-app
+# Alternative we can also
+#RUN yarn turbo run build --filter=@examples/nextjs-app...
 
 #############################################################
 # Stage 3 - App runner                                      #
@@ -98,12 +99,12 @@ ENV PORT=${NEXTJS_APP_PORT:-3000}
 ENV TZ=Etc/UTC
 ENV NODE_ENV=production
 
-#RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
-#    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
 RUN apt-get update \
   && apt-get install bash tzdata --no-install-recommends -y \
-  && rm -rf /var/cache/apt/*
-  #&& npm i -g corepack && corepack enable
+  && rm -rf /var/cache/apt/* \
+  # If needed, we can enable corepack in the runner as well, but for now we don't need it  \
+  # since we're running the built server.js directly with node.
+  && npm i -g corepack@${COREPACK_VERSION} && corepack enable
 
 
 WORKDIR /app

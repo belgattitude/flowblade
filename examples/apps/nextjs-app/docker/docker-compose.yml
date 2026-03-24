@@ -10,8 +10,6 @@ services:
       - flowblade-net
     ports:
       - 3000:3000
-    environment:
-      - DOCKER_BUILDKIT=1
 
 networks:
   flowblade-net:
