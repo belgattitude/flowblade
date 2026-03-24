@@ -62,43 +62,6 @@ let nextConfig = {
     },
   },
 
-  /*
-  turbopack: {
-    rules: {
-      '*.wasm': {
-        loaders: [
-          {
-            loader: 'file-loader',
-            options: {
-              esModule: true,
-            },
-          },
-        ],
-        as: '*.js',
-      },
-    },
-  }, */
-
-  /*
-  webpack: (config, { isServer }) => {
-    config.module.rules.push({
-      test: /\.wasm/,
-      loader: 'file-loader',
-      options: {},
-    });
-
-    config.experiments = {
-      ...config.experiments,
-      asyncWebAssembly: true, // Enable async WebAssembly support
-    };
-
-    // config.module.rules.push({
-    //   test: /\.wasm$/,
-    //   type: 'asset/resource', // Treat .wasm files as assets
-    // });
-    return config;
-  }, */
-
   async headers() {
     return [
       {

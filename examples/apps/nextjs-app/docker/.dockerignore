@@ -1,10 +1,48 @@
 # this file should won't be read unless it exists in the
 # context directory specified in the docker compose file
 
-node_modules
-#**/.turbo
-#**/.cache
-#**/apps/*/.next
-#**/packages/*/dist
-#**/packages/*/docs
-#**/.eslintcache
+# git (disable if needed in the container)
+.git
+
+# dependencies
+**/node_modules
+
+# caches
+**/.cache
+**/tsconfig.tsbuildinfo
+**/tsconfig.*.tsbuildinfo
+**/.eslintcache
+
+# package managers
+**/.yarn/*
+!**/.yarn/patches
+!**/.yarn/releases
+!**/.yarn/plugins
+.pnp.*
+
+# testing
+**/coverage
+**/.out/
+
+# Build directories
+**/apps/*/.next
+**/packages/*/dist
+**/packages/*/docs
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.idea/*
+.project
+.classpath
+*.launch
+*.sublime-workspace
+.vscode/
+
