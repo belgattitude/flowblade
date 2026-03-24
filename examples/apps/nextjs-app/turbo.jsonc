@@ -4,7 +4,9 @@
   "tasks": {
     "build": {
       "env": ["NEXT_BUILD_*", "NEXT_PUBLIC_*", "SENTRY_*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      // We rely on tsconfig path aliases to ease starting
+      "dependsOn": [],
     },
     "typecheck": {},
     "dev": {

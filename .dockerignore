@@ -1,0 +1,10 @@
+# .dockerignore is used to exclude files and directories from being copied into the Docker image during the build process. This helps to reduce the size of the image and improve build times by only including necessary files.
+# keep it at the root of the project to ensure that we don't copy unnecessary files into the Docker image.
+
+node_modules
+**/.turbo
+**/.cache
+**/apps/*/.next
+**/packages/*/dist
+**/packages/*/docs
+**/.eslintcache

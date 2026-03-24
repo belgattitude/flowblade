@@ -1,10 +1,10 @@
 name: flowblade-example-nextjs
 services:
-  app-debian:
+  app-alpine:
     build:
       # Start from root of the monorepo
       context: ../../../../
-      dockerfile: ./examples/apps/nextjs-app/docker/Dockerfile
+      dockerfile: ./examples/apps/nextjs-app/docker/Dockerfile.alpine
     restart: no
     networks:
       - flowblade-net

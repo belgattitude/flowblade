@@ -2,7 +2,6 @@
 
 ### Requirements
 
-- [x] [docker-engine](https://docs.docker.com/get-docker) >= 23 and [buildkit](https://docs.docker.com/build/buildkit/).
 - [x] docker compose v2: [repo](https://github.com/docker/compose) - [docs](https://docs.docker.com/compose/)
 - [x] optional: [lazydocker](https://github.com/jesseduffield/lazydocker), a beautiful tui.
 - [x] optional: [dive](https://github.com/wagoodman/dive) to debug layer sizes.
@@ -11,9 +10,13 @@
 
 ```bash
 cd ./docker
-docker compose build
-docker compose build --progress=plain # More verbose
-docker compose build --parallel       # Might be faster
+docker buildx bake --file docker-compose.yml
+
+# Alternatives
+# docker compose build
+# docker compose build --progress=plain # More verbose
+# docker compose build --parallel       # Might be faster
+
 docker compose up
 docker compose down
 ```
@@ -23,7 +26,7 @@ docker compose down
 #### Run bash in container
 
 ```bash
-docker compose run nextjs-app bash 
+docker compose run nextjs-app bash
 # equivalent to
 docker run --rm -it --entrypoint bash flowblade-nextjs-app-nextjs-app
 ```
@@ -31,7 +34,7 @@ docker run --rm -it --entrypoint bash flowblade-nextjs-app-nextjs-app
 #### Get the exported size
 
 ```bash
-export IMAGE=flowblade-nextjs-app
+export IMAGE=flowblade-example-nextjs-app-debian
 
 # Inspect the image
 docker image inspect ${IMAGE}
