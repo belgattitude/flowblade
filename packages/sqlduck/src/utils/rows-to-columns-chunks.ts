@@ -7,7 +7,7 @@ const toDuckValue = (value: SupportedRowTypes): DuckDBValue => {
   if (value instanceof Date) {
     return new DuckDBTimestampValue(BigInt(value.getTime() * 1000));
   }
-  if (value instanceof BigInt) {
+  if (typeof value === 'bigint') {
     return value.toString(10);
   }
   return value === undefined ? null : (value as DuckDBValue);
@@ -17,7 +17,6 @@ type RowsToColumnsChunksParams<TRow extends Record<string, SupportedRowTypes>> =
   {
     rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>;
     chunkSize: number;
-    transform?: (row: TRow) => TRow;
   };
 
 /**
@@ -34,7 +33,7 @@ export async function* rowsToColumnsChunks<
 >(
   params: RowsToColumnsChunksParams<TRow>
 ): AsyncIterableIterator<TRow[keyof TRow][][]> {
-  const { rows, chunkSize, transform = toDuckValue } = params;
+  const { rows, chunkSize } = params;
   if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
     throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
   }
@@ -49,7 +48,7 @@ export async function* rowsToColumnsChunks<
 
   // push first row values
   // @ts-expect-error find time to decide
-  keys.forEach((k, i) => columns[i]!.push(transform(first.value[k])));
+  keys.forEach((k, i) => columns[i]!.push(toDuckValue(first.value[k])));
   rowsInChunk++;
   // In case chunkSize === 1 (or generally if the threshold already reached),
   // flush immediately after the first row to avoid off-by-one errors.
@@ -62,7 +61,7 @@ export async function* rowsToColumnsChunks<
   // consume the rest
   for await (const row of rows) {
     // @ts-expect-error find time to decide
-    keys.forEach((k, i) => columns[i]!.push(transform(row[k])));
+    keys.forEach((k, i) => columns[i]!.push(toDuckValue(row[k])));
     rowsInChunk++;
     if (rowsInChunk >= chunkSize) {
       yield columns;
