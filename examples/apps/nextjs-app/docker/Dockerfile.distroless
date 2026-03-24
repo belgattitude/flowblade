@@ -1,6 +1,8 @@
 ARG NODE_VERSION=24.14
+ARG DISTROLESS_IMAGE=gcr.io/distroless/nodejs24-debian13
 ARG DEBIAN_VERSION=trixie-slim
 ARG COREPACK_VERSION=0.34.6
+
 
 #############################################################
 # Stage 1 - App extraction / pruning                        #
@@ -89,7 +91,7 @@ RUN yarn turbo run build --filter=@examples/nextjs-app
 # Stage 3 - App runner                                      #
 #############################################################
 
-FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS runner
+FROM ${DISTROLESS_IMAGE} AS runner
 
 ARG NEXTJS_APP_PORT
 
@@ -99,33 +101,31 @@ ENV PORT=${NEXTJS_APP_PORT:-3000}
 ENV TZ=Etc/UTC
 ENV NODE_ENV=production
 
-RUN apt-get update \
-  && apt-get install bash tzdata --no-install-recommends -y \
-  && rm -rf /var/cache/apt/*
-  # If needed, we can enable corepack in the runner as well, but for now we don't need it  \
-  # since we're running the built server.js directly with node.
-  # && npm i -g corepack@${COREPACK_VERSION} && corepack enable
-
+#RUN apt-get update \
+#  && apt-get install tzdata --no-install-recommends -y \
+#  && rm -rf /var/cache/apt/*
 
 WORKDIR /app
 
+#RUN addgroup --system --gid 1001 nodejs
+#RUN adduser --system --uid 1001 nextjs
+
 # Set the correct permission for prerender cache
-RUN addgroup --system --gid 1001 nodejs \
-    && adduser --system --uid 1001 nextjs \
-    && mkdir .next \
-    && chown nextjs:nodejs .next
+#RUN mkdir .next
+#RUN chown nextjs:nodejs .next
 
-USER nextjs
+# Default distroless user
+USER 65532:65532
 
-COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/next.config.mjs \
-                    /app/examples/apps/nextjs-app/package.json \
+COPY --from=builder  /app/examples/apps/nextjs-app/next.config.mjs \
+                    /app/examples/apps/nextjs-app/package.json --chown=65532:65532 \
                     ./
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/.next/static ./examples/apps/nextjs-app/.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/public ./examples/apps/nextjs-app/public
+COPY --from=builder --chown=65532:65532 /app/examples/apps/nextjs-app/.next/standalone ./
+COPY --from=builder --chown=65532:65532 /app/examples/apps/nextjs-app/.next/static ./examples/apps/nextjs-app/.next/static
+COPY --from=builder --chown=65532:65532 /app/examples/apps/nextjs-app/public ./examples/apps/nextjs-app/public
 
 EXPOSE ${PORT}
 
