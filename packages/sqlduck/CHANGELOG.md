@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.10.0
+
+### Minor Changes
+
+- [#1034](https://github.com/belgattitude/flowblade/pull/1034) [`30a7f86`](https://github.com/belgattitude/flowblade/commit/30a7f86995ce3be69046b2911a7d35d4f5c48f0e) Thanks [@belgattitude](https://github.com/belgattitude)! - Add @logtape/logtape support
+
 ## 0.9.0
 
 ### Minor Changes
