@@ -168,9 +168,6 @@ describe('MSSQL e2e tests', () => {
 
       const sqlDuck = new SqlDuck({
         conn: duckConn,
-        logger: (msg) => {
-          console.log(msg);
-        },
       });
 
       const testSchema = z.object({
