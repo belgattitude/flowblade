@@ -48,7 +48,7 @@ export class DuckDatabaseManager {
     const params = z.parse(duckDatabaseManagerDbParamsSchema, dbParams);
     const rawSql = new DuckDatabaseAttachCommand(params, options).getRawSql();
     await this.#executeRawSqlCommand('attach database', rawSql);
-    return new Database({ alias: dbParams.alias });
+    return new Database({ alias: params.alias });
   };
 
   attachOrReplace = async (dbParams: DuckDatabaseManagerDbParams) => {
