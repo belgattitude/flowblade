@@ -13,8 +13,17 @@
 **/tsconfig.*.tsbuildinfo
 **/.eslintcache
 
+# temp files
+**/tmp
+**/.tmp
+*.tmp
+
+# repository data
+**/data/local/duckdb
+
 # turbo (comment if you want to copy the turbo cache into the image)
 **/.turbo
+**/.turbo-pruned
 
 # package managers
 **/.yarn/*
@@ -26,11 +35,19 @@
 # testing
 **/coverage
 **/.out/
+*.bench.ts
+*.test.ts
+**/e2e
 
 # Build directories
 **/apps/*/.next
 **/packages/*/dist
-**/packages/*/docs
+
+# documentation
+docs
+**/apps/*/docs
+**/packagesd/*/docs
+*.md
 
 # Misc
 .DS_Store

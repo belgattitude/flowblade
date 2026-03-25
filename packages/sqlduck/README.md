@@ -4,6 +4,74 @@
 
 ## Quick start
 
+### Create a database connection
+
+```typescript
+import { DuckDBInstance } from '@duckdb/node-api';
+DuckDBInstance.create(undefined, {
+   access_mode: 'READ_WRITE',
+   max_memory: '512M',
+});
+export const conn = await instance.connect();
+```
+
+### Append data to a database
+
+```typescript
+import { SqlDuck, DuckDatabaseManager } from "@flowblade/sqlduck";
+import * as z from "zod";
+import { conn } from "./db.config.ts";
+
+const dbManager = new DuckDatabaseManager(conn);
+const database = await dbManager.attach({
+    type: ':memory:', // can be 'duckdb', ...
+    alias: 'mydb',
+    options: { COMPRESS: 'false' },
+});
+
+const sqlDuck = new SqlDuck({ conn });
+
+// Define a zod schema, it will be used to create the table
+const userSchema = z.object({
+    id: z.int32().min(1).meta({ primaryKey: true }),
+    name: z.string(),
+});
+
+// Example of a datasource (can be generator, async generator, async iterable)
+async function* getUsers(): AsyncIterableIterator<
+    z.infer<typeof userSchema>
+> {
+    // database or api call
+    yield { id: 1, name: 'John' };
+    yield { id: 2, name: 'Jane' };
+}
+
+// Create a table from the schema and the datasource
+const result = await sqlDuck.toTable({
+    table: new Table({ name: 'user', database: database.alias }),
+    schema: userSchema, // The schema to use to create the table
+    rowStream: getUsers(), // The async iterable that yields rows
+    // 👇Optional:
+    chunkSize: 2048, // Number of rows to append when using duckdb appender. Default is 2048
+    onDataAppended: ({ timeMs, totalRows, rowsPerSecond }) => {
+        console.log(
+            `Appended ${totalRows} in time ${timeMs}ms, est: ${rowsPerSecond} rows/s`
+        );
+    },
+    // Optional table creation options
+    createOptions: {
+        create: 'CREATE_OR_REPLACE',
+    },
+});
+
+console.log(`Inserted ${result.totalRows} rows in ${result.timeMs}ms`);
+console.log(`Table created with DDL: ${result.createTableDDL}`);
+
+const reader = await conn.runAndReadAll('select * from mydb.user');
+const rows = reader.getRowObjectsJS();
+// [{id: 1, name: 'John'}, {id: 2, name: 'Jane'}]]
+```
+
 ### Create a memory table
 
 ```typescript
@@ -35,7 +103,6 @@ const result = sqlDuck.toTable({
   onDataAppended: ({ total }) => {
     console.log(`Appended ${total} rows so far`);
   },
-  onDataAppendedBatchSize: 4096, // Call onDataAppended every 4096 rows
   // Optional table creation options
   createOptions: {
     create: "CREATE_OR_REPLACE",

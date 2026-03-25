@@ -1,8 +1,8 @@
+import { Table } from '../objects/table.ts';
 import {
   getTableCreateFromZod,
   type TableCreateFromZodResult,
 } from './get-table-create-from-zod.ts';
-import { Table } from './table.ts';
 import type { TableSchemaZod } from './table-schema-zod.type.ts';
 
 export type GetDuckdbColumnTypeFromZodParams<TSchema extends TableSchemaZod> = {

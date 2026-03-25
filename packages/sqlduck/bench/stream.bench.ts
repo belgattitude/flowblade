@@ -2,8 +2,9 @@ import isInCi from 'is-in-ci';
 import { bench, type BenchOptions, describe } from 'vitest';
 import * as z from 'zod';
 
+import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
+
 import { rowsToColumnsChunks } from '../src/utils/rows-to-columns-chunks';
-import { createDuckdbTestMemoryDb } from '../tests/e2e/utils/create-duckdb-test-memory-db';
 import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator';
 
 const benchConfig: BenchOptions = {

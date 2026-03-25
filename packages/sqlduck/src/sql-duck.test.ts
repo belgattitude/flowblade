@@ -1,17 +1,20 @@
 import type { DuckDBConnection } from '@duckdb/node-api';
 import { DuckdbDatasource, sql } from '@flowblade/source-duckdb';
 import { isParsableStrictIsoDateZ } from '@httpx/assert';
-import { configure, type LogRecord, reset } from '@logtape/logtape';
+import { type LogRecord, reset } from '@logtape/logtape';
 import isInCi from 'is-in-ci';
 import { beforeAll, describe } from 'vitest';
 import * as z from 'zod';
 
-import { createDuckdbTestMemoryDb } from '../tests/e2e/utils/create-duckdb-test-memory-db';
-import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator';
+import { configureTestLogger } from '@/tests/utils/configure-test-logger.ts';
+import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db';
+import { createFakeRowsAsyncIterator } from '@/tests/utils/create-fake-rows-iterator';
+
 import { flowbladeLogtapeSqlduckConfig } from './config/flowblade-logtape-sqlduck.config';
+import { DuckDatabaseManager } from './manager/database/duck-database-manager.ts';
+import { Table } from './objects/table';
 import { SqlDuck } from './sql-duck';
 import { getTableCreateFromZod } from './table/get-table-create-from-zod';
-import { Table } from './table/table';
 import { zodCodecs } from './utils/zod-codecs';
 
 const testTimeout = 15_000;
@@ -33,13 +36,15 @@ describe('Duckdb tests', async () => {
     'toTable',
     () => {
       it('Should append data into duckdb memory table', async () => {
-        const dbName = 'memory_db';
         const bignumberExample = 9_223_372_036_854_775_807n;
 
         // Arrange
-        await conn.run(
-          `ATTACH IF NOT EXISTS ':memory:' AS ${dbName} (COMPRESS 'true')`
-        );
+        const dbManager = new DuckDatabaseManager(conn);
+        const database = await dbManager.attachIfNotExists({
+          type: ':memory:',
+          alias: 'sql_duck_test',
+        });
+
         const ds = new DuckdbDatasource({
           connection: conn,
         });
@@ -59,7 +64,7 @@ describe('Duckdb tests', async () => {
 
         const testTable = new Table({
           name: 'test',
-          database: dbName,
+          database: database.alias,
         });
 
         const now = new Date('2025-12-16 00:00:00');
@@ -170,23 +175,7 @@ describe('Duckdb tests', async () => {
   describe('Logger', () => {
     let logBuffer: LogRecord[] = [];
     beforeEach(async () => {
-      await configure({
-        sinks: {
-          buffer: logBuffer.push.bind(logBuffer),
-        },
-        loggers: [
-          {
-            category: ['logtape', 'meta'],
-            lowestLevel: 'error',
-            sinks: ['buffer'],
-          },
-          {
-            category: flowbladeLogtapeSqlduckConfig.categories,
-            lowestLevel: 'debug',
-            sinks: ['buffer'],
-          },
-        ],
-      });
+      await configureTestLogger(logBuffer);
     });
 
     afterEach(async () => {
