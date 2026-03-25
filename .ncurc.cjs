@@ -37,7 +37,8 @@ const npmPreapprovedPackages = [
   'zod',
   '@valibot/*',
   '@standard-schema/*',
-  'shadcn'
+  'shadcn',
+  '@logtape/logtape'
 ];
 
 module.exports = defineConfig({
