@@ -205,6 +205,7 @@ export class SqlDuck {
         createTableDDL: ddl,
       };
     } catch (e) {
+      appender.closeSync();
       this.#logger.error(
         `Failed to append data into table '${table.getFullName()}' - ${(e as Error)?.message ?? ''}`,
         {
