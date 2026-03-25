@@ -24,7 +24,7 @@ type DB = {
     id: number;
     name: string;
     // tedious doesn't support returning numbers as bigint,
-    // they're send as string
+    // they're sent as string
     positive_bigint: string | null;
     negative_bigint: string | null;
     null_column: number | null;
