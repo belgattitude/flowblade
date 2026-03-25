@@ -241,7 +241,9 @@ describe('Duckdb tests', async () => {
             create: 'CREATE_OR_REPLACE',
           },
         })
-      ).rejects.toThrow(/Cannot convert 1 to a BigInt/);
+        // on nodejs: Cannot convert 1 to a BigInt
+        // on bun: Invalid argument type in ToBigInt ope…
+      ).rejects.toThrow(/bigint/i);
 
       expect(logBuffer.at(-1)!).toMatchObject({
         category: flowbladeLogtapeSqlduckConfig.categories,
