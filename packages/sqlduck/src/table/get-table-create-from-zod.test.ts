@@ -42,7 +42,8 @@ describe('getTableCreateFromZod', () => {
                 bignumber BIGINT,
                 created_at TIMESTAMP NOT NULL,
                 is_active BOOLEAN,
-                alt_uuid_v7 UUID NOT NULL
+                alt_uuid_v7 UUID NOT NULL,
+                custom_type UUID NOT NULL
                )`,
             {
               dialect: duckDbDialect,
@@ -89,6 +90,7 @@ describe('getTableCreateFromZod', () => {
           ['created_at', TIMESTAMP],
           ['is_active', BOOLEAN],
           ['alt_uuid_v7', UUID],
+          ['custom_type', UUID],
         ])
       );
     });

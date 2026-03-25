@@ -1,7 +1,10 @@
 import {
   BIGINT,
   BOOLEAN,
+  DOUBLE,
   type DuckDBType,
+  FLOAT,
+  INTEGER,
   TIMESTAMP,
   UUID,
   VARCHAR,
@@ -23,8 +26,6 @@ export type TableCreateOptions = {
 
 export type DuckdbColumnTypeMap<TKeys extends string> = Map<TKeys, DuckDBType>;
 
-export type DuckdbColumnTypes<TKeys extends string> = [TKeys, DuckDBType][];
-
 export type TableCreateFromZodResult<TSchema extends TableSchemaZod> = {
   ddl: string;
   columnTypes: DuckdbColumnTypeMap<
@@ -43,6 +44,19 @@ const createOptions = {
   CREATE_OR_REPLACE: 'CREATE OR REPLACE TABLE',
   IF_NOT_EXISTS: 'CREATE TABLE IF NOT EXISTS',
 } as const satisfies Record<NonNullable<TableCreateOptions['create']>, string>;
+
+const duckDbTypes = [
+  ['VARCHAR', VARCHAR],
+  ['BIGINT', BIGINT],
+  ['TIMESTAMP', TIMESTAMP],
+  ['UUID', UUID],
+  ['BOOLEAN', BOOLEAN],
+  ['INTEGER', INTEGER],
+  ['DOUBLE', DOUBLE],
+  ['FLOAT', FLOAT],
+] as const;
+
+const duckDbTypesMap = new Map<string, DuckDBType>(duckDbTypes);
 
 export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
   params: GetTableCreateFromZodParams<TSchema>
@@ -71,44 +85,50 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       primaryKey: boolean | undefined;
       minimum?: number;
       maximum?: number;
+      duckdbType?: string;
     },
   ][]) {
-    const { type, nullable, format, primaryKey, minimum, maximum } = def;
+    const { type, duckdbType, nullable, format, primaryKey, minimum, maximum } =
+      def;
 
     const c: Partial<ColumnDDL> = {
       name: columnName,
     } satisfies Partial<ColumnDDL>;
 
-    switch (type) {
-      case 'string':
-        switch (format) {
-          case 'date-time':
-            c.duckdbType = TIMESTAMP;
-            break;
-          case 'int64':
-            c.duckdbType = BIGINT;
-            break;
-          case 'uuid':
-            c.duckdbType = UUID;
-            break;
-          default:
-            c.duckdbType = VARCHAR;
-        }
-        break;
-      case 'number':
-        c.duckdbType = getDuckdbNumberColumnType({ minimum, maximum });
-        break;
-      // special case for z.int32()
-      case 'integer':
-        c.duckdbType = getDuckdbNumberColumnType({ minimum, maximum });
-        break;
-      case 'boolean':
-        c.duckdbType = BOOLEAN;
-        break;
-      default:
-        throw new Error(
-          `Cannot guess '${columnName}' type - ${JSON.stringify(def)}`
-        );
+    if (duckdbType !== undefined && duckDbTypesMap.has(duckdbType)) {
+      c.duckdbType = duckDbTypesMap.get(duckdbType)!;
+    } else {
+      switch (type) {
+        case 'string':
+          switch (format) {
+            case 'date-time':
+              c.duckdbType = TIMESTAMP;
+              break;
+            case 'int64':
+              c.duckdbType = BIGINT;
+              break;
+            case 'uuid':
+              c.duckdbType = UUID;
+              break;
+            default:
+              c.duckdbType = VARCHAR;
+          }
+          break;
+        case 'number':
+          c.duckdbType = getDuckdbNumberColumnType({ minimum, maximum });
+          break;
+        // special case for z.int32()
+        case 'integer':
+          c.duckdbType = getDuckdbNumberColumnType({ minimum, maximum });
+          break;
+        case 'boolean':
+          c.duckdbType = BOOLEAN;
+          break;
+        default:
+          throw new Error(
+            `Cannot guess '${columnName}' type - ${JSON.stringify(def)}`
+          );
+      }
     }
     if (primaryKey === true) {
       c.constraint = 'PRIMARY KEY';
