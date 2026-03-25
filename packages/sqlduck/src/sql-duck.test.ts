@@ -230,6 +230,11 @@ describe('Duckdb tests', async () => {
       const rowStream = function* gen() {
         yield { id: 1 };
       };
+
+      // on nodejs: Cannot convert 1 to a BigInt
+      // on bun: Invalid argument type in ToBigInt ope…
+      const regexpError = /Failed to append data into table 'test'(.*)bigint/i;
+
       await expect(
         sqlDuck.toTable({
           table: new Table('test'),
@@ -241,15 +246,11 @@ describe('Duckdb tests', async () => {
             create: 'CREATE_OR_REPLACE',
           },
         })
-        // on nodejs: Cannot convert 1 to a BigInt
-        // on bun: Invalid argument type in ToBigInt ope…
-      ).rejects.toThrow(/bigint/i);
+      ).rejects.toThrow(regexpError);
 
       expect(logBuffer.at(-1)!).toMatchObject({
         category: flowbladeLogtapeSqlduckConfig.categories,
-        message: [
-          "Failed to append data into table 'test' - Cannot convert 1 to a BigInt",
-        ],
+        message: [expect.stringMatching(regexpError)],
         level: 'error',
       });
     });

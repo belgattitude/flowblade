@@ -206,13 +206,13 @@ export class SqlDuck {
       };
     } catch (e) {
       appender.closeSync();
-      this.#logger.error(
-        `Failed to append data into table '${table.getFullName()}' - ${(e as Error)?.message ?? ''}`,
-        {
-          table: table.getFullName(),
-        }
-      );
-      throw e;
+      const msg = `Failed to append data into table '${table.getFullName()}' - ${(e as Error)?.message ?? ''}`;
+      this.#logger.error(msg, {
+        table: table.getFullName(),
+      });
+      throw new Error(msg, {
+        cause: e,
+      });
     }
   };
 }
