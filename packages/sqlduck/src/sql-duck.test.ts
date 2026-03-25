@@ -1,12 +1,14 @@
 import type { DuckDBConnection } from '@duckdb/node-api';
 import { DuckdbDatasource, sql } from '@flowblade/source-duckdb';
 import { isParsableStrictIsoDateZ } from '@httpx/assert';
+import { configure, type LogRecord, reset } from '@logtape/logtape';
 import isInCi from 'is-in-ci';
 import { beforeAll, describe } from 'vitest';
 import * as z from 'zod';
 
 import { createDuckdbTestMemoryDb } from '../tests/e2e/utils/create-duckdb-test-memory-db';
 import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator';
+import { flowbladeLogtapeSqlduckConfig } from './config/flowblade-logtape-sqlduck.config';
 import { SqlDuck } from './sql-duck';
 import { getTableCreateFromZod } from './table/get-table-create-from-zod';
 import { Table } from './table/table';
@@ -164,4 +166,90 @@ describe('Duckdb tests', async () => {
     },
     testTimeout * 2
   );
+
+  describe('Logger', () => {
+    let logBuffer: LogRecord[] = [];
+    beforeEach(async () => {
+      await configure({
+        sinks: {
+          buffer: logBuffer.push.bind(logBuffer),
+        },
+        loggers: [
+          {
+            category: ['logtape', 'meta'],
+            lowestLevel: 'error',
+            sinks: ['buffer'],
+          },
+          {
+            category: flowbladeLogtapeSqlduckConfig.categories,
+            lowestLevel: 'debug',
+            sinks: ['buffer'],
+          },
+        ],
+      });
+    });
+
+    afterEach(async () => {
+      await reset();
+      logBuffer = [];
+    });
+
+    it('should log success', async () => {
+      const sqlDuck = new SqlDuck({ conn });
+      const rowStream = async function* gen() {
+        yield { id: 'test' };
+        yield await Promise.resolve({ id: 'test2' });
+      };
+      await sqlDuck.toTable({
+        table: new Table('test'),
+        schema: z.object({
+          id: z.string(),
+        }),
+        rowStream: rowStream(),
+        createOptions: {
+          create: 'CREATE_OR_REPLACE',
+        },
+      });
+      expect(logBuffer.at(-1)!).toMatchObject({
+        category: flowbladeLogtapeSqlduckConfig.categories,
+        message: [
+          expect.stringMatching(
+            /Successfully appended 2 rows into 'test' in \d+ms/
+          ),
+        ],
+        level: 'info',
+        properties: {
+          timeMs: expect.any(Number),
+          totalRows: 2,
+        },
+      });
+    });
+
+    it('should log error', async () => {
+      const sqlDuck = new SqlDuck({ conn });
+      const rowStream = function* gen() {
+        yield { id: 1 };
+      };
+      await expect(
+        sqlDuck.toTable({
+          table: new Table('test'),
+          schema: z.object({
+            id: z.number(),
+          }),
+          rowStream: rowStream(),
+          createOptions: {
+            create: 'CREATE_OR_REPLACE',
+          },
+        })
+      ).rejects.toThrow(/Cannot convert 1 to a BigInt/);
+
+      expect(logBuffer.at(-1)!).toMatchObject({
+        category: flowbladeLogtapeSqlduckConfig.categories,
+        message: [
+          "Failed to append data into table 'test' - Cannot convert 1 to a BigInt",
+        ],
+        level: 'error',
+      });
+    });
+  });
 });

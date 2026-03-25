@@ -1,4 +1,5 @@
 import { type DuckDBConnection, DuckDBDataChunk } from '@duckdb/node-api';
+import type { Logger } from '@logtape/logtape';
 import type { ZodObject } from 'zod';
 import type * as z from 'zod';
 
@@ -7,6 +8,7 @@ import {
   isOnDataAppendedAsyncCb,
   type OnDataAppendedCb,
 } from './appender/data-appender-callback.ts';
+import { sqlduckDefaultLogtapeLogger } from './logger/sqlduck-default-logtape-logger.ts';
 import { createTableFromZod } from './table/create-table-from-zod.ts';
 import type { TableCreateOptions } from './table/get-table-create-from-zod.ts';
 import type { Table } from './table/table.ts';
@@ -15,10 +17,15 @@ import { rowsToColumnsChunks } from './utils/rows-to-columns-chunks.ts';
 
 export type SqlDuckParams = {
   conn: DuckDBConnection;
-  logger?: (msg: string) => void;
+  /**
+   * Optional logtape/logger to use for logging.
+   * If not provided, a default logger will be used.
+   * @see {@link https://github.com/logtape/logtape}
+   */
+  logger?: Logger;
 };
 
-type RowStream<T> = AsyncIterableIterator<T>;
+type RowStream<T> = AsyncIterableIterator<T> | AsyncGenerator<T> | Generator<T>;
 
 export type ToTableParams<TSchema extends TableSchemaZod> = {
   /**
@@ -67,11 +74,11 @@ export type ToTableResult = {
 
 export class SqlDuck {
   #duck: DuckDBConnection;
-  #logger: SqlDuckParams['logger'];
+  #logger: Logger;
 
   constructor(params: SqlDuckParams) {
     this.#duck = params.conn;
-    this.#logger = params.logger;
+    this.#logger = params.logger ?? sqlduckDefaultLogtapeLogger;
   }
 
   /**
@@ -154,36 +161,57 @@ export class SqlDuck {
       chunkSize: chunkSize,
     });
 
-    for await (const dataChunk of columnStream) {
-      const chunk = DuckDBDataChunk.create(chunkTypes);
-      if (this.#logger) {
-        this.#logger(`Inserting chunk of ${dataChunk.length} rows`);
-      }
+    try {
+      for await (const dataChunk of columnStream) {
+        const chunk = DuckDBDataChunk.create(chunkTypes);
 
-      totalRows += dataChunk?.[0]?.length ?? 0;
-      // @ts-expect-error need to rework rowsToColumnsChunks to return properly
-      //                  infer the type of the dataChunk from the provided zod schema
-      chunk.setColumns(dataChunk);
-      appender.appendDataChunk(chunk);
+        this.#logger.debug(`Inserting chunk of ${dataChunk.length} rows`, {
+          table: table.getFullName(),
+        });
 
-      appender.flushSync();
+        totalRows += dataChunk?.[0]?.length ?? 0;
+        // @ts-expect-error need to rework rowsToColumnsChunks to return properly
+        //                  infer the type of the dataChunk from the provided zod schema
+        chunk.setColumns(dataChunk);
+        appender.appendDataChunk(chunk);
 
-      if (onDataAppended !== undefined) {
-        const payload = dataAppendedCollector(totalRows);
-        if (isOnDataAppendedAsyncCb(onDataAppended)) {
-          await onDataAppended(payload);
-        } else {
-          onDataAppended(payload);
+        appender.flushSync();
+
+        if (onDataAppended !== undefined) {
+          const payload = dataAppendedCollector(totalRows);
+          if (isOnDataAppendedAsyncCb(onDataAppended)) {
+            await onDataAppended(payload);
+          } else {
+            onDataAppended(payload);
+          }
         }
       }
+
+      appender.closeSync();
+
+      const timeMs = Math.round(Date.now() - timeStart);
+      this.#logger.info(
+        `Successfully appended ${totalRows} rows into '${table.getFullName()}' in ${timeMs}ms`,
+        {
+          table: table.getFullName(),
+          timeMs: timeMs,
+          totalRows: totalRows,
+        }
+      );
+
+      return {
+        timeMs,
+        totalRows: totalRows,
+        createTableDDL: ddl,
+      };
+    } catch (e) {
+      this.#logger.error(
+        `Failed to append data into table '${table.getFullName()}' - ${(e as Error)?.message ?? ''}`,
+        {
+          table: table.getFullName(),
+        }
+      );
+      throw e;
     }
-
-    appender.closeSync();
-
-    return {
-      timeMs: Math.round(Date.now() - timeStart),
-      totalRows: totalRows,
-      createTableDDL: ddl,
-    };
   };
 }

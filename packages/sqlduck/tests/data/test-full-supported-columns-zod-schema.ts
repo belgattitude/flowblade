@@ -19,6 +19,9 @@ export const testFullSupportedColumnsZodSchema = z.object({
   created_at: zodCodecs.dateToString,
   is_active: z.nullable(z.boolean()),
   alt_uuid_v7: z.uuidv7(),
+  custom_type: z.string().meta({
+    duckdbType: 'UUID',
+  }),
   /*
   text_json: z.object({
     name: z.string(),
