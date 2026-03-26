@@ -47,7 +47,7 @@ export class DuckDatabaseManager {
   ) => {
     const params = z.parse(duckDatabaseManagerDbParamsSchema, dbParams);
     const rawSql = new DuckDatabaseAttachCommand(params, options).getRawSql();
-    await this.#executeRawSqlCommand('attach database', rawSql);
+    await this.#executeRawSqlCommand(`attach(${params.alias})`, rawSql);
     return new Database({ alias: params.alias });
   };
 
@@ -64,19 +64,25 @@ export class DuckDatabaseManager {
   };
 
   showDatabases = async () => {
-    return await this.#executeRawSqlCommand('showDatabases', `SHOW DATABASES`);
+    return await this.#executeRawSqlCommand(
+      'showDatabases()',
+      `SHOW DATABASES`
+    );
   };
 
   detach = async (dbAlias: string): Promise<boolean> => {
     const safeAlias = z.parse(duckTableAliasSchema, dbAlias);
-    await this.#executeRawSqlCommand('detach', `DETACH ${safeAlias}`);
+    await this.#executeRawSqlCommand(
+      `detach(${safeAlias})`,
+      `DETACH ${safeAlias}`
+    );
     return true;
   };
 
   detachIfExists = async (dbAlias: string): Promise<boolean> => {
     const safeAlias = z.parse(duckTableAliasSchema, dbAlias);
     await this.#executeRawSqlCommand(
-      'detachIfExists',
+      `detachIfExists(${safeAlias})`,
       `DETACH IF EXISTS ${safeAlias}`
     );
     return true;
@@ -91,7 +97,16 @@ export class DuckDatabaseManager {
    * @link https://duckdb.org/docs/stable/sql/statements/analyze
    */
   analyze = async (): Promise<boolean> => {
-    await this.#executeRawSqlCommand('analyze', 'ANALYZE');
+    await this.#executeRawSqlCommand('analyze()', 'ANALYZE');
+    return true;
+  };
+
+  checkpoint = async (dbAlias: string): Promise<boolean> => {
+    const safeAlias = z.parse(duckTableAliasSchema, dbAlias);
+    await this.#executeRawSqlCommand(
+      `checkpoint(${safeAlias})`,
+      `CHECKPOINT ${safeAlias}`
+    );
     return true;
   };
 
@@ -101,7 +116,7 @@ export class DuckDatabaseManager {
       const result = await this.#conn.runAndReadAll(rawSql);
       const timeMs = Math.round(Date.now() - startTime);
       const data = result.getRowObjectsJS();
-      this.#logger.info(`DuckDatabaseManager.${name}() in ${timeMs}ms`, {
+      this.#logger.info(`DuckDatabaseManager.${name} in ${timeMs}ms`, {
         timeMs: timeMs,
       });
       return data;
