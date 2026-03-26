@@ -1,5 +1,23 @@
 # @flowblade/sqlduck
 
+## 0.11.0
+
+### Minor Changes
+
+- [#1036](https://github.com/belgattitude/flowblade/pull/1036) [`82c8f2d`](https://github.com/belgattitude/flowblade/commit/82c8f2d7642e5adae9b8df0938b13c99469c0a63) Thanks [@belgattitude](https://github.com/belgattitude)! - Add DuckDatabaseManager to ease common operations
+
+  ```typescript
+  import { DuckDatabaseManager } from "@flowblade/sqlduck";
+  import { conn } from "./db.config.ts";
+
+  const dbManager = new DuckDatabaseManager(conn);
+  const database = await dbManager.attach({
+    type: ":memory:", // can be 'duckdb', ...
+    alias: "mydb",
+    options: { COMPRESS: "false" },
+  });
+  ```
+
 ## 0.10.0
 
 ### Minor Changes
