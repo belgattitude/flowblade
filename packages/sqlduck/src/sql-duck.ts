@@ -9,9 +9,9 @@ import {
   type OnDataAppendedCb,
 } from './appender/data-appender-callback.ts';
 import { sqlduckDefaultLogtapeLogger } from './logger/sqlduck-default-logtape-logger.ts';
+import type { Table } from './objects/table.ts';
 import { createTableFromZod } from './table/create-table-from-zod.ts';
 import type { TableCreateOptions } from './table/get-table-create-from-zod.ts';
-import type { Table } from './table/table.ts';
 import type { TableSchemaZod } from './table/table-schema-zod.type.ts';
 import { rowsToColumnsChunks } from './utils/rows-to-columns-chunks.ts';
 
@@ -73,11 +73,11 @@ export type ToTableResult = {
 };
 
 export class SqlDuck {
-  #duck: DuckDBConnection;
+  #conn: DuckDBConnection;
   #logger: Logger;
 
   constructor(params: SqlDuckParams) {
-    this.#duck = params.conn;
+    this.#conn = params.conn;
     this.#logger = params.logger ?? sqlduckDefaultLogtapeLogger;
   }
 
@@ -137,13 +137,13 @@ export class SqlDuck {
     const timeStart = Date.now();
 
     const { columnTypes, ddl } = await createTableFromZod({
-      conn: this.#duck,
+      conn: this.#conn,
       schema,
       table,
       options: createOptions,
     });
 
-    const appender = await this.#duck.createAppender(
+    const appender = await this.#conn.createAppender(
       table.tableName,
       table.schemaName,
       table.databaseName

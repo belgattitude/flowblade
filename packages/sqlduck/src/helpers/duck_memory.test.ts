@@ -2,7 +2,8 @@ import type { DuckDBConnection } from '@duckdb/node-api';
 import isInCi from 'is-in-ci';
 import { beforeAll, describe } from 'vitest';
 
-import { createDuckdbTestMemoryDb } from '../../tests/e2e/utils/create-duckdb-test-memory-db';
+import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
+
 import { DuckMemory, duckMemoryTags } from './duck-memory';
 
 const testTimeout = 10_000;

@@ -12,10 +12,10 @@ import {
 import { duckdb as duckDbDialect, formatDialect } from 'sql-formatter';
 import * as z from 'zod';
 
-import { testFullSupportedColumnsZodSchema } from '@/tests/test-full-supported-columns-zod-schema.ts';
+import { testFullSupportedColumnsZodSchema } from '@/tests/data/test-full-supported-columns-zod-schema.ts';
 
-import { getTableCreateFromZod } from './get-table-create-from-zod';
-import { Table } from './table';
+import { Table } from '../objects/table.ts';
+import { getTableCreateFromZod } from './get-table-create-from-zod.ts';
 
 describe('getTableCreateFromZod', () => {
   describe('DDL', () => {

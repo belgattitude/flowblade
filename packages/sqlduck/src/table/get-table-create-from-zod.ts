@@ -10,8 +10,8 @@ import {
   VARCHAR,
 } from '@duckdb/node-api';
 
+import type { Table } from '../objects/table';
 import { getDuckdbNumberColumnType } from './get-duckdb-number-column-type.ts';
-import type { Table } from './table';
 import type { TableSchemaZod } from './table-schema-zod.type.ts';
 
 type ColumnDDL = {

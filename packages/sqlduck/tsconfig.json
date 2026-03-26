@@ -10,13 +10,14 @@
     "noUncheckedIndexedAccess": true,
     "allowImportingTsExtensions": true,
     "incremental": true,
-    "lib": ["esnext"],
+    "lib": ["dom","esnext"],
     "paths": {
       "@flowblade/core": ["../core/src/index"],
       "@flowblade/source-duckdb": ["../source-duckdb/src/index"],
       "@flowblade/source-kysely": ["../source-kysely/src/index"],
       "@flowblade/sql-tag": ["../sql-tag/src/index"],
-      "@/tests/*": ["./tests/data/*"]
+      "@/tests/data/*": ["./tests/data/*"],
+      "@/tests/utils/*": ["./tests/utils/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,

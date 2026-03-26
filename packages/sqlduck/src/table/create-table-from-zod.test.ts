@@ -1,13 +1,15 @@
 import type { DuckDBConnection } from '@duckdb/node-api';
-import { configure, type LogRecord, reset } from '@logtape/logtape';
+import { type LogRecord, reset } from '@logtape/logtape';
 import isInCi from 'is-in-ci';
 import { afterEach, beforeAll, beforeEach } from 'vitest';
 import * as z from 'zod';
 
-import { createDuckdbTestMemoryDb } from '../../tests/e2e/utils/create-duckdb-test-memory-db.ts';
+import { configureTestLogger } from '@/tests/utils/configure-test-logger.ts';
+import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
+
 import { flowbladeLogtapeSqlduckConfig } from '../config/flowblade-logtape-sqlduck.config.ts';
+import { Table } from '../objects/table.ts';
 import { createTableFromZod } from './create-table-from-zod.ts';
-import { Table } from './table.ts';
 
 describe('createTableFromZod', () => {
   let conn: DuckDBConnection;
@@ -24,23 +26,7 @@ describe('createTableFromZod', () => {
   describe('Logger', () => {
     let logBuffer: LogRecord[] = [];
     beforeEach(async () => {
-      await configure({
-        sinks: {
-          buffer: logBuffer.push.bind(logBuffer),
-        },
-        loggers: [
-          {
-            category: ['logtape', 'meta'],
-            lowestLevel: 'error',
-            sinks: ['buffer'],
-          },
-          {
-            category: flowbladeLogtapeSqlduckConfig.categories,
-            lowestLevel: 'debug',
-            sinks: ['buffer'],
-          },
-        ],
-      });
+      await configureTestLogger(logBuffer);
     });
 
     afterEach(async () => {
