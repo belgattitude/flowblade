@@ -2,7 +2,7 @@
  * DuckDB reserved keywords that cannot be used as unquoted identifiers.
  * @see https://duckdb.org/docs/sql/keywords-and-identifiers.html
  */
-export const duckdbReservedKeywords = [
+export const duckReservedKeywords = [
   'ALL',
   'ANALYSE',
   'ANALYZE',
@@ -101,4 +101,4 @@ export const duckdbReservedKeywords = [
   'WITH',
 ] as const;
 
-export type DuckdbReservedKeywords = (typeof duckdbReservedKeywords)[number];
+export type DuckdbReservedKeywords = (typeof duckReservedKeywords)[number];

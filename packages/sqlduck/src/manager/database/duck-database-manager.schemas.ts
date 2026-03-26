@@ -1,6 +1,6 @@
 import * as z from 'zod';
 
-import { duckTableAliasSchema } from '../../validation/zod/duckdb-valid-names.schemas.ts';
+import { duckZodTableAliasSchema } from '../../validation/zod/duck-zod-table-alias.schema.ts';
 
 const duckdbSemverRegexp = /^v?\d{1,4}\.\d{1,4}\.\d{1,4}$/;
 
@@ -20,13 +20,13 @@ const duckdbAttachOptionsSchema = z.strictObject({
 export const duckDatabaseManagerDbParamsSchema = z.discriminatedUnion('type', [
   z.strictObject({
     type: z.literal(':memory:'),
-    alias: duckTableAliasSchema,
+    alias: duckZodTableAliasSchema,
     options: z.optional(duckdbAttachOptionsSchema),
   }),
   z.strictObject({
     type: z.literal('duckdb'),
     path: z.string().min(4).endsWith('.db'),
-    alias: duckTableAliasSchema,
+    alias: duckZodTableAliasSchema,
     options: z.optional(duckdbAttachOptionsSchema),
   }),
 ]);

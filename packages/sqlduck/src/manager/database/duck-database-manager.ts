@@ -4,7 +4,7 @@ import * as z from 'zod';
 
 import { sqlduckDefaultLogtapeLogger } from '../../logger/sqlduck-default-logtape-logger.ts';
 import { Database } from '../../objects/database.ts';
-import { duckTableAliasSchema } from '../../validation/zod/duckdb-valid-names.schemas.ts';
+import { duckZodTableAliasSchema } from '../../validation/zod';
 import {
   DuckDatabaseAttachCommand,
   type DuckDatabaseAttachCommandOptions,
@@ -71,7 +71,7 @@ export class DuckDatabaseManager {
   };
 
   detach = async (dbAlias: string): Promise<boolean> => {
-    const safeAlias = z.parse(duckTableAliasSchema, dbAlias);
+    const safeAlias = z.parse(duckZodTableAliasSchema, dbAlias);
     await this.#executeRawSqlCommand(
       `detach(${safeAlias})`,
       `DETACH ${safeAlias}`
@@ -80,7 +80,7 @@ export class DuckDatabaseManager {
   };
 
   detachIfExists = async (dbAlias: string): Promise<boolean> => {
-    const safeAlias = z.parse(duckTableAliasSchema, dbAlias);
+    const safeAlias = z.parse(duckZodTableAliasSchema, dbAlias);
     await this.#executeRawSqlCommand(
       `detachIfExists(${safeAlias})`,
       `DETACH IF EXISTS ${safeAlias}`
@@ -102,7 +102,7 @@ export class DuckDatabaseManager {
   };
 
   checkpoint = async (dbAlias: string): Promise<boolean> => {
-    const safeAlias = z.parse(duckTableAliasSchema, dbAlias);
+    const safeAlias = z.parse(duckZodTableAliasSchema, dbAlias);
     await this.#executeRawSqlCommand(
       `checkpoint(${safeAlias})`,
       `CHECKPOINT ${safeAlias}`

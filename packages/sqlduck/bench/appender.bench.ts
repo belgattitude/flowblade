@@ -36,9 +36,9 @@ describe('appender benches', async () => {
     schema: userSchema,
     factory: ({ rowIdx }) => {
       return {
-        id: z.parse(z.int32(), rowIdx),
-        name: `unique-record-for-tests`,
-        email: `unique-record-for-tests@example.com`,
+        id: rowIdx,
+        name: `unique-record-for-tests${rowIdx === 0 ? '' : rowIdx}`,
+        email: `unique-record-for-tests${rowIdx === 0 ? '' : rowIdx}@example.com`,
         bignumber: bignumberExample,
         created_at: now,
       };
@@ -47,8 +47,8 @@ describe('appender benches', async () => {
 
   const conn = await createDuckdbTestMemoryDb({
     // Keep it high to prevent going to .tmp directory
-    max_memory: isInCi ? '256M' : '512M',
-    threads: 1,
+    max_memory: isInCi ? '256M' : '1024M',
+    threads: isInCi ? 1 : 4,
   });
 
   const dbManager = new DuckDatabaseManager(conn);
@@ -110,7 +110,7 @@ describe('appender benches', async () => {
           create: 'CREATE_OR_REPLACE',
         },
       });
-      await dbManager.checkpoint(fileTable.getFullName());
+      await dbManager.checkpoint(fileDb.alias);
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
       }

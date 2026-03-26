@@ -19,15 +19,16 @@ export {
 } from './manager/database/duck-database-manager.schemas.ts';
 export { DuckDatabaseManager } from './manager/database/duck-database-manager.ts';
 
-// Validation
+// Validation types
+export type { DuckdbReservedKeywords } from './validation/core/duck-reserved-keywords.ts';
+
+// Validation zod
+
+export { duckReservedKeywords } from './validation/core/duck-reserved-keywords.ts';
 export {
-  type DuckdbReservedKeywords,
-  duckdbReservedKeywords,
-} from './validation/core/duckdb-reserved-keywords.ts';
-export {
-  duckTableAliasSchema,
-  duckTableNameSchema,
-} from './validation/zod/duckdb-valid-names.schemas.ts';
+  duckZodTableAliasSchema,
+  duckZodTableNameSchema,
+} from './validation/zod/index.ts';
 
 // Logtape
 export { flowbladeLogtapeSqlduckConfig } from './config/flowblade-logtape-sqlduck.config';
