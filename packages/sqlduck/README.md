@@ -2,6 +2,11 @@
 
 > Currently experimental
 
+
+- 🛡️ DuckDB table creation from Zod schemas.
+- 🧩 Easily ingest data from generators or async iterables.
+
+
 ## Quick start
 
 ### Create a database connection
