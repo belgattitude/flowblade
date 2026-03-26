@@ -25,7 +25,7 @@ export const duckDatabaseManagerDbParamsSchema = z.discriminatedUnion('type', [
   }),
   z.strictObject({
     type: z.literal('duckdb'),
-    path: z.string().min(1).endsWith('.db'),
+    path: z.string().min(4).endsWith('.db'),
     alias: duckTableAliasSchema,
     options: z.optional(duckdbAttachOptionsSchema),
   }),
