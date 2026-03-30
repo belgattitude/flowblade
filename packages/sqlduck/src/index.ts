@@ -19,15 +19,17 @@ export {
 } from './manager/database/duck-database-manager.schemas.ts';
 export { DuckDatabaseManager } from './manager/database/duck-database-manager.ts';
 
-// Validation types
+// Core validation
+
 export type { DuckdbReservedKeywords } from './validation/core/duck-reserved-keywords.ts';
+export { duckReservedKeywords } from './validation/core/duck-reserved-keywords.ts';
 
 // Validation zod
-
-export { duckReservedKeywords } from './validation/core/duck-reserved-keywords.ts';
 export {
-  duckZodTableAliasSchema,
-  duckZodTableNameSchema,
+  assertValidAliasName,
+  assertValidSchemaName,
+  assertValidTableName,
+  duckZodValidators,
 } from './validation/zod/index.ts';
 
 // Logtape

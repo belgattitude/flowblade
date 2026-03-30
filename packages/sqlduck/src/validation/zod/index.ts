@@ -1,2 +1,6 @@
-export { duckZodTableAliasSchema } from './duck-zod-table-alias.schema.ts';
-export { duckZodTableNameSchema } from './duck-zod-table-name.schema.ts';
+export {
+  assertValidAliasName,
+  assertValidSchemaName,
+  assertValidTableName,
+} from './duck-zod-asserts.ts';
+export { duckZodValidators } from './duck-zod-validators.ts';

@@ -12,7 +12,7 @@ const duckdbReservedKeywordsSet = new Set(
 /**
  * Check whether a table name identifier is valid
  */
-export const duckZodTableNameSchema = z
+export const duckZodObjectNameSchema = z
   .string()
   .min(1)
   .max(duckdbMaximumObjectNameLength)
