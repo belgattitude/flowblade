@@ -4,7 +4,7 @@ import * as z from 'zod';
 
 import { sqlduckDefaultLogtapeLogger } from '../../logger/sqlduck-default-logtape-logger.ts';
 import { Database } from '../../objects/database.ts';
-import { assertValidAliasName, duckZodValidators } from '../../validation/zod';
+import { assertValidAliasName, duckValidatorsZod } from '../../validation/zod';
 import {
   DuckDatabaseAttachCommand,
   type DuckDatabaseAttachCommandOptions,
@@ -99,7 +99,7 @@ export class DuckDatabaseManager {
   };
 
   checkpoint = async (dbAlias: string): Promise<boolean> => {
-    const safeAlias = z.parse(duckZodValidators.aliasName, dbAlias);
+    const safeAlias = z.parse(duckValidatorsZod.aliasName, dbAlias);
     await this.#executeRawSqlCommand(
       `checkpoint(${safeAlias})`,
       `CHECKPOINT ${safeAlias}`

@@ -29,7 +29,7 @@ export {
   assertValidAliasName,
   assertValidSchemaName,
   assertValidTableName,
-  duckZodValidators,
+  duckValidatorsZod,
 } from './validation/zod/index.ts';
 
 // Logtape

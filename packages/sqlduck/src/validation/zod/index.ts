@@ -2,5 +2,5 @@ export {
   assertValidAliasName,
   assertValidSchemaName,
   assertValidTableName,
-} from './duck-zod-asserts.ts';
-export { duckZodValidators } from './duck-zod-validators.ts';
+} from './duck-asserts-zod.ts';
+export { duckValidatorsZod } from './duck-validators-zod.ts';

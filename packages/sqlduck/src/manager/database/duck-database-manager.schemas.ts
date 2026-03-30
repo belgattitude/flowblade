@@ -1,6 +1,6 @@
 import * as z from 'zod';
 
-import { duckZodValidators } from '../../validation/zod';
+import { duckValidatorsZod } from '../../validation/zod';
 
 const duckdbSemverRegexp = /^v?\d{1,4}\.\d{1,4}\.\d{1,4}$/;
 
@@ -20,13 +20,13 @@ const duckdbAttachOptionsSchema = z.strictObject({
 export const duckDatabaseManagerDbParamsSchema = z.discriminatedUnion('type', [
   z.strictObject({
     type: z.literal(':memory:'),
-    alias: duckZodValidators.aliasName,
+    alias: duckValidatorsZod.aliasName,
     options: z.optional(duckdbAttachOptionsSchema),
   }),
   z.strictObject({
     type: z.literal('duckdb'),
     path: z.string().min(4).endsWith('.db'),
-    alias: duckZodValidators.aliasName,
+    alias: duckValidatorsZod.aliasName,
     options: z.optional(duckdbAttachOptionsSchema),
   }),
 ]);
