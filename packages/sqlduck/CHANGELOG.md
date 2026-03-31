@@ -1,5 +1,13 @@
 # @flowblade/sqlduck
 
+## 0.13.0
+
+### Minor Changes
+
+- [#1041](https://github.com/belgattitude/flowblade/pull/1041) [`903b7dc`](https://github.com/belgattitude/flowblade/commit/903b7dc7cfe59e093cb171ae79efd5e4c189a615) Thanks [@belgattitude](https://github.com/belgattitude)! - Ensure autoCheckpointing is called for every chunk appended
+
+  This can reduce memory usage by 100x depending on the source data.
+
 ## 0.12.0
 
 ### Minor Changes
