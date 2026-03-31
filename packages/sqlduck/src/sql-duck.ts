@@ -142,7 +142,7 @@ export class SqlDuck {
       throw new Error('chunkSize must be a number between 1 and 2048');
     }
 
-    if (autoCheckpoint && table.databaseName === 'undefined') {
+    if (autoCheckpoint && typeof table.databaseName !== 'string') {
       throw new Error(
         'autoCheckpoint requires table.databaseName to be provided.'
       );
