@@ -29,7 +29,7 @@ SELECT
   countryId,
   productName
 FROM
-  OPENJSON (@InitialData)
+  OPENJSON(@InitialData)
 WITH
   (
     productId NVARCHAR(255),
@@ -48,7 +48,7 @@ FROM
       countryId,
       productName
     FROM
-      OPENJSON (@ProductToUpdate)
+      OPENJSON(@ProductToUpdate)
     WITH
       (
         productId NVARCHAR(255),
