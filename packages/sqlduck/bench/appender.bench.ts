@@ -71,7 +71,6 @@ describe('appender benches', async () => {
     path: path.join(testTempDir, 'bench-appender.db'),
     options: {
       accessMode: 'READ_WRITE',
-      // storageVersion: 'v1.5.1',
     },
   });
   const fileTable = new Table({

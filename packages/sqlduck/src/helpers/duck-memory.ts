@@ -1,6 +1,6 @@
 import type { DuckDBConnection } from '@duckdb/node-api';
 
-import { DuckExec } from './duck-exec';
+import { DuckExec } from './duck-exec.ts';
 
 export const duckMemoryTags = [
   'BASE_TABLE',

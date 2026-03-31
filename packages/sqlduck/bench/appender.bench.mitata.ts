@@ -1,9 +1,12 @@
+import * as os from 'node:os';
 import v8 from 'node:v8';
 
 import isInCi from 'is-in-ci';
 import { bench, boxplot, run, summary } from 'mitata';
 import * as z from 'zod';
 
+import { DuckMemory } from '../src/helpers/duck-memory.ts';
+import { DuckDatabaseManager } from '../src/manager/database/duck-database-manager.ts';
 import { Table } from '../src/objects/table.ts';
 import { SqlDuck } from '../src/sql-duck.ts';
 import { zodCodecs } from '../src/utils/zod-codecs.ts';
@@ -11,13 +14,13 @@ import { createDuckdbTestMemoryDb } from '../tests/utils/create-duckdb-test-memo
 import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator.ts';
 
 const userSchema = z.object({
-  id: z.number().meta({ description: 'cool' }),
+  id: z.int32().meta({ description: 'cool' }),
   name: z.string(),
   email: z.email().nullable(),
   bignumber: z.nullable(zodCodecs.bigintToString),
 });
 
-const limit = isInCi ? 10_000 : 100_000;
+const limit = isInCi ? 10_000 : 1_000_000;
 
 const email = `email@example.com`.repeat(150);
 const getFakeRowStream = createFakeRowsAsyncIterator({
@@ -41,15 +44,15 @@ const conn = await createDuckdbTestMemoryDb({
 
 const dbName = 'memory_db';
 // Arrange
-await conn.run(
-  `ATTACH IF NOT EXISTS ':memory:' AS ${dbName} (COMPRESS 'true')`
-);
+await conn.run(`ATTACH IF NOT EXISTS ':memory:' AS ${dbName} (COMPRESS)`);
 const testTable = new Table({
   name: 'test',
   database: dbName,
 });
 
 const sqlDuck = new SqlDuck({ conn });
+const duckMemory = new DuckMemory(conn);
+const dbManager = new DuckDatabaseManager(conn);
 
 boxplot(() => {
   summary(() => {
@@ -59,12 +62,16 @@ boxplot(() => {
         schema: userSchema,
         rowStream: getFakeRowStream(),
         chunkSize: 2048,
-        onDataAppended: (stats) => {
+        onDataAppended: async (stats) => {
           const heap = v8.getHeapStatistics();
+          const duckMem = await duckMemory.getSummary();
           console.log({
             ...stats,
-            mem: Math.round(heap.used_heap_size / 1024 / 1024),
+            usedHeapSizeMb: Math.round(heap.used_heap_size / 1024 / 1024),
+            freeMemMb: os.freemem() / 1024 / 1024,
+            duckMem,
           });
+          await dbManager.checkpoint(dbName);
         },
         createOptions: {
           create: 'CREATE_OR_REPLACE',
