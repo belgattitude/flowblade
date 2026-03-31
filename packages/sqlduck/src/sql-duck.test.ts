@@ -51,7 +51,7 @@ describe('Duckdb tests', async () => {
 
         const sqlDuck = new SqlDuck({ conn });
 
-        const userSchema = z.object({
+        const userSchema = z.strictObject({
           id: z.int32().meta({ description: 'cool' }),
           name: z.string(),
           email: z.email().nullable(),

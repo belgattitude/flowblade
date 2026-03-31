@@ -111,7 +111,6 @@ describe('appender benches', async () => {
           create: 'CREATE_OR_REPLACE',
         },
       });
-      await dbManager.checkpoint(fileDb.alias);
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
       }

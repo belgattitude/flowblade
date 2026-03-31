@@ -9,6 +9,7 @@ import {
   type OnDataAppendedCb,
 } from './appender/data-appender-callback.ts';
 import { sqlduckDefaultLogtapeLogger } from './logger/sqlduck-default-logtape-logger.ts';
+import { DuckDatabaseManager } from './manager/database/duck-database-manager.ts';
 import type { Table } from './objects/table.ts';
 import { createTableFromZod } from './table/create-table-from-zod.ts';
 import type { TableCreateOptions } from './table/get-table-create-from-zod.ts';
@@ -55,6 +56,12 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
    * Callback called each time a datachunk is appended to the table
    */
   onDataAppended?: OnDataAppendedCb;
+
+  /**
+   * Automatically checkpoint the table after all chunks have been appended.
+   * @default true
+   */
+  autoCheckpoint?: boolean;
 };
 
 export type ToTableResult = {
@@ -128,6 +135,7 @@ export class SqlDuck {
       rowStream,
       createOptions,
       onDataAppended,
+      autoCheckpoint = true,
     } = params;
 
     if (!Number.isSafeInteger(chunkSize) || chunkSize < 1 || chunkSize > 2048) {
@@ -189,6 +197,10 @@ export class SqlDuck {
 
       appender.closeSync();
 
+      if (autoCheckpoint && typeof table.databaseName === 'string') {
+        const dbManager = new DuckDatabaseManager(this.#conn);
+        await dbManager.checkpoint(table.databaseName);
+      }
       const timeMs = Math.round(Date.now() - timeStart);
       this.#logger.info(
         `Successfully appended ${totalRows} rows into '${table.getFullName()}' in ${timeMs}ms`,
