@@ -199,7 +199,16 @@ export class SqlDuck {
 
       if (autoCheckpoint && typeof table.databaseName === 'string') {
         const dbManager = new DuckDatabaseManager(this.#conn);
-        await dbManager.checkpoint(table.databaseName);
+        try {
+          await dbManager.checkpoint(table.databaseName);
+        } catch (e) {
+          this.#logger.warning(
+            `Failed to checkpoint database '${table.databaseName}' after appending data into table '${table.getFullName()}' - ${(e as Error)?.message ?? ''}`,
+            {
+              table: table.getFullName(),
+            }
+          );
+        }
       }
       const timeMs = Math.round(Date.now() - timeStart);
       this.#logger.info(
