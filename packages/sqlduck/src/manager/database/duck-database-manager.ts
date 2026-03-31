@@ -4,8 +4,11 @@ import type { Logger } from '@logtape/logtape';
 import { sqlduckDefaultLogtapeLogger } from '../../logger/sqlduck-default-logtape-logger.ts';
 import { Database } from '../../objects/database.ts';
 import type { DuckConnectionParams } from '../../validation/core/types.ts';
-import { assertValidAliasName, duckValidatorsZod } from '../../validation/zod';
 import { duckConnectionParamsZodSchema } from '../../validation/zod/duck-connection-params-zod-schema.ts';
+import {
+  assertValidAliasName,
+  duckValidatorsZod,
+} from '../../validation/zod/index.ts';
 import {
   DuckDatabaseAttachCommand,
   type DuckDatabaseAttachCommandOptions,

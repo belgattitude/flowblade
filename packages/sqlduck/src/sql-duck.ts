@@ -142,6 +142,13 @@ export class SqlDuck {
       throw new Error('chunkSize must be a number between 1 and 2048');
     }
 
+    if (autoCheckpoint && typeof table.databaseName !== 'string') {
+      throw new Error(
+        'autoCheckpoint requires table.databaseName to be provided.'
+      );
+    }
+
+    const dbManager = new DuckDatabaseManager(this.#conn);
     const timeStart = Date.now();
 
     const { columnTypes, ddl } = await createTableFromZod({
@@ -193,12 +200,24 @@ export class SqlDuck {
             onDataAppended(payload);
           }
         }
+
+        if (autoCheckpoint && typeof table.databaseName === 'string') {
+          try {
+            await dbManager.checkpoint(table.databaseName);
+          } catch (e) {
+            this.#logger.warning(
+              `Failed to checkpoint database '${table.databaseName}' after appending chunk into table '${table.getFullName()}' - ${(e as Error)?.message ?? ''}`,
+              {
+                table: table.getFullName(),
+              }
+            );
+          }
+        }
       }
 
       appender.closeSync();
 
       if (autoCheckpoint && typeof table.databaseName === 'string') {
-        const dbManager = new DuckDatabaseManager(this.#conn);
         try {
           await dbManager.checkpoint(table.databaseName);
         } catch (e) {
@@ -210,6 +229,7 @@ export class SqlDuck {
           );
         }
       }
+
       const timeMs = Math.round(Date.now() - timeStart);
       this.#logger.info(
         `Successfully appended ${totalRows} rows into '${table.getFullName()}' in ${timeMs}ms`,
