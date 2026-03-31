@@ -184,13 +184,21 @@ describe('Duckdb tests', async () => {
     });
 
     it('should log success', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      const database = await dbManager.attachIfNotExists({
+        type: 'memory',
+        alias: 'sql_duck_test',
+      });
       const sqlDuck = new SqlDuck({ conn });
       const rowStream = async function* gen() {
         yield { id: 'test' };
         yield await Promise.resolve({ id: 'test2' });
       };
       await sqlDuck.toTable({
-        table: new Table('test'),
+        table: new Table({
+          name: 'test',
+          database: database.alias,
+        }),
         schema: z.object({
           id: z.string(),
         }),
@@ -203,7 +211,7 @@ describe('Duckdb tests', async () => {
         category: flowbladeLogtapeSqlduckConfig.categories,
         message: [
           expect.stringMatching(
-            /Successfully appended 2 rows into 'test' in \d+ms/
+            /Successfully appended 2 rows into 'sql_duck_test.test' in \d+ms/
           ),
         ],
         level: 'info',
@@ -215,6 +223,11 @@ describe('Duckdb tests', async () => {
     });
 
     it('should log error', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      const database = await dbManager.attachIfNotExists({
+        type: 'memory',
+        alias: 'sql_duck_test',
+      });
       const sqlDuck = new SqlDuck({ conn });
       const rowStream = function* gen() {
         yield { id: 1 };
@@ -222,12 +235,16 @@ describe('Duckdb tests', async () => {
 
       // on nodejs: Cannot convert 1 to a BigInt
       // on bun: Invalid argument type in ToBigInt ope…
-      const regexpError = /Failed to append data into table 'test'(.*)bigint/i;
+      const regexpError =
+        /failed to append data into table (.*)test(.*)bigint/i;
 
       await expect(
         sqlDuck.toTable({
-          table: new Table('test'),
-          schema: z.object({
+          table: new Table({
+            name: 'test',
+            database: database.alias,
+          }),
+          schema: z.strictObject({
             id: z.number(),
           }),
           rowStream: rowStream(),
