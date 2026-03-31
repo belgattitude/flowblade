@@ -26,11 +26,11 @@ describe('DuckDatabaseManagerTest', async () => {
     it('should attach a memory database', async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const database = await dbManager.attach({
-        type: ':memory:',
+        type: 'memory',
         alias: 'memory_db',
         options: {
-          ACCESS_MODE: 'READ_WRITE',
-          COMPRESS: 'true',
+          accessMode: 'READ_WRITE',
+          compress: true,
         },
       });
       expect(database).toBeInstanceOf(Database);
@@ -45,8 +45,8 @@ describe('DuckDatabaseManagerTest', async () => {
         alias: 'duckdb_test_file',
         path: dbFile,
         options: {
-          ACCESS_MODE: 'READ_WRITE',
-          STORAGE_VERSION: 'v1.5.1',
+          accessMode: 'READ_WRITE',
+          storageVersion: 'v1.5.1',
         },
       });
       expect(database).toBeInstanceOf(Database);
@@ -59,7 +59,7 @@ describe('DuckDatabaseManagerTest', async () => {
     it('should list all databases', async () => {
       const dbManager = new DuckDatabaseManager(conn);
       await dbManager.attach({
-        type: ':memory:',
+        type: 'memory',
         alias: 'test_show_database_db',
       });
       const databases = await dbManager.showDatabases();
@@ -74,8 +74,8 @@ describe('DuckDatabaseManagerTest', async () => {
   describe('detach', () => {
     it('should detach a valid database', async () => {
       const dbManager = new DuckDatabaseManager(conn);
-      await dbManager.attach({ type: ':memory:', alias: 'db1' });
-      await dbManager.attach({ type: ':memory:', alias: 'db2' });
+      await dbManager.attach({ type: 'memory', alias: 'db1' });
+      await dbManager.attach({ type: 'memory', alias: 'db2' });
       await dbManager.detach('db2');
       const databases = await dbManager.showDatabases();
       expect(sortBy(databases, ['database_name'])).toStrictEqual([

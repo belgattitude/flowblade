@@ -47,16 +47,17 @@ describe('appender benches', async () => {
 
   const conn = await createDuckdbTestMemoryDb({
     // Keep it high to prevent going to .tmp directory
-    max_memory: isInCi ? '256M' : '1024M',
+    max_memory: isInCi ? '256M' : '2048M',
     threads: isInCi ? 1 : 4,
   });
 
   const dbManager = new DuckDatabaseManager(conn);
   const memoryDb = await dbManager.attachIfNotExists({
-    type: ':memory:',
+    type: 'memory',
     alias: 'memory_db',
     options: {
-      COMPRESS: 'true',
+      accessMode: 'READ_WRITE',
+      compress: true,
     },
   });
   const memoryTable = new Table({
@@ -69,8 +70,8 @@ describe('appender benches', async () => {
     alias: 'bench_appender',
     path: path.join(testTempDir, 'bench-appender.db'),
     options: {
-      ACCESS_MODE: 'READ_WRITE',
-      STORAGE_VERSION: 'v1.5.1',
+      accessMode: 'READ_WRITE',
+      // storageVersion: 'v1.5.1',
     },
   });
   const fileTable = new Table({

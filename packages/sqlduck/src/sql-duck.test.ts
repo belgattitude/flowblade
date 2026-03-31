@@ -41,7 +41,7 @@ describe('Duckdb tests', async () => {
         // Arrange
         const dbManager = new DuckDatabaseManager(conn);
         const database = await dbManager.attachIfNotExists({
-          type: ':memory:',
+          type: 'memory',
           alias: 'sql_duck_test',
         });
 
