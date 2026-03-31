@@ -1,5 +1,13 @@
 # @flowblade/sqlduck
 
+## 0.12.0
+
+### Minor Changes
+
+- [#1038](https://github.com/belgattitude/flowblade/pull/1038) [`678b5fa`](https://github.com/belgattitude/flowblade/commit/678b5fa2a310692c592bc211eec3f5687d033862) Thanks [@belgattitude](https://github.com/belgattitude)! - Export /zod schemas for validation with zod
+
+- [#1038](https://github.com/belgattitude/flowblade/pull/1038) [`678b5fa`](https://github.com/belgattitude/flowblade/commit/678b5fa2a310692c592bc211eec3f5687d033862) Thanks [@belgattitude](https://github.com/belgattitude)! - Move to esm only.
+
 ## 0.11.0
 
 ### Minor Changes
