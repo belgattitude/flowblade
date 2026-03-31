@@ -6,13 +6,16 @@
       "env": ["NEXT_BUILD_*", "NEXT_PUBLIC_*", "SENTRY_*"],
       "outputs": [".next/**", "!.next/cache/**"],
       // We rely on tsconfig path aliases to ease starting
-      "dependsOn": [],
+      // Only exception @flowblade/sqlduck that is used for env
+      "dependsOn": ["@flowblade/sqlduck#build"]
     },
     "typecheck": {},
     "dev": {
       "cache": false,
-      "persistent": true
-      //"dependsOn": ["^codegen"]
+      "persistent": true,
+      // We rely on tsconfig path aliases to ease starting
+      // Only exception @flowblade/sqlduck that is used for env
+      "dependsOn": ["@flowblade/sqlduck#build"]
     }
   }
 }
