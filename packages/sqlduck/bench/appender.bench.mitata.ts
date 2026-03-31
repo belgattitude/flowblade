@@ -71,7 +71,6 @@ boxplot(() => {
             freeMemMb: os.freemem() / 1024 / 1024,
             duckMem,
           });
-          await dbManager.checkpoint(dbName);
         },
         createOptions: {
           create: 'CREATE_OR_REPLACE',
