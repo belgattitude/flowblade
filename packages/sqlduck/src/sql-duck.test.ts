@@ -74,7 +74,7 @@ describe('Duckdb tests', async () => {
           factory: ({ faker: faker, rowIdx }) => {
             if (rowIdx === 0) {
               return {
-                id: z.parse(z.int32(), rowIdx),
+                id: z.int32().parse(rowIdx),
                 name: `unique-record-for-tests`,
                 email: `unique-record-for-tests@example.com`,
                 bignumber: bignumberExample,

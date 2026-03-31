@@ -1,6 +1,5 @@
 import type { DuckDBConnection } from '@duckdb/node-api';
 import type { Logger } from '@logtape/logtape';
-import * as z from 'zod';
 
 import { sqlduckDefaultLogtapeLogger } from '../../logger/sqlduck-default-logtape-logger.ts';
 import { Database } from '../../objects/database.ts';
@@ -43,7 +42,7 @@ export class DuckDatabaseManager {
     dbParams: DuckConnectionParams,
     options?: DuckDatabaseAttachCommandOptions
   ) => {
-    const params = z.parse(duckConnectionParamsZodSchema, dbParams);
+    const params = duckConnectionParamsZodSchema.parse(dbParams);
     const rawSql = new DuckDatabaseAttachCommand(params, options).getRawSql();
     await this.#executeRawSqlCommand(`attach(${params.alias})`, rawSql);
     return new Database({ alias: params.alias });
@@ -97,7 +96,7 @@ export class DuckDatabaseManager {
   };
 
   checkpoint = async (dbAlias: string): Promise<boolean> => {
-    const safeAlias = z.parse(duckValidatorsZod.aliasName, dbAlias);
+    const safeAlias = duckValidatorsZod.aliasName.parse(dbAlias);
     await this.#executeRawSqlCommand(
       `checkpoint(${safeAlias})`,
       `CHECKPOINT ${safeAlias}`

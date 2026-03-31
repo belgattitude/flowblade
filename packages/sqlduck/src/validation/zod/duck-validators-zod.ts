@@ -7,8 +7,8 @@ import { duckIdentifierZodSchema } from './duck-identifier-zod-schema.ts';
  * ```typescript
  * import { duckValidatorsZod } from '@flowblade/sqlduck/zod';
  *
- * z.parse(duckValidatorsZod.tableName, 'my_table'); // valid
- * z.parse(duckValidatorsZod.tableName, 'my table'); // invalid
+ * duckValidatorsZod.tableName.parse('my_table'); // valid
+ * duckValidatorsZod.tableName.parse('my table'); // invalid
  * ```
  */
 export const duckValidatorsZod = {

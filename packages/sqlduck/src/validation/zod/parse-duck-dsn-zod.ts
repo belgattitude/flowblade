@@ -1,5 +1,4 @@
 import { type ParsedDsn, parseDsn } from '@httpx/dsn-parser';
-import * as z from 'zod';
 
 import type {
   DuckAllConnectionOptions,
@@ -18,7 +17,7 @@ export const parseDuckDSNZod = (dsn: string): DuckConnectionParams => {
   };
   const { path, ...options } = parsed.params ?? {};
 
-  return z.parse(duckConnectionParamsZodSchema, {
+  return duckConnectionParamsZodSchema.parse({
     type: parsed.host,
     alias: parsed.db,
     ...(path ? { path: path } : {}),
