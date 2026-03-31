@@ -22,5 +22,5 @@ export const duckIdentifierZodSchema = z
     'Identifier must start with a letter or underscore, and contain only letters, numbers and underscores'
   )
   .refine((value) => !duckdbReservedKeywordsSet.has(value.toUpperCase()), {
-    error: `Identifier value is a DuckDB reserved keyword and cannot be used as an identifier`,
+    message: `Identifier value is a DuckDB reserved keyword and cannot be used as an identifier`,
   });
