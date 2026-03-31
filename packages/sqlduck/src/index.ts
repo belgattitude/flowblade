@@ -12,22 +12,15 @@ export { zodCodecs } from './utils/zod-codecs.ts';
 export { Database } from './objects/database.ts';
 export { Table } from './objects/table.ts';
 
-// Manager
-export {
-  type DuckDatabaseManagerDbParams,
-  duckDatabaseManagerDbParamsSchema,
-} from './manager/database/duck-database-manager.schemas.ts';
-export { DuckDatabaseManager } from './manager/database/duck-database-manager.ts';
+// Core types
+export { type DuckConnectionParams } from './validation/core/types.ts';
 
-// Validation
-export {
-  type DuckdbReservedKeywords,
-  duckdbReservedKeywords,
-} from './validation/core/duckdb-reserved-keywords.ts';
-export {
-  duckTableAliasSchema,
-  duckTableNameSchema,
-} from './validation/zod/duckdb-valid-names.schemas.ts';
+// Core validation
+export type { DuckdbReservedKeywords } from './validation/core/duck-reserved-keywords.ts';
+export { duckReservedKeywords } from './validation/core/duck-reserved-keywords.ts';
+
+// Manager
+export { DuckDatabaseManager } from './manager/database/duck-database-manager.ts';
 
 // Logtape
 export { flowbladeLogtapeSqlduckConfig } from './config/flowblade-logtape-sqlduck.config';

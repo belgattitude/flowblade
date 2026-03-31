@@ -36,9 +36,9 @@ describe('appender benches', async () => {
     schema: userSchema,
     factory: ({ rowIdx }) => {
       return {
-        id: z.parse(z.int32(), rowIdx),
-        name: `unique-record-for-tests`,
-        email: `unique-record-for-tests@example.com`,
+        id: rowIdx,
+        name: `unique-record-for-tests${rowIdx === 0 ? '' : rowIdx}`,
+        email: `unique-record-for-tests${rowIdx === 0 ? '' : rowIdx}@example.com`,
         bignumber: bignumberExample,
         created_at: now,
       };
@@ -47,16 +47,17 @@ describe('appender benches', async () => {
 
   const conn = await createDuckdbTestMemoryDb({
     // Keep it high to prevent going to .tmp directory
-    max_memory: isInCi ? '256M' : '512M',
-    threads: 1,
+    max_memory: isInCi ? '256M' : '2048M',
+    threads: isInCi ? 1 : 4,
   });
 
   const dbManager = new DuckDatabaseManager(conn);
   const memoryDb = await dbManager.attachIfNotExists({
-    type: ':memory:',
+    type: 'memory',
     alias: 'memory_db',
     options: {
-      COMPRESS: 'true',
+      accessMode: 'READ_WRITE',
+      compress: true,
     },
   });
   const memoryTable = new Table({
@@ -69,8 +70,8 @@ describe('appender benches', async () => {
     alias: 'bench_appender',
     path: path.join(testTempDir, 'bench-appender.db'),
     options: {
-      ACCESS_MODE: 'READ_WRITE',
-      STORAGE_VERSION: 'v1.5.1',
+      accessMode: 'READ_WRITE',
+      // storageVersion: 'v1.5.1',
     },
   });
   const fileTable = new Table({
@@ -110,7 +111,6 @@ describe('appender benches', async () => {
           create: 'CREATE_OR_REPLACE',
         },
       });
-      await dbManager.checkpoint(fileTable.getFullName());
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
       }

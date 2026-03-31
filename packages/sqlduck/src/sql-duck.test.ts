@@ -41,7 +41,7 @@ describe('Duckdb tests', async () => {
         // Arrange
         const dbManager = new DuckDatabaseManager(conn);
         const database = await dbManager.attachIfNotExists({
-          type: ':memory:',
+          type: 'memory',
           alias: 'sql_duck_test',
         });
 
@@ -51,7 +51,7 @@ describe('Duckdb tests', async () => {
 
         const sqlDuck = new SqlDuck({ conn });
 
-        const userSchema = z.object({
+        const userSchema = z.strictObject({
           id: z.int32().meta({ description: 'cool' }),
           name: z.string(),
           email: z.email().nullable(),
@@ -74,7 +74,7 @@ describe('Duckdb tests', async () => {
           factory: ({ faker: faker, rowIdx }) => {
             if (rowIdx === 0) {
               return {
-                id: z.parse(z.int32(), rowIdx),
+                id: z.int32().parse(rowIdx),
                 name: `unique-record-for-tests`,
                 email: `unique-record-for-tests@example.com`,
                 bignumber: bignumberExample,

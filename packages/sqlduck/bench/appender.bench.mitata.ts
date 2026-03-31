@@ -4,11 +4,10 @@ import isInCi from 'is-in-ci';
 import { bench, boxplot, run, summary } from 'mitata';
 import * as z from 'zod';
 
-import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
-
 import { Table } from '../src/objects/table.ts';
 import { SqlDuck } from '../src/sql-duck.ts';
 import { zodCodecs } from '../src/utils/zod-codecs.ts';
+import { createDuckdbTestMemoryDb } from '../tests/utils/create-duckdb-test-memory-db.ts';
 import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator.ts';
 
 const userSchema = z.object({

@@ -1,10 +1,14 @@
 // @ts-check
+import { isParsableDuckDsnZod } from '@flowblade/sqlduck/zod';
 import { isParsableDsn } from '@httpx/dsn-parser';
 import { createEnv } from '@t3-oss/env-nextjs';
 import * as v from 'valibot';
 
 const vDsn = v.custom((dsn) => isParsableDsn(dsn), 'Invalid DSN format.');
-
+const vDuckDsn = v.custom(
+  (dsn) => isParsableDuckDsnZod(dsn),
+  'Invalid DuckDB DSN format.'
+);
 export const serverEnv = createEnv({
   server: {
     NEXT_CONFIG_COMPRESS: v.optional(v.picklist(['true', 'false']), 'false'),
@@ -26,12 +30,8 @@ export const serverEnv = createEnv({
       v.picklist(['http/json', 'http/protobuf', 'grpc'], 'http/json')
     ),
     OTEL_EXPORTER_OTLP_ENDPOINT: v.optional(v.pipe(v.string(), v.url())),
+    DUCKDB_MAIN_DB_DSN: vDuckDsn,
   },
-  // If you're using Next.js < 13.4.4, you'll need to specify the runtimeEnv manually
-  // runtimeEnv: {
-  //   DATABASE_URL: process.env.DATABASE_URL,
-  // },
-  // For Next.js >= 13.4.4, you can just reference process.env:
   experimental__runtimeEnv: process.env,
   emptyStringAsUndefined: true,
 });

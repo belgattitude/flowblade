@@ -1,4 +1,7 @@
-type DatabaseProperties = { alias: string };
+type DatabaseProperties = {
+  alias: string;
+};
+
 export class Database {
   #params: DatabaseProperties;
   get alias() {

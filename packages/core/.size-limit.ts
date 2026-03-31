@@ -1,6 +1,6 @@
 import type { SizeLimitConfig } from 'size-limit'
 
-module.exports = [
+const config = [
   {
     name: 'Import * (ESM)',
     path: ['dist/index.js'],
@@ -15,3 +15,5 @@ module.exports = [
   },
 
 ] satisfies SizeLimitConfig;
+
+export default config;

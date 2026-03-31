@@ -1,18 +1,15 @@
 import type { DuckDBConnection } from '@duckdb/node-api';
 import type { Logger } from '@logtape/logtape';
-import * as z from 'zod';
 
 import { sqlduckDefaultLogtapeLogger } from '../../logger/sqlduck-default-logtape-logger.ts';
 import { Database } from '../../objects/database.ts';
-import { duckTableAliasSchema } from '../../validation/zod/duckdb-valid-names.schemas.ts';
+import type { DuckConnectionParams } from '../../validation/core/types.ts';
+import { assertValidAliasName, duckValidatorsZod } from '../../validation/zod';
+import { duckConnectionParamsZodSchema } from '../../validation/zod/duck-connection-params-zod-schema.ts';
 import {
   DuckDatabaseAttachCommand,
   type DuckDatabaseAttachCommandOptions,
 } from './commands/duck-database-attach-command.ts';
-import {
-  type DuckDatabaseManagerDbParams,
-  duckDatabaseManagerDbParamsSchema,
-} from './duck-database-manager.schemas.ts';
 
 export class DuckDatabaseManager {
   #conn: DuckDBConnection;
@@ -33,7 +30,7 @@ export class DuckDatabaseManager {
    * ```typescript
    * const dbManager = new DuckDatabaseManager(conn);
    * const database = dbManager.attach({
-   *   type: ':memory:', // can be 'duckdb', 's3'...
+   *   type: 'memory', // can be 'duckdb', 's3'...
    *   alias: 'mydb',
    *   options: { COMPRESS: 'true' }
    * });
@@ -42,22 +39,22 @@ export class DuckDatabaseManager {
    * ```
    */
   attach = async (
-    dbParams: DuckDatabaseManagerDbParams,
+    dbParams: DuckConnectionParams,
     options?: DuckDatabaseAttachCommandOptions
   ) => {
-    const params = z.parse(duckDatabaseManagerDbParamsSchema, dbParams);
+    const params = duckConnectionParamsZodSchema.parse(dbParams);
     const rawSql = new DuckDatabaseAttachCommand(params, options).getRawSql();
     await this.#executeRawSqlCommand(`attach(${params.alias})`, rawSql);
     return new Database({ alias: params.alias });
   };
 
-  attachOrReplace = async (dbParams: DuckDatabaseManagerDbParams) => {
+  attachOrReplace = async (dbParams: DuckConnectionParams) => {
     return this.attach(dbParams, {
       behaviour: 'OR REPLACE',
     });
   };
 
-  attachIfNotExists = async (dbParams: DuckDatabaseManagerDbParams) => {
+  attachIfNotExists = async (dbParams: DuckConnectionParams) => {
     return this.attach(dbParams, {
       behaviour: 'IF NOT EXISTS',
     });
@@ -71,19 +68,16 @@ export class DuckDatabaseManager {
   };
 
   detach = async (dbAlias: string): Promise<boolean> => {
-    const safeAlias = z.parse(duckTableAliasSchema, dbAlias);
-    await this.#executeRawSqlCommand(
-      `detach(${safeAlias})`,
-      `DETACH ${safeAlias}`
-    );
+    assertValidAliasName(dbAlias);
+    await this.#executeRawSqlCommand(`detach(${dbAlias})`, `DETACH ${dbAlias}`);
     return true;
   };
 
   detachIfExists = async (dbAlias: string): Promise<boolean> => {
-    const safeAlias = z.parse(duckTableAliasSchema, dbAlias);
+    assertValidAliasName(dbAlias);
     await this.#executeRawSqlCommand(
-      `detachIfExists(${safeAlias})`,
-      `DETACH IF EXISTS ${safeAlias}`
+      `detachIfExists(${dbAlias})`,
+      `DETACH IF EXISTS ${dbAlias}`
     );
     return true;
   };
@@ -102,11 +96,16 @@ export class DuckDatabaseManager {
   };
 
   checkpoint = async (dbAlias: string): Promise<boolean> => {
-    const safeAlias = z.parse(duckTableAliasSchema, dbAlias);
+    const safeAlias = duckValidatorsZod.aliasName.parse(dbAlias);
     await this.#executeRawSqlCommand(
       `checkpoint(${safeAlias})`,
       `CHECKPOINT ${safeAlias}`
     );
+    return true;
+  };
+
+  vacuum = async (): Promise<boolean> => {
+    await this.#executeRawSqlCommand('vacuum()', 'VACUUM');
     return true;
   };
 

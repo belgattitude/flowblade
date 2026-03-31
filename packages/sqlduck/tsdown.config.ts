@@ -1,14 +1,11 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
-  entry: ['./src/index.ts'],
+  entry: ['./src/index.ts', './src/validation/zod/index.ts'],
   dts: true,
   clean: true,
   format: {
     esm: {
-      target: ['node20'],
-    },
-    cjs: {
       target: ['node20'],
     },
   },
