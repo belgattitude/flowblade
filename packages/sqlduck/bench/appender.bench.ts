@@ -66,7 +66,7 @@ describe('appender benches', async () => {
   });
 
   const fileDb = await dbManager.attachOrReplace({
-    type: 'duckdb',
+    type: 'filesystem',
     alias: 'bench_appender',
     path: path.join(testTempDir, 'bench-appender.db'),
     options: {
