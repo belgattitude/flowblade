@@ -19,7 +19,7 @@ describe('basic appender', () => {
     it('should work', async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const database = await dbManager.attach({
-        type: 'memory', // can be 'duckdb', ...
+        type: 'memory', // can be 'filesystem', ...
         alias: 'mydb',
         options: { compress: false },
       });
