@@ -50,7 +50,7 @@ export async function register() {
     }
 
     try {
-      const { initializeDuckDbMemoryConn } =
+      const { createDuckDbMemoryConnection } =
         await import('@/server/config/db.duckdb-memory.config').then(
           (mod) => mod
         );
@@ -62,7 +62,7 @@ export async function register() {
         globalThis as unknown as {
           dbDuckDbMemoryConn: DuckDBConnection;
         }
-      ).dbDuckDbMemoryConn = await initializeDuckDbMemoryConn();
+      ).dbDuckDbMemoryConn = await createDuckDbMemoryConnection();
     } catch {
       console.error(
         '❌ Could not initialize "dbDuckDbMemoryConn" connection from instrumentation.ts'

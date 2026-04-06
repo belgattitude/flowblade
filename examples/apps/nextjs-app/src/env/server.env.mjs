@@ -1,21 +1,29 @@
 // @ts-check
-import { isParsableDuckDsnZod } from '@flowblade/sqlduck/zod';
-import { isParsableDsn } from '@httpx/dsn-parser';
 import { createEnv } from '@t3-oss/env-nextjs';
 import * as v from 'valibot';
 
-const vDsn = v.custom((dsn) => isParsableDsn(dsn), 'Invalid DSN format.');
-const vDuckDsn = v.custom(
-  (dsn) => isParsableDuckDsnZod(dsn),
-  'Invalid DuckDB DSN format.'
-);
+import {
+  vDsn,
+  vDuckDbDsn,
+  vJdbcUrlDsnCompatible,
+} from './validators.utils.mjs';
+
 export const serverEnv = createEnv({
   server: {
     NEXT_CONFIG_COMPRESS: v.optional(v.picklist(['true', 'false']), 'false'),
     SENTRY_ORG: v.optional(v.string()),
     SENTRY_PROJECT: v.optional(v.string()),
-    DB_FLOWBLADE_MSSQL_JDBC: v.optional(v.string()),
-    DB_FLOWBLADE_MARIADB_DSN: v.optional(vDsn),
+    DB_FLOWBLADE_MSSQL_JDBC: v.optional(
+      v.pipe(
+        vJdbcUrlDsnCompatible,
+        v.string(),
+        v.metadata({
+          description: 'The JDBC connection string for the mssql database',
+          example:
+            'sqlserver://<SERVER>.database.windows.net:1433;database=<DATABASE>;authentication=azure-active-directory-msi-app-service;clientId=<CLIENT_ID>;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30',
+        })
+      )
+    ),
     DB_FLOWBLADE_POSTGRES_DSN: v.optional(vDsn),
     BETTER_AUTH_SECRET: v.optional(v.pipe(v.string(), v.minLength(32))),
     BLOB_READ_WRITE_TOKEN: v.optional(v.pipe(v.string(), v.minLength(10))),
@@ -30,7 +38,44 @@ export const serverEnv = createEnv({
       v.picklist(['http/json', 'http/protobuf', 'grpc'], 'http/json')
     ),
     OTEL_EXPORTER_OTLP_ENDPOINT: v.optional(v.pipe(v.string(), v.url())),
-    DUCKDB_MAIN_DB_DSN: vDuckDsn,
+
+    DUCKDB_FLOWBLADE_DB_DSN: v.optional(
+      v.pipe(
+        v.string(),
+        vDuckDbDsn(),
+        v.metadata({
+          description: 'The flowblade main duckdb database.',
+          example: `
+           disk:   'duckdb://filesystem/referential_db?path=/tmp/referential.db&accessMode=READ_WRITE' 
+           memory: 'duckdb://memory/referential_db?accessMode=READ_WRITE&compress=true'
+          `,
+        })
+      )
+    ),
+
+    /** Duckdb global configuration */
+    DUCKDB_THREADS: v.optional(
+      v.pipe(
+        v.string(),
+        v.regex(/^[1-9]\d*$/),
+        v.metadata({
+          description:
+            'Number of threads to use for DuckDB connections. Must be a string as per duckdb driver',
+        })
+      )
+    ),
+    DUCKDB_MEMORY_LIMIT: v.optional(
+      v.pipe(
+        v.string(),
+        v.regex(/^[1-9]\d*(MB|GB)$/),
+        v.metadata({
+          description:
+            'Memory limit for DuckDB connections. Must be a string with a number followed by MB or GB, e.g. "512MB" or "2GB".',
+        })
+      )
+    ),
+    DUCKDB_TEMP_DIRECTORY: v.optional(v.pipe(v.string())),
+    DUCKDB_EXTENSION_DIRECTORY: v.optional(v.pipe(v.string())),
   },
   experimental__runtimeEnv: process.env,
   emptyStringAsUndefined: true,
