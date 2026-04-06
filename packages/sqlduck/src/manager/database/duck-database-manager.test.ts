@@ -41,7 +41,7 @@ describe('DuckDatabaseManagerTest', async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const dbFile = path.join(testTempDir, 'duckdb_test_file.db');
       const database = await dbManager.attach({
-        type: 'duckdb',
+        type: 'filesystem',
         alias: 'duckdb_test_file',
         path: dbFile,
         options: {
