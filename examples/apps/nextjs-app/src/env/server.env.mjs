@@ -1,12 +1,9 @@
 // @ts-check
+import { duckDsnValibotSchema } from '@flowblade/sqlduck/valibot';
 import { createEnv } from '@t3-oss/env-nextjs';
 import * as v from 'valibot';
 
-import {
-  vDsn,
-  vDuckDbDsn,
-  vJdbcUrlDsnCompatible,
-} from './validators.utils.mjs';
+import { vDsn, vJdbcUrlDsnCompatible } from './validators.utils.mjs';
 
 export const serverEnv = createEnv({
   server: {
@@ -42,7 +39,7 @@ export const serverEnv = createEnv({
     DUCKDB_FLOWBLADE_DB_DSN: v.optional(
       v.pipe(
         v.string(),
-        vDuckDbDsn(),
+        duckDsnValibotSchema,
         v.metadata({
           description: 'The flowblade main duckdb database.',
           example: `
