@@ -1,3 +1,4 @@
+import isSafeFilename from 'is-safe-filename';
 import * as z from 'zod';
 
 import { duckStorageVersionRegexp } from '../core/base-validators.ts';
@@ -6,7 +7,7 @@ import { duckValidatorsZod } from './duck-validators-zod.ts';
 export const duckAllConnectionOptionsZodSchema = z.strictObject({
   accessMode: z.optional(z.enum(['READ_ONLY', 'READ_WRITE'])),
   compress: z.optional(z.boolean()),
-  type: z.optional(z.enum(['DUCKDB', 'SQLITE'])),
+  type: z.optional(z.enum(['DUCKDB', 'SQLITE', 'MYSQL', 'PostgreSQL)'])),
   blockSize: z.optional(z.int32().min(16_384).max(262_144)),
   rowGroupSize: z.optional(z.int32().positive()),
   storageVersion: z.optional(
@@ -27,8 +28,40 @@ export const duckConnectionParamsZodSchema = z.discriminatedUnion('type', [
     options: z.optional(duckAllConnectionOptionsZodSchema),
   }),
   z.strictObject({
-    type: z.literal('duckdb'),
-    path: z.string().min(4).endsWith('.db'),
+    type: z.literal('filesystem'),
+    path: z
+      .string()
+      .refine(
+        (path) => {
+          const filename = path.replace('\\', '/').split('/').at(-1);
+          return typeof filename === 'string' && isSafeFilename(filename);
+        },
+        {
+          message:
+            'Invalid database filename - it must be a safe filename (no path traversal, no absolute paths, no reserved names, etc.)',
+        }
+      )
+      .refine(
+        (path) => {
+          const pathname =
+            '/' +
+            path
+              .replace('\\', '/')
+              .split('/')
+              .slice(0, -1)
+              .filter(Boolean)
+              .join('/');
+          return (
+            pathname.length > 0 &&
+            pathname.startsWith('/') &&
+            pathname.includes('..') === false
+          );
+        },
+        {
+          message:
+            'Invalid database pathname - it must be an absolute path with no traversal',
+        }
+      ),
     alias: duckValidatorsZod.aliasName,
     options: z.optional(duckAllConnectionOptionsZodSchema),
   }),
