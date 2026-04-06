@@ -16,9 +16,19 @@ describe('parseDuckDsnZod', () => {
       },
     ],
     [
-      'duckdb://duckdb/main_db?path=/tmp/duckdb.db&accessMode=READ_WRITE&rowGroupSize=8192&blockSize=16384&encryptionKey=A2345678&encryptionCipher=CBC',
+      'duckdb://memory/memory_db?compress=true',
       {
-        type: 'duckdb',
+        type: 'memory',
+        alias: 'memory_db',
+        options: {
+          compress: true,
+        },
+      },
+    ],
+    [
+      'duckdb://filesystem/main_db?path=/tmp/duckdb.db&accessMode=READ_WRITE&rowGroupSize=8192&blockSize=16384&encryptionKey=A2345678&encryptionCipher=CBC',
+      {
+        type: 'filesystem',
         alias: 'main_db',
         path: '/tmp/duckdb.db',
         options: {

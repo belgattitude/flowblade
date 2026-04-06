@@ -4,11 +4,7 @@ import {
   duckIdentifierMaxLength,
   duckIdentifierNameRegex,
 } from '../core/base-validators.ts';
-import { duckReservedKeywords } from '../core/duck-reserved-keywords.ts';
-
-const duckdbReservedKeywordsSet = new Set(
-  duckReservedKeywords.map((k) => k.toUpperCase())
-);
+import { duckdbReservedKeywordsSet } from '../core/duck-reserved-keywords.ts';
 
 /**
  * Check whether a table name identifier is valid
