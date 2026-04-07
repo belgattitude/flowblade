@@ -2,12 +2,13 @@ import isSafeFilename from 'is-safe-filename';
 import * as v from 'valibot';
 
 import { duckStorageVersionRegexp } from '../core/base-validators.ts';
+import { duckConnectionsOptions } from '../core/duck-connections-options.ts';
 import { duckValidatorsValibot } from './duck-validators-valibot.ts';
 
 export const duckAllConnectionOptionsValibotSchema = v.object({
   accessMode: v.optional(v.picklist(['READ_ONLY', 'READ_WRITE'])),
   compress: v.optional(v.boolean()),
-  type: v.optional(v.picklist(['DUCKDB', 'SQLITE', 'MYSQL', 'PostgreSQL)'])),
+  type: v.optional(v.picklist(duckConnectionsOptions.types)),
   blockSize: v.optional(
     v.pipe(v.number(), v.integer(), v.minValue(16_384), v.maxValue(262_144))
   ),

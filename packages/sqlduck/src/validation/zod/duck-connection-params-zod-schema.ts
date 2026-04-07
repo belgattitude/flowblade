@@ -2,12 +2,13 @@ import isSafeFilename from 'is-safe-filename';
 import * as z from 'zod';
 
 import { duckStorageVersionRegexp } from '../core/base-validators.ts';
+import { duckConnectionsOptions } from '../core/duck-connections-options.ts';
 import { duckValidatorsZod } from './duck-validators-zod.ts';
 
 export const duckAllConnectionOptionsZodSchema = z.strictObject({
   accessMode: z.optional(z.enum(['READ_ONLY', 'READ_WRITE'])),
   compress: z.optional(z.boolean()),
-  type: z.optional(z.enum(['DUCKDB', 'SQLITE', 'MYSQL', 'PostgreSQL)'])),
+  type: z.optional(z.enum(duckConnectionsOptions.types)),
   blockSize: z.optional(z.int32().min(16_384).max(262_144)),
   rowGroupSize: z.optional(z.int32().positive()),
   storageVersion: z.optional(
