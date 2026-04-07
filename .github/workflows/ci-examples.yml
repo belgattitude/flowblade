@@ -58,10 +58,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-
 
-      - name: 🛣️ Pre-generate
-        run:
-         yarn workspace @examples/db-sqlserver prisma-generate
-         yarn workspace @flowblade/sqlduck build
+      - name: 🛣️ Prisma generate
+        run: yarn workspace @examples/db-sqlserver prisma-generate
+
+      - name: 🛣️ Pre build sqlduck
+        run: yarn workspace @flowblade/sqlduck build
 
       - name: 🕵️ Typecheck
         run: yarn turbo run typecheck --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
