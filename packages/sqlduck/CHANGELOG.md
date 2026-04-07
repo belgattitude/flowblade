@@ -1,5 +1,17 @@
 # @flowblade/sqlduck
 
+## 0.14.0
+
+### Minor Changes
+
+- [#1043](https://github.com/belgattitude/flowblade/pull/1043) [`3183d6c`](https://github.com/belgattitude/flowblade/commit/3183d6c739864c3cf422a748cef4963a636cb17f) Thanks [@belgattitude](https://github.com/belgattitude)! - Initial support for valibot
+
+- [#1043](https://github.com/belgattitude/flowblade/pull/1043) [`3183d6c`](https://github.com/belgattitude/flowblade/commit/3183d6c739864c3cf422a748cef4963a636cb17f) Thanks [@belgattitude](https://github.com/belgattitude)! - Expose parseDuckDSNZod utility
+
+### Patch Changes
+
+- [#1043](https://github.com/belgattitude/flowblade/pull/1043) [`3183d6c`](https://github.com/belgattitude/flowblade/commit/3183d6c739864c3cf422a748cef4963a636cb17f) Thanks [@belgattitude](https://github.com/belgattitude)! - DatabaseManager change loglevel to debug by default
+
 ## 0.13.0
 
 ### Minor Changes
