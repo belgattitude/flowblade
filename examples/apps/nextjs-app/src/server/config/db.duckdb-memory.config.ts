@@ -1,5 +1,6 @@
 import { type DuckDBConnection, DuckDBInstance } from '@duckdb/node-api';
 
+import { createOrEnsureWritableDirectory } from '../../core/utils/filesystem.utils.ts';
 import { serverEnv } from '../../env/server.env.mjs';
 /**
  * Initial configuration of duckdb memory instance
@@ -21,6 +22,9 @@ type DuckConfiguration = {
   extensionDirectory?: string;
 };
 
+/**
+ * @throws Error if tempDirectory or extensionDirectory are not writable or doesn't exist
+ */
 export const createDuckDbMemoryConnection = async (
   config?: DuckConfiguration
 ): Promise<DuckDBConnection> => {
@@ -30,6 +34,9 @@ export const createDuckDbMemoryConnection = async (
     tempDirectory = serverEnv.DUCKDB_TEMP_DIRECTORY,
     extensionDirectory = serverEnv.DUCKDB_EXTENSION_DIRECTORY,
   } = config ?? {};
+
+  createOrEnsureWritableDirectory('tempDirectory', tempDirectory);
+  createOrEnsureWritableDirectory('extensionDirectory', extensionDirectory);
 
   const instance = await DuckDBInstance.create(':memory:', {
     ...(memoryLimit ? { memory_limit: memoryLimit } : {}),

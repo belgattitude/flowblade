@@ -21,6 +21,7 @@
     "g:docgen": "turbo run docgen --affected",
     "g:test": "yarn workspaces foreach --all -pv run test",
     "g:test-unit": "turbo run test-unit --filter='!@examples/*' --filter='!@docs/*'",
+    "g:test-unit-examples": "turbo run test-unit --filter='@examples/*'",
     "g:test-e2e": "turbo run test-e2e --filter='!@examples/*' --filter='!@docs/*'",
     "g:test-e2e-bun": "turbo run test-e2e-bun --filter='!@examples/*' --filter='!@docs/*'",
     "g:test-unit-coverage": "turbo run test-unit-coverage --filter='!@examples/**' --filter='!docs/**'",

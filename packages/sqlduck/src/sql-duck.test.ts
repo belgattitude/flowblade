@@ -104,6 +104,8 @@ describe('Duckdb tests', async () => {
           createOptions: {
             create: 'CREATE_OR_REPLACE',
           },
+          checkpointChunksFrequency: 4,
+          autoCheckpoint: true,
         });
 
         expect(cb).toHaveBeenCalledTimes(Math.ceil(limit / 2048));

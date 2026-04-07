@@ -90,6 +90,8 @@ describe('appender benches', async () => {
         createOptions: {
           create: 'CREATE_OR_REPLACE',
         },
+        checkpointChunksFrequency: 4,
+        autoCheckpoint: true,
       });
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
@@ -109,6 +111,8 @@ describe('appender benches', async () => {
         createOptions: {
           create: 'CREATE_OR_REPLACE',
         },
+        checkpointChunksFrequency: 4,
+        autoCheckpoint: true,
       });
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);

@@ -63,9 +63,9 @@ export async function register() {
           dbDuckDbMemoryConn: DuckDBConnection;
         }
       ).dbDuckDbMemoryConn = await createDuckDbMemoryConnection();
-    } catch {
+    } catch (e) {
       console.error(
-        '❌ Could not initialize "dbDuckDbMemoryConn" connection from instrumentation.ts'
+        `❌ Could not initialize "dbDuckDbMemoryConn" connection from instrumentation.ts: ${e instanceof Error ? e.message : 'unknown error'}`
       );
     }
   }

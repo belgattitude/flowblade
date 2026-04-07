@@ -7,9 +7,6 @@ const isCodeSpeedEnabled = process.env?.CODSPEED === '1';
 const cspeed = isCodeSpeedEnabled ? codspeedPlugin() : undefined;
 
 export default defineConfig({
-  esbuild: {
-    target: ['node20'],
-  },
   plugins: [cspeed].filter(Boolean),
   resolve: {
     tsconfigPaths: true,
