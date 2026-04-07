@@ -34,7 +34,7 @@ jobs:
           bun-version: ${{ matrix.bun-version }}
 
       - name: ⏩ TurboRepo local server
-        uses: felixmosh/turborepo-gh-artifacts@v3
+        uses: felixmosh/turborepo-gh-artifacts@v4
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}

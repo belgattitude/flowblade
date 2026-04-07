@@ -33,7 +33,7 @@ export class DuckDatabaseManager {
    * ```typescript
    * const dbManager = new DuckDatabaseManager(conn);
    * const database = dbManager.attach({
-   *   type: 'memory', // can be 'duckdb', 's3'...
+   *   type: 'memory', // can be 'filesystem'...
    *   alias: 'mydb',
    *   options: { COMPRESS: 'true' }
    * });
@@ -118,7 +118,7 @@ export class DuckDatabaseManager {
       const result = await this.#conn.runAndReadAll(rawSql);
       const timeMs = Math.round(Date.now() - startTime);
       const data = result.getRowObjectsJS();
-      this.#logger.info(`DuckDatabaseManager.${name} in ${timeMs}ms`, {
+      this.#logger.debug(`DuckDatabaseManager.${name} in ${timeMs}ms`, {
         timeMs: timeMs,
       });
       return data;

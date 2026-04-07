@@ -19,7 +19,7 @@ describe('basic appender', () => {
     it('should work', async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const database = await dbManager.attach({
-        type: 'memory', // can be 'duckdb', ...
+        type: 'memory', // can be 'filesystem', ...
         alias: 'mydb',
         options: { compress: false },
       });
@@ -48,6 +48,8 @@ describe('basic appender', () => {
         rowStream: getUsers(), // The async iterable that yields rows
         // 👇Optional:
         chunkSize: 2048, // Number of rows to append when using duckdb appender. Default is 2048
+        checkpointChunksFrequency: 1,
+        autoCheckpoint: true,
         onDataAppended: ({ timeMs, totalRows, rowsPerSecond }) => {
           console.log(
             `Appended ${totalRows} in time ${timeMs}ms, est: ${rowsPerSecond} rows/s`

@@ -33,7 +33,7 @@ export class DuckDatabaseAttachCommand implements IGetRawSql {
       case 'memory':
         parts.push("':memory:'");
         break;
-      case 'duckdb':
+      case 'filesystem':
         parts.push(`'${dbParams.path}'`);
         break;
       default:

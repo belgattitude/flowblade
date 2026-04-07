@@ -64,7 +64,7 @@ describe('DuckDataBaseManagerAttachCommand', () => {
       'should produce expected sql %s with behaviour %s',
       (options, behaviour, expectedSql) => {
         const params: DuckConnectionParams = {
-          type: 'duckdb',
+          type: 'filesystem',
           alias: 'my_db',
           path: '/tmp/duckdb.db',
           options: options,

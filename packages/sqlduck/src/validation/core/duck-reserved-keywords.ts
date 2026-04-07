@@ -102,3 +102,5 @@ export const duckReservedKeywords = [
 ] as const;
 
 export type DuckdbReservedKeywords = (typeof duckReservedKeywords)[number];
+
+export const duckdbReservedKeywordsSet = new Set<string>(duckReservedKeywords);

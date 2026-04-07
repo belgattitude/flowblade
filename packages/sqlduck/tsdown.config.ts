@@ -1,7 +1,11 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
-  entry: ['./src/index.ts', './src/validation/zod/index.ts'],
+  entry: [
+    './src/index.ts',
+    './src/validation/zod/index.ts',
+    './src/validation/valibot/index.ts',
+  ],
   dts: true,
   clean: true,
   format: {

@@ -35,7 +35,7 @@ jobs:
           package-manager-cache: false
 
       - name: ⏩ TurboRepo local server
-        uses: felixmosh/turborepo-gh-artifacts@v3
+        uses: felixmosh/turborepo-gh-artifacts@v4
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
@@ -58,8 +58,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-
 
-      - name: 🕵️ Typecheck
+      - name: 🛣️ Prisma generate
         run: yarn workspace @examples/db-sqlserver prisma-generate
+
+      - name: 🛣️ Pre build sqlduck
+        run: yarn workspace @flowblade/sqlduck build
 
       - name: 🕵️ Typecheck
         run: yarn turbo run typecheck --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"

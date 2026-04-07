@@ -6,7 +6,6 @@ import { bench, boxplot, run, summary } from 'mitata';
 import * as z from 'zod';
 
 import { DuckMemory } from '../src/helpers/duck-memory.ts';
-import { DuckDatabaseManager } from '../src/manager/database/duck-database-manager.ts';
 import { Table } from '../src/objects/table.ts';
 import { SqlDuck } from '../src/sql-duck.ts';
 import { zodCodecs } from '../src/utils/zod-codecs.ts';
@@ -52,7 +51,6 @@ const testTable = new Table({
 
 const sqlDuck = new SqlDuck({ conn });
 const duckMemory = new DuckMemory(conn);
-const dbManager = new DuckDatabaseManager(conn);
 
 boxplot(() => {
   summary(() => {
@@ -75,6 +73,8 @@ boxplot(() => {
         createOptions: {
           create: 'CREATE_OR_REPLACE',
         },
+        checkpointChunksFrequency: 2,
+        autoCheckpoint: true,
       });
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows}`);

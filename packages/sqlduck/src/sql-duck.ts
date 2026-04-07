@@ -62,6 +62,14 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
    * @default true
    */
   autoCheckpoint?: boolean;
+
+  /**
+   * Checkpoint the table after 'n' chunks have been appended
+   *
+   * For example if the chunkSize is 2048, setting frequency to 2
+   * will checkpoint the table every 4096 rows (2x chunksize)
+   */
+  checkpointChunksFrequency?: number;
 };
 
 export type ToTableResult = {
@@ -136,6 +144,7 @@ export class SqlDuck {
       createOptions,
       onDataAppended,
       autoCheckpoint = true,
+      checkpointChunksFrequency = 10,
     } = params;
 
     if (!Number.isSafeInteger(chunkSize) || chunkSize < 1 || chunkSize > 2048) {
@@ -146,6 +155,19 @@ export class SqlDuck {
       throw new Error(
         'autoCheckpoint requires table.databaseName to be provided.'
       );
+    }
+
+    if (checkpointChunksFrequency && typeof table.databaseName !== 'string') {
+      throw new Error(
+        'checkpointChunksFrequency requires table.databaseName to be provided.'
+      );
+    }
+
+    if (
+      checkpointChunksFrequency !== undefined &&
+      checkpointChunksFrequency < 1
+    ) {
+      throw new Error('checkpointChunksFrequency must be a positive number.');
     }
 
     const dbManager = new DuckDatabaseManager(this.#conn);
@@ -176,6 +198,8 @@ export class SqlDuck {
       chunkSize: chunkSize,
     });
 
+    let appendedChunkCount = 0;
+
     try {
       for await (const dataChunk of columnStream) {
         const chunk = DuckDBDataChunk.create(chunkTypes);
@@ -192,6 +216,8 @@ export class SqlDuck {
 
         appender.flushSync();
 
+        appendedChunkCount += 1;
+
         if (onDataAppended !== undefined) {
           const payload = dataAppendedCollector(totalRows);
           if (isOnDataAppendedAsyncCb(onDataAppended)) {
@@ -201,7 +227,12 @@ export class SqlDuck {
           }
         }
 
-        if (autoCheckpoint && typeof table.databaseName === 'string') {
+        // Checkpoint point frequency
+        if (
+          checkpointChunksFrequency !== undefined &&
+          appendedChunkCount % checkpointChunksFrequency === 0 &&
+          typeof table.databaseName === 'string'
+        ) {
           try {
             await dbManager.checkpoint(table.databaseName);
           } catch (e) {

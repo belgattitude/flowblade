@@ -66,7 +66,7 @@ describe('appender benches', async () => {
   });
 
   const fileDb = await dbManager.attachOrReplace({
-    type: 'duckdb',
+    type: 'filesystem',
     alias: 'bench_appender',
     path: path.join(testTempDir, 'bench-appender.db'),
     options: {
@@ -90,6 +90,8 @@ describe('appender benches', async () => {
         createOptions: {
           create: 'CREATE_OR_REPLACE',
         },
+        checkpointChunksFrequency: 4,
+        autoCheckpoint: true,
       });
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
@@ -109,6 +111,8 @@ describe('appender benches', async () => {
         createOptions: {
           create: 'CREATE_OR_REPLACE',
         },
+        checkpointChunksFrequency: 4,
+        autoCheckpoint: true,
       });
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);

@@ -1,31 +1,56 @@
-import os from 'node:os';
-
 import { type DuckDBConnection, DuckDBInstance } from '@duckdb/node-api';
 
-const createDuckDBMemoryDb = async (
-  maxThreads = 4
+import { createOrEnsureWritableDirectory } from '../../core/utils/filesystem.utils.ts';
+import { serverEnv } from '../../env/server.env.mjs';
+/**
+ * Initial configuration of duckdb memory instance
+ * @see https://github.com/duckdb/duckdb-node-neo/blob/main/api/pkgs/@duckdb/node-api/README.md#create-instance
+ * @see https://duckdb.org/docs/current/configuration/overview
+ */
+type DuckConfiguration = {
+  /**
+   *
+   * @see https://duckdb.org/docs/current/configuration/pragmas#threads
+   */
+  threads?: string;
+  /**
+   * @see https://duckdb.org/docs/current/configuration/pragmas#memory-limit
+   */
+  memoryLimit?: string;
+
+  tempDirectory?: string;
+  extensionDirectory?: string;
+};
+
+/**
+ * @throws Error if tempDirectory or extensionDirectory are not writable or doesn't exist
+ */
+export const createDuckDbMemoryConnection = async (
+  config?: DuckConfiguration
 ): Promise<DuckDBConnection> => {
-  const availableThreads = os.availableParallelism();
-  const maxParallelism = Math.min(maxThreads, availableThreads - 1);
-  const threads = availableThreads > 1 ? maxParallelism : undefined;
+  const {
+    threads = serverEnv.DUCKDB_THREADS,
+    memoryLimit = serverEnv.DUCKDB_MEMORY_LIMIT,
+    tempDirectory = serverEnv.DUCKDB_TEMP_DIRECTORY,
+    extensionDirectory = serverEnv.DUCKDB_EXTENSION_DIRECTORY,
+  } = config ?? {};
+
+  createOrEnsureWritableDirectory('tempDirectory', tempDirectory);
+  createOrEnsureWritableDirectory('extensionDirectory', extensionDirectory);
 
   const instance = await DuckDBInstance.create(':memory:', {
-    access_mode: 'READ_WRITE',
-    max_memory: '64MB',
-    ...(threads ? { threads: threads.toString(10) } : {}),
+    ...(memoryLimit ? { memory_limit: memoryLimit } : {}),
+    ...(threads ? { threads } : {}),
+    ...(tempDirectory ? { temp_directory: tempDirectory } : {}),
+    ...(extensionDirectory ? { extension_directory: extensionDirectory } : {}),
   });
   return await instance.connect();
 };
 
 // @see instrumentation.ts
-export const initializeDuckDbMemoryConn =
-  async (): Promise<DuckDBConnection> => {
-    return createDuckDBMemoryDb();
-  };
-
 export const dbDuckDbMemoryConn =
   process.env.NODE_ENV === 'production'
-    ? await createDuckDBMemoryDb()
+    ? await createDuckDbMemoryConnection()
     : (
         globalThis as unknown as {
           dbDuckDbMemoryConn: DuckDBConnection;
