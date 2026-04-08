@@ -67,7 +67,6 @@ module.exports = defineConfig({
 
     // Shadcn doesn't support newer versions yet
     'react-resizable-panels',
-    'recharts',
 
     // duckdb-wasm depends on an older version of arrow
     'apache-arrow',
