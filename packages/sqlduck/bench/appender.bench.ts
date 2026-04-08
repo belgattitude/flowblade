@@ -71,6 +71,7 @@ describe('appender benches', async () => {
     path: path.join(testTempDir, 'bench-appender.db'),
     options: {
       accessMode: 'READ_WRITE',
+      blockSize: 262_144,
     },
   });
   const fileTable = new Table({
