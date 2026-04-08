@@ -6,7 +6,7 @@ import { duckConnectionsOptions } from '../core/duck-connections-options.ts';
 import { duckValidatorsZod } from './duck-validators-zod.ts';
 
 export const duckAllConnectionOptionsZodSchema = z.strictObject({
-  accessMode: z.optional(z.enum(['READ_ONLY', 'READ_WRITE'])),
+  accessMode: z.optional(z.enum(duckConnectionsOptions.accessModes)),
   compress: z.optional(z.boolean()),
   type: z.optional(z.enum(duckConnectionsOptions.types)),
   blockSize: z.optional(z.int32().min(16_384).max(262_144)),
@@ -15,7 +15,9 @@ export const duckAllConnectionOptionsZodSchema = z.strictObject({
     z.string().startsWith('v').regex(duckStorageVersionRegexp)
   ),
   encryptionKey: z.optional(z.string().min(8)),
-  encryptionCipher: z.optional(z.enum(['CBC', 'CTR', 'GCM'])),
+  encryptionCipher: z.optional(
+    z.enum(duckConnectionsOptions.encryptionCiphers)
+  ),
 });
 
 export type DuckAllConnectionOptionsZodSchema = z.infer<
@@ -55,7 +57,7 @@ export const duckConnectionParamsZodSchema = z.discriminatedUnion('type', [
           return (
             pathname.length > 0 &&
             pathname.startsWith('/') &&
-            pathname.includes('..') === false
+            !pathname.includes('..')
           );
         },
         {

@@ -1,6 +1,7 @@
 import { type DuckDBConnection, DuckDBInstance } from '@duckdb/node-api';
 
-import { createOrEnsureWritableDirectory } from '../../core/utils/filesystem.utils.ts';
+import { createAndEnsureWritableDirectory } from '@/server/utils/filesystem.utils.ts';
+
 import { serverEnv } from '../../env/server.env.mjs';
 /**
  * Initial configuration of duckdb memory instance
@@ -35,8 +36,8 @@ export const createDuckDbMemoryConnection = async (
     extensionDirectory = serverEnv.DUCKDB_EXTENSION_DIRECTORY,
   } = config ?? {};
 
-  createOrEnsureWritableDirectory('tempDirectory', tempDirectory);
-  createOrEnsureWritableDirectory('extensionDirectory', extensionDirectory);
+  createAndEnsureWritableDirectory('tempDirectory', tempDirectory);
+  createAndEnsureWritableDirectory('extensionDirectory', extensionDirectory);
 
   const instance = await DuckDBInstance.create(':memory:', {
     ...(memoryLimit ? { memory_limit: memoryLimit } : {}),

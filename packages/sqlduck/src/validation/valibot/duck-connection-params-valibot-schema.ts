@@ -6,7 +6,7 @@ import { duckConnectionsOptions } from '../core/duck-connections-options.ts';
 import { duckValidatorsValibot } from './duck-validators-valibot.ts';
 
 export const duckAllConnectionOptionsValibotSchema = v.object({
-  accessMode: v.optional(v.picklist(['READ_ONLY', 'READ_WRITE'])),
+  accessMode: v.optional(v.picklist(duckConnectionsOptions.accessModes)),
   compress: v.optional(v.boolean()),
   type: v.optional(v.picklist(duckConnectionsOptions.types)),
   blockSize: v.optional(
@@ -17,7 +17,9 @@ export const duckAllConnectionOptionsValibotSchema = v.object({
     v.pipe(v.string(), v.startsWith('v'), v.regex(duckStorageVersionRegexp))
   ),
   encryptionKey: v.optional(v.pipe(v.string(), v.minLength(8))),
-  encryptionCipher: v.optional(v.picklist(['CBC', 'CTR', 'GCM'])),
+  encryptionCipher: v.optional(
+    v.picklist(duckConnectionsOptions.encryptionCiphers)
+  ),
 });
 
 export type DuckAllConnectionOptionsValibotSchema = v.InferOutput<

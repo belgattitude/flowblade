@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe } from 'vitest';
 import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
 import { testTempDir } from '@/tests/utils/get-test-temp-dir.ts';
 
+import { FileSystemUtils } from '../../filesystem/file-system-utils.ts';
 import { Database } from '../../objects/database.ts';
 import { DuckDatabaseManager } from './duck-database-manager.ts';
 
@@ -46,7 +47,6 @@ describe('DuckDatabaseManagerTest', async () => {
         path: dbFile,
         options: {
           accessMode: 'READ_WRITE',
-          storageVersion: 'v1.5.1',
         },
       });
       expect(database).toBeInstanceOf(Database);
@@ -82,6 +82,23 @@ describe('DuckDatabaseManagerTest', async () => {
         { database_name: 'db1' },
         { database_name: 'memory' },
       ]);
+    });
+  });
+  describe('createDatabaseFile', () => {
+    it('should create a database file', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      const dbFile = path.join(testTempDir, 'test-createDatabaseFile.db');
+      const fsUtils = new FileSystemUtils();
+      fsUtils.removeFileIfExists(dbFile);
+
+      const result = await dbManager.createDatabaseFile({
+        path: dbFile,
+      });
+      fsUtils.removeFileIfExists(dbFile);
+
+      expect(result).toStrictEqual({
+        status: 'created',
+      });
     });
   });
 });

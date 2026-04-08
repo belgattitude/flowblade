@@ -2,10 +2,7 @@ import fs from 'node:fs';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  createDirectory,
-  createOrEnsureWritableDirectory,
-} from './filesystem.utils';
+import { FileSystemUtils } from './file-system-utils.ts';
 
 vi.mock('node:fs', () => ({
   default: {
@@ -19,44 +16,48 @@ vi.mock('node:fs', () => ({
   },
 }));
 
-describe('filesystem.utils', () => {
+describe('FileSystemUtils', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('createDirectory', () => {
     it('should create a directory recursively', () => {
-      createDirectory('/some/path');
+      const fsUtils = new FileSystemUtils();
+      fsUtils.createDirectory('/some/path');
       expect(fs.mkdirSync).toHaveBeenCalledWith('/some/path', {
         recursive: true,
       });
     });
 
     it('should not throw if the directory already exists', () => {
+      const fsUtils = new FileSystemUtils();
       const error = new Error('EEXIST') as NodeJS.ErrnoException;
       error.code = 'EEXIST';
       vi.mocked(fs.mkdirSync).mockImplementationOnce(() => {
         throw error;
       });
 
-      expect(() => createDirectory('/some/path')).not.toThrow();
+      expect(() => fsUtils.createDirectory('/some/path')).not.toThrow();
     });
 
     it('should throw if another error occurs during creation', () => {
+      const fsUtils = new FileSystemUtils();
       const error = new Error('ENOENT') as NodeJS.ErrnoException;
       error.code = 'ENOENT';
       vi.mocked(fs.mkdirSync).mockImplementationOnce(() => {
         throw error;
       });
 
-      expect(() => createDirectory('/some/path')).toThrow(error);
+      expect(() => fsUtils.createDirectory('/some/path')).toThrow(error);
     });
   });
 
   describe('createOrEnsureWritableDirectory', () => {
     it('should return if path is undefined', () => {
+      const fsUtils = new FileSystemUtils();
       expect(
-        createOrEnsureWritableDirectory('label', undefined)
+        fsUtils.createAndEnsureWritableDirectory('label', undefined)
       ).toBeUndefined();
       expect(fs.existsSync).not.toHaveBeenCalled();
     });
@@ -67,7 +68,8 @@ describe('filesystem.utils', () => {
         isDirectory: () => true,
       } as fs.Stats);
 
-      createOrEnsureWritableDirectory('test-dir', '/new/path');
+      const fsUtils = new FileSystemUtils();
+      fsUtils.createAndEnsureWritableDirectory('test-dir', '/new/path');
 
       expect(fs.mkdirSync).toHaveBeenCalledWith('/new/path', {
         recursive: true,
@@ -80,9 +82,9 @@ describe('filesystem.utils', () => {
       vi.mocked(fs.mkdirSync).mockImplementationOnce(() => {
         throw error;
       });
-
+      const fsUtils = new FileSystemUtils();
       expect(() =>
-        createOrEnsureWritableDirectory('test-dir', '/new/path')
+        fsUtils.createAndEnsureWritableDirectory('test-dir', '/new/path')
       ).toThrow("Failed to create test-dir '/new/path' - Permission denied");
     });
 
@@ -91,9 +93,9 @@ describe('filesystem.utils', () => {
       vi.mocked(fs.statSync).mockReturnValue({
         isDirectory: () => false,
       } as fs.Stats);
-
+      const fsUtils = new FileSystemUtils();
       expect(() =>
-        createOrEnsureWritableDirectory('test-dir', '/existing/file')
+        fsUtils.createAndEnsureWritableDirectory('test-dir', '/existing/file')
       ).toThrow("test-dir '/existing/file' must be a directory");
     });
 
@@ -105,9 +107,9 @@ describe('filesystem.utils', () => {
       vi.mocked(fs.accessSync).mockImplementationOnce(() => {
         throw new Error('Not writable');
       });
-
+      const fsUtils = new FileSystemUtils();
       expect(() =>
-        createOrEnsureWritableDirectory('test-dir', '/readonly/dir')
+        fsUtils.createAndEnsureWritableDirectory('test-dir', '/readonly/dir')
       ).toThrow("test-dir '/readonly/dir' must be writable");
     });
 
@@ -117,9 +119,9 @@ describe('filesystem.utils', () => {
         isDirectory: () => true,
       } as fs.Stats);
       vi.mocked(fs.accessSync).mockReturnValue(undefined);
-
+      const fsUtils = new FileSystemUtils();
       expect(() =>
-        createOrEnsureWritableDirectory('test-dir', '/ok/dir')
+        fsUtils.createAndEnsureWritableDirectory('test-dir', '/ok/dir')
       ).not.toThrow();
       expect(fs.accessSync).toHaveBeenCalledWith('/ok/dir', 2);
     });

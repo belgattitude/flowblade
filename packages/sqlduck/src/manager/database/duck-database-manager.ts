@@ -1,6 +1,7 @@
-import type { DuckDBConnection } from '@duckdb/node-api';
+import { type DuckDBConnection, DuckDBInstanceCache } from '@duckdb/node-api';
 import type { Logger } from '@logtape/logtape';
 
+import { FileSystemUtils } from '../../filesystem/file-system-utils.ts';
 import { sqlduckDefaultLogtapeLogger } from '../../logger/sqlduck-default-logtape-logger.ts';
 import { Database } from '../../objects/database.ts';
 import type { DuckConnectionParams } from '../../validation/core/types.ts';
@@ -17,6 +18,8 @@ import {
 export class DuckDatabaseManager {
   #conn: DuckDBConnection;
   #logger: Logger;
+  #fs: FileSystemUtils | undefined;
+
   constructor(conn: DuckDBConnection, params?: { logger?: Logger }) {
     this.#conn = conn;
     this.#logger =
@@ -47,7 +50,13 @@ export class DuckDatabaseManager {
   ) => {
     const params = duckConnectionParamsZodSchema.parse(dbParams);
     const rawSql = new DuckDatabaseAttachCommand(params, options).getRawSql();
-    await this.#executeRawSqlCommand(`attach(${params.alias})`, rawSql);
+    const { behaviour } = options ?? {};
+    await this.#executeRawSqlCommand(
+      [`attach(${params.alias}`, behaviour ?? null, ')']
+        .filter(Boolean)
+        .join(','),
+      rawSql
+    );
     return new Database({ alias: params.alias });
   };
 
@@ -112,6 +121,53 @@ export class DuckDatabaseManager {
     return true;
   };
 
+  /**
+   * Helper to create an initial database file.
+   */
+  createDatabaseFile = async (params: {
+    path: string;
+    createDirectory?: boolean;
+  }): Promise<{ status: 'exists' | 'created' }> => {
+    const startTime = Date.now();
+    const { path, createDirectory = true } = params;
+
+    const fs = this.#getFs();
+    if (fs.isFile(path)) {
+      return { status: 'exists' };
+    }
+
+    if (createDirectory) {
+      const { directory } = fs.parsePath(path);
+      fs.createAndEnsureWritableDirectory('database file directory', directory);
+    }
+
+    const instanceCache = new DuckDBInstanceCache();
+    try {
+      const instance = await instanceCache.getOrCreateInstance(path);
+      const conn = await instance.connect();
+      conn.closeSync();
+      const timeMs = Math.round(Date.now() - startTime);
+      this.#logger.info(
+        `DuckDatabaseManager.createDatabaseFile('${path}') in ${timeMs}ms`,
+        {
+          timeMs: timeMs,
+          path: path,
+        }
+      );
+    } catch (e) {
+      this.#logger.error(
+        `DuckDatabaseManager.createDatabaseFile('${path}') failed - ${(e as Error)?.message ?? ''}`,
+        {
+          path: path,
+        }
+      );
+      throw e;
+    }
+    return {
+      status: 'created',
+    };
+  };
+
   #executeRawSqlCommand = async (name: string, rawSql: string) => {
     const startTime = Date.now();
     try {
@@ -134,5 +190,14 @@ export class DuckDatabaseManager {
         cause: e,
       });
     }
+  };
+
+  #getFs = (): FileSystemUtils => {
+    if (this.#fs === undefined) {
+      this.#fs = new FileSystemUtils({
+        logger: this.#logger,
+      });
+    }
+    return this.#fs;
   };
 }

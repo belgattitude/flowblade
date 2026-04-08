@@ -8,6 +8,7 @@ const npmPreapprovedPackages = [
   '@flowblade/*',
   '@httpx/*',
   'hono',
+  '@hono/*',
   'next',
   '@next/*',
   '@azure/*',
@@ -67,7 +68,6 @@ module.exports = defineConfig({
 
     // Shadcn doesn't support newer versions yet
     'react-resizable-panels',
-    'recharts',
 
     // duckdb-wasm depends on an older version of arrow
     'apache-arrow',

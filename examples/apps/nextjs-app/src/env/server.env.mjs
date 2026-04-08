@@ -43,8 +43,8 @@ export const serverEnv = createEnv({
         v.metadata({
           description: 'The flowblade main duckdb database.',
           example: `
-           disk:   'duckdb://filesystem/referential_db?path=/tmp/referential.db&accessMode=READ_WRITE' 
-           memory: 'duckdb://memory/referential_db?accessMode=READ_WRITE&compress=true'
+           disk:   'duckdb://filesystem/flowblade_db?path=/tmp/referential.db&accessMode=READ_WRITE' 
+           memory: 'duckdb://memory/flowblade_db?accessMode=READ_WRITE&compress=true'
           `,
         })
       )
