@@ -8,6 +8,7 @@ const npmPreapprovedPackages = [
   '@flowblade/*',
   '@httpx/*',
   'hono',
+  '@hono/*',
   'next',
   '@next/*',
   '@azure/*',
