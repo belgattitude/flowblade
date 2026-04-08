@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.15.0
+
+### Minor Changes
+
+- [#1045](https://github.com/belgattitude/flowblade/pull/1045) [`88cc68d`](https://github.com/belgattitude/flowblade/commit/88cc68db8929bbe16719f3f6a0c0b008999df905) Thanks [@belgattitude](https://github.com/belgattitude)! - Add createDatabaseFile util
+
 ## 0.14.0
 
 ### Minor Changes
