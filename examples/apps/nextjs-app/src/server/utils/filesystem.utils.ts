@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 /**
- * Create a directory recursively
+ * Create a directory recursively if it doesn't exist'
  *
  * @throws Error if it can't be created
  */
@@ -15,7 +15,7 @@ export const createDirectory = (path: string) => {
   }
 };
 
-export const createOrEnsureWritableDirectory = (
+export const createAndEnsureWritableDirectory = (
   label: string,
   path: string | undefined
 ) => {

@@ -3,8 +3,8 @@ import fs from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  createAndEnsureWritableDirectory,
   createDirectory,
-  createOrEnsureWritableDirectory,
 } from './filesystem.utils';
 
 vi.mock('node:fs', () => ({
@@ -56,7 +56,7 @@ describe('filesystem.utils', () => {
   describe('createOrEnsureWritableDirectory', () => {
     it('should return if path is undefined', () => {
       expect(
-        createOrEnsureWritableDirectory('label', undefined)
+        createAndEnsureWritableDirectory('label', undefined)
       ).toBeUndefined();
       expect(fs.existsSync).not.toHaveBeenCalled();
     });
@@ -67,7 +67,7 @@ describe('filesystem.utils', () => {
         isDirectory: () => true,
       } as fs.Stats);
 
-      createOrEnsureWritableDirectory('test-dir', '/new/path');
+      createAndEnsureWritableDirectory('test-dir', '/new/path');
 
       expect(fs.mkdirSync).toHaveBeenCalledWith('/new/path', {
         recursive: true,
@@ -82,7 +82,7 @@ describe('filesystem.utils', () => {
       });
 
       expect(() =>
-        createOrEnsureWritableDirectory('test-dir', '/new/path')
+        createAndEnsureWritableDirectory('test-dir', '/new/path')
       ).toThrow("Failed to create test-dir '/new/path' - Permission denied");
     });
 
@@ -93,7 +93,7 @@ describe('filesystem.utils', () => {
       } as fs.Stats);
 
       expect(() =>
-        createOrEnsureWritableDirectory('test-dir', '/existing/file')
+        createAndEnsureWritableDirectory('test-dir', '/existing/file')
       ).toThrow("test-dir '/existing/file' must be a directory");
     });
 
@@ -107,7 +107,7 @@ describe('filesystem.utils', () => {
       });
 
       expect(() =>
-        createOrEnsureWritableDirectory('test-dir', '/readonly/dir')
+        createAndEnsureWritableDirectory('test-dir', '/readonly/dir')
       ).toThrow("test-dir '/readonly/dir' must be writable");
     });
 
@@ -119,7 +119,7 @@ describe('filesystem.utils', () => {
       vi.mocked(fs.accessSync).mockReturnValue(undefined);
 
       expect(() =>
-        createOrEnsureWritableDirectory('test-dir', '/ok/dir')
+        createAndEnsureWritableDirectory('test-dir', '/ok/dir')
       ).not.toThrow();
       expect(fs.accessSync).toHaveBeenCalledWith('/ok/dir', 2);
     });
