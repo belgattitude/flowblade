@@ -5,8 +5,11 @@ import {
   type DuckDBType,
   ENUM,
   FLOAT,
+  HUGEINT,
   INTEGER,
   TIMESTAMP,
+  TIMESTAMP_MS,
+  UBIGINT,
   UUID,
   VARCHAR,
 } from '@duckdb/node-api';
@@ -49,7 +52,10 @@ const createOptions = {
 const duckDbTypes = [
   ['VARCHAR', VARCHAR],
   ['BIGINT', BIGINT],
+  ['UBIGINT', UBIGINT],
+  ['HUGEINT', HUGEINT],
   ['TIMESTAMP', TIMESTAMP],
+  ['TIMESTAMP_MS', TIMESTAMP_MS],
   ['UUID', UUID],
   ['BOOLEAN', BOOLEAN],
   ['INTEGER', INTEGER],
@@ -107,7 +113,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
           } else {
             switch (format) {
               case 'date-time':
-                c.duckdbType = TIMESTAMP;
+                c.duckdbType = TIMESTAMP_MS;
                 break;
               case 'int64':
                 c.duckdbType = BIGINT;

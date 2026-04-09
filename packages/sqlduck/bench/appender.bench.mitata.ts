@@ -73,7 +73,7 @@ boxplot(() => {
         createOptions: {
           create: 'CREATE_OR_REPLACE',
         },
-        checkpointChunksFrequency: 2,
+        checkpointChunksFrequency: 100,
         autoCheckpoint: true,
       });
       if (totalRows !== limit) {
