@@ -1,5 +1,17 @@
 # @flowblade/sqlduck
 
+## 0.16.0
+
+### Minor Changes
+
+- [#1047](https://github.com/belgattitude/flowblade/pull/1047) [`c25cdba`](https://github.com/belgattitude/flowblade/commit/c25cdbaf6e33a6df85e26bf01cd39c82246ad8ad) Thanks [@belgattitude](https://github.com/belgattitude)! - Replace duckdb timestamp by TIMESTAMP_MS in table creation
+
+- [#1047](https://github.com/belgattitude/flowblade/pull/1047) [`c25cdba`](https://github.com/belgattitude/flowblade/commit/c25cdbaf6e33a6df85e26bf01cd39c82246ad8ad) Thanks [@belgattitude](https://github.com/belgattitude)! - Support TINYINT when values are in the -127/128 range
+
+- [#1047](https://github.com/belgattitude/flowblade/pull/1047) [`c25cdba`](https://github.com/belgattitude/flowblade/commit/c25cdbaf6e33a6df85e26bf01cd39c82246ad8ad) Thanks [@belgattitude](https://github.com/belgattitude)! - Add support for zod.enum
+
+- [#1047](https://github.com/belgattitude/flowblade/pull/1047) [`c25cdba`](https://github.com/belgattitude/flowblade/commit/c25cdbaf6e33a6df85e26bf01cd39c82246ad8ad) Thanks [@belgattitude](https://github.com/belgattitude)! - Improve conversion a string dates
+
 ## 0.15.0
 
 ### Minor Changes
