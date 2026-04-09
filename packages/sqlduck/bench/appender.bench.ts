@@ -35,10 +35,11 @@ describe('appender benches', async () => {
     count: limit,
     schema: userSchema,
     factory: ({ rowIdx }) => {
+      const repeatedIdx = String((rowIdx % 20) + 1);
       return {
         id: rowIdx,
-        name: `unique-record-for-tests${rowIdx === 0 ? '' : rowIdx}`,
-        email: `unique-record-for-tests${rowIdx === 0 ? '' : rowIdx}@example.com`,
+        name: `unique-record-for-tests${rowIdx === 0 ? '' : repeatedIdx}`,
+        email: `unique-record-for-tests${rowIdx === 0 ? '' : repeatedIdx}@example.com`,
         bignumber: bignumberExample,
         created_at: now,
       };
@@ -65,10 +66,12 @@ describe('appender benches', async () => {
     database: memoryDb.alias,
   });
 
+  const dbFilePath = path.join(testTempDir, 'bench-appender.db');
+
   const fileDb = await dbManager.attachOrReplace({
     type: 'filesystem',
     alias: 'bench_appender',
-    path: path.join(testTempDir, 'bench-appender.db'),
+    path: dbFilePath,
     options: {
       accessMode: 'READ_WRITE',
       blockSize: 262_144,
@@ -91,7 +94,7 @@ describe('appender benches', async () => {
         createOptions: {
           create: 'CREATE_OR_REPLACE',
         },
-        checkpointChunksFrequency: 4,
+        checkpointChunksFrequency: 100,
         autoCheckpoint: true,
       });
       if (totalRows !== limit) {
@@ -112,7 +115,7 @@ describe('appender benches', async () => {
         createOptions: {
           create: 'CREATE_OR_REPLACE',
         },
-        checkpointChunksFrequency: 4,
+        checkpointChunksFrequency: 100,
         autoCheckpoint: true,
       });
       if (totalRows !== limit) {

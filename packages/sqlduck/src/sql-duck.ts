@@ -1,4 +1,8 @@
-import { type DuckDBConnection, DuckDBDataChunk } from '@duckdb/node-api';
+import {
+  type DuckDBConnection,
+  DuckDBDataChunk,
+  type DuckDBType,
+} from '@duckdb/node-api';
 import type { Logger } from '@logtape/logtape';
 import type { ZodObject } from 'zod';
 import type * as z from 'zod';
@@ -8,6 +12,7 @@ import {
   isOnDataAppendedAsyncCb,
   type OnDataAppendedCb,
 } from './appender/data-appender-callback.ts';
+import { createDuckColumnConverters } from './converter/create-duck-column-converters.ts';
 import { sqlduckDefaultLogtapeLogger } from './logger/sqlduck-default-logtape-logger.ts';
 import { DuckDatabaseManager } from './manager/database/duck-database-manager.ts';
 import type { Table } from './objects/table.ts';
@@ -188,6 +193,14 @@ export class SqlDuck {
 
     const chunkTypes = Array.from(columnTypes.values());
 
+    const columnTypeIds = Object.fromEntries(
+      Array.from(columnTypes).map(([key, duckType]) => {
+        return [key, duckType];
+      })
+    ) as Record<keyof TSchema, DuckDBType>;
+
+    const transformers = createDuckColumnConverters(columnTypeIds);
+
     let totalRows = 0;
 
     const dataAppendedCollector = createOnDataAppendedCollector();
@@ -196,6 +209,7 @@ export class SqlDuck {
     const columnStream = rowsToColumnsChunks({
       rows: rowStream,
       chunkSize: chunkSize,
+      transformers: transformers,
     });
 
     let appendedChunkCount = 0;
@@ -209,6 +223,7 @@ export class SqlDuck {
         });
 
         totalRows += dataChunk?.[0]?.length ?? 0;
+
         // @ts-expect-error need to rework rowsToColumnsChunks to return properly
         //                  infer the type of the dataChunk from the provided zod schema
         chunk.setColumns(dataChunk);

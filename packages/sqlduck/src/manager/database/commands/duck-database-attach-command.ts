@@ -45,10 +45,6 @@ export class DuckDatabaseAttachCommand implements IGetRawSql {
 
     const options: string[] = [];
 
-    type Entries<T> = {
-      [K in keyof T]: [key: K, value: T[K]];
-    }[keyof T][];
-
     if (isPlainObject<DuckAllConnectionOptions>(dbParams.options)) {
       for (const [key, value] of Object.entries(dbParams.options)) {
         switch (key as keyof DuckAllConnectionOptions) {

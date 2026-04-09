@@ -15,7 +15,7 @@ import { DuckDatabaseManager } from './manager/database/duck-database-manager.ts
 import { Table } from './objects/table';
 import { SqlDuck } from './sql-duck';
 import { getTableCreateFromZod } from './table/get-table-create-from-zod';
-import { zodCodecs } from './utils/zod-codecs';
+import { zodCodecs } from './utils/zod-codecs.ts';
 
 const testTimeout = 15_000;
 
@@ -57,6 +57,7 @@ describe('Duckdb tests', async () => {
           email: z.email().nullable(),
           bignumber: z.nullable(zodCodecs.bigintToString),
           created_at: zodCodecs.dateToString,
+          gender: z.nullable(z.enum(['M', 'F'])),
           // uuid_v7: z.nullable(z.uuidv7()),
         });
 
@@ -79,8 +80,9 @@ describe('Duckdb tests', async () => {
                 email: `unique-record-for-tests@example.com`,
                 bignumber: bignumberExample,
                 created_at: now,
+                gender: 'F',
                 // uuid_v7: '019d2155-d292-71fa-87d7-9d1f1ed83569',
-              };
+              } as const;
             }
             return {
               id: faker.number.int(),
@@ -88,8 +90,9 @@ describe('Duckdb tests', async () => {
               email: faker.internet.email(),
               bignumber: faker.number.bigInt(),
               created_at: faker.date.recent(),
+              gender: 'M',
               // uuid_v7: faker.string.uuid({ version: 7 }),
-            };
+            } as const;
           },
         });
 
@@ -153,22 +156,26 @@ describe('Duckdb tests', async () => {
             bignumber: string;
             email: string;
             created_at: string;
+            gender: string;
             // uuid_v7: string;
           }>`SELECT 
               name,
               bignumber, 
               email, 
-              strftime(created_at::TIMESTAMPTZ, '%Y-%m-%dT%H:%M:%S.%gZ') as created_at
+              strftime(created_at::TIMESTAMPTZ, '%Y-%m-%dT%H:%M:%S.%gZ') as created_at,
+              gender
              FROM ${sql.raw(testTable.getFullName())} 
              WHERE name = ${params.name} 
              LIMIT 1`
         );
-        const { name, bignumber, email, created_at } = data?.[0] ?? {};
+        console.log(data);
+        const { name, bignumber, email, created_at, gender } = data?.[0] ?? {};
         expect(name).toStrictEqual('unique-record-for-tests');
         expect(email).toStrictEqual('unique-record-for-tests@example.com');
         expect(bignumber).toStrictEqual(bignumberExample.toString(10));
         expect(isParsableStrictIsoDateZ(created_at)).toBe(true);
         expect(created_at).toBe(now.toISOString());
+        expect(gender).toStrictEqual('F');
       });
     },
     testTimeout * 2
@@ -232,7 +239,7 @@ describe('Duckdb tests', async () => {
       });
       const sqlDuck = new SqlDuck({ conn });
       const rowStream = function* gen() {
-        yield { id: 1 };
+        yield { id: 'not a number' as unknown as number };
       };
 
       // on nodejs: Cannot convert 1 to a BigInt

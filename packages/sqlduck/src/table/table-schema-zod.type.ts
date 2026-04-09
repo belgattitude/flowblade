@@ -17,7 +17,8 @@ export type ZodSchemaSupportedTypes =
   | z.ZodUUID
   | z.ZodCUID
   | z.ZodCUID2
-  | z.ZodULID;
+  | z.ZodULID
+  | z.ZodEnum;
 
 export type TableSchemaZod = z.ZodObject<
   Record<

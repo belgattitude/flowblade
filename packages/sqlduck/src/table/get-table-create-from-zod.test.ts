@@ -3,9 +3,11 @@ import {
   BOOLEAN,
   DOUBLE,
   type DuckDBType,
+  ENUM,
   FLOAT,
   INTEGER,
-  TIMESTAMP,
+  TIMESTAMP_MS,
+  TINYINT,
   UUID,
   VARCHAR,
 } from '@duckdb/node-api';
@@ -36,14 +38,16 @@ describe('getTableCreateFromZod', () => {
                 name VARCHAR NOT NULL,
                 email VARCHAR,
                 js_number BIGINT NOT NULL,
+                js_number_tinyint TINYINT NOT NULL,
                 js_number_int32 INTEGER NOT NULL,
                 js_float_float64 DOUBLE NOT NULL,
                 js_float_float32 FLOAT NOT NULL,
                 bignumber BIGINT,
-                created_at TIMESTAMP NOT NULL,
+                created_at TIMESTAMP_MS NOT NULL,
                 is_active BOOLEAN,
                 alt_uuid_v7 UUID NOT NULL,
-                custom_type UUID NOT NULL
+                custom_type UUID NOT NULL,
+                js_enum ENUM('a', 'b', 'c') NOT NULL
                )`,
             {
               dialect: duckDbDialect,
@@ -83,14 +87,16 @@ describe('getTableCreateFromZod', () => {
           ['name', VARCHAR],
           ['email', VARCHAR],
           ['js_number', BIGINT],
+          ['js_number_tinyint', TINYINT],
           ['js_number_int32', INTEGER],
           ['js_float_float64', DOUBLE],
           ['js_float_float32', FLOAT],
           ['bignumber', BIGINT],
-          ['created_at', TIMESTAMP],
+          ['created_at', TIMESTAMP_MS],
           ['is_active', BOOLEAN],
           ['alt_uuid_v7', UUID],
           ['custom_type', UUID],
+          ['js_enum', ENUM(['a', 'b', 'c'])],
         ])
       );
     });

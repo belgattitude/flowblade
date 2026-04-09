@@ -3,9 +3,13 @@ import {
   BOOLEAN,
   DOUBLE,
   type DuckDBType,
+  ENUM,
   FLOAT,
+  HUGEINT,
   INTEGER,
   TIMESTAMP,
+  TIMESTAMP_MS,
+  UBIGINT,
   UUID,
   VARCHAR,
 } from '@duckdb/node-api';
@@ -48,7 +52,10 @@ const createOptions = {
 const duckDbTypes = [
   ['VARCHAR', VARCHAR],
   ['BIGINT', BIGINT],
+  ['UBIGINT', UBIGINT],
+  ['HUGEINT', HUGEINT],
   ['TIMESTAMP', TIMESTAMP],
+  ['TIMESTAMP_MS', TIMESTAMP_MS],
   ['UUID', UUID],
   ['BOOLEAN', BOOLEAN],
   ['INTEGER', INTEGER],
@@ -85,6 +92,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       primaryKey: boolean | undefined;
       minimum?: number;
       maximum?: number;
+      enum?: string[];
       duckdbType?: string;
     },
   ][]) {
@@ -100,18 +108,22 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
     } else {
       switch (type) {
         case 'string':
-          switch (format) {
-            case 'date-time':
-              c.duckdbType = TIMESTAMP;
-              break;
-            case 'int64':
-              c.duckdbType = BIGINT;
-              break;
-            case 'uuid':
-              c.duckdbType = UUID;
-              break;
-            default:
-              c.duckdbType = VARCHAR;
+          if (Array.isArray(def.enum)) {
+            c.duckdbType = ENUM(def.enum);
+          } else {
+            switch (format) {
+              case 'date-time':
+                c.duckdbType = TIMESTAMP_MS;
+                break;
+              case 'int64':
+                c.duckdbType = BIGINT;
+                break;
+              case 'uuid':
+                c.duckdbType = UUID;
+                break;
+              default:
+                c.duckdbType = VARCHAR;
+            }
           }
           break;
         case 'number':
