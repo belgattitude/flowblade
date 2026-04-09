@@ -5,11 +5,12 @@ import { zodCodecs } from '../../src/utils/zod-codecs.ts';
 /**
  * A full set of supported columns for testing purposes.
  */
-export const testFullSupportedColumnsZodSchema = z.object({
+export const testFullSupportedColumnsZodSchema = z.strictObject({
   id: z.number().meta({ primaryKey: true }),
   name: z.string(),
   email: z.email().nullable(),
   js_number: z.number(),
+  js_number_tinyint: z.number().int().min(-128).max(127),
   js_number_int32: z.int32(),
   js_float_float64: z.float64(),
   js_float_float32: z.float32(),
@@ -22,6 +23,7 @@ export const testFullSupportedColumnsZodSchema = z.object({
   custom_type: z.string().meta({
     duckdbType: 'UUID',
   }),
+  js_enum: z.enum(['a', 'b', 'c']),
   /*
   text_json: z.object({
     name: z.string(),

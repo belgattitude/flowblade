@@ -3,6 +3,7 @@ import {
   BOOLEAN,
   DOUBLE,
   type DuckDBType,
+  ENUM,
   FLOAT,
   INTEGER,
   TIMESTAMP,
@@ -85,6 +86,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       primaryKey: boolean | undefined;
       minimum?: number;
       maximum?: number;
+      enum?: string[];
       duckdbType?: string;
     },
   ][]) {
@@ -100,18 +102,22 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
     } else {
       switch (type) {
         case 'string':
-          switch (format) {
-            case 'date-time':
-              c.duckdbType = TIMESTAMP;
-              break;
-            case 'int64':
-              c.duckdbType = BIGINT;
-              break;
-            case 'uuid':
-              c.duckdbType = UUID;
-              break;
-            default:
-              c.duckdbType = VARCHAR;
+          if (Array.isArray(def.enum)) {
+            c.duckdbType = ENUM(def.enum);
+          } else {
+            switch (format) {
+              case 'date-time':
+                c.duckdbType = TIMESTAMP;
+                break;
+              case 'int64':
+                c.duckdbType = BIGINT;
+                break;
+              case 'uuid':
+                c.duckdbType = UUID;
+                break;
+              default:
+                c.duckdbType = VARCHAR;
+            }
           }
           break;
         case 'number':
