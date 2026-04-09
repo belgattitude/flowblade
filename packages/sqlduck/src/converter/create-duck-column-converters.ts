@@ -25,6 +25,7 @@ export const createDuckColumnConverters = <
       case DuckDBTypeId.HUGEINT:
       case DuckDBTypeId.UHUGEINT:
       case DuckDBTypeId.INTEGER:
+      case DuckDBTypeId.UINTEGER:
       case DuckDBTypeId.BIGNUM:
         conv = converter.toBigIntString;
         break;
@@ -38,6 +39,8 @@ export const createDuckColumnConverters = <
       case DuckDBTypeId.BIT:
       case DuckDBTypeId.BOOLEAN:
       case DuckDBTypeId.TINYINT:
+      case DuckDBTypeId.USMALLINT:
+      case DuckDBTypeId.UTINYINT:
       case DuckDBTypeId.VARCHAR:
       case DuckDBTypeId.SMALLINT:
         conv = false;
