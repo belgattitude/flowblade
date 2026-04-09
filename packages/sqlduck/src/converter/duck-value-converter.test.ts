@@ -20,7 +20,7 @@ describe('DuckValueConverter', () => {
     it('should throw when invalid value is given', () => {
       // @ts-expect-error testing invalid value
       expect(() => converter.toBigIntString(new Date())).toThrow(
-        /\[DuckValueConverter.toBigintString\]: Unsupported type object with value/
+        /\[DuckValueConverter.toBigIntString\]: Unsupported type object with value/
       );
     });
   });
