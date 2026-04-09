@@ -84,7 +84,7 @@ const kubbApiFetcher = async <TData, TError = unknown, TVariables = unknown>(
     serializeArrayStyle: serializeArrayStyle,
   });
   const response = await apiFetcher(getIsomorphicUrl(url), {
-    prefixUrl: undefined,
+    prefix: undefined,
     method,
     timeout: 90_000,
     credentials: 'same-origin',

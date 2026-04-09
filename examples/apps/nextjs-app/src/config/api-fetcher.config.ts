@@ -2,11 +2,10 @@ import ky from 'ky';
 
 import { apiLocalConfig } from '@/config/api-local.config';
 
-const prefixUrl =
-  typeof window === 'undefined' ? apiLocalConfig.apiUrl : '/api';
+const kyPrefix = typeof window === 'undefined' ? apiLocalConfig.apiUrl : '/api';
 
 export const apiFetcher = ky.create({
-  prefixUrl,
+  prefix: kyPrefix,
   timeout: 60_000,
   retry: {
     limit: 2,
