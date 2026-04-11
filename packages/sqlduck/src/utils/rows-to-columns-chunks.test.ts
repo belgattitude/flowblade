@@ -90,4 +90,23 @@ describe('rowsToColumnsChunk', () => {
     const out = await Array.fromAsync(gen);
     expect(out.length).toBe(0);
   });
+
+  it('throws an error if transformers contains keys not present in the row', async () => {
+    const input: Row[] = [{ id: 1, name: 'A' }];
+
+    const gen = rowsToColumnsChunks({
+      rows: makeRows(input),
+      chunkSize: 1,
+      transformers: {
+        id: (v: number) => v.toString(),
+        // @ts-expect-error - testing runtime validation for extra keys
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        not_exists: (v: any) => v,
+      },
+    });
+
+    await expect(Array.fromAsync(gen)).rejects.toThrow(
+      'transformers parameter contains unknown row ids: not_exists'
+    );
+  });
 });

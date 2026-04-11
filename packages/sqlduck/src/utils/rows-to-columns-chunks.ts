@@ -52,6 +52,18 @@ export async function* rowsToColumnsChunks<
 
   const keys = Object.keys(first.value) as (keyof TRow)[];
 
+  if (transformers !== undefined) {
+    const transformerKeys = Object.keys(transformers);
+    const unknownKeys = transformerKeys.filter(
+      (k) => !keys.includes(k as keyof TRow)
+    );
+    if (unknownKeys.length > 0) {
+      throw new Error(
+        `transformers parameter contains unknown row ids: ${unknownKeys.join(', ')}`
+      );
+    }
+  }
+
   function createColumns() {
     return Object.fromEntries(keys.map((k) => [k, []])) as unknown as {
       [K in keyof TRow]: TRow[K][];
