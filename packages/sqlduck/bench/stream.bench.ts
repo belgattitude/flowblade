@@ -67,6 +67,11 @@ describe(`Bench rowsToColumnsChunks`, async () => {
       const a = rowsToColumnsChunks({
         rows: getFakeRowStream(),
         chunkSize,
+        transformers: {
+          bignumber: (value: bigint) => {
+            return (value + 1n).toString(10);
+          },
+        },
       });
       for await (const row of a) {
         const _a = row;

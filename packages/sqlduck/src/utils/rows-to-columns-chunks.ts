@@ -15,10 +15,21 @@ type RowsToColumnsChunksParams<
 };
 
 /**
- * Transform an async stream of rows into an async iterable of column arrays.
+ * Converts a stream of rows (row-oriented) into a stream of column-oriented chunks.
  *
- * It yields results in chunks to avoid buffering the entire dataset in memory. Each yielded item is a columns array for up to
- * `chunkSize` rows.
+ * This function processes row data incrementally using an async generator, which prevents
+ * loading the entire dataset into memory. Each yielded chunk is an object where keys are
+ * column names and values are arrays of up to `chunkSize` elements.
+ *
+ * This is particularly useful for DuckDB's Appender API or other columnar processing
+ * engines that expect data in chunks of columns.
+ *
+ * @param params - Configuration for the transformation.
+ * @param params.rows - An async or sync iterable of rows.
+ * @param params.chunkSize - The maximum number of rows per yielded chunk. Must be a positive integer.
+ * @param params.transformers - Optional mappers for specific columns to transform values before chunking.
+ *
+ * @returns An async iterator yielding chunks of column-oriented data.
  *
  * @example
  * ```typescript
@@ -36,8 +47,9 @@ type RowsToColumnsChunksParams<
  * for await (const chunk of columnChunks) {
  *   console.log(chunk);
  * }
- * // log: { id: [1, 2], name: ['A', 'B'] } // first chunk
- * // log: { id: [3], name: ['C'] } // second chunk
+ * // Output:
+ * // { id: [1, 2], name: ['A', 'B'] } // first chunk
+ * // { id: [3], name: ['C'] } // second chunk
  * ```
  */
 export async function* rowsToColumnsChunks<
