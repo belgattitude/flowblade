@@ -11,13 +11,31 @@ type RowsToColumnsChunksParams<TRow extends Record<string, SupportedRowTypes>> =
   };
 
 /**
- * Similar to `rowsToColumns` but yields results in chunks to avoid buffering
+ * Transform an async stream of rows into an async iterable of column arrays.
+ *
+ * It yields results in chunks to avoid buffering
  * the entire dataset in memory. Each yielded item is a columns array for up to
  * `chunkSize` rows.
  *
- * Example for chunkSize = 2:
- *   input rows: [{id:'1',name:'A'}, {id:'2',name:'B'}, {id:'3',name:'C'}]
- *   yields: [[['1','2'], ['A','B']], [['3'], ['C']]]
+ * @example
+ * ```typescript
+ * async function* generateRows() {
+ *   yield { id: 1, name: 'A' };
+ *   yield { id: 2, name: 'B' };
+ *   yield { id: 3, name: 'C' };
+ * }
+ *
+ * const columnChunks = rowsToColumnsChunks({
+ *   rows: generateRows(),
+ *   chunkSize: 2,
+ * });
+ *
+ * for await (const chunk of columnChunks) {
+ *   console.log(chunk);
+ * }
+ * // First log: [[1, 2], ['A', 'B']]
+ * // Second log: [[3], ['C']]
+ * ```
  */
 export async function* rowsToColumnsChunks<
   TRow extends Record<string, SupportedRowTypes>,
