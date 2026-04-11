@@ -157,7 +157,7 @@ export class SqlDuck {
    *    console.log(`Appended ${totalRows} rows so far`);
    *  },
    *  autoCheckpoint: true,
-   *  autoCheckpointFrequency: 100, // checkpoint after every 100 chunks
+   *  checkpointChunksFrequency: 100, // checkpoint after every 100 chunks
    *  createOptions: {
    *    create: 'CREATE_OR_REPLACE',
    *  },
