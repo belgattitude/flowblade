@@ -13,35 +13,34 @@ type RowsToColumnsChunksParams<TRow extends Record<string, SupportedRowTypes>> =
 /**
  * Transform an async stream of rows into an async iterable of column arrays.
  *
- * It yields results in chunks to avoid buffering
- * the entire dataset in memory. Each yielded item is a columns array for up to
+ * It yields results in chunks to avoid buffering the entire dataset in memory. Each yielded item is a columns array for up to
  * `chunkSize` rows.
  *
  * @example
  * ```typescript
- * async function* generateRows() {
- *   yield { id: 1, name: 'A' };
- *   yield { id: 2, name: 'B' };
- *   yield { id: 3, name: 'C' };
- * }
+ *  async function* generateRows() {
+ *    yield { id: 1, name: 'A' };
+ *    yield { id: 2, name: 'B' };
+ *    yield { id: 3, name: 'C' };
+ *  }
  *
- * const columnChunks = rowsToColumnsChunks({
- *   rows: generateRows(),
- *   chunkSize: 2,
- * });
+ *  const columnChunks = rowsToColumnsChunks({
+ *    rows: generateRows(),
+ *    chunkSize: 2,
+ *  })
  *
  * for await (const chunk of columnChunks) {
  *   console.log(chunk);
  * }
- * // First log: [[1, 2], ['A', 'B']]
- * // Second log: [[3], ['C']]
+ * // First log  : { id: [1, 2], name: ['A', 'B'] }
+ * // Second log : { id: [3],    name: ['C'] }
  * ```
  */
 export async function* rowsToColumnsChunks<
   TRow extends Record<string, SupportedRowTypes>,
 >(
   params: RowsToColumnsChunksParams<TRow>
-): AsyncIterableIterator<TRow[keyof TRow][][]> {
+): AsyncIterableIterator<{ [K in keyof TRow]: TRow[K][] }> {
   const { rows, chunkSize, transformers } = params;
   if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
     throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
@@ -52,35 +51,42 @@ export async function* rowsToColumnsChunks<
   if (first.done) return; // empty input → yield nothing
 
   const keys = Object.keys(first.value) as (keyof TRow)[];
-  let columns: TRow[keyof TRow][][] = keys.map(() => []);
+
+  function createColumns() {
+    return Object.fromEntries(keys.map((k) => [k, []])) as unknown as {
+      [K in keyof TRow]: TRow[K][];
+    };
+  }
+
+  let columns = createColumns();
   let rowsInChunk = 0;
 
-  keys.forEach((k, i) => {
+  keys.forEach((k) => {
     // push first row values
     const fn = transformers?.get(k);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    columns[i]!.push(fn === undefined ? first.value[k] : fn(first.value[k]));
+    columns[k].push(fn === undefined ? first.value[k] : fn(first.value[k]));
   });
   rowsInChunk++;
   // In case chunkSize === 1 (or generally if the threshold already reached),
   // flush immediately after the first row to avoid off-by-one errors.
   if (rowsInChunk >= chunkSize) {
     yield columns;
-    columns = keys.map(() => []);
+    columns = createColumns();
     rowsInChunk = 0;
   }
 
   // consume the rest
   for await (const row of rows) {
-    keys.forEach((k, i) => {
+    keys.forEach((k) => {
       const fn = transformers?.get(k);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      columns[i]!.push(fn === undefined ? row[k] : fn(row[k]));
+      columns[k].push(fn === undefined ? row[k] : fn(row[k]));
     });
     rowsInChunk++;
     if (rowsInChunk >= chunkSize) {
       yield columns;
-      columns = keys.map(() => []);
+      columns = createColumns();
       rowsInChunk = 0;
     }
   }

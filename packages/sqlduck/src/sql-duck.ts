@@ -149,7 +149,7 @@ export class SqlDuck {
       createOptions,
       onDataAppended,
       autoCheckpoint = true,
-      checkpointChunksFrequency = 10,
+      checkpointChunksFrequency,
     } = params;
 
     if (!Number.isSafeInteger(chunkSize) || chunkSize < 1 || chunkSize > 2048) {
@@ -162,7 +162,10 @@ export class SqlDuck {
       );
     }
 
-    if (checkpointChunksFrequency && typeof table.databaseName !== 'string') {
+    if (
+      checkpointChunksFrequency !== undefined &&
+      typeof table.databaseName !== 'string'
+    ) {
       throw new Error(
         'checkpointChunksFrequency requires table.databaseName to be provided.'
       );
@@ -170,12 +173,15 @@ export class SqlDuck {
 
     if (
       checkpointChunksFrequency !== undefined &&
-      checkpointChunksFrequency < 1
+      (checkpointChunksFrequency < 1 || checkpointChunksFrequency > 100_000)
     ) {
-      throw new Error('checkpointChunksFrequency must be a positive number.');
+      throw new Error(
+        'checkpointChunksFrequency must be a number between 1 and 100_000.'
+      );
     }
 
     const dbManager = new DuckDatabaseManager(this.#conn);
+
     const timeStart = Date.now();
 
     const { columnTypes, ddl } = await createTableFromZod({
@@ -205,7 +211,6 @@ export class SqlDuck {
 
     const dataAppendedCollector = createOnDataAppendedCollector();
 
-    // @todo opportunity to optimize further by using duck datatype information
     const columnStream = rowsToColumnsChunks({
       rows: rowStream,
       chunkSize: chunkSize,
@@ -214,19 +219,17 @@ export class SqlDuck {
 
     let appendedChunkCount = 0;
 
+    const tableFullName = table.getFullName();
+    const tableName = table.tableName;
     try {
       for await (const dataChunk of columnStream) {
         const chunk = DuckDBDataChunk.create(chunkTypes);
 
-        this.#logger.debug(`Inserting chunk of ${dataChunk.length} rows`, {
-          table: table.getFullName(),
-        });
+        const columns = Object.values(dataChunk);
 
-        totalRows += dataChunk?.[0]?.length ?? 0;
+        totalRows += columns?.[0]?.length ?? 0;
 
-        // @ts-expect-error need to rework rowsToColumnsChunks to return properly
-        //                  infer the type of the dataChunk from the provided zod schema
-        chunk.setColumns(dataChunk);
+        chunk.setColumns(columns);
         appender.appendDataChunk(chunk);
 
         appender.flushSync();
@@ -252,9 +255,9 @@ export class SqlDuck {
             await dbManager.checkpoint(table.databaseName);
           } catch (e) {
             this.#logger.warning(
-              `Failed to checkpoint database '${table.databaseName}' after appending chunk into table '${table.getFullName()}' - ${(e as Error)?.message ?? ''}`,
+              `Failed to checkpoint database '${table.databaseName}' after appending chunk into table '${tableName}' - ${(e as Error)?.message ?? ''}`,
               {
-                table: table.getFullName(),
+                table: tableFullName,
               }
             );
           }
@@ -268,9 +271,9 @@ export class SqlDuck {
           await dbManager.checkpoint(table.databaseName);
         } catch (e) {
           this.#logger.warning(
-            `Failed to checkpoint database '${table.databaseName}' after appending data into table '${table.getFullName()}' - ${(e as Error)?.message ?? ''}`,
+            `Failed to checkpoint database '${table.databaseName}' after appending data into table '${tableName}' - ${(e as Error)?.message ?? ''}`,
             {
-              table: table.getFullName(),
+              table: tableFullName,
             }
           );
         }
@@ -280,7 +283,7 @@ export class SqlDuck {
       this.#logger.info(
         `Successfully appended ${totalRows} rows into '${table.getFullName()}' in ${timeMs}ms`,
         {
-          table: table.getFullName(),
+          table: tableFullName,
           timeMs: timeMs,
           totalRows: totalRows,
         }

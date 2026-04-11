@@ -46,7 +46,7 @@ boxplot(() => {
       });
       let count = 0;
       for await (const row of a) {
-        count += row[0]!.length;
+        count += row.id.length;
       }
       if (count !== limit)
         throw new Error(
@@ -62,7 +62,7 @@ boxplot(() => {
       });
       let count = 0;
       for await (const row of a) {
-        count += row[0]!.length;
+        count += row.id.length;
       }
       if (count !== limit)
         throw new Error(
@@ -81,7 +81,7 @@ boxplot(() => {
       let count = 0;
 
       for await (const row of a) {
-        count += row[0]!.length;
+        count += row.id.length;
       }
       if (count !== limit)
         throw new Error(
