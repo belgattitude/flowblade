@@ -203,7 +203,7 @@ export class SqlDuck {
       Array.from(columnTypes).map(([key, duckType]) => {
         return [key, duckType];
       })
-    ) as Record<keyof TSchema, DuckDBType>;
+    ) as Record<keyof z.output<TSchema>, DuckDBType>;
 
     const transformers = createDuckColumnConverters(columnTypeIds);
 
@@ -211,7 +211,7 @@ export class SqlDuck {
 
     const dataAppendedCollector = createOnDataAppendedCollector();
 
-    const columnStream = rowsToColumnsChunks({
+    const columnStream = rowsToColumnsChunks<z.output<TSchema>>({
       rows: rowStream,
       chunkSize: chunkSize,
       transformers: transformers,

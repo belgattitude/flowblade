@@ -7,7 +7,7 @@ type RowsToColumnsChunksParams<TRow extends Record<string, SupportedRowTypes>> =
   {
     rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>;
     chunkSize: number;
-    transformers?: Map<keyof TRow, ValueMapperFn>;
+    transformers?: Partial<Record<keyof TRow, ValueMapperFn>>;
   };
 
 /**
@@ -63,7 +63,7 @@ export async function* rowsToColumnsChunks<
 
   keys.forEach((k) => {
     // push first row values
-    const fn = transformers?.get(k);
+    const fn = transformers?.[k];
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     columns[k].push(fn === undefined ? first.value[k] : fn(first.value[k]));
   });
@@ -79,7 +79,7 @@ export async function* rowsToColumnsChunks<
   // consume the rest
   for await (const row of rows) {
     keys.forEach((k) => {
-      const fn = transformers?.get(k);
+      const fn = transformers?.[k];
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       columns[k].push(fn === undefined ? row[k] : fn(row[k]));
     });

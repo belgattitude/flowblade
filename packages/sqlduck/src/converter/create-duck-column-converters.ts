@@ -9,8 +9,8 @@ export const createDuckColumnConverters = <
   TRow extends Record<string, unknown>,
 >(
   duckTypes: Record<keyof TRow, DuckDBType>
-): Map<Exclude<keyof TRow, 'number'>, ValueMapperFn> => {
-  const convMap = new Map<Exclude<keyof TRow, 'number'>, ValueMapperFn>();
+): Partial<Record<keyof TRow, ValueMapperFn>> => {
+  const convMap: Partial<Record<keyof TRow, ValueMapperFn>> = {};
   const converter = new DuckValueConverter();
 
   for (const [key, duckType] of Object.entries<DuckDBType>(duckTypes)) {
@@ -51,7 +51,7 @@ export const createDuckColumnConverters = <
         );
     }
     if (conv !== false) {
-      convMap.set(key as Exclude<keyof TRow, 'number'>, conv);
+      convMap[key as keyof TRow] = conv;
     }
   }
   return convMap;
