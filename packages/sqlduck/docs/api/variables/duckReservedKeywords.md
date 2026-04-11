@@ -1,0 +1,15 @@
+[**@flowblade/sqlduck v0.16.0**](../README.md)
+
+***
+
+[@flowblade/sqlduck](../README.md) / duckReservedKeywords
+
+# Variable: duckReservedKeywords
+
+> `const` **duckReservedKeywords**: readonly \[`"ALL"`, `"ANALYSE"`, `"ANALYZE"`, `"AND"`, `"ANY"`, `"ARRAY"`, `"AS"`, `"ASC"`, `"ASYMMETRIC"`, `"BOTH"`, `"CASE"`, `"CAST"`, `"CHECK"`, `"COLLATE"`, `"COLUMN"`, `"CONSTRAINT"`, `"CREATE"`, `"CROSS"`, `"CURRENT_CATALOG"`, `"CURRENT_DATE"`, `"CURRENT_ROLE"`, `"CURRENT_SCHEMA"`, `"CURRENT_TIME"`, `"CURRENT_TIMESTAMP"`, `"CURRENT_USER"`, `"DEFAULT"`, `"DEFERRABLE"`, `"DESC"`, `"DISTINCT"`, `"DO"`, `"ELSE"`, `"END"`, `"EXCEPT"`, `"EXISTS"`, `"EXTRACT"`, `"FALSE"`, `"FETCH"`, `"FOR"`, `"FOREIGN"`, `"FROM"`, `"GRANT"`, `"GROUP"`, `"HAVING"`, `"IF"`, `"ILIKE"`, `"IN"`, `"INITIALLY"`, `"INNER"`, `"INTERSECT"`, `"INTO"`, `"IS"`, `"ISNULL"`, `"JOIN"`, `"LATERAL"`, `"LEADING"`, `"LEFT"`, `"LIKE"`, `"LIMIT"`, `"LOCALTIME"`, `"LOCALTIMESTAMP"`, `"NATURAL"`, `"NOT"`, `"NOTNULL"`, `"NULL"`, `"OFFSET"`, `"ON"`, `"ONLY"`, `"OR"`, `"ORDER"`, `"OUTER"`, `"OVERLAPS"`, `"PLACING"`, `"PRIMARY"`, `"REFERENCES"`, `"RETURNING"`, `"RIGHT"`, `"ROW"`, `"SELECT"`, `"SESSION_USER"`, `"SIMILAR"`, `"SOME"`, `"SYMMETRIC"`, `"TABLE"`, `"THEN"`, `"TO"`, `"TRAILING"`, `"TRUE"`, `"UNION"`, `"UNIQUE"`, `"USING"`, `"VARIADIC"`, `"VERBOSE"`, `"WHEN"`, `"WHERE"`, `"WINDOW"`, `"WITH"`\]
+
+DuckDB reserved keywords that cannot be used as unquoted identifiers.
+
+## See
+
+https://duckdb.org/docs/sql/keywords-and-identifiers.html

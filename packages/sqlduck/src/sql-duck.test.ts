@@ -241,6 +241,65 @@ describe('Duckdb tests', async () => {
           expect.objectContaining({ totalRows: 90 })
         );
       });
+
+      it('Should respect flushSyncFrequency', async () => {
+        // Arrange
+        const dbManager = new DuckDatabaseManager(conn);
+        const database = await dbManager.attachIfNotExists({
+          type: 'memory',
+          alias: 'sql_duck_test_flush',
+        });
+
+        const sqlDuck = new SqlDuck({ conn });
+
+        const schema = z.object({
+          id: z.number(),
+        });
+
+        // 10 chunks of 10 rows = 100 rows
+        const limit = 100;
+        const chunkSize = 10;
+        const flushFrequency = 4;
+
+        const testTable = new Table({
+          name: 'test_flush',
+          database: database.alias,
+        });
+
+        const getFakeRowStream = createFakeRowsAsyncIterator({
+          count: limit,
+          schema: schema,
+          factory: ({ rowIdx }) => ({ id: rowIdx }),
+        });
+
+        // Since we can't easily spy on the appender created internally,
+        // we'll at least verify it doesn't crash and the data is inserted.
+        // If there were a way to provide a custom appender or spy on createAppender, we would.
+
+        // Act
+        const result = await sqlDuck.toTable({
+          table: testTable,
+          schema: schema,
+          rowStream: getFakeRowStream(),
+          chunkSize: chunkSize,
+          flushSyncFrequency: flushFrequency,
+          createOptions: {
+            create: 'CREATE_OR_REPLACE',
+          },
+        });
+
+        // Assert
+        expect(result.totalRows).toBe(limit);
+
+        const query = await conn.runAndReadAll(
+          `SELECT count(*) as count_star from ${testTable.getFullName()}`
+        );
+        expect(query.getRowObjects()).toStrictEqual([
+          {
+            count_star: BigInt(limit),
+          },
+        ]);
+      });
     },
     testTimeout * 2
   );

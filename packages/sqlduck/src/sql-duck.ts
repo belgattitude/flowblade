@@ -78,6 +78,15 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
   onChunkAppendedFrequency?: number;
 
   /**
+   * Specifies the frequency (in number of chunks) at which the `appender.flushSync()` should be called.
+   * Calling `flushSync()` can help to clear internal buffers and make the data visible.
+   *
+   * For example, if `chunkSize` is 2048 and `flushSyncFrequency` is 5,
+   * the appender will be flushed every 10,240 rows (5 chunks * 2048 rows/chunk).
+   */
+  flushSyncFrequency?: number;
+
+  /**
    * If set to `true`, a checkpoint is automatically performed after all rows from the `rowStream` have been processed.
    * This ensures that all data is persisted and WAL is cleared.
    * @default true
@@ -142,9 +151,13 @@ export class SqlDuck {
    *  schema: userSchema,
    *  rowStream: getUserRows(),
    *  chunkSize: 2048,
+   *  flushSyncFrequency: 10, // flush after every 10 chunks
+   *  onChunkAppendedFrequency: 1, // multiple of chunks
    *  onChunkAppended: ({ totalRows }) => {
    *    console.log(`Appended ${totalRows} rows so far`);
    *  },
+   *  autoCheckpoint: true,
+   *  autoCheckpointFrequency: 100, // checkpoint after every 100 chunks
    *  createOptions: {
    *    create: 'CREATE_OR_REPLACE',
    *  },
@@ -165,6 +178,7 @@ export class SqlDuck {
       createOptions,
       onChunkAppended,
       onChunkAppendedFrequency,
+      flushSyncFrequency = 10,
       autoCheckpoint = true,
       checkpointChunksFrequency,
     } = params;
@@ -203,6 +217,15 @@ export class SqlDuck {
     ) {
       throw new Error(
         'onChunkAppendedFrequency must be a number between 1 and 100_000.'
+      );
+    }
+
+    if (
+      flushSyncFrequency !== undefined &&
+      (flushSyncFrequency < 1 || flushSyncFrequency > 100_000)
+    ) {
+      throw new Error(
+        'flushSyncFrequency must be a number between 1 and 100_000.'
       );
     }
 
@@ -284,6 +307,14 @@ export class SqlDuck {
           }
         }
 
+        // Flush frequency
+        if (
+          flushSyncFrequency !== undefined &&
+          appendedChunkCount % flushSyncFrequency === 0
+        ) {
+          appender.flushSync();
+        }
+
         // Checkpoint point frequency
         if (
           checkpointChunksFrequency !== undefined &&
@@ -303,6 +334,7 @@ export class SqlDuck {
         }
       }
 
+      appender.flushSync();
       appender.closeSync();
 
       if (autoCheckpoint && typeof table.databaseName === 'string') {

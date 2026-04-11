@@ -1,6 +1,6 @@
-[**@flowblade/sqlduck v0.3.0**](../README.md)
+[**@flowblade/sqlduck v0.16.0**](../README.md)
 
----
+***
 
 [@flowblade/sqlduck](../README.md) / SqlDuckParams
 
@@ -14,18 +14,15 @@
 
 > **conn**: `DuckDBConnection`
 
----
+***
 
-### logger()?
+### logger?
 
-> `optional` **logger**: (`msg`) => `void`
+> `optional` **logger?**: `Logger`
 
-#### Parameters
+Optional logtape/logger to use for logging.
+If not provided, a default logger will be used.
 
-##### msg
+#### See
 
-`string`
-
-#### Returns
-
-`void`
+[https://github.com/logtape/logtape](https://github.com/logtape/logtape)

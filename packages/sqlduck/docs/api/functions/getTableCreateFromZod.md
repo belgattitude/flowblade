@@ -1,41 +1,25 @@
-[**@flowblade/sqlduck v0.3.0**](../README.md)
+[**@flowblade/sqlduck v0.16.0**](../README.md)
 
----
+***
 
 [@flowblade/sqlduck](../README.md) / getTableCreateFromZod
 
 # Function: getTableCreateFromZod()
 
-> **getTableCreateFromZod**\<`T`\>(`table`, `schema`, `options?`): `object`
+> **getTableCreateFromZod**\<`TSchema`\>(`params`): `TableCreateFromZodResult`\<`TSchema`\>
 
 ## Type Parameters
 
-### T
+### TSchema
 
-`T` _extends_ `ZodObject`\<`$ZodLooseShape`, `$strip`\>
+`TSchema` *extends* `TableSchemaZod`
 
 ## Parameters
 
-### table
+### params
 
-[`Table`](../classes/Table.md)
-
-### schema
-
-`T`
-
-### options?
-
-`TableCreateOptions`
+`GetTableCreateFromZodParams`\<`TSchema`\>
 
 ## Returns
 
-`object`
-
-### columnTypes
-
-> **columnTypes**: \[`string`, `DuckDBType`\][]
-
-### ddl
-
-> **ddl**: `string`
+`TableCreateFromZodResult`\<`TSchema`\>
