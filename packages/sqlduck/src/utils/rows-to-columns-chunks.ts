@@ -79,7 +79,9 @@ export async function* rowsToColumnsChunks<
   if (first.done) return; // empty input → yield nothing
 
   const keys = Object.keys(first.value) as (keyof TRow)[];
+  const numKeys = keys.length;
 
+  const mappers: (ValueMapperFn | undefined)[] = new Array(numKeys);
   if (transformers !== undefined) {
     const transformerKeys = Object.keys(transformers);
     const unknownKeys = transformerKeys.filter(
@@ -90,21 +92,28 @@ export async function* rowsToColumnsChunks<
         `transformers parameter contains unknown row ids: ${unknownKeys.join(', ')}`
       );
     }
+    for (let i = 0; i < numKeys; i++) {
+      mappers[i] = transformers[keys[i]];
+    }
   }
 
   function createColumns() {
-    return Object.fromEntries(keys.map((k) => [k, []])) as unknown as TReturn;
+    const obj: any = {};
+    for (let i = 0; i < numKeys; i++) {
+      obj[keys[i]] = [];
+    }
+    return obj as TReturn;
   }
 
   let columns = createColumns();
   let rowsInChunk = 0;
 
-  keys.forEach((k) => {
-    // push first row values
-    const fn = transformers?.[k];
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    columns[k].push(fn === undefined ? first.value[k] : fn(first.value[k]));
-  });
+  for (let i = 0; i < numKeys; i++) {
+    const k = keys[i];
+    const fn = mappers[i];
+    const val = first.value[k];
+    columns[k].push(fn === undefined ? val : fn(val));
+  }
   rowsInChunk++;
   // In case chunkSize === 1 (or generally if the threshold already reached),
   // flush immediately after the first row to avoid off-by-one errors.
@@ -116,11 +125,12 @@ export async function* rowsToColumnsChunks<
 
   // consume the rest
   for await (const row of rows) {
-    keys.forEach((k) => {
-      const fn = transformers?.[k];
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      columns[k].push(fn === undefined ? row[k] : fn(row[k]));
-    });
+    for (let i = 0; i < numKeys; i++) {
+      const k = keys[i];
+      const fn = mappers[i];
+      const val = row[k];
+      columns[k].push(fn === undefined ? val : fn(val));
+    }
     rowsInChunk++;
     if (rowsInChunk >= chunkSize) {
       yield columns;
