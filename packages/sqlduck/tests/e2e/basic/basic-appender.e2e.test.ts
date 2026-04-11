@@ -50,7 +50,7 @@ describe('basic appender', () => {
         chunkSize: 2048, // Number of rows to append when using duckdb appender. Default is 2048
         checkpointChunksFrequency: 1,
         autoCheckpoint: true,
-        onDataAppended: ({ timeMs, totalRows, rowsPerSecond }) => {
+        onChunkAppended: ({ timeMs, totalRows, rowsPerSecond }) => {
           console.log(
             `Appended ${totalRows} in time ${timeMs}ms, est: ${rowsPerSecond} rows/s`
           );

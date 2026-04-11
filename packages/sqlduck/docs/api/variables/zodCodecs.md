@@ -1,6 +1,6 @@
-[**@flowblade/sqlduck v0.3.0**](../README.md)
+[**@flowblade/sqlduck v0.16.0**](../README.md)
 
----
+***
 
 [@flowblade/sqlduck](../README.md) / zodCodecs
 

@@ -60,7 +60,8 @@ boxplot(() => {
         schema: userSchema,
         rowStream: getFakeRowStream(),
         chunkSize: 2048,
-        onDataAppended: async (stats) => {
+        onChunkAppendedFrequency: 10,
+        onChunkAppended: async (stats) => {
           const heap = v8.getHeapStatistics();
           const duckMem = await duckMemory.getSummary();
           console.log({

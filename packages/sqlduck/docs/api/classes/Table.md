@@ -1,6 +1,6 @@
-[**@flowblade/sqlduck v0.3.0**](../README.md)
+[**@flowblade/sqlduck v0.16.0**](../README.md)
 
----
+***
 
 [@flowblade/sqlduck](../README.md) / Table
 
@@ -16,7 +16,7 @@
 
 ##### fqTableOrName
 
-`string` | `FQTable`
+`string` \| `FQTable`
 
 #### Returns
 
@@ -34,7 +34,7 @@
 
 `string` \| `undefined`
 
----
+***
 
 ### schemaName
 
@@ -46,7 +46,7 @@
 
 `string` \| `undefined`
 
----
+***
 
 ### tableName
 
@@ -83,7 +83,7 @@ database, schema and table with a 'dot' separator.
 
 `string`
 
----
+***
 
 ### withDatabase()
 
@@ -99,7 +99,7 @@ database, schema and table with a 'dot' separator.
 
 `Table`
 
----
+***
 
 ### withSchema()
 

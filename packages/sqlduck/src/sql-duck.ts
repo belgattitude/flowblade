@@ -8,9 +8,9 @@ import type { ZodObject } from 'zod';
 import type * as z from 'zod';
 
 import {
-  createOnDataAppendedCollector,
-  isOnDataAppendedAsyncCb,
-  type OnDataAppendedCb,
+  createOnChunkAppendedCollector,
+  isOnChunkAppendedAsyncCb,
+  type OnChunkAppendedCb,
 } from './appender/data-appender-callback.ts';
 import { createDuckColumnConverters } from './converter/create-duck-column-converters.ts';
 import { sqlduckDefaultLogtapeLogger } from './logger/sqlduck-default-logtape-logger.ts';
@@ -35,44 +35,69 @@ type RowStream<T> = AsyncIterableIterator<T> | AsyncGenerator<T> | Generator<T>;
 
 export type ToTableParams<TSchema extends TableSchemaZod> = {
   /**
-   * Used to create and fill the data into the table
+   * The target table where the data will be inserted.
+   * This object contains the table name and optionally the schema and database name.
    */
   table: Table;
   /**
-   * Schema describing the table structure and rowStream content
+   * A Zod schema that defines the structure of the table and the expected format of the rows in the `rowStream`.
+   * The schema is used to generate the `CREATE TABLE` DDL and to convert row values to DuckDB types.
    */
   schema: TSchema;
   /**
-   * Stream of rows to insert into the table
+   * An iterable (async or sync) or generator that yields rows to be inserted.
+   * Each row must match the structure defined in the `schema`.
    */
   rowStream: RowStream<z.infer<TSchema>>;
-  // rowStream: RowStream<TSchema['shape']>;
   /**
-   * Chunk size when using appender to insert data.
-   * Valid numbers between 1 and 2048.
+   * The number of rows to accumulate before appending them to the DuckDB table as a single data chunk.
+   * Tuning this value can impact memory usage and insertion performance.
+   * Valid values are between 1 and 2048.
    * @default 2048
    */
   chunkSize?: number;
   /**
-   * Extra options when creating the table
+   * Configuration options for the `CREATE TABLE` statement (e.g., `IF NOT EXISTS`, `CREATE OR REPLACE`).
+   * If omitted, a standard `CREATE TABLE` statement is used.
    */
   createOptions?: TableCreateOptions;
   /**
-   * Callback called each time a datachunk is appended to the table
+   * An optional callback invoked after each data chunk is successfully appended to the table.
+   * Useful for tracking progress, logging statistics, or implementing custom hooks during the insertion process.
    */
-  onDataAppended?: OnDataAppendedCb;
+  onChunkAppended?: OnChunkAppendedCb;
 
   /**
-   * Automatically checkpoint the table after all chunks have been appended.
+   * Specifies the frequency (in number of chunks) at which the `onChunkAppended` callback should be triggered.
+   *
+   * For example, if `chunkSize` is 2048 and `onChunkAppendedFrequency` is 5,
+   * the callback will be called every 10,240 rows (5 chunks * 2048 rows/chunk).
+   *
+   * @default 1
+   */
+  onChunkAppendedFrequency?: number;
+
+  /**
+   * Specifies the frequency (in number of chunks) at which the `appender.flushSync()` should be called.
+   * Calling `flushSync()` can help to clear internal buffers and make the data visible.
+   *
+   * For example, if `chunkSize` is 2048 and `flushSyncFrequency` is 5,
+   * the appender will be flushed every 10,240 rows (5 chunks * 2048 rows/chunk).
+   */
+  flushSyncFrequency?: number;
+
+  /**
+   * If set to `true`, a checkpoint is automatically performed after all rows from the `rowStream` have been processed.
+   * This ensures that all data is persisted and WAL is cleared.
    * @default true
    */
   autoCheckpoint?: boolean;
 
   /**
-   * Checkpoint the table after 'n' chunks have been appended
+   * Specifies the frequency (in number of chunks) at which a checkpoint should be triggered.
    *
-   * For example if the chunkSize is 2048, setting frequency to 2
-   * will checkpoint the table every 4096 rows (2x chunksize)
+   * For example, if `chunkSize` is 2048 and `checkpointChunksFrequency` is 5,
+   * a checkpoint will occur every 10,240 rows (5 chunks * 2048 rows/chunk).
    */
   checkpointChunksFrequency?: number;
 };
@@ -126,9 +151,13 @@ export class SqlDuck {
    *  schema: userSchema,
    *  rowStream: getUserRows(),
    *  chunkSize: 2048,
-   *  onDataAppended: ({ total }) => {
-   *    console.log(`Appended ${total} rows so far`);
+   *  flushSyncFrequency: 10, // flush after every 10 chunks
+   *  onChunkAppendedFrequency: 1, // multiple of chunks
+   *  onChunkAppended: ({ totalRows }) => {
+   *    console.log(`Appended ${totalRows} rows so far`);
    *  },
+   *  autoCheckpoint: true,
+   *  autoCheckpointFrequency: 100, // checkpoint after every 100 chunks
    *  createOptions: {
    *    create: 'CREATE_OR_REPLACE',
    *  },
@@ -147,9 +176,11 @@ export class SqlDuck {
       chunkSize = 2048,
       rowStream,
       createOptions,
-      onDataAppended,
+      onChunkAppended,
+      onChunkAppendedFrequency,
+      flushSyncFrequency = 10,
       autoCheckpoint = true,
-      checkpointChunksFrequency = 10,
+      checkpointChunksFrequency,
     } = params;
 
     if (!Number.isSafeInteger(chunkSize) || chunkSize < 1 || chunkSize > 2048) {
@@ -162,7 +193,10 @@ export class SqlDuck {
       );
     }
 
-    if (checkpointChunksFrequency && typeof table.databaseName !== 'string') {
+    if (
+      checkpointChunksFrequency !== undefined &&
+      typeof table.databaseName !== 'string'
+    ) {
       throw new Error(
         'checkpointChunksFrequency requires table.databaseName to be provided.'
       );
@@ -170,12 +204,33 @@ export class SqlDuck {
 
     if (
       checkpointChunksFrequency !== undefined &&
-      checkpointChunksFrequency < 1
+      (checkpointChunksFrequency < 1 || checkpointChunksFrequency > 100_000)
     ) {
-      throw new Error('checkpointChunksFrequency must be a positive number.');
+      throw new Error(
+        'checkpointChunksFrequency must be a number between 1 and 100_000.'
+      );
+    }
+
+    if (
+      onChunkAppendedFrequency !== undefined &&
+      (onChunkAppendedFrequency < 1 || onChunkAppendedFrequency > 100_000)
+    ) {
+      throw new Error(
+        'onChunkAppendedFrequency must be a number between 1 and 100_000.'
+      );
+    }
+
+    if (
+      flushSyncFrequency !== undefined &&
+      (flushSyncFrequency < 1 || flushSyncFrequency > 100_000)
+    ) {
+      throw new Error(
+        'flushSyncFrequency must be a number between 1 and 100_000.'
+      );
     }
 
     const dbManager = new DuckDatabaseManager(this.#conn);
+
     const timeStart = Date.now();
 
     const { columnTypes, ddl } = await createTableFromZod({
@@ -193,20 +248,21 @@ export class SqlDuck {
 
     const chunkTypes = Array.from(columnTypes.values());
 
-    const columnTypeIds = Object.fromEntries(
-      Array.from(columnTypes).map(([key, duckType]) => {
-        return [key, duckType];
-      })
-    ) as Record<keyof TSchema, DuckDBType>;
+    const columnTypeIds = {} as Record<keyof z.output<TSchema>, DuckDBType>;
+    const columnKeys = [] as (keyof z.output<TSchema>)[];
+    for (const [key, duckType] of columnTypes) {
+      columnKeys.push(key as keyof z.output<TSchema>);
+      columnTypeIds[key as keyof z.output<TSchema>] = duckType;
+    }
+    const numColumns = columnKeys.length;
 
     const transformers = createDuckColumnConverters(columnTypeIds);
 
     let totalRows = 0;
 
-    const dataAppendedCollector = createOnDataAppendedCollector();
+    const chunkAppendedCollector = createOnChunkAppendedCollector();
 
-    // @todo opportunity to optimize further by using duck datatype information
-    const columnStream = rowsToColumnsChunks({
+    const columnStream = rowsToColumnsChunks<z.output<TSchema>>({
       rows: rowStream,
       chunkSize: chunkSize,
       transformers: transformers,
@@ -214,32 +270,49 @@ export class SqlDuck {
 
     let appendedChunkCount = 0;
 
+    const tableFullName = table.getFullName();
+    const tableName = table.tableName;
     try {
+      const isAsyncCb =
+        onChunkAppended !== undefined &&
+        isOnChunkAppendedAsyncCb(onChunkAppended);
+
       for await (const dataChunk of columnStream) {
         const chunk = DuckDBDataChunk.create(chunkTypes);
 
-        this.#logger.debug(`Inserting chunk of ${dataChunk.length} rows`, {
-          table: table.getFullName(),
-        });
+        // eslint-disable-next-line unicorn/no-new-array, @typescript-eslint/no-explicit-any
+        const columns = new Array<any[]>(numColumns);
+        for (let i = 0; i < numColumns; i++) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          columns[i] = dataChunk[columnKeys[i]] as any[];
+        }
 
-        totalRows += dataChunk?.[0]?.length ?? 0;
+        totalRows += columns[0]?.length ?? 0;
 
-        // @ts-expect-error need to rework rowsToColumnsChunks to return properly
-        //                  infer the type of the dataChunk from the provided zod schema
-        chunk.setColumns(dataChunk);
+        chunk.setColumns(columns);
         appender.appendDataChunk(chunk);
-
-        appender.flushSync();
 
         appendedChunkCount += 1;
 
-        if (onDataAppended !== undefined) {
-          const payload = dataAppendedCollector(totalRows);
-          if (isOnDataAppendedAsyncCb(onDataAppended)) {
-            await onDataAppended(payload);
+        if (
+          onChunkAppended !== undefined &&
+          (onChunkAppendedFrequency === undefined ||
+            appendedChunkCount % onChunkAppendedFrequency === 0)
+        ) {
+          const payload = chunkAppendedCollector(totalRows);
+          if (isAsyncCb) {
+            await onChunkAppended(payload);
           } else {
-            onDataAppended(payload);
+            onChunkAppended(payload);
           }
+        }
+
+        // Flush frequency
+        if (
+          flushSyncFrequency !== undefined &&
+          appendedChunkCount % flushSyncFrequency === 0
+        ) {
+          appender.flushSync();
         }
 
         // Checkpoint point frequency
@@ -252,15 +325,16 @@ export class SqlDuck {
             await dbManager.checkpoint(table.databaseName);
           } catch (e) {
             this.#logger.warning(
-              `Failed to checkpoint database '${table.databaseName}' after appending chunk into table '${table.getFullName()}' - ${(e as Error)?.message ?? ''}`,
+              `Failed to checkpoint database '${table.databaseName}' after appending chunk into table '${tableName}' - ${(e as Error)?.message ?? ''}`,
               {
-                table: table.getFullName(),
+                table: tableFullName,
               }
             );
           }
         }
       }
 
+      appender.flushSync();
       appender.closeSync();
 
       if (autoCheckpoint && typeof table.databaseName === 'string') {
@@ -268,9 +342,9 @@ export class SqlDuck {
           await dbManager.checkpoint(table.databaseName);
         } catch (e) {
           this.#logger.warning(
-            `Failed to checkpoint database '${table.databaseName}' after appending data into table '${table.getFullName()}' - ${(e as Error)?.message ?? ''}`,
+            `Failed to checkpoint database '${table.databaseName}' after appending data into table '${tableName}' - ${(e as Error)?.message ?? ''}`,
             {
-              table: table.getFullName(),
+              table: tableFullName,
             }
           );
         }
@@ -280,7 +354,7 @@ export class SqlDuck {
       this.#logger.info(
         `Successfully appended ${totalRows} rows into '${table.getFullName()}' in ${timeMs}ms`,
         {
-          table: table.getFullName(),
+          table: tableFullName,
           timeMs: timeMs,
           totalRows: totalRows,
         }

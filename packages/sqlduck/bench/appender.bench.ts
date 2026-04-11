@@ -134,7 +134,7 @@ describe('appender benches', async () => {
         rowStream: getFakeRowStream(),
         chunkSize: 1024,
         /*
-      onDataAppended: (stats) => {
+      onChunkAppended: (stats) => {
         const heap = v8.getHeapStatistics();
         console.log({
           ...stats,

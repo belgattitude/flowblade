@@ -9,7 +9,7 @@ describe('createDuckColumnConverter', () => {
 
   it('should create a converter', () => {
     const map = createDuckColumnConverters(colDef);
-    const converter = map.get('one')!;
+    const converter = map.one!;
     expect(converter).toBeInstanceOf(Function);
     expect(converter(10n)).toBe('10');
   });

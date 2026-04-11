@@ -2,8 +2,6 @@ import isInCi from 'is-in-ci';
 import { bench, type BenchOptions, describe } from 'vitest';
 import * as z from 'zod';
 
-import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
-
 import { rowsToColumnsChunks } from '../src/utils/rows-to-columns-chunks';
 import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator';
 
@@ -13,19 +11,7 @@ const benchConfig: BenchOptions = {
   throws: true,
 };
 
-describe(`Bench stream`, async () => {
-  const conn = await createDuckdbTestMemoryDb({
-    // Keep it high to prevent going to .tmp directory
-    max_memory: isInCi ? '128M' : '256M',
-    threads: 1,
-  });
-
-  const dbName = 'memory_db';
-  // Arrange
-  await conn.run(
-    `ATTACH IF NOT EXISTS ':memory:' AS ${dbName} (COMPRESS 'true')`
-  );
-
+describe(`Bench rowsToColumnsChunks`, async () => {
   const userSchema = z.object({
     id: z.number().meta({ description: 'cool' }),
     name: z.string(),
@@ -66,6 +52,26 @@ describe(`Bench stream`, async () => {
       const a = rowsToColumnsChunks({
         rows: getFakeRowStream(),
         chunkSize,
+      });
+      for await (const row of a) {
+        const _a = row;
+      }
+    },
+    benchConfig
+  );
+
+  bench(
+    `rowToColumnsChunk with transformer with chunkSize 2048 (count: ${limit})`,
+    async () => {
+      const chunkSize = 2048;
+      const a = rowsToColumnsChunks({
+        rows: getFakeRowStream(),
+        chunkSize,
+        transformers: {
+          bignumber: (value: bigint) => {
+            return (value + 1n).toString(10);
+          },
+        },
       });
       for await (const row of a) {
         const _a = row;

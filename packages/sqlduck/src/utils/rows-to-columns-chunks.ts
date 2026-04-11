@@ -3,27 +3,78 @@ import type { ValueMapperFn } from '../converter/create-duck-column-converters.t
 // type SupportedRowTypes = string | number | boolean | Date | bigint | null;
 type SupportedRowTypes = unknown;
 
-type RowsToColumnsChunksParams<TRow extends Record<string, SupportedRowTypes>> =
-  {
-    rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>;
-    chunkSize: number;
-    transformers?: Map<keyof TRow, ValueMapperFn>;
-  };
+type RowsToColumnsChunksParams<
+  TRow extends Record<string, SupportedRowTypes>,
+  TTransformers extends Partial<Record<keyof TRow, ValueMapperFn>> = Partial<
+    Record<keyof TRow, ValueMapperFn>
+  >,
+> = {
+  rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>;
+  chunkSize: number;
+  transformers?: TTransformers;
+};
 
 /**
- * Similar to `rowsToColumns` but yields results in chunks to avoid buffering
- * the entire dataset in memory. Each yielded item is a columns array for up to
- * `chunkSize` rows.
+ * Converts a stream of rows (row-oriented) into a stream of column-oriented chunks.
  *
- * Example for chunkSize = 2:
- *   input rows: [{id:'1',name:'A'}, {id:'2',name:'B'}, {id:'3',name:'C'}]
- *   yields: [[['1','2'], ['A','B']], [['3'], ['C']]]
+ * This function processes row data incrementally using an async generator, which prevents
+ * loading the entire dataset into memory. Each yielded chunk is an object where keys are
+ * column names and values are arrays of up to `chunkSize` elements.
+ *
+ * This is particularly useful for DuckDB's Appender API or other columnar processing
+ * engines that expect data in chunks of columns.
+ *
+ * @param params - Configuration for the transformation.
+ * @param params.rows - An async or sync iterable of rows.
+ * @param params.chunkSize - The maximum number of rows per yielded chunk. Must be a positive integer.
+ * @param params.transformers - Optional mappers for specific columns to transform values before chunking.
+ *
+ * @returns An async iterator yielding chunks of column-oriented data.
+ *
+ * @example
+ * ```typescript
+ *  async function* generateRows() {
+ *    yield { id: 1, name: 'A' };
+ *    yield { id: 2, name: 'B' };
+ *    yield { id: 3, name: 'C' };
+ *  }
+ *
+ *  const columnChunks = rowsToColumnsChunks({
+ *    rows: generateRows(),
+ *    chunkSize: 2,
+ *  })
+ *
+ * for await (const chunk of columnChunks) {
+ *   console.log(chunk);
+ * }
+ * // Output:
+ * // { id: [1, 2], name: ['A', 'B'] } // first chunk
+ * // { id: [3], name: ['C'] } // second chunk
+ * ```
  */
 export async function* rowsToColumnsChunks<
   TRow extends Record<string, SupportedRowTypes>,
+  TTransformers extends Partial<Record<keyof TRow, ValueMapperFn>> = Partial<
+    Record<keyof TRow, ValueMapperFn>
+  >,
 >(
-  params: RowsToColumnsChunksParams<TRow>
-): AsyncIterableIterator<TRow[keyof TRow][][]> {
+  params: RowsToColumnsChunksParams<TRow, TTransformers>
+): AsyncIterableIterator<{
+  [K in keyof TRow]: TTransformers[K] extends ValueMapperFn<
+    infer _TIn,
+    infer TOut
+  >
+    ? TOut[]
+    : TRow[K][];
+}> {
+  type TReturn = {
+    [K in keyof TRow]: TTransformers[K] extends ValueMapperFn<
+      infer _TIn,
+      infer TOut
+    >
+      ? TOut[]
+      : TRow[K][];
+  };
   const { rows, chunkSize, transformers } = params;
   if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
     throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
@@ -34,35 +85,67 @@ export async function* rowsToColumnsChunks<
   if (first.done) return; // empty input → yield nothing
 
   const keys = Object.keys(first.value) as (keyof TRow)[];
-  let columns: TRow[keyof TRow][][] = keys.map(() => []);
+  const numKeys = keys.length;
+
+  // eslint-disable-next-line unicorn/no-new-array
+  const mappers = new Array<ValueMapperFn | undefined>(numKeys);
+  if (transformers !== undefined) {
+    const transformerKeys = Object.keys(transformers);
+    const unknownKeys = transformerKeys.filter(
+      (k) => !keys.includes(k as keyof TRow)
+    );
+    if (unknownKeys.length > 0) {
+      throw new Error(
+        `transformers parameter contains unknown row ids: ${unknownKeys.join(', ')}`
+      );
+    }
+    for (let i = 0; i < numKeys; i++) {
+      mappers[i] = transformers[keys[i]];
+    }
+  }
+
+  function createColumns() {
+    const obj = {} as TReturn;
+    for (let i = 0; i < numKeys; i++) {
+      const k = keys[i];
+      // @ts-expect-error - obj starts empty
+      obj[k] = [];
+    }
+    return obj;
+  }
+
+  let columns = createColumns();
   let rowsInChunk = 0;
 
-  keys.forEach((k, i) => {
-    // push first row values
-    const fn = transformers?.get(k);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    columns[i]!.push(fn === undefined ? first.value[k] : fn(first.value[k]));
-  });
+  for (let i = 0; i < numKeys; i++) {
+    const k = keys[i]!;
+    const fn = mappers[i];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const val = (first.value as Record<keyof TRow, unknown>)[k];
+    (columns[k] as unknown[]).push(fn === undefined ? val : fn(val));
+  }
   rowsInChunk++;
   // In case chunkSize === 1 (or generally if the threshold already reached),
   // flush immediately after the first row to avoid off-by-one errors.
   if (rowsInChunk >= chunkSize) {
     yield columns;
-    columns = keys.map(() => []);
+    columns = createColumns();
     rowsInChunk = 0;
   }
 
   // consume the rest
   for await (const row of rows) {
-    keys.forEach((k, i) => {
-      const fn = transformers?.get(k);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      columns[i]!.push(fn === undefined ? row[k] : fn(row[k]));
-    });
+    for (let i = 0; i < numKeys; i++) {
+      const k = keys[i]!;
+      const fn = mappers[i];
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const val = (row as Record<keyof TRow, unknown>)[k];
+      (columns[k] as unknown[]).push(fn === undefined ? val : fn(val));
+    }
     rowsInChunk++;
     if (rowsInChunk >= chunkSize) {
       yield columns;
-      columns = keys.map(() => []);
+      columns = createColumns();
       rowsInChunk = 0;
     }
   }
