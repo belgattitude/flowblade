@@ -60,12 +60,18 @@ export async function* rowsToColumnsChunks<
 >(
   params: RowsToColumnsChunksParams<TRow, TTransformers>
 ): AsyncIterableIterator<{
-  [K in keyof TRow]: TTransformers[K] extends ValueMapperFn<any, infer TOut>
+  [K in keyof TRow]: TTransformers[K] extends ValueMapperFn<
+    infer _TIn,
+    infer TOut
+  >
     ? TOut[]
     : TRow[K][];
 }> {
   type TReturn = {
-    [K in keyof TRow]: TTransformers[K] extends ValueMapperFn<any, infer TOut>
+    [K in keyof TRow]: TTransformers[K] extends ValueMapperFn<
+      infer _TIn,
+      infer TOut
+    >
       ? TOut[]
       : TRow[K][];
   };
@@ -81,7 +87,8 @@ export async function* rowsToColumnsChunks<
   const keys = Object.keys(first.value) as (keyof TRow)[];
   const numKeys = keys.length;
 
-  const mappers: (ValueMapperFn | undefined)[] = new Array(numKeys);
+  // eslint-disable-next-line unicorn/no-new-array
+  const mappers = new Array<ValueMapperFn | undefined>(numKeys);
   if (transformers !== undefined) {
     const transformerKeys = Object.keys(transformers);
     const unknownKeys = transformerKeys.filter(
@@ -98,21 +105,24 @@ export async function* rowsToColumnsChunks<
   }
 
   function createColumns() {
-    const obj: any = {};
+    const obj = {} as TReturn;
     for (let i = 0; i < numKeys; i++) {
-      obj[keys[i]] = [];
+      const k = keys[i];
+      // @ts-expect-error - obj starts empty
+      obj[k] = [];
     }
-    return obj as TReturn;
+    return obj;
   }
 
   let columns = createColumns();
   let rowsInChunk = 0;
 
   for (let i = 0; i < numKeys; i++) {
-    const k = keys[i];
+    const k = keys[i]!;
     const fn = mappers[i];
-    const val = first.value[k];
-    columns[k].push(fn === undefined ? val : fn(val));
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const val = (first.value as Record<keyof TRow, unknown>)[k];
+    (columns[k] as unknown[]).push(fn === undefined ? val : fn(val));
   }
   rowsInChunk++;
   // In case chunkSize === 1 (or generally if the threshold already reached),
@@ -126,10 +136,11 @@ export async function* rowsToColumnsChunks<
   // consume the rest
   for await (const row of rows) {
     for (let i = 0; i < numKeys; i++) {
-      const k = keys[i];
+      const k = keys[i]!;
       const fn = mappers[i];
-      const val = row[k];
-      columns[k].push(fn === undefined ? val : fn(val));
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const val = (row as Record<keyof TRow, unknown>)[k];
+      (columns[k] as unknown[]).push(fn === undefined ? val : fn(val));
     }
     rowsInChunk++;
     if (rowsInChunk >= chunkSize) {

@@ -225,9 +225,10 @@ export class SqlDuck {
       for await (const dataChunk of columnStream) {
         const chunk = DuckDBDataChunk.create(chunkTypes);
 
-        const columns = Object.values(dataChunk);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const columns = Object.values(dataChunk) as any[][];
 
-        totalRows += columns?.[0]?.length ?? 0;
+        totalRows += columns[0]?.length ?? 0;
 
         chunk.setColumns(columns);
         appender.appendDataChunk(chunk);
