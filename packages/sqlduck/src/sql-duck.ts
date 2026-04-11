@@ -35,44 +35,50 @@ type RowStream<T> = AsyncIterableIterator<T> | AsyncGenerator<T> | Generator<T>;
 
 export type ToTableParams<TSchema extends TableSchemaZod> = {
   /**
-   * Used to create and fill the data into the table
+   * The target table where the data will be inserted.
+   * This object contains the table name and optionally the schema and database name.
    */
   table: Table;
   /**
-   * Schema describing the table structure and rowStream content
+   * A Zod schema that defines the structure of the table and the expected format of the rows in the `rowStream`.
+   * The schema is used to generate the `CREATE TABLE` DDL and to convert row values to DuckDB types.
    */
   schema: TSchema;
   /**
-   * Stream of rows to insert into the table
+   * An iterable (async or sync) or generator that yields rows to be inserted.
+   * Each row must match the structure defined in the `schema`.
    */
   rowStream: RowStream<z.infer<TSchema>>;
-  // rowStream: RowStream<TSchema['shape']>;
   /**
-   * Chunk size when using appender to insert data.
-   * Valid numbers between 1 and 2048.
+   * The number of rows to accumulate before appending them to the DuckDB table as a single data chunk.
+   * Tuning this value can impact memory usage and insertion performance.
+   * Valid values are between 1 and 2048.
    * @default 2048
    */
   chunkSize?: number;
   /**
-   * Extra options when creating the table
+   * Configuration options for the `CREATE TABLE` statement (e.g., `IF NOT EXISTS`, `CREATE OR REPLACE`).
+   * If omitted, a standard `CREATE TABLE` statement is used.
    */
   createOptions?: TableCreateOptions;
   /**
-   * Callback called each time a datachunk is appended to the table
+   * An optional callback invoked after each data chunk is successfully appended to the table.
+   * Useful for tracking progress, logging statistics, or implementing custom hooks during the insertion process.
    */
   onChunkAppended?: OnChunkAppendedCb;
 
   /**
-   * Automatically checkpoint the table after all chunks have been appended.
+   * If set to `true`, a checkpoint is automatically performed after all rows from the `rowStream` have been processed.
+   * This ensures that all data is persisted and WAL is cleared.
    * @default true
    */
   autoCheckpoint?: boolean;
 
   /**
-   * Checkpoint the table after 'n' chunks have been appended
+   * Specifies the frequency (in number of chunks) at which a checkpoint should be triggered.
    *
-   * For example if the chunkSize is 2048, setting frequency to 2
-   * will checkpoint the table every 4096 rows (2x chunksize)
+   * For example, if `chunkSize` is 2048 and `checkpointChunksFrequency` is 5,
+   * a checkpoint will occur every 10,240 rows (5 chunks * 2048 rows/chunk).
    */
   checkpointChunksFrequency?: number;
 };
