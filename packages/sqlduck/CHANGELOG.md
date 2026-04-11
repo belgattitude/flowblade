@@ -1,5 +1,27 @@
 # @flowblade/sqlduck
 
+## 0.17.0
+
+### Minor Changes
+
+- [#1049](https://github.com/belgattitude/flowblade/pull/1049) [`f074941`](https://github.com/belgattitude/flowblade/commit/f07494129b298968cbb048517f09a24dbd193738) Thanks [@belgattitude](https://github.com/belgattitude)! - Rename onDataAppended to onChunkAppended
+
+- [#1049](https://github.com/belgattitude/flowblade/pull/1049) [`f074941`](https://github.com/belgattitude/flowblade/commit/f07494129b298968cbb048517f09a24dbd193738) Thanks [@belgattitude](https://github.com/belgattitude)! - Added new params for tuning appender
+
+  ```
+  flushSyncFrequency: 10, // flush after every 10 chunks
+  onChunkAppendedFrequency: 1, // multiple of chunks
+  ```
+
+- [#1049](https://github.com/belgattitude/flowblade/pull/1049) [`f074941`](https://github.com/belgattitude/flowblade/commit/f07494129b298968cbb048517f09a24dbd193738) Thanks [@belgattitude](https://github.com/belgattitude)! - Improve performance of appender
+
+### Patch Changes
+
+- [#1051](https://github.com/belgattitude/flowblade/pull/1051) [`0c18879`](https://github.com/belgattitude/flowblade/commit/0c188792bda5676b2e4a2a267fe3418ad5f7dcc4) Thanks [@belgattitude](https://github.com/belgattitude)! - Update to duckdb node-api 1.5.1-r.2
+
+- Updated dependencies [[`0c18879`](https://github.com/belgattitude/flowblade/commit/0c188792bda5676b2e4a2a267fe3418ad5f7dcc4)]:
+  - @flowblade/source-duckdb@0.20.2
+
 ## 0.16.0
 
 ### Minor Changes
