@@ -3,7 +3,7 @@ import { type DuckDBType, DuckDBTypeId } from '@duckdb/node-api';
 import { DuckValueConverter } from './duck-value-converter.ts';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ValueMapperFn = (v: any) => any;
+export type ValueMapperFn<TIn = any, TOut = any> = (v: TIn) => TOut;
 
 export const createDuckColumnConverters = <
   TRow extends Record<string, unknown>,

@@ -11,7 +11,7 @@ export default defineConfig({
   test: {
     globals: true,
     typecheck: {
-      enabled: false,
+      enabled: true,
     },
     environment: 'happy-dom',
     passWithNoTests: true,

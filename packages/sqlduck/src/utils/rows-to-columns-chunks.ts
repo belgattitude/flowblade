@@ -3,12 +3,16 @@ import type { ValueMapperFn } from '../converter/create-duck-column-converters.t
 // type SupportedRowTypes = string | number | boolean | Date | bigint | null;
 type SupportedRowTypes = unknown;
 
-type RowsToColumnsChunksParams<TRow extends Record<string, SupportedRowTypes>> =
-  {
-    rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>;
-    chunkSize: number;
-    transformers?: Partial<Record<keyof TRow, ValueMapperFn>>;
-  };
+type RowsToColumnsChunksParams<
+  TRow extends Record<string, SupportedRowTypes>,
+  TTransformers extends Partial<Record<keyof TRow, ValueMapperFn>> = Partial<
+    Record<keyof TRow, ValueMapperFn>
+  >,
+> = {
+  rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>;
+  chunkSize: number;
+  transformers?: TTransformers;
+};
 
 /**
  * Transform an async stream of rows into an async iterable of column arrays.
@@ -38,9 +42,21 @@ type RowsToColumnsChunksParams<TRow extends Record<string, SupportedRowTypes>> =
  */
 export async function* rowsToColumnsChunks<
   TRow extends Record<string, SupportedRowTypes>,
+  TTransformers extends Partial<Record<keyof TRow, ValueMapperFn>> = Partial<
+    Record<keyof TRow, ValueMapperFn>
+  >,
 >(
-  params: RowsToColumnsChunksParams<TRow>
-): AsyncIterableIterator<{ [K in keyof TRow]: TRow[K][] }> {
+  params: RowsToColumnsChunksParams<TRow, TTransformers>
+): AsyncIterableIterator<{
+  [K in keyof TRow]: TTransformers[K] extends ValueMapperFn<any, infer TOut>
+    ? TOut[]
+    : TRow[K][];
+}> {
+  type TReturn = {
+    [K in keyof TRow]: TTransformers[K] extends ValueMapperFn<any, infer TOut>
+      ? TOut[]
+      : TRow[K][];
+  };
   const { rows, chunkSize, transformers } = params;
   if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
     throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
@@ -65,9 +81,7 @@ export async function* rowsToColumnsChunks<
   }
 
   function createColumns() {
-    return Object.fromEntries(keys.map((k) => [k, []])) as unknown as {
-      [K in keyof TRow]: TRow[K][];
-    };
+    return Object.fromEntries(keys.map((k) => [k, []])) as unknown as TReturn;
   }
 
   let columns = createColumns();

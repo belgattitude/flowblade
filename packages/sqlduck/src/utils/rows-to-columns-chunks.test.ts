@@ -99,14 +99,34 @@ describe('rowsToColumnsChunk', () => {
       chunkSize: 1,
       transformers: {
         id: (v: number) => v.toString(),
-        // @ts-expect-error - testing runtime validation for extra keys
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         not_exists: (v: any) => v,
-      },
+      } as any,
     });
 
     await expect(Array.fromAsync(gen)).rejects.toThrow(
       'transformers parameter contains unknown row ids: not_exists'
     );
+  });
+  it('properly infers the transformer function return type', async () => {
+    const input: Row[] = [{ id: 1, name: 'A' }];
+
+    const gen = rowsToColumnsChunks({
+      rows: makeRows(input),
+      chunkSize: 1,
+      transformers: {
+        id: (v: number) => v.toString(),
+      },
+    });
+    const out = await Array.fromAsync(gen);
+
+    expectTypeOf(out).toEqualTypeOf<
+      { id: string[]; name: (string | null)[] }[]
+    >();
+
+    expect(out[0]).toStrictEqual({
+      id: ['1'],
+      name: ['A'],
+    });
   });
 });
