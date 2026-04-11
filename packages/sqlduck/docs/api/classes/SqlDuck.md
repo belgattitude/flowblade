@@ -74,7 +74,7 @@ const result = sqlDuck.toTable({
   onChunkAppended: ({ totalRows }) => {
     console.log(`Appended ${totalRows} rows so far`);
   },
-  onChunkAppendedBatchSize: 4096, // Call onChunkAppended every 4096 rows
+  onChunkAppendedFrequency: 2, // Call onChunkAppended every 2 chunks
   createOptions: {
     create: "CREATE_OR_REPLACE",
   },

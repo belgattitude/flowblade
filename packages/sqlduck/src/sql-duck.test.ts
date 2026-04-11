@@ -177,6 +177,70 @@ describe('Duckdb tests', async () => {
         expect(created_at).toBe(now.toISOString());
         expect(gender).toStrictEqual('F');
       });
+
+      it('Should respect onChunkAppendedFrequency', async () => {
+        // Arrange
+        const dbManager = new DuckDatabaseManager(conn);
+        const database = await dbManager.attachIfNotExists({
+          type: 'memory',
+          alias: 'sql_duck_test_frequency',
+        });
+
+        const sqlDuck = new SqlDuck({ conn });
+
+        const schema = z.object({
+          id: z.number(),
+        });
+
+        // 10 chunks of 10 rows = 100 rows
+        const limit = 100;
+        const chunkSize = 10;
+        const frequency = 3;
+
+        const testTable = new Table({
+          name: 'test_frequency',
+          database: database.alias,
+        });
+
+        const getFakeRowStream = createFakeRowsAsyncIterator({
+          count: limit,
+          schema: schema,
+          factory: ({ rowIdx }) => ({ id: rowIdx }),
+        });
+
+        const cb = vi.fn();
+
+        // Act
+        await sqlDuck.toTable({
+          table: testTable,
+          schema: schema,
+          rowStream: getFakeRowStream(),
+          chunkSize: chunkSize,
+          onChunkAppended: cb,
+          onChunkAppendedFrequency: frequency,
+          createOptions: {
+            create: 'CREATE_OR_REPLACE',
+          },
+        });
+
+        // Assert
+        // Total chunks = 10
+        // Frequency = 3
+        // Callback should be called at chunks: 3, 6, 9
+        expect(cb).toHaveBeenCalledTimes(3);
+        expect(cb).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({ totalRows: 30 })
+        );
+        expect(cb).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ totalRows: 60 })
+        );
+        expect(cb).toHaveBeenNthCalledWith(
+          3,
+          expect.objectContaining({ totalRows: 90 })
+        );
+      });
     },
     testTimeout * 2
   );

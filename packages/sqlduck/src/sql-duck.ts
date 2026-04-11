@@ -68,6 +68,16 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
   onChunkAppended?: OnChunkAppendedCb;
 
   /**
+   * Specifies the frequency (in number of chunks) at which the `onChunkAppended` callback should be triggered.
+   *
+   * For example, if `chunkSize` is 2048 and `onChunkAppendedFrequency` is 5,
+   * the callback will be called every 10,240 rows (5 chunks * 2048 rows/chunk).
+   *
+   * @default 1
+   */
+  onChunkAppendedFrequency?: number;
+
+  /**
    * If set to `true`, a checkpoint is automatically performed after all rows from the `rowStream` have been processed.
    * This ensures that all data is persisted and WAL is cleared.
    * @default true
@@ -154,6 +164,7 @@ export class SqlDuck {
       rowStream,
       createOptions,
       onChunkAppended,
+      onChunkAppendedFrequency,
       autoCheckpoint = true,
       checkpointChunksFrequency,
     } = params;
@@ -183,6 +194,15 @@ export class SqlDuck {
     ) {
       throw new Error(
         'checkpointChunksFrequency must be a number between 1 and 100_000.'
+      );
+    }
+
+    if (
+      onChunkAppendedFrequency !== undefined &&
+      (onChunkAppendedFrequency < 1 || onChunkAppendedFrequency > 100_000)
+    ) {
+      throw new Error(
+        'onChunkAppendedFrequency must be a number between 1 and 100_000.'
       );
     }
 
@@ -251,7 +271,11 @@ export class SqlDuck {
 
         appendedChunkCount += 1;
 
-        if (onChunkAppended !== undefined) {
+        if (
+          onChunkAppended !== undefined &&
+          (onChunkAppendedFrequency === undefined ||
+            appendedChunkCount % onChunkAppendedFrequency === 0)
+        ) {
           const payload = chunkAppendedCollector(totalRows);
           if (isAsyncCb) {
             await onChunkAppended(payload);
