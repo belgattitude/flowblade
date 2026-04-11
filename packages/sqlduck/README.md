@@ -58,7 +58,7 @@ const result = await sqlDuck.toTable({
     rowStream: getUsers(), // The async iterable that yields rows
     // 👇Optional:
     chunkSize: 2048, // Number of rows to append when using duckdb appender. Default is 2048
-    onDataAppended: ({ timeMs, totalRows, rowsPerSecond }) => {
+    onChunkAppended: ({ timeMs, totalRows, rowsPerSecond }) => {
         console.log(
             `Appended ${totalRows} in time ${timeMs}ms, est: ${rowsPerSecond} rows/s`
         );
@@ -105,8 +105,8 @@ const result = sqlDuck.toTable({
   rowStream: getUserRows(), // The async iterable that yields rows
   // 👇Optional:
   chunkSize: 2048, // Number of rows to append when using duckdb appender. Default is 2048
-  onDataAppended: ({ total }) => {
-    console.log(`Appended ${total} rows so far`);
+  onChunkAppended: ({ totalRows }) => {
+    console.log(`Appended ${totalRows} rows so far`);
   },
   // Optional table creation options
   createOptions: {

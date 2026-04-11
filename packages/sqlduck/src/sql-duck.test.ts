@@ -103,7 +103,7 @@ describe('Duckdb tests', async () => {
           schema: userSchema,
           rowStream: getFakeRowStream(),
           chunkSize: 2048,
-          onDataAppended: cb,
+          onChunkAppended: cb,
           createOptions: {
             create: 'CREATE_OR_REPLACE',
           },

@@ -8,9 +8,9 @@ import type { ZodObject } from 'zod';
 import type * as z from 'zod';
 
 import {
-  createOnDataAppendedCollector,
-  isOnDataAppendedAsyncCb,
-  type OnDataAppendedCb,
+  createOnChunkAppendedCollector,
+  isOnChunkAppendedAsyncCb,
+  type OnChunkAppendedCb,
 } from './appender/data-appender-callback.ts';
 import { createDuckColumnConverters } from './converter/create-duck-column-converters.ts';
 import { sqlduckDefaultLogtapeLogger } from './logger/sqlduck-default-logtape-logger.ts';
@@ -60,7 +60,7 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
   /**
    * Callback called each time a datachunk is appended to the table
    */
-  onDataAppended?: OnDataAppendedCb;
+  onChunkAppended?: OnChunkAppendedCb;
 
   /**
    * Automatically checkpoint the table after all chunks have been appended.
@@ -126,8 +126,8 @@ export class SqlDuck {
    *  schema: userSchema,
    *  rowStream: getUserRows(),
    *  chunkSize: 2048,
-   *  onDataAppended: ({ total }) => {
-   *    console.log(`Appended ${total} rows so far`);
+   *  onChunkAppended: ({ totalRows }) => {
+   *    console.log(`Appended ${totalRows} rows so far`);
    *  },
    *  createOptions: {
    *    create: 'CREATE_OR_REPLACE',
@@ -147,7 +147,7 @@ export class SqlDuck {
       chunkSize = 2048,
       rowStream,
       createOptions,
-      onDataAppended,
+      onChunkAppended,
       autoCheckpoint = true,
       checkpointChunksFrequency,
     } = params;
@@ -211,7 +211,7 @@ export class SqlDuck {
 
     let totalRows = 0;
 
-    const dataAppendedCollector = createOnDataAppendedCollector();
+    const chunkAppendedCollector = createOnChunkAppendedCollector();
 
     const columnStream = rowsToColumnsChunks<z.output<TSchema>>({
       rows: rowStream,
@@ -225,7 +225,8 @@ export class SqlDuck {
     const tableName = table.tableName;
     try {
       const isAsyncCb =
-        onDataAppended !== undefined && isOnDataAppendedAsyncCb(onDataAppended);
+        onChunkAppended !== undefined &&
+        isOnChunkAppendedAsyncCb(onChunkAppended);
 
       for await (const dataChunk of columnStream) {
         const chunk = DuckDBDataChunk.create(chunkTypes);
@@ -244,12 +245,12 @@ export class SqlDuck {
 
         appendedChunkCount += 1;
 
-        if (onDataAppended !== undefined) {
-          const payload = dataAppendedCollector(totalRows);
+        if (onChunkAppended !== undefined) {
+          const payload = chunkAppendedCollector(totalRows);
           if (isAsyncCb) {
-            await onDataAppended(payload);
+            await onChunkAppended(payload);
           } else {
-            onDataAppended(payload);
+            onChunkAppended(payload);
           }
         }
 

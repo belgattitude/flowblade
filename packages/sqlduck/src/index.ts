@@ -1,6 +1,6 @@
 export type {
-  OnDataAppendedCb,
-  OnDataAppendedStats,
+  OnChunkAppendedCb,
+  OnChunkAppendedStats,
 } from './appender/data-appender-callback';
 export * from './helpers';
 export type { SqlDuckParams, ToTableParams } from './sql-duck.ts';

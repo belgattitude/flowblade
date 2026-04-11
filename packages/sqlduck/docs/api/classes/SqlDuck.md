@@ -71,10 +71,10 @@ const result = sqlDuck.toTable({
   schema: userSchema,
   rowStream: getUserRows(),
   chunkSize: 2048,
-  onDataAppended: ({ total }) => {
-    console.log(`Appended ${total} rows so far`);
+  onChunkAppended: ({ totalRows }) => {
+    console.log(`Appended ${totalRows} rows so far`);
   },
-  onDataAppendedBatchSize: 4096, // Call onDataAppended every 4096 rows
+  onChunkAppendedBatchSize: 4096, // Call onChunkAppended every 4096 rows
   createOptions: {
     create: "CREATE_OR_REPLACE",
   },

@@ -1,4 +1,4 @@
-export type OnDataAppendedStats = {
+export type OnChunkAppendedStats = {
   /**
    * Total number of rows appended so far (all batches included)
    */
@@ -13,14 +13,14 @@ export type OnDataAppendedStats = {
   rowsPerSecond: number;
 };
 
-type OnDataAppendedSyncCb = (stats: OnDataAppendedStats) => void;
-type OnDataAppendedAsyncCb = (stats: OnDataAppendedStats) => Promise<void>;
+type OnChunkAppendedSyncCb = (stats: OnChunkAppendedStats) => void;
+type OnChunkAppendedAsyncCb = (stats: OnChunkAppendedStats) => Promise<void>;
 
-export type OnDataAppendedCb = OnDataAppendedSyncCb | OnDataAppendedAsyncCb;
+export type OnChunkAppendedCb = OnChunkAppendedSyncCb | OnChunkAppendedAsyncCb;
 
-export const isOnDataAppendedAsyncCb = (
-  v: OnDataAppendedCb
-): v is OnDataAppendedAsyncCb => {
+export const isOnChunkAppendedAsyncCb = (
+  v: OnChunkAppendedCb
+): v is OnChunkAppendedAsyncCb => {
   return (
     v.constructor.name === 'AsyncFunction' ||
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -31,13 +31,13 @@ export const isOnDataAppendedAsyncCb = (
   );
 };
 
-export const createOnDataAppendedCollector = () => {
+export const createOnChunkAppendedCollector = () => {
   let lastCallbackTimeStart: number = Date.now();
   let appendedTotalRows = 0;
   return (currentTotalRows: number) => {
     const cbTimeMs = Math.round(Date.now() - lastCallbackTimeStart);
     const cbTotalRows = currentTotalRows - appendedTotalRows;
-    const stats: OnDataAppendedStats = {
+    const stats: OnChunkAppendedStats = {
       totalRows: currentTotalRows,
       timeMs: cbTimeMs,
       rowsPerSecond: Math.round((cbTotalRows / cbTimeMs) * 1000),
