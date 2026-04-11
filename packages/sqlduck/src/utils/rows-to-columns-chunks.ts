@@ -32,8 +32,8 @@ type RowsToColumnsChunksParams<TRow extends Record<string, SupportedRowTypes>> =
  * for await (const chunk of columnChunks) {
  *   console.log(chunk);
  * }
- * // First log  : { id: [1, 2], name: ['A', 'B'] }
- * // Second log : { id: [3],    name: ['C'] }
+ * // log: { id: [1, 2], name: ['A', 'B'] } // first chunk
+ * // log: { id: [3], name: ['C'] } // second chunk
  * ```
  */
 export async function* rowsToColumnsChunks<
