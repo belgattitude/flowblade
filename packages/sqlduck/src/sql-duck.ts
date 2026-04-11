@@ -199,11 +199,13 @@ export class SqlDuck {
 
     const chunkTypes = Array.from(columnTypes.values());
 
-    const columnTypeIds = Object.fromEntries(
-      Array.from(columnTypes).map(([key, duckType]) => {
-        return [key, duckType];
-      })
-    ) as Record<keyof z.output<TSchema>, DuckDBType>;
+    const columnTypeIds = {} as Record<keyof z.output<TSchema>, DuckDBType>;
+    const columnKeys = [] as (keyof z.output<TSchema>)[];
+    for (const [key, duckType] of columnTypes) {
+      columnKeys.push(key as keyof z.output<TSchema>);
+      columnTypeIds[key as keyof z.output<TSchema>] = duckType;
+    }
+    const numColumns = columnKeys.length;
 
     const transformers = createDuckColumnConverters(columnTypeIds);
 
@@ -222,24 +224,29 @@ export class SqlDuck {
     const tableFullName = table.getFullName();
     const tableName = table.tableName;
     try {
+      const isAsyncCb =
+        onDataAppended !== undefined && isOnDataAppendedAsyncCb(onDataAppended);
+
       for await (const dataChunk of columnStream) {
         const chunk = DuckDBDataChunk.create(chunkTypes);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const columns = Object.values(dataChunk) as any[][];
+        // eslint-disable-next-line unicorn/no-new-array, @typescript-eslint/no-explicit-any
+        const columns = new Array<any[]>(numColumns);
+        for (let i = 0; i < numColumns; i++) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          columns[i] = dataChunk[columnKeys[i]] as any[];
+        }
 
         totalRows += columns[0]?.length ?? 0;
 
         chunk.setColumns(columns);
         appender.appendDataChunk(chunk);
 
-        appender.flushSync();
-
         appendedChunkCount += 1;
 
         if (onDataAppended !== undefined) {
           const payload = dataAppendedCollector(totalRows);
-          if (isOnDataAppendedAsyncCb(onDataAppended)) {
+          if (isAsyncCb) {
             await onDataAppended(payload);
           } else {
             onDataAppended(payload);

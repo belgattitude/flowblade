@@ -21,7 +21,14 @@ export type OnDataAppendedCb = OnDataAppendedSyncCb | OnDataAppendedAsyncCb;
 export const isOnDataAppendedAsyncCb = (
   v: OnDataAppendedCb
 ): v is OnDataAppendedAsyncCb => {
-  return v.constructor.name === 'AsyncFunction';
+  return (
+    v.constructor.name === 'AsyncFunction' ||
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    v.constructor ===
+      (async () => {
+        await Promise.resolve();
+      }).constructor
+  );
 };
 
 export const createOnDataAppendedCollector = () => {
