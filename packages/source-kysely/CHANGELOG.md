@@ -1,5 +1,16 @@
 # @flowblade/source-kysely
 
+## 1.3.2
+
+### Patch Changes
+
+- [#1054](https://github.com/belgattitude/flowblade/pull/1054) [`8ff8837`](https://github.com/belgattitude/flowblade/commit/8ff8837c2e344c2c413e5a33f227e0da7c3f5633) Thanks [@belgattitude](https://github.com/belgattitude)! - Add logging to stream method
+
+- [#1054](https://github.com/belgattitude/flowblade/pull/1054) [`8ff8837`](https://github.com/belgattitude/flowblade/commit/8ff8837c2e344c2c413e5a33f227e0da7c3f5633) Thanks [@belgattitude](https://github.com/belgattitude)! - Refactor DatasourceStreamOptions into QueryStreamOptions with name support
+
+- Updated dependencies [[`8ff8837`](https://github.com/belgattitude/flowblade/commit/8ff8837c2e344c2c413e5a33f227e0da7c3f5633)]:
+  - @flowblade/core@0.2.28
+
 ## 1.3.1
 
 ### Patch Changes
