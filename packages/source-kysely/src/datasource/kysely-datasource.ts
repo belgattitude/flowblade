@@ -3,12 +3,12 @@ import {
   createQResultSuccess,
   createSqlSpan,
   type DatasourceInterface,
-  type DatasourceStreamOptions,
   type QError,
   QMeta,
   type QMetaSqlSpan,
   type QResult,
   type QueryOptions,
+  type QueryStreamOptions,
 } from '@flowblade/core';
 import type { Logger } from '@logtape/logtape';
 import type { Compilable, InferResult, Kysely, RawBuilder } from 'kysely';
@@ -261,21 +261,70 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *   }
    * }
    * ```
+   *
+   * @throws Error
    */
   async *stream<
     TQuery extends KyselyQueryOrRawQuery,
     TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
   >(
     query: TQuery,
-    options?: DatasourceStreamOptions
+    options?: QueryStreamOptions
   ): AsyncIterableIterator<TData[0]> {
-    const { chunkSize } = options ?? {};
     if (!isKyselyStreamable(query)) {
       throw new Error('Query is not streamable, be sure to check usage');
     }
-    yield* query.stream(chunkSize) as unknown as AsyncIterableIterator<
-      TData[0]
-    >;
+    const { chunkSize } = options ?? {};
+    const name = options?.name ?? 'anonymous';
+
+    const compiled = query.compile(this.db);
+
+    const span = createSqlSpan({
+      sql: compiled.sql,
+      params: compiled.parameters as Writable<QMetaSqlSpan['params']>,
+    });
+
+    const start = Date.now();
+
+    this.logger.debug(`Streaming query "{queryName}"`, {
+      queryName: name,
+      sql: compiled.sql,
+      params: compiled.parameters,
+    });
+
+    try {
+      yield* query.stream(chunkSize) as unknown as AsyncIterableIterator<
+        TData[0]
+      >;
+    } catch (err) {
+      span.timeMs = Date.now() - start;
+      this.logger.error(
+        `Streaming query "{queryName}" failed`,
+        this.getLogFromSpan(name, span)
+      );
+
+      // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
+      // This behaviour exists for example in Tedious/Mssql
+      let message = 'Unknown error';
+      if (Array.isArray(err)) {
+        message = err
+          .map((e) => (e instanceof Error ? e.message : String(e)))
+          .join('; ');
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      throw new Error(message, {
+        cause: err,
+      });
+    }
+
+    const timeMs = Date.now() - start;
+    span.timeMs = timeMs;
+
+    this.logger.info(
+      `Streaming query "{queryName}" executed in ${timeMs}ms.`,
+      this.getLogFromSpan(name, span)
+    );
   }
 
   private getLogFromSpan = (queryName: string, span: QMetaSqlSpan) => {

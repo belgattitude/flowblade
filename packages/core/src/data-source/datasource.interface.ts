@@ -7,7 +7,7 @@ export interface QueryOptions {
   name?: string;
 }
 
-export type DatasourceStreamOptions = {
+export type QueryStreamOptions = QueryOptions & {
   /**
    * Number of chunks to retrieve while reading the database
    */
@@ -57,6 +57,6 @@ export interface DatasourceInterface {
 
   stream: (
     query: VoluntaryAny,
-    options?: DatasourceStreamOptions
+    options?: QueryStreamOptions
   ) => AsyncIterableIterator<VoluntaryAny>;
 }

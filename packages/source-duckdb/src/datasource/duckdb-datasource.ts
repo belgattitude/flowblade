@@ -5,12 +5,12 @@ import {
   createQResultSuccess,
   createSqlSpan,
   type DatasourceInterface,
-  type DatasourceStreamOptions,
   type QError,
   QMeta,
   type QMetaSqlSpan,
   type QResult,
   type QueryOptions,
+  type QueryStreamOptions,
 } from '@flowblade/core';
 import type { SqlTag } from '@flowblade/sql-tag';
 import type { Logger } from '@logtape/logtape';
@@ -166,7 +166,7 @@ export class DuckdbDatasource implements DatasourceInterface {
   // eslint-disable-next-line require-yield,sonarjs/generator-without-yield
   async *stream(
     _query: unknown,
-    _options?: DatasourceStreamOptions
+    _options?: QueryStreamOptions
   ): AsyncIterableIterator<QResult<unknown[], QError>> {
     throw new Error('Not implemented yet');
   }
