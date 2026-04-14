@@ -6,11 +6,11 @@ import {
   createQResultSuccess,
   createSqlSpan,
   type DatasourceInterface,
-  type DatasourceStreamOptions,
   type QError,
   QMeta,
   type QResult,
   type QueryOptions,
+  type QueryStreamOptions,
 } from '../index';
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -133,7 +133,7 @@ export class DummyDatasource implements DatasourceInterface {
   // eslint-disable-next-line require-yield,sonarjs/generator-without-yield
   async *stream(
     _query: unknown,
-    _options?: DatasourceStreamOptions
+    _options?: QueryStreamOptions
   ): AsyncIterableIterator<QResult<unknown[], QError>> {
     throw new Error('Not implemented yet');
   }

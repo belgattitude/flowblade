@@ -3,12 +3,12 @@ import {
   createQResultSuccess,
   createSqlSpan,
   type DatasourceInterface,
-  type DatasourceStreamOptions,
   type QError,
   QMeta,
   type QMetaSqlSpan,
   type QResult,
   type QueryOptions,
+  type QueryStreamOptions,
 } from '@flowblade/core';
 import type { Logger } from '@logtape/logtape';
 import type { Compilable, InferResult, Kysely, RawBuilder } from 'kysely';
@@ -160,7 +160,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
 
       this.logger.info(
         'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
-        this.getLogFromSpan(name, span)
+        this.getLogFromSpan(name, span, 'query')
       );
 
       return createQResultSuccess(
@@ -171,7 +171,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       span.timeMs = Date.now() - start;
       this.logger.error(
         `Query "{queryName}" failed`,
-        this.getLogFromSpan(name, span)
+        this.getLogFromSpan(name, span, 'query')
       );
 
       // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
@@ -261,27 +261,80 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *   }
    * }
    * ```
+   *
+   * @throws Error
    */
   async *stream<
     TQuery extends KyselyQueryOrRawQuery,
     TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
   >(
     query: TQuery,
-    options?: DatasourceStreamOptions
+    options?: QueryStreamOptions
   ): AsyncIterableIterator<TData[0]> {
-    const { chunkSize } = options ?? {};
     if (!isKyselyStreamable(query)) {
       throw new Error('Query is not streamable, be sure to check usage');
     }
-    yield* query.stream(chunkSize) as unknown as AsyncIterableIterator<
-      TData[0]
-    >;
+    const { chunkSize } = options ?? {};
+    const name = options?.name ?? 'anonymous';
+
+    const compiled = query.compile(this.db);
+
+    const span = createSqlSpan({
+      sql: compiled.sql,
+      params: compiled.parameters as Writable<QMetaSqlSpan['params']>,
+    });
+
+    const start = Date.now();
+
+    this.logger.debug(
+      `Streaming query "${name}"`,
+      this.getLogFromSpan(name, span, 'stream')
+    );
+
+    try {
+      yield* query.stream(chunkSize) as unknown as AsyncIterableIterator<
+        TData[0]
+      >;
+    } catch (err) {
+      span.timeMs = Date.now() - start;
+      this.logger.error(
+        `Streaming query "${name}" failed`,
+        this.getLogFromSpan(name, span, 'stream')
+      );
+
+      // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
+      // This behaviour exists for example in Tedious/Mssql
+      let message = 'Unknown error';
+      if (Array.isArray(err)) {
+        message = err
+          .map((e) => (e instanceof Error ? e.message : String(e)))
+          .join('; ');
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      throw new Error(message, {
+        cause: err,
+      });
+    } finally {
+      const timeMs = Date.now() - start;
+      span.timeMs = timeMs;
+
+      this.logger.info(
+        `Streaming query "${name}" executed in ${timeMs}ms.`,
+        this.getLogFromSpan(name, span, 'stream')
+      );
+    }
   }
 
-  private getLogFromSpan = (queryName: string, span: QMetaSqlSpan) => {
+  private getLogFromSpan = (
+    queryName: string,
+    span: QMetaSqlSpan,
+    method: 'stream' | 'query'
+  ) => {
     return {
       queryName,
       source: 'kysely',
+      method: method,
       type: span.type,
       sql: span.sql,
       params: span.params,
