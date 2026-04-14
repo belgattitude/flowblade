@@ -160,7 +160,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
 
       this.logger.info(
         'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
-        this.getLogFromSpan(name, span)
+        this.getLogFromSpan(name, span, 'query')
       );
 
       return createQResultSuccess(
@@ -171,7 +171,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       span.timeMs = Date.now() - start;
       this.logger.error(
         `Query "{queryName}" failed`,
-        this.getLogFromSpan(name, span)
+        this.getLogFromSpan(name, span, 'query')
       );
 
       // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
@@ -286,11 +286,10 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
 
     const start = Date.now();
 
-    this.logger.debug(`Streaming query "{queryName}"`, {
-      queryName: name,
-      sql: compiled.sql,
-      params: compiled.parameters,
-    });
+    this.logger.debug(
+      `Streaming query "{queryName}"`,
+      this.getLogFromSpan(name, span, 'stream')
+    );
 
     try {
       yield* query.stream(chunkSize) as unknown as AsyncIterableIterator<
@@ -300,7 +299,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       span.timeMs = Date.now() - start;
       this.logger.error(
         `Streaming query "{queryName}" failed`,
-        this.getLogFromSpan(name, span)
+        this.getLogFromSpan(name, span, 'stream')
       );
 
       // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
@@ -323,14 +322,19 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
 
     this.logger.info(
       `Streaming query "{queryName}" executed in ${timeMs}ms.`,
-      this.getLogFromSpan(name, span)
+      this.getLogFromSpan(name, span, 'stream')
     );
   }
 
-  private getLogFromSpan = (queryName: string, span: QMetaSqlSpan) => {
+  private getLogFromSpan = (
+    queryName: string,
+    span: QMetaSqlSpan,
+    method: 'stream' | 'query'
+  ) => {
     return {
       queryName,
       source: 'kysely',
+      method: method,
       type: span.type,
       sql: span.sql,
       params: span.params,
