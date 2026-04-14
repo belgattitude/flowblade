@@ -287,7 +287,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     const start = Date.now();
 
     this.logger.debug(
-      `Streaming query "{queryName}"`,
+      `Streaming query "${name}"`,
       this.getLogFromSpan(name, span, 'stream')
     );
 
@@ -298,7 +298,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     } catch (err) {
       span.timeMs = Date.now() - start;
       this.logger.error(
-        `Streaming query "{queryName}" failed`,
+        `Streaming query "${name}" failed`,
         this.getLogFromSpan(name, span, 'stream')
       );
 
@@ -315,15 +315,15 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       throw new Error(message, {
         cause: err,
       });
+    } finally {
+      const timeMs = Date.now() - start;
+      span.timeMs = timeMs;
+
+      this.logger.info(
+        `Streaming query "${name}" executed in ${timeMs}ms.`,
+        this.getLogFromSpan(name, span, 'stream')
+      );
     }
-
-    const timeMs = Date.now() - start;
-    span.timeMs = timeMs;
-
-    this.logger.info(
-      `Streaming query "{queryName}" executed in ${timeMs}ms.`,
-      this.getLogFromSpan(name, span, 'stream')
-    );
   }
 
   private getLogFromSpan = (
