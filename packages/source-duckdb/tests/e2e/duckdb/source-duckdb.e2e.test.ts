@@ -189,8 +189,14 @@ describe('DuckDBAsyncDatasource e2e', async () => {
       expect(logBuffer[1]!).toMatchObject({
         category: flowbladeLogtapeDuckdbConfig.categories,
         level: 'error',
-        message: ['Query "', 'ERROR', '" failed'],
-        rawMessage: 'Query "{queryName}" failed',
+        message: [
+          'Query "',
+          'ERROR',
+          expect.stringMatching(/" failed: Binder/),
+        ],
+        rawMessage: expect.stringMatching(
+          /Query "\{queryName\}" failed: Binder(.*)FROM clause is missing/
+        ),
         properties: {
           queryName: 'ERROR',
           sql: 'SELECT err',

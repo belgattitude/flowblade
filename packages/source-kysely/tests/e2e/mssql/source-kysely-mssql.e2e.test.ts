@@ -408,8 +408,8 @@ describe('MSSQL e2e tests', () => {
       expect(logBuffer[1]!).toMatchObject({
         category: flowbladeLogtapeKyselyConfig.categories,
         level: 'error',
-        message: ['Query "', 'ERROR', '" failed'],
-        rawMessage: 'Query "{queryName}" failed',
+        message: ['Query "', 'ERROR', "\" failed: Invalid column name 'err'."],
+        rawMessage: 'Query "{queryName}" failed: Invalid column name \'err\'.',
         properties: {
           queryName: 'ERROR',
           sql: 'SELECT err',

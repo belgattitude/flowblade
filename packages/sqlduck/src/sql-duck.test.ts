@@ -168,7 +168,6 @@ describe('Duckdb tests', async () => {
              WHERE name = ${params.name} 
              LIMIT 1`
         );
-        console.log(data);
         const { name, bignumber, email, created_at, gender } = data?.[0] ?? {};
         expect(name).toStrictEqual('unique-record-for-tests');
         expect(email).toStrictEqual('unique-record-for-tests@example.com');
