@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 1.3.3
+
+### Patch Changes
+
+- [#1057](https://github.com/belgattitude/flowblade/pull/1057) [`288c156`](https://github.com/belgattitude/flowblade/commit/288c15627d965196984ae26623cf39b4c2e18742) Thanks [@belgattitude](https://github.com/belgattitude)! - Correctly expose the query error message in the logger
+
 ## 1.3.2
 
 ### Patch Changes
