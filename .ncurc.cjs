@@ -66,9 +66,6 @@ module.exports = defineConfig({
     // Cause v9 isn't yet supported
     'eslint',
 
-    // Shadcn doesn't support newer versions yet
-    'react-resizable-panels',
-
     // duckdb-wasm depends on an older version of arrow
     'apache-arrow',
 

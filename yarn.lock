@@ -703,7 +703,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.22.5, @babel/runtime@npm:^7.28.6, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.8.7":
+"@babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.22.5, @babel/runtime@npm:^7.29.2, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.8.7":
   version: 7.29.2
   resolution: "@babel/runtime@npm:7.29.2"
   checksum: 10c0/30b80a0140d16467792e1bbeb06f655b0dab70407da38dfac7fedae9c859f9ae9d846ef14ad77bd3814c064295fe9b1bc551f1541ea14646ae9f22b71a8bc17a
@@ -773,32 +773,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@base-ui/react@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@base-ui/react@npm:1.3.0"
+"@base-ui/react@npm:1.4.0":
+  version: 1.4.0
+  resolution: "@base-ui/react@npm:1.4.0"
   dependencies:
-    "@babel/runtime": "npm:^7.28.6"
-    "@base-ui/utils": "npm:0.2.6"
+    "@babel/runtime": "npm:^7.29.2"
+    "@base-ui/utils": "npm:0.2.7"
     "@floating-ui/react-dom": "npm:^2.1.8"
     "@floating-ui/utils": "npm:^0.2.11"
-    tabbable: "npm:^6.4.0"
     use-sync-external-store: "npm:^1.6.0"
   peerDependencies:
+    "@date-fns/tz": ^1.2.0
     "@types/react": ^17 || ^18 || ^19
+    date-fns: ^4.0.0
     react: ^17 || ^18 || ^19
     react-dom: ^17 || ^18 || ^19
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/36c9d2d77a82b41cb3783be39340aa0713bbe102fb18213f8f3e2c4f1295beb8359dd97067248bea34925f4a40eab281ddc42f05009179db1d5a7a99e4bfecdc
+  checksum: 10c0/68e0be74cd3e5a7bea61d2ddfde2dbc04979d2396a81823392edab5d82f2333a68ba7ba78f429cf3a1c0a30f87aadddf59c601ecd6aa27d84211672989e09870
   languageName: node
   linkType: hard
 
-"@base-ui/utils@npm:0.2.6":
-  version: 0.2.6
-  resolution: "@base-ui/utils@npm:0.2.6"
+"@base-ui/utils@npm:0.2.7":
+  version: 0.2.7
+  resolution: "@base-ui/utils@npm:0.2.7"
   dependencies:
-    "@babel/runtime": "npm:^7.28.6"
+    "@babel/runtime": "npm:^7.29.2"
     "@floating-ui/utils": "npm:^0.2.11"
     reselect: "npm:^5.1.1"
     use-sync-external-store: "npm:^1.6.0"
@@ -809,7 +810,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/5611442ac37066774277cd3360d16ebc3f599dc7b8efdfdfbf5b66b6d2eb6e87a18c0f9922b061818850e781d9bbc70aa5fc4ffb1dfd7fb234eefc401e070090
+  checksum: 10c0/d01336c52b0a1bad4d554a8599f5378d8f538f4562498594c60eb42e329f4faf6bc167dc7395f83e1bd80f933588eae86b42095ab97955888c00b7efe2e49655
   languageName: node
   linkType: hard
 
@@ -879,22 +880,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@better-auth/api-key@npm:1.6.2":
-  version: 1.6.2
-  resolution: "@better-auth/api-key@npm:1.6.2"
+"@better-auth/api-key@npm:1.6.3":
+  version: 1.6.3
+  resolution: "@better-auth/api-key@npm:1.6.3"
   dependencies:
     zod: "npm:^4.3.6"
   peerDependencies:
-    "@better-auth/core": ^1.6.2
+    "@better-auth/core": ^1.6.3
     "@better-auth/utils": 0.4.0
-    better-auth: ^1.6.2
-  checksum: 10c0/f7b08a62ba5bf75ea5acbcea341ff1b8269ddf1937cd6dd9a494a525f40f33db5ece9c3f31c00bd1ffb809d062e6322b507b0bb273592f2d24f2ed91e18f3b77
+    better-auth: ^1.6.3
+  checksum: 10c0/71fbd21e764b8903c8121ffb1a4ab811f640b5e248eccd9bf01c5c3d762155c379c6ae2463552202cbf1811858c1740acafba9e47e40ed63d89e0abbc27f36a7
   languageName: node
   linkType: hard
 
-"@better-auth/core@npm:1.6.2":
-  version: 1.6.2
-  resolution: "@better-auth/core@npm:1.6.2"
+"@better-auth/core@npm:1.6.3":
+  version: 1.6.3
+  resolution: "@better-auth/core@npm:1.6.3"
   dependencies:
     "@opentelemetry/semantic-conventions": "npm:^1.39.0"
     "@standard-schema/spec": "npm:^1.1.0"
@@ -911,67 +912,67 @@ __metadata:
   peerDependenciesMeta:
     "@cloudflare/workers-types":
       optional: true
-  checksum: 10c0/496f9b693682450c4c81378a56743cd5b1acb716c8ba30e23fff8a769679eddb8578207ff0e8dd9b1c3b4e42faa7b1ca5a5b15a3a8b30816929a94ee54e45a1a
+  checksum: 10c0/348290776a5461708facd8aaf3e9c5ddc7fea21595d5c13c8aa33a406911e8329f262a1a9b97fb98899a124fc82b7b406dee2839cefe38390a41f1186f25fc07
   languageName: node
   linkType: hard
 
-"@better-auth/drizzle-adapter@npm:1.6.2":
-  version: 1.6.2
-  resolution: "@better-auth/drizzle-adapter@npm:1.6.2"
+"@better-auth/drizzle-adapter@npm:1.6.3":
+  version: 1.6.3
+  resolution: "@better-auth/drizzle-adapter@npm:1.6.3"
   peerDependencies:
-    "@better-auth/core": ^1.6.2
+    "@better-auth/core": ^1.6.3
     "@better-auth/utils": 0.4.0
     drizzle-orm: ">=0.41.0"
   peerDependenciesMeta:
     drizzle-orm:
       optional: true
-  checksum: 10c0/05951f400e832b994a047bb07e36170cc0a8858bf31da5227bf1f1c83a96be41ba6db370b267b95d2468f11efe5749abd7cc2d6415e10e6fb7cdf2c000b5b929
+  checksum: 10c0/499f45f2e00a1aeec9aa5a5f248b2a58304030b19ed0c09d2e4f0caf12e6471e8972f659061aff6484b87df9075eb0224c8bfb720f609ece392d4ef2d0da8cf0
   languageName: node
   linkType: hard
 
-"@better-auth/kysely-adapter@npm:1.6.2":
-  version: 1.6.2
-  resolution: "@better-auth/kysely-adapter@npm:1.6.2"
+"@better-auth/kysely-adapter@npm:1.6.3":
+  version: 1.6.3
+  resolution: "@better-auth/kysely-adapter@npm:1.6.3"
   peerDependencies:
-    "@better-auth/core": ^1.6.2
+    "@better-auth/core": ^1.6.3
     "@better-auth/utils": 0.4.0
     kysely: ^0.27.0 || ^0.28.0
   peerDependenciesMeta:
     kysely:
       optional: true
-  checksum: 10c0/edff587057e58c0dd36ed75a357b5adc9f576660708f7b0f6d57a6fca71d22bcf82c0a990e24cbead40bf9685a04d4e06e8acbb4dfdb97a71d29be98ce9b197b
+  checksum: 10c0/3eace976e6ad7ca53bea11a687e1a5410268daf14791c910043c5bd9582d77d202a28de35b7590937b52e2181884d876997745ecd842a72994efd71074653b49
   languageName: node
   linkType: hard
 
-"@better-auth/memory-adapter@npm:1.6.2":
-  version: 1.6.2
-  resolution: "@better-auth/memory-adapter@npm:1.6.2"
+"@better-auth/memory-adapter@npm:1.6.3":
+  version: 1.6.3
+  resolution: "@better-auth/memory-adapter@npm:1.6.3"
   peerDependencies:
-    "@better-auth/core": ^1.6.2
+    "@better-auth/core": ^1.6.3
     "@better-auth/utils": 0.4.0
-  checksum: 10c0/1d45d08ffaf995bec18716ec2ece3f6c361d2f0d552b4d582083856e12a8abe7df28c0c3661e01cb841d42a1ae0d1285e0626c0edaf813797c68c5068d7219e2
+  checksum: 10c0/f24a4bf96fcf2f533f376704dfaa13849bc53028919ae1c5ffd2cf07f53b9bb2f690169310dd0acca584c9580554789164e2b249ffa138ffa4f5dfe88fa52079
   languageName: node
   linkType: hard
 
-"@better-auth/mongo-adapter@npm:1.6.2":
-  version: 1.6.2
-  resolution: "@better-auth/mongo-adapter@npm:1.6.2"
+"@better-auth/mongo-adapter@npm:1.6.3":
+  version: 1.6.3
+  resolution: "@better-auth/mongo-adapter@npm:1.6.3"
   peerDependencies:
-    "@better-auth/core": ^1.6.2
+    "@better-auth/core": ^1.6.3
     "@better-auth/utils": 0.4.0
     mongodb: ^6.0.0 || ^7.0.0
   peerDependenciesMeta:
     mongodb:
       optional: true
-  checksum: 10c0/825d85a96fc7920decf07149bbef96f61f07cc9b5dfd75b6c17214fadf7cfa9befe272132e89ee41497ad4eaa54ff32c3dc17104cc52ace0c86e327590c078d5
+  checksum: 10c0/cf5041a86ef718acd158419425fd94506cd8768a74d0add67ef0d7e354c8e1f895f5450bf892759dbcc18fdd48fef03a51623191655f2e9d231756604fdd1ad4
   languageName: node
   linkType: hard
 
-"@better-auth/prisma-adapter@npm:1.6.2":
-  version: 1.6.2
-  resolution: "@better-auth/prisma-adapter@npm:1.6.2"
+"@better-auth/prisma-adapter@npm:1.6.3":
+  version: 1.6.3
+  resolution: "@better-auth/prisma-adapter@npm:1.6.3"
   peerDependencies:
-    "@better-auth/core": ^1.6.2
+    "@better-auth/core": ^1.6.3
     "@better-auth/utils": 0.4.0
     "@prisma/client": ^5.0.0 || ^6.0.0 || ^7.0.0
     prisma: ^5.0.0 || ^6.0.0 || ^7.0.0
@@ -980,13 +981,13 @@ __metadata:
       optional: true
     prisma:
       optional: true
-  checksum: 10c0/4c50d28e7b68adf162478dc9e377c8c9ba2f1f2561c978ca5733427f8d70d666d1df7a2e8f8531fc958ad1ad51edfe0568dd2e5a3bf1fead52f838d421424fc3
+  checksum: 10c0/b072e8b2b043770ab90bcfc4d0b1c778c8fe27e06c02d0a30c4dd0813dc5d87d50d3368315197f1b63b2cdde93638c8aea12370473af3a73d1b317be089f22c3
   languageName: node
   linkType: hard
 
-"@better-auth/sso@npm:1.6.2":
-  version: 1.6.2
-  resolution: "@better-auth/sso@npm:1.6.2"
+"@better-auth/sso@npm:1.6.3":
+  version: 1.6.3
+  resolution: "@better-auth/sso@npm:1.6.3"
   dependencies:
     fast-xml-parser: "npm:^5.5.7"
     jose: "npm:^6.1.3"
@@ -994,23 +995,23 @@ __metadata:
     tldts: "npm:^6.1.0"
     zod: "npm:^4.3.6"
   peerDependencies:
-    "@better-auth/core": ^1.6.2
+    "@better-auth/core": ^1.6.3
     "@better-auth/utils": 0.4.0
     "@better-fetch/fetch": 1.1.21
-    better-auth: ^1.6.2
+    better-auth: ^1.6.3
     better-call: 1.3.5
-  checksum: 10c0/0814e33e0951c91654808da2d792a0e93e45c6d1211ee015aa8efc015dea48f2ae72fe342c8d7624cb39f4853e9fa939a869203500f9af8bc274226054426425
+  checksum: 10c0/f0b7b18d59228f879c59b8512252c89001552080d0c207b4bddcd9ee875a3dc53e6ab6e41db1bab77559a0c13be04577ea62899c1ee412dd111e6e50e0837e90
   languageName: node
   linkType: hard
 
-"@better-auth/telemetry@npm:1.6.2":
-  version: 1.6.2
-  resolution: "@better-auth/telemetry@npm:1.6.2"
+"@better-auth/telemetry@npm:1.6.3":
+  version: 1.6.3
+  resolution: "@better-auth/telemetry@npm:1.6.3"
   peerDependencies:
-    "@better-auth/core": ^1.6.2
+    "@better-auth/core": ^1.6.3
     "@better-auth/utils": 0.4.0
     "@better-fetch/fetch": 1.1.21
-  checksum: 10c0/fd74ba37e6ca8c4feff09b8eb43bcbdf8039d2842520a2148332e0f7245079b0621e06878cc967f47ac0a15e521fe9a35e4757a8f44e590fbcb3db1a929f143d
+  checksum: 10c0/6686e5d72ee20d40cbfa9f3cea88c1e9dab01f60a2723951596f2c44db029e56461d7855b6cba43b906a41dd20cc8d6221fac7df1693d0476fad44ca02ccda67
   languageName: node
   linkType: hard
 
@@ -1672,8 +1673,8 @@ __metadata:
     nextra: "npm:4.6.1"
     nextra-theme-docs: "npm:4.6.1"
     npm-run-all2: "npm:8.0.4"
-    pagefind: "npm:1.5.0"
-    prettier: "npm:3.8.2"
+    pagefind: "npm:1.5.2"
+    prettier: "npm:3.8.3"
     react: "npm:19.2.5"
     react-dom: "npm:19.2.5"
     react-error-boundary: "npm:6.1.1"
@@ -2108,8 +2109,8 @@ __metadata:
   resolution: "@examples/base-auth@workspace:examples/shared/base-auth"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.12.0"
-    "@better-auth/api-key": "npm:1.6.2"
-    "@better-auth/sso": "npm:1.6.2"
+    "@better-auth/api-key": "npm:1.6.3"
+    "@better-auth/sso": "npm:1.6.3"
     "@dotenvx/dotenvx": "npm:1.61.0"
     "@flowblade/core": "workspace:^"
     "@flowblade/source-kysely": "workspace:^"
@@ -2127,15 +2128,15 @@ __metadata:
     "@vitest/browser": "npm:4.1.4"
     "@vitest/coverage-v8": "npm:4.1.4"
     "@vitest/ui": "npm:4.1.4"
-    better-auth: "npm:1.6.2"
-    dotenv: "npm:17.4.1"
+    better-auth: "npm:1.6.3"
+    dotenv: "npm:17.4.2"
     eslint: "npm:8.57.1"
     happy-dom: "npm:20.8.9"
     jose: "npm:6.2.2"
     kysely: "npm:0.28.16"
     kysely-codegen: "npm:0.20.0"
     picocolors: "npm:1.1.1"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     react: "npm:19.2.5"
     react-dom: "npm:19.2.5"
     rimraf: "npm:6.1.3"
@@ -2156,7 +2157,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples/base-ui@workspace:examples/shared/base-ui"
   dependencies:
-    "@base-ui/react": "npm:1.3.0"
+    "@base-ui/react": "npm:1.4.0"
     "@belgattitude/eslint-config-bases": "npm:8.12.0"
     "@storybook/addon-docs": "npm:10.3.5"
     "@storybook/addon-vitest": "npm:10.3.5"
@@ -2187,11 +2188,11 @@ __metadata:
     lucide-react: "npm:1.8.0"
     next-themes: "npm:0.4.6"
     playwright: "npm:1.59.1"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     react: "npm:19.2.5"
     react-day-picker: "npm:9.14.0"
     react-dom: "npm:19.2.5"
-    react-resizable-panels: "npm:4.9.0"
+    react-resizable-panels: "npm:4.10.0"
     recharts: "npm:3.8.1"
     rimraf: "npm:6.1.3"
     shadcn: "npm:4.2.0"
@@ -2233,7 +2234,7 @@ __metadata:
     execa: "npm:9.6.1"
     kysely: "npm:0.28.16"
     npm-run-all2: "npm:8.0.4"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     prisma: "npm:6.19.1"
     prisma-kysely: "npm:3.1.0"
     prisma-markdown: "npm:4.0.0"
@@ -2284,11 +2285,11 @@ __metadata:
     dedent: "npm:1.7.2"
     eslint: "npm:8.57.1"
     execa: "npm:9.6.1"
-    hono: "npm:4.12.12"
+    hono: "npm:4.12.14"
     kysely: "npm:0.28.16"
     node-downloader-helper: "npm:2.1.11"
     npm-run-all2: "npm:8.0.4"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     pretty-bytes: "npm:7.1.0"
     regexp.escape: "npm:2.0.1"
     rimraf: "npm:6.1.3"
@@ -2344,7 +2345,7 @@ __metadata:
     kysely: "npm:0.28.16"
     pino: "npm:10.3.1"
     pino-pretty: "npm:13.1.3"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     rimraf: "npm:6.1.3"
     tedious: "npm:19.2.1"
     tiny-glob: "npm:0.2.9"
@@ -2447,14 +2448,14 @@ __metadata:
     ag-grid-community: "npm:35.2.1"
     ag-grid-react: "npm:35.2.1"
     apache-arrow: "npm:17.0.0"
-    better-auth: "npm:1.6.2"
+    better-auth: "npm:1.6.3"
     class-variance-authority: "npm:0.7.1"
     clsx: "npm:2.1.1"
     cross-env: "npm:10.1.0"
     eslint: "npm:8.57.1"
     happy-dom: "npm:20.8.9"
     hast-util-to-jsx-runtime: "npm:2.3.6"
-    hono: "npm:4.12.12"
+    hono: "npm:4.12.14"
     hono-openapi: "npm:1.3.0"
     json-schema-walker: "npm:3.3.0"
     ky: "npm:2.0.0"
@@ -2466,7 +2467,7 @@ __metadata:
     npm-run-all2: "npm:8.0.4"
     openapi-types: "npm:12.1.3"
     postcss: "npm:8.5.9"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     pretty-bytes: "npm:7.1.0"
     primereact: "npm:10.9.7"
     quansync: "npm:1.0.0"
@@ -2763,7 +2764,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:8.58.2"
     autocannon: "npm:8.0.0"
     eslint: "npm:8.57.1"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     tsx: "npm:4.21.0"
     typescript: "npm:6.0.2"
   languageName: unknown
@@ -2793,7 +2794,7 @@ __metadata:
     eslint: "npm:8.57.1"
     execa: "npm:9.6.1"
     npm-run-all2: "npm:8.0.4"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     publint: "npm:0.3.18"
     rimraf: "npm:6.1.3"
     size-limit: "npm:12.0.1"
@@ -2836,7 +2837,7 @@ __metadata:
     eslint: "npm:8.57.1"
     execa: "npm:9.6.1"
     npm-run-all2: "npm:8.0.4"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     publint: "npm:0.3.18"
     rimraf: "npm:6.1.3"
     size-limit: "npm:12.0.1"
@@ -2884,7 +2885,7 @@ __metadata:
     execa: "npm:9.6.1"
     kysely: "npm:0.28.16"
     npm-run-all2: "npm:8.0.4"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     publint: "npm:0.3.18"
     rimraf: "npm:6.1.3"
     size-limit: "npm:12.0.1"
@@ -2932,7 +2933,7 @@ __metadata:
     eslint: "npm:8.57.1"
     execa: "npm:9.6.1"
     npm-run-all2: "npm:8.0.4"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     publint: "npm:0.3.18"
     rimraf: "npm:6.1.3"
     size-limit: "npm:12.0.1"
@@ -2968,7 +2969,7 @@ __metadata:
     eslint: "npm:8.57.1"
     execa: "npm:9.6.1"
     npm-run-all2: "npm:8.0.4"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     publint: "npm:0.3.18"
     rimraf: "npm:6.1.3"
     size-limit: "npm:12.0.1"
@@ -3026,7 +3027,7 @@ __metadata:
     mitata: "npm:1.0.34"
     npm-run-all2: "npm:8.0.4"
     p-queue: "npm:9.1.2"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     publint: "npm:0.3.18"
     regexp.escape: "npm:2.0.1"
     rimraf: "npm:6.1.3"
@@ -5547,51 +5548,51 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pagefind/darwin-arm64@npm:1.5.0":
-  version: 1.5.0
-  resolution: "@pagefind/darwin-arm64@npm:1.5.0"
+"@pagefind/darwin-arm64@npm:1.5.2":
+  version: 1.5.2
+  resolution: "@pagefind/darwin-arm64@npm:1.5.2"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@pagefind/darwin-x64@npm:1.5.0":
-  version: 1.5.0
-  resolution: "@pagefind/darwin-x64@npm:1.5.0"
+"@pagefind/darwin-x64@npm:1.5.2":
+  version: 1.5.2
+  resolution: "@pagefind/darwin-x64@npm:1.5.2"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@pagefind/freebsd-x64@npm:1.5.0":
-  version: 1.5.0
-  resolution: "@pagefind/freebsd-x64@npm:1.5.0"
+"@pagefind/freebsd-x64@npm:1.5.2":
+  version: 1.5.2
+  resolution: "@pagefind/freebsd-x64@npm:1.5.2"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@pagefind/linux-arm64@npm:1.5.0":
-  version: 1.5.0
-  resolution: "@pagefind/linux-arm64@npm:1.5.0"
+"@pagefind/linux-arm64@npm:1.5.2":
+  version: 1.5.2
+  resolution: "@pagefind/linux-arm64@npm:1.5.2"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@pagefind/linux-x64@npm:1.5.0":
-  version: 1.5.0
-  resolution: "@pagefind/linux-x64@npm:1.5.0"
+"@pagefind/linux-x64@npm:1.5.2":
+  version: 1.5.2
+  resolution: "@pagefind/linux-x64@npm:1.5.2"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@pagefind/windows-arm64@npm:1.5.0":
-  version: 1.5.0
-  resolution: "@pagefind/windows-arm64@npm:1.5.0"
+"@pagefind/windows-arm64@npm:1.5.2":
+  version: 1.5.2
+  resolution: "@pagefind/windows-arm64@npm:1.5.2"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@pagefind/windows-x64@npm:1.5.0":
-  version: 1.5.0
-  resolution: "@pagefind/windows-x64@npm:1.5.0"
+"@pagefind/windows-x64@npm:1.5.2":
+  version: 1.5.2
+  resolution: "@pagefind/windows-x64@npm:1.5.2"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -10729,17 +10730,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"better-auth@npm:1.6.2":
-  version: 1.6.2
-  resolution: "better-auth@npm:1.6.2"
+"better-auth@npm:1.6.3":
+  version: 1.6.3
+  resolution: "better-auth@npm:1.6.3"
   dependencies:
-    "@better-auth/core": "npm:1.6.2"
-    "@better-auth/drizzle-adapter": "npm:1.6.2"
-    "@better-auth/kysely-adapter": "npm:1.6.2"
-    "@better-auth/memory-adapter": "npm:1.6.2"
-    "@better-auth/mongo-adapter": "npm:1.6.2"
-    "@better-auth/prisma-adapter": "npm:1.6.2"
-    "@better-auth/telemetry": "npm:1.6.2"
+    "@better-auth/core": "npm:1.6.3"
+    "@better-auth/drizzle-adapter": "npm:1.6.3"
+    "@better-auth/kysely-adapter": "npm:1.6.3"
+    "@better-auth/memory-adapter": "npm:1.6.3"
+    "@better-auth/mongo-adapter": "npm:1.6.3"
+    "@better-auth/prisma-adapter": "npm:1.6.3"
+    "@better-auth/telemetry": "npm:1.6.3"
     "@better-auth/utils": "npm:0.4.0"
     "@better-fetch/fetch": "npm:1.1.21"
     "@noble/ciphers": "npm:^2.1.1"
@@ -10809,7 +10810,7 @@ __metadata:
       optional: true
     vue:
       optional: true
-  checksum: 10c0/acc77d7d36ff872a500a28578f7b9992590e1af6a28c995cd20a74f78e2a1be04afcaf0f1ccdf4dc39919858dfc2c5aefccaf052ee62fdeac2bd923d628f6310
+  checksum: 10c0/10902a731528b5e1a877421fc120ff22db558d7bccfc37f7c6a3d50593747e37f1d7585ae4707d38e5b436e93b167ab82a953e183fe7e49fcb4e3e7b8c821f02
   languageName: node
   linkType: hard
 
@@ -12871,10 +12872,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:17.4.1, dotenv@npm:^17.2.1, dotenv@npm:^17.2.4":
-  version: 17.4.1
-  resolution: "dotenv@npm:17.4.1"
-  checksum: 10c0/eb6ae592ee1e8f6b7f62e0f0c2827c4f27bbe9e00abe9d7910e06456e63dccd42f011de94da9450a63c07ccc52c318f527c1b56ad8e2c81a1a16314b53d4fd99
+"dotenv@npm:17.4.2, dotenv@npm:^17.2.1, dotenv@npm:^17.2.4":
+  version: 17.4.2
+  resolution: "dotenv@npm:17.4.2"
+  checksum: 10c0/164f8e77a646c8446867d5b588d26ea6005c8ea7c5eb41cf926f6113d23f2191355f6e0cfd95ea9bab98394a5b0a3f1e51a8399711b666fe55cc7b0bd745f942
   languageName: node
   linkType: hard
 
@@ -14689,7 +14690,7 @@ __metadata:
     npm-run-all2: "npm:8.0.4"
     picocolors: "npm:1.1.1"
     pkg-pr-new: "npm:0.0.66"
-    prettier: "npm:3.8.2"
+    prettier: "npm:3.8.3"
     rimraf: "npm:6.1.3"
     shell-quote: "npm:1.8.3"
     syncpack: "npm:14.3.0"
@@ -15639,10 +15640,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hono@npm:4.12.12, hono@npm:^4.11.4":
-  version: 4.12.12
-  resolution: "hono@npm:4.12.12"
-  checksum: 10c0/7e514cac7f0fde53a93b5344605a11bc944c55c7b68e586ab722269a60c2d78e81b91c298e934b232d44aa8fcbfd2584b7cd7e01fb3f0edaaba0597a584b2ead
+"hono@npm:4.12.14, hono@npm:^4.11.4":
+  version: 4.12.14
+  resolution: "hono@npm:4.12.14"
+  checksum: 10c0/78de4c98a9a3da0f067e38dcc4bd27f0d82b45d146ac39f5ca688515ee482c0a2e704d2ac6c1ee91ad17596b7c52b3e4b9483acd9c238d42f6ebcb43414a71b6
   languageName: node
   linkType: hard
 
@@ -19997,17 +19998,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pagefind@npm:1.5.0":
-  version: 1.5.0
-  resolution: "pagefind@npm:1.5.0"
+"pagefind@npm:1.5.2":
+  version: 1.5.2
+  resolution: "pagefind@npm:1.5.2"
   dependencies:
-    "@pagefind/darwin-arm64": "npm:1.5.0"
-    "@pagefind/darwin-x64": "npm:1.5.0"
-    "@pagefind/freebsd-x64": "npm:1.5.0"
-    "@pagefind/linux-arm64": "npm:1.5.0"
-    "@pagefind/linux-x64": "npm:1.5.0"
-    "@pagefind/windows-arm64": "npm:1.5.0"
-    "@pagefind/windows-x64": "npm:1.5.0"
+    "@pagefind/darwin-arm64": "npm:1.5.2"
+    "@pagefind/darwin-x64": "npm:1.5.2"
+    "@pagefind/freebsd-x64": "npm:1.5.2"
+    "@pagefind/linux-arm64": "npm:1.5.2"
+    "@pagefind/linux-x64": "npm:1.5.2"
+    "@pagefind/windows-arm64": "npm:1.5.2"
+    "@pagefind/windows-x64": "npm:1.5.2"
   dependenciesMeta:
     "@pagefind/darwin-arm64":
       optional: true
@@ -20025,7 +20026,7 @@ __metadata:
       optional: true
   bin:
     pagefind: lib/runner/bin.cjs
-  checksum: 10c0/1221b522c7480d00910d767a6ebfe107636f2828a5088c1df426b096f5bf2ead1e56c1bb2cfff44ed695b25685728e81b25661985fa2badf7f9c4d9f3d476d70
+  checksum: 10c0/bcc4f34f473bfeb09dc4cb464a3547bf958e11ee4dee4144ec7a364bd74b9f7c21f85be71e388b66d30923a9a453dcaed2f6b425f3e67631cadc9650ba741aab
   languageName: node
   linkType: hard
 
@@ -20609,12 +20610,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:3.8.2":
-  version: 3.8.2
-  resolution: "prettier@npm:3.8.2"
+"prettier@npm:3.8.3":
+  version: 3.8.3
+  resolution: "prettier@npm:3.8.3"
   bin:
     prettier: bin/prettier.cjs
-  checksum: 10c0/2d64bd01d269c8dd6d8c423a2a2e1fb88230a53aac523204b327de40059ccf8bd8e6fe70b8ce6154b97ed4442e9fd878504ff8a5330f3a4f64bd13d1576f7652
+  checksum: 10c0/754816fd7593eb80f6376d7476d463e832c38a12f32775a82683adb6e35b772b1f484d65f19401507b983a8c8a7cd5a4a9f12006bd56491e8f35503473f77473
   languageName: node
   linkType: hard
 
@@ -21246,13 +21247,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-resizable-panels@npm:4.9.0":
-  version: 4.9.0
-  resolution: "react-resizable-panels@npm:4.9.0"
+"react-resizable-panels@npm:4.10.0":
+  version: 4.10.0
+  resolution: "react-resizable-panels@npm:4.10.0"
   peerDependencies:
     react: ^18.0.0 || ^19.0.0
     react-dom: ^18.0.0 || ^19.0.0
-  checksum: 10c0/7435c4f8c7ae51fbcd30b8c0637088ccb274633da44505c66b5a4624b5d7c0b269b36b203ed0fd4c7509d1db955e8d59d73d6b3555f68b3c94ff112043f0debf
+  checksum: 10c0/da42646e8d7d30c4384c58ca9cefa3fe567fc2b11d4959cb15f1ec4e42198226016f61623c04baef105fdec68651a70411360b86f6cefa0bb45a53c42d252309
   languageName: node
   linkType: hard
 
@@ -23961,7 +23962,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tabbable@npm:^6.0.0, tabbable@npm:^6.4.0":
+"tabbable@npm:^6.0.0":
   version: 6.4.0
   resolution: "tabbable@npm:6.4.0"
   checksum: 10c0/d931427f4a96b801fd8801ba296a702119e06f70ad262fed8abc5271225c9f1ca51b89fdec4fb2f22e1d35acb3d2881db0a17cedc758272e9ecb540d00299d76
