@@ -169,10 +169,6 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       );
     } catch (err) {
       span.timeMs = Date.now() - start;
-      this.logger.error(
-        `Query "{queryName}" failed`,
-        this.getLogFromSpan(name, span, 'query')
-      );
 
       // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
       // This behaviour exists for example in Tedious/Mssql
@@ -184,6 +180,11 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       } else if (err instanceof Error) {
         message = err.message;
       }
+
+      this.logger.error(
+        `Query "{queryName}" failed: ${message}`,
+        this.getLogFromSpan(name, span, 'query')
+      );
 
       return createQResultError(
         {
@@ -297,10 +298,6 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       >;
     } catch (err) {
       span.timeMs = Date.now() - start;
-      this.logger.error(
-        `Streaming query "${name}" failed`,
-        this.getLogFromSpan(name, span, 'stream')
-      );
 
       // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
       // This behaviour exists for example in Tedious/Mssql
@@ -312,6 +309,12 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       } else if (err instanceof Error) {
         message = err.message;
       }
+
+      this.logger.error(
+        `Streaming query "${name}" failed: ${message}`,
+        this.getLogFromSpan(name, span, 'stream')
+      );
+
       throw new Error(message, {
         cause: err,
       });

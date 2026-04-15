@@ -116,15 +116,14 @@ export class DuckdbDatasource implements DatasourceInterface {
       );
     } catch (err) {
       span.timeMs = Math.round(Date.now() - start);
+      const message = err instanceof Error ? err.message : 'Unknown error';
       this.logger.error(
-        `Query "{queryName}" failed`,
+        `Query "{queryName}" failed: ${message}`,
         this.getLogFromSpan(name, span)
       );
 
       return createQResultError(
-        {
-          message: (err as Error).message,
-        },
+        { message },
         new QMeta({
           name,
           spans: span,
