@@ -80,7 +80,7 @@ jobs:
       - name: 🚀 Deploy
         if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
       #- name: 🚀 Deploy
       #  if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
