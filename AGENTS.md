@@ -32,7 +32,10 @@ Run these from the root:
 
 Each package in `packages/` has its own `package.json` and local scripts:
 
-- `yarn workspace @flowblade/<package-name> run test`: Run tests for a specific package.
+- `yarn workspace @flowblade/<package-name> run typecheck`: Run typecheck for a specific package.
+- `yarn workspace @flowblade/<package-name> run test-unit`: Run unit tests for a specific package.
+- `yarn workspace @flowblade/<package-name> run test-e2e`: Run e2e tests for a specific package.
+- `yarn workspace @flowblade/<package-name> run lint`: Run lint for a specific package.
 - `yarn workspace @flowblade/<package-name> run build`: Build a specific package.
 
 ## Coding Standards
