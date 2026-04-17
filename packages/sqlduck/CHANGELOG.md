@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.17.2
+
+### Patch Changes
+
+- [#1074](https://github.com/belgattitude/flowblade/pull/1074) [`7ef00e0`](https://github.com/belgattitude/flowblade/commit/7ef00e08b2eb8eb62416b91442415daeb8f1991f) Thanks [@belgattitude](https://github.com/belgattitude)! - Add ensureZodTableSchema utility helper
+
 ## 0.17.1
 
 ### Patch Changes
