@@ -4,8 +4,8 @@ import {
   type DuckDBType,
 } from '@duckdb/node-api';
 import type { Logger } from '@logtape/logtape';
-import type { ZodObject } from 'zod';
 import type * as z from 'zod';
+import type { ZodObject } from 'zod';
 
 import {
   createOnChunkAppendedCollector,

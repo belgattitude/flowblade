@@ -5,6 +5,9 @@ type TObject = Record<
   string | number | null | undefined | boolean | Date
 >;
 
+declare const EXPLICIT_GENERIC_REQUIRED: unique symbol;
+type RequireExplicitGeneric = TObject & { [EXPLICIT_GENERIC_REQUIRED]: never };
+
 /**
  * Helper to ensure a zod table schema is compatible with the provided type definition
  *
@@ -36,8 +39,10 @@ type TObject = Record<
  *
  * ```
  */
-export const ensureZodTableSchema = <T extends TObject>(
-  schema: z.ZodObject<{ [K in keyof T]-?: z.ZodType<T[K]> }>
+export const ensureZodTableSchema = <
+  T extends TObject = RequireExplicitGeneric,
+>(
+  schema: z.ZodObject<{ [K in keyof NoInfer<T>]-?: z.ZodType<NoInfer<T>[K]> }>
 ) => {
   return schema;
 };
