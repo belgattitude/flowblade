@@ -1,6 +1,6 @@
 import { type Faker, faker } from '@faker-js/faker';
-import type { ZodObject } from 'zod';
 import type * as z from 'zod';
+import type { ZodObject } from 'zod';
 
 type FakerFactory<T> = {
   [K in keyof T]: T[K];

@@ -11,11 +11,11 @@ import type {
 } from '@tanstack/react-query';
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 
+import type fetch from '@/config/api-fetcher-kubb.config.ts';
 import type {
   RequestConfig,
   ResponseErrorConfig,
 } from '@/config/api-fetcher-kubb.config.ts';
-import type fetch from '@/config/api-fetcher-kubb.config.ts';
 
 import { getApiDemoDuckdbSearch } from '../../getApiDemoDuckdbSearch';
 import type {
