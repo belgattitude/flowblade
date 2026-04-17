@@ -3,7 +3,7 @@ import * as z from 'zod';
 import { ensureZodTableSchema } from './ensure-zod-table-schema.ts';
 
 describe('createZodTableSchema', () => {
-  type UserRow = {
+  type Row = {
     aNumber: number;
     aString: string;
     aNullableNumber: number | null;
@@ -13,8 +13,18 @@ describe('createZodTableSchema', () => {
     aDate: Date;
     aNullableDate: Date | null;
   };
+  const row: Row = {
+    aNumber: 1,
+    aString: 'a',
+    aNullableNumber: null,
+    aNullableString: null,
+    aBoolean: true,
+    aNullableBoolean: null,
+    aDate: new Date(),
+    aNullableDate: null,
+  };
   it('a compatible schema wil pass', () => {
-    const _userSchema = ensureZodTableSchema<UserRow>(
+    const validSchema = ensureZodTableSchema<Row>(
       z.strictObject({
         aNumber: z.number(),
         aString: z.string(),
@@ -26,5 +36,8 @@ describe('createZodTableSchema', () => {
         aNullableDate: z.nullable(z.date()),
       })
     );
+
+    type TSchema = z.infer<typeof validSchema>;
+    expectTypeOf(row).toEqualTypeOf<TSchema>();
   });
 });
