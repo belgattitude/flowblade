@@ -2,7 +2,7 @@ name: flowblade-azure-mariadb
 
 services:
   mariadb:
-    image: mariadb:12.1-noble
+    image: mariadb:12.2-noble
     ports: ['3306:3306']
     env_file:
       - .env.mariadb.development
