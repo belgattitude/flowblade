@@ -251,7 +251,7 @@ export class SqlDuck {
     const columnTypeIds = {} as Record<keyof z.output<TSchema>, DuckDBType>;
     const columnKeys = [] as (keyof z.output<TSchema>)[];
     for (const [key, duckType] of columnTypes) {
-      columnKeys.push(key as keyof z.output<TSchema>);
+      columnKeys.push(key);
       columnTypeIds[key as keyof z.output<TSchema>] = duckType;
     }
     const numColumns = columnKeys.length;

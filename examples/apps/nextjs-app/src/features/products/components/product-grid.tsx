@@ -45,7 +45,7 @@ const productColDefs: ColDef<EthicalProduct>[] = [
     },
     valueSetter: (params) => {
       correction.set(params.data.label, {
-        category: params.newValue as unknown as string,
+        category: params.newValue as string,
       });
       return false;
     },
