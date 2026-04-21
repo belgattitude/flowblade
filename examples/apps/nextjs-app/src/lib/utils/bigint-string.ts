@@ -56,7 +56,7 @@ export class BigintString {
       return v.parse(
         BigintString.valibotSchema,
         typeof value === 'number' ? value.toString(10) : value
-      ) as TaggedBigintString;
+      );
     } catch (error) {
       const e = error as ValiError<typeof BigintString.valibotSchema>;
       throw new TypeError(`${fieldName ? `${fieldName}: ` : ''}${e.message}`);

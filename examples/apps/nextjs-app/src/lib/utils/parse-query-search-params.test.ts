@@ -54,8 +54,8 @@ describe('parseQuerySearchParams', () => {
   it('should pass through non-array values', () => {
     const input: ExtendedQuerySearchParams = {
       foo: 'bar',
-      num: 42 as unknown as string,
-      bool: false as unknown as string,
+      num: 42,
+      bool: false,
     };
     const out = parseQuerySearchParams({
       searchParams: input,
