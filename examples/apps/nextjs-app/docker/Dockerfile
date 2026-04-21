@@ -1,6 +1,6 @@
-ARG NODE_VERSION=24.14
+ARG NODE_VERSION=24.15
 ARG DEBIAN_VERSION=trixie-slim
-ARG COREPACK_VERSION=0.34.6
+ARG COREPACK_VERSION=0.34.7
 
 #############################################################
 # Stage 1 - App extraction / pruning                        #
