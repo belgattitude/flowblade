@@ -1662,7 +1662,7 @@ __metadata:
   resolution: "@docs/website@workspace:docs"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.13.0"
-    "@dotenvx/dotenvx": "npm:1.63.0"
+    "@dotenvx/dotenvx": "npm:1.64.0"
     "@t3-oss/env-nextjs": "npm:0.13.11"
     "@tailwindcss/postcss": "npm:4.2.4"
     "@total-typescript/ts-reset": "npm:0.6.1"
@@ -1695,7 +1695,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@dotenvx/dotenvx@npm:1.63.0, @dotenvx/dotenvx@npm:^1.48.4":
+"@dotenvx/dotenvx@npm:1.63.0":
   version: 1.63.0
   resolution: "@dotenvx/dotenvx@npm:1.63.0"
   dependencies:
@@ -1712,6 +1712,26 @@ __metadata:
   bin:
     dotenvx: src/cli/dotenvx.js
   checksum: 10c0/586c2aa70f23d15c112ca9bffd7119439ae3dbd3b39e23432acde52c4a59441b28715dd9f78b4f7eb7747cbd5132da58bf9c021a929ab348eec791e66fc08824
+  languageName: node
+  linkType: hard
+
+"@dotenvx/dotenvx@npm:1.64.0, @dotenvx/dotenvx@npm:^1.48.4":
+  version: 1.64.0
+  resolution: "@dotenvx/dotenvx@npm:1.64.0"
+  dependencies:
+    commander: "npm:^11.1.0"
+    dotenv: "npm:^17.2.1"
+    eciesjs: "npm:^0.4.10"
+    execa: "npm:^5.1.1"
+    fdir: "npm:^6.2.0"
+    ignore: "npm:^5.3.0"
+    object-treeify: "npm:1.1.33"
+    picomatch: "npm:^4.0.4"
+    which: "npm:^4.0.0"
+    yocto-spinner: "npm:^1.1.0"
+  bin:
+    dotenvx: src/cli/dotenvx.js
+  checksum: 10c0/592f1d51d6688fad53684a37e9762d34e74068ad46ab2223453b86de157071590ac1d39cef4a2d83251ec84d9383aaa556b022fb54774a59742c457d2f9875b1
   languageName: node
   linkType: hard
 
@@ -3014,7 +3034,7 @@ __metadata:
   resolution: "@flowblade/sqlduck@workspace:packages/sqlduck"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.13.0"
-    "@dotenvx/dotenvx": "npm:1.63.0"
+    "@dotenvx/dotenvx": "npm:1.64.0"
     "@duckdb/node-api": "npm:1.5.2-r.1"
     "@faker-js/faker": "npm:10.4.0"
     "@flowblade/core": "workspace:^"
