@@ -21,6 +21,8 @@ export { duckReservedKeywords } from './validation/core/duck-reserved-keywords.t
 
 // Manager
 export { DuckDatabaseManager } from './manager/database/duck-database-manager.ts';
+export { DuckExtensionsManager } from './manager/extensions/duck-extensions-manager.ts';
+export { DuckSettingsManager } from './manager/settings/duck-settings-manager.ts';
 
 // Logtape
 export { flowbladeLogtapeSqlduckConfig } from './config/flowblade-logtape-sqlduck.config';

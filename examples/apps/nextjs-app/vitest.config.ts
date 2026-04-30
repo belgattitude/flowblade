@@ -1,4 +1,5 @@
 import react from '@vitejs/plugin-react';
+import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 
 const testFiles = ['./src/**/*.test.{js,jsx,ts,tsx}'];
@@ -15,6 +16,7 @@ export default defineConfig({
     },
     environment: 'happy-dom',
     passWithNoTests: true,
+    env: loadEnv('test', process.cwd(), ''),
     // setupFiles: './setup/tests/setupVitest.ts',
     coverage: {
       provider: 'v8',
