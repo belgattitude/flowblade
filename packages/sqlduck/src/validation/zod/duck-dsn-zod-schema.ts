@@ -27,7 +27,7 @@ export const duckDsnZodSchema = z
     return {
       type: parsed.host,
       alias: parsed.db,
-      ...(path ? { path } : {}),
+      ...(path === undefined ? {} : { path }),
       options: { ...options },
     } as DuckConnectionParams;
   })
