@@ -64,6 +64,4 @@ export class DuckExtensionsManager {
     );
     return rows;
   };
-
-  #createError = (error: Error) => {};
 }
