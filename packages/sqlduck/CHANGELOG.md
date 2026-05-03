@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.17.3
+
+### Patch Changes
+
+- [#1117](https://github.com/belgattitude/flowblade/pull/1117) [`a966391`](https://github.com/belgattitude/flowblade/commit/a9663913ce04bcd8496a0ab956bd846188126161) Thanks [@belgattitude](https://github.com/belgattitude)! - Add DuckExtensionsManager and DuckSettingsManager
+
 ## 0.17.2
 
 ### Patch Changes
