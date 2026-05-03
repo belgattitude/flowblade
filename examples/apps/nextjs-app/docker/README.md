@@ -10,7 +10,7 @@
 
 ```bash
 cd ./docker
-docker buildx bake --file docker-compose.yml
+docker buildx bake --file docker-compose.yml --progress plain
 
 # Alternatives
 # DOCKER_BUILDKIT=1 docker compose build

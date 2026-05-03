@@ -10,6 +10,7 @@ import {
   assertValidAliasName,
   duckValidatorsZod,
 } from '../../validation/zod/index.ts';
+import { ManagerQueryExecutor } from '../core/manager-query-executor.ts';
 import {
   DuckDatabaseAttachCommand,
   type DuckDatabaseAttachCommandOptions,
@@ -19,14 +20,19 @@ export class DuckDatabaseManager {
   #conn: DuckDBConnection;
   #logger: Logger;
   #fs: FileSystemUtils | undefined;
+  #executor: ManagerQueryExecutor;
+  readonly className = 'DuckDatabaseManager';
 
   constructor(conn: DuckDBConnection, params?: { logger?: Logger }) {
     this.#conn = conn;
     this.#logger =
       params?.logger ??
       sqlduckDefaultLogtapeLogger.with({
-        source: 'DuckDatabaseManager',
+        source: this.className,
       });
+    this.#executor = new ManagerQueryExecutor(this.#conn, this.className, {
+      logger: this.#logger,
+    });
   }
 
   /**
@@ -51,7 +57,7 @@ export class DuckDatabaseManager {
     const params = duckConnectionParamsZodSchema.parse(dbParams);
     const rawSql = new DuckDatabaseAttachCommand(params, options).getRawSql();
     const { behaviour } = options ?? {};
-    await this.#executeRawSqlCommand(
+    await this.#executor.getRowObjectsJS(
       [`attach(${params.alias}`, behaviour ?? null, ')']
         .filter(Boolean)
         .join(','),
@@ -73,7 +79,7 @@ export class DuckDatabaseManager {
   };
 
   showDatabases = async () => {
-    return await this.#executeRawSqlCommand(
+    return await this.#executor.getRowObjectsJS(
       'showDatabases()',
       `SHOW DATABASES`
     );
@@ -81,13 +87,16 @@ export class DuckDatabaseManager {
 
   detach = async (dbAlias: string): Promise<boolean> => {
     assertValidAliasName(dbAlias);
-    await this.#executeRawSqlCommand(`detach(${dbAlias})`, `DETACH ${dbAlias}`);
+    await this.#executor.getRowObjectsJS(
+      `detach(${dbAlias})`,
+      `DETACH ${dbAlias}`
+    );
     return true;
   };
 
   detachIfExists = async (dbAlias: string): Promise<boolean> => {
     assertValidAliasName(dbAlias);
-    await this.#executeRawSqlCommand(
+    await this.#executor.getRowObjectsJS(
       `detachIfExists(${dbAlias})`,
       `DETACH IF EXISTS ${dbAlias}`
     );
@@ -103,13 +112,13 @@ export class DuckDatabaseManager {
    * @link https://duckdb.org/docs/stable/sql/statements/analyze
    */
   analyze = async (): Promise<boolean> => {
-    await this.#executeRawSqlCommand('analyze()', 'ANALYZE');
+    await this.#executor.getRowObjectsJS('analyze()', 'ANALYZE');
     return true;
   };
 
   checkpoint = async (dbAlias: string): Promise<boolean> => {
     const safeAlias = duckValidatorsZod.aliasName.parse(dbAlias);
-    await this.#executeRawSqlCommand(
+    await this.#executor.getRowObjectsJS(
       `checkpoint(${safeAlias})`,
       `CHECKPOINT ${safeAlias}`
     );
@@ -117,7 +126,7 @@ export class DuckDatabaseManager {
   };
 
   vacuum = async (): Promise<boolean> => {
-    await this.#executeRawSqlCommand('vacuum()', 'VACUUM');
+    await this.#executor.getRowObjectsJS('vacuum()', 'VACUUM');
     return true;
   };
 
@@ -166,30 +175,6 @@ export class DuckDatabaseManager {
     return {
       status: 'created',
     };
-  };
-
-  #executeRawSqlCommand = async (name: string, rawSql: string) => {
-    const startTime = Date.now();
-    try {
-      const result = await this.#conn.runAndReadAll(rawSql);
-      const timeMs = Math.round(Date.now() - startTime);
-      const data = result.getRowObjectsJS();
-      this.#logger.debug(`DuckDatabaseManager.${name} in ${timeMs}ms`, {
-        timeMs: timeMs,
-      });
-      return data;
-    } catch (e) {
-      const msg = `DuckDatabaseManager: failed to run "${name}" - ${(e as Error)?.message ?? ''}`;
-      const timeMs = Math.round(Date.now() - startTime);
-      this.#logger.error(msg, {
-        name,
-        sql: rawSql,
-        timeMs: timeMs,
-      });
-      throw new Error(msg, {
-        cause: e,
-      });
-    }
   };
 
   #getFs = (): FileSystemUtils => {

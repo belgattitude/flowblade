@@ -42,6 +42,7 @@ module.exports = {
       files: ['*.tsx'],
       rules: {
         // Disable some rules to allow shadcn/ui
+        'react-hooks/set-state-in-effect': 'warn',
         'sonarjs/pseudo-random': 'off',
         'react-hooks/purity': 'off',
         'sonarjs/table-header': 'off',
