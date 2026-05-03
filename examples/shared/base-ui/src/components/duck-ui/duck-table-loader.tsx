@@ -213,7 +213,8 @@ export function DuckTableLoader({
     };
   }, [stream]);
 
-  const { status, totalRows, timeMs, progress, errorMessage, hasFirstChunk } = state;
+  const { status, totalRows, timeMs, progress, errorMessage, hasFirstChunk } =
+    state;
   const badge = STATUS_BADGE[status];
   const isLoading = status === 'loading';
   const isError = status === 'error';
@@ -373,6 +374,3 @@ function IndeterminateBar() {
     </div>
   );
 }
-
-
-

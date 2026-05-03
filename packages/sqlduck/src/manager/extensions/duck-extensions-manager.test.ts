@@ -44,9 +44,7 @@ describe('DuckSettingsManagerTest', async () => {
 
     it('should install an extension', async () => {
       const extManager = new DuckExtensionsManager(conn);
-      const installed = await extManager.install('fts', {
-        force: true,
-      });
+      const installed = await extManager.install('fts');
       expect(installed).toBe(true);
     });
 
