@@ -5,7 +5,7 @@ import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memor
 
 import { DuckExtensionsManager } from './duck-extensions-manager.ts';
 
-describe('DuckSettingsManagerTest', async () => {
+describe('DuckExtensionsManagerTest', async () => {
   let conn: DuckDBConnection;
   beforeEach(async () => {
     conn = await createDuckdbTestMemoryDb({
