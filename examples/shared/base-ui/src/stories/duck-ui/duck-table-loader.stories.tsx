@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import type { DuckTableLoaderChunk } from '../../components/duck-ui/duck-table-loader';
 import { DuckTableLoader } from '../../components/duck-ui/duck-table-loader';
@@ -59,12 +59,10 @@ function StreamDemo({
   tableName: string;
   description?: string;
 }) {
-  const [stream, setStream] = useState<ReadableStream<Uint8Array> | null>(null);
-
-  // Auto-start on mount
-  useEffect(() => {
-    setStream(makeStream());
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Lazy initializer – creates the stream once on mount without needing an effect.
+  const [stream, setStream] = useState<ReadableStream<Uint8Array> | null>(() =>
+    makeStream()
+  );
 
   return (
     <div className="flex flex-col items-center gap-6 p-6">

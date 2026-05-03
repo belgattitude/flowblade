@@ -19,7 +19,7 @@ import {
   CircleDotIcon,
   TableIcon,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -120,21 +120,34 @@ export function DuckTableLoader({
   // without needing them as dependencies (avoids re-subscribing to the stream).
   const onCompleteRef = useRef(onComplete);
   const onErrorRef = useRef(onError);
-  onCompleteRef.current = onComplete;
-  onErrorRef.current = onError;
+  // Update refs after every render (never during render – satisfies react-compiler rules).
+  useLayoutEffect(() => {
+    onCompleteRef.current = onComplete;
+    onErrorRef.current = onError;
+  });
 
   useEffect(() => {
     if (!stream) {
-      setState(INITIAL_STATE);
-      return;
+      // Defer setState so it runs in a callback, not synchronously in the effect body.
+      let active = true;
+      queueMicrotask(() => {
+        if (active) setState(INITIAL_STATE);
+      });
+      return () => {
+        active = false;
+      };
     }
 
-    setState({ ...INITIAL_STATE, status: 'loading' });
+    // Defer so setState is not called synchronously inside the effect body.
+    queueMicrotask(() => setState({ ...INITIAL_STATE, status: 'loading' }));
 
     const reader = stream.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
     let cancelled = false;
+    // Tracks the latest emitted stats so onComplete can receive them
+    // without reading from a setState updater (which must stay pure).
+    const latestStats = { totalRows: 0, timeMs: 0 };
 
     function processLine(line: string) {
       try {
@@ -149,6 +162,8 @@ export function DuckTableLoader({
           onErrorRef.current?.(err);
           return;
         }
+        latestStats.totalRows = chunk.totalRows;
+        latestStats.timeMs = chunk.timeMs;
         setState((prev) => ({
           ...prev,
           status: 'loading',
@@ -162,34 +177,39 @@ export function DuckTableLoader({
       }
     }
 
+    /** Drain all complete newline-delimited lines from the current buffer. */
+    function flushBuffer() {
+      let newlineIdx: number;
+      while ((newlineIdx = buffer.indexOf('\n')) !== -1) {
+        const line = buffer.slice(0, newlineIdx).trim();
+        buffer = buffer.slice(newlineIdx + 1);
+        if (line) processLine(line);
+      }
+    }
+
+    /** Called once the stream signals `done`. */
+    function handleStreamEnd() {
+      // Flush any remaining buffered text (stream without trailing newline).
+      const tail = buffer.trim();
+      if (tail) processLine(tail);
+      setState((prev) => ({ ...prev, status: 'success' }));
+      // Call the callback outside the updater so the updater stays pure.
+      onCompleteRef.current?.(latestStats);
+    }
+
     async function consume() {
       try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (cancelled) break;
-
-          if (done) {
-            // Flush any remaining buffered text (stream without trailing newline)
-            if (buffer.trim()) processLine(buffer.trim());
-
-            setState((prev) => {
-              onCompleteRef.current?.({
-                totalRows: prev.totalRows ?? 0,
-                timeMs: prev.timeMs ?? 0,
-              });
-              return { ...prev, status: 'success' };
-            });
-            break;
+        let isDone = false;
+        while (!isDone) {
+          const result = await reader.read();
+          if (cancelled) return;
+          isDone = result.done;
+          if (isDone) {
+            handleStreamEnd();
+            return;
           }
-
-          buffer += decoder.decode(value, { stream: true });
-
-          let newlineIdx: number;
-          while ((newlineIdx = buffer.indexOf('\n')) !== -1) {
-            const line = buffer.slice(0, newlineIdx).trim();
-            buffer = buffer.slice(newlineIdx + 1);
-            if (line) processLine(line);
-          }
+          buffer += decoder.decode(result.value, { stream: true });
+          flushBuffer();
         }
       } catch (err) {
         if (cancelled) return;
