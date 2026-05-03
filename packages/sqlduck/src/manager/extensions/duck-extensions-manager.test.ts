@@ -40,13 +40,13 @@ describe('DuckSettingsManagerTest', async () => {
         force: true,
       });
       expect(installed).toBe(true);
-    });
+    }, 15_000);
 
     it('should install an extension', async () => {
       const extManager = new DuckExtensionsManager(conn);
       const installed = await extManager.install('fts');
       expect(installed).toBe(true);
-    });
+    }, 15_000);
 
     it('should fail on invalid extension', async () => {
       const extManager = new DuckExtensionsManager(conn);
