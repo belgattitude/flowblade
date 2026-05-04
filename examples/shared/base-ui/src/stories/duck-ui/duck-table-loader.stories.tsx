@@ -1,11 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import type { DuckTableLoaderChunk } from '../../components/duck-ui/duck-table-loader';
 import { DuckTableLoader } from '../../components/duck-ui/duck-table-loader';
-
 // ─── Mock stream helper ───────────────────────────────────────────────────────
-
 type MockStreamOptions = {
   chunks: DuckTableLoaderChunk[];
   /** Delay between chunks in ms */
@@ -13,7 +11,6 @@ type MockStreamOptions = {
   /** Delay before the stream starts emitting */
   startDelayMs?: number;
 };
-
 /**
  * Build a `ReadableStream<Uint8Array>` that emits NDJSON lines at a given interval.
  * Mirrors what a real `fetch().body` stream would deliver.
@@ -26,7 +23,6 @@ function createMockStream({
   const encoder = new TextEncoder();
   let timerId: ReturnType<typeof setTimeout>;
   let index = 0;
-
   return new ReadableStream<Uint8Array>({
     start(controller) {
       function sendNext() {
@@ -45,7 +41,6 @@ function createMockStream({
     },
   });
 }
-
 /**
  * A wrapper that lets each story re-start the stream on click.
  * Since a ReadableStream can only be consumed once, we create a new one on each run.
@@ -63,7 +58,6 @@ function StreamDemo({
   const [stream, setStream] = useState<ReadableStream<Uint8Array> | null>(() =>
     makeStream()
   );
-
   return (
     <div className="flex flex-col items-center gap-6 p-6">
       <DuckTableLoader
@@ -85,9 +79,106 @@ function StreamDemo({
     </div>
   );
 }
-
+// ─── Fetch-based demo ─────────────────────────────────────────────────────────
+/**
+ * Why not nock?
+ *
+ * `nock` intercepts Node.js's `http`/`https` modules, so it works great in
+ * Vitest (Node runtime) but has no effect in a browser-based Storybook/Vite
+ * environment where `fetch` is a native browser API. The browser-idiomatic
+ * equivalent is to replace `globalThis.fetch` with a stub in Storybook's
+ * `beforeEach` hook — same intent as nock, right runtime.
+ */
+const MOCK_FETCH_URL = '/api/load-table';
+/**
+ * Returns a `fetch` stub that, for `url`, responds with a streaming NDJSON body
+ * built from `chunks`. All other URLs fall through to the real `fetch`.
+ */
+function createFetchStub(
+  url: string,
+  chunks: DuckTableLoaderChunk[],
+  intervalMs = 600
+): typeof fetch {
+  const encoder = new TextEncoder();
+  return async (input, init) => {
+    const requestUrl =
+      typeof input === 'string' ? input : (input as Request).url;
+    if (!requestUrl.endsWith(url)) {
+      return globalThis.fetch(input, init);
+    }
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        let index = 0;
+        function sendNext() {
+          if (index >= chunks.length) {
+            controller.close();
+            return;
+          }
+          const line = JSON.stringify(chunks[index++]) + '\n';
+          controller.enqueue(encoder.encode(line));
+          setTimeout(sendNext, intervalMs);
+        }
+        setTimeout(sendNext, 300);
+      },
+    });
+    return new Response(body, {
+      status: 200,
+      headers: { 'Content-Type': 'application/x-ndjson' },
+    });
+  };
+}
+/**
+ * Wrapper component that calls `fetch(MOCK_FETCH_URL)` and pipes
+ * `response.body` into `<DuckTableLoader>`.
+ * Resets to idle on each restart so the card re-initialises cleanly.
+ */
+function FetchStreamDemo({
+  tableName,
+  description,
+}: {
+  tableName: string;
+  description?: string;
+}) {
+  const [stream, setStream] = useState<ReadableStream<Uint8Array> | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const start = useCallback(async () => {
+    setStream(null);
+    setFetchError(null);
+    try {
+      const response = await fetch(MOCK_FETCH_URL, { method: 'POST' });
+      if (!response.ok || !response.body) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      setStream(response.body);
+    } catch (err) {
+      setFetchError((err as Error).message);
+    }
+  }, []);
+  return (
+    <div className="flex flex-col items-center gap-6 p-6">
+      <DuckTableLoader
+        tableName={tableName}
+        description={description}
+        stream={stream}
+        onComplete={({ totalRows, timeMs }) =>
+          console.log(`[onComplete] totalRows=${totalRows} timeMs=${timeMs}`)
+        }
+        onError={(err) => console.error('[onError]', err)}
+      />
+      {fetchError && (
+        <p className="text-xs text-destructive">Fetch error: {fetchError}</p>
+      )}
+      <button
+        type="button"
+        onClick={start}
+        className="rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:bg-muted"
+      >
+        {stream === null ? '▶ Start fetch' : '↺ Restart'}
+      </button>
+    </div>
+  );
+}
 // ─── Meta ─────────────────────────────────────────────────────────────────────
-
 const meta = {
   title: 'duck-ui/DuckTableLoader',
   component: DuckTableLoader,
@@ -100,12 +191,9 @@ const meta = {
     tableName: '',
   },
 } satisfies Meta<typeof DuckTableLoader>;
-
 export default meta;
 type Story = StoryObj<typeof meta>;
-
 // ─── Stories ──────────────────────────────────────────────────────────────────
-
 /** No stream provided – the card sits in idle state. */
 export const Idle: Story = {
   args: {
@@ -114,7 +202,6 @@ export const Idle: Story = {
     stream: null,
   },
 };
-
 /**
  * A slow stream with indeterminate progress.
  * Updates arrive every 600 ms without a `progress` field.
@@ -139,7 +226,6 @@ export const LoadingIndeterminate: Story = {
     />
   ),
 };
-
 /**
  * A stream that reports `progress` 0-100 as it progresses.
  */
@@ -163,7 +249,6 @@ export const LoadingWithProgress: Story = {
     />
   ),
 };
-
 /**
  * The stream completes immediately – shows the success state.
  */
@@ -178,11 +263,10 @@ export const Success: Story = {
     }),
   },
 };
-
 /**
  * The stream emits an error line partway through.
  */
-export const Error: Story = {
+export const StreamError: Story = {
   render: () => (
     <StreamDemo
       tableName="staging.raw_logs"
@@ -204,7 +288,6 @@ export const Error: Story = {
     />
   ),
 };
-
 /**
  * A very large table – stress-tests the numeric formatting and layout.
  */
@@ -225,6 +308,40 @@ export const LargeTable: Story = {
           ],
         })
       }
+    />
+  ),
+};
+/**
+ * Demonstrates the full fetch → stream → card pipeline.
+ *
+ * Because `nock` only works in Node.js (it wraps Node's `http` module), it
+ * cannot intercept browser `fetch()` calls in a Vite/Storybook environment.
+ * The browser-idiomatic alternative used here is replacing `globalThis.fetch`
+ * with a stub in Storybook's `beforeEach` hook and restoring it in the
+ * returned cleanup function — same intent as nock, right runtime.
+ *
+ * The stub intercepts `POST /api/load-table` and returns a streaming NDJSON
+ * `Response` identical to what a real server endpoint would emit.
+ */
+export const WithFetchStream: Story = {
+  beforeEach() {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = createFetchStub(MOCK_FETCH_URL, [
+      { totalRows: 10_000, timeMs: 300, progress: 10 },
+      { totalRows: 30_000, timeMs: 900, progress: 30 },
+      { totalRows: 60_000, timeMs: 1800, progress: 60 },
+      { totalRows: 90_000, timeMs: 2700, progress: 90 },
+      { totalRows: 100_000, timeMs: 3100, progress: 100 },
+    ]);
+    // Storybook calls the returned function as cleanup after the story unmounts.
+    return () => {
+      globalThis.fetch = originalFetch;
+    };
+  },
+  render: () => (
+    <FetchStreamDemo
+      tableName="main.orders"
+      description="Streamed via fetch() – globalThis.fetch stub intercepts /api/load-table"
     />
   ),
 };

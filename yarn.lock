@@ -2200,6 +2200,7 @@ __metadata:
     input-otp: "npm:1.4.2"
     lucide-react: "npm:1.14.0"
     next-themes: "npm:0.4.6"
+    nock: "npm:14.0.14"
     playwright: "npm:1.59.1"
     prettier: "npm:3.8.3"
     react: "npm:19.2.5"
@@ -4243,7 +4244,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mswjs/interceptors@npm:^0.41.3":
+"@mswjs/interceptors@npm:^0.41.0, @mswjs/interceptors@npm:^0.41.3":
   version: 0.41.8
   resolution: "@mswjs/interceptors@npm:0.41.8"
   dependencies:
@@ -16615,6 +16616,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"json-stringify-safe@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "json-stringify-safe@npm:5.0.1"
+  checksum: 10c0/7dbf35cd0411d1d648dceb6d59ce5857ec939e52e4afc37601aa3da611f0987d5cee5b38d58329ceddf3ed48bd7215229c8d52059ab01f2444a338bf24ed0f37
+  languageName: node
+  linkType: hard
+
 "json-with-bigint@npm:^3.5.3":
   version: 3.5.8
   resolution: "json-with-bigint@npm:3.5.8"
@@ -18891,6 +18899,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nock@npm:14.0.14":
+  version: 14.0.14
+  resolution: "nock@npm:14.0.14"
+  dependencies:
+    "@mswjs/interceptors": "npm:^0.41.0"
+    json-stringify-safe: "npm:^5.0.1"
+    propagate: "npm:^2.0.0"
+  checksum: 10c0/64e201b0781c742a6c5eca8cff849e59a47577d14c22a4b7a0cc3486aea2ce722e8c2cb06122bd72946290a1df49cf6d4465a49835ed1beb9c8c24ebad247eee
+  languageName: node
+  linkType: hard
+
 "node-domexception@npm:^1.0.0":
   version: 1.0.0
   resolution: "node-domexception@npm:1.0.0"
@@ -20430,6 +20449,13 @@ __metadata:
     object-assign: "npm:^4.1.1"
     react-is: "npm:^16.13.1"
   checksum: 10c0/59ece7ca2fb9838031d73a48d4becb9a7cc1ed10e610517c7d8f19a1e02fa47f7c27d557d8a5702bec3cfeccddc853579832b43f449e54635803f277b1c78077
+  languageName: node
+  linkType: hard
+
+"propagate@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "propagate@npm:2.0.1"
+  checksum: 10c0/01e1023b60ae4050d1a2783f976d7db702022dbdb70dba797cceedad8cfc01b3939c41e77032f8c32aa9d93192fe937ebba1345e8604e5ce61fd3b62ee3003b8
   languageName: node
   linkType: hard
 
