@@ -101,13 +101,17 @@ ENV TZ=Etc/UTC
 ENV NODE_ENV=production
 
 RUN apt-get update \
-  && apt-get install bash tzdata --no-install-recommends -y \
+  && apt-get install bash tzdata ca-certificates --no-install-recommends -y \
   && rm -rf /var/cache/apt/* \
   && rm -rf /var/lib/apt/lists/* \
   # If needed, we can enable corepack in the runner as well, but for now we don't need it  \
   # since we're running the built server.js directly with node.
   # && npm i -g corepack@${COREPACK_VERSION} && corepack enable
 
+
+# For duckdb azure extension, we need to have the certs available in the runner image as well, so we link them to the expected location.
+# see https://github.com/duckdb/duckdb/discussions/9675
+RUN mkdir -p /etc/pki/tls/certs && ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
 
 WORKDIR /app
 
