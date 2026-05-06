@@ -12,6 +12,7 @@ RUN apt-get update \
   #&& apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
   && apt-get install git jq --no-install-recommends -y \
   && rm -rf /var/cache/apt/* \
+  && rm -rf /var/lib/apt/lists/* \
   ## Corepack won't be bundled in node 25+
   && npm i -g corepack@${COREPACK_VERSION} && corepack enable
 
