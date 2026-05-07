@@ -22,7 +22,7 @@
     "typegen": "next typegen",
     "build-no-paths": "cross-env NEXT_BUILD_TSCONFIG=./tsconfig.no-paths.json next build",
     "build-standalone": "cross-env NEXT_BUILD_OUTPUT=standalone next build",
-    "build-pruned": "yarn --top-level run turbo prune --scope=@examples/nextjs-app --docker --out-dir=./out/nextjs-app/",
+    "build-pruned": "yarn --top-level run turbo prune --scope=@examples/nextjs-app --docker --out-dir=./.turbo-pruned/nextjs-app/",
     "bundle-analyze": "next experimental-analyze",
     "start": "next start",
     "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",

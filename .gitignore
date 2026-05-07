@@ -4,7 +4,8 @@
 # hack for changeset releases
 _release
 
-# Turbo pruned files
+# Turbo and turbo docker pruned files
+.turbo
 .turbo-pruned
 
 # local env files (following nextjs convention)
@@ -21,9 +22,6 @@ next-env.d.ts
 # nx
 nx-cloud.env
 .nx
-
-# turbo
-.turbo
 
 # temp files
 **/tmp/*
