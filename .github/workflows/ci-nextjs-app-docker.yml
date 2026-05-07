@@ -65,6 +65,7 @@ jobs:
             "github_token=${{ secrets.GITHUB_TOKEN }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          outputs: 'compression=zstd,compression-level=8,oci-mediatypes=true'
 
       - name: 🕵️ Docker image inspect
         run: docker image inspect ${{ env.IMAGE }}:${{ steps.meta.outputs.version }}
