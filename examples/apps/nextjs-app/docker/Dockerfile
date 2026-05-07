@@ -101,9 +101,9 @@ ENV TZ=Etc/UTC
 ENV NODE_ENV=production
 
 RUN apt-get update \
-  && apt-get install bash tzdata ca-certificates --no-install-recommends -y \
+  && apt-get install tzdata ca-certificates --no-install-recommends -y \
   && rm -rf /var/cache/apt/* \
-  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /var/lib/apt/lists/*
   # If needed, we can enable corepack in the runner as well, but for now we don't need it  \
   # since we're running the built server.js directly with node.
   # && npm i -g corepack@${COREPACK_VERSION} && corepack enable

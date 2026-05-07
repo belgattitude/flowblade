@@ -40,7 +40,7 @@ const npmPreapprovedPackages = [
   '@valibot/*',
   '@standard-schema/*',
   'shadcn',
-  '@logtape/logtape'
+  '@logtape/*',
 ];
 
 module.exports = defineConfig({
