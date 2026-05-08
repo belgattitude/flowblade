@@ -2172,7 +2172,7 @@ __metadata:
     input-otp: "npm:1.4.2"
     lucide-react: "npm:1.14.0"
     next-themes: "npm:0.4.6"
-    nock: "npm:15.0.0"
+    nock: "npm:15.0.0-beta.10"
     playwright: "npm:1.59.1"
     prettier: "npm:3.8.3"
     react: "npm:19.2.5"
@@ -4216,21 +4216,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mswjs/interceptors@npm:^0.39.5":
-  version: 0.39.8
-  resolution: "@mswjs/interceptors@npm:0.39.8"
-  dependencies:
-    "@open-draft/deferred-promise": "npm:^2.2.0"
-    "@open-draft/logger": "npm:^0.3.0"
-    "@open-draft/until": "npm:^2.0.0"
-    is-node-process: "npm:^1.2.0"
-    outvariant: "npm:^1.4.3"
-    strict-event-emitter: "npm:^0.5.1"
-  checksum: 10c0/0d07625ff1bbbf4b5ea702e164914490e26cc3754323f544429f843f5ad8b157194f6a650259cfd1bbdeb6003e1354f63be1d9bf483816aaa17d93ef4b321aaf
-  languageName: node
-  linkType: hard
-
-"@mswjs/interceptors@npm:^0.41.3":
+"@mswjs/interceptors@npm:^0.41.2, @mswjs/interceptors@npm:^0.41.3":
   version: 0.41.8
   resolution: "@mswjs/interceptors@npm:0.41.8"
   dependencies:
@@ -16845,13 +16831,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json-stringify-safe@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "json-stringify-safe@npm:5.0.1"
-  checksum: 10c0/7dbf35cd0411d1d648dceb6d59ce5857ec939e52e4afc37601aa3da611f0987d5cee5b38d58329ceddf3ed48bd7215229c8d52059ab01f2444a338bf24ed0f37
-  languageName: node
-  linkType: hard
-
 "json-with-bigint@npm:^3.5.3":
   version: 3.5.8
   resolution: "json-with-bigint@npm:3.5.8"
@@ -19128,13 +19107,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nock@npm:15.0.0":
-  version: 15.0.0
-  resolution: "nock@npm:15.0.0"
+"nock@npm:15.0.0-beta.10":
+  version: 15.0.0-beta.10
+  resolution: "nock@npm:15.0.0-beta.10"
   dependencies:
-    "@mswjs/interceptors": "npm:^0.39.5"
-    json-stringify-safe: "npm:^5.0.1"
-  checksum: 10c0/e11294749dbbdbe74f21808950ab7051bf9fb5bea67732845c1d16d8f16273f02898d9b607fe6affe7ceb3b3b20d0c045eb9bb9f3d2c4bb78a7b4dbda82fa727
+    "@mswjs/interceptors": "npm:^0.41.2"
+  checksum: 10c0/a4889975a478034040854361d483f302b498e9d73abe151dc64f545739c891d9068dab278592c8232373731cd3707ec459f0b70febfa7786fb63c97b803b4fed
   languageName: node
   linkType: hard
 
