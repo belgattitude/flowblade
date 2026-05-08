@@ -8,8 +8,19 @@ import {
 } from '@examples/base-ui/components/ui/card';
 import { Progress } from '@examples/base-ui/components/ui/progress';
 import { cn } from '@examples/base-ui/lib/utils';
-import { CpuIcon, MemoryStickIcon } from 'lucide-react';
+import { CpuIcon, HardDriveIcon, MemoryStickIcon } from 'lucide-react';
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+/** Disk usage info for a single mount path. */
+export type DiskInfo = {
+  /** Mount path or drive label, e.g. "/", "C:\", "/data" */
+  path: string;
+  /** Total disk capacity in bytes */
+  totalBytes: number;
+  /** Free/available bytes on disk */
+  freeBytes: number;
+};
+
 export type SystemInfoProps = {
   /**
    * Free memory in bytes (e.g. from `os.freemem()`).
@@ -23,6 +34,10 @@ export type SystemInfoProps = {
    * Number of logical CPUs available (e.g. from `os.availableParallelism()`).
    */
   availableParallelism: number;
+  /**
+   * Optional list of disk mount points to show usage for.
+   */
+  disks?: DiskInfo[];
   /** Optional card title override. Defaults to "System Info". */
   title?: string;
   /** Optional subtitle */
@@ -48,6 +63,7 @@ export function SystemInfo({
   freeMemory,
   totalMemory,
   availableParallelism,
+  disks,
   title = 'System Info',
   description,
   className,
@@ -127,6 +143,64 @@ export function SystemInfo({
             />
           </dl>
         </section>
+
+        {/* Disk section */}
+        {disks && disks.length > 0 && (
+          <>
+            <div className="h-px bg-border" />
+            <section className="flex flex-col gap-3">
+              <div className="flex items-center gap-1.5">
+                <HardDriveIcon className="size-3.5 shrink-0 text-muted-foreground" />
+                <span className="text-xs font-medium text-foreground">
+                  Disk
+                </span>
+              </div>
+              {disks.map((disk) => {
+                const usedBytes = disk.totalBytes - disk.freeBytes;
+                const pct =
+                  disk.totalBytes > 0
+                    ? Math.round((usedBytes / disk.totalBytes) * 100)
+                    : 0;
+                return (
+                  <div key={disk.path} className="flex flex-col gap-1.5">
+                    {/* Path label + percentage */}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate font-mono text-xs text-muted-foreground">
+                        {disk.path}
+                      </span>
+                      <span
+                        className={cn(
+                          'shrink-0 text-xs font-medium tabular-nums',
+                          usageColour(pct)
+                        )}
+                      >
+                        {pct}%
+                      </span>
+                    </div>
+                    {/* Progress bar */}
+                    <Progress value={pct} />
+                    {/* Used / Free / Total */}
+                    <dl className="grid grid-cols-3 gap-2">
+                      <MemoryStat
+                        label="Used"
+                        value={formatBytes(usedBytes)}
+                        highlight={pct >= 70}
+                      />
+                      <MemoryStat
+                        label="Free"
+                        value={formatBytes(disk.freeBytes)}
+                      />
+                      <MemoryStat
+                        label="Total"
+                        value={formatBytes(disk.totalBytes)}
+                      />
+                    </dl>
+                  </div>
+                );
+              })}
+            </section>
+          </>
+        )}
       </CardContent>
     </Card>
   );
