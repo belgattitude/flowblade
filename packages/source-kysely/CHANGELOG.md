@@ -1,5 +1,15 @@
 # @flowblade/source-kysely
 
+## 1.3.5
+
+### Patch Changes
+
+- [#1132](https://github.com/belgattitude/flowblade/pull/1132) [`8900220`](https://github.com/belgattitude/flowblade/commit/8900220af07074476d8bad7534eee2cb3918872d) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild using tsdown 0.22
+
+- Updated dependencies [[`8900220`](https://github.com/belgattitude/flowblade/commit/8900220af07074476d8bad7534eee2cb3918872d)]:
+  - @flowblade/sql-tag@0.3.4
+  - @flowblade/core@0.2.29
+
 ## 1.3.4
 
 ### Patch Changes
