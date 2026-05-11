@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 1.4.0
+
+### Minor Changes
+
+- [#1144](https://github.com/belgattitude/flowblade/pull/1144) [`029ccad`](https://github.com/belgattitude/flowblade/commit/029ccada73f076c5575055dc65134e3ce8d43131) Thanks [@belgattitude](https://github.com/belgattitude)! - Allow kysely 0.29
+
 ## 1.3.5
 
 ### Patch Changes
