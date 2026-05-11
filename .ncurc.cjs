@@ -70,6 +70,8 @@ module.exports = defineConfig({
     // duckdb-wasm depends on an older version of arrow
     'apache-arrow',
 
+    'react-day-picker',
+
     // Temp hack cause @orpc/client was published with a wrong version
     // and removed later... but still the latest version is 2.0.0
     '@orpc/client',
