@@ -1581,7 +1581,7 @@ __metadata:
     "@t3-oss/env-nextjs": "npm:0.13.11"
     "@tailwindcss/postcss": "npm:4.3.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
-    "@types/node": "npm:25.6.2"
+    "@types/node": "npm:25.7.0"
     "@types/react": "npm:19.2.14"
     "@types/react-dom": "npm:19.2.3"
     "@typescript-eslint/eslint-plugin": "npm:8.59.3"
@@ -2661,7 +2661,7 @@ __metadata:
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.15.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
-    "@types/node": "npm:25.6.2"
+    "@types/node": "npm:25.7.0"
     "@typescript-eslint/eslint-plugin": "npm:8.59.3"
     "@typescript-eslint/parser": "npm:8.59.3"
     autocannon: "npm:8.0.0"
@@ -2908,7 +2908,7 @@ __metadata:
     "@standard-schema/spec": "npm:^1.1.0"
     "@testcontainers/mssqlserver": "npm:11.14.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
-    "@types/node": "npm:25.6.2"
+    "@types/node": "npm:25.7.0"
     "@typescript-eslint/eslint-plugin": "npm:8.59.3"
     "@typescript-eslint/parser": "npm:8.59.3"
     "@typescript/native-preview": "catalog:"
@@ -8434,7 +8434,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:25.6.2, @types/node@npm:>=13.7.0, @types/node@npm:>=18, @types/node@npm:>=20.0.0":
+"@types/node@npm:*, @types/node@npm:25.7.0, @types/node@npm:>=13.7.0, @types/node@npm:>=18, @types/node@npm:>=20.0.0":
+  version: 25.7.0
+  resolution: "@types/node@npm:25.7.0"
+  dependencies:
+    undici-types: "npm:~7.21.0"
+  checksum: 10c0/47ec7eaca154c36ad6d1ac0270e6e254eedf20b9dc49afe3bc76e4f7eba29ceac705f8903b162aeaf40e3941101ffe76ffb374989359ea3ef8c8509d8b443f55
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:25.6.2":
   version: 25.6.2
   resolution: "@types/node@npm:25.6.2"
   dependencies:
@@ -24106,6 +24115,13 @@ __metadata:
   version: 7.19.2
   resolution: "undici-types@npm:7.19.2"
   checksum: 10c0/7159f10546f9f6c47d36776bb1bbf8671e87c1e587a6fee84ae1f111ae8de4f914efa8ca0dfcd224f4f4a9dfc3f6028f627ccb5ddaccf82d7fd54671b89fac3e
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~7.21.0":
+  version: 7.21.0
+  resolution: "undici-types@npm:7.21.0"
+  checksum: 10c0/c3b4ae5f066c398acb1962505b56214ecd72843f7d7827fcc2df7a48a63d1639d3608c580ac09f836253d21fa7ba8f1a04440569ed9d332474ad01b8a010db87
   languageName: node
   linkType: hard
 
