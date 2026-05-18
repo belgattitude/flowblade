@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.18.0
+
+### Minor Changes
+
+- [#1169](https://github.com/belgattitude/flowblade/pull/1169) [`abd344c`](https://github.com/belgattitude/flowblade/commit/abd344c97a547ac42b865d6fbe3b2442531ad826) Thanks [@belgattitude](https://github.com/belgattitude)! - Add support for recoveryMode
+
 ## 0.17.6
 
 ### Patch Changes
