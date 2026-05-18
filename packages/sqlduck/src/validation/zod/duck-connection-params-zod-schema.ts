@@ -19,7 +19,7 @@ export const duckAllConnectionOptionsZodSchema = z.strictObject({
     z.enum(duckConnectionsOptions.encryptionCiphers)
   ),
   // Attach the database file.db with WAL writes disabled for improved performance:
-  recoveryMode: z.optional(z.enum(duckConnectionsOptions.accessModes)),
+  recoveryMode: z.optional(z.enum(duckConnectionsOptions.recoveryMode)),
 });
 
 export type DuckAllConnectionOptionsZodSchema = z.infer<
