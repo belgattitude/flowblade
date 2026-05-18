@@ -20,6 +20,8 @@ export const duckAllConnectionOptionsValibotSchema = v.object({
   encryptionCipher: v.optional(
     v.picklist(duckConnectionsOptions.encryptionCiphers)
   ),
+  // Attach the database file.db with WAL writes disabled for improved performance:
+  recoveryMode: v.optional(v.picklist(duckConnectionsOptions.accessModes)),
 });
 
 export type DuckAllConnectionOptionsValibotSchema = v.InferOutput<
