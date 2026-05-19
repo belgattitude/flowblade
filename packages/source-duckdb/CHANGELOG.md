@@ -1,5 +1,11 @@
 # @flowblade/source-duckdb
 
+## 0.20.9
+
+### Patch Changes
+
+- [#1176](https://github.com/belgattitude/flowblade/pull/1176) [`58a6254`](https://github.com/belgattitude/flowblade/commit/58a6254d959974f590f4fd0cc23e285669febb7e) Thanks [@belgattitude](https://github.com/belgattitude)! - Update to duckdb neo 1.5.2-r.2
+
 ## 0.20.8
 
 ### Patch Changes
