@@ -74,6 +74,9 @@ export class DuckDatabaseAttachCommand implements IGetRawSql {
           case 'encryptionKey':
             options.push(`ENCRYPTION_KEY '${value}'`);
             break;
+          case 'recoveryMode':
+            options.push(`RECOVERY_MODE '${value}'`);
+            break;
           default:
           // ignore
         }

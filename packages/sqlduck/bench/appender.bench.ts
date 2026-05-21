@@ -67,6 +67,7 @@ describe('appender benches', async () => {
   });
 
   const dbFilePath = path.join(testTempDir, 'bench-appender.db');
+  const dbFilePathNoWAL = path.join(testTempDir, 'bench-appender-no-wal.db');
 
   const fileDb = await dbManager.attachOrReplace({
     type: 'filesystem',
@@ -81,6 +82,22 @@ describe('appender benches', async () => {
     name: 'test_file',
     database: fileDb.alias,
   });
+
+  const fileDbNoWAL = await dbManager.attachOrReplace({
+    type: 'filesystem',
+    alias: 'bench_appender_no_wal',
+    path: dbFilePathNoWAL,
+    options: {
+      accessMode: 'READ_WRITE',
+      blockSize: 262_144,
+      recoveryMode: 'no_wal_writes',
+    },
+  });
+  const fileTableNoWAL = new Table({
+    name: 'test_file',
+    database: fileDbNoWAL.alias,
+  });
+
   const sqlDuck = new SqlDuck({ conn });
 
   bench(
@@ -109,6 +126,27 @@ describe('appender benches', async () => {
     async () => {
       const { totalRows } = await sqlDuck.toTable({
         table: fileTable,
+        schema: userSchema,
+        rowStream: getFakeRowStream(),
+        chunkSize: 2048,
+        createOptions: {
+          create: 'CREATE_OR_REPLACE',
+        },
+        checkpointChunksFrequency: 100,
+        autoCheckpoint: true,
+      });
+      if (totalRows !== limit) {
+        throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
+      }
+    },
+    benchConfig
+  );
+
+  bench(
+    `duckdb appender file no wal, count: ${limit}, chunk size 2048`,
+    async () => {
+      const { totalRows } = await sqlDuck.toTable({
+        table: fileTableNoWAL,
         schema: userSchema,
         rowStream: getFakeRowStream(),
         chunkSize: 2048,
