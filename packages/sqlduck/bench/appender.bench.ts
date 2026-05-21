@@ -85,7 +85,7 @@ describe('appender benches', async () => {
 
   const fileDbNoWAL = await dbManager.attachOrReplace({
     type: 'filesystem',
-    alias: 'bench_appender',
+    alias: 'bench_appender_no_wal',
     path: dbFilePathNoWAL,
     options: {
       accessMode: 'READ_WRITE',
