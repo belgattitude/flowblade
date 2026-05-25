@@ -1,5 +1,15 @@
 # @flowblade/sqlduck
 
+## 0.20.0
+
+### Minor Changes
+
+- [#1194](https://github.com/belgattitude/flowblade/pull/1194) [`fe44a0c`](https://github.com/belgattitude/flowblade/commit/fe44a0c8ead9825fa09e43e50b5d81ca088680db) Thanks [@belgattitude](https://github.com/belgattitude)! - Add getDuckdbDatabases
+
+### Patch Changes
+
+- [#1194](https://github.com/belgattitude/flowblade/pull/1194) [`fe44a0c`](https://github.com/belgattitude/flowblade/commit/fe44a0c8ead9825fa09e43e50b5d81ca088680db) Thanks [@belgattitude](https://github.com/belgattitude)! - Add isAttached to duckdbManager
+
 ## 0.19.1
 
 ### Patch Changes
