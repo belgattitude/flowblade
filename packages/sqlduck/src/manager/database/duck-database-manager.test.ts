@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import type { DuckDBConnection } from '@duckdb/node-api';
 import { sortBy } from 'es-toolkit';
-import { afterEach, beforeEach, describe } from 'vitest';
+import { afterEach, beforeEach, describe, expect } from 'vitest';
 
 import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
 import { testTempDir } from '@/tests/utils/get-test-temp-dir.ts';
@@ -84,6 +84,22 @@ describe('DuckDatabaseManagerTest', async () => {
       expect(await dbManager.isAttached('test_is_not_attached')).toStrictEqual(
         false
       );
+    });
+  });
+  describe('getDuckdbDatabases', () => {
+    it('should return information about attached databases', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      const databases = await dbManager.getDatabases();
+      expect(databases?.[0]).toEqual({
+        comment: null,
+        database_name: expect.anything(),
+        database_oid: expect.anything(),
+        encrypted: expect.anything(),
+        internal: expect.anything(),
+        path: null,
+        readonly: expect.anything(),
+        type: 'duckdb',
+      });
     });
   });
   describe('detach', () => {
