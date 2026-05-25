@@ -78,6 +78,20 @@ export class DuckDatabaseManager {
     });
   };
 
+  isAttached = async (dbAlias: string) => {
+    assertValidAliasName(dbAlias);
+    const row = await this.#executor.getRowObjectsJS<{
+      is_attached: boolean;
+    }>(
+      `isAttached(${dbAlias})`,
+      `SELECT EXISTS (SELECT 1 
+                FROM duckdb_databases() 
+                WHERE database_name = '${dbAlias}'
+              ) AS is_attached;`
+    );
+    return row[0]?.is_attached ?? false;
+  };
+
   showDatabases = async () => {
     return await this.#executor.getRowObjectsJS(
       'showDatabases()',

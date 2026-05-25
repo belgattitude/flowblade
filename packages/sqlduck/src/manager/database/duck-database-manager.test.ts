@@ -71,6 +71,21 @@ describe('DuckDatabaseManagerTest', async () => {
       ]);
     });
   });
+  describe('isAttached', () => {
+    it('should return true when attached', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      await dbManager.attach({ type: 'memory', alias: 'test_is_attached' });
+      expect(await dbManager.isAttached('test_is_attached')).toStrictEqual(
+        true
+      );
+    });
+    it('should return false when not attached', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      expect(await dbManager.isAttached('test_is_not_attached')).toStrictEqual(
+        false
+      );
+    });
+  });
   describe('detach', () => {
     it('should detach a valid database', async () => {
       const dbManager = new DuckDatabaseManager(conn);
