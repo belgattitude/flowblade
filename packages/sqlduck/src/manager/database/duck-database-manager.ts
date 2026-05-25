@@ -78,6 +78,56 @@ export class DuckDatabaseManager {
     });
   };
 
+  /**
+   * Check whether a specific database name / alias is currently attached
+   */
+  isAttached = async (dbAlias: string) => {
+    assertValidAliasName(dbAlias);
+    const rows = await this.#executor.getRowObjectsJS<{
+      is_attached: boolean;
+    }>(
+      `isAttached(${dbAlias})`,
+      `SELECT EXISTS (SELECT 1 
+                FROM duckdb_databases() 
+                WHERE database_name = '${dbAlias}'
+              ) AS is_attached;`
+    );
+    return rows[0]?.is_attached ?? false;
+  };
+
+  /**
+   * Return information about attached databases
+   */
+  getDatabases = async (params?: { includeInternal?: boolean }) => {
+    const { includeInternal = false } = params ?? {};
+    const internalFilter = includeInternal ? '1=1' : 'internal = false';
+    return this.#executor.getRowObjectsJS<{
+      database_name: string;
+      database_oid: string;
+      path: string | null;
+      comment: string | null;
+      type: string;
+      readonly: boolean;
+      internal: boolean;
+      encrypted: boolean;
+    }>(
+      'listDatabases',
+      `select database_name,
+                     database_oid,
+                     path,
+                     comment,
+                     type,
+                     readonly,
+                     internal,
+                     encrypted
+              from duckdb_databases()
+              where ${internalFilter}`
+    );
+  };
+
+  /**
+   * Get the currently attached database names
+   */
   showDatabases = async () => {
     return await this.#executor.getRowObjectsJS(
       'showDatabases()',

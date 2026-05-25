@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import type { DuckDBConnection } from '@duckdb/node-api';
 import { sortBy } from 'es-toolkit';
-import { afterEach, beforeEach, describe } from 'vitest';
+import { afterEach, beforeEach, describe, expect } from 'vitest';
 
 import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
 import { testTempDir } from '@/tests/utils/get-test-temp-dir.ts';
@@ -69,6 +69,37 @@ describe('DuckDatabaseManagerTest', async () => {
         },
         { database_name: 'test_show_database_db' },
       ]);
+    });
+  });
+  describe('isAttached', () => {
+    it('should return true when attached', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      await dbManager.attach({ type: 'memory', alias: 'test_is_attached' });
+      expect(await dbManager.isAttached('test_is_attached')).toStrictEqual(
+        true
+      );
+    });
+    it('should return false when not attached', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      expect(await dbManager.isAttached('test_is_not_attached')).toStrictEqual(
+        false
+      );
+    });
+  });
+  describe('getDuckdbDatabases', () => {
+    it('should return information about attached databases', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      const databases = await dbManager.getDatabases();
+      expect(databases?.[0]).toEqual({
+        comment: null,
+        database_name: expect.anything(),
+        database_oid: expect.anything(),
+        encrypted: expect.anything(),
+        internal: expect.anything(),
+        path: null,
+        readonly: expect.anything(),
+        type: 'duckdb',
+      });
     });
   });
   describe('detach', () => {
