@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.22.0
+
+### Minor Changes
+
+- [#1198](https://github.com/belgattitude/flowblade/pull/1198) [`bc9b2ea`](https://github.com/belgattitude/flowblade/commit/bc9b2ea8821ba81876d836814749dec4d25d431e) Thanks [@belgattitude](https://github.com/belgattitude)! - rename detachIfExists into detachOrIgnore till it's supported in duckdb
+
 ## 0.21.0
 
 ### Minor Changes
