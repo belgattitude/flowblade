@@ -114,7 +114,31 @@ describe('DuckDatabaseManagerTest', async () => {
         { database_name: 'memory' },
       ]);
     });
+    it('should throw when a database is not attached', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      await expect(dbManager.detach('unattached_db')).rejects.toThrowError(
+        /Failed to detach database with name "unattached_db"/
+      );
+    });
   });
+  describe('detachOrIgnore', () => {
+    it('should detach a valid database', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      await dbManager.attach({ type: 'memory', alias: 'db2' });
+      const result = await dbManager.detachOrIgnore('db2');
+      expect(result).toStrictEqual(true);
+      const databases = await dbManager.showDatabases();
+      expect(sortBy(databases, ['database_name'])).toStrictEqual([
+        { database_name: 'memory' },
+      ]);
+    });
+    it('should not throw when a database is not attached', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      const result = await dbManager.detachOrIgnore('unattached_db');
+      expect(result).toStrictEqual(false);
+    });
+  });
+
   describe('createDatabaseFile', () => {
     it('should create a database file', async () => {
       const dbManager = new DuckDatabaseManager(conn);
