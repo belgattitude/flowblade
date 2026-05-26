@@ -135,6 +135,9 @@ export class DuckDatabaseManager {
     );
   };
 
+  /**
+   * @throws Error if the database isn't attached
+   */
   detach = async (dbAlias: string): Promise<boolean> => {
     assertValidAliasName(dbAlias);
     await this.#executor.getRowObjectsJS(
@@ -144,12 +147,16 @@ export class DuckDatabaseManager {
     return true;
   };
 
-  detachIfExists = async (dbAlias: string): Promise<boolean> => {
+  /**
+   * @todo DETACH IF EXISTS is not supported in DuckDB as of v1.5.3
+   */
+  detachOrIgnore = async (dbAlias: string): Promise<boolean> => {
     assertValidAliasName(dbAlias);
-    await this.#executor.getRowObjectsJS(
-      `detachIfExists(${dbAlias})`,
-      `DETACH IF EXISTS ${dbAlias}`
-    );
+    try {
+      await this.detach(dbAlias);
+    } catch {
+      return false;
+    }
     return true;
   };
 
