@@ -8,6 +8,10 @@
       "types": "./dist/index.d.mts",
       "default": "./dist/index.mjs"
     },
+    "./filesystem": {
+      "types": "./dist/filesystem/index.d.mts",
+      "default": "./dist/filesystem/index.mjs"
+    },
     "./zod": {
       "types": "./dist/validation/zod/index.d.mts",
       "default": "./dist/validation/zod/index.mjs"
@@ -79,7 +83,7 @@
   },
   "devDependencies": {
     "@belgattitude/eslint-config-bases": "8.15.0",
-    "@dotenvx/dotenvx": "1.68.0",
+    "@dotenvx/dotenvx": "1.68.1",
     "@duckdb/node-api": "1.5.3-r.2",
     "@faker-js/faker": "10.4.0",
     "@flowblade/source-kysely": "workspace:^",
@@ -100,7 +104,7 @@
     "core-js": "3.49.0",
     "cross-env": "10.1.0",
     "es-check": "9.6.4",
-    "es-toolkit": "1.46.1",
+    "es-toolkit": "1.47.0",
     "esbuild": "0.28.0",
     "eslint": "8.57.1",
     "execa": "9.6.1",
