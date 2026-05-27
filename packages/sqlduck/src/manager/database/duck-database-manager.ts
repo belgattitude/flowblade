@@ -1,20 +1,27 @@
 import { type DuckDBConnection, DuckDBInstanceCache } from '@duckdb/node-api';
 import type { Logger } from '@logtape/logtape';
+import type * as z from 'zod';
 
 import { FileSystemUtils } from '../../filesystem/file-system-utils.ts';
 import { sqlduckDefaultLogtapeLogger } from '../../logger/sqlduck-default-logtape-logger.ts';
 import { Database } from '../../objects/database.ts';
+import { quoteValue } from '../../utils/quote-value.ts';
 import type { DuckConnectionParams } from '../../validation/core/types.ts';
 import { duckConnectionParamsZodSchema } from '../../validation/zod/duck-connection-params-zod-schema.ts';
 import {
   assertValidAliasName,
   duckValidatorsZod,
 } from '../../validation/zod/index.ts';
+import type { duckDatabaseManagerZodSchemas } from '../../validation/zod/manager/duck-database-manager-zod-schemas.ts';
 import { ManagerQueryExecutor } from '../core/manager-query-executor.ts';
 import {
   DuckDatabaseAttachCommand,
   type DuckDatabaseAttachCommandOptions,
 } from './commands/duck-database-attach-command.ts';
+
+export type GetDatabaseInfo = z.infer<
+  typeof duckDatabaseManagerZodSchemas.getDatabases
+>;
 
 export class DuckDatabaseManager {
   #conn: DuckDBConnection;
@@ -95,23 +102,61 @@ export class DuckDatabaseManager {
     return rows[0]?.is_attached ?? false;
   };
 
+  getDatabaseByName = async (
+    dbName: string
+  ): Promise<GetDatabaseInfo | null> => {
+    assertValidAliasName(dbName);
+    const result = await this.#executor.getRowObjectsJS<GetDatabaseInfo>(
+      'getDatabaseByName',
+      `select database_name,
+                     database_oid,
+                     path,
+                     comment,
+                     type,
+                     readonly,
+                     internal,
+                     encrypted
+              from duckdb_databases()
+              where database_name = '${dbName}'`
+    );
+    if (result.length === 1) {
+      return result[0]!;
+    }
+    return null;
+  };
+
+  getDatabasesByPath = async (
+    path: string
+  ): Promise<GetDatabaseInfo | null> => {
+    const result = await this.#executor.getRowObjectsJS<GetDatabaseInfo>(
+      'getDatabaseByPath',
+      `select database_name,
+                     database_oid,
+                     path,
+                     comment,
+                     type,
+                     readonly,
+                     internal,
+                     encrypted
+              from duckdb_databases()
+              where path = ${quoteValue(path)}`
+    );
+    if (result.length === 1) {
+      return result[0]!;
+    }
+    return null;
+  };
+
   /**
    * Return information about attached databases
    */
-  getDatabases = async (params?: { includeInternal?: boolean }) => {
+  getDatabases = async (params?: {
+    includeInternal?: boolean;
+  }): Promise<GetDatabaseInfo[]> => {
     const { includeInternal = false } = params ?? {};
     const internalFilter = includeInternal ? '1=1' : 'internal = false';
-    return this.#executor.getRowObjectsJS<{
-      database_name: string;
-      database_oid: string;
-      path: string | null;
-      comment: string | null;
-      type: string;
-      readonly: boolean;
-      internal: boolean;
-      encrypted: boolean;
-    }>(
-      'listDatabases',
+    return this.#executor.getRowObjectsJS<GetDatabaseInfo>(
+      'getDatabases',
       `select database_name,
                      database_oid,
                      path,
