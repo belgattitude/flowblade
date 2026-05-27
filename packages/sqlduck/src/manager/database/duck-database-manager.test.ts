@@ -91,7 +91,6 @@ describe('DuckDatabaseManagerTest', async () => {
     it('should return information about attached databases', async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const databases = await dbManager.getDatabases();
-      console.log(databases);
       expect(databases?.[0]).toEqual(
         expect.schemaMatching(duckDatabaseManagerZodSchemas.getDatabases)
       );
