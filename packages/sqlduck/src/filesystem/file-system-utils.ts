@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 // eslint-disable-next-line unicorn/import-style
-import { basename, dirname } from 'node:path';
+import path, { basename, dirname } from 'node:path';
 
 import type { Logger } from '@logtape/logtape';
 
@@ -110,10 +110,54 @@ export class FileSystemUtils {
    * Returns false if either path doesn't exist.
    */
   isSamePath = (path1: string, path2: string): boolean => {
+    if (
+      typeof path1 !== 'string' ||
+      typeof path2 !== 'string' ||
+      path1.trim().length === 0 ||
+      path2.trim().length === 0
+    ) {
+      return false;
+    }
+    return path.resolve(path1) == path.resolve(path2);
+  };
+
+  /**
+   * Check whether two paths (file, directory...) exists and are identical by comparing their real paths.
+   * Returns false if either path doesn't exist.
+   */
+  isSamePathAndExists = (path1: string, path2: string): boolean => {
+    if (
+      typeof path1 !== 'string' ||
+      typeof path2 !== 'string' ||
+      path1.trim().length === 0 ||
+      path2.trim().length === 0
+    ) {
+      return false;
+    }
     return (
       fs.existsSync(path1) &&
       fs.existsSync(path2) &&
       fs.realpathSync(path1) === fs.realpathSync(path2)
     );
+  };
+
+  /**
+   * Return directory and filename as absolute directory (cross-platform)
+   */
+  join = (params: { dirname: string; filename: string }): string => {
+    const { dirname, filename } = params;
+    if (
+      typeof dirname !== 'string' ||
+      typeof filename !== 'string' ||
+      dirname.trim().length === 0 ||
+      filename.trim().length === 0
+    ) {
+      throw new Error(
+        'dirname and filename parameters must be non empty string'
+      );
+    }
+
+    const combinedPath = path.join(dirname, filename);
+    return path.resolve(combinedPath);
   };
 }
