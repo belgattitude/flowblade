@@ -104,4 +104,16 @@ export class FileSystemUtils {
       return false;
     }
   };
+
+  /**
+   * Check whether two paths (file, directory...) are identical by comparing their real paths.
+   * Returns false if either path doesn't exist.
+   */
+  isSamePath = (path1: string, path2: string): boolean => {
+    return (
+      fs.existsSync(path1) &&
+      fs.existsSync(path2) &&
+      fs.realpathSync(path1) === fs.realpathSync(path2)
+    );
+  };
 }
