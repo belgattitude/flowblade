@@ -163,6 +163,27 @@ describe('appender benches', async () => {
     benchConfig
   );
 
+  bench(
+    `duckdb appender file no wal, count: ${limit}, chunk size 1024`,
+    async () => {
+      const { totalRows } = await sqlDuck.toTable({
+        table: fileTableNoWAL,
+        schema: userSchema,
+        rowStream: getFakeRowStream(),
+        chunkSize: 1024,
+        createOptions: {
+          create: 'CREATE_OR_REPLACE',
+        },
+        checkpointChunksFrequency: 100,
+        autoCheckpoint: true,
+      });
+      if (totalRows !== limit) {
+        throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
+      }
+    },
+    benchConfig
+  );
+
   bench.skipIf(isInCi)(
     `duckdb appender, count: ${limit}, chunk size 1024`,
     async () => {
