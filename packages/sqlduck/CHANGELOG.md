@@ -1,5 +1,13 @@
 # @flowblade/sqlduck
 
+## 0.23.0
+
+### Minor Changes
+
+- [#1200](https://github.com/belgattitude/flowblade/pull/1200) [`f803c45`](https://github.com/belgattitude/flowblade/commit/f803c450e875cf089c9c6bdc3ddb43ca41a90a19) Thanks [@belgattitude](https://github.com/belgattitude)! - Add getDatabaseByName, getDatabaseByPath helpers methods
+
+- [#1200](https://github.com/belgattitude/flowblade/pull/1200) [`f803c45`](https://github.com/belgattitude/flowblade/commit/f803c450e875cf089c9c6bdc3ddb43ca41a90a19) Thanks [@belgattitude](https://github.com/belgattitude)! - Export FileSystemUtils from "@flowblade/sqlduck/filesystem"
+
 ## 0.22.0
 
 ### Minor Changes
