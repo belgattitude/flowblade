@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { describe, expect } from 'vitest';
@@ -9,7 +10,7 @@ describe('FileSystemUtils', () => {
     const fsUtils = new FileSystemUtils();
     const currentFile = fileURLToPath(import.meta.url);
     const cwd = process.cwd();
-    const relative = currentFile.replace(cwd, './');
+    const relative = path.relative(cwd, currentFile);
 
     expect(fsUtils.isSamePath(currentFile, currentFile)).toStrictEqual(true);
     expect(fsUtils.isSamePath(relative, currentFile)).toStrictEqual(true);
