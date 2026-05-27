@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.24.0
+
+### Minor Changes
+
+- [#1202](https://github.com/belgattitude/flowblade/pull/1202) [`abb351c`](https://github.com/belgattitude/flowblade/commit/abb351cdf98a5509305285ff5140eb7f4dcfac35) Thanks [@belgattitude](https://github.com/belgattitude)! - Add FileSystemUtil.isSamePath utility
+
 ## 0.23.0
 
 ### Minor Changes
