@@ -10,6 +10,7 @@ import { testTempDir } from '@/tests/utils/get-test-temp-dir.ts';
 
 import { FileSystemUtils } from '../../filesystem/file-system-utils.ts';
 import { Database } from '../../objects/database.ts';
+import { duckDatabaseManagerZodSchemas } from '../../validation/zod/manager/duck-database-manager-zod-schemas.ts';
 import { DuckDatabaseManager } from './duck-database-manager.ts';
 
 describe('DuckDatabaseManagerTest', async () => {
@@ -90,18 +91,43 @@ describe('DuckDatabaseManagerTest', async () => {
     it('should return information about attached databases', async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const databases = await dbManager.getDatabases();
-      expect(databases?.[0]).toEqual({
-        comment: null,
-        database_name: expect.anything(),
-        database_oid: expect.anything(),
-        encrypted: expect.anything(),
-        internal: expect.anything(),
-        path: null,
-        readonly: expect.anything(),
-        type: 'duckdb',
-      });
+      expect(databases?.[0]).toEqual(
+        expect.schemaMatching(duckDatabaseManagerZodSchemas.getDatabases)
+      );
     });
   });
+  describe('getDuckdbDatabaseByName', () => {
+    it('should return information about attached databases', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      const database = await dbManager.getDatabaseByName('memory');
+      expect(database?.database_name).toStrictEqual('memory');
+      expect(database).toEqual(
+        expect.schemaMatching(duckDatabaseManagerZodSchemas.getDatabases)
+      );
+    });
+  });
+  describe('getDuckdbDatabaseByPath', () => {
+    it('should return information about attached databases', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      const dbFile = path.join(testTempDir, 'test-getDuckdbDatabaseByPath.db');
+      await dbManager.attachIfNotExists({
+        type: 'filesystem',
+        path: dbFile,
+        alias: 'getDuckdbDatabaseByPath',
+        options: {
+          accessMode: 'READ_WRITE',
+          recoveryMode: 'no_wal_writes',
+        },
+      });
+      const database = await dbManager.getDatabasesByPath(dbFile);
+      expect(database?.database_name).toStrictEqual('getDuckdbDatabaseByPath');
+      expect(database?.path).toStrictEqual(dbFile);
+      expect(database).toEqual(
+        expect.schemaMatching(duckDatabaseManagerZodSchemas.getDatabases)
+      );
+    });
+  });
+
   describe('detach', () => {
     it('should detach a valid database', async () => {
       const dbManager = new DuckDatabaseManager(conn);

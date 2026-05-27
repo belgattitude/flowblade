@@ -3,6 +3,7 @@ import { defineConfig } from 'tsdown';
 export default defineConfig({
   entry: [
     './src/index.ts',
+    './src/filesystem/index.ts',
     './src/validation/zod/index.ts',
     './src/validation/valibot/index.ts',
   ],
@@ -10,7 +11,7 @@ export default defineConfig({
   clean: true,
   format: {
     esm: {
-      target: ['node20'],
+      target: ['node22'],
     },
   },
   platform: 'node',
