@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.25.0
+
+### Minor Changes
+
+- [#1204](https://github.com/belgattitude/flowblade/pull/1204) [`f51ff8b`](https://github.com/belgattitude/flowblade/commit/f51ff8b24cb8756cbef89b365c2a6da744b84201) Thanks [@belgattitude](https://github.com/belgattitude)! - Add FileSystemUtils.join and sameFileAndExists
+
 ## 0.24.0
 
 ### Minor Changes
