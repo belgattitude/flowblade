@@ -6,6 +6,7 @@ export default defineConfig({
     './src/filesystem/index.ts',
     './src/validation/zod/index.ts',
     './src/validation/valibot/index.ts',
+    './src/integrations/kysely/index.ts',
   ],
   dts: true,
   clean: true,
