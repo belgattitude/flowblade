@@ -27,6 +27,11 @@ export type DuckdbDatasourceParams = {
   logger?: Logger;
 };
 
+type SqlTagInformation = {
+  text: string;
+  values: unknown[];
+};
+
 export class DuckdbDatasource implements DatasourceInterface {
   private db: DuckDBConnection;
   private logger: Logger;
@@ -88,7 +93,7 @@ export class DuckdbDatasource implements DatasourceInterface {
    * ```
    */
   query = async <TData extends unknown[]>(
-    rawQuery: SqlTag<TData>,
+    rawQuery: SqlTag<TData> | SqlTagInformation,
     options?: QueryOptions
   ): AsyncQResult<TData> => {
     const name = options?.name ?? 'anonymous';
@@ -151,7 +156,7 @@ export class DuckdbDatasource implements DatasourceInterface {
    * ```
    */
   queryOrThrow = async <TData extends unknown[]>(
-    rawQuery: SqlTag<TData>,
+    rawQuery: SqlTag<TData> | SqlTagInformation,
     options?: QueryOptions
   ): Promise<{
     data: TData;
