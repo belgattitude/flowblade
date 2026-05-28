@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.26.0
+
+### Minor Changes
+
+- [#1206](https://github.com/belgattitude/flowblade/pull/1206) [`34bfa8b`](https://github.com/belgattitude/flowblade/commit/34bfa8b3a690a6ff624a0e92beb46545548023a3) Thanks [@belgattitude](https://github.com/belgattitude)! - Add getFileSize to FileSystemUtils
+
 ## 0.25.0
 
 ### Minor Changes
