@@ -42,4 +42,9 @@ describe('FileSystemUtils', () => {
     });
     expect(abs).toStrictEqual(path.resolve('/tmp/hello.txt'));
   });
+  describe('getFileSize', () => {
+    const fsUtils = new FileSystemUtils();
+    const currentFile = fileURLToPath(import.meta.url);
+    expect(fsUtils.getFileSize(currentFile)).toBeGreaterThan(10);
+  });
 });

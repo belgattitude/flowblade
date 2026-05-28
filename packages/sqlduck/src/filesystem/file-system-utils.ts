@@ -160,4 +160,18 @@ export class FileSystemUtils {
     const combinedPath = path.join(dirname, filename);
     return path.resolve(combinedPath);
   };
+
+  /**
+   * Return the filesize in bytes or null either if the file doesn't exist or if the path is not a file
+   */
+  getFileSize = (path: string): number | null => {
+    const stats = fs.statSync(path, { throwIfNoEntry: false });
+    if (stats === undefined) {
+      return null;
+    }
+    if (stats.isFile()) {
+      return stats.size;
+    }
+    return null;
+  };
 }
