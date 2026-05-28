@@ -1,5 +1,16 @@
 # @flowblade/sqlduck
 
+## 0.27.0
+
+### Minor Changes
+
+- [#1208](https://github.com/belgattitude/flowblade/pull/1208) [`a570203`](https://github.com/belgattitude/flowblade/commit/a5702034c9372e7c1f59b60416c9a0bc14affd44) Thanks [@belgattitude](https://github.com/belgattitude)! - Export kysely helpers (experimental)
+
+### Patch Changes
+
+- Updated dependencies [[`a570203`](https://github.com/belgattitude/flowblade/commit/a5702034c9372e7c1f59b60416c9a0bc14affd44)]:
+  - @flowblade/source-duckdb@0.23.0
+
 ## 0.26.0
 
 ### Minor Changes

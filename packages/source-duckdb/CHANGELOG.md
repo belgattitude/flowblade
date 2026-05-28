@@ -1,5 +1,11 @@
 # @flowblade/source-duckdb
 
+## 0.23.0
+
+### Minor Changes
+
+- [#1208](https://github.com/belgattitude/flowblade/pull/1208) [`a570203`](https://github.com/belgattitude/flowblade/commit/a5702034c9372e7c1f59b60416c9a0bc14affd44) Thanks [@belgattitude](https://github.com/belgattitude)! - Query now accepts { text: string, values: unknown []} as alternative to SqlTag
+
 ## 0.22.0
 
 ### Minor Changes
