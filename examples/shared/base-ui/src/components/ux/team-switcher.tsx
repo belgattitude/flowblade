@@ -55,7 +55,7 @@ export function TeamSwitcher({
             <ChevronsUpDownIcon className="ml-auto" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="min-w-56 rounded-lg"
+            className="w-fit"
             align="start"
             side={isMobile ? 'bottom' : 'right'}
             sideOffset={4}
