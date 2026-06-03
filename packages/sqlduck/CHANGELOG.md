@@ -1,5 +1,21 @@
 # @flowblade/sqlduck
 
+## 0.28.0
+
+### Minor Changes
+
+- [#1211](https://github.com/belgattitude/flowblade/pull/1211) [`0d1c466`](https://github.com/belgattitude/flowblade/commit/0d1c4662a27608766408523b0cdfeff6e4db8846) Thanks [@belgattitude](https://github.com/belgattitude)! - Initial support dor DECIMAL(18,3)
+
+  ```typescript
+  const testSchema = z.object({
+    decimal_18_3: z.float32().meta({
+      multipleOf: 0.001,
+    }),
+  });
+
+  // Will create a table with a DECIMAL(18,3) column
+  ```
+
 ## 0.27.0
 
 ### Minor Changes
