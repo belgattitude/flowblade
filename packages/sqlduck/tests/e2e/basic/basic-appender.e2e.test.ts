@@ -16,7 +16,7 @@ describe('basic appender', () => {
   });
 
   describe('toTable', () => {
-    it('should work', async () => {
+    it('should correclty append data', async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const database = await dbManager.attach({
         type: 'memory', // can be 'filesystem', ...
@@ -30,6 +30,9 @@ describe('basic appender', () => {
       const userSchema = z.object({
         id: z.int32().min(1).meta({ primaryKey: true }),
         name: z.string(),
+        decimal_18_3: z.float32().meta({
+          multipleOf: 0.001,
+        }),
       });
 
       // Example of a datasource (can be generator, async generator, async iterable)
@@ -37,8 +40,8 @@ describe('basic appender', () => {
         z.infer<typeof userSchema>
       > {
         // database or api call
-        yield { id: 1, name: 'John' };
-        yield { id: 2, name: 'Jane' };
+        yield { id: 1, name: 'John', decimal_18_3: 1.001 };
+        yield { id: 2, name: 'Jane', decimal_18_3: 2 };
       }
 
       // Create a table from the schema and the datasource
@@ -67,7 +70,18 @@ describe('basic appender', () => {
       });
 
       const reader = await conn.runAndReadAll('select * from mydb.user');
-      expect(reader.getRowObjectsJS()).toMatchSnapshot();
+      expect(reader.getRowObjectsJS()).toStrictEqual([
+        {
+          decimal_18_3: 1.001,
+          id: 1,
+          name: 'John',
+        },
+        {
+          decimal_18_3: 2,
+          id: 2,
+          name: 'Jane',
+        },
+      ]);
     });
   });
 });

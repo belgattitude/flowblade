@@ -1,6 +1,7 @@
 import {
   BIGINT,
   BOOLEAN,
+  DECIMAL,
   DOUBLE,
   type DuckDBType,
   ENUM,
@@ -30,7 +31,13 @@ describe('getTableCreateFromZod', () => {
             create: 'CREATE_OR_REPLACE',
           },
         });
-        expect(ddl).toStrictEqual(
+        const duckdbFmtDialect = {
+          dialect: duckDbDialect,
+          useTabs: false,
+          tabWidth: 2,
+        };
+
+        expect(formatDialect(ddl, duckdbFmtDialect)).toStrictEqual(
           formatDialect(
             `
                CREATE OR REPLACE TABLE test (
@@ -47,13 +54,10 @@ describe('getTableCreateFromZod', () => {
                 is_active BOOLEAN,
                 alt_uuid_v7 UUID NOT NULL,
                 custom_type UUID NOT NULL,
-                js_enum ENUM('a', 'b', 'c') NOT NULL
+                js_enum ENUM('a', 'b', 'c') NOT NULL,
+                decimal_18_3 DECIMAL(18, 3) NOT NULL
                )`,
-            {
-              dialect: duckDbDialect,
-              useTabs: false,
-              tabWidth: 2,
-            }
+            duckdbFmtDialect
           )
         );
       });
@@ -97,6 +101,7 @@ describe('getTableCreateFromZod', () => {
           ['alt_uuid_v7', UUID],
           ['custom_type', UUID],
           ['js_enum', ENUM(['a', 'b', 'c'])],
+          ['decimal_18_3', DECIMAL(18, 3)],
         ])
       );
     });

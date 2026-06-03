@@ -24,6 +24,9 @@ export const testFullSupportedColumnsZodSchema = z.strictObject({
     duckdbType: 'UUID',
   }),
   js_enum: z.enum(['a', 'b', 'c']),
+  decimal_18_3: z.float32().meta({
+    multipleOf: 0.001,
+  }),
   /*
   text_json: z.object({
     name: z.string(),

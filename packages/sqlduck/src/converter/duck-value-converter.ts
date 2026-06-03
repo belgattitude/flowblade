@@ -1,4 +1,7 @@
-import { DuckDBTimestampMillisecondsValue } from '@duckdb/node-api';
+import {
+  DuckDBDecimalValue,
+  DuckDBTimestampMillisecondsValue,
+} from '@duckdb/node-api';
 
 const stringTimestampRegexp =
   /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d{3,6})?Z?$/i;
@@ -47,6 +50,22 @@ export class DuckValueConverter {
       value,
     });
   };
+  createDecimalConverter =
+    (width: number, scale: number) =>
+    (value: number | bigint | null | undefined): DuckDBDecimalValue | null => {
+      if (value === undefined || value === null) {
+        return null;
+      }
+      if (typeof value === 'number') {
+        return DuckDBDecimalValue.fromDouble(value, width, scale);
+      }
+      if (typeof value === 'bigint') {
+        return new DuckDBDecimalValue(value, width, scale);
+      }
+      throw new TypeError(
+        'Decimal converter require value to be a number or a bigint'
+      );
+    };
   toBigIntString = (
     value: string | number | bigint | null | undefined
   ): string | null => {
