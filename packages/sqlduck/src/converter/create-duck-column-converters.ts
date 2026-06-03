@@ -45,6 +45,12 @@ export const createDuckColumnConverters = <
       case DuckDBTypeId.SMALLINT:
         conv = false;
         break;
+      case DuckDBTypeId.FLOAT:
+        conv = false;
+        break;
+      case DuckDBTypeId.DECIMAL:
+        conv = converter.createDecimalConverter(18, 3);
+        break;
       default:
         throw new Error(
           `Unsupported duck type ${duckTypeId} / ${duckType.toString()} for column '${key}'`

@@ -1,5 +1,6 @@
 import {
   BIGINT,
+  DECIMAL,
   DOUBLE,
   FLOAT,
   HUGEINT,
@@ -15,19 +16,32 @@ import {
 
 const isFloatValue = (value: number): boolean => {
   if (!Number.isFinite(value)) return true;
-  // Numbers beyond safe integer range lose precision, treat as float
+  if (!value.toString(10).includes('.')) return false;
   if (Math.abs(value) > Number.MAX_SAFE_INTEGER) return true;
   return !Number.isInteger(value);
+};
+
+const getScale = (value: number): number => {
+  const parts = value.toString().split('.');
+  if (parts.length < 2) return 0;
+  return parts[1]!.length;
 };
 
 export const getDuckdbNumberColumnType = (params: {
   minimum: number | undefined;
   maximum: number | undefined;
+  multipleOf?: number | undefined;
 }) => {
-  const { minimum, maximum } = params;
+  const { minimum, maximum, multipleOf } = params;
   if (minimum === undefined || maximum === undefined) {
     return BIGINT;
   }
+
+  if (multipleOf !== undefined && isFloatValue(multipleOf)) {
+    const scale = getScale(multipleOf);
+    return DECIMAL(18, scale);
+  }
+
   // Detect float from fractional values
   const isFloat = isFloatValue(minimum) || isFloatValue(maximum);
 

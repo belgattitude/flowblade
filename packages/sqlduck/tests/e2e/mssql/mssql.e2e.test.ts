@@ -29,6 +29,7 @@ type DB = {
     positive_bigint: string | null;
     negative_bigint: string | null;
     null_column: number | null;
+    decimal_18_3: number;
   };
 };
 
@@ -38,6 +39,9 @@ const data = Array.from({ length: testDataCount }).map((_v, idx) => {
   return {
     id: idx,
     name: `name-${idx}`,
+    decimal_18_3: Number.parseFloat(
+      `${idx + 1}.${((idx + 1) % 1000).toString(10).padStart(3, '0')}`
+    ),
   };
 });
 
@@ -55,8 +59,9 @@ const getMigrations = (
                name NVARCHAR(255) NOT NULL,
                positive_bigint BIGINT,
                negative_bigint BIGINT,
-               null_column INT 
-        );`
+               null_column INT,
+               decimal_18_3 DECIMAL(18,3),            
+            );`
       );
 
       const insert = sql`
@@ -64,12 +69,13 @@ const getMigrations = (
         DECLARE @Data NVARCHAR(MAX); -- WARNING LIMIT TO 2GB
         SET @Data = ${JSON.stringify(data)};
 
-        INSERT INTO TestTable (id, name)
-        SELECT id, name
+        INSERT INTO TestTable (id, name, decimal_18_3)
+        SELECT id, name, decimal_18_3
         FROM OPENJSON(@Data) WITH (
           id INT,
-          name NVARCHAR(255)
-          );
+          name NVARCHAR(255),
+          decimal_18_3 DECIMAL(18,3)      
+        );
       `;
 
       await sqlServerDs.queryOrThrow(insert);
@@ -111,7 +117,9 @@ describe('MSSQL e2e tests', () => {
     await getMigrations(mssqlDs).down();
     await mssqlDs.getConnection().destroy();
     await container.stop();
-    duckConn.closeSync();
+    if (duckConn) {
+      duckConn.closeSync();
+    }
   });
 
   describe('DB test', () => {
@@ -126,6 +134,7 @@ describe('MSSQL e2e tests', () => {
             't.positive_bigint',
             't.negative_bigint',
             't.null_column',
+            't.decimal_18_3',
           ]);
 
         const { data, error } = await mssqlDs.query(query);
@@ -137,6 +146,7 @@ describe('MSSQL e2e tests', () => {
           positive_bigint: positiveBigint.toString(10),
           negative_bigint: negativeBigint.toString(10),
           null_column: null,
+          decimal_18_3: 1.001,
         });
       },
       testTimeout
@@ -152,6 +162,7 @@ describe('MSSQL e2e tests', () => {
           't.positive_bigint',
           'negative_bigint',
           'null_column',
+          'decimal_18_3',
         ]);
 
       const rowStream = mssqlDs.stream(query, {
@@ -177,6 +188,9 @@ describe('MSSQL e2e tests', () => {
         positive_bigint: z.nullable(zodCodecs.bigintToString),
         negative_bigint: z.nullable(zodCodecs.bigintToString),
         null_column: z.nullable(z.number()),
+        decimal_18_3: z.float32().meta({
+          multipleOf: 0.001,
+        }),
       });
 
       const { totalRows } = await sqlDuck.toTable({
@@ -190,10 +204,7 @@ describe('MSSQL e2e tests', () => {
         connection: duckConn,
       });
       const result = await duckDs.query(
-        sqlt<{
-          id: number;
-          name: string;
-        }>`select columns(*) from memory_db.test_table`
+        sqlt<DB['TestTable']>`select * from memory_db.test_table`
       );
       expect(result.error).toBeUndefined();
       expect(result.data).toStrictEqual(
@@ -203,6 +214,7 @@ describe('MSSQL e2e tests', () => {
             negative_bigint: negativeBigint.toString(10),
             positive_bigint: positiveBigint.toString(10),
             null_column: null,
+            decimal_18_3: `${row.id + 1}.${((row.id + 1) % 1000).toString(10).padStart(3, '0')}`,
           };
         })
       );

@@ -2,6 +2,7 @@ import {
   BIGINT,
   BOOLEAN,
   DOUBLE,
+  DuckDBDecimalType,
   type DuckDBType,
   ENUM,
   FLOAT,
@@ -61,7 +62,9 @@ const duckDbTypes = [
   ['INTEGER', INTEGER],
   ['DOUBLE', DOUBLE],
   ['FLOAT', FLOAT],
-] as const;
+  // to get the proper type, we just instanciate the default
+  ['DECIMAL', new DuckDBDecimalType(18, 3)],
+] as const satisfies [string, DuckDBType][];
 
 const duckDbTypesMap = new Map<string, DuckDBType>(duckDbTypes);
 
@@ -92,12 +95,21 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       primaryKey: boolean | undefined;
       minimum?: number;
       maximum?: number;
+      multipleOf?: number;
       enum?: string[];
       duckdbType?: string;
     },
   ][]) {
-    const { type, duckdbType, nullable, format, primaryKey, minimum, maximum } =
-      def;
+    const {
+      type,
+      duckdbType,
+      nullable,
+      format,
+      primaryKey,
+      minimum,
+      maximum,
+      multipleOf,
+    } = def;
 
     const c: Partial<ColumnDDL> = {
       name: columnName,
@@ -127,7 +139,11 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
           }
           break;
         case 'number':
-          c.duckdbType = getDuckdbNumberColumnType({ minimum, maximum });
+          c.duckdbType = getDuckdbNumberColumnType({
+            minimum,
+            maximum,
+            multipleOf,
+          });
           break;
         // special case for z.int32()
         case 'integer':
