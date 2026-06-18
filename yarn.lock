@@ -1553,7 +1553,7 @@ __metadata:
   resolution: "@docs/website@workspace:docs"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.15.0"
-    "@dotenvx/dotenvx": "npm:1.71.3"
+    "@dotenvx/dotenvx": "npm:1.73.1"
     "@t3-oss/env-nextjs": "npm:0.13.11"
     "@tailwindcss/postcss": "npm:4.3.1"
     "@total-typescript/ts-reset": "npm:0.6.1"
@@ -1586,7 +1586,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@dotenvx/dotenvx@npm:1.71.3, @dotenvx/dotenvx@npm:^1.48.4":
+"@dotenvx/dotenvx@npm:1.71.3":
   version: 1.71.3
   resolution: "@dotenvx/dotenvx@npm:1.71.3"
   dependencies:
@@ -1604,6 +1604,32 @@ __metadata:
   bin:
     dotenvx: src/cli/dotenvx.js
   checksum: 10c0/bd2f757af7548e0d4d2dbfeb710bc738de6caaac5efa95d39768aaa1b333b485316324f55c1ab4b7f953fce7150c9d2825a785be01fd376f1122ecee77f16c36
+  languageName: node
+  linkType: hard
+
+"@dotenvx/dotenvx@npm:1.73.1, @dotenvx/dotenvx@npm:^1.48.4":
+  version: 1.73.1
+  resolution: "@dotenvx/dotenvx@npm:1.73.1"
+  dependencies:
+    commander: "npm:^11.1.0"
+    conf: "npm:^10.2.0"
+    dotenv: "npm:^17.2.1"
+    eciesjs: "npm:^0.4.10"
+    enquirer: "npm:^2.4.1"
+    env-paths: "npm:^2.2.1"
+    execa: "npm:^5.1.1"
+    fdir: "npm:^6.2.0"
+    ignore: "npm:^5.3.0"
+    object-treeify: "npm:1.1.33"
+    open: "npm:^8.4.2"
+    picomatch: "npm:^4.0.4"
+    systeminformation: "npm:^5.22.11"
+    undici: "npm:^7.11.0"
+    which: "npm:^4.0.0"
+    yocto-spinner: "npm:^1.1.0"
+  bin:
+    dotenvx: src/cli/dotenvx.js
+  checksum: 10c0/73dd540cd92c6b718f4e888855df7a8a6127fe1613e8a25bf3cfc2d569815f8a55511522058216c7f4cedcd17771581958928bbd604365ba6728cbc25ca51950
   languageName: node
   linkType: hard
 
@@ -2920,7 +2946,7 @@ __metadata:
   resolution: "@flowblade/sqlduck@workspace:packages/sqlduck"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.15.0"
-    "@dotenvx/dotenvx": "npm:1.71.3"
+    "@dotenvx/dotenvx": "npm:1.73.1"
     "@duckdb/node-api": "npm:1.5.3-r.3"
     "@faker-js/faker": "npm:10.4.0"
     "@flowblade/core": "workspace:^"
@@ -9457,6 +9483,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ajv-formats@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "ajv-formats@npm:2.1.1"
+  dependencies:
+    ajv: "npm:^8.0.0"
+  peerDependencies:
+    ajv: ^8.0.0
+  peerDependenciesMeta:
+    ajv:
+      optional: true
+  checksum: 10c0/e43ba22e91b6a48d96224b83d260d3a3a561b42d391f8d3c6d2c1559f9aa5b253bfb306bc94bbeca1d967c014e15a6efe9a207309e95b3eaae07fcbcdc2af662
+  languageName: node
+  linkType: hard
+
 "ajv-formats@npm:^3.0.1":
   version: 3.0.1
   resolution: "ajv-formats@npm:3.0.1"
@@ -9495,7 +9535,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^8.0.0, ajv@npm:^8.11.0, ajv@npm:^8.12.0, ajv@npm:^8.17.1, ajv@npm:^8.20.0":
+"ajv@npm:^8.0.0, ajv@npm:^8.11.0, ajv@npm:^8.12.0, ajv@npm:^8.17.1, ajv@npm:^8.20.0, ajv@npm:^8.6.3":
   version: 8.20.0
   resolution: "ajv@npm:8.20.0"
   dependencies:
@@ -9905,6 +9945,13 @@ __metadata:
   version: 1.0.0
   resolution: "atomic-sleep@npm:1.0.0"
   checksum: 10c0/e329a6665512736a9bbb073e1761b4ec102f7926cce35037753146a9db9c8104f5044c1662e4a863576ce544fb8be27cd2be6bc8c1a40147d03f31eb1cfb6e8a
+  languageName: node
+  linkType: hard
+
+"atomically@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "atomically@npm:1.7.0"
+  checksum: 10c0/31f5efd5d69474681268557af4024f9e10223bb6b39fdedb5f2e19405186c4b76284fac9f6c43c9af75013cad6437e93b7168268f5ddb7aaf1cfc5fdb415f227
   languageName: node
   linkType: hard
 
@@ -11153,6 +11200,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"conf@npm:^10.2.0":
+  version: 10.2.0
+  resolution: "conf@npm:10.2.0"
+  dependencies:
+    ajv: "npm:^8.6.3"
+    ajv-formats: "npm:^2.1.1"
+    atomically: "npm:^1.7.0"
+    debounce-fn: "npm:^4.0.0"
+    dot-prop: "npm:^6.0.1"
+    env-paths: "npm:^2.2.1"
+    json-schema-typed: "npm:^7.0.3"
+    onetime: "npm:^5.1.2"
+    pkg-up: "npm:^3.1.0"
+    semver: "npm:^7.3.5"
+  checksum: 10c0/d608d8c54ba7fad368eac640e77f2ce0334ec27cfd62ac39f44e361af8af9915eaa6c2ada81fbc25c3219273d972b4868bc752e8e2116cb6e12d35df72dc25a4
+  languageName: node
+  linkType: hard
+
 "confbox@npm:^0.2.2, confbox@npm:^0.2.4":
   version: 0.2.4
   resolution: "confbox@npm:0.2.4"
@@ -11902,6 +11967,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"debounce-fn@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "debounce-fn@npm:4.0.0"
+  dependencies:
+    mimic-fn: "npm:^3.0.0"
+  checksum: 10c0/bcbd8eb253bdb6ee2f32759c95973c62bc479e74efbe1a44e17acfb0ea7d4bcbe615bf7e34aab80247ac08669c1ab72f7da0f384ceb7f15c18333d31d9030384
+  languageName: node
+  linkType: hard
+
 "debug@npm:4, debug@npm:^4.0.0, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.4, debug@npm:^4.3.5, debug@npm:^4.4.0, debug@npm:^4.4.1, debug@npm:^4.4.3":
   version: 4.4.3
   resolution: "debug@npm:4.4.3"
@@ -11995,6 +12069,13 @@ __metadata:
     es-errors: "npm:^1.3.0"
     gopd: "npm:^1.0.1"
   checksum: 10c0/dea0606d1483eb9db8d930d4eac62ca0fa16738b0b3e07046cddfacf7d8c868bbe13fa0cb263eb91c7d0d527960dc3f2f2471a69ed7816210307f6744fe62e37
+  languageName: node
+  linkType: hard
+
+"define-lazy-prop@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "define-lazy-prop@npm:2.0.0"
+  checksum: 10c0/db6c63864a9d3b7dc9def55d52764968a5af296de87c1b2cc71d8be8142e445208071953649e0386a8cc37cfcf9a2067a47207f1eb9ff250c2a269658fdae422
   languageName: node
   linkType: hard
 
@@ -12208,6 +12289,15 @@ __metadata:
   dependencies:
     is-obj: "npm:^2.0.0"
   checksum: 10c0/93f0d343ef87fe8869320e62f2459f7e70f49c6098d948cc47e060f4a3f827d0ad61e83cb82f2bd90cd5b9571b8d334289978a43c0f98fea4f0e99ee8faa0599
+  languageName: node
+  linkType: hard
+
+"dot-prop@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "dot-prop@npm:6.0.1"
+  dependencies:
+    is-obj: "npm:^2.0.0"
+  checksum: 10c0/30e51ec6408978a6951b21e7bc4938aad01a86f2fdf779efe52330205c6bb8a8ea12f35925c2029d6dc9d1df22f916f32f828ce1e9b259b1371c580541c22b5a
   languageName: node
   linkType: hard
 
@@ -15433,7 +15523,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-docker@npm:^2.0.0":
+"is-docker@npm:^2.0.0, is-docker@npm:^2.1.1":
   version: 2.2.1
   resolution: "is-docker@npm:2.2.1"
   bin:
@@ -15784,6 +15874,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-wsl@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "is-wsl@npm:2.2.0"
+  dependencies:
+    is-docker: "npm:^2.0.0"
+  checksum: 10c0/a6fa2d370d21be487c0165c7a440d567274fbba1a817f2f0bfa41cc5e3af25041d84267baa22df66696956038a43973e72fca117918c91431920bdef490fa25e
+  languageName: node
+  linkType: hard
+
 "is-wsl@npm:^3.1.0":
   version: 3.1.1
   resolution: "is-wsl@npm:3.1.1"
@@ -16107,6 +16206,13 @@ __metadata:
   version: 1.0.0
   resolution: "json-schema-traverse@npm:1.0.0"
   checksum: 10c0/71e30015d7f3d6dc1c316d6298047c8ef98a06d31ad064919976583eb61e1018a60a0067338f0f79cabc00d84af3fcc489bd48ce8a46ea165d9541ba17fb30c6
+  languageName: node
+  linkType: hard
+
+"json-schema-typed@npm:^7.0.3":
+  version: 7.0.3
+  resolution: "json-schema-typed@npm:7.0.3"
+  checksum: 10c0/b4a6d984dd91f9aba72df8768c5ced99e789b8e17b55ee24afb3a687ce55b70a7b3f4360cac67939e1ff98e136ca26f3aa530635c13ef371ae5edc48b69a65f6
   languageName: node
   linkType: hard
 
@@ -17898,6 +18004,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mimic-fn@npm:^3.0.0":
+  version: 3.1.0
+  resolution: "mimic-fn@npm:3.1.0"
+  checksum: 10c0/a07cdd8ed6490c2dff5b11f889b245d9556b80f5a653a552a651d17cff5a2d156e632d235106c2369f00cccef4071704589574cf3601bc1b1400a1f620dff067
+  languageName: node
+  linkType: hard
+
 "mimic-fn@npm:^4.0.0":
   version: 4.0.0
   resolution: "mimic-fn@npm:4.0.0"
@@ -18842,6 +18955,17 @@ __metadata:
     powershell-utils: "npm:^0.1.0"
     wsl-utils: "npm:^0.3.0"
   checksum: 10c0/7aeeda4131268ed90f90e7728dda5c46bb0c6205b27a4be3e86ea33593e30dd393423e20e31c00802a8e635ef59becaee33ef9749a8ceb027567cd253e9e7b1e
+  languageName: node
+  linkType: hard
+
+"open@npm:^8.4.2":
+  version: 8.4.2
+  resolution: "open@npm:8.4.2"
+  dependencies:
+    define-lazy-prop: "npm:^2.0.0"
+    is-docker: "npm:^2.1.1"
+    is-wsl: "npm:^2.2.0"
+  checksum: 10c0/bb6b3a58401dacdb0aad14360626faf3fb7fba4b77816b373495988b724fb48941cad80c1b65d62bb31a17609b2cd91c41a181602caea597ca80dfbcc27e84c9
   languageName: node
   linkType: hard
 
@@ -22905,6 +23029,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"systeminformation@npm:^5.22.11":
+  version: 5.31.7
+  resolution: "systeminformation@npm:5.31.7"
+  bin:
+    systeminformation: lib/cli.js
+  checksum: 10c0/0da74c1a74c3db401112abc7b5703aa2f42877558d8db9ce0a08eff7eb2b1a2c9415637adab42a17a25e4bb2075eb92fbba43283fb7ebdb701d9dd25d5c8a531
+  conditions: (os=darwin | os=linux | os=win32 | os=freebsd | os=openbsd | os=netbsd | os=sunos | os=android)
+  languageName: node
+  linkType: hard
+
 "tabbable@npm:^6.0.0":
   version: 6.4.0
   resolution: "tabbable@npm:6.4.0"
@@ -23823,6 +23957,13 @@ __metadata:
   version: 6.26.0
   resolution: "undici@npm:6.26.0"
   checksum: 10c0/cf2b4caf58c33d6582970991290cc7a6486d6e738845f25dcdd16952d708ec844815c6d30362919764fcaf30f719891289341f1ada496f003ce2700310453a47
+  languageName: node
+  linkType: hard
+
+"undici@npm:^7.11.0":
+  version: 7.28.0
+  resolution: "undici@npm:7.28.0"
+  checksum: 10c0/fe781983a26098795e99bb1f64906cbb7d0bcaa029a26baade007b53ea67f2631d189b8f9671a31f4c8d0cb3773b7559608628ba54452fef51fec90e7c78bb0d
   languageName: node
   linkType: hard
 
