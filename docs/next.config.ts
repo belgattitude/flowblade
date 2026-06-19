@@ -1,3 +1,6 @@
+import path from 'node:path';
+import url from 'node:url';
+
 import nextra from 'nextra';
 import pc from 'tinyrainbow';
 
@@ -9,6 +12,11 @@ const basePath = process.env.NEXT_BUILD_BASE_PATH ?? undefined;
 
 console.log(
   `- ${pc.green('info')} Next.js output mode is "${output ?? 'default'}"`
+);
+
+const monorepoRoot = path.resolve(
+  path.dirname(url.fileURLToPath(import.meta.url)),
+  '..'
 );
 
 const withNextra = nextra({
@@ -23,5 +31,11 @@ export default withNextra({
   typescript: {
     ignoreBuildErrors: buildEnv.NEXT_BUILD_IGNORE_TYPECHECK === 'true',
     tsconfigPath: buildEnv.NEXT_BUILD_TSCONFIG,
+  },
+  turbopack: {
+    root: monorepoRoot,
+  },
+  experimental: {
+    useLightningcss: true,
   },
 });
