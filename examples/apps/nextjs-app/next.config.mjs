@@ -61,6 +61,11 @@ let nextConfig = {
       exclude: ['nesting'],
     },
   },
+  /*
+  turbopack: {
+    root: monorepoRoot,
+  },
+  */
 
   async headers() {
     return [

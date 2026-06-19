@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.x, 22.x, 24.x, 26.x]
+        node-version: [22.x, 24.x, 26.x]
     env:
       TURBO_API: 'http://127.0.0.1:9080'
       TURBO_TEAM: 'flowblade'
@@ -59,23 +59,23 @@ jobs:
             ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-
 
       - name: 🕵️ Typecheck
-        if: matrix.node-version == '20.x'
+        if: matrix.node-version == '24.x'
         run: yarn turbo run typecheck --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🔬 ESLint checks
-        if: matrix.node-version == '20.x'
+        if: matrix.node-version == '24.x'
         run: yarn turbo run lint --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
-      - name: 🧪 Unit tests (no-coverage - node !== 20.x)
-        if: matrix.node-version != '20.x'
+      - name: 🧪 Unit tests (no-coverage - node !== 24.x)
+        if: matrix.node-version != '24.x'
         run: yarn turbo run test-unit --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
-      - name: 🧪 Unit tests (coverage - only node 20.x)
-        if: matrix.node-version == '20.x'
+      - name: 🧪 Unit tests (coverage - only node 24.x)
+        if: matrix.node-version == '24.x'
         run: yarn turbo run test-unit-coverage --filter='!@examples/*' --filter='!@docs/*'
 
       - name: ☂️ Codecov upload (only node-20)
-        if: matrix.node-version == '20.x'
+        if: matrix.node-version == '24.x'
         working-directory: ${{ github.workspace }}
         run: |
           bash .github/scripts/install-codecov.sh
@@ -85,22 +85,22 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: 🧪 Unit tests (edge-runtime)
-        if: matrix.node-version == '20.x'
+        if: matrix.node-version == '24.x'
         run: yarn turbo run test-unit-edge --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🏗 Build packages
         run: yarn turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 📐 Check build for size-limits
-        if: matrix.node-version == '20.x'
+        if: matrix.node-version == '24.x'
         run: yarn turbo run check-size --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🛟 Check build for ecmascript compliance
-        if: matrix.node-version == '20.x'
+        if: matrix.node-version == '24.x'
         run: yarn turbo run check-dist --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🛟 Check publishable dist (arethetypeswrong,publint)
-        if: matrix.node-version == '20.x'
+        if: matrix.node-version == '24.x'
         run: yarn turbo run check-pub --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🧪 Integration tests
