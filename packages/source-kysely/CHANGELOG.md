@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 1.4.3
+
+### Patch Changes
+
+- [#1234](https://github.com/belgattitude/flowblade/pull/1234) [`cef0302`](https://github.com/belgattitude/flowblade/commit/cef0302fe1fc22a14ffde17b1ece579c6d697ddf) Thanks [@belgattitude](https://github.com/belgattitude)! - Update to latest logtape 2.1.5
+
 ## 1.4.2
 
 ### Patch Changes
