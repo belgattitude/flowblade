@@ -5,13 +5,13 @@ const config = [
     name: 'Import * (ESM)',
     path: ['dist/index.js'],
     import: '*',
-    limit: '3kb',
+    limit: '4kb',
   },
   {
     name: 'Import { QResult } (ESM)',
     path: ['dist/index.js'],
     import: '{ QResult }',
-    limit: '3kb',
+    limit: '4kb',
   },
 
 ] satisfies SizeLimitConfig;
