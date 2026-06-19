@@ -38,6 +38,12 @@
     "docker-build": "cd docker && docker buildx bake --file ./docker-compose.yml",
     "docker-build-alpine": "cd docker && docker buildx bake --file ./docker-compose.alpine.yml"
   },
+  "browserslist": [
+    "chrome 111",
+    "edge 111",
+    "firefox 111",
+    "safari 16.4"
+  ],
   "dependencies": {
     "@duckdb/duckdb-wasm": "1.33.1-dev45.0",
     "@duckdb/node-api": "1.5.4-r.1",
@@ -172,6 +178,6 @@
     "vitest": "4.1.9"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=22.11.0"
   }
 }
