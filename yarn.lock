@@ -1540,7 +1540,7 @@ __metadata:
   resolution: "@docs/website@workspace:docs"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.15.0"
-    "@dotenvx/dotenvx": "npm:1.73.1"
+    "@dotenvx/dotenvx": "npm:1.74.2"
     "@t3-oss/env-nextjs": "npm:0.13.11"
     "@tailwindcss/postcss": "npm:4.3.1"
     "@total-typescript/ts-reset": "npm:0.6.1"
@@ -1573,7 +1573,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@dotenvx/dotenvx@npm:1.73.1, @dotenvx/dotenvx@npm:^1.48.4":
+"@dotenvx/dotenvx@npm:1.73.1":
   version: 1.73.1
   resolution: "@dotenvx/dotenvx@npm:1.73.1"
   dependencies:
@@ -1596,6 +1596,32 @@ __metadata:
   bin:
     dotenvx: src/cli/dotenvx.js
   checksum: 10c0/73dd540cd92c6b718f4e888855df7a8a6127fe1613e8a25bf3cfc2d569815f8a55511522058216c7f4cedcd17771581958928bbd604365ba6728cbc25ca51950
+  languageName: node
+  linkType: hard
+
+"@dotenvx/dotenvx@npm:1.74.2, @dotenvx/dotenvx@npm:^1.48.4":
+  version: 1.74.2
+  resolution: "@dotenvx/dotenvx@npm:1.74.2"
+  dependencies:
+    commander: "npm:^11.1.0"
+    conf: "npm:^10.2.0"
+    dotenv: "npm:^17.2.1"
+    eciesjs: "npm:^0.4.10"
+    enquirer: "npm:^2.4.1"
+    env-paths: "npm:^2.2.1"
+    execa: "npm:^5.1.1"
+    fdir: "npm:^6.2.0"
+    ignore: "npm:^5.3.0"
+    object-treeify: "npm:1.1.33"
+    open: "npm:^8.4.2"
+    picomatch: "npm:^4.0.4"
+    systeminformation: "npm:^5.22.11"
+    undici: "npm:^7.11.0"
+    which: "npm:^4.0.0"
+    yocto-spinner: "npm:^1.1.0"
+  bin:
+    dotenvx: src/cli/dotenvx.js
+  checksum: 10c0/5b20f84ff945b010ceb189df24d72a0f606ab61080252eeeef6ce25e748557425b4b33b9b8747f3ea9cbf96f3835d1323fde09c7825f760e9963c969111280f2
   languageName: node
   linkType: hard
 
@@ -2919,7 +2945,7 @@ __metadata:
   resolution: "@flowblade/sqlduck@workspace:packages/sqlduck"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.15.0"
-    "@dotenvx/dotenvx": "npm:1.73.1"
+    "@dotenvx/dotenvx": "npm:1.74.2"
     "@duckdb/node-api": "npm:1.5.4-r.1"
     "@faker-js/faker": "npm:10.5.0"
     "@flowblade/core": "workspace:^"
