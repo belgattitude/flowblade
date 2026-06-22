@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 1.5.0
+
+### Minor Changes
+
+- [#1244](https://github.com/belgattitude/flowblade/pull/1244) [`62b0d71`](https://github.com/belgattitude/flowblade/commit/62b0d71f02fa7290f94c2b55421b1842f722ce5d) Thanks [@belgattitude](https://github.com/belgattitude)! - Update to logtape 2.2.0
+
 ## 1.4.3
 
 ### Patch Changes
