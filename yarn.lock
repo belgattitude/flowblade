@@ -22613,7 +22613,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sql-formatter@npm:15.8.1, sql-formatter@npm:^15.8.1":
+"sql-formatter@npm:15.8.1":
   version: 15.8.1
   resolution: "sql-formatter@npm:15.8.1"
   dependencies:
@@ -22622,6 +22622,18 @@ __metadata:
   bin:
     sql-formatter: bin/sql-formatter-cli.cjs
   checksum: 10c0/bcfb435f601344a77f75baa4e9301a360e96f54077c56f3cd78d2b02abbc3a5bc37957d1f846642a0992d4c937ccf3cf02bf61feb128151b962a21802c7d1da9
+  languageName: node
+  linkType: hard
+
+"sql-formatter@npm:^15.8.1":
+  version: 15.8.2
+  resolution: "sql-formatter@npm:15.8.2"
+  dependencies:
+    argparse: "npm:^2.0.1"
+    nearley: "npm:^2.20.1"
+  bin:
+    sql-formatter: bin/sql-formatter-cli.cjs
+  checksum: 10c0/5ed8c5927f2ad20300a47397567749658411ff3813be9c4b989746e8e84465fc801b445685f218f5906e07b9ffd80b10a27b41fbd3c55fa4dd1ecfc2ad4dd759
   languageName: node
   linkType: hard
 
