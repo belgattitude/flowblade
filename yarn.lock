@@ -1579,7 +1579,7 @@ __metadata:
   resolution: "@docs/website@workspace:docs"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.15.0"
-    "@dotenvx/dotenvx": "npm:1.75.0"
+    "@dotenvx/dotenvx": "npm:1.75.1"
     "@t3-oss/env-nextjs": "npm:0.13.11"
     "@tailwindcss/postcss": "npm:4.3.1"
     "@total-typescript/ts-reset": "npm:0.6.1"
@@ -1612,7 +1612,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@dotenvx/dotenvx@npm:1.75.0, @dotenvx/dotenvx@npm:^1.48.4":
+"@dotenvx/dotenvx@npm:1.75.0":
   version: 1.75.0
   resolution: "@dotenvx/dotenvx@npm:1.75.0"
   dependencies:
@@ -1638,10 +1638,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@dotenvx/dotenvx@npm:1.75.1, @dotenvx/dotenvx@npm:^1.48.4":
+  version: 1.75.1
+  resolution: "@dotenvx/dotenvx@npm:1.75.1"
+  dependencies:
+    "@dotenvx/primitives": "npm:^0.8.0"
+    commander: "npm:^11.1.0"
+    conf: "npm:^10.2.0"
+    dotenv: "npm:^17.2.1"
+    enquirer: "npm:^2.4.1"
+    env-paths: "npm:^2.2.1"
+    execa: "npm:^5.1.1"
+    fdir: "npm:^6.2.0"
+    ignore: "npm:^5.3.0"
+    object-treeify: "npm:1.1.33"
+    open: "npm:^8.4.2"
+    picomatch: "npm:^4.0.4"
+    systeminformation: "npm:^5.22.11"
+    undici: "npm:^7.11.0"
+    which: "npm:^4.0.0"
+    yocto-spinner: "npm:^1.1.0"
+  bin:
+    dotenvx: src/cli/dotenvx.js
+  checksum: 10c0/982f9ae7e7dd447f01f232144f0e9d7dec2d1574c308c88bfd4924c5e5026ce77a60e519ada93e52b5a7b3e405410d541303947be5b47c67f0b366cec284bc10
+  languageName: node
+  linkType: hard
+
 "@dotenvx/primitives@npm:^0.7.1":
   version: 0.7.1
   resolution: "@dotenvx/primitives@npm:0.7.1"
   checksum: 10c0/c8bd072bb668a820cb48b0378108105163f220b70fe2d913ab9dd4c24a4454c7b8a3ab4e9f6535e76edc53de4c7d5417f79ad30130df174e77a5c573822225fd
+  languageName: node
+  linkType: hard
+
+"@dotenvx/primitives@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "@dotenvx/primitives@npm:0.8.0"
+  checksum: 10c0/e0dfe65b9df534c753db2b1d0a426cbc27395a04eb2f143e0981a9669a6f444b17c984efdbc05c03e93c0fd002402372f2f6195a58dd2aa2a9669f8d6d1d6680
   languageName: node
   linkType: hard
 
@@ -2949,7 +2982,7 @@ __metadata:
   resolution: "@flowblade/sqlduck@workspace:packages/sqlduck"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.15.0"
-    "@dotenvx/dotenvx": "npm:1.75.0"
+    "@dotenvx/dotenvx": "npm:1.75.1"
     "@duckdb/node-api": "npm:1.5.4-r.1"
     "@faker-js/faker": "npm:10.5.0"
     "@flowblade/core": "workspace:^"
