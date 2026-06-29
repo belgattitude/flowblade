@@ -171,7 +171,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/core-auth@npm:^1.10.0, @azure/core-auth@npm:^1.3.0, @azure/core-auth@npm:^1.7.2, @azure/core-auth@npm:^1.9.0":
+"@azure/core-auth@npm:^1.10.0, @azure/core-auth@npm:^1.10.1, @azure/core-auth@npm:^1.3.0, @azure/core-auth@npm:^1.7.2, @azure/core-auth@npm:^1.9.0":
   version: 1.10.1
   resolution: "@azure/core-auth@npm:1.10.1"
   dependencies:
@@ -253,7 +253,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/identity@npm:^4.2.1":
+"@azure/identity@npm:^4.13.1, @azure/identity@npm:^4.2.1":
   version: 4.13.1
   resolution: "@azure/identity@npm:4.13.1"
   dependencies:
@@ -288,7 +288,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/keyvault-keys@npm:^4.4.0":
+"@azure/keyvault-keys@npm:^4.10.2, @azure/keyvault-keys@npm:^4.4.0":
   version: 4.10.2
   resolution: "@azure/keyvault-keys@npm:4.10.2"
   dependencies:
@@ -2853,7 +2853,7 @@ __metadata:
     rimraf: "npm:6.1.3"
     size-limit: "npm:12.1.0"
     tarn: "npm:3.0.2"
-    tedious: "npm:19.2.1"
+    tedious: "npm:20.0.0"
     tsdown: "npm:0.22.3"
     tsx: "npm:4.22.4"
     type-fest: "npm:^5.7.0"
@@ -2865,7 +2865,7 @@ __metadata:
   peerDependencies:
     kysely: ^0.28.10 || ^0.29.0
     tarn: ^3.0.2
-    tedious: ^19.2.0
+    tedious: ^19.2.0 || ^20.0.0
   peerDependenciesMeta:
     tarn:
       optional: true
@@ -2997,7 +2997,7 @@ __metadata:
     size-limit: "npm:12.1.0"
     sql-formatter: "npm:15.8.2"
     tarn: "npm:3.0.2"
-    tedious: "npm:19.2.1"
+    tedious: "npm:20.0.0"
     testcontainers: "npm:12.0.3"
     tsdown: "npm:0.22.3"
     tsx: "npm:4.22.4"
@@ -3676,6 +3676,13 @@ __metadata:
   version: 5.7.0
   resolution: "@js-joda/core@npm:5.7.0"
   checksum: 10c0/09f6dd077d070593b9546a02c65cf1e013563235b585902437dac6fae967deb5a5041b6863046d6713b6ea3d98f12b5b1f16737afc4cb1e14bdbaa4adce64c1a
+  languageName: node
+  linkType: hard
+
+"@js-joda/core@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "@js-joda/core@npm:6.0.1"
+  checksum: 10c0/d65dcca509a60d70e492e922902b6687594e8b61bcc3f3b3fc9a56b36dbd8bfec8b94dd1daf6a697506edb3080c6e106a03f23930020c83200a869a7d0d2958d
   languageName: node
   linkType: hard
 
@@ -8839,7 +8846,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:26.0.1, @types/node@npm:>=13.7.0, @types/node@npm:>=18, @types/node@npm:>=20.0.0":
+"@types/node@npm:*, @types/node@npm:26.0.1, @types/node@npm:>=13.7.0, @types/node@npm:>=18, @types/node@npm:>=20.0.0, @types/node@npm:>=22":
   version: 26.0.1
   resolution: "@types/node@npm:26.0.1"
   dependencies:
@@ -24167,6 +24174,24 @@ __metadata:
     native-duplexpair: "npm:^1.0.0"
     sprintf-js: "npm:^1.1.3"
   checksum: 10c0/55b2421091dc2933cc91d681f64d35b1b2fba2cc6d32ce6eb15cd3444fad0399c640f2c9fb0b71cc075f08e56b63153de232fd6bc65b379ace55d4ff79f8a5f2
+  languageName: node
+  linkType: hard
+
+"tedious@npm:20.0.0":
+  version: 20.0.0
+  resolution: "tedious@npm:20.0.0"
+  dependencies:
+    "@azure/core-auth": "npm:^1.10.1"
+    "@azure/identity": "npm:^4.13.1"
+    "@azure/keyvault-keys": "npm:^4.10.2"
+    "@js-joda/core": "npm:^6.0.1"
+    "@types/node": "npm:>=22"
+    bl: "npm:^6.1.4"
+    iconv-lite: "npm:^0.7.0"
+    js-md4: "npm:^0.3.2"
+    native-duplexpair: "npm:^1.0.0"
+    sprintf-js: "npm:^1.1.3"
+  checksum: 10c0/a6306899295d1f3d6283ab55218c70c56f386af5c9c99fb347d0550314cf43df6b73d28791ae60bba3eed3bc7adc9e426a80e2bd967a0cb90e9b4ebcb92a685b
   languageName: node
   linkType: hard
 
