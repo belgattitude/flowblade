@@ -2853,7 +2853,7 @@ __metadata:
     rimraf: "npm:6.1.3"
     size-limit: "npm:12.1.0"
     tarn: "npm:3.0.2"
-    tedious: "npm:19.2.1"
+    tedious: "npm:19.2.2"
     tsdown: "npm:0.22.3"
     tsx: "npm:4.22.4"
     type-fest: "npm:^5.7.0"
@@ -2997,7 +2997,7 @@ __metadata:
     size-limit: "npm:12.1.0"
     sql-formatter: "npm:15.8.2"
     tarn: "npm:3.0.2"
-    tedious: "npm:19.2.1"
+    tedious: "npm:19.2.2"
     testcontainers: "npm:12.0.3"
     tsdown: "npm:0.22.3"
     tsx: "npm:4.22.4"
@@ -3676,6 +3676,13 @@ __metadata:
   version: 5.7.0
   resolution: "@js-joda/core@npm:5.7.0"
   checksum: 10c0/09f6dd077d070593b9546a02c65cf1e013563235b585902437dac6fae967deb5a5041b6863046d6713b6ea3d98f12b5b1f16737afc4cb1e14bdbaa4adce64c1a
+  languageName: node
+  linkType: hard
+
+"@js-joda/core@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "@js-joda/core@npm:6.0.1"
+  checksum: 10c0/d65dcca509a60d70e492e922902b6687594e8b61bcc3f3b3fc9a56b36dbd8bfec8b94dd1daf6a697506edb3080c6e106a03f23930020c83200a869a7d0d2958d
   languageName: node
   linkType: hard
 
@@ -24167,6 +24174,24 @@ __metadata:
     native-duplexpair: "npm:^1.0.0"
     sprintf-js: "npm:^1.1.3"
   checksum: 10c0/55b2421091dc2933cc91d681f64d35b1b2fba2cc6d32ce6eb15cd3444fad0399c640f2c9fb0b71cc075f08e56b63153de232fd6bc65b379ace55d4ff79f8a5f2
+  languageName: node
+  linkType: hard
+
+"tedious@npm:19.2.2":
+  version: 19.2.2
+  resolution: "tedious@npm:19.2.2"
+  dependencies:
+    "@azure/core-auth": "npm:^1.7.2"
+    "@azure/identity": "npm:^4.2.1"
+    "@azure/keyvault-keys": "npm:^4.4.0"
+    "@js-joda/core": "npm:^6.0.1"
+    "@types/node": "npm:>=18"
+    bl: "npm:^6.1.4"
+    iconv-lite: "npm:^0.7.0"
+    js-md4: "npm:^0.3.2"
+    native-duplexpair: "npm:^1.0.0"
+    sprintf-js: "npm:^1.1.3"
+  checksum: 10c0/edb2fe56e9878a269e2c2d3a81213b06b285c42e5788200d76c5ed738e86940689cef244b2cf830e1f058ad2cce0017d88508fdf9631193118124e57fb5c0719
   languageName: node
   linkType: hard
 
