@@ -17,12 +17,7 @@ export type RequestConfig<TData = unknown> = {
   params?: ExtendedQuerySearchParams;
   data?: TData | FormData;
   responseType?:
-    | 'arraybuffer'
-    | 'blob'
-    | 'document'
-    | 'json'
-    | 'text'
-    | 'stream';
+    'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream';
   signal?: AbortSignal;
   headers?: HeadersInit;
 };

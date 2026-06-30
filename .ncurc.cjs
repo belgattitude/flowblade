@@ -40,6 +40,7 @@ const npmPreapprovedPackages = [
   '@valibot/*',
   '@standard-schema/*',
   'shadcn',
+  '@shadcn/*',
   '@logtape/*',
 ];
 
