@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 1.6.0
+
+### Minor Changes
+
+- [#1266](https://github.com/belgattitude/flowblade/pull/1266) [`8ca2065`](https://github.com/belgattitude/flowblade/commit/8ca206543d265375ed3347c73e8005af52657b9f) Thanks [@belgattitude](https://github.com/belgattitude)! - Allow tedious 20
+
 ## 1.5.0
 
 ### Minor Changes
