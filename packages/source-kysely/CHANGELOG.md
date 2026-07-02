@@ -1,5 +1,15 @@
 # @flowblade/source-kysely
 
+## 1.6.1
+
+### Patch Changes
+
+- [#1271](https://github.com/belgattitude/flowblade/pull/1271) [`b51dafb`](https://github.com/belgattitude/flowblade/commit/b51dafbf953f233b58929bbd96c91807b4916b63) Thanks [@belgattitude](https://github.com/belgattitude)! - Minimum logtape is now 2.2.2 in peer-deps
+
+  ```
+  @logtape/logtape                   ^2.2.1  →  ^2.2.2
+  ```
+
 ## 1.6.0
 
 ### Minor Changes
