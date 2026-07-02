@@ -1,5 +1,24 @@
 # @flowblade/sqlduck
 
+## 0.31.0
+
+### Minor Changes
+
+- [#1274](https://github.com/belgattitude/flowblade/pull/1274) [`84df980`](https://github.com/belgattitude/flowblade/commit/84df980529798feb15501a67187543839a537a21) Thanks [@belgattitude](https://github.com/belgattitude)! - Support custom date when specified as meta
+
+  You can now specify a custom date type when using the `duckdbType` meta.
+  The create table will now use duckdb DATE type instead of VARCHAR.
+
+  ```typescript
+  export const testFullSupportedColumnsZodSchema = z.strictObject({
+    custom_date_only_type: z.string().meta({
+      duckdbType: "DATE",
+    }),
+  });
+  ```
+
+  See https://duckdb.org/docs/lts/sql/data_types/date
+
 ## 0.30.1
 
 ### Patch Changes
