@@ -1,6 +1,7 @@
 import {
   BIGINT,
   BOOLEAN,
+  DATE,
   DECIMAL,
   DOUBLE,
   type DuckDBType,
@@ -54,6 +55,7 @@ describe('getTableCreateFromZod', () => {
                 is_active BOOLEAN,
                 alt_uuid_v7 UUID NOT NULL,
                 custom_type UUID NOT NULL,
+                custom_date_only_type DATE NOT NULL,
                 js_enum ENUM('a', 'b', 'c') NOT NULL,
                 decimal_18_3 DECIMAL(18, 3) NOT NULL
                )`,
@@ -100,6 +102,7 @@ describe('getTableCreateFromZod', () => {
           ['is_active', BOOLEAN],
           ['alt_uuid_v7', UUID],
           ['custom_type', UUID],
+          ['custom_date_only_type', DATE],
           ['js_enum', ENUM(['a', 'b', 'c'])],
           ['decimal_18_3', DECIMAL(18, 3)],
         ])

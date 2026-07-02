@@ -1,6 +1,7 @@
 import {
   BIGINT,
   BOOLEAN,
+  DATE,
   DOUBLE,
   DuckDBDecimalType,
   type DuckDBType,
@@ -62,6 +63,7 @@ const duckDbTypes = [
   ['INTEGER', INTEGER],
   ['DOUBLE', DOUBLE],
   ['FLOAT', FLOAT],
+  ['DATE', DATE],
   // to get the proper type, we just instanciate the default
   ['DECIMAL', new DuckDBDecimalType(18, 3)],
 ] as const satisfies [string, DuckDBType][];
