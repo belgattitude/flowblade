@@ -93,7 +93,8 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
     def: {
       type: 'number' | 'integer' | 'string' | 'boolean';
       nullable: boolean | undefined;
-      format: 'date-time' | 'int64' | 'uuid' | 'cuid' | 'cuid2' | undefined;
+      format:
+        'date' | 'date-time' | 'int64' | 'uuid' | 'cuid' | 'cuid2' | undefined;
       primaryKey: boolean | undefined;
       minimum?: number;
       maximum?: number;
@@ -126,6 +127,9 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
             c.duckdbType = ENUM(def.enum);
           } else {
             switch (format) {
+              case 'date':
+                c.duckdbType = DATE;
+                break;
               case 'date-time':
                 c.duckdbType = TIMESTAMP_MS;
                 break;

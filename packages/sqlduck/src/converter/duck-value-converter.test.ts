@@ -1,4 +1,7 @@
-import { DuckDBTimestampMillisecondsValue } from '@duckdb/node-api';
+import {
+  DuckDBDateValue,
+  DuckDBTimestampMillisecondsValue,
+} from '@duckdb/node-api';
 import { describe } from 'vitest';
 
 import { DuckValueConverter } from './duck-value-converter.ts';
@@ -68,11 +71,50 @@ describe('DuckValueConverter', () => {
       );
     });
     it('should convert an YYYY-mm-dd to a DuckDBTimestampValue', () => {
-      const dateYmd = '2023-12-28'; // new Date().toISOString()
+      const dateYmd = '2026-12-28'; // new Date().toISOString()
       expect(converter.toTimestampMs(dateYmd)).toStrictEqual(
         new DuckDBTimestampMillisecondsValue(
           BigInt(new Date(`${dateYmd}T00:00:00.000Z`).getTime())
         )
+      );
+    });
+  });
+  describe('toDate', () => {
+    it('should convert string date ymd', () => {
+      const dateStrYmd = '2026-12-28';
+      expect(converter.toDate(dateStrYmd)).toStrictEqual(
+        new DuckDBDateValue(20_815)
+      );
+    });
+
+    it('should convert iso string date (ignoring tz)', () => {
+      const isoDateStr = '2026-12-28T23:59:59.653Z';
+      expect(converter.toDate(isoDateStr)).toStrictEqual(
+        new DuckDBDateValue(20_815)
+      );
+    });
+    it('should accept a date', () => {
+      const isoDate = new Date('2026-12-28T23:59:59.653Z');
+      expect(converter.toDate(isoDate)).toStrictEqual(
+        new DuckDBDateValue(20_815)
+      );
+    });
+    it('should throw when the date is garbage', () => {
+      const garbageDate = '2026-30-30';
+      expect(() => converter.toDate(garbageDate)).toThrow(
+        '[DuckValueConverter.toDate]: Unsupported type string with value "2026-30-30"'
+      );
+    });
+    it('should return null when undefined is given', () => {
+      expect(converter.toDate(undefined)).toStrictEqual(null);
+    });
+    it('should return null when null is given', () => {
+      expect(converter.toDate(null)).toStrictEqual(null);
+    });
+    it('should throw when a boolean is given', () => {
+      // @ts-expect-error for testing
+      expect(() => converter.toDate(true)).toThrow(
+        '[DuckValueConverter.toDate]: Unsupported type boolean with value true'
       );
     });
   });

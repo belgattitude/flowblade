@@ -29,11 +29,14 @@ type DB = {
     positive_bigint: string | null;
     negative_bigint: string | null;
     null_column: number | null;
+    iso_date: Date | null;
     decimal_18_3: number;
   };
 };
 
 const testDataCount = isInCi ? 2500 : 5000;
+
+const anIsoDate = new Date('2026-12-28T23:59:59.653Z');
 
 const data = Array.from({ length: testDataCount }).map((_v, idx) => {
   return {
@@ -42,6 +45,7 @@ const data = Array.from({ length: testDataCount }).map((_v, idx) => {
     decimal_18_3: Number.parseFloat(
       `${idx + 1}.${((idx + 1) % 1000).toString(10).padStart(3, '0')}`
     ),
+    iso_date: anIsoDate,
   };
 });
 
@@ -60,7 +64,8 @@ const getMigrations = (
                positive_bigint BIGINT,
                negative_bigint BIGINT,
                null_column INT,
-               decimal_18_3 DECIMAL(18,3),            
+               decimal_18_3 DECIMAL(18,3),
+               iso_date DATE,
             );`
       );
 
@@ -69,12 +74,13 @@ const getMigrations = (
         DECLARE @Data NVARCHAR(MAX); -- WARNING LIMIT TO 2GB
         SET @Data = ${JSON.stringify(data)};
 
-        INSERT INTO TestTable (id, name, decimal_18_3)
-        SELECT id, name, decimal_18_3
+        INSERT INTO TestTable (id, name, decimal_18_3, iso_date)
+        SELECT id, name, decimal_18_3, iso_date
         FROM OPENJSON(@Data) WITH (
           id INT,
           name NVARCHAR(255),
-          decimal_18_3 DECIMAL(18,3)      
+          decimal_18_3 DECIMAL(18,3),
+          iso_date DATE
         );
       `;
 
@@ -135,6 +141,7 @@ describe('MSSQL e2e tests', () => {
             't.negative_bigint',
             't.null_column',
             't.decimal_18_3',
+            't.iso_date',
           ]);
 
         const { data, error } = await mssqlDs.query(query);
@@ -147,6 +154,10 @@ describe('MSSQL e2e tests', () => {
           negative_bigint: negativeBigint.toString(10),
           null_column: null,
           decimal_18_3: 1.001,
+          // sqlserver will return the date as js date with T00:00:00.000Z
+          iso_date: new Date(
+            `${anIsoDate.toISOString().split('T')[0]}T00:00:00.000Z`
+          ),
         });
       },
       testTimeout
@@ -163,6 +174,7 @@ describe('MSSQL e2e tests', () => {
           'negative_bigint',
           'null_column',
           'decimal_18_3',
+          'iso_date',
         ]);
 
       const rowStream = mssqlDs.stream(query, {
@@ -191,6 +203,7 @@ describe('MSSQL e2e tests', () => {
         decimal_18_3: z.float32().meta({
           multipleOf: 0.001,
         }),
+        iso_date: z.nullable(z.iso.date()),
       });
 
       const { totalRows } = await sqlDuck.toTable({
@@ -214,6 +227,7 @@ describe('MSSQL e2e tests', () => {
             negative_bigint: negativeBigint.toString(10),
             positive_bigint: positiveBigint.toString(10),
             null_column: null,
+            iso_date: anIsoDate.toISOString().split('T')[0],
             decimal_18_3: `${row.id + 1}.${((row.id + 1) % 1000).toString(10).padStart(3, '0')}`,
           };
         })
