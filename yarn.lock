@@ -1587,7 +1587,7 @@ __metadata:
   resolution: "@docs/website@workspace:docs"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.17.0"
-    "@dotenvx/dotenvx": "npm:1.75.1"
+    "@dotenvx/dotenvx": "npm:2.3.3"
     "@t3-oss/env-nextjs": "npm:0.13.11"
     "@tailwindcss/postcss": "npm:4.3.2"
     "@total-typescript/ts-reset": "npm:0.6.1"
@@ -1646,10 +1646,50 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@dotenvx/dotenvx@npm:2.3.3":
+  version: 2.3.3
+  resolution: "@dotenvx/dotenvx@npm:2.3.3"
+  dependencies:
+    "@dotenvx/primitives": "npm:^1.7.2"
+    "@dotenvx/tooling": "npm:^0.2.0"
+    conf: "npm:^10.2.0"
+    enquirer: "npm:^2.4.1"
+    env-paths: "npm:^2.2.1"
+    execa: "npm:^5.1.1"
+    fdir: "npm:^6.2.0"
+    ignore: "npm:^7.0.5"
+    object-treeify: "npm:1.1.33"
+    open: "npm:^8.4.2"
+    picomatch: "npm:^4.0.4"
+    synckit: "npm:0.11.13"
+    systeminformation: "npm:^5.31.11"
+    undici: "npm:^7.11.0"
+    which: "npm:^6.0.1"
+    yocto-spinner: "npm:^1.2.0"
+  bin:
+    dotenvx: src/cli/dotenvx.js
+  checksum: 10c0/7144e07be7575de56fcc81ae1899f29c98b91f6a701ecfb0fe08b774b0ceac30f59cf8d4476df69b2fde5788aaa2c28585c69d743991e24f6615902467158a99
+  languageName: node
+  linkType: hard
+
 "@dotenvx/primitives@npm:^0.8.0":
   version: 0.8.0
   resolution: "@dotenvx/primitives@npm:0.8.0"
   checksum: 10c0/e0dfe65b9df534c753db2b1d0a426cbc27395a04eb2f143e0981a9669a6f444b17c984efdbc05c03e93c0fd002402372f2f6195a58dd2aa2a9669f8d6d1d6680
+  languageName: node
+  linkType: hard
+
+"@dotenvx/primitives@npm:^1.7.2":
+  version: 1.8.0
+  resolution: "@dotenvx/primitives@npm:1.8.0"
+  checksum: 10c0/c82373580b6a1831ece4fefce69917fdfc04c97e591a6d09b201a0efb771e0f265b196d503d1acf7f7a30299ce0ffb467d22258b521d50ecec2dad1185eb0cdf
+  languageName: node
+  linkType: hard
+
+"@dotenvx/tooling@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@dotenvx/tooling@npm:0.2.0"
+  checksum: 10c0/0159e11143c7ea1f2052c9fcdc8b131a409ab552f2772b37150cfe89cce4985117e3f933441ba5c2dfb99ef2979783dd54904abf7279638602d6f1bb0008d602
   languageName: node
   linkType: hard
 
@@ -2961,7 +3001,7 @@ __metadata:
   resolution: "@flowblade/sqlduck@workspace:packages/sqlduck"
   dependencies:
     "@belgattitude/eslint-config-bases": "npm:8.17.0"
-    "@dotenvx/dotenvx": "npm:1.75.1"
+    "@dotenvx/dotenvx": "npm:2.3.3"
     "@duckdb/node-api": "npm:1.5.4-r.1"
     "@faker-js/faker": "npm:10.5.0"
     "@flowblade/core": "workspace:^"
@@ -23891,7 +23931,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"synckit@npm:^0.11.13":
+"synckit@npm:0.11.13, synckit@npm:^0.11.13":
   version: 0.11.13
   resolution: "synckit@npm:0.11.13"
   dependencies:
@@ -23998,12 +24038,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"systeminformation@npm:^5.22.11":
-  version: 5.31.7
-  resolution: "systeminformation@npm:5.31.7"
+"systeminformation@npm:^5.22.11, systeminformation@npm:^5.31.11":
+  version: 5.31.15
+  resolution: "systeminformation@npm:5.31.15"
   bin:
     systeminformation: lib/cli.js
-  checksum: 10c0/0da74c1a74c3db401112abc7b5703aa2f42877558d8db9ce0a08eff7eb2b1a2c9415637adab42a17a25e4bb2075eb92fbba43283fb7ebdb701d9dd25d5c8a531
+  checksum: 10c0/ee6480354914cf79c36b91986975b71e464e0190ed7c76e416e00415023294ae25152e080663767ad261936293351d9d38249b7cd0456ee9489878f3f08a4862
   conditions: (os=darwin | os=linux | os=win32 | os=freebsd | os=openbsd | os=netbsd | os=sunos | os=android)
   languageName: node
   linkType: hard
@@ -25751,6 +25791,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"which@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "which@npm:6.0.1"
+  dependencies:
+    isexe: "npm:^4.0.0"
+  bin:
+    node-which: bin/which.js
+  checksum: 10c0/7e710e54ea36d2d6183bee2f9caa27a3b47b9baf8dee55a199b736fcf85eab3b9df7556fca3d02b50af7f3dfba5ea3a45644189836df06267df457e354da66d5
+  languageName: node
+  linkType: hard
+
 "which@npm:^7.0.0":
   version: 7.0.0
   resolution: "which@npm:7.0.0"
@@ -26121,12 +26172,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yocto-spinner@npm:1.2.0, yocto-spinner@npm:^1.1.0":
+"yocto-spinner@npm:1.2.0":
   version: 1.2.0
   resolution: "yocto-spinner@npm:1.2.0"
   dependencies:
     yoctocolors: "npm:^2.1.1"
   checksum: 10c0/8d5ee832f022c741a9e2f59fc4c50403517eda405e774b27fbfc64d871a172d4762bc6b50614af0ceff289ebb176ae0e979ead072af9b10b3c176fdb1d1c042e
+  languageName: node
+  linkType: hard
+
+"yocto-spinner@npm:^1.1.0, yocto-spinner@npm:^1.2.0":
+  version: 1.2.1
+  resolution: "yocto-spinner@npm:1.2.1"
+  dependencies:
+    yoctocolors: "npm:^2.1.1"
+  checksum: 10c0/38728d11d33c3f3645ae453a04532f112aff988bec57676449783ebceeea5368f3c2ee18ea8996166efcc472379024f2af57e991f4f1ddba784ab3f8ff9c5678
   languageName: node
   linkType: hard
 
