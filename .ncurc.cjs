@@ -68,6 +68,12 @@ module.exports = defineConfig({
     // Cause v9 isn't yet supported
     'eslint',
 
+    // typescript v7 isn't installable with yarn
+    // when it coexist with typescript 6
+    'typescript',
+
+    'primereact',
+
     // duckdb-wasm depends on an older version of arrow
     'apache-arrow',
 

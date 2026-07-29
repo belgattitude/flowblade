@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
-import { execaCommandSync } from 'execa';
+import { execaSync } from 'execa';
 
 import { fixSqlServerNullUniqueIndexes } from './hacks/fix-sql-server-null-unique-indexes';
 import type { ILogger } from './logger/logger.interface';
@@ -71,7 +71,7 @@ export class PrismaDdl {
   };
 
   execPrismaCliOrThrow = (cmd: string, errorMsg: string) => {
-    const result = execaCommandSync(cmd, {
+    const result = execaSync(cmd, {
       shell: true,
       reject: false,
       encoding: 'utf8',
