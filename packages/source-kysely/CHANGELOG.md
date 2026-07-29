@@ -1,5 +1,13 @@
 # @flowblade/source-kysely
 
+## 1.6.2
+
+### Patch Changes
+
+- [#1293](https://github.com/belgattitude/flowblade/pull/1293) [`7e3e040`](https://github.com/belgattitude/flowblade/commit/7e3e0406d42e762c0dd9ffd93a263271d16bed79) Thanks [@belgattitude](https://github.com/belgattitude)! - Allow tedious ^20 as optional peer dependency
+
+- [#1293](https://github.com/belgattitude/flowblade/pull/1293) [`7e3e040`](https://github.com/belgattitude/flowblade/commit/7e3e0406d42e762c0dd9ffd93a263271d16bed79) Thanks [@belgattitude](https://github.com/belgattitude)! - Update to logtape to 2.2.4
+
 ## 1.6.1
 
 ### Patch Changes
