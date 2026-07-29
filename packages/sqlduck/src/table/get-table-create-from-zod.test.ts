@@ -32,6 +32,7 @@ describe('getTableCreateFromZod', () => {
             create: 'CREATE_OR_REPLACE',
           },
         });
+
         const duckdbFmtDialect = {
           dialect: duckDbDialect,
           useTabs: false,
@@ -56,6 +57,7 @@ describe('getTableCreateFromZod', () => {
                 alt_uuid_v7 UUID NOT NULL,
                 custom_type UUID NOT NULL,
                 custom_date_only_type DATE NOT NULL,
+                iso_date DATE NOT NULL,
                 js_enum ENUM('a', 'b', 'c') NOT NULL,
                 decimal_18_3 DECIMAL(18, 3) NOT NULL
                )`,
@@ -103,6 +105,7 @@ describe('getTableCreateFromZod', () => {
           ['alt_uuid_v7', UUID],
           ['custom_type', UUID],
           ['custom_date_only_type', DATE],
+          ['iso_date', DATE],
           ['js_enum', ENUM(['a', 'b', 'c'])],
           ['decimal_18_3', DECIMAL(18, 3)],
         ])
@@ -122,7 +125,7 @@ describe('getTableCreateFromZod', () => {
           // @ts-expect-error schema cannot contain a nested object
           schema: schema,
         })
-      ).toThrowError();
+      ).toThrow();
     });
   });
 });

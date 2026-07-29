@@ -1,4 +1,5 @@
 import {
+  DuckDBDateValue,
   DuckDBDecimalValue,
   DuckDBTimestampMillisecondsValue,
 } from '@duckdb/node-api';
@@ -7,6 +8,8 @@ const stringTimestampRegexp =
   /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d{3,6})?Z?$/i;
 
 const dateRegexp = /^\d{4}-\d{2}-\d{2}$/;
+
+const msInDay = 86_400_000;
 
 const createDuckValueConverterTypeError = (params: {
   method: keyof typeof DuckValueConverter.prototype;
@@ -24,6 +27,10 @@ const createDuckValueConverterTypeError = (params: {
 };
 
 export class DuckValueConverter {
+  /**
+   *
+   * @param value
+   */
   toUUID = (value: string | bigint | null | undefined): bigint | null => {
     if (typeof value === 'bigint') {
       return value;
@@ -62,10 +69,34 @@ export class DuckValueConverter {
       if (typeof value === 'bigint') {
         return new DuckDBDecimalValue(value, width, scale);
       }
-      throw new TypeError(
-        'Decimal converter require value to be a number or a bigint'
-      );
+      throw createDuckValueConverterTypeError({
+        method: 'createDecimalConverter',
+        value,
+      });
     };
+
+  toDate = (value: Date | string | null | undefined) => {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    let dateInMs: number | null = null;
+    if (typeof value === 'string' && value.length >= 10 && value.length < 30) {
+      const dateStr = value.slice(0, 10);
+      const utcDate = new Date(`${dateStr}T00:00:00Z`);
+      dateInMs = Math.floor(utcDate.getTime());
+    } else if (value instanceof Date) {
+      dateInMs = Math.floor(value.getTime());
+    }
+    if (dateInMs !== null && !Number.isNaN(dateInMs)) {
+      return new DuckDBDateValue(Math.floor(dateInMs / msInDay));
+    }
+    throw createDuckValueConverterTypeError({
+      method: 'toDate',
+      value,
+    });
+  };
+
   toBigIntString = (
     value: string | number | bigint | null | undefined
   ): string | null => {

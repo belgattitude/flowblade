@@ -51,6 +51,9 @@ export const createDuckColumnConverters = <
       case DuckDBTypeId.DECIMAL:
         conv = converter.createDecimalConverter(18, 3);
         break;
+      case DuckDBTypeId.DATE:
+        conv = converter.toDate;
+        break;
       default:
         throw new Error(
           `Unsupported duck type ${duckTypeId} / ${duckType.toString()} for column '${key}'`
