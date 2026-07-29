@@ -72,6 +72,7 @@ module.exports = defineConfig({
     // when it coexist with typescript 6
     'typescript',
 
+    'primereact',
 
     // duckdb-wasm depends on an older version of arrow
     'apache-arrow',
