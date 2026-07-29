@@ -29,7 +29,7 @@ jobs:
       - name: Use Node.js 24.x
         uses: actions/setup-node@v7
         with:
-          node-version: 24.x
+          node-version: 24.18.0
           package-manager-cache: false
 
       - name: 📥 Monorepo install
