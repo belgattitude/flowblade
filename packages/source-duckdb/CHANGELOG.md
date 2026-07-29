@@ -1,5 +1,15 @@
 # @flowblade/source-duckdb
 
+## 0.26.0
+
+### Minor Changes
+
+- [#1293](https://github.com/belgattitude/flowblade/pull/1293) [`7e3e040`](https://github.com/belgattitude/flowblade/commit/7e3e0406d42e762c0dd9ffd93a263271d16bed79) Thanks [@belgattitude](https://github.com/belgattitude)! - Minimum duckdb version from 1.5.4-r.1 to 1.5.5-r.2
+
+### Patch Changes
+
+- [#1293](https://github.com/belgattitude/flowblade/pull/1293) [`7e3e040`](https://github.com/belgattitude/flowblade/commit/7e3e0406d42e762c0dd9ffd93a263271d16bed79) Thanks [@belgattitude](https://github.com/belgattitude)! - Update to logtape to 2.2.4
+
 ## 0.25.1
 
 ### Patch Changes
