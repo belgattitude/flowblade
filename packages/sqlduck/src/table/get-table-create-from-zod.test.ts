@@ -32,6 +32,7 @@ describe('getTableCreateFromZod', () => {
             create: 'CREATE_OR_REPLACE',
           },
         });
+
         const duckdbFmtDialect = {
           dialect: duckDbDialect,
           useTabs: false,
@@ -124,7 +125,7 @@ describe('getTableCreateFromZod', () => {
           // @ts-expect-error schema cannot contain a nested object
           schema: schema,
         })
-      ).toThrowError();
+      ).toThrow();
     });
   });
 });

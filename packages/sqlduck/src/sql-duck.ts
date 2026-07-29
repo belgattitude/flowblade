@@ -20,6 +20,7 @@ import { createTableFromZod } from './table/create-table-from-zod.ts';
 import type { TableCreateOptions } from './table/get-table-create-from-zod.ts';
 import type { TableSchemaZod } from './table/table-schema-zod.type.ts';
 import { rowsToColumnsChunks } from './utils/rows-to-columns-chunks.ts';
+import type { InferZodRelaxedDataSchema } from './validation/zod/index.ts';
 
 export type SqlDuckParams = {
   conn: DuckDBConnection;
@@ -48,7 +49,7 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
    * An iterable (async or sync) or generator that yields rows to be inserted.
    * Each row must match the structure defined in the `schema`.
    */
-  rowStream: RowStream<z.infer<TSchema>>;
+  rowStream: RowStream<InferZodRelaxedDataSchema<TSchema>>;
   /**
    * The number of rows to accumulate before appending them to the DuckDB table as a single data chunk.
    * Tuning this value can impact memory usage and insertion performance.
@@ -262,7 +263,9 @@ export class SqlDuck {
 
     const chunkAppendedCollector = createOnChunkAppendedCollector();
 
-    const columnStream = rowsToColumnsChunks<z.output<TSchema>>({
+    const columnStream = rowsToColumnsChunks<
+      InferZodRelaxedDataSchema<TSchema>
+    >({
       rows: rowStream,
       chunkSize: chunkSize,
       transformers: transformers,
@@ -283,7 +286,7 @@ export class SqlDuck {
         // eslint-disable-next-line unicorn/no-new-array, @typescript-eslint/no-explicit-any
         const columns = new Array<any[]>(numColumns);
         for (let i = 0; i < numColumns; i++) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-member-access
           columns[i] = dataChunk[columnKeys[i]] as any[];
         }
 

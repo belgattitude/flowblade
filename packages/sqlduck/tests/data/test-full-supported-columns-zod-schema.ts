@@ -26,23 +26,9 @@ export const testFullSupportedColumnsZodSchema = z.strictObject({
   custom_date_only_type: z.string().meta({
     duckdbType: 'DATE',
   }),
-  // iso_date: z.iso.date(),
-  iso_date: z.codec(
-    z.date(), // Input schema (Date object)
-    z.iso.date(), // Output schema (Iso date string)
-    {
-      decode: (date) => date.toISOString().split('T')[0]!,
-      encode: (isoString) => new Date(isoString),
-    }
-  ),
+  iso_date: z.iso.date(),
   js_enum: z.enum(['a', 'b', 'c']),
   decimal_18_3: z.float32().meta({
     multipleOf: 0.001,
   }),
 });
-
-type A = Pick<z.input<typeof testFullSupportedColumnsZodSchema>, 'iso_date'>;
-
-const a: A = {
-  iso_date: new Date(),
-};

@@ -5,14 +5,14 @@ Supported Zod to DuckDB type mappings in `@flowblade/sqlduck`.
 ## Mappings
 
 | Zod type                   | DuckDB type                |
-| -------------------------- | -------------------------- |
+| -------------------------- |----------------------------|
 | `z.string()`               | `VARCHAR`                  |
 | `z.email()`                | `VARCHAR`                  |
 | `z.url()`                  | `VARCHAR`                  |
 | `z.cuid()`                 | `VARCHAR`                  |
 | `z.cuid2()`                | `VARCHAR`                  |
 | `z.ulid()`                 | `VARCHAR`                  |
-| `z.iso.date()`             | `VARCHAR`                  |
+| `z.iso.date()`             | `DATE`                     |
 | `z.iso.time()`             | `VARCHAR`                  |
 | `z.iso.datetime()`         | `TIMESTAMP`                |
 | `z.uuid()` / `z.uuidv7()`  | `UUID`                     |
@@ -23,6 +23,7 @@ Supported Zod to DuckDB type mappings in `@flowblade/sqlduck`.
 | `z.number()`               | inferred, default `BIGINT` |
 | `zodCodecs.dateToString`   | `TIMESTAMP`                |
 | `zodCodecs.bigintToString` | `BIGINT`                   |
+
 
 ## Numeric inference
 
@@ -62,7 +63,7 @@ const schema = z.object({
   name: z.string(), // VARCHAR NOT NULL
   email: z.email().nullable(), // VARCHAR
   score: z.float32(), // FLOAT NOT NULL
-  created_at: zodCodecs.dateToString, // TIMESTAMP NOT NULL
+  created_at: z.iso.date(), // DATE NOT NULL
   ext_id: z.uuidv7(), // UUID NOT NULL
   big_counter: z.nullable(zodCodecs.bigintToString), // BIGINT
 });
