@@ -1,5 +1,11 @@
 # @flowblade/source-duckdb
 
+## 0.27.0
+
+### Minor Changes
+
+- [`1014b7b`](https://github.com/belgattitude/flowblade/commit/1014b7bb01fe6db48d1d675d3f7b10cec6fcc531) Thanks [@belgattitude](https://github.com/belgattitude)! - Update logtape minimum version to 2.3.0
+
 ## 0.26.0
 
 ### Minor Changes
