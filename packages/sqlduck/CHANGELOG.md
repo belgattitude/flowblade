@@ -1,5 +1,18 @@
 # @flowblade/sqlduck
 
+## 0.33.0
+
+### Minor Changes
+
+- [`1014b7b`](https://github.com/belgattitude/flowblade/commit/1014b7bb01fe6db48d1d675d3f7b10cec6fcc531) Thanks [@belgattitude](https://github.com/belgattitude)! - Update logtape minimum version to 2.3.0
+
+- [`5426392`](https://github.com/belgattitude/flowblade/commit/54263921a0a1127ede4fc1100d624270b92c072e) Thanks [@belgattitude](https://github.com/belgattitude)! - Export TableSchemaZod type
+
+### Patch Changes
+
+- Updated dependencies [[`1014b7b`](https://github.com/belgattitude/flowblade/commit/1014b7bb01fe6db48d1d675d3f7b10cec6fcc531)]:
+  - @flowblade/source-duckdb@0.27.0
+
 ## 0.32.0
 
 ### Minor Changes
