@@ -18,9 +18,11 @@ import { DuckDatabaseManager } from './manager/database/duck-database-manager.ts
 import type { Table } from './objects/table.ts';
 import { createTableFromZod } from './table/create-table-from-zod.ts';
 import type { TableCreateOptions } from './table/get-table-create-from-zod.ts';
-import type { TableSchemaZod } from './table/table-schema-zod.type.ts';
 import { rowsToColumnsChunks } from './utils/rows-to-columns-chunks.ts';
-import type { InferZodRelaxedDataSchema } from './validation/zod/index.ts';
+import type {
+  InferZodRelaxedDataSchema,
+  TableSchemaZod,
+} from './validation/zod/index.ts';
 
 export type SqlDuckParams = {
   conn: DuckDBConnection;

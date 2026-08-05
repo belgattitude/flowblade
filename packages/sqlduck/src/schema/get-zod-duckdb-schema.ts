@@ -1,6 +1,6 @@
 import type { ZodObject } from 'zod';
 
-import type { TableSchemaZod } from '../table/table-schema-zod.type';
+import type { TableSchemaZod } from '../validation/zod';
 
 export const getZodDuckDBSchema = <T extends TableSchemaZod>(schema: T) => {
   const entries = schema.shape as unknown as Record<string, ZodObject>;

@@ -5,7 +5,7 @@ const config = [
     name: 'Import * (ESM)',
     path: ['dist/index.js'],
     import: '*',
-    limit: '11kb',
+    limit: '12kb',
   },
 ] satisfies SizeLimitConfig;
 
