@@ -55,6 +55,43 @@ describe('DuckDatabaseManagerTest', async () => {
       expect(fs.existsSync(dbFile)).toBeTruthy();
       await dbManager.detach(database.alias);
     });
+
+    it('should attach or re-attach a file database', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      const dbFile = path.join(testTempDir, 'duckdb_test_reattachable_file.db');
+      const database = await dbManager.attachOrReplace({
+        type: 'filesystem',
+        alias: 'duckdb_first_attached_file',
+        path: dbFile,
+        options: {
+          accessMode: 'READ_WRITE',
+        },
+      });
+      expect(database).toBeInstanceOf(Database);
+      expect(database.alias).toStrictEqual('duckdb_first_attached_file');
+      expect(fs.existsSync(dbFile)).toBeTruthy();
+
+      // re-attach
+      const database2 = await dbManager.attachOrReplace(
+        {
+          type: 'filesystem',
+          alias: 'duckdb_second_attached_file',
+          path: dbFile,
+          options: {
+            accessMode: 'READ_ONLY',
+          },
+        },
+        {
+          runDetachIfAttachOrReplaceFailWithAlreadyAttached: true,
+        }
+      );
+      expect(database2).toBeInstanceOf(Database);
+      expect(database2.alias).toStrictEqual('duckdb_second_attached_file');
+      expect(fs.existsSync(dbFile)).toBeTruthy();
+
+      await dbManager.detachOrIgnore(database.alias);
+      await dbManager.detach(database2.alias);
+    });
   });
   describe('showDatabases', () => {
     it('should list all databases', async () => {
