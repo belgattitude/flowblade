@@ -7,10 +7,10 @@ import type {
 } from '../../../validation/core/types.ts';
 import type { IGetRawSql } from '../../core/get-raw-sql.interface.ts';
 
-type Behaviour = 'OR REPLACE' | 'IF NOT EXISTS';
+export type DuckDatabaseAttachCommandBehaviour = 'OR REPLACE' | 'IF NOT EXISTS';
 
 export type DuckDatabaseAttachCommandOptions = {
-  behaviour?: Behaviour;
+  behaviour?: DuckDatabaseAttachCommandBehaviour;
 };
 
 export class DuckDatabaseAttachCommand implements IGetRawSql {

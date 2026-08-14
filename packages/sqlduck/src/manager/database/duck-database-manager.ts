@@ -14,14 +14,30 @@ import {
 } from '../../validation/zod/index.ts';
 import type { duckDatabaseManagerZodSchemas } from '../../validation/zod/manager/duck-database-manager-zod-schemas.ts';
 import { ManagerQueryExecutor } from '../core/manager-query-executor.ts';
-import {
-  DuckDatabaseAttachCommand,
-  type DuckDatabaseAttachCommandOptions,
-} from './commands/duck-database-attach-command.ts';
+import { DuckDatabaseAttachCommand } from './commands/duck-database-attach-command.ts';
+import { getAlreadyAttachedDatabaseFromError } from './utils/get-already-attached-database-from-error.ts';
 
 export type GetDatabaseInfo = z.infer<
   typeof duckDatabaseManagerZodSchemas.getDatabases
 >;
+
+type AttachOptions =
+  | {
+      behaviour: 'OR REPLACE';
+      /**
+       * Since duckdb 1.5.4, the ATTACH OR REPLACE fails if the database is already attached.
+       * If this option is set to true, when an attachOrReplace fails with the already attached
+       * message, the database will be detached first with regular detach command an re-tried
+       *
+       * This option might be deprecated in the future as duckdb will fix the issue upstream
+       *
+       * @default false
+       */
+      runDetachIfAttachOrReplaceFailWithAlreadyAttached?: boolean;
+    }
+  | {
+      behaviour: 'IF NOT EXISTS';
+    };
 
 export class DuckDatabaseManager {
   #conn: DuckDBConnection;
@@ -57,25 +73,77 @@ export class DuckDatabaseManager {
    * console.log(database.alias); // 'mydb'
    * ```
    */
-  attach = async (
-    dbParams: DuckConnectionParams,
-    options?: DuckDatabaseAttachCommandOptions
-  ) => {
+  attach = async (dbParams: DuckConnectionParams, options?: AttachOptions) => {
     const params = duckConnectionParamsZodSchema.parse(dbParams);
     const rawSql = new DuckDatabaseAttachCommand(params, options).getRawSql();
     const { behaviour } = options ?? {};
-    await this.#executor.getRowObjectsJS(
-      [`attach(${params.alias}`, behaviour ?? null, ')']
-        .filter(Boolean)
-        .join(','),
-      rawSql
-    );
+    try {
+      await this.#executor.getRowObjectsJS(
+        [`attach(${params.alias}`, behaviour ?? null, ')']
+          .filter(Boolean)
+          .join(','),
+        rawSql
+      );
+    } catch (e) {
+      // in duckdb > 1.5.5, the attach or replace of a file database now complains
+      // Binder Error: Unique file handle conflict: Cannot attach "duckdb_second_attached_file" - the database file "/home/sebastien/github/flowblade/packages/sqlduck/tests/tmp/duckdb_test_reattachable_file.db" is already attached by database "duckdb_first_attached_file"
+      if (
+        options?.behaviour === 'OR REPLACE' &&
+        options?.runDetachIfAttachOrReplaceFailWithAlreadyAttached === true
+      ) {
+        const alreadyAttached = getAlreadyAttachedDatabaseFromError(e);
+        if (alreadyAttached.isAlreadyAttached === true) {
+          await this.detachOrIgnore(alreadyAttached.dbAlias);
+          await this.attach(dbParams);
+        } else {
+          throw e;
+        }
+      } else {
+        throw e;
+      }
+    }
     return new Database({ alias: params.alias });
   };
 
-  attachOrReplace = async (dbParams: DuckConnectionParams) => {
+  /**
+   * Attach or replace a database to the current connection
+   *
+   * @example
+   * ```typescript
+   * const dbManager = new DuckDatabaseManager(conn);
+   * const database = dbManager.attachOrReplace({
+   *   type: 'memory', // can be 'filesystem'...
+   *   alias: 'mydb',
+   *   options: { COMPRESS: 'true' },
+   * }, {
+   *   // as tested on duckdb 1.5.5, the attach or replace might not work
+   *   // and complain about already attached database. Set this to true
+   *   // to implement a detach / attach if the attachOrReplace fails
+   *   runDetachIfAttachOrReplaceFailWithAlreadyAttached?: boolean;
+   * });
+   *
+   * console.log(database.alias); // 'mydb'
+   * ```
+   */
+  attachOrReplace = async (
+    dbParams: DuckConnectionParams,
+    options?: {
+      /**
+       * Since duckdb 1.5.4, the ATTACH OR REPLACE fails if the database is already attached.
+       * If this option is set to true, when an attachOrReplace fails with the already attached
+       * message, the database will be detached first with regular detach command an re-tried
+       *
+       * This option might be deprecated in the future as duckdb will fix the issue upstream
+       *
+       * @default false
+       */
+      runDetachIfAttachOrReplaceFailWithAlreadyAttached?: boolean;
+    }
+  ) => {
     return this.attach(dbParams, {
       behaviour: 'OR REPLACE',
+      runDetachIfAttachOrReplaceFailWithAlreadyAttached:
+        options?.runDetachIfAttachOrReplaceFailWithAlreadyAttached,
     });
   };
 

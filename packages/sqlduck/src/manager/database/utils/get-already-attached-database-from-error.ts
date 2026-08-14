@@ -22,8 +22,8 @@ export const getAlreadyAttachedDatabaseFromError = (error: unknown): Result => {
   const regex =
     /Binder Error:.*Cannot attach.*already attached by database\s+['"“]?\b(?<dbAlias>[\w$]+)\b['"”]?/is;
   const match = regex.exec(error.message);
-  const dbAlias = match?.groups?.dbName ?? null;
-  if (dbAlias === null) {
+  const dbAlias = match?.groups?.dbAlias ?? null;
+  if (dbAlias === null || dbAlias.trim() === '') {
     return {
       isAlreadyAttached: false,
     };
