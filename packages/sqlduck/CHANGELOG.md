@@ -1,5 +1,30 @@
 # @flowblade/sqlduck
 
+## 0.34.0
+
+### Minor Changes
+
+- [#1317](https://github.com/belgattitude/flowblade/pull/1317) [`3831c63`](https://github.com/belgattitude/flowblade/commit/3831c635d867449991a921a5a9bb139b815ddbdb) Thanks [@belgattitude](https://github.com/belgattitude)! - The attachOrReplace can now force a detach if an already attached error is thrown
+
+  ```typescript
+  const db = await dbManager.attachOrReplace(
+    {
+      type: "filesystem",
+      alias: "duckdb_second_attached_file",
+      path: "/tmp/test.duckdb",
+      options: {
+        accessMode: "READ_ONLY",
+      },
+    },
+    {
+      // as tested on duckdb 1.5.5, the attach or replace might not work
+      // and complain about already attached database. Set this to true
+      // to implement a detach / attach if the attachOrReplace fails
+      runDetachIfAttachOrReplaceFailWithAlreadyAttached: true,
+    }
+  );
+  ```
+
 ## 0.33.0
 
 ### Minor Changes
