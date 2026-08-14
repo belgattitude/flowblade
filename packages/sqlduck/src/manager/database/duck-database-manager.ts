@@ -75,13 +75,20 @@ export class DuckDatabaseManager {
    */
   attach = async (dbParams: DuckConnectionParams, options?: AttachOptions) => {
     const params = duckConnectionParamsZodSchema.parse(dbParams);
-    const rawSql = new DuckDatabaseAttachCommand(params, options).getRawSql();
-    const { behaviour } = options ?? {};
+    const rawSql = new DuckDatabaseAttachCommand(params, {
+      behaviour: options?.behaviour,
+    }).getRawSql();
+    const restoreCurrentDb = await this.getCurrentDatabase();
+    const tempDbNameHack = 'temp_run_detach_if_attached_hack_db';
+    let isTempDbNameHackCreated = false;
     try {
       await this.#executor.getRowObjectsJS(
-        [`attach(${params.alias}`, behaviour ?? null, ')']
+        [
+          `attach(${params.alias}`,
+          options === undefined ? null : JSON.stringify(options),
+        ]
           .filter(Boolean)
-          .join(','),
+          .join(',') + ')',
         rawSql
       );
     } catch (e) {
@@ -93,6 +100,14 @@ export class DuckDatabaseManager {
       ) {
         const alreadyAttached = getAlreadyAttachedDatabaseFromError(e);
         if (alreadyAttached.isAlreadyAttached === true) {
+          if (alreadyAttached.dbAlias === restoreCurrentDb) {
+            await this.attachIfNotExists({
+              type: 'memory',
+              alias: tempDbNameHack,
+            });
+            await this.use(tempDbNameHack);
+            isTempDbNameHackCreated = true;
+          }
           await this.detachOrIgnore(alreadyAttached.dbAlias);
           await this.attach(dbParams);
         } else {
@@ -100,6 +115,11 @@ export class DuckDatabaseManager {
         }
       } else {
         throw e;
+      }
+    } finally {
+      if (restoreCurrentDb !== null && isTempDbNameHackCreated) {
+        await this.use(restoreCurrentDb);
+        await this.detachOrIgnore(tempDbNameHack);
       }
     }
     return new Database({ alias: params.alias });
@@ -297,6 +317,40 @@ export class DuckDatabaseManager {
 
   vacuum = async (): Promise<boolean> => {
     await this.#executor.getRowObjectsJS('vacuum()', 'VACUUM');
+    return true;
+  };
+
+  getCurrentDatabase = async (): Promise<string | null> => {
+    const result = await this.#executor.getRowObjectsJS<{
+      current_database: string | null;
+    }>('getCurrentDatabase()', 'SELECT current_database() as current_database');
+    return result[0]?.current_database ?? null;
+  };
+
+  getCurrentSchema = async (): Promise<string | null> => {
+    const result = await this.#executor.getRowObjectsJS<{
+      current_schema: string | null;
+    }>('getCurrentSchema()', 'SELECT current_schema() as current_schema');
+    return result?.[0]?.current_schema ?? null;
+  };
+
+  getCurrentCatalog = async (): Promise<string | null> => {
+    const result = await this.#executor.getRowObjectsJS<{
+      current_catalog: string | null;
+    }>('getCurrentCatalog()', 'SELECT current_catalog() as current_catalog');
+    return result?.[0]?.current_catalog ?? null;
+  };
+
+  /**
+   * Set the default database to use
+   * @throws if the database alias does not exist
+   */
+  use = async (dbAlias: string): Promise<true> => {
+    const safeAlias = duckValidatorsZod.aliasName.parse(dbAlias);
+    const result = await this.#executor.getRowObjectsJS(
+      `use(${safeAlias})`,
+      `USE ${safeAlias}`
+    );
     return true;
   };
 
