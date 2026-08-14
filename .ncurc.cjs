@@ -81,6 +81,10 @@ module.exports = defineConfig({
     'prisma',
     '@prisma/client',
 
+    // changesets
+    '@changesets/changelog-github',
+    '@changesets/cli',
+
     // Depending on v1/v2 support you might want to disable these updates
     /*
     '@opentelemetry/api',
