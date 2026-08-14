@@ -1,5 +1,26 @@
 # @flowblade/sqlduck
 
+## 0.35.0
+
+### Minor Changes
+
+- [#1321](https://github.com/belgattitude/flowblade/pull/1321) [`6cce3a8`](https://github.com/belgattitude/flowblade/commit/6cce3a82a19fc7740eb3a81b95bde9aa15c0e8b0) Thanks [@belgattitude](https://github.com/belgattitude)! - Add use(), getCurrentSchema(), getCurrentCatalog() and getCurrentDatabase() to DatabaseManager
+
+  ```typescript
+  const dbManager = new DuckDatabaseManager(conn);
+  const database = dbManager.attach({ type: "memory", alias: "mydb" });
+
+  await dbManager.use("mydb");
+
+  const dbSchema = await dbManager.getCurrentSchema();
+  const dbCatalog = await dbManager.getCurrentCatalog();
+  const dbDatabase = await dbManager.getCurrentDatabase();
+  ```
+
+### Patch Changes
+
+- [#1321](https://github.com/belgattitude/flowblade/pull/1321) [`6cce3a8`](https://github.com/belgattitude/flowblade/commit/6cce3a82a19fc7740eb3a81b95bde9aa15c0e8b0) Thanks [@belgattitude](https://github.com/belgattitude)! - Improve the hack for attachOrReplace, now creates a temp database is we can't detach because it's the default
+
 ## 0.34.0
 
 ### Minor Changes
