@@ -219,4 +219,62 @@ describe('DuckDatabaseManagerTest', async () => {
       });
     });
   });
+
+  describe('getCurrentCatalog', async () => {
+    it('should return the current catalog when currently in use', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      await dbManager.attachOrReplace({
+        type: 'memory',
+        alias: 'test222',
+      });
+      await dbManager.use('test222');
+      const currCatalog = await dbManager.getCurrentCatalog();
+      expect(currCatalog).toStrictEqual('test222');
+    });
+  });
+  describe('getCurrentDatabase', async () => {
+    it('should return the current database when currently in use', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      await dbManager.attachOrReplace({
+        type: 'memory',
+        alias: 'test444',
+      });
+      await dbManager.use('test444');
+      const currDb = await dbManager.getCurrentDatabase();
+      expect(currDb).toStrictEqual('test444');
+    });
+  });
+  describe('getCurrentSchema', async () => {
+    it('should return the schema', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      await dbManager.attachOrReplace({
+        type: 'memory',
+        alias: 'test555',
+      });
+      await dbManager.use('test555');
+      const currSchema = await dbManager.getCurrentSchema();
+      expect(currSchema).toStrictEqual('main');
+    });
+  });
+
+  describe('use', async () => {
+    it('should return true if it succeed', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      await dbManager.attachOrReplace({
+        type: 'memory',
+        alias: 'test777',
+      });
+      const result = await dbManager.use('test777');
+      expect(result).toStrictEqual(true);
+      const currDb = await dbManager.getCurrentDatabase();
+      expect(currDb).toStrictEqual('test777');
+    });
+
+    it('should throw on non exitant alias', async () => {
+      const dbManager = new DuckDatabaseManager(conn);
+      await expect(dbManager.use('not_existant_db_alias')).rejects.toThrow(
+        'Failed to run "DuckDatabaseManager.use(not_existant_db_alias)" - Catalog Error: SET schema: No catalog + schema named "not_existant_db_alias" found'
+      );
+    });
+  });
 });
