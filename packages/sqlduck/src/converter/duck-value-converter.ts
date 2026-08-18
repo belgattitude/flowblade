@@ -2,6 +2,7 @@ import {
   DuckDBDateValue,
   DuckDBDecimalValue,
   DuckDBTimestampMillisecondsValue,
+  listValue,
 } from '@duckdb/node-api';
 
 const stringTimestampRegexp =
@@ -113,6 +114,14 @@ export class DuckValueConverter {
       method: 'toBigIntString',
       value,
     });
+  };
+  toList = (
+    arrayValue: (string | number | boolean | bigint | null)[] | null | undefined
+  ) => {
+    if (arrayValue === undefined || arrayValue === null) {
+      return null;
+    }
+    return listValue(arrayValue);
   };
   toTimestampMs = (
     value: bigint | number | Date | null | string | undefined
