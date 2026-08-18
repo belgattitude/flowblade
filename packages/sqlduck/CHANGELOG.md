@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.36.1
+
+### Patch Changes
+
+- [#1334](https://github.com/belgattitude/flowblade/pull/1334) [`d20aee3`](https://github.com/belgattitude/flowblade/commit/d20aee3f2075882d3408e83c7e0663ed8fcda8e8) Thanks [@belgattitude](https://github.com/belgattitude)! - Make appender aware of list / variable array support
+
 ## 0.36.0
 
 ### Minor Changes
