@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.36.2
+
+### Patch Changes
+
+- [`3c85fee`](https://github.com/belgattitude/flowblade/commit/3c85fee2dd291a953d52f5a5929ac6d2d2dcbdde) Thanks [@belgattitude](https://github.com/belgattitude)! - Support for arrays/list in ensureZodTableSchema
+
 ## 0.36.1
 
 ### Patch Changes
