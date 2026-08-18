@@ -2,7 +2,13 @@ import type * as z from 'zod';
 
 type TObject = Record<
   string,
-  string | number | null | undefined | boolean | Date
+  | string
+  | number
+  | null
+  | undefined
+  | boolean
+  | Date
+  | (string | number | null | boolean)[]
 >;
 
 declare const EXPLICIT_GENERIC_REQUIRED: unique symbol;

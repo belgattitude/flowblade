@@ -12,6 +12,7 @@ describe('createZodTableSchema', () => {
     aNullableBoolean: boolean | null;
     aDate: Date;
     aNullableDate: Date | null;
+    anArrayOfStrings: string[] | null;
   };
   const row: Row = {
     aNumber: 1,
@@ -22,6 +23,7 @@ describe('createZodTableSchema', () => {
     aNullableBoolean: null,
     aDate: new Date(),
     aNullableDate: null,
+    anArrayOfStrings: null,
   };
   it('a compatible schema wil pass', () => {
     const _validSchema = ensureZodTableSchema<Row>(
@@ -34,6 +36,7 @@ describe('createZodTableSchema', () => {
         aNullableBoolean: z.nullable(z.boolean()),
         aDate: z.date(),
         aNullableDate: z.nullable(z.date()),
+        anArrayOfStrings: z.nullable(z.array(z.string())),
       })
     );
 
