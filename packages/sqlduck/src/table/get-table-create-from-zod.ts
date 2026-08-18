@@ -140,13 +140,18 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       name: columnName,
     } satisfies Partial<ColumnDDL>;
 
-    if (duckdbType !== undefined && !duckDbTypesMap.has(duckdbType)) {
+    if (
+      duckdbType !== undefined &&
+      !duckDbTypesMap.has(duckdbType as SupportedCustomDuckDbTypes)
+    ) {
       throw new Error(
         `The provided "duckdbType: '${duckdbType}'" for '${columnName}' isn't currently supported - ${JSON.stringify(def)}`
       );
     }
     const customDuckDbType =
-      duckdbType === undefined ? undefined : duckDbTypesMap.get(duckdbType);
+      duckdbType === undefined
+        ? undefined
+        : duckDbTypesMap.get(duckdbType as SupportedCustomDuckDbTypes);
 
     if (customDuckDbType === undefined) {
       switch (type) {
