@@ -5,7 +5,10 @@ export type {
 export * from './helpers';
 export type { SqlDuckParams, ToTableParams } from './sql-duck.ts';
 export { SqlDuck } from './sql-duck.ts';
-export { getTableCreateFromZod } from './table/get-table-create-from-zod.ts';
+export {
+  getTableCreateFromZod,
+  type SupportedCustomDuckDbTypes,
+} from './table/get-table-create-from-zod.ts';
 export { zodCodecs } from './utils/zod-codecs.ts';
 
 // Objects

@@ -4,11 +4,13 @@ import {
   DATE,
   DOUBLE,
   DuckDBDecimalType,
+  DuckDBListType,
   type DuckDBType,
   ENUM,
   FLOAT,
   HUGEINT,
   INTEGER,
+  LIST,
   TIMESTAMP,
   TIMESTAMP_MS,
   UBIGINT,
@@ -66,9 +68,25 @@ const duckDbTypes = [
   ['DATE', DATE],
   // to get the proper type, we just instanciate the default
   ['DECIMAL', new DuckDBDecimalType(18, 3)],
+  // Arrays
+  ['VARCHAR[]', new DuckDBListType(VARCHAR)],
+  ['INTEGER[]', new DuckDBListType(INTEGER)],
+  ['BOOLEAN[]', new DuckDBListType(BOOLEAN)],
+  ['BIGINT[]', new DuckDBListType(BIGINT)],
+  ['UBIGINT[]', new DuckDBListType(UBIGINT)],
+  ['UUID[]', new DuckDBListType(UUID)],
+  ['DATE[]', new DuckDBListType(DATE)],
+  ['TIMESTAMP[]', new DuckDBListType(TIMESTAMP)],
+  ['TIMESTAMP_MS[]', new DuckDBListType(TIMESTAMP_MS)],
+  ['DOUBLE[]', new DuckDBListType(DOUBLE)],
+  ['FLOAT[]', new DuckDBListType(FLOAT)],
 ] as const satisfies [string, DuckDBType][];
 
-const duckDbTypesMap = new Map<string, DuckDBType>(duckDbTypes);
+export type SupportedCustomDuckDbTypes = (typeof duckDbTypes)[number][0];
+
+const duckDbTypesMap = new Map<SupportedCustomDuckDbTypes, DuckDBType>(
+  duckDbTypes
+);
 
 export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
   params: GetTableCreateFromZodParams<TSchema>
@@ -91,7 +109,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
   for (const [columnName, def] of Object.entries(json.properties) as [
     columnName: string,
     def: {
-      type: 'number' | 'integer' | 'string' | 'boolean';
+      type: 'number' | 'integer' | 'string' | 'boolean' | 'array';
       nullable: boolean | undefined;
       format:
         'date' | 'date-time' | 'int64' | 'uuid' | 'cuid' | 'cuid2' | undefined;
@@ -101,6 +119,10 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       multipleOf?: number;
       enum?: string[];
       duckdbType?: string;
+      // only when type is array
+      items?: {
+        type: 'string' | 'boolean' | 'number';
+      };
     },
   ][]) {
     const {
@@ -118,10 +140,38 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       name: columnName,
     } satisfies Partial<ColumnDDL>;
 
-    if (duckdbType !== undefined && duckDbTypesMap.has(duckdbType)) {
-      c.duckdbType = duckDbTypesMap.get(duckdbType)!;
-    } else {
+    if (
+      duckdbType !== undefined &&
+      !duckDbTypesMap.has(duckdbType as SupportedCustomDuckDbTypes)
+    ) {
+      throw new Error(
+        `The provided "duckdbType: '${duckdbType}'" for '${columnName}' isn't currently supported - ${JSON.stringify(def)}`
+      );
+    }
+    const customDuckDbType =
+      duckdbType === undefined
+        ? undefined
+        : duckDbTypesMap.get(duckdbType as SupportedCustomDuckDbTypes);
+
+    if (customDuckDbType === undefined) {
       switch (type) {
+        case 'array':
+          switch (def?.items?.type) {
+            case 'string':
+              c.duckdbType = LIST(VARCHAR);
+              break;
+            case 'number':
+              c.duckdbType = LIST(INTEGER);
+              break;
+            case 'boolean':
+              c.duckdbType = LIST(BOOLEAN);
+              break;
+            default:
+              throw new Error(
+                `The inferred duckdb array for '${columnName}' is not supported - ${JSON.stringify(def)}`
+              );
+          }
+          break;
         case 'string':
           if (Array.isArray(def.enum)) {
             c.duckdbType = ENUM(def.enum);
@@ -163,6 +213,8 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
             `Cannot guess '${columnName}' type - ${JSON.stringify(def)}`
           );
       }
+    } else {
+      c.duckdbType = customDuckDbType;
     }
     if (primaryKey === true) {
       c.constraint = 'PRIMARY KEY';
