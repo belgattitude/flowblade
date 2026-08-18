@@ -40,5 +40,8 @@ export const testFullSupportedColumnsZodSchema = z.strictObject({
     duckdbType: 'BIGINT[]',
   }),
   list_of_numbers: z.array(z.number()),
+  list_of_int32s: z.array(z.int32()),
   list_of_booleans: z.array(z.boolean()),
+  list_of_float32s: z.array(z.float32()),
+  list_of_float64s: z.array(z.float64()),
 });

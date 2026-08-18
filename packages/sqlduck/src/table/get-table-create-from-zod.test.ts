@@ -65,8 +65,11 @@ describe('getTableCreateFromZod', () => {
                 list_of_strings VARCHAR[] NOT NULL,
                 list_of_bigints VARCHAR[] NOT NULL,
                 list_of_bigints_explicit BIGINT[] NOT NULL,                
-                list_of_numbers INTEGER[] NOT NULL,
-                list_of_booleans BOOLEAN[] NOT NULL
+                list_of_numbers BIGINT[] NOT NULL,
+                list_of_int32s INTEGER[] NOT NULL,
+                list_of_booleans BOOLEAN[] NOT NULL,
+                list_of_float32s FLOAT[] NOT NULL,
+                list_of_float64s DOUBLE[] NOT NULL
                )`,
             duckdbFmtDialect
           )
@@ -119,7 +122,10 @@ describe('getTableCreateFromZod', () => {
           ['list_of_strings', LIST(VARCHAR)],
           ['list_of_bigints', LIST(VARCHAR)],
           ['list_of_bigints_explicit', LIST(BIGINT)],
-          ['list_of_numbers', LIST(INTEGER)],
+          ['list_of_numbers', LIST(BIGINT)],
+          ['list_of_int32s', LIST(INTEGER)],
+          ['list_of_float32s', LIST(FLOAT)],
+          ['list_of_float64s', LIST(DOUBLE)],
           ['list_of_booleans', LIST(BOOLEAN)],
         ])
       );

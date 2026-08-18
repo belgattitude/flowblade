@@ -58,6 +58,10 @@ describe('Duckdb tests', async () => {
           bignumber: z.nullable(zodCodecs.bigintToString),
           created_at: zodCodecs.dateToString,
           gender: z.nullable(z.enum(['M', 'F'])),
+          list_of_strings: z.nullable(z.array(z.string())),
+          list_of_int32s: z.nullable(z.array(z.int32())),
+          list_of_float32s: z.nullable(z.array(z.float32())),
+          list_of_booleans: z.nullable(z.array(z.boolean())),
           // uuid_v7: z.nullable(z.uuidv7()),
         });
 
@@ -69,6 +73,12 @@ describe('Duckdb tests', async () => {
         });
 
         const now = new Date('2025-12-16 00:00:00');
+        const listColumns = {
+          list_of_float32s: [1.1, 2.2, 3.3],
+          list_of_int32s: [5, 6],
+          list_of_booleans: [true, false],
+          list_of_strings: ['Hello', 'World'],
+        };
         const getFakeRowStream = createFakeRowsAsyncIterator({
           count: limit,
           schema: userSchema,
@@ -82,6 +92,7 @@ describe('Duckdb tests', async () => {
                 created_at: now,
                 gender: 'F',
                 // uuid_v7: '019d2155-d292-71fa-87d7-9d1f1ed83569',
+                ...listColumns,
               } as const;
             }
             return {
@@ -92,6 +103,7 @@ describe('Duckdb tests', async () => {
               created_at: faker.date.recent(),
               gender: 'M',
               // uuid_v7: faker.string.uuid({ version: 7 }),
+              ...listColumns,
             } as const;
           },
         });
@@ -157,24 +169,49 @@ describe('Duckdb tests', async () => {
             email: string;
             created_at: string;
             gender: string;
+            list_of_strings: string[];
+            list_of_booleans: boolean[];
+            list_of_float32s: number[];
+            list_of_int32s: number[];
             // uuid_v7: string;
           }>`SELECT 
               name,
               bignumber, 
               email, 
               strftime(created_at::TIMESTAMPTZ, '%Y-%m-%dT%H:%M:%S.%gZ') as created_at,
-              gender
+              gender,
+              list_of_strings,
+              list_of_booleans,
+              list_of_float32s,
+              list_of_int32s
              FROM ${sql.raw(testTable.getFullName())} 
              WHERE name = ${params.name} 
              LIMIT 1`
         );
-        const { name, bignumber, email, created_at, gender } = data?.[0] ?? {};
+        const {
+          name,
+          bignumber,
+          email,
+          created_at,
+          gender,
+          list_of_booleans,
+          list_of_strings,
+          list_of_float32s,
+          list_of_int32s,
+        } = data?.[0] ?? {};
         expect(name).toStrictEqual('unique-record-for-tests');
         expect(email).toStrictEqual('unique-record-for-tests@example.com');
         expect(bignumber).toStrictEqual(bignumberExample.toString(10));
         expect(isParsableStrictIsoDateZ(created_at)).toBe(true);
+
         expect(created_at).toBe(now.toISOString());
         expect(gender).toStrictEqual('F');
+        expect(list_of_booleans).toStrictEqual(listColumns.list_of_booleans);
+        expect(
+          list_of_float32s!.map((val) => Math.round(val * 100) / 100)
+        ).toStrictEqual(listColumns.list_of_float32s);
+        expect(list_of_int32s).toStrictEqual(listColumns.list_of_int32s);
+        expect(list_of_strings).toStrictEqual(listColumns.list_of_strings);
       });
 
       it('Should respect onChunkAppendedFrequency', async () => {

@@ -121,7 +121,11 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       duckdbType?: string;
       // only when type is array
       items?: {
-        type: 'string' | 'boolean' | 'number';
+        type: 'string' | 'boolean' | 'number' | 'integer';
+        // only for integer
+        minimum?: number;
+        maximum?: number;
+        multipleOf?: number;
       };
     },
   ][]) {
@@ -160,8 +164,22 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
             case 'string':
               c.duckdbType = LIST(VARCHAR);
               break;
+            case 'integer':
+              c.duckdbType = LIST(
+                getDuckdbNumberColumnType({
+                  minimum: def?.items?.minimum,
+                  maximum: def?.items?.maximum,
+                })
+              );
+              break;
             case 'number':
-              c.duckdbType = LIST(INTEGER);
+              c.duckdbType = LIST(
+                getDuckdbNumberColumnType({
+                  minimum: def?.items?.minimum,
+                  maximum: def?.items?.maximum,
+                  multipleOf: def?.items?.multipleOf,
+                })
+              );
               break;
             case 'boolean':
               c.duckdbType = LIST(BOOLEAN);

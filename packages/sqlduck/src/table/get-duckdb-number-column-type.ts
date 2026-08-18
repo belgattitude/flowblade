@@ -33,13 +33,14 @@ export const getDuckdbNumberColumnType = (params: {
   multipleOf?: number | undefined;
 }) => {
   const { minimum, maximum, multipleOf } = params;
-  if (minimum === undefined || maximum === undefined) {
-    return BIGINT;
-  }
 
   if (multipleOf !== undefined && isFloatValue(multipleOf)) {
     const scale = getScale(multipleOf);
     return DECIMAL(18, scale);
+  }
+
+  if (minimum === undefined || maximum === undefined) {
+    return BIGINT;
   }
 
   // Detect float from fractional values
