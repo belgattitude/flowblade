@@ -31,4 +31,14 @@ export const testFullSupportedColumnsZodSchema = z.strictObject({
   decimal_18_3: z.float32().meta({
     multipleOf: 0.001,
   }),
+  list_of_strings_explicit: z.array(z.string()).meta({
+    duckdbType: 'VARCHAR[]',
+  }),
+  list_of_strings: z.array(z.string()),
+  list_of_bigints: z.array(zodCodecs.bigintToString),
+  list_of_bigints_explicit: z.array(zodCodecs.bigintToString).meta({
+    duckdbType: 'BIGINT[]',
+  }),
+  list_of_numbers: z.array(z.number()),
+  list_of_booleans: z.array(z.boolean()),
 });

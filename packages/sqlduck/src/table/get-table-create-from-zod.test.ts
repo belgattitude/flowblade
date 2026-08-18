@@ -8,6 +8,7 @@ import {
   ENUM,
   FLOAT,
   INTEGER,
+  LIST,
   TIMESTAMP_MS,
   TINYINT,
   UUID,
@@ -59,7 +60,13 @@ describe('getTableCreateFromZod', () => {
                 custom_date_only_type DATE NOT NULL,
                 iso_date DATE NOT NULL,
                 js_enum ENUM('a', 'b', 'c') NOT NULL,
-                decimal_18_3 DECIMAL(18, 3) NOT NULL
+                decimal_18_3 DECIMAL(18, 3) NOT NULL,
+                list_of_strings_explicit VARCHAR[] NOT NULL,
+                list_of_strings VARCHAR[] NOT NULL,
+                list_of_bigints VARCHAR[] NOT NULL,
+                list_of_bigints_explicit BIGINT[] NOT NULL,                
+                list_of_numbers INTEGER[] NOT NULL,
+                list_of_booleans BOOLEAN[] NOT NULL
                )`,
             duckdbFmtDialect
           )
@@ -108,6 +115,12 @@ describe('getTableCreateFromZod', () => {
           ['iso_date', DATE],
           ['js_enum', ENUM(['a', 'b', 'c'])],
           ['decimal_18_3', DECIMAL(18, 3)],
+          ['list_of_strings_explicit', LIST(VARCHAR)],
+          ['list_of_strings', LIST(VARCHAR)],
+          ['list_of_bigints', LIST(VARCHAR)],
+          ['list_of_bigints_explicit', LIST(BIGINT)],
+          ['list_of_numbers', LIST(INTEGER)],
+          ['list_of_booleans', LIST(BOOLEAN)],
         ])
       );
     });
