@@ -85,6 +85,16 @@ module.exports = defineConfig({
     '@changesets/changelog-github',
     '@changesets/cli',
 
+    // kubb
+    "@kubb/cli",
+    "@kubb/core",
+    "@kubb/oas",
+    "@kubb/plugin-client",
+    "@kubb/plugin-oas",
+    "@kubb/plugin-react-query",
+    "@kubb/plugin-ts",
+    "@kubb/react",
+
     // Depending on v1/v2 support you might want to disable these updates
     /*
     '@opentelemetry/api',
