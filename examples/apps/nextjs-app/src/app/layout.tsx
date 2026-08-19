@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 import type { PropsWithChildren } from "react";
 
 import { fontInter } from "@/components/fonts/font-inter";
-import { fontJetbrainsMono } from "@/components/fonts/font-jetbrains-mono";
 import { MainLayout } from "@/components/layout/main-layout";
 import { ReactQueryClientProvider } from "@/providers/ReactQueryClientProvider";
 import { ReduxStoreProvider } from "@/providers/ReduxProvider";
+import { fontPlusJakartaSans } from "@/components/fonts/font-plus-jakarta-sans.tsx";
 
 export const metadata: Metadata = {
   description: "Example",
@@ -17,11 +17,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
-      <body className={`${fontInter.variable} ${fontJetbrainsMono.variable}`}>
+      <body
+        className={`${fontInter.variable} ${fontPlusJakartaSans.variable}`}
+      >
         <ReduxStoreProvider>
           <ReactQueryClientProvider>
             <TooltipProvider>
-              <MainLayout className="font-[family-name:var(--font-inter)] antialiased">
+              <MainLayout className="font-[family-name:var(--font-plus-jakarta-sans)] antialiased">
                 {children}
               </MainLayout>
             </TooltipProvider>

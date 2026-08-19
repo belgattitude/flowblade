@@ -17,6 +17,7 @@ const monorepoRoot = path.resolve(import.meta.dirname, "..", "..", "..");
 
 /** @type {import('next').NextConfig} */
 let nextConfig = {
+  reactCompiler: true,
   compress: serverEnv.NEXT_CONFIG_COMPRESS === "true",
   ...(buildOutput === undefined ? {} : { output: buildOutput }),
   // transpilePackages: ['@duckdb/duckdb-wasm'],
@@ -49,6 +50,7 @@ let nextConfig = {
     // @link {https://github.com/vercel/next.js/discussions/26420|Discussion}
     // externalDir: true,
 
+    turbopackRustReactCompiler: true,
     // see https://nextjs.org/blog/next-16-2-turbopack#lightning-css-configuration
     useLightningcss: true,
     lightningCssFeatures: {

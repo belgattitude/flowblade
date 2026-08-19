@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { cn } from "@/components/utils";
 
 import { AgGrid } from "./core/ag-grid";
+import { reportAgGridTheme } from "./report-ag-grid-theme";
 
 type Props<T = unknown> = AgGridReactProps<T> & {
   className?: string;
@@ -13,12 +14,14 @@ type Props<T = unknown> = AgGridReactProps<T> & {
 
 const defaultAutosizeStrategy = {
   scaleUpToFitGridWidth: true,
-  skipHeader: false,
+  skipHeader: true,
   type: "fitCellContents",
 } as const satisfies AutoSizeStrategy;
 
+const defaultTheme = reportAgGridTheme;
+
 export const ReportAgGrid = <TData = unknown,>(props: Props<TData>) => {
-  const { className, gridClassName, ...restProps } = props;
+  const { className, gridClassName, theme = defaultTheme, ...restProps } = props;
 
   const gridRef = useRef<AgGridReact>(null);
 
@@ -26,6 +29,7 @@ export const ReportAgGrid = <TData = unknown,>(props: Props<TData>) => {
     <div className={cn("flex", className)}>
       <AgGrid<TData>
         ref={gridRef}
+        theme={theme}
         className={cn("flex-1", gridClassName)}
         autoSizeStrategy={defaultAutosizeStrategy}
         {...restProps}
