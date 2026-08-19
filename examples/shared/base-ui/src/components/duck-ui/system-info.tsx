@@ -135,9 +135,9 @@ export function SystemInfo({
               value={
                 memoryUsagePct >= 90
                   ? "Critical"
-                  : (memoryUsagePct >= 70
+                  : memoryUsagePct >= 70
                     ? "High"
-                    : "Normal")
+                    : "Normal"
               }
               valueClassName={usageColour(memoryUsagePct)}
             />

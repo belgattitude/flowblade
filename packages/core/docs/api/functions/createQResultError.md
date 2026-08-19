@@ -6,7 +6,7 @@
 
 # Function: createQResultError()
 
-> **createQResultError**(`error`, `meta`): [`QResult`](../classes/QResult.md)\<`never`, [`QError`](../type-aliases/QError.md)>>\>
+> **createQResultError**(`error`, `meta`): [`QResult`](../classes/QResult.md)\<`never`, [`QError`](../type-aliases/QError.md)>>>\>
 
 ## Parameters
 

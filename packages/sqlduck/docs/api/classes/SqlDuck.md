@@ -26,7 +26,7 @@
 
 ### toTable()
 
-> **toTable**\<`TSchema`>>\>(`params`): `Promise`\<`ToTableResult`>>\>
+> **toTable**\<`TSchema`>>>\>(`params`): `Promise`\<`ToTableResult`>>>\>
 
 Create a table from a Zod schema and fill it with data from a row stream.
 

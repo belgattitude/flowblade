@@ -20,7 +20,7 @@
 
 ### Constructor
 
-> **new QResult**\<`TData`, `TError`>>\>(`params`): `QResult`\<`TData`, `TError`>>\>
+> **new QResult**\<`TData`, `TError`>>>\>(`params`): `QResult`\<`TData`, `TError`>>>\>
 
 Create a new QResult object.
 
@@ -241,7 +241,7 @@ Check whether the result is a success
 
 ### map()
 
-> **map**\<`TMappedRow`>>\>(`transformFn`): `QResult`\<`TMappedRow`[] \| `undefined`, `TError` \| `undefined`>>\>
+> **map**\<`TMappedRow`>>>\>(`transformFn`): `QResult`\<`TMappedRow`[] \| `undefined`, `TError` \| `undefined`>>>\>
 
 Transforms the value of a successful result using the transform callback.
 
@@ -293,7 +293,7 @@ console.log(newResult.meta.getLatestSpan()); // { type: 'map', timeMs: 10 }
 
 ### toJsonifiable()
 
-> **toJsonifiable**(): [`QResultJsonifiable`](../type-aliases/QResultJsonifiable.md)\<`TData`, `TError`>>\>
+> **toJsonifiable**(): [`QResultJsonifiable`](../type-aliases/QResultJsonifiable.md)\<`TData`, `TError`>>>\>
 
 Transforms the result into a JSON-serializable object with `data`, `error`, and `meta`.
 

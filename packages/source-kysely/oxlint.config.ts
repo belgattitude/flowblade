@@ -25,6 +25,7 @@ export default defineConfig({
     {
       files: ["*.ts", "*.js", "*.mjs", "*.cjs"],
       rules: {
+        "oxc/no-barrel-file": "off",
         eqeqeq: "off",
         "jsdoc/require-param-description": "off",
         "no-unused-private-class-members": "off",

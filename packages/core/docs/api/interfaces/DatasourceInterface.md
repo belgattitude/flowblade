@@ -24,7 +24,7 @@ Warning: using the underling driver connection isn't recommended and not covered
 
 ### query()
 
-> **query**: (`query`, `info?`) => [`AsyncQResult`](../type-aliases/AsyncQResult.md)\<`any`, `any`>>\>
+> **query**: (`query`, `info?`) => [`AsyncQResult`](../type-aliases/AsyncQResult.md)\<`any`, `any`>>>\>
 
 ```typescript
 const ds = new Datasource();
@@ -48,7 +48,7 @@ const ds = new Datasource();
 
 ### stream()
 
-> **stream**: (`query`, `options?`) => `AsyncIterableIterator`\<`any`>>\>
+> **stream**: (`query`, `options?`) => `AsyncIterableIterator`\<`any`>>>\>
 
 #### Parameters
 

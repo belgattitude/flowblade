@@ -44,7 +44,7 @@
 
 ### getByTag()
 
-> **getByTag**(`tag`): `Promise`\<`DuckMemoryRow` \| `null`>>\>
+> **getByTag**(`tag`): `Promise`\<`DuckMemoryRow` \| `null`>>>\>
 
 #### Parameters
 
@@ -60,7 +60,7 @@
 
 ### getSummary()
 
-> **getSummary**(): `Promise`\<`DuckMemorySummary`>>\>
+> **getSummary**(): `Promise`\<`DuckMemorySummary`>>>\>
 
 #### Returns
 

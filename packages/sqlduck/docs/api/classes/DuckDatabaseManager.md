@@ -32,7 +32,7 @@
 
 ### analyze()
 
-> **analyze**(): `Promise`\<`boolean`>>\>
+> **analyze**(): `Promise`\<`boolean`>>>\>
 
 The statistics recomputed by the ANALYZE statement are only used for join order optimization.
 
@@ -50,7 +50,7 @@ https://duckdb.org/docs/stable/sql/statements/analyze
 
 ### attach()
 
-> **attach**(`dbParams`, `options?`): `Promise`\<[`Database`](Database.md)>>\>
+> **attach**(`dbParams`, `options?`): `Promise`\<[`Database`](Database.md)>>>\>
 
 Attach a database to the current connection
 
@@ -85,7 +85,7 @@ console.log(database.alias); // 'mydb'
 
 ### attachIfNotExists()
 
-> **attachIfNotExists**(`dbParams`): `Promise`\<[`Database`](Database.md)>>\>
+> **attachIfNotExists**(`dbParams`): `Promise`\<[`Database`](Database.md)>>>\>
 
 #### Parameters
 
@@ -101,7 +101,7 @@ console.log(database.alias); // 'mydb'
 
 ### attachOrReplace()
 
-> **attachOrReplace**(`dbParams`): `Promise`\<[`Database`](Database.md)>>\>
+> **attachOrReplace**(`dbParams`): `Promise`\<[`Database`](Database.md)>>>\>
 
 #### Parameters
 
@@ -117,7 +117,7 @@ console.log(database.alias); // 'mydb'
 
 ### checkpoint()
 
-> **checkpoint**(`dbAlias`): `Promise`\<`boolean`>>\>
+> **checkpoint**(`dbAlias`): `Promise`\<`boolean`>>>\>
 
 #### Parameters
 
@@ -157,7 +157,7 @@ Helper to create an initial database file.
 
 ### detach()
 
-> **detach**(`dbAlias`): `Promise`\<`boolean`>>\>
+> **detach**(`dbAlias`): `Promise`\<`boolean`>>>\>
 
 #### Parameters
 
@@ -173,7 +173,7 @@ Helper to create an initial database file.
 
 ### detachIfExists()
 
-> **detachIfExists**(`dbAlias`): `Promise`\<`boolean`>>\>
+> **detachIfExists**(`dbAlias`): `Promise`\<`boolean`>>>\>
 
 #### Parameters
 
@@ -189,7 +189,7 @@ Helper to create an initial database file.
 
 ### showDatabases()
 
-> **showDatabases**(): `Promise`\<`Record`\<`string`, `JS`>>\>[]\>
+> **showDatabases**(): `Promise`\<`Record`\<`string`, `JS`>>>\>[]\>
 
 #### Returns
 
@@ -199,7 +199,7 @@ Helper to create an initial database file.
 
 ### vacuum()
 
-> **vacuum**(): `Promise`\<`boolean`>>\>
+> **vacuum**(): `Promise`\<`boolean`>>>\>
 
 #### Returns
 

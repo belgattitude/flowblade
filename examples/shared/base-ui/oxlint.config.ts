@@ -26,6 +26,7 @@ export default defineConfig({
     {
       files: ["*.ts", "*.tsx", ".mjs", ".js"],
       rules: {
+        "unicorn/no-nested-ternary": "off",
         "unicorn/no-document-cookie": "off",
         "no-nested-ternary": "off",
         "no-param-reassign": "off",

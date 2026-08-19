@@ -6,7 +6,7 @@
 
 # Type Alias: AsyncQResult\<TData, TError\>
 
-> **AsyncQResult**\<`TData`, `TError`> > \> = `Promise`\<[`QResult`](../classes/QResult.md)\<`TData`, `TError`>>>>\>\>
+> **AsyncQResult**\<`TData`, `TError`> > > \> = `Promise`\<[`QResult`](../classes/QResult.md)\<`TData`, `TError`>>>>>>\>\>
 
 ## Type Parameters
 

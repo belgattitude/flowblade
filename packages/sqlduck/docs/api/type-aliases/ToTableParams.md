@@ -6,7 +6,7 @@
 
 # Type Alias: ToTableParams\<TSchema\>
 
-> **ToTableParams**\<`TSchema`> > \> = `object`
+> **ToTableParams**\<`TSchema`> > > \> = `object`
 
 ## Type Parameters
 
@@ -98,7 +98,7 @@ For example, if `chunkSize` is 2048 and `onChunkAppendedFrequency` is 5, the cal
 
 ### rowStream
 
-> **rowStream**: `RowStream`\<`z.infer`\<`TSchema`>>>>\>\>
+> **rowStream**: `RowStream`\<`z.infer`\<`TSchema`>>>>>>\>\>
 
 An iterable (async or sync) or generator that yields rows to be inserted. Each row must match the structure defined in the `schema`.
 

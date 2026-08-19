@@ -6,7 +6,7 @@
 
 # Function: getTableCreateFromZod()
 
-> **getTableCreateFromZod**\<`TSchema`>>\>(`params`): `TableCreateFromZodResult`\<`TSchema`>>\>
+> **getTableCreateFromZod**\<`TSchema`>>>\>(`params`): `TableCreateFromZodResult`\<`TSchema`>>>\>
 
 ## Type Parameters
 
