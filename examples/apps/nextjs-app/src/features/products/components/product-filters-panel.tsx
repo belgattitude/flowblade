@@ -38,7 +38,7 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
               )
             );
           }}
-          aria-controls={''}
+          aria-controls={""}
           options={data}
           optionLabel="name"
           display="chip"

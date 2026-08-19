@@ -21,7 +21,12 @@ const defaultAutosizeStrategy = {
 const defaultTheme = reportAgGridTheme;
 
 export const ReportAgGrid = <TData = unknown,>(props: Props<TData>) => {
-  const { className, gridClassName, theme = defaultTheme, ...restProps } = props;
+  const {
+    className,
+    gridClassName,
+    theme = defaultTheme,
+    ...restProps
+  } = props;
 
   const gridRef = useRef<AgGridReact>(null);
 
