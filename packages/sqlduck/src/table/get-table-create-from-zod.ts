@@ -5,7 +5,6 @@ import {
   DOUBLE,
   DuckDBDecimalType,
   DuckDBListType,
-  type DuckDBType,
   ENUM,
   FLOAT,
   HUGEINT,
@@ -17,6 +16,7 @@ import {
   UUID,
   VARCHAR,
 } from "@duckdb/node-api";
+import type { DuckDBType } from "@duckdb/node-api";
 
 import type { Table } from "../objects/table";
 import type { TableSchemaZod } from "../validation/zod";

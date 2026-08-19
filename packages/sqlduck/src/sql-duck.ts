@@ -1,7 +1,8 @@
-import {
-  type DuckDBConnection,
-  DuckDBDataChunk,
-  type DuckDBType,
+import { DuckDBDataChunk } from "@duckdb/node-api";
+import type {
+  DuckDBConnection,
+  DuckDBType,
+  DuckDBValue,
 } from "@duckdb/node-api";
 import type { Logger } from "@logtape/logtape";
 import type * as z from "zod";
@@ -10,8 +11,8 @@ import type { ZodObject } from "zod";
 import {
   createOnChunkAppendedCollector,
   isOnChunkAppendedAsyncCb,
-  type OnChunkAppendedCb,
 } from "./appender/data-appender-callback.ts";
+import type { OnChunkAppendedCb } from "./appender/data-appender-callback.ts";
 import { createDuckColumnConverters } from "./converter/create-duck-column-converters.ts";
 import { sqlduckDefaultLogtapeLogger } from "./logger/sqlduck-default-logtape-logger.ts";
 import { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts";
@@ -285,11 +286,9 @@ export class SqlDuck {
       for await (const dataChunk of columnStream) {
         const chunk = DuckDBDataChunk.create(chunkTypes);
 
-        // eslint-disable-next-line unicorn/no-new-array, @typescript-eslint/no-explicit-any
-        const columns = new Array<any[]>(numColumns);
+        const columns = Array.from<DuckDBValue[]>({ length: numColumns });
         for (let i = 0; i < numColumns; i++) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-member-access
-          columns[i] = dataChunk[columnKeys[i]] as any[];
+          columns[i] = dataChunk[columnKeys[i]] as unknown as DuckDBValue[];
         }
 
         totalRows += columns[0]?.length ?? 0;

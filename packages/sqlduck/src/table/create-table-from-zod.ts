@@ -3,10 +3,10 @@ import type { Logger } from "@logtape/logtape";
 
 import { sqlduckDefaultLogtapeLogger } from "../logger/sqlduck-default-logtape-logger.ts";
 import type { TableSchemaZod } from "../validation/zod";
-import {
-  getTableCreateFromZod,
-  type GetTableCreateFromZodParams,
-  type TableCreateFromZodResult,
+import { getTableCreateFromZod } from "./get-table-create-from-zod.ts";
+import type {
+  GetTableCreateFromZodParams,
+  TableCreateFromZodResult,
 } from "./get-table-create-from-zod.ts";
 
 export const createTableFromZod = async <TSchema extends TableSchemaZod>(

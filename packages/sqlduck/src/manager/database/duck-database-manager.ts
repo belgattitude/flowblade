@@ -1,4 +1,5 @@
-import { type DuckDBConnection, DuckDBInstanceCache } from "@duckdb/node-api";
+import { DuckDBInstanceCache } from "@duckdb/node-api";
+import type { DuckDBConnection } from "@duckdb/node-api";
 import type { Logger } from "@logtape/logtape";
 import type * as z from "zod";
 
@@ -160,7 +161,7 @@ export class DuckDatabaseManager {
       runDetachIfAttachOrReplaceFailWithAlreadyAttached?: boolean;
     }
   ) => {
-    return this.attach(dbParams, {
+    return await this.attach(dbParams, {
       behaviour: "OR REPLACE",
       runDetachIfAttachOrReplaceFailWithAlreadyAttached:
         options?.runDetachIfAttachOrReplaceFailWithAlreadyAttached,
@@ -168,7 +169,7 @@ export class DuckDatabaseManager {
   };
 
   attachIfNotExists = async (dbParams: DuckConnectionParams) => {
-    return this.attach(dbParams, {
+    return await this.attach(dbParams, {
       behaviour: "IF NOT EXISTS",
     });
   };
@@ -243,7 +244,7 @@ export class DuckDatabaseManager {
   }): Promise<GetDatabaseInfo[]> => {
     const { includeInternal = false } = params ?? {};
     const internalFilter = includeInternal ? "1=1" : "internal = false";
-    return this.#executor.getRowObjectsJS<GetDatabaseInfo>(
+    return await this.#executor.getRowObjectsJS<GetDatabaseInfo>(
       "getDatabases",
       `select database_name,
                      database_oid,
@@ -402,11 +403,9 @@ export class DuckDatabaseManager {
   };
 
   #getFs = (): FileSystemUtils => {
-    if (this.#fs === undefined) {
-      this.#fs = new FileSystemUtils({
-        logger: this.#logger,
-      });
-    }
+    this.#fs ??= new FileSystemUtils({
+      logger: this.#logger,
+    });
     return this.#fs;
   };
 }

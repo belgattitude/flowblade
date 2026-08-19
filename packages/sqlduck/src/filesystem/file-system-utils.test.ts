@@ -22,7 +22,7 @@ describe("FileSystemUtils", () => {
 
   describe("isSamePathAndExists", () => {
     const fsUtils = new FileSystemUtils();
-    const currentFile = fileURLToPath(import.meta.url);
+    const currentFile = import.meta.filename;
     const cwd = process.cwd();
     const relative = path.relative(cwd, currentFile);
 
@@ -44,7 +44,7 @@ describe("FileSystemUtils", () => {
   });
   describe("getFileSize", () => {
     const fsUtils = new FileSystemUtils();
-    const currentFile = fileURLToPath(import.meta.url);
+    const currentFile = import.meta.filename;
     expect(fsUtils.getFileSize(currentFile)).toBeGreaterThan(10);
   });
 });

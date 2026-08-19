@@ -1,7 +1,8 @@
 import path from "node:path";
 
 import isInCi from "is-in-ci";
-import { bench, type BenchOptions, describe } from "vitest";
+import { bench, describe } from "vitest";
+import type { BenchOptions } from "vitest";
 import * as z from "zod";
 
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
