@@ -15,7 +15,7 @@ This repository is a TypeScript monorepo managed by **Yarn 4** (Berry) and **Tur
 - **Orchestration**: Turborepo (`turbo`).
 - **Language**: TypeScript.
 - **Testing**: Vitest (`vitest`).
-- **Linting**: ESLint with custom base configs.
+- **Linting**: Ultracite with oxlint and oxfmt.
 - **Building**: `tsdown`, `tsc`, or `turbo run build`.
 
 ## Common Commands
@@ -25,6 +25,7 @@ Run these from the root:
 - `yarn g:build`: Build all packages (excluding examples/docs).
 - `yarn g:test-unit`: Run unit tests for all packages.
 - `yarn g:lint`: Lint the entire repository.
+- `yarn g:lint-fix`: Auto fix lint errors in the entire repository.
 - `yarn g:typecheck`: Run TypeScript type checking.
 - `yarn workspaces foreach -A run <script>`: Run a script in all workspaces.
 
@@ -36,11 +37,12 @@ Each package in `packages/` has its own `package.json` and local scripts:
 - `yarn workspace @flowblade/<package-name> run test-unit`: Run unit tests for a specific package.
 - `yarn workspace @flowblade/<package-name> run test-e2e`: Run e2e tests for a specific package.
 - `yarn workspace @flowblade/<package-name> run lint`: Run lint for a specific package.
+- `yarn workspace @flowblade/<package-name> run lint-fix`: Run lint auto fixes for a specific package.
 - `yarn workspace @flowblade/<package-name> run build`: Build a specific package.
 
 ## Coding Standards
 
-- Follow the existing ESLint and Prettier configurations.
+- Follow the existing Ultracite with oxlint and oxfmt configurations.
 - Use Vitest for new tests.
 - Prefer explicit types where possible, but leverage TS inference.
 - Use `workspace:^` for internal cross-package dependencies.
