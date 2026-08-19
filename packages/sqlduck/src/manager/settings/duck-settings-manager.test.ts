@@ -1,7 +1,7 @@
 import type { DuckDBConnection } from '@duckdb/node-api';
 import { afterEach, beforeEach, describe } from 'vitest';
 
-import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
+import { createDuckdbTestMemoryDb } from '#/tests/utils/create-duckdb-test-memory-db.ts';
 
 import { DuckSettingsManager } from './duck-settings-manager.ts';
 

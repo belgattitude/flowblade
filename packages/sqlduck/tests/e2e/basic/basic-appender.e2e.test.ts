@@ -1,7 +1,7 @@
 import type { DuckDBConnection } from '@duckdb/node-api';
 import * as z from 'zod';
 
-import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
+import { createDuckdbTestMemoryDb } from '#/tests/utils/create-duckdb-test-memory-db.ts';
 
 import { DuckDatabaseManager, SqlDuck, Table } from '../../../src';
 

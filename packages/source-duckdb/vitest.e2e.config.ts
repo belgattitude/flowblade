@@ -3,11 +3,8 @@ import { defineConfig } from 'vitest/config';
 const testFiles = ['./tests/e2e/**/*.test.ts'];
 
 export default defineConfig({
-  esbuild: {
-    target: ['node20'],
-  },
   resolve: {
-    tsconfigPaths: true,
+    conditions: ['flowblade-monorepo-source'],
   },
   test: {
     globalSetup: './vitest.setup.ts',

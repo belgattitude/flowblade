@@ -9,7 +9,7 @@ const cspeed = isCodeSpeedEnabled ? codspeedPlugin() : undefined;
 export default defineConfig({
   plugins: [cspeed].filter(Boolean),
   resolve: {
-    tsconfigPaths: true,
+    conditions: ['flowblade-monorepo-source'],
   },
   cacheDir: '../../.cache/vite/core',
   test: {

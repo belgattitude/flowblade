@@ -6,7 +6,7 @@ const testFiles = [
 ];
 export default defineConfig({
   resolve: {
-    tsconfigPaths: true,
+    conditions: ['flowblade-monorepo-source'],
   },
   test: {
     globals: true,

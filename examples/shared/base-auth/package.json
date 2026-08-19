@@ -9,7 +9,7 @@
   },
   "scripts": {
     "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",
-    "typecheck": "tsgo --project tsconfig.json --noEmit",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
     "test": "vitest run",
     "test-unit": "vitest run",
     "test-unit-watch": "vitest --ui",
@@ -19,12 +19,12 @@
     "fix-staged": "lint-staged --allow-empty"
   },
   "dependencies": {
-    "@better-auth/api-key": "1.7.0",
-    "@better-auth/sso": "1.7.0",
+    "@better-auth/api-key": "1.7.1",
+    "@better-auth/sso": "1.7.1",
     "@flowblade/core": "workspace:^",
     "@flowblade/source-kysely": "workspace:^",
     "@flowblade/sql-tag": "workspace:^",
-    "better-auth": "1.7.0",
+    "better-auth": "1.7.1",
     "jose": "6.2.9",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -46,7 +46,6 @@
     "@types/react-dom": "19.2.4",
     "@typescript-eslint/eslint-plugin": "8.67.0",
     "@typescript-eslint/parser": "8.67.0",
-    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@vitejs/plugin-react": "6.0.5",
     "@vitest/browser": "4.1.11",
     "@vitest/coverage-v8": "4.1.11",
@@ -62,7 +61,7 @@
     "tarn": "3.1.2",
     "tedious": "20.0.0",
     "tsx": "4.23.12",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "vitest": "4.1.11"
   }
 }

@@ -3,29 +3,6 @@
   "version": "0.36.2",
   "type": "module",
   "sideEffects": false,
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.mts",
-      "default": "./dist/index.mjs"
-    },
-    "./filesystem": {
-      "types": "./dist/filesystem/index.d.mts",
-      "default": "./dist/filesystem/index.mjs"
-    },
-    "./zod": {
-      "types": "./dist/validation/zod/index.d.mts",
-      "default": "./dist/validation/zod/index.mjs"
-    },
-    "./valibot": {
-      "types": "./dist/validation/valibot/index.d.mts",
-      "default": "./dist/validation/valibot/index.mjs"
-    },
-    "./kysely": {
-      "types": "./dist/integrations/kysely/index.d.mts",
-      "default": "./dist/integrations/kysely/index.mjs"
-    },
-    "./package.json": "./package.json"
-  },
   "author": {
     "name": "Vanvelthem Sébastien",
     "url": "https://github.com/belgattitude"
@@ -36,6 +13,38 @@
     "type": "git",
     "url": "git+https://github.com/belgattitude/flowblade.git",
     "directory": "packages/sqlduck"
+  },
+  "exports": {
+    ".": {
+      "flowblade-monorepo-source": "./src/index.ts",
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./filesystem": {
+      "flowblade-monorepo-source": "./src/filesystem/index.ts",
+      "types": "./dist/filesystem/index.d.mts",
+      "default": "./dist/filesystem/index.mjs"
+    },
+    "./zod": {
+      "flowblade-monorepo-source": "./src/zod/index.ts",
+      "types": "./dist/validation/zod/index.d.mts",
+      "default": "./dist/validation/zod/index.mjs"
+    },
+    "./valibot": {
+      "flowblade-monorepo-source": "./src/valibot/index.ts",
+      "types": "./dist/validation/valibot/index.d.mts",
+      "default": "./dist/validation/valibot/index.mjs"
+    },
+    "./kysely": {
+      "flowblade-monorepo-source": "./src/kysely/index.ts",
+      "types": "./dist/integrations/kysely/index.d.mts",
+      "default": "./dist/integrations/kysely/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "imports": {
+    "#/tests/data/*": "./tests/data/*",
+    "#/tests/utils/*": "./tests/utils/*"
   },
   "scripts": {
     "clean": "rimraf ./dist ./coverage ./tsconfig.tsbuildinfo",
@@ -58,7 +67,7 @@
     "test-e2e": "vitest -c vitest.e2e.config.ts run",
     "test-e2e-bun": "bun --bun run vitest -c vitest.e2e.config.ts run",
     "test-e2e-watch": "vitest -c vitest.e2e.config.ts --ui",
-    "typecheck": "tsgo --project tsconfig.json --noEmit",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../.cache/eslint/sqlduck.eslintcache",
     "fix-staged": "lint-staged --allow-empty",
     "check-dist": "es-check --config=.escheckrc.json",
@@ -106,7 +115,6 @@
     "@types/node": "26.2.0",
     "@typescript-eslint/eslint-plugin": "8.67.0",
     "@typescript-eslint/parser": "8.67.0",
-    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@vitest/coverage-v8": "4.1.11",
     "@vitest/ui": "4.1.11",
     "ansis": "4.3.1",
@@ -135,7 +143,7 @@
     "tsx": "4.23.12",
     "typedoc": "0.28.20",
     "typedoc-plugin-markdown": "4.12.0",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "valibot": "1.4.2",
     "vitest": "4.1.11"
   },

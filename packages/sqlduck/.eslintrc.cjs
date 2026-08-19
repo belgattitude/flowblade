@@ -27,6 +27,20 @@ module.exports = {
     projectService: true,
     tsconfigRootDir: __dirname,
   },
+  settings: {
+    'import-x/resolver': {
+      typescript: {
+        alwaysTryTypes: true,
+        project: './tsconfig.json',
+        conditionNames: [
+          'flowblade-monorepo-source',
+          'types',
+          'import',
+          'default',
+        ],
+      },
+    },
+  },
   root: true,
   rules: {
     // optional overrides per project

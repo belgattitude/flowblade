@@ -4,8 +4,8 @@ import isInCi from 'is-in-ci';
 import { bench, type BenchOptions, describe } from 'vitest';
 import * as z from 'zod';
 
-import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
-import { testTempDir } from '@/tests/utils/get-test-temp-dir.ts';
+import { createDuckdbTestMemoryDb } from '#/tests/utils/create-duckdb-test-memory-db.ts';
+import { testTempDir } from '#/tests/utils/get-test-temp-dir.ts';
 
 import { DuckDatabaseManager, zodCodecs } from '../src';
 import { Table } from '../src/objects/table.ts';

@@ -4,7 +4,7 @@ const testFiles = ['./tests/e2e/**/*.test.ts'];
 
 export default defineConfig({
   resolve: {
-    tsconfigPaths: true,
+    conditions: ['flowblade-monorepo-source'],
   },
   test: {
     // @link https://vitest.dev/config/#clearmocks

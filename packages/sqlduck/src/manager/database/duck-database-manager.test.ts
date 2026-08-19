@@ -5,8 +5,8 @@ import type { DuckDBConnection } from '@duckdb/node-api';
 import { sortBy } from 'es-toolkit';
 import { afterEach, beforeEach, describe, expect } from 'vitest';
 
-import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
-import { testTempDir } from '@/tests/utils/get-test-temp-dir.ts';
+import { createDuckdbTestMemoryDb } from '#/tests/utils/create-duckdb-test-memory-db.ts';
+import { testTempDir } from '#/tests/utils/get-test-temp-dir.ts';
 
 import { FileSystemUtils } from '../../filesystem/file-system-utils.ts';
 import { Database } from '../../objects/database.ts';

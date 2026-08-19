@@ -20,6 +20,7 @@
   "types": "./dist/index.d.cts",
   "exports": {
     ".": {
+      "flowblade-monorepo-source": "./src/index.ts",
       "import": {
         "types": "./dist/index.d.mts",
         "default": "./dist/index.mjs"
@@ -62,8 +63,8 @@
     "test-e2e-watch": "vitest --config=vitest.e2e.config.ts --ui --api 4516",
     "test-unit-coverage": "vitest run --coverage",
     "test-unit-watch": "vitest --ui --api 4515",
-    "typecheck": "tsgo --project tsconfig.json --noEmit",
-    "typecheck-build": "tsgo --project tsconfig.build.json --noEmit",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "typecheck-build": "tsc --project tsconfig.build.json --noEmit",
     "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-source-duckdb --dir ./coverage"
   },
   "dependencies": {
@@ -86,7 +87,6 @@
     "@logtape/pretty": "2.3.1",
     "@size-limit/esbuild": "13.0.3",
     "@size-limit/file": "13.0.3",
-    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@vitest/coverage-istanbul": "4.1.11",
     "@vitest/ui": "4.1.11",
     "browserslist": "4.28.8",
@@ -107,7 +107,7 @@
     "tsx": "4.23.12",
     "typedoc": "0.28.20",
     "typedoc-plugin-markdown": "4.12.0",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "vitest": "4.1.11"
   },
   "engines": {
