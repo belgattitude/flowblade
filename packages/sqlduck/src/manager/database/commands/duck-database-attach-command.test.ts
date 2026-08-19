@@ -2,10 +2,8 @@ import type {
   DuckAllConnectionOptions,
   DuckConnectionParams,
 } from "../../../validation/core/types.ts";
-import {
-  DuckDatabaseAttachCommand,
-  type DuckDatabaseAttachCommandOptions,
-} from "./duck-database-attach-command.ts";
+import { DuckDatabaseAttachCommand } from "./duck-database-attach-command.ts";
+import type { DuckDatabaseAttachCommandOptions } from "./duck-database-attach-command.ts";
 
 describe("DuckDataBaseManagerAttachCommand", () => {
   describe("01 - memory", () => {

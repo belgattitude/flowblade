@@ -1,7 +1,8 @@
 import * as os from "node:os";
 import path from "node:path";
 
-import { type DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
+import { DuckDBInstance } from "@duckdb/node-api";
+import type { DuckDBConnection } from "@duckdb/node-api";
 
 export const createDuckdbTestMemoryDb = async (options?: {
   access_mode?: "READ_WRITE";

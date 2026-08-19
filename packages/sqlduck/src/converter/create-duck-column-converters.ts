@@ -1,4 +1,5 @@
-import { type DuckDBType, DuckDBTypeId } from "@duckdb/node-api";
+import { DuckDBTypeId } from "@duckdb/node-api";
+import type { DuckDBType } from "@duckdb/node-api";
 
 import { DuckValueConverter } from "./duck-value-converter.ts";
 

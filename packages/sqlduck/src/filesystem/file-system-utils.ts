@@ -20,11 +20,22 @@ export class FileSystemUtils {
    *
    * @throws Error if it can't be created
    */
-  createDirectory = (path: string) => {
+  createDirectory = (path: string, recursive = true) => {
     try {
-      fs.mkdirSync(path, { recursive: true });
+      fs.mkdirSync(path, { recursive });
+      this.#logger.debug(`Successfully created directory '${path}'`, {
+        path,
+        recursive: true,
+      });
     } catch (err) {
       if ((err as NodeJS.ErrnoException).code !== "EEXIST") {
+        this.#logger.warning(
+          `Couldn't create directory '${path}': ${err as Error}.message`,
+          {
+            path,
+            recursive: true,
+          }
+        );
         throw err;
       }
     }
@@ -117,7 +128,7 @@ export class FileSystemUtils {
     ) {
       return false;
     }
-    return path.resolve(path1) == path.resolve(path2);
+    return path.resolve(path1) === path.resolve(path2);
   };
 
   /**

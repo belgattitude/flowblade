@@ -4,7 +4,6 @@ import {
   DATE,
   DECIMAL,
   DOUBLE,
-  type DuckDBType,
   ENUM,
   FLOAT,
   INTEGER,
@@ -14,6 +13,7 @@ import {
   UUID,
   VARCHAR,
 } from "@duckdb/node-api";
+import type { DuckDBType } from "@duckdb/node-api";
 import { duckdb as duckDbDialect, formatDialect } from "sql-formatter";
 import * as z from "zod";
 

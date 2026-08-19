@@ -1,4 +1,5 @@
-import { type Faker, faker } from "@faker-js/faker";
+import { faker } from "@faker-js/faker";
+import type { Faker } from "@faker-js/faker";
 import type * as z from "zod";
 import type { ZodObject } from "zod";
 

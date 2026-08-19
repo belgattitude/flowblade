@@ -42,7 +42,7 @@ const data = Array.from({ length: testDataCount }).map((_v, idx) => {
   return {
     id: idx,
     name: `name-${idx}`,
-    decimal_18_3: Number.parseFloat(
+    decimal_18_3: Number(
       `${idx + 1}.${((idx + 1) % 1000).toString(10).padStart(3, "0")}`
     ),
     iso_date: anIsoDate,

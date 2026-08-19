@@ -66,7 +66,7 @@ export class DuckMemory {
     );
 
     const res = await this.#conn.run(query);
-    return res.getRowObjectsJS() as unknown as Promise<DuckMemoryRow[]>;
+    return (await res.getRowObjectsJS()) as DuckMemoryRow[];
   };
 
   getByTag = async (tag: DuckMemoryTag): Promise<DuckMemoryRow | null> => {
@@ -77,7 +77,7 @@ export class DuckMemory {
                    FROM duckdb_memory() as m
                    WHERE tag = '${tag}'`;
 
-    return this.#exec.getOneRowObjectJS<DuckMemoryRow>(query);
+    return await this.#exec.getOneRowObjectJS<DuckMemoryRow>(query);
   };
 
   getSummary = async (): Promise<DuckMemorySummary> => {

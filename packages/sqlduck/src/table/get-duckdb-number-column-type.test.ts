@@ -1,7 +1,6 @@
 import {
   BIGINT,
   DECIMAL,
-  type DuckDBDecimalType,
   FLOAT,
   HUGEINT,
   INTEGER,
@@ -13,6 +12,7 @@ import {
   USMALLINT,
   UTINYINT,
 } from "@duckdb/node-api";
+import type { DuckDBDecimalType } from "@duckdb/node-api";
 import { describe, expect, it } from "vitest";
 
 import { getDuckdbNumberColumnType } from "./get-duckdb-number-column-type";

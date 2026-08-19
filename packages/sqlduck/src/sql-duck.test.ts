@@ -1,7 +1,8 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
 import { DuckdbDatasource, sql } from "@flowblade/source-duckdb";
 import { isParsableStrictIsoDateZ } from "@httpx/assert";
-import { type LogRecord, reset } from "@logtape/logtape";
+import { reset } from "@logtape/logtape";
+import type { LogRecord } from "@logtape/logtape";
 import isInCi from "is-in-ci";
 import { beforeAll, describe } from "vitest";
 import * as z from "zod";

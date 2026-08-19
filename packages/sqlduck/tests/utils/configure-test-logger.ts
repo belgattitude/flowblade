@@ -1,4 +1,5 @@
-import { configure, type LogRecord } from "@logtape/logtape";
+import { configure } from "@logtape/logtape";
+import type { LogRecord } from "@logtape/logtape";
 
 import { flowbladeLogtapeSqlduckConfig } from "../../src/index.ts";
 

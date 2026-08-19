@@ -3,11 +3,11 @@ import type { StartedMSSQLServerContainer } from "@testcontainers/mssqlserver/bu
 import {
   Kysely,
   MssqlAdapter,
-  type MssqlDialectConfig,
   MssqlDriver,
   MssqlIntrospector,
   MssqlQueryCompiler,
 } from "kysely";
+import type { MssqlDialectConfig } from "kysely";
 import * as tarn from "tarn";
 import * as tedious from "tedious";
 
@@ -43,11 +43,7 @@ export const createContainerMssql = <TDatabase = unknown>(
         }),
     },
   };
-  class MssqlExtendedDriver extends MssqlDriver {
-    constructor(props: MssqlDialectConfig) {
-      super(props);
-    }
-  }
+  class MssqlExtendedDriver extends MssqlDriver {}
   return new KyselyDatasource({
     connection: new Kysely<TDatabase>({
       dialect: {
