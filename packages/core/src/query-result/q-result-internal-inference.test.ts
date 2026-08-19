@@ -1,14 +1,14 @@
-import { expectTypeOf } from 'vitest';
+import { expectTypeOf } from "vitest";
 
-import { QMeta, type QMetaSqlSpan } from '../meta/q-meta';
-import { QResult } from './q-result';
-import type { QError } from './types';
+import { QMeta, type QMetaSqlSpan } from "../meta/q-meta";
+import { QResult } from "./q-result";
+import type { QError } from "./types";
 
-describe('QResult internal inference test', () => {
+describe("QResult internal inference test", () => {
   const initialSqlSpan: QMetaSqlSpan = {
-    type: 'sql',
+    type: "sql",
     timeMs: 10.334,
-    sql: 'SELECT name FROM users',
+    sql: "SELECT name FROM users",
     affectedRows: 10,
     params: [],
   };
@@ -18,10 +18,10 @@ describe('QResult internal inference test', () => {
       error: undefined,
       data: [
         {
-          name: 'Sébastien',
+          name: "Sébastien",
         },
         {
-          name: 'Damien',
+          name: "Damien",
         },
       ],
       meta: new QMeta({
@@ -29,9 +29,9 @@ describe('QResult internal inference test', () => {
       }),
     });
 
-  describe('$inferData', () => {
-    describe('when a result is success', () => {
-      it('should return the type of data', () => {
+  describe("$inferData", () => {
+    describe("when a result is success", () => {
+      it("should return the type of data", () => {
         const successResult = createSuccessResult();
         expectTypeOf(successResult.$inferData).toEqualTypeOf<
           {
@@ -39,12 +39,12 @@ describe('QResult internal inference test', () => {
           }[]
         >();
       });
-      describe('when a result is an error', () => {
-        it('should return undefined', () => {
+      describe("when a result is an error", () => {
+        it("should return undefined", () => {
           const errorResult = new QResult({
             data: undefined,
             error: {
-              message: 'Error',
+              message: "Error",
             },
             meta: new QMeta({
               spans: initialSqlSpan,
@@ -55,18 +55,18 @@ describe('QResult internal inference test', () => {
       });
     });
 
-    describe('$inferError', () => {
-      describe('when a result is success', () => {
-        it('should return undefined', () => {
+    describe("$inferError", () => {
+      describe("when a result is success", () => {
+        it("should return undefined", () => {
           const successResult = createSuccessResult();
           expectTypeOf(successResult.$inferError).toEqualTypeOf<undefined>();
         });
-        describe('when a result is an error', () => {
-          it('should return QError', () => {
+        describe("when a result is an error", () => {
+          it("should return QError", () => {
             const errorResult = new QResult({
               data: undefined,
               error: {
-                message: 'Error',
+                message: "Error",
               },
               meta: new QMeta({
                 spans: initialSqlSpan,

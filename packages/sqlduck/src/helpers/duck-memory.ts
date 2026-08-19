@@ -1,24 +1,24 @@
-import type { DuckDBConnection } from '@duckdb/node-api';
+import type { DuckDBConnection } from "@duckdb/node-api";
 
-import { DuckExec } from './duck-exec.ts';
+import { DuckExec } from "./duck-exec.ts";
 
 export const duckMemoryTags = [
-  'BASE_TABLE',
-  'HASH_TABLE',
-  'PARQUET_READER',
-  'CSV_READER',
-  'ORDER_BY',
-  'ART_INDEX',
-  'COLUMN_DATA',
-  'METADATA',
-  'OVERFLOW_STRINGS',
-  'IN_MEMORY_TABLE',
-  'ALLOCATOR',
-  'EXTENSION',
-  'TRANSACTION',
-  'EXTERNAL_FILE_CACHE',
-  'WINDOW',
-  'OBJECT_CACHE',
+  "BASE_TABLE",
+  "HASH_TABLE",
+  "PARQUET_READER",
+  "CSV_READER",
+  "ORDER_BY",
+  "ART_INDEX",
+  "COLUMN_DATA",
+  "METADATA",
+  "OVERFLOW_STRINGS",
+  "IN_MEMORY_TABLE",
+  "ALLOCATOR",
+  "EXTENSION",
+  "TRANSACTION",
+  "EXTERNAL_FILE_CACHE",
+  "WINDOW",
+  "OBJECT_CACHE",
 ] as const;
 
 export type DuckMemoryTag = (typeof duckMemoryTags)[number];
@@ -35,9 +35,9 @@ export type DuckMemoryRow = {
 };
 
 const orderByParams = {
-  memory_usage_bytes_desc: 'memory_usage_bytes DESC',
-  tag_desc: 'tag DESC',
-  tag_asc: 'tag ASC',
+  memory_usage_bytes_desc: "memory_usage_bytes DESC",
+  tag_desc: "tag DESC",
+  tag_asc: "tag ASC",
 };
 
 type OrderByParams = keyof typeof orderByParams;

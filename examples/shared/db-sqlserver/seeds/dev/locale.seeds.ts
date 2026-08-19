@@ -1,6 +1,6 @@
-import { AbstractSeed } from '../../src/lib/abstract-seed';
-import type { PrismaSqlServer as Prisma } from '../../src/prisma';
-import jsonLocales from './locale.seeds.json' with { type: 'json' };
+import { AbstractSeed } from "../../src/lib/abstract-seed";
+import type { PrismaSqlServer as Prisma } from "../../src/prisma";
+import jsonLocales from "./locale.seeds.json" with { type: "json" };
 
 export class LocaleSeeds extends AbstractSeed {
   execute = async (): Promise<void> => {
@@ -25,8 +25,8 @@ export class LocaleSeeds extends AbstractSeed {
         },
         create: l,
       });
-      this.log('UPSERT', `Language ${inserted.locale}`);
+      this.log("UPSERT", `Language ${inserted.locale}`);
     }
-    this.collectStats('Locale', { totalAffected: localeData.length });
+    this.collectStats("Locale", { totalAffected: localeData.length });
   };
 }

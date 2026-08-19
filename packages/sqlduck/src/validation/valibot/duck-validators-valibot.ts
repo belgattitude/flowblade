@@ -1,4 +1,4 @@
-import { duckIdentifierValibotSchema } from './duck-identifier-valibot-schema.ts';
+import { duckIdentifierValibotSchema } from "./duck-identifier-valibot-schema.ts";
 
 /**
  * Common validators for duckdb parameters, tables...

@@ -22,7 +22,7 @@ export class Table {
 
   constructor(fqTableOrName: FQTable | string) {
     this.#fqTable =
-      typeof fqTableOrName === 'string'
+      typeof fqTableOrName === "string"
         ? { name: fqTableOrName }
         : fqTableOrName;
   }
@@ -41,7 +41,7 @@ export class Table {
       database = defaultDatabase,
       schema = defaultSchema,
     } = this.#fqTable;
-    return [database, schema, name].filter(Boolean).join('.');
+    return [database, schema, name].filter(Boolean).join(".");
   };
   withDatabase = (database: string) => {
     return new Table({

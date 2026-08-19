@@ -1,3 +1,3 @@
 export const flowbladeLogtapeSqlduckConfig = {
-  categories: ['flowblade', 'sqlduck'],
+  categories: ["flowblade", "sqlduck"],
 };

@@ -1,21 +1,21 @@
-import { faker } from '@faker-js/faker';
-import { KyselyDatasource } from '@flowblade/source-kysely';
-import { sql } from 'kysely';
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { faker } from "@faker-js/faker";
+import { KyselyDatasource } from "@flowblade/source-kysely";
+import { sql } from "kysely";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-import { dbKyselyMssql } from '@/server/config/db.kysely-mssql.config';
+import { dbKyselyMssql } from "@/server/config/db.kysely-mssql.config";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-type Row = {
+interface Row {
   countryId: string;
   productId: string;
   productName: string;
-};
+}
 
 const initialTableData: Row[] = Array.from({ length: 1000 }, (_) => ({
-  countryId: faker.location.countryCode('alpha-2'),
+  countryId: faker.location.countryCode("alpha-2"),
   productId: faker.commerce.isbn(13),
   productName: faker.commerce.productName(),
 }));

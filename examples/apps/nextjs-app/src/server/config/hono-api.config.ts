@@ -1,54 +1,54 @@
-import { Scalar } from '@scalar/hono-api-reference';
-import { Hono } from 'hono';
-import { compress } from 'hono/compress';
-import { openAPIRouteHandler } from 'hono-openapi';
+import { Scalar } from "@scalar/hono-api-reference";
+import { Hono } from "hono";
+import { openAPIRouteHandler } from "hono-openapi";
+import { compress } from "hono/compress";
 
-import { demoDuckdbRouter } from '@/features/demo/duckdb/server/demo-duckdb.router.ts';
-import { ethicalProductRouter } from '@/features/products/server/ethical-product.router.ts';
-import { systemRouter } from '@/features/system/system.router.ts';
-import { getNextjsHostInfo } from '@/lib/nextjs/get-nextjs-host-info.ts';
+import { demoDuckdbRouter } from "@/features/demo/duckdb/server/demo-duckdb.router.ts";
+import { ethicalProductRouter } from "@/features/products/server/ethical-product.router.ts";
+import { systemRouter } from "@/features/system/system.router.ts";
+import { getNextjsHostInfo } from "@/lib/nextjs/get-nextjs-host-info.ts";
 
-import { serverEnv } from '../../env/server.env.mjs';
+import { serverEnv } from "../../env/server.env.mjs";
 
 export const createHonoApp = () => {
-  const app = new Hono().basePath('/api');
+  const app = new Hono().basePath("/api");
 
-  if (serverEnv.NEXT_CONFIG_COMPRESS === 'true') {
+  if (serverEnv.NEXT_CONFIG_COMPRESS === "true") {
     app.use(compress());
   }
 
-  app.get('/health', (c) => {
-    return c.json({
+  app.get("/health", (c) =>
+    c.json({
       time: new Date().toISOString(),
-    });
-  });
+    })
+  );
 
-  app.route('/demo/duckdb', demoDuckdbRouter);
-  app.route('/product/ethical', ethicalProductRouter);
-  app.route('/system', systemRouter);
+  app.route("/demo/duckdb", demoDuckdbRouter);
+  app.route("/product/ethical", ethicalProductRouter);
+  app.route("/system", systemRouter);
 
   const { baseUrl } = getNextjsHostInfo();
 
   app.get(
-    '/openapi.json',
+    "/openapi.json",
     openAPIRouteHandler(app, {
       documentation: {
         info: {
-          title: 'Flowblade example API',
-          version: '1.0.0',
-          description: 'Flowblade example API',
+          description: "Flowblade example API",
+          title: "Flowblade example API",
+          version: "1.0.0",
         },
-        servers: [{ url: baseUrl, description: 'Local Server' }],
+        servers: [{ description: "Local Server", url: baseUrl }],
       },
     })
   );
 
   app.get(
-    '/reference',
+    "/reference",
     Scalar({
-      url: '/api/openapi.json',
-      theme: 'purple',
-      pageTitle: 'Flowblade example API',
+      pageTitle: "Flowblade example API",
+      theme: "purple",
+      url: "/api/openapi.json",
     })
   );
 

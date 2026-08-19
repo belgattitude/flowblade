@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useCallback, useState } from 'react';
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useCallback, useState } from "react";
 
-import type { DuckTableLoaderChunk } from '../../components/duck-ui/duck-table-loader';
-import { DuckTableLoader } from '../../components/duck-ui/duck-table-loader';
+import type { DuckTableLoaderChunk } from "../../components/duck-ui/duck-table-loader";
+import { DuckTableLoader } from "../../components/duck-ui/duck-table-loader";
 // ─── Mock stream helper ───────────────────────────────────────────────────────
 type MockStreamOptions = {
   chunks: DuckTableLoaderChunk[];
@@ -30,7 +30,7 @@ function createMockStream({
           controller.close();
           return;
         }
-        const line = JSON.stringify(chunks[index++]) + '\n';
+        const line = JSON.stringify(chunks[index++]) + "\n";
         controller.enqueue(encoder.encode(line));
         timerId = setTimeout(sendNext, intervalMs);
       }
@@ -67,12 +67,12 @@ function StreamDemo({
         onComplete={({ totalRows, timeMs }) =>
           console.log(`[onComplete] totalRows=${totalRows} timeMs=${timeMs}`)
         }
-        onError={(err) => console.error('[onError]', err)}
+        onError={(err) => console.error("[onError]", err)}
       />
       <button
         type="button"
         onClick={() => setStream(makeStream())}
-        className="rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:bg-muted"
+        className="border-border bg-background text-foreground hover:bg-muted rounded-md border px-3 py-1.5 text-xs"
       >
         ↺ Restart
       </button>
@@ -89,7 +89,7 @@ function StreamDemo({
  * equivalent is to replace `globalThis.fetch` with a stub in Storybook's
  * `beforeEach` hook — same intent as nock, right runtime.
  */
-const MOCK_FETCH_URL = '/api/load-table';
+const MOCK_FETCH_URL = "/api/load-table";
 /**
  * Returns a `fetch` stub that, for `url`, responds with a streaming NDJSON body
  * built from `chunks`. All other URLs fall through to the real `fetch`.
@@ -102,7 +102,7 @@ function createFetchStub(
   const encoder = new TextEncoder();
   return async (input, init) => {
     const requestUrl =
-      typeof input === 'string' ? input : (input as Request).url;
+      typeof input === "string" ? input : (input as Request).url;
     if (!requestUrl.endsWith(url)) {
       return globalThis.fetch(input, init);
     }
@@ -114,7 +114,7 @@ function createFetchStub(
             controller.close();
             return;
           }
-          const line = JSON.stringify(chunks[index++]) + '\n';
+          const line = JSON.stringify(chunks[index++]) + "\n";
           controller.enqueue(encoder.encode(line));
           setTimeout(sendNext, intervalMs);
         }
@@ -123,7 +123,7 @@ function createFetchStub(
     });
     return new Response(body, {
       status: 200,
-      headers: { 'Content-Type': 'application/x-ndjson' },
+      headers: { "Content-Type": "application/x-ndjson" },
     });
   };
 }
@@ -145,7 +145,7 @@ function FetchStreamDemo({
     setStream(null);
     setFetchError(null);
     try {
-      const response = await fetch(MOCK_FETCH_URL, { method: 'POST' });
+      const response = await fetch(MOCK_FETCH_URL, { method: "POST" });
       if (!response.ok || !response.body) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -163,32 +163,32 @@ function FetchStreamDemo({
         onComplete={({ totalRows, timeMs }) =>
           console.log(`[onComplete] totalRows=${totalRows} timeMs=${timeMs}`)
         }
-        onError={(err) => console.error('[onError]', err)}
+        onError={(err) => console.error("[onError]", err)}
       />
       {fetchError && (
-        <p className="text-xs text-destructive">Fetch error: {fetchError}</p>
+        <p className="text-destructive text-xs">Fetch error: {fetchError}</p>
       )}
       <button
         type="button"
         onClick={start}
-        className="rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:bg-muted"
+        className="border-border bg-background text-foreground hover:bg-muted rounded-md border px-3 py-1.5 text-xs"
       >
-        {stream === null ? '▶ Start fetch' : '↺ Restart'}
+        {stream === null ? "▶ Start fetch" : "↺ Restart"}
       </button>
     </div>
   );
 }
 // ─── Meta ─────────────────────────────────────────────────────────────────────
 const meta = {
-  title: 'duck-ui/DuckTableLoader',
+  title: "duck-ui/DuckTableLoader",
   component: DuckTableLoader,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   // Provide defaults so render-based stories satisfy the required `tableName` prop.
   args: {
-    tableName: '',
+    tableName: "",
   },
 } satisfies Meta<typeof DuckTableLoader>;
 export default meta;
@@ -197,8 +197,8 @@ type Story = StoryObj<typeof meta>;
 /** No stream provided – the card sits in idle state. */
 export const Idle: Story = {
   args: {
-    tableName: 'main.orders',
-    description: 'Waiting for a fetch stream to be provided',
+    tableName: "main.orders",
+    description: "Waiting for a fetch stream to be provided",
     stream: null,
   },
 };
@@ -254,8 +254,8 @@ export const LoadingWithProgress: Story = {
  */
 export const Success: Story = {
   args: {
-    tableName: 'main.products',
-    description: 'Import complete',
+    tableName: "main.products",
+    description: "Import complete",
     stream: createMockStream({
       startDelayMs: 0,
       intervalMs: 0,
@@ -280,7 +280,7 @@ export const StreamError: Story = {
             {
               totalRows: 8192,
               timeMs: 711,
-              error: 'Connection reset by peer: upstream closed unexpectedly',
+              error: "Connection reset by peer: upstream closed unexpectedly",
             },
           ],
         })

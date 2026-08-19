@@ -1,9 +1,9 @@
-import type { ValiError } from 'valibot';
-import * as v from 'valibot';
+import type { ValiError } from "valibot";
+import * as v from "valibot";
 
 const numericSignedRegex = /^-?\d+$/;
 
-export type TaggedBigintString = string & v.Brand<'bigintString'>;
+export type TaggedBigintString = string & v.Brand<"bigintString">;
 
 /**
  * @example
@@ -37,8 +37,8 @@ export class BigintString {
       } catch {
         return false;
       }
-    }, 'The provided string is not a valid bigint'),
-    v.brand('bigintString')
+    }, "The provided string is not a valid bigint"),
+    v.brand("bigintString")
   );
 
   /**
@@ -55,11 +55,13 @@ export class BigintString {
     try {
       return v.parse(
         BigintString.valibotSchema,
-        typeof value === 'number' ? value.toString(10) : value
+        typeof value === "number" ? value.toString(10) : value
       );
     } catch (error) {
       const e = error as ValiError<typeof BigintString.valibotSchema>;
-      throw new TypeError(`${fieldName ? `${fieldName}: ` : ''}${e.message}`);
+      throw new TypeError(`${fieldName ? `${fieldName}: ` : ""}${e.message}`, {
+        cause: error,
+      });
     }
   };
 
@@ -80,7 +82,7 @@ export class BigintString {
   }
 
   static fromBigint(value: bigint | string | number): TaggedBigintString {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       return BigintString.parse(value);
     }
     return value.toString(10) as TaggedBigintString;

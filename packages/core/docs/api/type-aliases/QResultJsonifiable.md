@@ -6,7 +6,7 @@
 
 # Type Alias: QResultJsonifiable\<TData, TError\>
 
-> **QResultJsonifiable**\<`TData`, `TError`\> = `object`
+> **QResultJsonifiable**\<`TData`, `TError`> > > \> = `object`
 
 ## Type Parameters
 

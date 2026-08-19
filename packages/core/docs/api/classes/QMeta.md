@@ -84,7 +84,7 @@ meta.addSpan({
 
 ### getLatestSpan()
 
-> **getLatestSpan**(): `Readonly`\<[`QMetaSpan`](../type-aliases/QMetaSpan.md)\> \| `undefined`
+> **getLatestSpan**(): `Readonly`\<[`QMetaSpan`](../type-aliases/QMetaSpan.md)> > > \> \| `undefined`
 
 Return the most recent span or undefined there isn't any
 
@@ -96,7 +96,7 @@ Return the most recent span or undefined there isn't any
 
 ### getSpans()
 
-> **getSpans**(): `Readonly`\<[`QMetaSpan`](../type-aliases/QMetaSpan.md)\>[]
+> **getSpans**(): `Readonly`\<[`QMetaSpan`](../type-aliases/QMetaSpan.md)>>>\>[]
 
 #### Returns
 

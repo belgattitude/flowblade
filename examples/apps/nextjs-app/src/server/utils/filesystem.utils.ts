@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import fs from "node:fs";
 
 /**
  * Create a directory recursively if it doesn't exist'
@@ -8,16 +8,16 @@ import fs from 'node:fs';
 export const createDirectory = (path: string) => {
   try {
     fs.mkdirSync(path, { recursive: true });
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== 'EEXIST') {
-      throw err;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
+      throw error;
     }
   }
 };
 
 export const createAndEnsureWritableDirectory = (
   label: string,
-  path: string | undefined
+  path?: string | undefined
 ) => {
   if (path === undefined) {
     return;
@@ -25,9 +25,10 @@ export const createAndEnsureWritableDirectory = (
   if (!fs.existsSync(path)) {
     try {
       createDirectory(path);
-    } catch (e) {
+    } catch (error) {
       throw new Error(
-        `Failed to create ${label} '${path}' - ${(e as Error)?.message ?? ''}`
+        `Failed to create ${label} '${path}' - ${(error as Error)?.message ?? ""}`,
+        { cause: error }
       );
     }
   }
@@ -40,5 +41,4 @@ export const createAndEnsureWritableDirectory = (
   } catch {
     throw new Error(`${label} '${path}' must be writable`);
   }
-  return;
 };

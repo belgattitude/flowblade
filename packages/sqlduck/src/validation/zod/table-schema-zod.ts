@@ -1,4 +1,4 @@
-import type * as z from 'zod';
+import type * as z from "zod";
 
 export type ZodSchemaSupportedTypes =
   | z.ZodString

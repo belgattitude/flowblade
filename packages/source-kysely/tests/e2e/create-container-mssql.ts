@@ -1,4 +1,4 @@
-import type { StartedMSSQLServerContainer } from '@testcontainers/mssqlserver/build/mssqlserver-container';
+import type { StartedMSSQLServerContainer } from "@testcontainers/mssqlserver/build/mssqlserver-container";
 import {
   Kysely,
   MssqlAdapter,
@@ -6,11 +6,11 @@ import {
   MssqlDriver,
   MssqlIntrospector,
   MssqlQueryCompiler,
-} from 'kysely';
-import * as tarn from 'tarn';
-import * as tedious from 'tedious';
+} from "kysely";
+import * as tarn from "tarn";
+import * as tedious from "tedious";
 
-import { KyselyDatasource } from '../../src';
+import { KyselyDatasource } from "../../src";
 
 export const createContainerMssql = <TDatabase = unknown>(
   container: StartedMSSQLServerContainer
@@ -32,7 +32,7 @@ export const createContainerMssql = <TDatabase = unknown>(
               password: container.getPassword(),
               userName: container.getUsername(),
             },
-            type: 'default',
+            type: "default",
           },
           options: {
             database: container.getDatabase(),

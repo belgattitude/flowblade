@@ -1,21 +1,21 @@
-import { type DuckDBConnection, DuckDBInstanceCache } from '@duckdb/node-api';
-import type { Logger } from '@logtape/logtape';
-import type * as z from 'zod';
+import { type DuckDBConnection, DuckDBInstanceCache } from "@duckdb/node-api";
+import type { Logger } from "@logtape/logtape";
+import type * as z from "zod";
 
-import { FileSystemUtils } from '../../filesystem/file-system-utils.ts';
-import { sqlduckDefaultLogtapeLogger } from '../../logger/sqlduck-default-logtape-logger.ts';
-import { Database } from '../../objects/database.ts';
-import { quoteValue } from '../../utils/quote-value.ts';
-import type { DuckConnectionParams } from '../../validation/core/types.ts';
-import { duckConnectionParamsZodSchema } from '../../validation/zod/duck-connection-params-zod-schema.ts';
+import { FileSystemUtils } from "../../filesystem/file-system-utils.ts";
+import { sqlduckDefaultLogtapeLogger } from "../../logger/sqlduck-default-logtape-logger.ts";
+import { Database } from "../../objects/database.ts";
+import { quoteValue } from "../../utils/quote-value.ts";
+import type { DuckConnectionParams } from "../../validation/core/types.ts";
+import { duckConnectionParamsZodSchema } from "../../validation/zod/duck-connection-params-zod-schema.ts";
 import {
   assertValidAliasName,
   duckValidatorsZod,
-} from '../../validation/zod/index.ts';
-import type { duckDatabaseManagerZodSchemas } from '../../validation/zod/manager/duck-database-manager-zod-schemas.ts';
-import { ManagerQueryExecutor } from '../core/manager-query-executor.ts';
-import { DuckDatabaseAttachCommand } from './commands/duck-database-attach-command.ts';
-import { getAlreadyAttachedDatabaseFromError } from './utils/get-already-attached-database-from-error.ts';
+} from "../../validation/zod/index.ts";
+import type { duckDatabaseManagerZodSchemas } from "../../validation/zod/manager/duck-database-manager-zod-schemas.ts";
+import { ManagerQueryExecutor } from "../core/manager-query-executor.ts";
+import { DuckDatabaseAttachCommand } from "./commands/duck-database-attach-command.ts";
+import { getAlreadyAttachedDatabaseFromError } from "./utils/get-already-attached-database-from-error.ts";
 
 export type GetDatabaseInfo = z.infer<
   typeof duckDatabaseManagerZodSchemas.getDatabases
@@ -23,7 +23,7 @@ export type GetDatabaseInfo = z.infer<
 
 type AttachOptions =
   | {
-      behaviour: 'OR REPLACE';
+      behaviour: "OR REPLACE";
       /**
        * Since duckdb 1.5.4, the ATTACH OR REPLACE fails if the database is already attached.
        * If this option is set to true, when an attachOrReplace fails with the already attached
@@ -36,7 +36,7 @@ type AttachOptions =
       runDetachIfAttachOrReplaceFailWithAlreadyAttached?: boolean;
     }
   | {
-      behaviour: 'IF NOT EXISTS';
+      behaviour: "IF NOT EXISTS";
     };
 
 export class DuckDatabaseManager {
@@ -44,7 +44,7 @@ export class DuckDatabaseManager {
   #logger: Logger;
   #fs: FileSystemUtils | undefined;
   #executor: ManagerQueryExecutor;
-  readonly className = 'DuckDatabaseManager';
+  readonly className = "DuckDatabaseManager";
 
   constructor(conn: DuckDBConnection, params?: { logger?: Logger }) {
     this.#conn = conn;
@@ -79,7 +79,7 @@ export class DuckDatabaseManager {
       behaviour: options?.behaviour,
     }).getRawSql();
     const restoreCurrentDb = await this.getCurrentDatabase();
-    const tempDbNameHack = 'temp_run_detach_if_attached_hack_db';
+    const tempDbNameHack = "temp_run_detach_if_attached_hack_db";
     let isTempDbNameHackCreated = false;
     try {
       await this.#executor.getRowObjectsJS(
@@ -88,21 +88,21 @@ export class DuckDatabaseManager {
           options === undefined ? null : JSON.stringify(options),
         ]
           .filter(Boolean)
-          .join(',') + ')',
+          .join(",") + ")",
         rawSql
       );
     } catch (e) {
       // in duckdb > 1.5.5, the attach or replace of a file database now complains
       // Binder Error: Unique file handle conflict: Cannot attach "duckdb_second_attached_file" - the database file "/home/sebastien/github/flowblade/packages/sqlduck/tests/tmp/duckdb_test_reattachable_file.db" is already attached by database "duckdb_first_attached_file"
       if (
-        options?.behaviour === 'OR REPLACE' &&
+        options?.behaviour === "OR REPLACE" &&
         options?.runDetachIfAttachOrReplaceFailWithAlreadyAttached === true
       ) {
         const alreadyAttached = getAlreadyAttachedDatabaseFromError(e);
         if (alreadyAttached.isAlreadyAttached === true) {
           if (alreadyAttached.dbAlias === restoreCurrentDb) {
             await this.attachIfNotExists({
-              type: 'memory',
+              type: "memory",
               alias: tempDbNameHack,
             });
             await this.use(tempDbNameHack);
@@ -161,7 +161,7 @@ export class DuckDatabaseManager {
     }
   ) => {
     return this.attach(dbParams, {
-      behaviour: 'OR REPLACE',
+      behaviour: "OR REPLACE",
       runDetachIfAttachOrReplaceFailWithAlreadyAttached:
         options?.runDetachIfAttachOrReplaceFailWithAlreadyAttached,
     });
@@ -169,7 +169,7 @@ export class DuckDatabaseManager {
 
   attachIfNotExists = async (dbParams: DuckConnectionParams) => {
     return this.attach(dbParams, {
-      behaviour: 'IF NOT EXISTS',
+      behaviour: "IF NOT EXISTS",
     });
   };
 
@@ -195,7 +195,7 @@ export class DuckDatabaseManager {
   ): Promise<GetDatabaseInfo | null> => {
     assertValidAliasName(dbName);
     const result = await this.#executor.getRowObjectsJS<GetDatabaseInfo>(
-      'getDatabaseByName',
+      "getDatabaseByName",
       `select database_name,
                      database_oid,
                      path,
@@ -217,7 +217,7 @@ export class DuckDatabaseManager {
     path: string
   ): Promise<GetDatabaseInfo | null> => {
     const result = await this.#executor.getRowObjectsJS<GetDatabaseInfo>(
-      'getDatabaseByPath',
+      "getDatabaseByPath",
       `select database_name,
                      database_oid,
                      path,
@@ -242,9 +242,9 @@ export class DuckDatabaseManager {
     includeInternal?: boolean;
   }): Promise<GetDatabaseInfo[]> => {
     const { includeInternal = false } = params ?? {};
-    const internalFilter = includeInternal ? '1=1' : 'internal = false';
+    const internalFilter = includeInternal ? "1=1" : "internal = false";
     return this.#executor.getRowObjectsJS<GetDatabaseInfo>(
-      'getDatabases',
+      "getDatabases",
       `select database_name,
                      database_oid,
                      path,
@@ -263,7 +263,7 @@ export class DuckDatabaseManager {
    */
   showDatabases = async () => {
     return await this.#executor.getRowObjectsJS(
-      'showDatabases()',
+      "showDatabases()",
       `SHOW DATABASES`
     );
   };
@@ -302,7 +302,7 @@ export class DuckDatabaseManager {
    * @link https://duckdb.org/docs/stable/sql/statements/analyze
    */
   analyze = async (): Promise<boolean> => {
-    await this.#executor.getRowObjectsJS('analyze()', 'ANALYZE');
+    await this.#executor.getRowObjectsJS("analyze()", "ANALYZE");
     return true;
   };
 
@@ -316,28 +316,28 @@ export class DuckDatabaseManager {
   };
 
   vacuum = async (): Promise<boolean> => {
-    await this.#executor.getRowObjectsJS('vacuum()', 'VACUUM');
+    await this.#executor.getRowObjectsJS("vacuum()", "VACUUM");
     return true;
   };
 
   getCurrentDatabase = async (): Promise<string | null> => {
     const result = await this.#executor.getRowObjectsJS<{
       current_database: string | null;
-    }>('getCurrentDatabase()', 'SELECT current_database() as current_database');
+    }>("getCurrentDatabase()", "SELECT current_database() as current_database");
     return result[0]?.current_database ?? null;
   };
 
   getCurrentSchema = async (): Promise<string | null> => {
     const result = await this.#executor.getRowObjectsJS<{
       current_schema: string | null;
-    }>('getCurrentSchema()', 'SELECT current_schema() as current_schema');
+    }>("getCurrentSchema()", "SELECT current_schema() as current_schema");
     return result?.[0]?.current_schema ?? null;
   };
 
   getCurrentCatalog = async (): Promise<string | null> => {
     const result = await this.#executor.getRowObjectsJS<{
       current_catalog: string | null;
-    }>('getCurrentCatalog()', 'SELECT current_catalog() as current_catalog');
+    }>("getCurrentCatalog()", "SELECT current_catalog() as current_catalog");
     return result?.[0]?.current_catalog ?? null;
   };
 
@@ -360,18 +360,18 @@ export class DuckDatabaseManager {
   createDatabaseFile = async (params: {
     path: string;
     createDirectory?: boolean;
-  }): Promise<{ status: 'exists' | 'created' }> => {
+  }): Promise<{ status: "exists" | "created" }> => {
     const startTime = Date.now();
     const { path, createDirectory = true } = params;
 
     const fs = this.#getFs();
     if (fs.isFile(path)) {
-      return { status: 'exists' };
+      return { status: "exists" };
     }
 
     if (createDirectory) {
       const { directory } = fs.parsePath(path);
-      fs.createAndEnsureWritableDirectory('database file directory', directory);
+      fs.createAndEnsureWritableDirectory("database file directory", directory);
     }
 
     const instanceCache = new DuckDBInstanceCache();
@@ -389,7 +389,7 @@ export class DuckDatabaseManager {
       );
     } catch (e) {
       this.#logger.error(
-        `DuckDatabaseManager.createDatabaseFile('${path}') failed - ${(e as Error)?.message ?? ''}`,
+        `DuckDatabaseManager.createDatabaseFile('${path}') failed - ${(e as Error)?.message ?? ""}`,
         {
           path: path,
         }
@@ -397,7 +397,7 @@ export class DuckDatabaseManager {
       throw e;
     }
     return {
-      status: 'created',
+      status: "created",
     };
   };
 

@@ -1,7 +1,7 @@
 import {
   createKyselyMssqlDialect,
   TediousConnUtils,
-} from '@flowblade/source-kysely';
+} from "@flowblade/source-kysely";
 
 const defaultPoolOptions = {
   min: 0,

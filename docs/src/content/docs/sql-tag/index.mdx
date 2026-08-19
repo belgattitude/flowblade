@@ -2,7 +2,7 @@
 
 Fast and lightweight ([~630B](#bundle-size)) sql template tag based on [sql-template-tag](https://github.com/blakeembrey/sql-template-tag).
 
-<div className={'shields-ctn'}>
+<div className={"shields-ctn"}>
   [![npm](https://img.shields.io/npm/v/@flowblade/sql-tag?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/sql-tag)
   [![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/CHANGELOG.md)
   [![bundles](https://img.shields.io/static/v1?label=&message=cjs|esm@treeshake&logo=webpack&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/.size-limit.cjs)
@@ -31,25 +31,25 @@ npm i @flowblade/sql-tag
 
 ## API
 
-| Helpers   | Description                               | Example                                              |
-| --------- | ----------------------------------------- | ---------------------------------------------------- |
-| sql.join  | Join array values with optional separator | `AND id IN ${sql.join(['1', '3'])`                   |
-| sql.if    | Conditionally add a statement             | `AND ${sql.if(true, () => sql'deleted_at is null')}` |
-| sql.bulk  | Ease bulk inserts                         |                                                      |
-| sql.raw   | Allow to pass unsafe values in the query. | `ORDER BY ${sql.raw('name desc')}`                   |
-| sql.empty | Helper to represent empty string.         | `${isTrue ? sql'1=1' : sql.empty}`                   |
+| Helpers | Description | Example |
+| --- | --- | --- |
+| sql.join | Join array values with optional separator | `AND id IN ${sql.join(['1', '3'])` |
+| sql.if | Conditionally add a statement | `AND ${sql.if(true, () => sql'deleted_at is null')}` |
+| sql.bulk | Ease bulk inserts |  |
+| sql.raw | Allow to pass unsafe values in the query. | `ORDER BY ${sql.raw('name desc')}` |
+| sql.empty | Helper to represent empty string. | `${isTrue ? sql'1=1' : sql.empty}` |
 
 ## Usage
 
 ### Basic
 
 ```typescript
-import { sql } from '@flowblade/sql-tag';
+import { sql } from "@flowblade/sql-tag";
 
 // 👈 User provided parameters
 const params = {
-  country: 'BE',
-  users: ['John', 'Doe'],
+  country: "BE",
+  users: ["John", "Doe"],
 };
 
 const query = sql<{
@@ -69,7 +69,7 @@ const query = sql<{
 ### Conditionals
 
 ```typescript
-import { sql } from '@flowblade/sql-tag';
+import { sql } from "@flowblade/sql-tag";
 
 // 👈 User provided parameters
 const userIds = [1, 2];
@@ -99,7 +99,7 @@ const query = sql<{
 You can nest any query into another one.
 
 ```typescript
-import { sql } from '@flowblade/sql-tag';
+import { sql } from "@flowblade/sql-tag";
 
 const getSqlUserCountByCountries = (minUsers: number) => sql`
   SELECT
@@ -111,7 +111,7 @@ const getSqlUserCountByCountries = (minUsers: number) => sql`
   HAVING count(u.id) > ${minUsers}
 `;
 
-const compression: 'zstd' | 'snappy' | 'gzip' = 'zstd';
+const compression: "zstd" | "snappy" | "gzip" = "zstd";
 
 // Example base on DuckDb COPY statement
 // but you can nest into CTE, table aliases, subqueries etc...
@@ -131,13 +131,13 @@ console.log(query.sql); // "COPY (SELECT...."
 Ease bulk inserts/merge from multi rows arrays.
 
 ```typescript
-import { sql } from '@flowblade/sql-tag';
+import { sql } from "@flowblade/sql-tag";
 
 const insert = sql`
    INSERT INTO product (name, price, stock, status)
    VALUES ${sql.bulk([
-     ['Laptop', 999.99, 50, 'active'],
-     ['Keyboard', 79.99, 100, 'active'],
+     ["Laptop", 999.99, 50, "active"],
+     ["Keyboard", 79.99, 100, "active"],
    ])}
   `;
 
@@ -157,7 +157,7 @@ const result = await db.query(text, values, {});
 ### With transact-sql (mssql)
 
 ```typescript
-import { sql } from '@flowblade/sql-tag';
+import { sql } from "@flowblade/sql-tag";
 
 const products = Array.from({ length: 1000 }, (_, i) => ({
   id: i,
@@ -213,14 +213,14 @@ Bundle size is tracked by a [size-limit configuration](https://github.com/belgat
 
 ## Compatibility
 
-| Level        | CI  | Description                                                                                                                                                                                                                                                                                                                                                      |
-| ------------ | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node         | ✅  | CI for 20.x, 22.x, 24.x & 25.x.                                                                                                                                                                                                                                                                                                                                  |
-| Bun          | ✅  | Tested on latest (1.3.5)                                                                                                                                                                                                                                                                                                                                         |
-| Browser      | ✅  | Tested with latest chrome (vitest/playwright)                                                                                                                                                                                                                                                                                                                    |
-| Browserslist | ✅  | [> 95%](https://browserslist.dev/?q=ZGVmYXVsdHMsIGNocm9tZSA%2BPSA5NiwgZmlyZWZveCA%2BPSAxMDUsIGVkZ2UgPj0gMTEzLCBzYWZhcmkgPj0gMTUsIGlvcyA%2BPSAxNSwgb3BlcmEgPj0gMTAzLCBub3QgZGVhZA%3D%3D) on 01/2025. [Chrome 96+, Firefox 90+, Edge 19+, ios 15+, Safari 15+ and Opera 77+](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/.browserslistrc) |
-| Edge         | ✅  | Ensured on CI with [@vercel/edge-runtime](https://github.com/vercel/edge-runtime).                                                                                                                                                                                                                                                                               |
-| Cloudflare   | ✅  | Ensured with @cloudflare/vitest-pool-workers (see [wrangler.toml](https://github.com/belgattitude/flowblade/blob/main/devtools/vitest/wrangler.toml)                                                                                                                                                                                                             |
-| Typescript   | ✅  | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI.                                                                                                                                                                                                                                                    |
-| ES2022       | ✅  | Dist files checked with [es-check](https://github.com/yowainwright/es-check)                                                                                                                                                                                                                                                                                     |
-| Performance  | ✅  | Monitored with [codspeed.io](https://codspeed.io/belgattitude/flowblade)                                                                                                                                                                                                                                                                                         |
+| Level | CI | Description |
+| --- | --- | --- |
+| Node | ✅ | CI for 20.x, 22.x, 24.x & 25.x. |
+| Bun | ✅ | Tested on latest (1.3.5) |
+| Browser | ✅ | Tested with latest chrome (vitest/playwright) |
+| Browserslist | ✅ | [> 95%](https://browserslist.dev/?q=ZGVmYXVsdHMsIGNocm9tZSA%2BPSA5NiwgZmlyZWZveCA%2BPSAxMDUsIGVkZ2UgPj0gMTEzLCBzYWZhcmkgPj0gMTUsIGlvcyA%2BPSAxNSwgb3BlcmEgPj0gMTAzLCBub3QgZGVhZA%3D%3D) on 01/2025. [Chrome 96+, Firefox 90+, Edge 19+, ios 15+, Safari 15+ and Opera 77+](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/.browserslistrc) |
+| Edge | ✅ | Ensured on CI with [@vercel/edge-runtime](https://github.com/vercel/edge-runtime). |
+| Cloudflare | ✅ | Ensured with @cloudflare/vitest-pool-workers (see [wrangler.toml](https://github.com/belgattitude/flowblade/blob/main/devtools/vitest/wrangler.toml) |
+| Typescript | ✅ | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI. |
+| ES2022 | ✅ | Dist files checked with [es-check](https://github.com/yowainwright/es-check) |
+| Performance | ✅ | Monitored with [codspeed.io](https://codspeed.io/belgattitude/flowblade) |

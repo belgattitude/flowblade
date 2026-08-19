@@ -1,31 +1,29 @@
-import { Hono } from 'hono';
-import { describeRoute, resolver } from 'hono-openapi';
+import { Hono } from "hono";
+import { describeRoute, resolver } from "hono-openapi";
 
 import {
   getSystemStats,
   systemStatsSchema,
-} from '@/features/system/system-stats.ts';
+} from "@/features/system/system-stats.ts";
 
 const app = new Hono();
 
 app.get(
-  '/stats',
+  "/stats",
   describeRoute({
-    description: 'System stats',
+    description: "System stats",
     responses: {
       200: {
-        description: 'Successful response',
         content: {
-          'application/json': {
+          "application/json": {
             schema: resolver(systemStatsSchema),
           },
         },
+        description: "Successful response",
       },
     },
   }),
-  async (c) => {
-    return c.json(await getSystemStats());
-  }
+  async (c) => c.json(await getSystemStats())
 );
 
 export { app as systemRouter };

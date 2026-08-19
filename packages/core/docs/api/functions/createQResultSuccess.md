@@ -6,7 +6,7 @@
 
 # Function: createQResultSuccess()
 
-> **createQResultSuccess**\<`T`\>(`data`, `meta`): [`QResult`](../classes/QResult.md)\<`T`, `never`\>
+> **createQResultSuccess**\<`T`>>>\>(`data`, `meta`): [`QResult`](../classes/QResult.md)\<`T`, `never`>>>\>
 
 ## Type Parameters
 

@@ -1,11 +1,11 @@
-import type { DuckDBConnection } from '@duckdb/node-api';
-import * as z from 'zod';
+import type { DuckDBConnection } from "@duckdb/node-api";
+import * as z from "zod";
 
-import { createDuckdbTestMemoryDb } from '@/tests/utils/create-duckdb-test-memory-db.ts';
+import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
 
-import { DuckDatabaseManager, SqlDuck, Table } from '../../../src';
+import { DuckDatabaseManager, SqlDuck, Table } from "../../../src";
 
-describe('basic appender', () => {
+describe("basic appender", () => {
   let conn: DuckDBConnection;
 
   beforeAll(async () => {
@@ -15,12 +15,12 @@ describe('basic appender', () => {
     conn.closeSync();
   });
 
-  describe('toTable', () => {
-    it('should correclty append data', async () => {
+  describe("toTable", () => {
+    it("should correclty append data", async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const database = await dbManager.attach({
-        type: 'memory', // can be 'filesystem', ...
-        alias: 'mydb',
+        type: "memory", // can be 'filesystem', ...
+        alias: "mydb",
         options: { compress: false },
       });
 
@@ -40,13 +40,13 @@ describe('basic appender', () => {
         z.infer<typeof userSchema>
       > {
         // database or api call
-        yield { id: 1, name: 'John', decimal_18_3: 1.001 };
-        yield { id: 2, name: 'Jane', decimal_18_3: 2 };
+        yield { id: 1, name: "John", decimal_18_3: 1.001 };
+        yield { id: 2, name: "Jane", decimal_18_3: 2 };
       }
 
       // Create a table from the schema and the datasource
       const result = await sqlDuck.toTable({
-        table: new Table({ name: 'user', database: database.alias }),
+        table: new Table({ name: "user", database: database.alias }),
         schema: userSchema, // The schema to use to create the table
         rowStream: getUsers(), // The async iterable that yields rows
         // 👇Optional:
@@ -60,7 +60,7 @@ describe('basic appender', () => {
         },
         // Optional table creation options
         createOptions: {
-          create: 'CREATE_OR_REPLACE',
+          create: "CREATE_OR_REPLACE",
         },
       });
       expect(result).toStrictEqual({
@@ -69,17 +69,17 @@ describe('basic appender', () => {
         createTableDDL: expect.stringMatching(/^CREATE OR REPLACE TABLE(.*)/),
       });
 
-      const reader = await conn.runAndReadAll('select * from mydb.user');
+      const reader = await conn.runAndReadAll("select * from mydb.user");
       expect(reader.getRowObjectsJS()).toStrictEqual([
         {
           decimal_18_3: 1.001,
           id: 1,
-          name: 'John',
+          name: "John",
         },
         {
           decimal_18_3: 2,
           id: 2,
-          name: 'Jane',
+          name: "Jane",
         },
       ]);
     });

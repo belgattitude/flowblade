@@ -1,6 +1,6 @@
 [**@flowblade/sqlduck v0.16.0**](../README.md)
 
-***
+---
 
 [@flowblade/sqlduck](../README.md) / OnChunkAppendedStats
 
@@ -16,7 +16,7 @@
 
 Estimated rows per seconds based on the current batch
 
-***
+---
 
 ### timeMs
 
@@ -24,7 +24,7 @@ Estimated rows per seconds based on the current batch
 
 Time taken to append the last batch in milliseconds
 
-***
+---
 
 ### totalRows
 

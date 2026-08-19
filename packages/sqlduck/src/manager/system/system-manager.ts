@@ -1,4 +1,4 @@
-import * as os from 'node:os';
+import * as os from "node:os";
 
 export type SystemInfo = {
   freeMemory: number;
@@ -7,7 +7,7 @@ export type SystemInfo = {
 };
 
 export class SystemManager {
-  readonly className = 'SystemManager';
+  readonly className = "SystemManager";
 
   /**
    * Return basic system information such as memory and available parallelism.

@@ -12,17 +12,17 @@ import {
   UINTEGER,
   USMALLINT,
   UTINYINT,
-} from '@duckdb/node-api';
+} from "@duckdb/node-api";
 
 const isFloatValue = (value: number): boolean => {
   if (!Number.isFinite(value)) return true;
-  if (!value.toString(10).includes('.')) return false;
+  if (!value.toString(10).includes(".")) return false;
   if (Math.abs(value) > Number.MAX_SAFE_INTEGER) return true;
   return !Number.isInteger(value);
 };
 
 const getScale = (value: number): number => {
-  const parts = value.toString().split('.');
+  const parts = value.toString().split(".");
   if (parts.length < 2) return 0;
   return parts[1]!.length;
 };

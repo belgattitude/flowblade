@@ -3,21 +3,21 @@ import {
   getConsoleSink,
   type LogRecord,
   reset,
-} from '@logtape/logtape';
-import { prettyFormatter } from '@logtape/pretty';
-import { MSSQLServerContainer } from '@testcontainers/mssqlserver';
-import type { StartedMSSQLServerContainer } from '@testcontainers/mssqlserver/build/mssqlserver-container';
-import isInCi from 'is-in-ci';
-import { type InferResult, sql } from 'kysely';
-import { afterEach, beforeEach, describe, expect, expectTypeOf } from 'vitest';
+} from "@logtape/logtape";
+import { prettyFormatter } from "@logtape/pretty";
+import { MSSQLServerContainer } from "@testcontainers/mssqlserver";
+import type { StartedMSSQLServerContainer } from "@testcontainers/mssqlserver/build/mssqlserver-container";
+import isInCi from "is-in-ci";
+import { type InferResult, sql } from "kysely";
+import { afterEach, beforeEach, describe, expect, expectTypeOf } from "vitest";
 
 import {
   flowbladeLogtapeKyselyConfig,
   type KyselyDatasource,
-} from '../../../src';
-import { createContainerMssql } from '../create-container-mssql';
+} from "../../../src";
+import { createContainerMssql } from "../create-container-mssql";
 
-const mssqlImage = 'mcr.microsoft.com/mssql/server:2025-latest';
+const mssqlImage = "mcr.microsoft.com/mssql/server:2025-latest";
 
 const startupTimeout = isInCi ? 200_000 : 60_000;
 
@@ -108,7 +108,7 @@ const getMigrations = (
 
 const testTimeout = 10_000;
 
-describe('MSSQL e2e tests', () => {
+describe("MSSQL e2e tests", () => {
   let container: StartedMSSQLServerContainer;
   let ds: KyselyDatasource<DB>;
 
@@ -126,11 +126,11 @@ describe('MSSQL e2e tests', () => {
     await container.stop();
   });
 
-  describe('Datasource sqlserver', () => {
+  describe("Datasource sqlserver", () => {
     describe(
-      'Kysely raw queries',
+      "Kysely raw queries",
       () => {
-        it('01. basicQuery', async () => {
+        it("01. basicQuery", async () => {
           type Row = {
             one: number;
           };
@@ -144,14 +144,14 @@ describe('MSSQL e2e tests', () => {
           expectTypeOf(result.data!).toEqualTypeOf<Row[]>();
         });
 
-        it('02. errorQuery', async () => {
+        it("02. errorQuery", async () => {
           type Row = {
             one: number;
           };
 
           const rawSql = sql<Row>`SELECT FROM 1 as invalid_query`;
           const result = await ds.query(rawSql, {
-            name: 'Error query',
+            name: "Error query",
           });
 
           expect(result.isOk()).toBe(false);
@@ -165,18 +165,18 @@ describe('MSSQL e2e tests', () => {
           expect(restFirstSpan).toMatchObject({
             affectedRows: expect.any(Number),
             params: [],
-            type: 'sql',
-            sql: 'SELECT FROM 1 as invalid_query',
+            type: "sql",
+            sql: "SELECT FROM 1 as invalid_query",
           });
         });
 
-        it('03. basicQuery with params', async () => {
+        it("03. basicQuery with params", async () => {
           type Row = {
             one: number;
           };
           const params = {
             number: 1,
-            string: 'Hello',
+            string: "Hello",
           };
 
           const rawSql = sql<Row>`
@@ -185,7 +185,7 @@ describe('MSSQL e2e tests', () => {
           AND 'Hello' like ${params.string}
       `;
           const result = await ds.query(rawSql, {
-            name: 'Retrieve something',
+            name: "Retrieve something",
           });
 
           expect(result.isOk()).toBe(true);
@@ -195,13 +195,13 @@ describe('MSSQL e2e tests', () => {
           const { timeMs: _t, ...restFirstSpan } = firstSpan;
           expect(restFirstSpan).toMatchObject({
             affectedRows: expect.any(Number),
-            params: [1, 'Hello'],
-            type: 'sql',
+            params: [1, "Hello"],
+            type: "sql",
             sql: expect.any(String),
           });
         });
 
-        it('multiple line queries errors', async () => {
+        it("multiple line queries errors", async () => {
           const qRaw = sql`
           DELETE FRM qsqdfqsldkjf like '';    
           SELECT WHERE;
@@ -213,11 +213,11 @@ describe('MSSQL e2e tests', () => {
           });
         });
 
-        it('upsert some data with multi line queries', async () => {
+        it("upsert some data with multi line queries", async () => {
           const params = [
-            { id: 10_000_000, name: 'UpsertTest - Brand A' },
-            { id: 10_000_001, name: 'UpsertTest - Brand B' },
-            { id: 10_000_002, name: 'UpsertTest - Brand C' },
+            { id: 10_000_000, name: "UpsertTest - Brand A" },
+            { id: 10_000_001, name: "UpsertTest - Brand B" },
+            { id: 10_000_002, name: "UpsertTest - Brand C" },
           ];
 
           const qRaw = sql`
@@ -240,19 +240,19 @@ describe('MSSQL e2e tests', () => {
     );
 
     describe(
-      'Kysely with query builder',
+      "Kysely with query builder",
       () => {
-        it('select: get some brands', async () => {
-          const pastDate = new Date(Date.parse('2025-01-09T23:30:57.701Z'));
+        it("select: get some brands", async () => {
+          const pastDate = new Date(Date.parse("2025-01-09T23:30:57.701Z"));
           const query = ds.queryBuilder
-            .selectFrom('TestTable as t')
-            .select(['t.id', 't.created_at'])
-            .leftJoin('TestTableLinked as tt', 't.id', 'tt.test_table_id')
-            .where('t.created_at', '>', pastDate)
-            .orderBy('t.name', 'desc');
+            .selectFrom("TestTable as t")
+            .select(["t.id", "t.created_at"])
+            .leftJoin("TestTableLinked as tt", "t.id", "tt.test_table_id")
+            .where("t.created_at", ">", pastDate)
+            .orderBy("t.name", "desc");
 
           const result = await ds.query(query, {
-            name: 'get-some-brands',
+            name: "get-some-brands",
           });
 
           const { data, meta, error } = result;
@@ -268,7 +268,7 @@ describe('MSSQL e2e tests', () => {
           expect(restFirstSpan).toMatchObject({
             affectedRows: expect.any(Number),
             params: [pastDate],
-            type: 'sql',
+            type: "sql",
             sql: 'select "t"."id", "t"."created_at" from "TestTable" as "t" left join "TestTableLinked" as "tt" on "t"."id" = "tt"."test_table_id" where "t"."created_at" > @1 order by "t"."name" desc',
           });
           expectTypeOf(data!).toEqualTypeOf<InferResult<typeof query>>();
@@ -278,12 +278,12 @@ describe('MSSQL e2e tests', () => {
     );
 
     describe(
-      'Streams with query builder',
+      "Streams with query builder",
       () => {
-        it('select: get some brands', async () => {
+        it("select: get some brands", async () => {
           const query = ds.queryBuilder
-            .selectFrom('TestTable as t')
-            .select(['t.id']);
+            .selectFrom("TestTable as t")
+            .select(["t.id"]);
 
           const result = ds.stream(query);
           const data = await Array.fromAsync(result);
@@ -296,9 +296,9 @@ describe('MSSQL e2e tests', () => {
     );
 
     describe(
-      'queryOrThrow',
+      "queryOrThrow",
       () => {
-        it('should not throw when the query is ok', async () => {
+        it("should not throw when the query is ok", async () => {
           const rawSql = sql<{ ok: number }>`SELECT 1 as ok`;
           const { data } = await ds.queryOrThrow(rawSql);
           expect(data).toStrictEqual([{ ok: 1 }]);
@@ -306,18 +306,18 @@ describe('MSSQL e2e tests', () => {
 
         it("should throw when the query couldn't be executed", async () => {
           const rawSql = sql<{ ok: number }>`SELECT FRM 1`;
-          await expect(() => {
-            return ds.queryOrThrow(rawSql, {
-              name: 'nok query',
-            });
-          }).rejects.toThrowError("Query failed: Incorrect syntax near '1'.");
+          await expect(
+            ds.queryOrThrow(rawSql, {
+              name: "nok query",
+            })
+          ).rejects.toThrow("Query failed: Incorrect syntax near '1'.");
         });
       },
       testTimeout
     );
   });
 
-  describe('Logger', () => {
+  describe("Logger", () => {
     let logBuffer: LogRecord[] = [];
     beforeEach(async () => {
       await configure({
@@ -333,14 +333,14 @@ describe('MSSQL e2e tests', () => {
         },
         loggers: [
           {
-            category: ['logtape', 'meta'],
-            lowestLevel: 'error',
-            sinks: ['console'],
+            category: ["logtape", "meta"],
+            lowestLevel: "error",
+            sinks: ["console"],
           },
           {
-            category: ['flowblade', 'kysely'],
-            lowestLevel: 'debug',
-            sinks: ['buffer'],
+            category: ["flowblade", "kysely"],
+            lowestLevel: "debug",
+            sinks: ["buffer"],
           },
         ],
       });
@@ -351,37 +351,37 @@ describe('MSSQL e2e tests', () => {
       logBuffer = [];
     });
 
-    it('should log success', async () => {
+    it("should log success", async () => {
       const { meta } = await ds.query(sql`SELECT 'test'`, {
-        name: 'TEST',
+        name: "TEST",
       });
       expect(logBuffer[0]!).toMatchObject({
         category: flowbladeLogtapeKyselyConfig.categories,
-        level: 'debug',
+        level: "debug",
         rawMessage: 'Executing query "{queryName}"',
-        message: ['Executing query "', 'TEST', '"'],
+        message: ['Executing query "', "TEST", '"'],
         properties: {
-          queryName: 'TEST',
+          queryName: "TEST",
           sql: "SELECT 'test'",
           params: [],
         },
       });
       expect(logBuffer[1]!).toMatchObject({
         category: flowbladeLogtapeKyselyConfig.categories,
-        level: 'info',
+        level: "info",
         rawMessage:
           'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
         message: [
           'Query "',
-          'TEST',
+          "TEST",
           '" executed in ',
           meta.getTotalTimeMs(),
-          'ms, affected ',
+          "ms, affected ",
           1,
-          ' row(s)',
+          " row(s)",
         ],
         properties: {
-          queryName: 'TEST',
+          queryName: "TEST",
           sql: "SELECT 'test'",
           params: [],
           affectedRows: 1,
@@ -390,29 +390,29 @@ describe('MSSQL e2e tests', () => {
       });
     });
 
-    it('should log error', async () => {
+    it("should log error", async () => {
       const { meta } = await ds.query(sql`SELECT err`, {
-        name: 'ERROR',
+        name: "ERROR",
       });
       expect(logBuffer[0]!).toMatchObject({
         category: flowbladeLogtapeKyselyConfig.categories,
-        level: 'debug',
+        level: "debug",
         rawMessage: 'Executing query "{queryName}"',
-        message: ['Executing query "', 'ERROR', '"'],
+        message: ['Executing query "', "ERROR", '"'],
         properties: {
-          queryName: 'ERROR',
-          sql: 'SELECT err',
+          queryName: "ERROR",
+          sql: "SELECT err",
           params: [],
         },
       });
       expect(logBuffer[1]!).toMatchObject({
         category: flowbladeLogtapeKyselyConfig.categories,
-        level: 'error',
-        message: ['Query "', 'ERROR', "\" failed: Invalid column name 'err'."],
-        rawMessage: 'Query "{queryName}" failed: Invalid column name \'err\'.',
+        level: "error",
+        message: ['Query "', "ERROR", "\" failed: Invalid column name 'err'."],
+        rawMessage: "Query \"{queryName}\" failed: Invalid column name 'err'.",
         properties: {
-          queryName: 'ERROR',
-          sql: 'SELECT err',
+          queryName: "ERROR",
+          sql: "SELECT err",
           params: [],
           affectedRows: 0,
           timeMs: meta.getTotalTimeMs(),

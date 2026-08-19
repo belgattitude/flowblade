@@ -1,36 +1,36 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 import {
   createFakeRowsAsyncIterator,
   createFakeRowsIterator,
-} from './create-fake-rows-iterator';
+} from "./create-fake-rows-iterator";
 
-describe('Generate fake data', () => {
-  it('should generate fake data', async () => {
+describe("Generate fake data", () => {
+  it("should generate fake data", async () => {
     const duckRegistry = z.registry<{
-      duckdb: { type: 'VARCHAR' | 'INTEGER' | 'TIMESTAMP' };
+      duckdb: { type: "VARCHAR" | "INTEGER" | "TIMESTAMP" };
     }>();
 
     const userSchema = z.object({
       id: z.number().register(duckRegistry, {
-        duckdb: { type: 'INTEGER' },
+        duckdb: { type: "INTEGER" },
       }),
       name: z.string().meta({
-        duckdb: { type: 'VARCHAR' },
+        duckdb: { type: "VARCHAR" },
       }),
       email: z.email().meta({
-        duckdb: { type: 'VARCHAR' },
+        duckdb: { type: "VARCHAR" },
       }),
       created_at: z.date().meta({
-        duckdb: { type: 'TIMESTAMP' },
+        duckdb: { type: "TIMESTAMP" },
       }),
       test_int32: z.int32(),
     });
 
     const firstRow = {
       id: 1,
-      name: 'cool',
-      email: 'test@example.com',
+      name: "cool",
+      email: "test@example.com",
       created_at: new Date(),
       test_int32: z.int32().parse(123),
     } satisfies z.infer<typeof userSchema>;
@@ -62,30 +62,30 @@ describe('Generate fake data', () => {
     expect(rows.length).toBe(5);
   });
 
-  it('should generate fake data with async generator', async () => {
+  it("should generate fake data with async generator", async () => {
     const duckRegistry = z.registry<{
-      duckdb: { type: 'VARCHAR' | 'INTEGER' | 'TIMESTAMP' };
+      duckdb: { type: "VARCHAR" | "INTEGER" | "TIMESTAMP" };
     }>();
 
     const userSchema = z.object({
       id: z.number().register(duckRegistry, {
-        duckdb: { type: 'INTEGER' },
+        duckdb: { type: "INTEGER" },
       }),
       name: z.string().meta({
-        duckdb: { type: 'VARCHAR' },
+        duckdb: { type: "VARCHAR" },
       }),
       email: z.email().meta({
-        duckdb: { type: 'VARCHAR' },
+        duckdb: { type: "VARCHAR" },
       }),
       created_at: z.date().meta({
-        duckdb: { type: 'TIMESTAMP' },
+        duckdb: { type: "TIMESTAMP" },
       }),
     });
 
     const firstRow = {
       id: 1,
-      name: 'cool',
-      email: 'test@example.com',
+      name: "cool",
+      email: "test@example.com",
       created_at: new Date(),
     } satisfies z.infer<typeof userSchema>;
 
@@ -107,7 +107,7 @@ describe('Generate fake data', () => {
 
     // should be AsyncIterableIterator
     const asyncIter = rowsGenAsync();
-    expect(typeof (asyncIter as any)[Symbol.asyncIterator]).toBe('function');
+    expect(typeof (asyncIter as any)[Symbol.asyncIterator]).toBe("function");
 
     // for-await iteration should yield firstRow first
     const received: z.infer<typeof userSchema>[] = [];

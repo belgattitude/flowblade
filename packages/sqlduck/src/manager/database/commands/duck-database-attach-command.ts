@@ -1,13 +1,13 @@
-import { assertNever } from '@httpx/assert';
-import { isPlainObject } from '@httpx/plain-object';
+import { assertNever } from "@httpx/assert";
+import { isPlainObject } from "@httpx/plain-object";
 
 import type {
   DuckAllConnectionOptions,
   DuckConnectionParams,
-} from '../../../validation/core/types.ts';
-import type { IGetRawSql } from '../../core/get-raw-sql.interface.ts';
+} from "../../../validation/core/types.ts";
+import type { IGetRawSql } from "../../core/get-raw-sql.interface.ts";
 
-export type DuckDatabaseAttachCommandBehaviour = 'OR REPLACE' | 'IF NOT EXISTS';
+export type DuckDatabaseAttachCommandBehaviour = "OR REPLACE" | "IF NOT EXISTS";
 
 export type DuckDatabaseAttachCommandOptions = {
   behaviour?: DuckDatabaseAttachCommandBehaviour;
@@ -27,20 +27,20 @@ export class DuckDatabaseAttachCommand implements IGetRawSql {
 
   getRawSql = () => {
     const dbParams = this.dbParams;
-    const parts = ['ATTACH', this.options.behaviour].filter(Boolean);
+    const parts = ["ATTACH", this.options.behaviour].filter(Boolean);
     const { type, alias } = dbParams;
     switch (type) {
-      case 'memory':
+      case "memory":
         parts.push("':memory:'");
         break;
-      case 'filesystem':
+      case "filesystem":
         parts.push(`'${dbParams.path}'`);
         break;
       default:
         assertNever(type);
     }
     if (alias !== null) {
-      parts.push('AS', `${alias}`);
+      parts.push("AS", `${alias}`);
     }
 
     const options: string[] = [];
@@ -48,33 +48,33 @@ export class DuckDatabaseAttachCommand implements IGetRawSql {
     if (isPlainObject<DuckAllConnectionOptions>(dbParams.options)) {
       for (const [key, value] of Object.entries(dbParams.options)) {
         switch (key as keyof DuckAllConnectionOptions) {
-          case 'accessMode':
+          case "accessMode":
             options.push(`${value}`);
             break;
-          case 'compress':
+          case "compress":
             if (value === true) {
-              options.push('COMPRESS');
+              options.push("COMPRESS");
             }
             break;
-          case 'blockSize':
+          case "blockSize":
             options.push(`BLOCK_SIZE ${value}`);
             break;
-          case 'rowGroupSize':
+          case "rowGroupSize":
             options.push(`ROW_GROUP_SIZE ${value}`);
             break;
-          case 'type':
+          case "type":
             options.push(`TYPE ${value}`);
             break;
-          case 'storageVersion':
+          case "storageVersion":
             options.push(`STORAGE_VERSION '${value}'`);
             break;
-          case 'encryptionCipher':
+          case "encryptionCipher":
             options.push(`ENCRYPTION_CIPHER '${value}'`);
             break;
-          case 'encryptionKey':
+          case "encryptionKey":
             options.push(`ENCRYPTION_KEY '${value}'`);
             break;
-          case 'recoveryMode':
+          case "recoveryMode":
             options.push(`RECOVERY_MODE '${value}'`);
             break;
           default:
@@ -84,8 +84,8 @@ export class DuckDatabaseAttachCommand implements IGetRawSql {
     }
 
     if (options.length > 0) {
-      parts.push(`(${options.join(', ')})`);
+      parts.push(`(${options.join(", ")})`);
     }
-    return parts.filter(Boolean).join(' ');
+    return parts.filter(Boolean).join(" ");
   };
 }

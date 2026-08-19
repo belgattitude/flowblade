@@ -12,7 +12,7 @@ export class Database {
   }
   toJson() {
     return {
-      type: 'database',
+      type: "database",
       params: {
         alias: this.#params.alias,
       },

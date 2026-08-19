@@ -9,14 +9,14 @@ import {
   type QResult,
   type QueryOptions,
   type QueryStreamOptions,
-} from '@flowblade/core';
-import type { Logger } from '@logtape/logtape';
-import type { Compilable, InferResult, Kysely, RawBuilder } from 'kysely';
-import type { Writable } from 'type-fest';
+} from "@flowblade/core";
+import type { Logger } from "@logtape/logtape";
+import type { Compilable, InferResult, Kysely, RawBuilder } from "kysely";
+import type { Writable } from "type-fest";
 
-import { isKyselyStreamable } from '../internal/is-kysely-streamable';
-import { parseBigIntToSafeInt } from '../internal/parse-bigint-to-safeint';
-import { kyselyDefaultLogtapeLogger } from '../logger/kysely-default-logtape-logger';
+import { isKyselyStreamable } from "../internal/is-kysely-streamable";
+import { parseBigIntToSafeInt } from "../internal/parse-bigint-to-safeint";
+import { kyselyDefaultLogtapeLogger } from "../logger/kysely-default-logtape-logger";
 
 type Params<TDatabase> = {
   connection: Kysely<TDatabase>;
@@ -31,7 +31,7 @@ type Params<TDatabase> = {
 type KyselyQueryOrRawQuery<T = unknown> = Compilable<T> | RawBuilder<T>;
 type KyselyInferQueryOrRawQuery<T extends KyselyQueryOrRawQuery> =
   T extends RawBuilder<unknown>
-    ? Awaited<ReturnType<T['execute']>>['rows']
+    ? Awaited<ReturnType<T["execute"]>>["rows"]
     : T extends Compilable
       ? InferResult<T>
       : never;
@@ -59,19 +59,19 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    */
   public get queryBuilder(): Pick<
     Kysely<TDatabase>,
-    | 'mergeInto'
-    | 'selectFrom'
-    | 'selectNoFrom'
-    | 'deleteFrom'
-    | 'updateTable'
-    | 'insertInto'
-    | 'replaceInto'
-    | 'with'
-    | 'withRecursive'
-    | 'withSchema'
-    | 'withPlugin'
-    | 'withoutPlugins'
-    | 'withTables'
+    | "mergeInto"
+    | "selectFrom"
+    | "selectNoFrom"
+    | "deleteFrom"
+    | "updateTable"
+    | "insertInto"
+    | "replaceInto"
+    | "with"
+    | "withRecursive"
+    | "withSchema"
+    | "withPlugin"
+    | "withoutPlugins"
+    | "withTables"
   > {
     return this.db;
   }
@@ -136,12 +136,12 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     query: TQuery,
     options?: QueryOptions
   ): Promise<QResult<TData, QError>> => {
-    const name = options?.name ?? 'anonymous';
+    const name = options?.name ?? "anonymous";
 
     const compiled = query.compile(this.db);
     const span = createSqlSpan({
       sql: compiled.sql,
-      params: compiled.parameters as Writable<QMetaSqlSpan['params']>,
+      params: compiled.parameters as Writable<QMetaSqlSpan["params"]>,
     });
 
     const start = Date.now();
@@ -160,7 +160,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
 
       this.logger.info(
         'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
-        this.getLogFromSpan(name, span, 'query')
+        this.getLogFromSpan(name, span, "query")
       );
 
       return createQResultSuccess(
@@ -172,18 +172,18 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
 
       // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
       // This behaviour exists for example in Tedious/Mssql
-      let message = 'Unknown error';
+      let message = "Unknown error";
       if (Array.isArray(err)) {
         message = err
           .map((e) => (e instanceof Error ? e.message : String(e)))
-          .join('; ');
+          .join("; ");
       } else if (err instanceof Error) {
         message = err.message;
       }
 
       this.logger.error(
         `Query "{queryName}" failed: ${message}`,
-        this.getLogFromSpan(name, span, 'query')
+        this.getLogFromSpan(name, span, "query")
       );
 
       return createQResultError(
@@ -273,23 +273,23 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     options?: QueryStreamOptions
   ): AsyncIterableIterator<TData[0]> {
     if (!isKyselyStreamable(query)) {
-      throw new Error('Query is not streamable, be sure to check usage');
+      throw new Error("Query is not streamable, be sure to check usage");
     }
     const { chunkSize } = options ?? {};
-    const name = options?.name ?? 'anonymous';
+    const name = options?.name ?? "anonymous";
 
     const compiled = query.compile(this.db);
 
     const span = createSqlSpan({
       sql: compiled.sql,
-      params: compiled.parameters as Writable<QMetaSqlSpan['params']>,
+      params: compiled.parameters as Writable<QMetaSqlSpan["params"]>,
     });
 
     const start = Date.now();
 
     this.logger.debug(
       `Streaming query "${name}"`,
-      this.getLogFromSpan(name, span, 'stream')
+      this.getLogFromSpan(name, span, "stream")
     );
 
     try {
@@ -301,18 +301,18 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
 
       // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
       // This behaviour exists for example in Tedious/Mssql
-      let message = 'Unknown error';
+      let message = "Unknown error";
       if (Array.isArray(err)) {
         message = err
           .map((e) => (e instanceof Error ? e.message : String(e)))
-          .join('; ');
+          .join("; ");
       } else if (err instanceof Error) {
         message = err.message;
       }
 
       this.logger.error(
         `Streaming query "${name}" failed: ${message}`,
-        this.getLogFromSpan(name, span, 'stream')
+        this.getLogFromSpan(name, span, "stream")
       );
 
       throw new Error(message, {
@@ -324,7 +324,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
 
       this.logger.info(
         `Streaming query "${name}" executed in ${timeMs}ms.`,
-        this.getLogFromSpan(name, span, 'stream')
+        this.getLogFromSpan(name, span, "stream")
       );
     }
   }
@@ -332,11 +332,11 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   private getLogFromSpan = (
     queryName: string,
     span: QMetaSqlSpan,
-    method: 'stream' | 'query'
+    method: "stream" | "query"
   ) => {
     return {
       queryName,
-      source: 'kysely',
+      source: "kysely",
       method: method,
       type: span.type,
       sql: span.sql,

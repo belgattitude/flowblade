@@ -1,11 +1,11 @@
-import type { SizeLimitConfig } from 'size-limit'
+import type { SizeLimitConfig } from "size-limit";
 
 const config = [
   {
-    name: 'Import * (ESM)',
-    path: ['dist/index.mjs'],
-    import: '*',
-    limit: '10kb',
+    name: "Import * (ESM)",
+    path: ["dist/index.mjs"],
+    import: "*",
+    limit: "10kb",
   },
 ] satisfies SizeLimitConfig;
 

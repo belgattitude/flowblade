@@ -1,19 +1,19 @@
 {
   "name": "@docs/website",
   "version": "0.0.1",
-  "type": "module",
   "private": true,
+  "homepage": "https://github.com/belgattitude/flowblade",
+  "license": "MIT",
   "author": {
     "name": "Vanvelthem Sébastien",
     "url": "https://github.com/belgattitude"
   },
-  "license": "MIT",
-  "homepage": "https://github.com/belgattitude/flowblade",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/belgattitude/flowblade.git",
     "directory": "docs"
   },
+  "type": "module",
   "scripts": {
     "dev": "next dev --port 3008",
     "bun-dev": "bun --bun next dev --port 3008",
@@ -26,8 +26,8 @@
     "start": "next start",
     "serve": "sirv out --port 3009",
     "clean": "rimraf ./.next ./out ./public/_pagefind ./coverage ./tsconfig.tsbuildinfo",
-    "typecheck": "next typegen && tsgo --project tsconfig.json --noEmit",
-    "lint": "next typegen && eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../.cache/eslint/docs.eslintcache",
+    "typecheck": "next typegen && tsc --project tsconfig.json --noEmit",
+    "lint": "next typegen && ultracite check",
     "fix-staged": "lint-staged --allow-empty"
   },
   "dependencies": {
@@ -43,26 +43,24 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@belgattitude/eslint-config-bases": "8.19.1",
     "@dotenvx/dotenvx": "2.21.0",
     "@tailwindcss/postcss": "4.3.3",
     "@total-typescript/ts-reset": "0.6.1",
     "@types/node": "26.2.0",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
-    "@typescript-eslint/eslint-plugin": "8.67.0",
-    "@typescript-eslint/parser": "8.67.0",
-    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "cross-env": "10.1.0",
-    "eslint": "8.57.1",
     "npm-run-all2": "9.0.3",
+    "oxfmt": "0.63.0",
+    "oxlint": "1.78.0",
+    "oxlint-tsgolint": "7.0.2001",
     "pagefind": "1.5.2",
-    "prettier": "3.9.6",
     "rimraf": "6.1.3",
     "sirv-cli": "3.0.1",
     "tailwindcss": "4.3.3",
     "tinyrainbow": "3.1.1",
     "tsx": "4.23.12",
-    "typescript": "6.0.3"
+    "typescript": "7.0.2",
+    "ultracite": "7.10.5"
   }
 }

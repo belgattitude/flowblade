@@ -1,17 +1,17 @@
-import { MssqlDialect, type MssqlDialectConfig } from 'kysely';
-import { default as tarn } from 'tarn';
-import * as Tedious from 'tedious';
+import { MssqlDialect, type MssqlDialectConfig } from "kysely";
+import * as tarn from "tarn";
+import * as Tedious from "tedious";
 
 import {
   createTarnPoolOptions,
   type TarnPoolOptions,
-} from './create-tarn-pool-options';
+} from "./create-tarn-pool-options";
 
 export type KyselyMssqlPoolOptions = {
   /**
    * Logger function, noop by default
    */
-  log?: MssqlDialectConfig['tarn']['options']['log'];
+  log?: MssqlDialectConfig["tarn"]["options"]["log"];
 } & TarnPoolOptions;
 
 export type KyselyMssqlDialectParams = {
@@ -24,7 +24,7 @@ export type KyselyMssqlDialectParams = {
      *
      * Defaults to `false`.
      */
-    resetConnectionsOnRelease?: MssqlDialectConfig['resetConnectionsOnRelease'];
+    resetConnectionsOnRelease?: MssqlDialectConfig["resetConnectionsOnRelease"];
 
     /**
      * When true, connections are validated before being acquired from the pool,
@@ -34,7 +34,7 @@ export type KyselyMssqlDialectParams = {
      *
      * Defaults to `true`.
      */
-    validateConnections?: MssqlDialectConfig['validateConnections'];
+    validateConnections?: MssqlDialectConfig["validateConnections"];
     tediousTypes?: typeof Tedious.TYPES;
   };
 };

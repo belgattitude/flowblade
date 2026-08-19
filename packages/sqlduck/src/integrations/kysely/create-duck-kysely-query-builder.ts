@@ -4,20 +4,20 @@ import {
   PostgresAdapter,
   PostgresIntrospector,
   PostgresQueryCompiler,
-} from 'kysely';
+} from "kysely";
 
 type KyselyQueryBuilder<TDatabase> = Pick<
   Kysely<TDatabase>,
-  | 'mergeInto'
-  | 'selectFrom'
-  | 'selectNoFrom'
-  | 'deleteFrom'
-  | 'updateTable'
-  | 'insertInto'
-  | 'replaceInto'
-  | 'with'
-  | 'withRecursive'
-  | 'withTables'
+  | "mergeInto"
+  | "selectFrom"
+  | "selectNoFrom"
+  | "deleteFrom"
+  | "updateTable"
+  | "insertInto"
+  | "replaceInto"
+  | "with"
+  | "withRecursive"
+  | "withTables"
 >;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

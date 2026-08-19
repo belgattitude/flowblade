@@ -1,7 +1,7 @@
-import { Result } from 'typescript-result';
+import { Result } from "typescript-result";
 
-import { QMeta, type QMetaJsonifiable } from '../meta/q-meta';
-import type { QError } from './types';
+import { QMeta, type QMetaJsonifiable } from "../meta/q-meta";
+import type { QError } from "./types";
 
 interface ConstructorParams<
   TData extends unknown[] | undefined,
@@ -111,7 +111,7 @@ export class QResult<
     this.#meta =
       params.meta ??
       new QMeta({
-        name: 'default',
+        name: "default",
       });
 
     this.#innerResult =
@@ -227,18 +227,20 @@ export class QResult<
       try {
         returned = this.#innerResult.value.rows!.map((row) => transformFn(row));
       } catch (e) {
-        const message =
-          e instanceof Error
-            ? e.message
-            : typeof e === 'string'
-              ? e
-              : 'mapper: unknown error';
+        let message: string;
+        if (e instanceof Error) {
+          message = e.message;
+        } else if (typeof e === "string") {
+          message = e;
+        } else {
+          message = "mapper: unknown error";
+        }
         err = {
           message,
         };
       }
       const meta = this.#meta.withSpan({
-        type: 'map',
+        type: "map",
         timeMs: Date.now() - start,
       });
       if (err === undefined) {

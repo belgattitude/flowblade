@@ -1,127 +1,126 @@
-import fs from 'node:fs';
+import fs from "node:fs";
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   createAndEnsureWritableDirectory,
   createDirectory,
-} from './filesystem.utils';
+} from "./filesystem.utils";
 
-vi.mock('node:fs', () => ({
+// @ts-expect-error something to change
+vi.mock(import("node:fs"), () => ({
   default: {
-    mkdirSync: vi.fn(),
-    existsSync: vi.fn(),
-    statSync: vi.fn(),
-    accessSync: vi.fn(),
+    accessSync: vi.fn<() => void>(),
     constants: {
       W_OK: 2,
     },
+    existsSync: vi.fn<() => boolean>(),
+    mkdirSync: vi.fn<() => void>(),
+    statSync: vi.fn<() => void>(),
   },
 }));
 
-describe('filesystem.utils', () => {
+describe("filesystem.utils", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('createDirectory', () => {
-    it('should create a directory recursively', () => {
-      createDirectory('/some/path');
-      expect(fs.mkdirSync).toHaveBeenCalledWith('/some/path', {
+  describe(createDirectory, () => {
+    it("should create a directory recursively", () => {
+      createDirectory("/some/path");
+      expect(fs.mkdirSync).toHaveBeenCalledWith("/some/path", {
         recursive: true,
       });
     });
 
-    it('should not throw if the directory already exists', () => {
-      const error = new Error('EEXIST') as NodeJS.ErrnoException;
-      error.code = 'EEXIST';
+    it("should not throw if the directory already exists", () => {
+      const error = new Error("EEXIST") as NodeJS.ErrnoException;
+      error.code = "EEXIST";
       vi.mocked(fs.mkdirSync).mockImplementationOnce(() => {
         throw error;
       });
 
-      expect(() => createDirectory('/some/path')).not.toThrow();
+      expect(() => createDirectory("/some/path")).not.toThrow();
     });
 
-    it('should throw if another error occurs during creation', () => {
-      const error = new Error('ENOENT') as NodeJS.ErrnoException;
-      error.code = 'ENOENT';
+    it("should throw if another error occurs during creation", () => {
+      const error = new Error("ENOENT") as NodeJS.ErrnoException;
+      error.code = "ENOENT";
       vi.mocked(fs.mkdirSync).mockImplementationOnce(() => {
         throw error;
       });
 
-      expect(() => createDirectory('/some/path')).toThrow(error);
+      expect(() => createDirectory("/some/path")).toThrow(error);
     });
   });
 
-  describe('createOrEnsureWritableDirectory', () => {
-    it('should return if path is undefined', () => {
-      expect(
-        createAndEnsureWritableDirectory('label', undefined)
-      ).toBeUndefined();
+  describe("createOrEnsureWritableDirectory", () => {
+    it("should return if path is undefined", () => {
+      expect(createAndEnsureWritableDirectory("label")).toBeUndefined();
       expect(fs.existsSync).not.toHaveBeenCalled();
     });
 
-    it('should create the directory if it does not exist', () => {
+    it("should create the directory if it does not exist", () => {
       vi.mocked(fs.existsSync).mockReturnValue(false);
       vi.mocked(fs.statSync).mockReturnValue({
         isDirectory: () => true,
       } as fs.Stats);
 
-      createAndEnsureWritableDirectory('test-dir', '/new/path');
+      createAndEnsureWritableDirectory("test-dir", "/new/path");
 
-      expect(fs.mkdirSync).toHaveBeenCalledWith('/new/path', {
+      expect(fs.mkdirSync).toHaveBeenCalledWith("/new/path", {
         recursive: true,
       });
     });
 
-    it('should throw if directory creation fails', () => {
+    it("should throw if directory creation fails", () => {
       vi.mocked(fs.existsSync).mockReturnValue(false);
-      const error = new Error('Permission denied');
+      const error = new Error("Permission denied");
       vi.mocked(fs.mkdirSync).mockImplementationOnce(() => {
         throw error;
       });
 
       expect(() =>
-        createAndEnsureWritableDirectory('test-dir', '/new/path')
+        createAndEnsureWritableDirectory("test-dir", "/new/path")
       ).toThrow("Failed to create test-dir '/new/path' - Permission denied");
     });
 
-    it('should throw if path exists but is not a directory', () => {
+    it("should throw if path exists but is not a directory", () => {
       vi.mocked(fs.existsSync).mockReturnValue(true);
       vi.mocked(fs.statSync).mockReturnValue({
         isDirectory: () => false,
       } as fs.Stats);
 
       expect(() =>
-        createAndEnsureWritableDirectory('test-dir', '/existing/file')
+        createAndEnsureWritableDirectory("test-dir", "/existing/file")
       ).toThrow("test-dir '/existing/file' must be a directory");
     });
 
-    it('should throw if directory is not writable', () => {
+    it("should throw if directory is not writable", () => {
       vi.mocked(fs.existsSync).mockReturnValue(true);
       vi.mocked(fs.statSync).mockReturnValue({
         isDirectory: () => true,
       } as fs.Stats);
       vi.mocked(fs.accessSync).mockImplementationOnce(() => {
-        throw new Error('Not writable');
+        throw new Error("Not writable");
       });
 
       expect(() =>
-        createAndEnsureWritableDirectory('test-dir', '/readonly/dir')
+        createAndEnsureWritableDirectory("test-dir", "/readonly/dir")
       ).toThrow("test-dir '/readonly/dir' must be writable");
     });
 
-    it('should succeed if directory exists and is writable', () => {
+    it("should succeed if directory exists and is writable", () => {
       vi.mocked(fs.existsSync).mockReturnValue(true);
       vi.mocked(fs.statSync).mockReturnValue({
         isDirectory: () => true,
       } as fs.Stats);
-      vi.mocked(fs.accessSync).mockReturnValue(undefined);
+      vi.mocked(fs.accessSync).mockReturnValue();
 
       expect(() =>
-        createAndEnsureWritableDirectory('test-dir', '/ok/dir')
+        createAndEnsureWritableDirectory("test-dir", "/ok/dir")
       ).not.toThrow();
-      expect(fs.accessSync).toHaveBeenCalledWith('/ok/dir', 2);
+      expect(fs.accessSync).toHaveBeenCalledWith("/ok/dir", 2);
     });
   });
 });

@@ -1,4 +1,4 @@
-import type { QResult } from './q-result';
+import type { QResult } from "./q-result";
 
 export type QError = {
   message: string;

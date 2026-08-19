@@ -5,7 +5,7 @@ Supported Zod to DuckDB type mappings in `@flowblade/sqlduck`.
 ## Mappings
 
 | Zod type                   | DuckDB type                |
-| -------------------------- |----------------------------|
+| -------------------------- | -------------------------- |
 | `z.string()`               | `VARCHAR`                  |
 | `z.email()`                | `VARCHAR`                  |
 | `z.url()`                  | `VARCHAR`                  |
@@ -23,7 +23,6 @@ Supported Zod to DuckDB type mappings in `@flowblade/sqlduck`.
 | `z.number()`               | inferred, default `BIGINT` |
 | `zodCodecs.dateToString`   | `TIMESTAMP`                |
 | `zodCodecs.bigintToString` | `BIGINT`                   |
-
 
 ## Numeric inference
 

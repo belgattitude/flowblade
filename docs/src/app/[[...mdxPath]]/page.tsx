@@ -1,9 +1,9 @@
-import type { Metadata } from 'next';
-import { generateStaticParamsFor, importPage } from 'nextra/pages';
+import type { Metadata } from "next";
+import { generateStaticParamsFor, importPage } from "nextra/pages";
 
-import { useMDXComponents } from '../../mdx-components';
+import { useMDXComponents } from "../../mdx-components";
 
-export const generateStaticParams = generateStaticParamsFor('mdxPath');
+export const generateStaticParams = generateStaticParamsFor("mdxPath");
 
 type Props = {
   params: Promise<{

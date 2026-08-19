@@ -1,11 +1,11 @@
-import { apiKey } from '@better-auth/api-key';
-import { sso } from '@better-auth/sso';
-import { betterAuth, type BetterAuthOptions } from 'better-auth';
-import { nextCookies } from 'better-auth/next-js';
-import { jwt, openAPI } from 'better-auth/plugins';
-import type { Kysely } from 'kysely';
+import { apiKey } from "@better-auth/api-key";
+import { sso } from "@better-auth/sso";
+import { betterAuth, type BetterAuthOptions } from "better-auth";
+import { nextCookies } from "better-auth/next-js";
+import { jwt, openAPI } from "better-auth/plugins";
+import type { Kysely } from "kysely";
 
-import type { DBBaseAuth } from './db-base-auth-types';
+import type { DBBaseAuth } from "./db-base-auth-types";
 
 type CreateBetterAuthParams = {
   db: Kysely<DBBaseAuth>;
@@ -27,9 +27,9 @@ type CreateBetterAuthParams = {
    *     },
    * ```
    */
-  socialProviders?: BetterAuthOptions['socialProviders'];
-  session?: BetterAuthOptions['session'];
-  advanced?: BetterAuthOptions['advanced'];
+  socialProviders?: BetterAuthOptions["socialProviders"];
+  session?: BetterAuthOptions["session"];
+  advanced?: BetterAuthOptions["advanced"];
 };
 
 export const createBetterAuth = (params: CreateBetterAuthParams) => {
@@ -37,8 +37,8 @@ export const createBetterAuth = (params: CreateBetterAuthParams) => {
   return betterAuth({
     database: {
       db,
-      type: 'mssql',
-      casing: 'camel',
+      type: "mssql",
+      casing: "camel",
     },
     session,
     advanced,

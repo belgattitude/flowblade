@@ -1,7 +1,7 @@
-import { fixSqlServerNullUniqueIndexes } from './fix-sql-server-null-unique-indexes';
+import { fixSqlServerNullUniqueIndexes } from "./fix-sql-server-null-unique-indexes";
 
-describe('hack', () => {
-  it('should fix unique indexes', () => {
+describe("hack", () => {
+  it("should fix unique indexes", () => {
     const ddl = `
       CREATE TABLE [common].[currency_i18n2] (
           [id] INT NOT NULL IDENTITY(1,1),

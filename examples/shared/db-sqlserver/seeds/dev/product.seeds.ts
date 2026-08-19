@@ -1,15 +1,15 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-import { isEan13, isStringNonEmpty } from '@httpx/assert';
+import { isEan13, isStringNonEmpty } from "@httpx/assert";
 
-import { AbstractSeed } from '../../src/lib/abstract-seed';
-import { parseJsonl } from '../../src/lib/parse-jsonl';
+import { AbstractSeed } from "../../src/lib/abstract-seed";
+import { parseJsonl } from "../../src/lib/parse-jsonl";
 
 export class ProductSeeds extends AbstractSeed {
   execute = async (): Promise<void> => {
     const file = fileURLToPath(
-      path.dirname(import.meta.url) + '/product.seeds.openfoodfact.jsonl'
+      path.dirname(import.meta.url) + "/product.seeds.openfoodfact.jsonl"
     );
 
     type ProductSeeds = {
@@ -26,13 +26,13 @@ export class ProductSeeds extends AbstractSeed {
     const products = productSeeds.map((p) => {
       return {
         reference: p.code,
-        name: p.name ?? p.n_en ?? p.n_fr ?? p.n_pt ?? 'Unknnown name',
+        name: p.name ?? p.n_en ?? p.n_fr ?? p.n_pt ?? "Unknnown name",
         barcode_ean13: isEan13(p.code) ? p.code : null,
         brandName: isStringNonEmpty(p.brand) ? p.brand : null,
       };
     });
 
-    this.log('UPSERT', `Will upsert ${products.length} products`);
+    this.log("UPSERT", `Will upsert ${products.length} products`);
 
     const result = await this.prisma.$queryRaw<
       {
@@ -68,6 +68,6 @@ export class ProductSeeds extends AbstractSeed {
              VALUES (data.reference, data.name, data.barcode_ean13, data.brand_id, CURRENT_TIMESTAMP)
         OUTPUT INSERTED.id as insertedId, INSERTED.barcode_ean13 as insertedEan13;
     `;
-    this.collectStats('Product', { totalAffected: result.length });
+    this.collectStats("Product", { totalAffected: result.length });
   };
 }

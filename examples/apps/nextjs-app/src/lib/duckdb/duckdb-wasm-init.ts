@@ -1,5 +1,6 @@
-import * as duckdb from '@duckdb/duckdb-wasm';
-import { AsyncDuckDB, type DuckDBConfig } from '@duckdb/duckdb-wasm';
+import * as duckdb from "@duckdb/duckdb-wasm";
+import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
+import type { DuckDBConfig } from "@duckdb/duckdb-wasm";
 
 export let DEBUG: boolean | undefined;
 
@@ -33,7 +34,7 @@ const _initializeDuckDb = async (
 
   const worker_url = URL.createObjectURL(
     new Blob([`importScripts("${bundle.mainWorker!}");`], {
-      type: 'text/javascript',
+      type: "text/javascript",
     })
   );
 
@@ -70,8 +71,8 @@ const _initializeDuckDb = async (
  * method provides access outside of React contexts.
  */
 export const getDuckDB = async (): Promise<AsyncDuckDB> => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     return DB ?? (await initializeDuckDb());
   }
-  throw new Error('DuckDB wasm is only available in the browser context.');
+  throw new Error("DuckDB wasm is only available in the browser context.");
 };

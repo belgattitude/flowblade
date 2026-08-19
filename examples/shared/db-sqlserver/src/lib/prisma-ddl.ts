@@ -1,29 +1,32 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from "node:fs";
 
-import { execaSync } from 'execa';
+import { execaSync } from "execa";
 
-import { fixSqlServerNullUniqueIndexes } from './hacks/fix-sql-server-null-unique-indexes';
-import type { ILogger } from './logger/logger.interface';
+import { fixSqlServerNullUniqueIndexes } from "./hacks/fix-sql-server-null-unique-indexes";
+import type { ILogger } from "./logger/logger.interface";
 
 export class PrismaDdl {
-  constructor(public readonly logger: ILogger) {}
+  public readonly logger: ILogger;
+  constructor(logger: ILogger) {
+    this.logger = logger;
+  }
 
   getDdl = (): string => {
     this.execPrismaCliOrThrow(
-      'yarn prisma format',
-      'Formatting prisma schema failed'
+      "yarn prisma format",
+      "Formatting prisma schema failed"
     );
     const { stdout } = this.execPrismaCliOrThrow(
-      'yarn prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script',
+      "yarn prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script",
       `Cannot generate initial migration ddl from schema.prisma`
     );
 
     const creationDdls = stdout
-      .replaceAll(/^-- .*/gm, '')
+      .replaceAll(/^-- .*/gm, "")
       .split(/;/)
       .map((line) => {
         const sanitized = line.trim();
-        return sanitized === '' ? null : sanitized;
+        return sanitized === "" ? null : sanitized;
       })
       .filter((v) => {
         return v?.toUpperCase().match(/^(ALTER|CREATE) /);
@@ -32,41 +35,41 @@ export class PrismaDdl {
 
     const hackedDdls = fixSqlServerNullUniqueIndexes(creationDdls);
 
-    return hackedDdls.join('\nGO\n');
+    return hackedDdls.join("\nGO\n");
   };
 
   /**
    *
    * @throws Error
    */
-  createDdlFile = (outputFile = 'prisma/schema.prisma') => {
+  createDdlFile = (outputFile = "prisma/schema.prisma") => {
     const log = this.logger.log;
-    log('info', 'Running create ddl...');
+    log("info", "Running create ddl...");
 
     const createTablesStr = this.getDdl();
 
     let currentContent: string;
     try {
       currentContent = readFileSync(outputFile, {
-        encoding: 'utf8',
-        flag: 'r',
+        encoding: "utf-8",
+        flag: "r",
       });
     } catch {
-      log('info', 'Skipping writing ddl to file');
-      currentContent = '';
+      log("info", "Skipping writing ddl to file");
+      currentContent = "";
     }
 
     if (currentContent.trim() === createTablesStr.trim()) {
-      log('info', 'No changes detected in the sqlproj generated ddl.');
+      log("info", "No changes detected in the sqlproj generated ddl.");
     } else {
       try {
         writeFileSync(outputFile, createTablesStr, {
-          encoding: 'utf8',
+          encoding: "utf-8",
         });
       } catch {
         throw new Error(`Can't write the generated ddl to "${outputFile}"`);
       }
-      log('success', `Written ddl in ${outputFile} !`);
+      log("success", `Written ddl in ${outputFile} !`);
     }
   };
 
@@ -74,7 +77,7 @@ export class PrismaDdl {
     const result = execaSync(cmd, {
       shell: true,
       reject: false,
-      encoding: 'utf8',
+      encoding: "utf8",
     });
     if (result.exitCode !== 0) {
       throw new Error(`${errorMsg} (${result.command})\n${result.stderr}`);

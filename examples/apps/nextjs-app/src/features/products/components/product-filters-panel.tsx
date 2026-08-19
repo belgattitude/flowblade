@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
-import { MultiSelect } from 'primereact/multiselect';
-import type { FC } from 'react';
+import { Button } from "primereact/button";
+import { Dropdown } from "primereact/dropdown";
+import { MultiSelect } from "primereact/multiselect";
+import type { FC } from "react";
 
-import { cn } from '@/components/utils';
-import { useGetApiProductEthicalBrandsHook } from '@/features/api/generated';
-import { productFiltersSlice } from '@/features/products/redux/product-filters-slice';
-import { useDispatch, useSelector } from '@/redux/redux-hooks';
+import { cn } from "@/components/utils";
+import { useGetApiProductEthicalBrandsHook } from "@/features/api/generated";
+import { productFiltersSlice } from "@/features/products/redux/product-filters-slice";
+import { useDispatch, useSelector } from "@/redux/redux-hooks";
 
-import type { EthicalBrand } from '../server/ethical-product.repo';
+import type { EthicalBrand } from "../server/ethical-product.repo";
 
-type Props = {
+interface Props {
   className?: string;
-};
+}
 
 export const ProductFiltersPanel: FC<Props> = (props) => {
   const { className } = props;
@@ -25,9 +25,9 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
   );
 
   return (
-    <div className={'@container'}>
+    <div className="@container">
       <div
-        className={cn('flex gap-3 flex-row @sm:@max-md:flex-col', className)}
+        className={cn("flex flex-row gap-3 @sm:@max-md:flex-col", className)}
       >
         <MultiSelect
           value={draftFilters.brands}
@@ -38,6 +38,7 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
               )
             );
           }}
+          aria-controls={""}
           options={data}
           optionLabel="name"
           display="chip"
@@ -46,7 +47,7 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
           maxSelectedLabels={3}
           filter={true}
           filterDelay={100}
-          filterMatchMode={'contains'}
+          filterMatchMode="contains"
           virtualScrollerOptions={{
             itemSize: 40,
           }}
@@ -61,10 +62,10 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
             );
           }}
           options={[
-            { label: '0ms', value: 0 },
-            { label: '100ms', value: 100 },
-            { label: '1s', value: 1000 },
-            { label: '5s', value: 5000 },
+            { label: "0ms", value: 0 },
+            { label: "100ms", value: 100 },
+            { label: "1s", value: 1000 },
+            { label: "5s", value: 5000 },
           ]}
           optionLabel="label"
           optionValue="value"
@@ -72,7 +73,7 @@ export const ProductFiltersPanel: FC<Props> = (props) => {
         />
         <Button
           label="Execute"
-          severity={'info'}
+          severity="info"
           onClick={() => {
             dispatch(productFiltersSlice.actions.execute());
           }}

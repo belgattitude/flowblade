@@ -1,8 +1,8 @@
-import { JetBrains_Mono } from 'next/font/google';
+import { JetBrains_Mono } from "next/font/google";
 
 export const fontJetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  display: 'swap',
-  weight: 'variable',
-  variable: '--font-jetbrains-mono',
+  display: "swap",
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  weight: "variable",
 });

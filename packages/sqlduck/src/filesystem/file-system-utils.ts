@@ -1,10 +1,10 @@
-import fs from 'node:fs';
+import fs from "node:fs";
 // eslint-disable-next-line unicorn/import-style
-import path, { basename, dirname } from 'node:path';
+import path, { basename, dirname } from "node:path";
 
-import type { Logger } from '@logtape/logtape';
+import type { Logger } from "@logtape/logtape";
 
-import { sqlduckDefaultLogtapeLogger } from '../logger/sqlduck-default-logtape-logger.ts';
+import { sqlduckDefaultLogtapeLogger } from "../logger/sqlduck-default-logtape-logger.ts";
 
 export class FileSystemUtils {
   #logger: Logger;
@@ -12,7 +12,7 @@ export class FileSystemUtils {
     this.#logger =
       params?.logger ??
       sqlduckDefaultLogtapeLogger.with({
-        source: 'FileSystemUtils',
+        source: "FileSystemUtils",
       });
   }
   /**
@@ -24,7 +24,7 @@ export class FileSystemUtils {
     try {
       fs.mkdirSync(path, { recursive: true });
     } catch (err) {
-      if ((err as NodeJS.ErrnoException).code !== 'EEXIST') {
+      if ((err as NodeJS.ErrnoException).code !== "EEXIST") {
         throw err;
       }
     }
@@ -44,7 +44,7 @@ export class FileSystemUtils {
         this.createDirectory(path);
       } catch (e) {
         throw new Error(
-          `Failed to create ${label} '${path}' - ${(e as Error)?.message ?? ''}`
+          `Failed to create ${label} '${path}' - ${(e as Error)?.message ?? ""}`
         );
       }
     }
@@ -57,7 +57,6 @@ export class FileSystemUtils {
     } catch {
       throw new Error(`${label} '${path}' must be writable`);
     }
-    return;
   };
 
   /**
@@ -86,11 +85,11 @@ export class FileSystemUtils {
 
   parsePath = (path: string): { directory: string; filename: string } => {
     const dir = dirname(path);
-    if (dir.trim() === '') {
+    if (dir.trim() === "") {
       throw new Error(`Invalid path, missing directory '${path}'`);
     }
     const base = basename(path);
-    if (base.trim() === '') {
+    if (base.trim() === "") {
       throw new Error(`Invalid path, missing filename '${path}'`);
     }
     return { directory: dir, filename: base };
@@ -111,8 +110,8 @@ export class FileSystemUtils {
    */
   isSamePath = (path1: string, path2: string): boolean => {
     if (
-      typeof path1 !== 'string' ||
-      typeof path2 !== 'string' ||
+      typeof path1 !== "string" ||
+      typeof path2 !== "string" ||
       path1.trim().length === 0 ||
       path2.trim().length === 0
     ) {
@@ -127,8 +126,8 @@ export class FileSystemUtils {
    */
   isSamePathAndExists = (path1: string, path2: string): boolean => {
     if (
-      typeof path1 !== 'string' ||
-      typeof path2 !== 'string' ||
+      typeof path1 !== "string" ||
+      typeof path2 !== "string" ||
       path1.trim().length === 0 ||
       path2.trim().length === 0
     ) {
@@ -147,13 +146,13 @@ export class FileSystemUtils {
   join = (params: { dirname: string; filename: string }): string => {
     const { dirname, filename } = params;
     if (
-      typeof dirname !== 'string' ||
-      typeof filename !== 'string' ||
+      typeof dirname !== "string" ||
+      typeof filename !== "string" ||
       dirname.trim().length === 0 ||
       filename.trim().length === 0
     ) {
       throw new Error(
-        'dirname and filename parameters must be non empty string'
+        "dirname and filename parameters must be non empty string"
       );
     }
 

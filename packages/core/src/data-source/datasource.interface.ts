@@ -1,5 +1,5 @@
-import type { QMeta } from '../meta/q-meta';
-import type { QResult } from '../query-result/q-result';
+import type { QMeta } from "../meta/q-meta";
+import type { QResult } from "../query-result/q-result";
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 

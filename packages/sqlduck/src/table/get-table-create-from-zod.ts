@@ -16,20 +16,20 @@ import {
   UBIGINT,
   UUID,
   VARCHAR,
-} from '@duckdb/node-api';
+} from "@duckdb/node-api";
 
-import type { Table } from '../objects/table';
-import type { TableSchemaZod } from '../validation/zod';
-import { getDuckdbNumberColumnType } from './get-duckdb-number-column-type.ts';
+import type { Table } from "../objects/table";
+import type { TableSchemaZod } from "../validation/zod";
+import { getDuckdbNumberColumnType } from "./get-duckdb-number-column-type.ts";
 
 type ColumnDDL = {
   name: string;
   duckdbType: DuckDBType;
-  constraint?: 'NOT NULL' | 'PRIMARY KEY';
+  constraint?: "NOT NULL" | "PRIMARY KEY";
 };
 
 export type TableCreateOptions = {
-  create?: 'CREATE' | 'CREATE_OR_REPLACE' | 'IF_NOT_EXISTS';
+  create?: "CREATE" | "CREATE_OR_REPLACE" | "IF_NOT_EXISTS";
 };
 
 export type DuckdbColumnTypeMap<TKeys extends string> = Map<TKeys, DuckDBType>;
@@ -37,7 +37,7 @@ export type DuckdbColumnTypeMap<TKeys extends string> = Map<TKeys, DuckDBType>;
 export type TableCreateFromZodResult<TSchema extends TableSchemaZod> = {
   ddl: string;
   columnTypes: DuckdbColumnTypeMap<
-    Exclude<keyof TSchema['shape'], symbol | number>
+    Exclude<keyof TSchema["shape"], symbol | number>
   >;
 };
 
@@ -48,38 +48,38 @@ export type GetTableCreateFromZodParams<TSchema extends TableSchemaZod> = {
 };
 
 const createOptions = {
-  CREATE: 'CREATE TABLE',
-  CREATE_OR_REPLACE: 'CREATE OR REPLACE TABLE',
-  IF_NOT_EXISTS: 'CREATE TABLE IF NOT EXISTS',
-} as const satisfies Record<NonNullable<TableCreateOptions['create']>, string>;
+  CREATE: "CREATE TABLE",
+  CREATE_OR_REPLACE: "CREATE OR REPLACE TABLE",
+  IF_NOT_EXISTS: "CREATE TABLE IF NOT EXISTS",
+} as const satisfies Record<NonNullable<TableCreateOptions["create"]>, string>;
 
 const duckDbTypes = [
-  ['VARCHAR', VARCHAR],
-  ['BIGINT', BIGINT],
-  ['UBIGINT', UBIGINT],
-  ['HUGEINT', HUGEINT],
-  ['TIMESTAMP', TIMESTAMP],
-  ['TIMESTAMP_MS', TIMESTAMP_MS],
-  ['UUID', UUID],
-  ['BOOLEAN', BOOLEAN],
-  ['INTEGER', INTEGER],
-  ['DOUBLE', DOUBLE],
-  ['FLOAT', FLOAT],
-  ['DATE', DATE],
+  ["VARCHAR", VARCHAR],
+  ["BIGINT", BIGINT],
+  ["UBIGINT", UBIGINT],
+  ["HUGEINT", HUGEINT],
+  ["TIMESTAMP", TIMESTAMP],
+  ["TIMESTAMP_MS", TIMESTAMP_MS],
+  ["UUID", UUID],
+  ["BOOLEAN", BOOLEAN],
+  ["INTEGER", INTEGER],
+  ["DOUBLE", DOUBLE],
+  ["FLOAT", FLOAT],
+  ["DATE", DATE],
   // to get the proper type, we just instanciate the default
-  ['DECIMAL', new DuckDBDecimalType(18, 3)],
+  ["DECIMAL", new DuckDBDecimalType(18, 3)],
   // Arrays
-  ['VARCHAR[]', new DuckDBListType(VARCHAR)],
-  ['INTEGER[]', new DuckDBListType(INTEGER)],
-  ['BOOLEAN[]', new DuckDBListType(BOOLEAN)],
-  ['BIGINT[]', new DuckDBListType(BIGINT)],
-  ['UBIGINT[]', new DuckDBListType(UBIGINT)],
-  ['UUID[]', new DuckDBListType(UUID)],
-  ['DATE[]', new DuckDBListType(DATE)],
-  ['TIMESTAMP[]', new DuckDBListType(TIMESTAMP)],
-  ['TIMESTAMP_MS[]', new DuckDBListType(TIMESTAMP_MS)],
-  ['DOUBLE[]', new DuckDBListType(DOUBLE)],
-  ['FLOAT[]', new DuckDBListType(FLOAT)],
+  ["VARCHAR[]", new DuckDBListType(VARCHAR)],
+  ["INTEGER[]", new DuckDBListType(INTEGER)],
+  ["BOOLEAN[]", new DuckDBListType(BOOLEAN)],
+  ["BIGINT[]", new DuckDBListType(BIGINT)],
+  ["UBIGINT[]", new DuckDBListType(UBIGINT)],
+  ["UUID[]", new DuckDBListType(UUID)],
+  ["DATE[]", new DuckDBListType(DATE)],
+  ["TIMESTAMP[]", new DuckDBListType(TIMESTAMP)],
+  ["TIMESTAMP_MS[]", new DuckDBListType(TIMESTAMP_MS)],
+  ["DOUBLE[]", new DuckDBListType(DOUBLE)],
+  ["FLOAT[]", new DuckDBListType(FLOAT)],
 ] as const satisfies [string, DuckDBType][];
 
 export type SupportedCustomDuckDbTypes = (typeof duckDbTypes)[number][0];
@@ -92,27 +92,33 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
   params: GetTableCreateFromZodParams<TSchema>
 ): TableCreateFromZodResult<TSchema> => {
   const { table, schema, options } = params;
-  const { create = 'CREATE' } = options ?? {};
+  const { create = "CREATE" } = options ?? {};
   const fqTable = table.getFullName();
   const json = schema.toJSONSchema({
-    target: 'openapi-3.0',
-    unrepresentable: 'throw',
+    target: "openapi-3.0",
+    unrepresentable: "throw",
   });
   const columns: ColumnDDL[] = [];
   if (json.properties === undefined) {
-    throw new TypeError('Schema must have at least one property');
+    throw new TypeError("Schema must have at least one property");
   }
   const columnTypesMap = new Map<
-    Exclude<keyof TSchema['shape'], symbol | number>,
+    Exclude<keyof TSchema["shape"], symbol | number>,
     DuckDBType
   >();
   for (const [columnName, def] of Object.entries(json.properties) as [
     columnName: string,
     def: {
-      type: 'number' | 'integer' | 'string' | 'boolean' | 'array';
+      type: "number" | "integer" | "string" | "boolean" | "array";
       nullable: boolean | undefined;
       format:
-        'date' | 'date-time' | 'int64' | 'uuid' | 'cuid' | 'cuid2' | undefined;
+        | "date"
+        | "date-time"
+        | "int64"
+        | "uuid"
+        | "cuid"
+        | "cuid2"
+        | undefined;
       primaryKey: boolean | undefined;
       minimum?: number;
       maximum?: number;
@@ -121,7 +127,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       duckdbType?: string;
       // only when type is array
       items?: {
-        type: 'string' | 'boolean' | 'number' | 'integer';
+        type: "string" | "boolean" | "number" | "integer";
         // only for integer
         minimum?: number;
         maximum?: number;
@@ -159,12 +165,12 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
 
     if (customDuckDbType === undefined) {
       switch (type) {
-        case 'array':
+        case "array":
           switch (def?.items?.type) {
-            case 'string':
+            case "string":
               c.duckdbType = LIST(VARCHAR);
               break;
-            case 'integer':
+            case "integer":
               c.duckdbType = LIST(
                 getDuckdbNumberColumnType({
                   minimum: def?.items?.minimum,
@@ -172,7 +178,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
                 })
               );
               break;
-            case 'number':
+            case "number":
               c.duckdbType = LIST(
                 getDuckdbNumberColumnType({
                   minimum: def?.items?.minimum,
@@ -181,7 +187,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
                 })
               );
               break;
-            case 'boolean':
+            case "boolean":
               c.duckdbType = LIST(BOOLEAN);
               break;
             default:
@@ -190,21 +196,21 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
               );
           }
           break;
-        case 'string':
+        case "string":
           if (Array.isArray(def.enum)) {
             c.duckdbType = ENUM(def.enum);
           } else {
             switch (format) {
-              case 'date':
+              case "date":
                 c.duckdbType = DATE;
                 break;
-              case 'date-time':
+              case "date-time":
                 c.duckdbType = TIMESTAMP_MS;
                 break;
-              case 'int64':
+              case "int64":
                 c.duckdbType = BIGINT;
                 break;
-              case 'uuid':
+              case "uuid":
                 c.duckdbType = UUID;
                 break;
               default:
@@ -212,7 +218,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
             }
           }
           break;
-        case 'number':
+        case "number":
           c.duckdbType = getDuckdbNumberColumnType({
             minimum,
             maximum,
@@ -220,10 +226,10 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
           });
           break;
         // special case for z.int32()
-        case 'integer':
+        case "integer":
           c.duckdbType = getDuckdbNumberColumnType({ minimum, maximum });
           break;
-        case 'boolean':
+        case "boolean":
           c.duckdbType = BOOLEAN;
           break;
         default:
@@ -235,12 +241,12 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       c.duckdbType = customDuckDbType;
     }
     if (primaryKey === true) {
-      c.constraint = 'PRIMARY KEY';
+      c.constraint = "PRIMARY KEY";
     } else if (nullable !== true) {
-      c.constraint = 'NOT NULL';
+      c.constraint = "NOT NULL";
     }
     columnTypesMap.set(
-      columnName as Exclude<keyof TSchema['shape'], symbol | number>,
+      columnName as Exclude<keyof TSchema["shape"], symbol | number>,
       c.duckdbType
     );
     columns.push(c as ColumnDDL);
@@ -255,12 +261,12 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
         const { name, duckdbType, constraint } = colDDL;
         const line = [name, duckdbType.toString(), constraint]
           .filter(Boolean)
-          .join(' ');
+          .join(" ");
         return `  ${line}`;
       })
-      .join(',\n'),
-    '\n)',
-  ].join('');
+      .join(",\n"),
+    "\n)",
+  ].join("");
 
   return {
     ddl,

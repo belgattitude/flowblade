@@ -1,7 +1,9 @@
-import { removeUndefined } from './remove-undefined';
+import { describe, expect, it } from "vitest";
 
-describe('removeUndefined', () => {
-  it('should work as expected', () => {
+import { removeUndefined } from "./remove-undefined";
+
+describe(removeUndefined, () => {
+  it("should work as expected", () => {
     expect(removeUndefined({ k: 1, u: undefined })).toStrictEqual({
       k: 1,
     });

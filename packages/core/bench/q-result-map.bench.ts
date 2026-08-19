@@ -1,18 +1,18 @@
-import { faker } from '@faker-js/faker/locale/en';
-import { bench } from 'vitest';
+import { faker } from "@faker-js/faker/locale/en";
+import { bench } from "vitest";
 
-import { QResult } from '../src';
-import { QMeta } from '../src/meta/q-meta';
+import { QResult } from "../src";
+import { QMeta } from "../src/meta/q-meta";
 
 const GENERATED_ROWS = 100_000;
 
-describe('QResult map benchmarks', () => {
+describe("QResult map benchmarks", () => {
   const fakeMeta = new QMeta({
     spans: {
-      type: 'sql',
+      type: "sql",
       affectedRows: 1,
       timeMs: 100,
-      sql: 'select',
+      sql: "select",
       params: [],
     },
   });
@@ -29,22 +29,22 @@ describe('QResult map benchmarks', () => {
       productName: row.productName.toUpperCase(),
       productDesc: row.productDesc,
       airline: row.airline,
-      id: Number.parseInt(row.id),
+      id: Number.parseInt(row.id, 10),
     };
   };
 
-  bench('baseline 1: map with native for const iteration', () => {
+  bench("baseline 1: map with native for const iteration", () => {
     const result = [];
     for (const row of generatedRows) {
       result.push(mapToFinalPayload(row));
     }
   });
 
-  bench('baseline 2: map with native Array.map', () => {
+  bench("baseline 2: map with native Array.map", () => {
     const _result = generatedRows.map((row) => mapToFinalPayload(row));
   });
 
-  bench('with externally hoisted mapper function', () => {
+  bench("with externally hoisted mapper function", () => {
     const _result = new QResult({
       meta: fakeMeta,
       data: generatedRows,
@@ -52,7 +52,7 @@ describe('QResult map benchmarks', () => {
     }).map(mapToFinalPayload);
   });
 
-  bench('with inlined mapper', () => {
+  bench("with inlined mapper", () => {
     const _result = new QResult({
       meta: fakeMeta,
       data: generatedRows,
@@ -62,7 +62,7 @@ describe('QResult map benchmarks', () => {
         productName: row.productName.toUpperCase(),
         productDesc: row.productDesc,
         airline: row.airline,
-        id: Number.parseInt(row.id),
+        id: Number.parseInt(row.id, 10),
       };
     });
   });

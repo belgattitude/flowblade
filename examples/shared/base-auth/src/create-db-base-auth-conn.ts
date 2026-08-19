@@ -1,11 +1,11 @@
-import { Kysely, type KyselyPlugin, WithSchemaPlugin } from 'kysely';
+import { Kysely, type KyselyPlugin, WithSchemaPlugin } from "kysely";
 
 import {
   createDbBaseAuthDialect,
   type CreateDbBaseAuthDialectParams,
-} from './create-db-base-auth-dialect';
-import { dbBaseAuthConfig } from './db-base-auth.config';
-import type { DBBaseAuth } from './db-base-auth-types';
+} from "./create-db-base-auth-dialect";
+import type { DBBaseAuth } from "./db-base-auth-types";
+import { dbBaseAuthConfig } from "./db-base-auth.config";
 export type CreateDbBaseAuthConnParams = CreateDbBaseAuthDialectParams & {
   schema?: string;
   skipSchemaPlugin?: boolean;

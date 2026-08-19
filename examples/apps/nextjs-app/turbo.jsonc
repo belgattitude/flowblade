@@ -7,7 +7,7 @@
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"],
       // We rely on tsconfig path aliases to ease starting
       // Only exception @flowblade/sqlduck that is used for env
-      "dependsOn": ["@flowblade/sqlduck#build"]
+      "dependsOn": ["@flowblade/sqlduck#build"],
     },
     "typecheck": {},
     "dev": {
@@ -15,7 +15,7 @@
       "persistent": true,
       // We rely on tsconfig path aliases to ease starting
       // Only exception @flowblade/sqlduck that is used for env
-      "dependsOn": ["@flowblade/sqlduck#build"]
-    }
-  }
+      "dependsOn": ["@flowblade/sqlduck#build"],
+    },
+  },
 }

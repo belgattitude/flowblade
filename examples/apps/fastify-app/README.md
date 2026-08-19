@@ -11,4 +11,3 @@ yarn dev
 
 - [swagger-ui] http://localhost:8080/documentation
 - [openapi v3 json] http://localhost:8080/documentation/json
-

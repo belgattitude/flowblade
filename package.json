@@ -30,6 +30,7 @@
     "g:test-unit-edge": "turbo run test-unit-edge --filter='!examples/**' --filter='!docs/**'",
     "g:test-unit-browser": "turbo run test-unit-browser --filter='!examples/**' --filter='!docs/**'",
     "g:lint": "turbo run lint --concurrency 1",
+    "g:lint-fix": "turbo run lint-fix --concurrency 1",
     "g:typecheck": "turbo run typecheck",
     "g:lint-staged-files": "lint-staged --allow-empty",
     "g:fix-all-files": "yarn workspaces foreach --all -ptv run fix-all-files",
@@ -44,12 +45,10 @@
     "deps:update": "npm-check-updates --configFileName .ncurc.cjs -u",
     "check:install": "yarn dlx @yarnpkg/doctor@3 .",
     "check:security": "yarn npm audit --no-deprecations --all",
-    "postinstall": "is-ci || husky",
     "syncpack:format": "syncpack format",
     "syncpack:check": "syncpack lint --dependency-types dev --source \"package.json\" --source \"packages/*/package.json\"",
     "syncpack:list": "syncpack list --dependency-types prod,dev --source \"package.json\" --source \"packages/*/package.json\"",
     "nuke:node_modules": "rimraf --glob '**/node_modules'",
-    "prepare": "husky",
     "skills:update": "npx skills update"
   },
   "workspaces": [
@@ -69,7 +68,6 @@
     }
   },
   "devDependencies": {
-    "@belgattitude/eslint-config-bases": "8.19.1",
     "@changesets/changelog-github": "0.7.0",
     "@changesets/cli": "2.31.1",
     "@commitlint/cli": "21.2.2",
@@ -77,21 +75,21 @@
     "@commitlint/types": "21.2.0",
     "@types/shell-quote": "1.7.5",
     "cross-env": "10.1.0",
-    "eslint": "8.57.1",
-    "husky": "9.1.7",
     "is-ci": "4.1.0",
-    "lint-staged": "17.3.0",
+    "lefthook": "2.1.10",
     "npm-check-updates": "23.0.2",
     "npm-run-all2": "9.0.3",
+    "oxfmt": "0.63.0",
+    "oxlint": "1.78.0",
     "picocolors": "1.1.1",
     "pkg-pr-new": "0.0.88",
-    "prettier": "3.9.6",
     "react-doctor": "0.9.12",
     "rimraf": "6.1.3",
     "shell-quote": "1.10.0",
     "syncpack": "15.3.3",
-    "turbo": "2.10.10",
-    "typescript": "6.0.3"
+    "turbo": "2.10.11",
+    "typescript": "7.0.2",
+    "ultracite": "7.10.5"
   },
   "resolutions": {
     "esbuild": "^0.28.2"

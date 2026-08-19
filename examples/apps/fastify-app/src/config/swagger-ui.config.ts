@@ -1,16 +1,16 @@
-import type { FastifySwaggerUiOptions } from '@fastify/swagger-ui';
+import type { FastifySwaggerUiOptions } from "@fastify/swagger-ui";
 
 export const swaggerUiConfig: FastifySwaggerUiOptions = {
-  routePrefix: '/documentation',
+  routePrefix: "/documentation",
   uiConfig: {
-    docExpansion: 'full',
+    docExpansion: "full",
     deepLinking: false,
   },
   uiHooks: {
-    onRequest: function (_request, _reply, next) {
+    onRequest: function onRequest(_request, _reply, next) {
       next();
     },
-    preHandler: function (_request, _reply, next) {
+    preHandler: function preHandler(_request, _reply, next) {
       next();
     },
   },

@@ -1,4 +1,4 @@
-import type { SelectQueryBuilder } from 'kysely';
+import type { SelectQueryBuilder } from "kysely";
 
 type SqlTagInformation = {
   text: string;

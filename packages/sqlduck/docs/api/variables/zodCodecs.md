@@ -1,6 +1,6 @@
 [**@flowblade/sqlduck v0.16.0**](../README.md)
 
-***
+---
 
 [@flowblade/sqlduck](../README.md) / zodCodecs
 
@@ -12,8 +12,8 @@
 
 ### bigintToString
 
-> `readonly` **bigintToString**: `ZodCodec`\<`ZodBigInt`, `ZodString`\>
+> `readonly` **bigintToString**: `ZodCodec`\<`ZodBigInt`, `ZodString`>>>\>
 
 ### dateToString
 
-> `readonly` **dateToString**: `ZodCodec`\<`ZodDate`, `ZodISODateTime`\>
+> `readonly` **dateToString**: `ZodCodec`\<`ZodDate`, `ZodISODateTime`>>>\>

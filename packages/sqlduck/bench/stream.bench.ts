@@ -1,9 +1,9 @@
-import isInCi from 'is-in-ci';
-import { bench, type BenchOptions, describe } from 'vitest';
-import * as z from 'zod';
+import isInCi from "is-in-ci";
+import { bench, type BenchOptions, describe } from "vitest";
+import * as z from "zod";
 
-import { rowsToColumnsChunks } from '../src/utils/rows-to-columns-chunks';
-import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator';
+import { rowsToColumnsChunks } from "../src/utils/rows-to-columns-chunks";
+import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator";
 
 const benchConfig: BenchOptions = {
   iterations: isInCi ? 1 : 10,
@@ -13,7 +13,7 @@ const benchConfig: BenchOptions = {
 
 describe(`Bench rowsToColumnsChunks`, async () => {
   const userSchema = z.object({
-    id: z.number().meta({ description: 'cool' }),
+    id: z.number().meta({ description: "cool" }),
     name: z.string(),
     email: z.email().nullable(),
     bignumber: z.nullable(z.bigint()),

@@ -1,21 +1,21 @@
-import { config as loadEnv } from '@dotenvx/dotenvx';
-import type { Kysely } from 'kysely';
-import { generate, getDialect } from 'kysely-codegen';
-import pc from 'picocolors';
+import { config as loadEnv } from "@dotenvx/dotenvx";
+import type { Kysely } from "kysely";
+import { generate, getDialect } from "kysely-codegen";
+import pc from "picocolors";
 
-import { dbBaseAuthConfig } from '../src';
-import { createDbBaseAuthConn } from '../src/create-db-base-auth-conn';
+import { dbBaseAuthConfig } from "../src";
+import { createDbBaseAuthConn } from "../src/create-db-base-auth-conn";
 
 loadEnv({
-  path: ['.env.local', '.env.development', '.env'],
-  ignore: ['MISSING_ENV_FILE'],
+  path: [".env.local", ".env.development", ".env"],
+  ignore: ["MISSING_ENV_FILE"],
 });
 
-const jdbcDsn = process.env.DB_BASE_AUTH_JDBC_URL ?? '';
-const outFile = 'src/generated/db-base-auth.kysely.types.ts';
+const jdbcDsn = process.env.DB_BASE_AUTH_JDBC_URL ?? "";
+const outFile = "src/generated/db-base-auth.kysely.types.ts";
 
 console.info(
-  `- ${pc.yellow('info')} Introspecting database schema JDBC DSN: ${pc.cyan(jdbcDsn)}`
+  `- ${pc.yellow("info")} Introspecting database schema JDBC DSN: ${pc.cyan(jdbcDsn)}`
 );
 
 const conn = createDbBaseAuthConn({
@@ -40,20 +40,20 @@ const closeDbAndExit = async (
 try {
   await generate({
     db: conn,
-    dialect: getDialect('mssql'),
+    dialect: getDialect("mssql"),
     // the `base_auth.` schema is the one containing the data, unexisting is a hack
     // to only filter dc.* schema.
-    defaultSchemas: ['unexisting'],
+    defaultSchemas: ["unexisting"],
     includePattern: `${dbBaseAuthConfig.schema}.*`,
     outFile,
   });
 } catch (e) {
-  console.error(`- ${pc.red('error')} ${(e as Error).message}`);
+  console.error(`- ${pc.red("error")} ${(e as Error).message}`);
   console.error(e);
   await closeDbAndExit(1, conn);
 } finally {
   await conn.destroy();
 }
 
-console.info(`- ${pc.green('success')} Successfully saved types in ${outFile}`);
+console.info(`- ${pc.green("success")} Successfully saved types in ${outFile}`);
 await closeDbAndExit(0, conn);

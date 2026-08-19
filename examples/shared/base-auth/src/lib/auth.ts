@@ -1,5 +1,5 @@
-import { createBetterAuth } from '../create-better-auth';
-import { createDbBaseAuthConn } from '../create-db-base-auth-conn';
+import { createBetterAuth } from "../create-better-auth";
+import { createDbBaseAuthConn } from "../create-db-base-auth-conn";
 
 export const auth = createBetterAuth({
   db: createDbBaseAuthConn({

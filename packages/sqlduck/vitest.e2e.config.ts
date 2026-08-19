@@ -1,22 +1,27 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
-const testFiles = ['./tests/e2e/**/*.test.{js,jsx,ts,tsx}'];
+const testFiles = ["./tests/e2e/**/*.test.{js,jsx,ts,tsx}"];
 export default defineConfig({
   resolve: {
-    tsconfigPaths: true,
+    conditions: ["flowblade-monorepo-source"],
+  },
+  ssr: {
+    resolve: {
+      conditions: ["flowblade-monorepo-source", "import", "default"],
+    },
   },
   test: {
     globals: true,
     typecheck: {
       enabled: false,
     },
-    environment: 'node',
+    environment: "node",
     passWithNoTests: true,
-    setupFiles: './tests/vitest.setup.ts',
+    setupFiles: "./tests/vitest.setup.ts",
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'clover'],
-      include: ['src/**/*.{js,jsx,ts,tsx}'],
+      provider: "v8",
+      reporter: ["text", "clover"],
+      include: ["src/**/*.{js,jsx,ts,tsx}"],
     },
     include: testFiles,
     // you might want to disable it, if you don't have tests that rely on CSS
@@ -28,10 +33,10 @@ export default defineConfig({
     mockReset: true,
     restoreMocks: true,
     exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/.next/**',
-      '**/.{idea,git,cache,output,temp}/**',
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/.next/**",
+      "**/.{idea,git,cache,output,temp}/**",
     ],
   },
 });

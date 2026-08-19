@@ -1,33 +1,33 @@
-import { Hono } from 'hono';
-import { describeRoute, resolver, validator } from 'hono-openapi';
-import * as v from 'valibot';
+import { Hono } from "hono";
+import { describeRoute, resolver, validator } from "hono-openapi";
+import * as v from "valibot";
 
 import {
   EthicalProductRepo,
   ethicalProductSchema,
   ethicalProductSearchParamsSchema,
-} from '@/features/products/server/ethical-product.repo';
-import { wait } from '@/lib/utils/wait';
+} from "@/features/products/server/ethical-product.repo";
+import { wait } from "@/lib/utils/wait";
 
 const app = new Hono();
 
 app.get(
-  '/search',
+  "/search",
   describeRoute({
-    description: 'Search for ethical products',
+    description: "Search for ethical products",
     responses: {
       200: {
-        description: 'Successful response',
         content: {
-          'application/json': {
+          "application/json": {
             schema: resolver(v.array(ethicalProductSchema)),
           },
         },
+        description: "Successful response",
       },
     },
   }),
   validator(
-    'query',
+    "query",
     v.object({
       ...ethicalProductSearchParamsSchema.entries,
       slowdownApiMs: v.optional(
@@ -37,7 +37,7 @@ app.get(
           v.integer(),
           v.metadata({
             description:
-              'Artificially slow down the API by this many milliseconds.',
+              "Artificially slow down the API by this many milliseconds.",
           })
         )
       ),
@@ -45,18 +45,18 @@ app.get(
     undefined,
     {
       options: {
-        typeMode: 'output',
+        typeMode: "output",
       },
     }
   ),
   async (c) => {
-    const { slowdownApiMs, brands, minPrice } = c.req.valid('query');
+    const { slowdownApiMs, brands, minPrice } = c.req.valid("query");
     if (slowdownApiMs) {
       await wait(slowdownApiMs);
     }
     return c.json(
       await new EthicalProductRepo().search({
-        brands: brands,
+        brands,
         minPrice,
       })
     );
@@ -64,14 +64,13 @@ app.get(
 );
 
 app.get(
-  '/brands',
+  "/brands",
   describeRoute({
-    description: 'Get list of ethical brands',
+    description: "Get list of ethical brands",
     responses: {
       200: {
-        description: 'Successful response',
         content: {
-          'application/json': {
+          "application/json": {
             schema: resolver(
               v.array(
                 v.object({
@@ -81,12 +80,11 @@ app.get(
             ),
           },
         },
+        description: "Successful response",
       },
     },
   }),
-  async (c) => {
-    return c.json(await new EthicalProductRepo().getBrands());
-  }
+  async (c) => c.json(await new EthicalProductRepo().getBrands())
 );
 
 export { app as ethicalProductRouter };

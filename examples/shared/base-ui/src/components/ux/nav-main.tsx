@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@examples/base-ui/components/ui/collapsible';
+} from "@examples/base-ui/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -14,8 +14,8 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from '@examples/base-ui/components/ui/sidebar';
-import { ChevronRightIcon } from 'lucide-react';
+} from "@examples/base-ui/components/ui/sidebar";
+import { ChevronRightIcon } from "lucide-react";
 
 export function NavMain({
   items,

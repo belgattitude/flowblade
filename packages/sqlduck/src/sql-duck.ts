@@ -2,27 +2,27 @@ import {
   type DuckDBConnection,
   DuckDBDataChunk,
   type DuckDBType,
-} from '@duckdb/node-api';
-import type { Logger } from '@logtape/logtape';
-import type * as z from 'zod';
-import type { ZodObject } from 'zod';
+} from "@duckdb/node-api";
+import type { Logger } from "@logtape/logtape";
+import type * as z from "zod";
+import type { ZodObject } from "zod";
 
 import {
   createOnChunkAppendedCollector,
   isOnChunkAppendedAsyncCb,
   type OnChunkAppendedCb,
-} from './appender/data-appender-callback.ts';
-import { createDuckColumnConverters } from './converter/create-duck-column-converters.ts';
-import { sqlduckDefaultLogtapeLogger } from './logger/sqlduck-default-logtape-logger.ts';
-import { DuckDatabaseManager } from './manager/database/duck-database-manager.ts';
-import type { Table } from './objects/table.ts';
-import { createTableFromZod } from './table/create-table-from-zod.ts';
-import type { TableCreateOptions } from './table/get-table-create-from-zod.ts';
-import { rowsToColumnsChunks } from './utils/rows-to-columns-chunks.ts';
+} from "./appender/data-appender-callback.ts";
+import { createDuckColumnConverters } from "./converter/create-duck-column-converters.ts";
+import { sqlduckDefaultLogtapeLogger } from "./logger/sqlduck-default-logtape-logger.ts";
+import { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts";
+import type { Table } from "./objects/table.ts";
+import { createTableFromZod } from "./table/create-table-from-zod.ts";
+import type { TableCreateOptions } from "./table/get-table-create-from-zod.ts";
+import { rowsToColumnsChunks } from "./utils/rows-to-columns-chunks.ts";
 import type {
   InferZodRelaxedDataSchema,
   TableSchemaZod,
-} from './validation/zod/index.ts';
+} from "./validation/zod/index.ts";
 
 export type SqlDuckParams = {
   conn: DuckDBConnection;
@@ -187,21 +187,21 @@ export class SqlDuck {
     } = params;
 
     if (!Number.isSafeInteger(chunkSize) || chunkSize < 1 || chunkSize > 2048) {
-      throw new Error('chunkSize must be a number between 1 and 2048');
+      throw new Error("chunkSize must be a number between 1 and 2048");
     }
 
-    if (autoCheckpoint && typeof table.databaseName !== 'string') {
+    if (autoCheckpoint && typeof table.databaseName !== "string") {
       throw new Error(
-        'autoCheckpoint requires table.databaseName to be provided.'
+        "autoCheckpoint requires table.databaseName to be provided."
       );
     }
 
     if (
       checkpointChunksFrequency !== undefined &&
-      typeof table.databaseName !== 'string'
+      typeof table.databaseName !== "string"
     ) {
       throw new Error(
-        'checkpointChunksFrequency requires table.databaseName to be provided.'
+        "checkpointChunksFrequency requires table.databaseName to be provided."
       );
     }
 
@@ -210,7 +210,7 @@ export class SqlDuck {
       (checkpointChunksFrequency < 1 || checkpointChunksFrequency > 100_000)
     ) {
       throw new Error(
-        'checkpointChunksFrequency must be a number between 1 and 100_000.'
+        "checkpointChunksFrequency must be a number between 1 and 100_000."
       );
     }
 
@@ -219,7 +219,7 @@ export class SqlDuck {
       (onChunkAppendedFrequency < 1 || onChunkAppendedFrequency > 100_000)
     ) {
       throw new Error(
-        'onChunkAppendedFrequency must be a number between 1 and 100_000.'
+        "onChunkAppendedFrequency must be a number between 1 and 100_000."
       );
     }
 
@@ -228,7 +228,7 @@ export class SqlDuck {
       (flushSyncFrequency < 1 || flushSyncFrequency > 100_000)
     ) {
       throw new Error(
-        'flushSyncFrequency must be a number between 1 and 100_000.'
+        "flushSyncFrequency must be a number between 1 and 100_000."
       );
     }
 
@@ -324,13 +324,13 @@ export class SqlDuck {
         if (
           checkpointChunksFrequency !== undefined &&
           appendedChunkCount % checkpointChunksFrequency === 0 &&
-          typeof table.databaseName === 'string'
+          typeof table.databaseName === "string"
         ) {
           try {
             await dbManager.checkpoint(table.databaseName);
           } catch (e) {
             this.#logger.warning(
-              `Failed to checkpoint database '${table.databaseName}' after appending chunk into table '${tableName}' - ${(e as Error)?.message ?? ''}`,
+              `Failed to checkpoint database '${table.databaseName}' after appending chunk into table '${tableName}' - ${(e as Error)?.message ?? ""}`,
               {
                 table: tableFullName,
               }
@@ -342,12 +342,12 @@ export class SqlDuck {
       appender.flushSync();
       appender.closeSync();
 
-      if (autoCheckpoint && typeof table.databaseName === 'string') {
+      if (autoCheckpoint && typeof table.databaseName === "string") {
         try {
           await dbManager.checkpoint(table.databaseName);
         } catch (e) {
           this.#logger.warning(
-            `Failed to checkpoint database '${table.databaseName}' after appending data into table '${tableName}' - ${(e as Error)?.message ?? ''}`,
+            `Failed to checkpoint database '${table.databaseName}' after appending data into table '${tableName}' - ${(e as Error)?.message ?? ""}`,
             {
               table: tableFullName,
             }
@@ -372,7 +372,7 @@ export class SqlDuck {
       };
     } catch (e) {
       appender.closeSync();
-      const msg = `Failed to append data into table '${table.getFullName()}' - ${(e as Error)?.message ?? ''}`;
+      const msg = `Failed to append data into table '${table.getFullName()}' - ${(e as Error)?.message ?? ""}`;
       this.#logger.error(msg, {
         table: table.getFullName(),
       });

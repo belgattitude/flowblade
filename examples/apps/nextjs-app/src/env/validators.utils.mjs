@@ -1,16 +1,16 @@
 // @ts-check
 
-import { convertJdbcToDsn, isParsableDsn } from '@httpx/dsn-parser';
-import * as v from 'valibot';
+import { convertJdbcToDsn, isParsableDsn } from "@httpx/dsn-parser";
+import * as v from "valibot";
 
 export const vDsn = v.custom(
   (dsn) => isParsableDsn(dsn),
-  'Invalid DSN format.'
+  "Invalid DSN format."
 );
 
 export const vJdbcUrlDsnCompatible = v.custom((jdbcUrl) => {
-  if (typeof jdbcUrl === 'string') {
-    let dsn = '';
+  if (typeof jdbcUrl === "string") {
+    let dsn = "";
     try {
       dsn = convertJdbcToDsn(jdbcUrl);
     } catch {
@@ -19,4 +19,4 @@ export const vJdbcUrlDsnCompatible = v.custom((jdbcUrl) => {
     return isParsableDsn(dsn);
   }
   return false;
-}, 'Invalid JDBCUrl format.');
+}, "Invalid JDBCUrl format.");

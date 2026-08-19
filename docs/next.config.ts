@@ -1,22 +1,22 @@
-import path from 'node:path';
-import url from 'node:url';
+import path from "node:path";
+import url from "node:url";
 
-import nextra from 'nextra';
-import pc from 'tinyrainbow';
+import nextra from "nextra";
+import pc from "tinyrainbow";
 
-import { buildEnv } from './src/env/build.env.mjs';
+import { buildEnv } from "./src/env/build.env.mjs";
 
 const output = buildEnv.NEXT_BUILD_OUTPUT ?? undefined;
 /** Useful when you publish the static export in a different basePath, ie gh-pages */
 const basePath = process.env.NEXT_BUILD_BASE_PATH ?? undefined;
 
 console.log(
-  `- ${pc.green('info')} Next.js output mode is "${output ?? 'default'}"`
+  `- ${pc.green("info")} Next.js output mode is "${output ?? "default"}"`
 );
 
 const monorepoRoot = path.resolve(
   path.dirname(url.fileURLToPath(import.meta.url)),
-  '..'
+  ".."
 );
 
 const withNextra = nextra({
@@ -27,9 +27,9 @@ export default withNextra({
   ...(basePath ? { basePath } : {}),
   ...(output ? { output } : {}),
   productionBrowserSourceMaps:
-    buildEnv.NEXT_BUILD_PRODUCTION_SOURCEMAPS === 'true',
+    buildEnv.NEXT_BUILD_PRODUCTION_SOURCEMAPS === "true",
   typescript: {
-    ignoreBuildErrors: buildEnv.NEXT_BUILD_IGNORE_TYPECHECK === 'true',
+    ignoreBuildErrors: buildEnv.NEXT_BUILD_IGNORE_TYPECHECK === "true",
     tsconfigPath: buildEnv.NEXT_BUILD_TSCONFIG,
   },
   turbopack: {

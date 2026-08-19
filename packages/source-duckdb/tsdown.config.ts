@@ -1,20 +1,20 @@
-import { defineConfig } from 'tsdown';
+import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  entry: ['./src/index.ts'],
+  entry: ["./src/index.ts"],
   dts: true,
   clean: true,
   format: {
     esm: {
-      target: ['node20'],
+      target: ["node20"],
     },
     cjs: {
-      target: ['node20'],
+      target: ["node20"],
     },
   },
-  platform: 'node',
+  platform: "node",
   treeshake: true,
   exports: false,
-  minify: 'dce-only',
+  minify: "dce-only",
   unbundle: false,
 });

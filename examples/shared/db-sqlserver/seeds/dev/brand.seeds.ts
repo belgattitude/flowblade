@@ -1,6 +1,6 @@
-import { AbstractSeed } from '../../src/lib/abstract-seed';
-import type { PrismaSqlServer as Prisma } from '../../src/prisma';
-import jsonBrands from './brand.seeds.openfoodfact.json' with { type: 'json' };
+import { AbstractSeed } from "../../src/lib/abstract-seed";
+import type { PrismaSqlServer as Prisma } from "../../src/prisma";
+import jsonBrands from "./brand.seeds.openfoodfact.json" with { type: "json" };
 
 export class BrandSeeds extends AbstractSeed {
   execute = async (): Promise<void> => {
@@ -22,8 +22,8 @@ export class BrandSeeds extends AbstractSeed {
         },
         create: b,
       });
-      this.log('UPSERT', `Brand ${inserted.id} - ${inserted.name}`);
+      this.log("UPSERT", `Brand ${inserted.id} - ${inserted.name}`);
     }
-    this.collectStats('Brand', { totalAffected: brandData.length });
+    this.collectStats("Brand", { totalAffected: brandData.length });
   };
 }

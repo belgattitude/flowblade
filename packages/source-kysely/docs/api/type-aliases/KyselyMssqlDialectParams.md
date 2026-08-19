@@ -18,8 +18,7 @@
 
 > `optional` **resetConnectionsOnRelease**: `MssqlDialectConfig`\[`"resetConnectionsOnRelease"`\]
 
-When true, connections are reset to their initial states when released back to the pool,
-resulting in additional requests to the database.
+When true, connections are reset to their initial states when released back to the pool, resulting in additional requests to the database.
 
 Defaults to `false`.
 
@@ -31,8 +30,7 @@ Defaults to `false`.
 
 > `optional` **validateConnections**: `MssqlDialectConfig`\[`"validateConnections"`\]
 
-When true, connections are validated before being acquired from the pool,
-resulting in additional requests to the database.
+When true, connections are validated before being acquired from the pool, resulting in additional requests to the database.
 
 In safe scenarios, this can be set to false to improve performance.
 

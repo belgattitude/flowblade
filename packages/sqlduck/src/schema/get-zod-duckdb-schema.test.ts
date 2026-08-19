@@ -1,31 +1,31 @@
-import type { DuckDBTypeId } from '@duckdb/node-api';
-import * as z from 'zod';
+import type { DuckDBTypeId } from "@duckdb/node-api";
+import * as z from "zod";
 
-import { getZodDuckDBSchema } from './get-zod-duckdb-schema';
+import { getZodDuckDBSchema } from "./get-zod-duckdb-schema";
 
-describe('test idea', () => {
-  describe('zod to table', () => {
+describe("test idea", () => {
+  describe("zod to table", () => {
     const duckRegistry = z.registry<{
       duckdb: { type: keyof typeof DuckDBTypeId };
     }>();
 
     const userSchema = z.object({
       id: z.number().register(duckRegistry, {
-        duckdb: { type: 'INTEGER' },
+        duckdb: { type: "INTEGER" },
       }),
       name: z.string().meta({
-        duckdb: { type: 'VARCHAR' },
+        duckdb: { type: "VARCHAR" },
       }),
       email: z.email().meta({
-        duckdb: { type: 'VARCHAR' },
+        duckdb: { type: "VARCHAR" },
       }),
       created_at: z.date().meta({
-        description: 'cool',
-        duckdb: { type: 'TIMESTAMP' },
+        description: "cool",
+        duckdb: { type: "TIMESTAMP" },
       }),
     });
 
-    it('should extract duckdb metadata from zod schema', () => {
+    it("should extract duckdb metadata from zod schema", () => {
       const a = getZodDuckDBSchema(userSchema);
 
       const entries = userSchema.shape;

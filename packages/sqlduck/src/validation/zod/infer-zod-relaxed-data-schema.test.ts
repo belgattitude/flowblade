@@ -1,10 +1,10 @@
-import { expectTypeOf } from 'vitest';
-import * as z from 'zod';
+import { expectTypeOf } from "vitest";
+import * as z from "zod";
 
-import type { InferZodRelaxedDataSchema } from './infer-zod-relaxed-data-schema.ts';
+import type { InferZodRelaxedDataSchema } from "./infer-zod-relaxed-data-schema.ts";
 
-describe('InferZodRelaxedDataSchema', () => {
-  it('should add string to date field', () => {
+describe("InferZodRelaxedDataSchema", () => {
+  it("should add string to date field", () => {
     const _userSchema = z.strictObject({
       id: z.string(),
       age: z.number(),
@@ -19,7 +19,7 @@ describe('InferZodRelaxedDataSchema', () => {
       age: 10,
       updatedAt: new Date().toISOString(),
       // updatedAt: new Date(),
-      id: 'xxx',
+      id: "xxx",
     };
 
     expectTypeOf(record).toMatchObjectType<{

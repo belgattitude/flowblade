@@ -1,15 +1,15 @@
-import * as v from 'valibot';
+import * as v from "valibot";
 
-import { ethicalProducts } from '@/features/products/data/ethical-products.data';
-import { vPipeDelimitedStringSchema } from '@/lib/valibot/valibot-openapi-extras.ts';
+import { ethicalProducts } from "@/features/products/data/ethical-products.data";
+import { vPipeDelimitedStringSchema } from "@/lib/valibot/valibot-openapi-extras.ts";
 
-export type SearchEthicalProductsParams = {
+export interface SearchEthicalProductsParams {
   brands?: string[];
-};
+}
 
-export type EthicalBrand = {
+export interface EthicalBrand {
   name: string;
-};
+}
 
 export const ethicalProductSearchParamsSchema = v.object({
   brands: v.optional(vPipeDelimitedStringSchema),
@@ -27,23 +27,23 @@ export type EthicalProductSearchParams = v.InferOutput<
 >;
 
 export const ethicalProductSchema = v.object({
-  label: v.pipe(
-    v.string(),
-    v.metadata({
-      description: 'The name of the product',
-    })
-  ),
   brand: v.pipe(
     v.string(),
     v.metadata({
-      description: 'The brand of the product',
+      description: "The brand of the product",
+    })
+  ),
+  category: v.string(),
+  color: v.string(),
+  label: v.pipe(
+    v.string(),
+    v.metadata({
+      description: "The name of the product",
     })
   ),
   price: v.number(),
   stock: v.number(),
   weight: v.string(),
-  color: v.string(),
-  category: v.string(),
 });
 
 export type EthicalProduct = v.InferOutput<typeof ethicalProductSchema>;

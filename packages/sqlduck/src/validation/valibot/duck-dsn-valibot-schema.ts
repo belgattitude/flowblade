@@ -1,11 +1,11 @@
-import { type ParsedDsn, parseDsn, parseDsnOrThrow } from '@httpx/dsn-parser';
-import * as v from 'valibot';
+import { type ParsedDsn, parseDsn, parseDsnOrThrow } from "@httpx/dsn-parser";
+import * as v from "valibot";
 
-import type { DuckAllConnectionOptions } from '../core/types.ts';
+import type { DuckAllConnectionOptions } from "../core/types.ts";
 import {
   type DuckConnectionParamsValibotSchema,
   duckConnectionParamsValibotSchema,
-} from './duck-connection-params-valibot-schema.ts';
+} from "./duck-connection-params-valibot-schema.ts";
 
 export const duckDsnValibotSchema = v.pipe(
   v.string(),
@@ -14,7 +14,7 @@ export const duckDsnValibotSchema = v.pipe(
     (input) => {
       return (
         (parseDsn(input.input) as unknown as { message?: string })?.message ??
-        'Invalid DSN'
+        "Invalid DSN"
       );
     }
   ),

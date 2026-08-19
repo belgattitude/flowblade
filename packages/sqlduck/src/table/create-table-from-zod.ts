@@ -1,13 +1,13 @@
-import type { DuckDBConnection } from '@duckdb/node-api';
-import type { Logger } from '@logtape/logtape';
+import type { DuckDBConnection } from "@duckdb/node-api";
+import type { Logger } from "@logtape/logtape";
 
-import { sqlduckDefaultLogtapeLogger } from '../logger/sqlduck-default-logtape-logger.ts';
-import type { TableSchemaZod } from '../validation/zod';
+import { sqlduckDefaultLogtapeLogger } from "../logger/sqlduck-default-logtape-logger.ts";
+import type { TableSchemaZod } from "../validation/zod";
 import {
   getTableCreateFromZod,
   type GetTableCreateFromZodParams,
   type TableCreateFromZodResult,
-} from './get-table-create-from-zod.ts';
+} from "./get-table-create-from-zod.ts";
 
 export const createTableFromZod = async <TSchema extends TableSchemaZod>(
   params: {

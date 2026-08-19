@@ -1,10 +1,10 @@
-import { config as loadEnv } from '@dotenvx/dotenvx';
-import { TediousConnUtils } from '@flowblade/source-kysely';
-import { assertStringNonEmpty } from '@httpx/assert';
+import { config as loadEnv } from "@dotenvx/dotenvx";
+import { TediousConnUtils } from "@flowblade/source-kysely";
+import { assertStringNonEmpty } from "@httpx/assert";
 
 loadEnv({
-  path: ['.env.local', '.env.development', '.env'],
-  ignore: ['MISSING_ENV_FILE'],
+  ignore: ["MISSING_ENV_FILE"],
+  path: [".env.local", ".env.development", ".env"],
 });
 
 const jdbcDsn = process.env.DB_FLOWBLADE_MSSQL_JDBC;

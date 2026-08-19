@@ -1,10 +1,10 @@
-import type { DBKyselySqlServer } from '@examples/db-sqlserver/kysely-types';
+import type { DBKyselySqlServer } from "@examples/db-sqlserver/kysely-types";
 import type {
   KyselyDatasource,
   QError,
   QResult,
-} from '@flowblade/source-kysely';
-import { z } from 'zod';
+} from "@flowblade/source-kysely";
+import { z } from "zod";
 
 const validators = {
   search: {
@@ -14,12 +14,12 @@ const validators = {
     }),
     result: z.array(
       z.object({
-        id: z.number(),
-        reference: z.string().nullable(),
-        name: z.string(),
         barcode_ean13: z.string().nullable(),
         brand_id: z.number().nullable(),
         brand_name: z.string().nullable(),
+        id: z.number(),
+        name: z.string(),
+        reference: z.string().nullable(),
       })
     ),
   },
@@ -42,18 +42,18 @@ export class ProductRepo<
     const { searchName, limit } = params;
 
     const query = this.ds.queryBuilder
-      .selectFrom('common.product as p')
+      .selectFrom("common.product as p")
       .select([
-        'p.id',
-        'p.reference',
-        'p.name',
-        'p.barcode_ean13',
-        'p.brand_id as cool',
+        "p.id",
+        "p.reference",
+        "p.name",
+        "p.barcode_ean13",
+        "p.brand_id as cool",
       ])
-      .leftJoin('common.brand as b', 'b.id', 'p.brand_id')
-      .select(['b.id as brand_id', 'b.name as brand_name'])
+      .leftJoin("common.brand as b", "b.id", "p.brand_id")
+      .select(["b.id as brand_id", "b.name as brand_name"])
       .$if(searchName !== undefined, (q) =>
-        q.where('p.name', 'like', `%${searchName}%`)
+        q.where("p.name", "like", `%${searchName}%`)
       )
       .top(limit);
 
@@ -63,7 +63,7 @@ export class ProductRepo<
     const result = await this.ds.query(query);
     // const { data, meta, error } = result;
     console.log(
-      'Test to see if the types are working',
+      "Test to see if the types are working",
       result.data![0]!.reference
     );
     return result;

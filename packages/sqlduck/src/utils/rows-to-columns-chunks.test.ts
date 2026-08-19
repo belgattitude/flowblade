@@ -1,20 +1,20 @@
-import { describe, expect, expectTypeOf, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from "vitest";
 
-import { rowsToColumnsChunks } from './rows-to-columns-chunks';
+import { rowsToColumnsChunks } from "./rows-to-columns-chunks";
 
-describe('rowsToColumnsChunk', () => {
+describe("rowsToColumnsChunk", () => {
   type Row = { id: number; name: string | null };
 
   async function* makeRows(rows: Row[]): AsyncGenerator<Row> {
     for (const r of rows) yield r;
   }
 
-  it('yields column chunks according to chunkSize', async () => {
+  it("yields column chunks according to chunkSize", async () => {
     const input: Row[] = [
-      { id: 1, name: 'A' },
-      { id: 2, name: 'B' },
-      { id: 3, name: 'C' },
-      { id: 4, name: 'D' },
+      { id: 1, name: "A" },
+      { id: 2, name: "B" },
+      { id: 3, name: "C" },
+      { id: 4, name: "D" },
       { id: 5, name: null },
     ];
 
@@ -30,11 +30,11 @@ describe('rowsToColumnsChunk', () => {
     expect(out.length).toBe(3);
     expect(out[0]).toStrictEqual({
       id: [1, 2],
-      name: ['A', 'B'],
+      name: ["A", "B"],
     });
     expect(out[1]).toStrictEqual({
       id: [3, 4],
-      name: ['C', 'D'],
+      name: ["C", "D"],
     });
     expect(out[2]).toStrictEqual({
       id: [5],
@@ -42,11 +42,11 @@ describe('rowsToColumnsChunk', () => {
     });
   });
 
-  it('handles chunkSize = 1 without merging rows', async () => {
+  it("handles chunkSize = 1 without merging rows", async () => {
     const input: Row[] = [
-      { id: 1, name: 'A' },
-      { id: 2, name: 'B' },
-      { id: 3, name: 'C' },
+      { id: 1, name: "A" },
+      { id: 2, name: "B" },
+      { id: 3, name: "C" },
     ];
 
     const gen = rowsToColumnsChunks({
@@ -56,18 +56,18 @@ describe('rowsToColumnsChunk', () => {
     const out = await Array.fromAsync(gen);
 
     expect(out).toStrictEqual([
-      { id: [1], name: ['A'] },
-      { id: [2], name: ['B'] },
-      { id: [3], name: ['C'] },
+      { id: [1], name: ["A"] },
+      { id: [2], name: ["B"] },
+      { id: [3], name: ["C"] },
     ]);
   });
 
-  it('does not emit an empty final chunk when rows are multiple of chunkSize', async () => {
+  it("does not emit an empty final chunk when rows are multiple of chunkSize", async () => {
     const input: Row[] = [
-      { id: 1, name: 'A' },
-      { id: 2, name: 'B' },
-      { id: 3, name: 'C' },
-      { id: 4, name: 'D' },
+      { id: 1, name: "A" },
+      { id: 2, name: "B" },
+      { id: 3, name: "C" },
+      { id: 4, name: "D" },
     ];
 
     const gen = rowsToColumnsChunks({
@@ -77,12 +77,12 @@ describe('rowsToColumnsChunk', () => {
     const out = await Array.fromAsync(gen);
 
     expect(out).toStrictEqual([
-      { id: [1, 2], name: ['A', 'B'] },
-      { id: [3, 4], name: ['C', 'D'] },
+      { id: [1, 2], name: ["A", "B"] },
+      { id: [3, 4], name: ["C", "D"] },
     ]);
   });
 
-  it('yields nothing for empty input', async () => {
+  it("yields nothing for empty input", async () => {
     const gen = rowsToColumnsChunks<Row>({
       rows: makeRows([]),
       chunkSize: 3,
@@ -91,8 +91,8 @@ describe('rowsToColumnsChunk', () => {
     expect(out.length).toBe(0);
   });
 
-  it('throws an error if transformers contains keys not present in the row', async () => {
-    const input: Row[] = [{ id: 1, name: 'A' }];
+  it("throws an error if transformers contains keys not present in the row", async () => {
+    const input: Row[] = [{ id: 1, name: "A" }];
 
     const gen = rowsToColumnsChunks({
       rows: makeRows(input),
@@ -105,11 +105,11 @@ describe('rowsToColumnsChunk', () => {
     });
 
     await expect(Array.fromAsync(gen)).rejects.toThrow(
-      'transformers parameter contains unknown row ids: not_exists'
+      "transformers parameter contains unknown row ids: not_exists"
     );
   });
-  it('properly infers the transformer function return type', async () => {
-    const input: Row[] = [{ id: 1, name: 'A' }];
+  it("properly infers the transformer function return type", async () => {
+    const input: Row[] = [{ id: 1, name: "A" }];
 
     const gen = rowsToColumnsChunks({
       rows: makeRows(input),
@@ -125,8 +125,8 @@ describe('rowsToColumnsChunk', () => {
     >();
 
     expect(out[0]).toStrictEqual({
-      id: ['1'],
-      name: ['A'],
+      id: ["1"],
+      name: ["A"],
     });
   });
 });

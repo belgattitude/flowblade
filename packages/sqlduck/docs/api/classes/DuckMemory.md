@@ -1,6 +1,6 @@
 [**@flowblade/sqlduck v0.16.0**](../README.md)
 
-***
+---
 
 [@flowblade/sqlduck](../README.md) / DuckMemory
 
@@ -40,11 +40,11 @@
 
 `Promise`\<`DuckMemoryRow`[]\>
 
-***
+---
 
 ### getByTag()
 
-> **getByTag**(`tag`): `Promise`\<`DuckMemoryRow` \| `null`\>
+> **getByTag**(`tag`): `Promise`\<`DuckMemoryRow` \| `null`>>>\>
 
 #### Parameters
 
@@ -56,11 +56,11 @@
 
 `Promise`\<`DuckMemoryRow` \| `null`\>
 
-***
+---
 
 ### getSummary()
 
-> **getSummary**(): `Promise`\<`DuckMemorySummary`\>
+> **getSummary**(): `Promise`\<`DuckMemorySummary`>>>\>
 
 #### Returns
 

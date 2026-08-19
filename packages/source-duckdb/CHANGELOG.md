@@ -139,8 +139,7 @@
 
 - [#1021](https://github.com/belgattitude/flowblade/pull/1021) [`a3829ed`](https://github.com/belgattitude/flowblade/commit/a3829ed309881a4d501db2241a0bd7e74eb63790) Thanks [@belgattitude](https://github.com/belgattitude)! - Add support for @logtape/logtape
 
-  Both source-duckdb and source-kysely now support [@logtape/logtape](https://github.com/dahlia/logtape) for logging.
-  This allows users to easily integrate logging into their applications when using these sources.
+  Both source-duckdb and source-kysely now support [@logtape/logtape](https://github.com/dahlia/logtape) for logging. This allows users to easily integrate logging into their applications when using these sources.
 
   Read the documentation on their [official website](https://logtape.org/).
 
@@ -608,8 +607,7 @@
 
 - [#352](https://github.com/belgattitude/flowblade/pull/352) [`a0b6225`](https://github.com/belgattitude/flowblade/commit/a0b622574ca46396481dd5fd8af407e45e5f1710) Thanks [@belgattitude](https://github.com/belgattitude)! - Update duckdb-neo to latest alpha to fix issues with nextjs in standalone mode.
 
-  You must update duckdb/node-api to latest 1.1.3-alpha.12, see
-  https://github.com/duckdb/duckdb-node-neo/pull/127
+  You must update duckdb/node-api to latest 1.1.3-alpha.12, see https://github.com/duckdb/duckdb-node-neo/pull/127
 
 ## 0.1.12
 
@@ -732,9 +730,7 @@
 
   **Warning**: This is a breaking change
 
-  Create `@flowblade/core` package to centralize common types and utilities. If you're relying
-  on `@flowblade/source-kysely` or `@flowblade/source-duckdb`, you'll need to update your imports for
-  `QueryResults` and others.
+  Create `@flowblade/core` package to centralize common types and utilities. If you're relying on `@flowblade/source-kysely` or `@flowblade/source-duckdb`, you'll need to update your imports for `QueryResults` and others.
 
   ```typescript
   import type { QueryResult } from "@flowblade/core";

@@ -6,7 +6,7 @@
 
 # Type Alias: JsonifiedDataSourceResponse\<T\>
 
-> **JsonifiedDataSourceResponse**\<`T`\> = `object`
+> **JsonifiedDataSourceResponse**\<`T`> > > > \> = `object`
 
 ## Type Parameters
 

@@ -1,4 +1,4 @@
-import * as v from 'valibot';
+import * as v from "valibot";
 
 /**
  * Schema to parse openapi pipeDelimited style strings into string arrays.
@@ -10,19 +10,19 @@ import * as v from 'valibot';
 export const vPipeDelimitedStringSchema = v.pipe(
   v.string(),
   v.transform((v): string[] => {
-    if (typeof v !== 'string') {
+    if (typeof v !== "string") {
       throw new TypeError(
-        `Invalid value: ${typeof v === 'string' ? v : ''} (type: '${typeof v}'). Expected a string.`
+        `Invalid value: ${typeof v === "string" ? v : ""} (type: '${typeof v}'). Expected a string.`
       );
     }
     return v
-      .split('|')
+      .split("|")
       .map((s) => s.trim())
       .filter((v) => v.length > 0);
   }),
   v.array(v.string()),
   v.metadata({
-    description: 'Pipe delimited strings',
-    example: 'string1|string2|string3',
+    description: "Pipe delimited strings",
+    example: "string1|string2|string3",
   })
 );

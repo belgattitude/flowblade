@@ -1,4 +1,3 @@
-
 ## Create duckdb
 
 ```sql
@@ -24,7 +23,7 @@ FROM read_ndjson(
         'openfoodfacts-products.jsonl',
         ignore_errors=True
      )
-WHERE code IS NOT NULL 
+WHERE code IS NOT NULL
   AND date_diff('year', to_timestamp(created_t), current_timestamp) <= 2
 ;
 ```
@@ -33,13 +32,13 @@ WHERE code IS NOT NULL
 
 ```sql
 COPY (
- SELECT brand_name as name, 
-        count(*) AS nb_products 
- FROM etl_load_product 
- WHERE brand_name is not null and brand_name <> '' 
+ SELECT brand_name as name,
+        count(*) AS nb_products
+ FROM etl_load_product
+ WHERE brand_name is not null and brand_name <> ''
  GROUP BY brand_name
  HAVING nb_products > 50
- ORDER BY nb_products DESC    
+ ORDER BY nb_products DESC
 ) TO 'brand.seeds.openfoodfact.json' (FORMAT JSON, ARRAY true);
 ```
 
@@ -61,15 +60,15 @@ COPY (
                     product_name_pt as n_pt,
                     brand_name as brand
     FROM etl_load_product
-    ANTI JOIN duplicateCodes USING (code) 
+    ANTI JOIN duplicateCodes USING (code)
     WHERE completeness > 0.2
       AND (countries like '%France%'
         OR countries like '%Portugal%'
         OR countries like '%Germany%'
         OR countries like '%Italy%'
         OR countries like '%Poland%'
-        )    
-    ORDER BY completeness DESC        
+        )
+    ORDER BY completeness DESC
     LIMIT 100000
 ) TO 'product.seeds.openfoodfact.jsonl' (FORMAT JSON, ARRAY false);
 ```
@@ -89,7 +88,7 @@ COPY (
         OR countries like '%Germany%'
         OR countries like '%Italy%'
         OR countries like '%Poland%'
-        )    
+        )
     GROUP BY code
     HAVING count(*) > 1
 

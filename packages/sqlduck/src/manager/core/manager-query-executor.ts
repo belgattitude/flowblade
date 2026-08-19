@@ -1,5 +1,5 @@
-import type { DuckDBConnection } from '@duckdb/node-api';
-import type { Logger } from '@logtape/logtape';
+import type { DuckDBConnection } from "@duckdb/node-api";
+import type { Logger } from "@logtape/logtape";
 
 export class ManagerQueryExecutor {
   #conn: DuckDBConnection;
@@ -33,7 +33,7 @@ export class ManagerQueryExecutor {
       });
       return data as unknown as TRow[];
     } catch (e) {
-      const msg = `Failed to run "${fnName}" - ${(e as Error)?.message ?? ''}`;
+      const msg = `Failed to run "${fnName}" - ${(e as Error)?.message ?? ""}`;
       const timeMs = Math.round(Date.now() - startTime);
       this.#logger.error(msg, {
         name: fnName,

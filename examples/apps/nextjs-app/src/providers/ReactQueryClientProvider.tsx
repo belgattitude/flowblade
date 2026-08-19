@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import type { FC, PropsWithChildren } from 'react';
-import { useState } from 'react';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import type { FC, PropsWithChildren } from "react";
+import { useState } from "react";
 
-import { queryClientConfig } from '@/config/react-query.config';
+import { queryClientConfig } from "@/config/react-query.config";
 
-import { clientEnv } from '../env/client.env.mjs';
+import { clientEnv } from "../env/client.env.mjs";
 
 type Props = PropsWithChildren & {
   /**
@@ -22,7 +22,7 @@ export const ReactQueryClientProvider: FC<Props> = (props) => {
   const {
     children,
     forceDisableDevTools = clientEnv.NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED ===
-      'false',
+      "false",
   } = props;
   const [client] = useState(new QueryClient(queryClientConfig));
   return (
@@ -31,7 +31,7 @@ export const ReactQueryClientProvider: FC<Props> = (props) => {
       {forceDisableDevTools !== true && (
         <ReactQueryDevtools
           initialIsOpen={false}
-          buttonPosition={'bottom-right'}
+          buttonPosition="bottom-right"
         />
       )}
     </QueryClientProvider>

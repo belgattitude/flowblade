@@ -9,10 +9,8 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "strictNullChecks": true,
+    "customConditions": ["flowblade-monorepo-source"],
     "exactOptionalPropertyTypes": false,
-    "paths": {
-      "@flowblade/sql-tag": ["../sql-tag/src/index"]
-    },
     "types": ["vitest/globals"]
   },
   "exclude": ["**/node_modules", "**/.*/*", "dist", "coverage"],

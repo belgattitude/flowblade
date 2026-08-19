@@ -1,42 +1,37 @@
 {
   "name": "@examples/base-auth",
   "version": "0.0.0",
-  "type": "module",
   "private": true,
+  "type": "module",
   "exports": {
     ".": "./dist/index.js",
     "./package.json": "./package.json"
   },
   "scripts": {
     "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",
-    "typecheck": "tsgo --project tsconfig.json --noEmit",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
     "test": "vitest run",
     "test-unit": "vitest run",
     "test-unit-watch": "vitest --ui",
     "generate-better-auth-migrations": "better-auth generate",
     "codegen-db": "tsx scripts/generate-db-base-auth-types.ts",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs,.cjs,.mts,.cts --cache --cache-location ../../../.cache/eslint/base-auth.eslintcache",
+    "lint": "ultracite check",
+    "lint-fix": "ultracite fix",
     "fix-staged": "lint-staged --allow-empty"
   },
   "dependencies": {
-    "@better-auth/api-key": "1.7.0",
-    "@better-auth/sso": "1.7.0",
+    "@better-auth/api-key": "1.7.1",
+    "@better-auth/sso": "1.7.1",
     "@flowblade/core": "workspace:^",
     "@flowblade/source-kysely": "workspace:^",
     "@flowblade/sql-tag": "workspace:^",
-    "better-auth": "1.7.0",
+    "better-auth": "1.7.1",
     "jose": "6.2.9",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "zod": "4.4.3"
   },
-  "peerDependencies": {
-    "kysely": "^0.29.0",
-    "tarn": "^3.0.2",
-    "tedious": "^20.0.0"
-  },
   "devDependencies": {
-    "@belgattitude/eslint-config-bases": "8.19.1",
     "@dotenvx/dotenvx": "2.21.0",
     "@testing-library/dom": "10.4.1",
     "@testing-library/react": "16.3.2",
@@ -44,25 +39,29 @@
     "@types/node": "26.2.0",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
-    "@typescript-eslint/eslint-plugin": "8.67.0",
-    "@typescript-eslint/parser": "8.67.0",
-    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@vitejs/plugin-react": "6.0.5",
     "@vitest/browser": "4.1.11",
     "@vitest/coverage-v8": "4.1.11",
     "@vitest/ui": "4.1.11",
     "dotenv": "17.4.2",
-    "eslint": "8.57.1",
     "happy-dom": "20.11.2",
     "kysely": "0.29.5",
     "kysely-codegen": "0.20.0",
+    "oxfmt": "0.63.0",
+    "oxlint": "1.78.0",
+    "oxlint-tsgolint": "7.0.2001",
     "picocolors": "1.1.1",
-    "prettier": "3.9.6",
     "rimraf": "6.1.3",
     "tarn": "3.1.2",
     "tedious": "20.0.0",
     "tsx": "4.23.12",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
+    "ultracite": "7.10.5",
     "vitest": "4.1.11"
+  },
+  "peerDependencies": {
+    "kysely": "^0.29.0",
+    "tarn": "^3.0.2",
+    "tedious": "^20.0.0"
   }
 }

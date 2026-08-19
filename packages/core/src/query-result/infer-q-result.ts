@@ -1,5 +1,5 @@
-import type { QResult } from './q-result';
-import type { AsyncQResult } from './types';
+import type { QResult } from "./q-result";
+import type { AsyncQResult } from "./types";
 
 export type InferQResult<T> =
   T extends AsyncQResult<infer AsyncData, infer _AsyncErr>
