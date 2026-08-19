@@ -1,37 +1,32 @@
 // @ts-check
 
-import path from 'node:path';
-import url from 'node:url';
+import path from "node:path";
+import url from "node:url";
 
-import pc from 'tinyrainbow';
+import pc from "tinyrainbow";
 
-import packageJson from './package.json' with { type: 'json' };
-import { buildEnv } from './src/env/build.env.mjs';
-import { clientEnv } from './src/env/client.env.mjs';
-import { serverEnv } from './src/env/server.env.mjs';
+import packageJson from "./package.json" with { type: "json" };
+import { buildEnv } from "./src/env/build.env.mjs";
+import { clientEnv } from "./src/env/client.env.mjs";
+import { serverEnv } from "./src/env/server.env.mjs";
 
-const _isDev = process.env.NODE_ENV === 'development';
+const _isDev = process.env.NODE_ENV === "development";
 const buildOutput = buildEnv.NEXT_BUILD_OUTPUT ?? undefined;
 
-const monorepoRoot = path.resolve(
-  path.dirname(url.fileURLToPath(import.meta.url)),
-  '..',
-  '..',
-  '..'
-);
+const monorepoRoot = path.resolve(import.meta.dirname, "..", "..", "..");
 
 /** @type {import('next').NextConfig} */
 let nextConfig = {
-  compress: serverEnv.NEXT_CONFIG_COMPRESS === 'true',
+  compress: serverEnv.NEXT_CONFIG_COMPRESS === "true",
   ...(buildOutput === undefined ? {} : { output: buildOutput }),
   // transpilePackages: ['@duckdb/duckdb-wasm'],
   serverExternalPackages: [
-    '@duckdb/node-api',
-    '@duckdb/node-bindings',
-    '@duckdb/node-bindings-linux-x64',
-    'tedious',
-    'mssql',
-    'tarn',
+    "@duckdb/node-api",
+    "@duckdb/node-bindings",
+    "@duckdb/node-bindings-linux-x64",
+    "tedious",
+    "mssql",
+    "tarn",
   ],
   outputFileTracingRoot: monorepoRoot,
   outputFileTracingIncludes: {
@@ -39,9 +34,9 @@ let nextConfig = {
     // the tracing of the libduckdb.so is broken although duckdb.node is
     // correctly traced (included).
     // This bug might be more general and impact optional dependencies
-    '/api/\\[\\[\\.\\.\\.route\\]\\]': [
-      '../../../node_modules/@duckdb/node-bindings-linux-x64/*.so',
-      '../../../node_modules/@duckdb/node-bindings-linux-x64/*.node',
+    "/api/\\[\\[\\.\\.\\.route\\]\\]": [
+      "../../../node_modules/@duckdb/node-bindings-linux-x64/*.so",
+      "../../../node_modules/@duckdb/node-bindings-linux-x64/*.node",
     ],
   },
   experimental: {
@@ -57,8 +52,8 @@ let nextConfig = {
     // see https://nextjs.org/blog/next-16-2-turbopack#lightning-css-configuration
     useLightningcss: true,
     lightningCssFeatures: {
-      include: ['light-dark', 'oklab-colors'],
-      exclude: ['nesting'],
+      exclude: ["nesting"],
+      include: ["light-dark", "oklab-colors"],
     },
   },
   /*
@@ -70,26 +65,26 @@ let nextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
         headers: [
           {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin',
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin",
           },
           {
-            key: 'Cross-Origin-Embedder-Policy',
-            value: 'require-corp',
+            key: "Cross-Origin-Embedder-Policy",
+            value: "require-corp",
           },
         ],
+        source: "/:path*",
       },
     ];
   },
   productionBrowserSourceMaps:
-    buildEnv.NEXT_BUILD_PRODUCTION_SOURCEMAPS === 'true',
+    buildEnv.NEXT_BUILD_PRODUCTION_SOURCEMAPS === "true",
   reactStrictMode: true,
   typedRoutes: true,
   typescript: {
-    ignoreBuildErrors: buildEnv.NEXT_BUILD_IGNORE_TYPECHECK === 'true',
+    ignoreBuildErrors: buildEnv.NEXT_BUILD_IGNORE_TYPECHECK === "true",
     tsconfigPath: buildEnv.NEXT_BUILD_TSCONFIG,
   },
   env: {
@@ -99,9 +94,9 @@ let nextConfig = {
   },
 };
 
-if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true') {
+if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === "true") {
   try {
-    const { withSentryConfig } = await import('@sentry/nextjs').then(
+    const { withSentryConfig } = await import("@sentry/nextjs").then(
       (mod) => mod
     );
     nextConfig = withSentryConfig(nextConfig, {
@@ -132,12 +127,12 @@ if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === 'true') {
       // https://vercel.com/docs/cron-jobs
       automaticVercelMonitors: true,
     });
-    console.log(`- ${pc.green('info')} Sentry integration enabled`);
+    console.log(`- ${pc.green("info")} Sentry integration enabled`);
   } catch {
-    console.log(`- ${pc.red('error')} Sentry integration registration failed`);
+    console.log(`- ${pc.red("error")} Sentry integration registration failed`);
   }
 } else {
-  console.log(`- ${pc.green('info')} Sentry integration not enabled`);
+  console.log(`- ${pc.green("info")} Sentry integration not enabled`);
 }
 
 export default nextConfig;

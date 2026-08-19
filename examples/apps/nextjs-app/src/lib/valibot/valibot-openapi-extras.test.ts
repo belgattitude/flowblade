@@ -1,15 +1,16 @@
-import * as v from 'valibot';
+import * as v from "valibot";
+import { expectTypeOf, describe, expect, it } from "vitest";
 
-import { vPipeDelimitedStringSchema } from '@/lib/valibot/valibot-openapi-extras.ts';
+import { vPipeDelimitedStringSchema } from "@/lib/valibot/valibot-openapi-extras.ts";
 
-describe('valibot extras', () => {
-  describe('vPipeDelimitedStringSchema', () => {
-    it('should parse pipe delimited strings into array of strings', () => {
-      const result = v.parse(vPipeDelimitedStringSchema, 'apple|banana|cherry');
-      expect(result).toStrictEqual(['apple', 'banana', 'cherry']);
+describe("valibot extras", () => {
+  describe("vPipeDelimitedStringSchema test", () => {
+    it("should parse pipe delimited strings into array of strings", () => {
+      const result = v.parse(vPipeDelimitedStringSchema, "apple|banana|cherry");
+      expect(result).toStrictEqual(["apple", "banana", "cherry"]);
     });
 
-    it('should return the output type as string[]|undefined', () => {
+    it("should return the output type as string[]|undefined", () => {
       type Out = v.InferOutput<typeof vPipeDelimitedStringSchema>;
       expectTypeOf<Out>().toEqualTypeOf<string[]>();
 

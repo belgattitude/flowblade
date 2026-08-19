@@ -1,1 +1,1 @@
-export type { DB as DBKyselySqlServer } from './generated/kysely';
+export type { DB as DBKyselySqlServer } from "./generated/kysely";

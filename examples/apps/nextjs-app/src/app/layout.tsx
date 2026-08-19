@@ -1,17 +1,17 @@
-import '../styles/globals.css';
+import "../styles/globals.css";
+import { TooltipProvider } from "@examples/base-ui/components/ui/tooltip";
+import type { Metadata } from "next";
+import type { PropsWithChildren } from "react";
 
-import { TooltipProvider } from '@examples/base-ui/components/ui/tooltip';
-import type { Metadata } from 'next';
-import type { PropsWithChildren } from 'react';
+import { fontInter } from "@/components/fonts/font-inter";
+import { fontJetbrainsMono } from "@/components/fonts/font-jetbrains-mono";
+import { MainLayout } from "@/components/layout/main-layout";
+import { ReactQueryClientProvider } from "@/providers/ReactQueryClientProvider";
+import { ReduxStoreProvider } from "@/providers/ReduxProvider";
 
-import { fontInter } from '@/components/fonts/font-inter';
-import { fontJetbrainsMono } from '@/components/fonts/font-jetbrains-mono';
-import { MainLayout } from '@/components/layout/main-layout';
-import { ReactQueryClientProvider } from '@/providers/ReactQueryClientProvider';
-import { ReduxStoreProvider } from '@/providers/ReduxProvider';
 export const metadata: Metadata = {
-  title: 'Flowblade nextjs app',
-  description: 'Example',
+  description: "Example",
+  title: "Flowblade nextjs app",
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
@@ -21,9 +21,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
         <ReduxStoreProvider>
           <ReactQueryClientProvider>
             <TooltipProvider>
-              <MainLayout
-                className={'font-[family-name:var(--font-inter)] antialiased'}
-              >
+              <MainLayout className="font-[family-name:var(--font-inter)] antialiased">
                 {children}
               </MainLayout>
             </TooltipProvider>

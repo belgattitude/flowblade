@@ -1,10 +1,10 @@
-import type { AutoSizeStrategy } from 'ag-grid-community';
-import type { AgGridReact, AgGridReactProps } from 'ag-grid-react';
-import { useRef } from 'react';
+import type { AutoSizeStrategy } from "ag-grid-community";
+import type { AgGridReact, AgGridReactProps } from "ag-grid-react";
+import { useRef } from "react";
 
-import { cn } from '@/components/utils';
+import { cn } from "@/components/utils";
 
-import { AgGrid } from './core/ag-grid';
+import { AgGrid } from "./core/ag-grid";
 
 type Props<T = unknown> = AgGridReactProps<T> & {
   className?: string;
@@ -12,9 +12,9 @@ type Props<T = unknown> = AgGridReactProps<T> & {
 };
 
 const defaultAutosizeStrategy = {
-  type: 'fitCellContents',
   scaleUpToFitGridWidth: true,
   skipHeader: false,
+  type: "fitCellContents",
 } as const satisfies AutoSizeStrategy;
 
 export const ReportAgGrid = <TData = unknown,>(props: Props<TData>) => {
@@ -23,10 +23,10 @@ export const ReportAgGrid = <TData = unknown,>(props: Props<TData>) => {
   const gridRef = useRef<AgGridReact>(null);
 
   return (
-    <div className={cn('flex', className)}>
+    <div className={cn("flex", className)}>
       <AgGrid<TData>
         ref={gridRef}
-        className={cn('flex-1', gridClassName)}
+        className={cn("flex-1", gridClassName)}
         autoSizeStrategy={defaultAutosizeStrategy}
         {...restProps}
       />

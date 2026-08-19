@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import * as readline from 'node:readline';
+import fs from "node:fs";
+import * as readline from "node:readline";
 
 export const parseJsonl = async <T>(file: string): Promise<T[]> => {
   const rl = readline.createInterface({
@@ -9,14 +9,14 @@ export const parseJsonl = async <T>(file: string): Promise<T[]> => {
 
   return new Promise((resolve, reject) => {
     const jsonArray: T[] = [];
-    rl.on('line', (line) => {
+    rl.on("line", (line) => {
       jsonArray.push(JSON.parse(line) as T);
     });
-    rl.on('error', (err) => {
+    rl.on("error", (err) => {
       const error = new Error(`Error reading json file: ${file}: ${err}`);
       reject(error);
     });
-    rl.on('close', () => {
+    rl.on("close", () => {
       resolve(jsonArray);
     });
   });

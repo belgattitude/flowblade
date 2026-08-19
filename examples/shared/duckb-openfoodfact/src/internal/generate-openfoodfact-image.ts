@@ -1,18 +1,18 @@
-import { isStringNonEmpty } from '@httpx/assert';
+import { isStringNonEmpty } from "@httpx/assert";
 
-type ImageKey = 'front_fr' | 'nutrition_fr' | `${number}`;
+type ImageKey = "front_fr" | "nutrition_fr" | `${number}`;
 export type OpenfoodfactImage = {
   key: ImageKey;
   imgid: number | null;
   sizes: {
-    '100'?: { h: number; w: number };
-    '200'?: { h: number; w: number };
-    '300'?: { h: number; w: number };
-    '400'?: { h: number; w: number };
+    "100"?: { h: number; w: number };
+    "200"?: { h: number; w: number };
+    "300"?: { h: number; w: number };
+    "400"?: { h: number; w: number };
     full?: { h: number; w: number };
   };
 };
-const baseUrl = 'https://images.openfoodfacts.org/images/products';
+const baseUrl = "https://images.openfoodfacts.org/images/products";
 
 type ImageData = {
   baseUrl: string;
@@ -35,7 +35,7 @@ export const generateOpenfoodfactImage = (data: {
     return null;
   }
   const prefix = `${code.slice(0, 3)}/${code.slice(3, 6)}/${code.slice(6, 9)}/${code.slice(9)}`;
-  let img: ImageData['image'] | undefined = undefined;
+  let img: ImageData["image"] | undefined = undefined;
   for (const image of images) {
     if (image.imgid === null) {
       continue;

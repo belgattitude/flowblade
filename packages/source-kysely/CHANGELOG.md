@@ -109,8 +109,7 @@
 
 - [#1021](https://github.com/belgattitude/flowblade/pull/1021) [`a3829ed`](https://github.com/belgattitude/flowblade/commit/a3829ed309881a4d501db2241a0bd7e74eb63790) Thanks [@belgattitude](https://github.com/belgattitude)! - Add support for @logtape/logtape
 
-  Both source-duckdb and source-kysely now support [@logtape/logtape](https://github.com/dahlia/logtape) for logging.
-  This allows users to easily integrate logging into their applications when using these sources.
+  Both source-duckdb and source-kysely now support [@logtape/logtape](https://github.com/dahlia/logtape) for logging. This allows users to easily integrate logging into their applications when using these sources.
 
   Read the documentation on their [official website](https://logtape.org/).
 
@@ -493,8 +492,7 @@
 
   ## BC changes
 
-  Update the createKyselyMssqlDialect to use the new constructor and
-  move validateConnections and resetConnectionsOnRelease to the dialectConfig.
+  Update the createKyselyMssqlDialect to use the new constructor and move validateConnections and resetConnectionsOnRelease to the dialectConfig.
 
   ```typescript
   const dialect = createKyselyMssqlDialect({
@@ -629,9 +627,7 @@
 
   **Warning**: This is a breaking change
 
-  Create `@flowblade/core` package to centralize common types and utilities. If you're relying
-  on `@flowblade/source-kysely` or `@flowblade/source-duckdb`, you'll need to update your imports for
-  `QueryResults` and others.
+  Create `@flowblade/core` package to centralize common types and utilities. If you're relying on `@flowblade/source-kysely` or `@flowblade/source-duckdb`, you'll need to update your imports for `QueryResults` and others.
 
   ```typescript
   import type { QueryResult } from "@flowblade/core";

@@ -1,13 +1,12 @@
-import 'nextra-theme-docs/style.css';
-import '../styles/globals.css';
+import "nextra-theme-docs/style.css";
+import "../styles/globals.css";
+import { Footer, Layout, Navbar } from "nextra-theme-docs";
+import { Banner, Head } from "nextra/components";
+import { getPageMap } from "nextra/page-map";
+import type { ReactNode } from "react";
 
-import { Banner, Head } from 'nextra/components';
-import { getPageMap } from 'nextra/page-map';
-import { Footer, Layout, Navbar } from 'nextra-theme-docs';
-import type { ReactNode } from 'react';
-
-import { fontGeist } from '../components/fonts/FontGeist';
-import { fontInter } from '../components/fonts/FontInter';
+import { fontGeist } from "../components/fonts/FontGeist";
+import { fontInter } from "../components/fonts/FontInter";
 
 export const metadata = {
   // Define your metadata here
@@ -20,7 +19,7 @@ const _banner = (
 const navbar = (
   <Navbar
     logo={
-      <div className={'flex flex-row gap-2'}>
+      <div className={"flex flex-row gap-2"}>
         <svg
           width="24"
           height="24"
@@ -35,10 +34,10 @@ const navbar = (
             fill="#000000"
           />
         </svg>
-        <div className={'text-lg font-semibold'}>Flowblade</div>
+        <div className={"text-lg font-semibold"}>Flowblade</div>
       </div>
     }
-    projectLink={'https://github.com/belgattitude/flowblade'}
+    projectLink={"https://github.com/belgattitude/flowblade"}
     // ... Your additional navbar options
   />
 );

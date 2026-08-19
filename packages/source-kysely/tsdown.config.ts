@@ -1,21 +1,21 @@
-import browserslistToEsbuild from 'browserslist-to-esbuild';
-import { defineConfig } from 'tsdown';
+import browserslistToEsbuild from "browserslist-to-esbuild";
+import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  entry: ['./src/index.ts'],
+  entry: ["./src/index.ts"],
   dts: true,
   clean: true,
   format: {
     esm: {
-      target: ['node20', ...browserslistToEsbuild()],
+      target: ["node20", ...browserslistToEsbuild()],
     },
     cjs: {
-      target: ['node20', ...browserslistToEsbuild()],
+      target: ["node20", ...browserslistToEsbuild()],
     },
   },
-  platform: 'neutral',
+  platform: "neutral",
   treeshake: true,
   exports: false,
-  minify: 'dce-only',
+  minify: "dce-only",
   unbundle: false,
 });

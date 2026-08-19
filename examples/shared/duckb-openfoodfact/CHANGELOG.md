@@ -1,3 +1,1 @@
 # @flowblade-examples/duckdb-openfoodfact
-
-

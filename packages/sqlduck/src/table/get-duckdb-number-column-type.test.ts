@@ -12,13 +12,13 @@ import {
   UINTEGER,
   USMALLINT,
   UTINYINT,
-} from '@duckdb/node-api';
-import { describe, expect, it } from 'vitest';
+} from "@duckdb/node-api";
+import { describe, expect, it } from "vitest";
 
-import { getDuckdbNumberColumnType } from './get-duckdb-number-column-type';
+import { getDuckdbNumberColumnType } from "./get-duckdb-number-column-type";
 
-describe('getDuckdbNumberColumnType', () => {
-  it('should return BIGINT if minimum or maximum is undefined', () => {
+describe("getDuckdbNumberColumnType", () => {
+  it("should return BIGINT if minimum or maximum is undefined", () => {
     expect(
       getDuckdbNumberColumnType({ minimum: undefined, maximum: 100 })
     ).toBe(BIGINT);
@@ -30,8 +30,8 @@ describe('getDuckdbNumberColumnType', () => {
     ).toBe(BIGINT);
   });
 
-  describe('Float detection', () => {
-    it('should return FLOAT for small float ranges', () => {
+  describe("Float detection", () => {
+    it("should return FLOAT for small float ranges", () => {
       expect(getDuckdbNumberColumnType({ minimum: 0.5, maximum: 10.5 })).toBe(
         FLOAT
       );
@@ -40,7 +40,7 @@ describe('getDuckdbNumberColumnType', () => {
       );
     });
 
-    it('should return DECIMAL(18, scale) if multipleOf is provided and it is a float', () => {
+    it("should return DECIMAL(18, scale) if multipleOf is provided and it is a float", () => {
       const cases = [
         { multipleOf: 0.1, expectedScale: 1 },
         { multipleOf: 0.01, expectedScale: 2 },
@@ -68,14 +68,14 @@ describe('getDuckdbNumberColumnType', () => {
     });
   });
 
-  describe('Unsigned Integers', () => {
-    it('should return UTINYINT for range [0, 255]', () => {
+  describe("Unsigned Integers", () => {
+    it("should return UTINYINT for range [0, 255]", () => {
       expect(getDuckdbNumberColumnType({ minimum: 0, maximum: 255 })).toBe(
         UTINYINT
       );
     });
 
-    it('should return USMALLINT for range [0, 65535]', () => {
+    it("should return USMALLINT for range [0, 65535]", () => {
       expect(getDuckdbNumberColumnType({ minimum: 0, maximum: 65_535 })).toBe(
         USMALLINT
       );
@@ -84,20 +84,20 @@ describe('getDuckdbNumberColumnType', () => {
       );
     });
 
-    it('should return UINTEGER for range [0, 4294967295]', () => {
+    it("should return UINTEGER for range [0, 4294967295]", () => {
       expect(
         getDuckdbNumberColumnType({ minimum: 0, maximum: 4_294_967_295 })
       ).toBe(UINTEGER);
     });
 
-    it('should return UBIGINT for larger unsigned ranges', () => {
+    it("should return UBIGINT for larger unsigned ranges", () => {
       // 18446744073709551615n
       expect(
         getDuckdbNumberColumnType({ minimum: 0, maximum: 10_000_000_000_000 })
       ).toBe(UBIGINT);
     });
 
-    it('should return UHUGEINT for extremely large unsigned ranges', () => {
+    it("should return UHUGEINT for extremely large unsigned ranges", () => {
       // maximum > 18_446_744_073_709_551_615n
       // Note: number in JS cannot represent this exactly, but let's use a very large number or infinity
       // Actually the code uses BIGINT literals for comparison but params are 'number'
@@ -109,8 +109,8 @@ describe('getDuckdbNumberColumnType', () => {
     });
   });
 
-  describe('Signed Integers', () => {
-    it('should return TINYINT for range [-128, 127]', () => {
+  describe("Signed Integers", () => {
+    it("should return TINYINT for range [-128, 127]", () => {
       expect(getDuckdbNumberColumnType({ minimum: -128, maximum: 127 })).toBe(
         TINYINT
       );
@@ -119,7 +119,7 @@ describe('getDuckdbNumberColumnType', () => {
       );
     });
 
-    it('should return SMALLINT for range [-32768, 32767]', () => {
+    it("should return SMALLINT for range [-32768, 32767]", () => {
       expect(
         getDuckdbNumberColumnType({ minimum: -32_768, maximum: 32_767 })
       ).toBe(SMALLINT);
@@ -128,7 +128,7 @@ describe('getDuckdbNumberColumnType', () => {
       );
     });
 
-    it('should return INTEGER for range [-2147483648, 2147483647]', () => {
+    it("should return INTEGER for range [-2147483648, 2147483647]", () => {
       expect(
         getDuckdbNumberColumnType({
           minimum: -2_147_483_648,
@@ -137,7 +137,7 @@ describe('getDuckdbNumberColumnType', () => {
       ).toBe(INTEGER);
     });
 
-    it('should return BIGINT for range [-9223372036854775808n, 9223372036854775807n]', () => {
+    it("should return BIGINT for range [-9223372036854775808n, 9223372036854775807n]", () => {
       expect(
         getDuckdbNumberColumnType({
           minimum: -10_000_000_000,
@@ -146,7 +146,7 @@ describe('getDuckdbNumberColumnType', () => {
       ).toBe(BIGINT);
     });
 
-    it('should return HUGEINT for extremely large signed ranges', () => {
+    it("should return HUGEINT for extremely large signed ranges", () => {
       expect(getDuckdbNumberColumnType({ minimum: -2e20, maximum: 2e20 })).toBe(
         HUGEINT
       );

@@ -6,7 +6,7 @@
 
 # Variable: sql
 
-> `const` **sql**: \<`T`\>(`sqlFragments`, ...`parameters`) => [`SqlTag`](../type-aliases/SqlTag.md)\<`T`[]\> & `object`
+> `const` **sql**: \<`T`>>>\>(`sqlFragments`, ...`parameters`) => [`SqlTag`](../type-aliases/SqlTag.md)\<`T`[]\> & `object`
 
 Tagged Sql template literal function.
 
@@ -16,10 +16,9 @@ Tagged Sql template literal function.
 
 #### Get Signature
 
-> **get** **empty**(): [`SqlTag`](../type-aliases/SqlTag.md)\<`null`\>
+> **get** **empty**(): [`SqlTag`](../type-aliases/SqlTag.md)\<`null`>>>\>
 
-Placeholder value for an empty SQL string. Useful for conditionals and
-equivalent to sql.raw("").
+Placeholder value for an empty SQL string. Useful for conditionals and equivalent to sql.raw("").
 
 ##### Example
 
@@ -42,10 +41,9 @@ const query = sql<{ id: number }>`
 
 ### bulk()
 
-> **bulk**\<`T`\>(`data`, `separator?`, `prefix?`, `suffix?`): [`SqlTag`](../type-aliases/SqlTag.md)\<`T`\>
+> **bulk**\<`T`>>>\>(`data`, `separator?`, `prefix?`, `suffix?`): [`SqlTag`](../type-aliases/SqlTag.md)\<`T`>>>\>
 
-Accepts an array of arrays, and returns the SQL with the values joined together in
-a format useful for bulk inserts.
+Accepts an array of arrays, and returns the SQL with the values joined together in a format useful for bulk inserts.
 
 #### Type Parameters
 
@@ -97,12 +95,11 @@ insert.values; //=> ["Laptop", 999.99, 50, "active", "Keyboard", 79.99, 100, "ac
 
 ### if()
 
-> **if**(`condition`, `then`, `otherwise`): [`SqlTag`](../type-aliases/SqlTag.md)\<`unknown`\>
+> **if**(`condition`, `then`, `otherwise`): [`SqlTag`](../type-aliases/SqlTag.md)\<`unknown`>>>\>
 
 Conditionally add a part of the SQL string.
 
-You can prefer using 'if' over the ternary operator for
-better readability (when using prettier or biome)/
+You can prefer using 'if' over the ternary operator for better readability (when using prettier or biome)/
 
 ```typescript
 const userIds: string[] = []; // Parameters
@@ -138,7 +135,7 @@ const query = sql<>`
 
 ### join()
 
-> **join**(`array`, `separator`, `prefix?`, `suffix?`): [`SqlTag`](../type-aliases/SqlTag.md)\<`unknown`\>
+> **join**(`array`, `separator`, `prefix?`, `suffix?`): [`SqlTag`](../type-aliases/SqlTag.md)\<`unknown`>>>\>
 
 Joins the array of values with an optional separator (default to ', ').
 
@@ -186,10 +183,9 @@ const query = sql<{ id: number }>`
 
 ### raw()
 
-> **raw**\<`T`\>(`sql`): [`SqlTag`](../type-aliases/SqlTag.md)\<`T`\>
+> **raw**\<`T`>>>\>(`sql`): [`SqlTag`](../type-aliases/SqlTag.md)\<`T`>>>\>
 
-Accepts a string and returns a TaggedSql instance, useful if you want some part of the SQL
-to be dynamic.
+Accepts a string and returns a TaggedSql instance, useful if you want some part of the SQL to be dynamic.
 
 ⚠️ Do not forget to sanitize user input to raw to prevent SQL injection vulnerability.
 

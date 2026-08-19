@@ -13,24 +13,24 @@ import {
   TINYINT,
   UUID,
   VARCHAR,
-} from '@duckdb/node-api';
-import { duckdb as duckDbDialect, formatDialect } from 'sql-formatter';
-import * as z from 'zod';
+} from "@duckdb/node-api";
+import { duckdb as duckDbDialect, formatDialect } from "sql-formatter";
+import * as z from "zod";
 
-import { testFullSupportedColumnsZodSchema } from '#/tests/data/test-full-supported-columns-zod-schema.ts';
+import { testFullSupportedColumnsZodSchema } from "#/tests/data/test-full-supported-columns-zod-schema.ts";
 
-import { Table } from '../objects/table.ts';
-import { getTableCreateFromZod } from './get-table-create-from-zod.ts';
+import { Table } from "../objects/table.ts";
+import { getTableCreateFromZod } from "./get-table-create-from-zod.ts";
 
-describe('getTableCreateFromZod', () => {
-  describe('DDL', () => {
-    describe('when create or replace is specified', () => {
-      it('should return a valid create table from the schema', () => {
+describe("getTableCreateFromZod", () => {
+  describe("DDL", () => {
+    describe("when create or replace is specified", () => {
+      it("should return a valid create table from the schema", () => {
         const { ddl } = getTableCreateFromZod({
-          table: new Table('test'),
+          table: new Table("test"),
           schema: testFullSupportedColumnsZodSchema,
           options: {
-            create: 'CREATE_OR_REPLACE',
+            create: "CREATE_OR_REPLACE",
           },
         });
 
@@ -78,10 +78,10 @@ describe('getTableCreateFromZod', () => {
     });
   });
 
-  describe('columnTypes', () => {
-    it('should return the correct duckdb columnTypes', () => {
+  describe("columnTypes", () => {
+    it("should return the correct duckdb columnTypes", () => {
       const { columnTypes } = getTableCreateFromZod({
-        table: new Table('test'),
+        table: new Table("test"),
         schema: testFullSupportedColumnsZodSchema,
       });
       expectTypeOf(columnTypes).toEqualTypeOf<
@@ -92,47 +92,47 @@ describe('getTableCreateFromZod', () => {
         Object.keys(testFullSupportedColumnsZodSchema.shape)
       );
 
-      expectTypeOf(columnTypes.get('id')!).toEqualTypeOf<DuckDBType>();
-      expect(columnTypes.get('js_number')).toBe(BIGINT);
-      expect(columnTypes.get('name')).toBe(VARCHAR);
+      expectTypeOf(columnTypes.get("id")!).toEqualTypeOf<DuckDBType>();
+      expect(columnTypes.get("js_number")).toBe(BIGINT);
+      expect(columnTypes.get("name")).toBe(VARCHAR);
 
       expect(columnTypes).toStrictEqual(
         new Map<
           keyof typeof testFullSupportedColumnsZodSchema.shape,
           DuckDBType
         >([
-          ['id', BIGINT],
-          ['name', VARCHAR],
-          ['email', VARCHAR],
-          ['js_number', BIGINT],
-          ['js_number_tinyint', TINYINT],
-          ['js_number_int32', INTEGER],
-          ['js_float_float64', DOUBLE],
-          ['js_float_float32', FLOAT],
-          ['bignumber', BIGINT],
-          ['created_at', TIMESTAMP_MS],
-          ['is_active', BOOLEAN],
-          ['alt_uuid_v7', UUID],
-          ['custom_type', UUID],
-          ['custom_date_only_type', DATE],
-          ['iso_date', DATE],
-          ['js_enum', ENUM(['a', 'b', 'c'])],
-          ['decimal_18_3', DECIMAL(18, 3)],
-          ['list_of_strings_explicit', LIST(VARCHAR)],
-          ['list_of_strings', LIST(VARCHAR)],
-          ['list_of_bigints', LIST(VARCHAR)],
-          ['list_of_bigints_explicit', LIST(BIGINT)],
-          ['list_of_numbers', LIST(BIGINT)],
-          ['list_of_int32s', LIST(INTEGER)],
-          ['list_of_float32s', LIST(FLOAT)],
-          ['list_of_float64s', LIST(DOUBLE)],
-          ['list_of_booleans', LIST(BOOLEAN)],
+          ["id", BIGINT],
+          ["name", VARCHAR],
+          ["email", VARCHAR],
+          ["js_number", BIGINT],
+          ["js_number_tinyint", TINYINT],
+          ["js_number_int32", INTEGER],
+          ["js_float_float64", DOUBLE],
+          ["js_float_float32", FLOAT],
+          ["bignumber", BIGINT],
+          ["created_at", TIMESTAMP_MS],
+          ["is_active", BOOLEAN],
+          ["alt_uuid_v7", UUID],
+          ["custom_type", UUID],
+          ["custom_date_only_type", DATE],
+          ["iso_date", DATE],
+          ["js_enum", ENUM(["a", "b", "c"])],
+          ["decimal_18_3", DECIMAL(18, 3)],
+          ["list_of_strings_explicit", LIST(VARCHAR)],
+          ["list_of_strings", LIST(VARCHAR)],
+          ["list_of_bigints", LIST(VARCHAR)],
+          ["list_of_bigints_explicit", LIST(BIGINT)],
+          ["list_of_numbers", LIST(BIGINT)],
+          ["list_of_int32s", LIST(INTEGER)],
+          ["list_of_float32s", LIST(FLOAT)],
+          ["list_of_float64s", LIST(DOUBLE)],
+          ["list_of_booleans", LIST(BOOLEAN)],
         ])
       );
     });
   });
-  describe('When zod schema contains unsupported schemas', () => {
-    it('should fail with an error', () => {
+  describe("When zod schema contains unsupported schemas", () => {
+    it("should fail with an error", () => {
       const schema = z.object({
         nestedObject: z.object({
           id: z.number(),
@@ -140,7 +140,7 @@ describe('getTableCreateFromZod', () => {
       });
       expect(() =>
         getTableCreateFromZod({
-          table: new Table('test_case'),
+          table: new Table("test_case"),
           // @ts-expect-error schema cannot contain a nested object
           schema: schema,
         })

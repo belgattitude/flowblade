@@ -1,10 +1,10 @@
-import { handle } from 'hono/vercel';
+import { handle } from "hono/vercel";
 
-import { honoApiConfig } from '@/server/config/hono-api.config.ts';
+import { honoApiConfig } from "@/server/config/hono-api.config.ts";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
-const app = honoApiConfig.app;
+const { app } = honoApiConfig;
 
 export const GET = handle(app);
 export const POST = handle(app);

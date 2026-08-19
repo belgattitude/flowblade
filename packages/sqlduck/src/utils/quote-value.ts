@@ -2,9 +2,9 @@ export const quoteValue = (
   value: string | number | boolean | null | undefined
 ): string => {
   if (value === null || value === undefined) {
-    return 'NULL';
+    return "NULL";
   }
-  if (typeof value === 'number' || typeof value === 'boolean') {
+  if (typeof value === "number" || typeof value === "boolean") {
     return String(value);
   }
   const escapedString = value.replaceAll("'", "''");

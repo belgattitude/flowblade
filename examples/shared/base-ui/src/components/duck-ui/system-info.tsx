@@ -1,14 +1,14 @@
-'use client';
+"use client";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@examples/base-ui/components/ui/card';
-import { Progress } from '@examples/base-ui/components/ui/progress';
-import { cn } from '@examples/base-ui/lib/utils';
-import { CpuIcon, HardDriveIcon, MemoryStickIcon } from 'lucide-react';
+} from "@examples/base-ui/components/ui/card";
+import { Progress } from "@examples/base-ui/components/ui/progress";
+import { cn } from "@examples/base-ui/lib/utils";
+import { CpuIcon, HardDriveIcon, MemoryStickIcon } from "lucide-react";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 /** Disk usage info for a single mount path. */
@@ -54,9 +54,9 @@ function formatBytes(bytes: number): string {
 }
 /** Returns a Tailwind colour class based on usage percentage. */
 function usageColour(pct: number): string {
-  if (pct >= 90) return 'text-destructive';
-  if (pct >= 70) return 'text-amber-500';
-  return 'text-emerald-500';
+  if (pct >= 90) return "text-destructive";
+  if (pct >= 70) return "text-amber-500";
+  return "text-emerald-500";
 }
 // ─── Component ───────────────────────────────────────────────────────────────
 export function SystemInfo({
@@ -64,7 +64,7 @@ export function SystemInfo({
   totalMemory,
   availableParallelism,
   disks,
-  title = 'System Info',
+  title = "System Info",
   description,
   className,
 }: SystemInfoProps) {
@@ -72,11 +72,11 @@ export function SystemInfo({
   const memoryUsagePct =
     totalMemory > 0 ? Math.round((usedMemory / totalMemory) * 100) : 0;
   return (
-    <Card className={cn('w-full max-w-md', className)}>
+    <Card className={cn("w-full max-w-md", className)}>
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <CardHeader className="border-b">
         <CardTitle className="flex items-center gap-2">
-          <CpuIcon className="size-4 shrink-0 text-muted-foreground" />
+          <CpuIcon className="text-muted-foreground size-4 shrink-0" />
           <span className="text-sm font-semibold">{title}</span>
         </CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
@@ -86,18 +86,18 @@ export function SystemInfo({
         {/* Memory section */}
         <section className="flex flex-col gap-2">
           <div className="flex items-center gap-1.5">
-            <MemoryStickIcon className="size-3.5 shrink-0 text-muted-foreground" />
-            <span className="text-xs font-medium text-foreground">Memory</span>
+            <MemoryStickIcon className="text-muted-foreground size-3.5 shrink-0" />
+            <span className="text-foreground text-xs font-medium">Memory</span>
           </div>
           {/* Progress bar */}
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 {formatBytes(usedMemory)} used of {formatBytes(totalMemory)}
               </span>
               <span
                 className={cn(
-                  'ml-auto text-xs font-medium tabular-nums',
+                  "ml-auto text-xs font-medium tabular-nums",
                   usageColour(memoryUsagePct)
                 )}
               >
@@ -118,12 +118,12 @@ export function SystemInfo({
           </dl>
         </section>
         {/* Divider */}
-        <div className="h-px bg-border" />
+        <div className="bg-border h-px" />
         {/* CPU / parallelism section */}
         <section className="flex flex-col gap-2">
           <div className="flex items-center gap-1.5">
-            <CpuIcon className="size-3.5 shrink-0 text-muted-foreground" />
-            <span className="text-xs font-medium text-foreground">CPU</span>
+            <CpuIcon className="text-muted-foreground size-3.5 shrink-0" />
+            <span className="text-foreground text-xs font-medium">CPU</span>
           </div>
           <dl className="grid grid-cols-2 gap-2">
             <StatCell
@@ -134,10 +134,10 @@ export function SystemInfo({
               label="Memory pressure"
               value={
                 memoryUsagePct >= 90
-                  ? 'Critical'
-                  : memoryUsagePct >= 70
-                    ? 'High'
-                    : 'Normal'
+                  ? "Critical"
+                  : (memoryUsagePct >= 70
+                    ? "High"
+                    : "Normal")
               }
               valueClassName={usageColour(memoryUsagePct)}
             />
@@ -147,11 +147,11 @@ export function SystemInfo({
         {/* Disk section */}
         {disks && disks.length > 0 && (
           <>
-            <div className="h-px bg-border" />
+            <div className="bg-border h-px" />
             <section className="flex flex-col gap-3">
               <div className="flex items-center gap-1.5">
-                <HardDriveIcon className="size-3.5 shrink-0 text-muted-foreground" />
-                <span className="text-xs font-medium text-foreground">
+                <HardDriveIcon className="text-muted-foreground size-3.5 shrink-0" />
+                <span className="text-foreground text-xs font-medium">
                   Disk
                 </span>
               </div>
@@ -165,12 +165,12 @@ export function SystemInfo({
                   <div key={disk.path} className="flex flex-col gap-1.5">
                     {/* Path label + percentage */}
                     <div className="flex items-center justify-between gap-2">
-                      <span className="truncate font-mono text-xs text-muted-foreground">
+                      <span className="text-muted-foreground truncate font-mono text-xs">
                         {disk.path}
                       </span>
                       <span
                         className={cn(
-                          'shrink-0 text-xs font-medium tabular-nums',
+                          "shrink-0 text-xs font-medium tabular-nums",
                           usageColour(pct)
                         )}
                       >
@@ -216,11 +216,11 @@ function StatCell({
   valueClassName?: string;
 }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-lg bg-muted/40 px-3 py-2">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
+    <div className="bg-muted/40 flex flex-col gap-0.5 rounded-lg px-3 py-2">
+      <dt className="text-muted-foreground text-xs">{label}</dt>
       <dd
         className={cn(
-          'font-mono text-sm font-medium tabular-nums',
+          "font-mono text-sm font-medium tabular-nums",
           valueClassName
         )}
       >
@@ -239,12 +239,12 @@ function MemoryStat({
   highlight?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-lg bg-muted/40 px-3 py-2">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
+    <div className="bg-muted/40 flex flex-col gap-0.5 rounded-lg px-3 py-2">
+      <dt className="text-muted-foreground text-xs">{label}</dt>
       <dd
         className={cn(
-          'font-mono text-sm font-medium tabular-nums transition-colors',
-          highlight && 'text-amber-500'
+          "font-mono text-sm font-medium tabular-nums transition-colors",
+          highlight && "text-amber-500"
         )}
       >
         {value}

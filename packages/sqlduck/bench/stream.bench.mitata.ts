@@ -1,13 +1,13 @@
-import isInCi from 'is-in-ci';
-import { bench, boxplot, do_not_optimize, run, summary } from 'mitata';
-import * as z from 'zod';
+import isInCi from "is-in-ci";
+import { bench, boxplot, do_not_optimize, run, summary } from "mitata";
+import * as z from "zod";
 
-import { rowsToColumnsChunks } from '../src/utils/rows-to-columns-chunks.ts';
-import { zodCodecs } from '../src/utils/zod-codecs.ts';
-import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator.ts';
+import { rowsToColumnsChunks } from "../src/utils/rows-to-columns-chunks.ts";
+import { zodCodecs } from "../src/utils/zod-codecs.ts";
+import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator.ts";
 
 const userSchema = z.object({
-  id: z.number().meta({ description: 'cool' }),
+  id: z.number().meta({ description: "cool" }),
   name: z.string(),
   email: z.email().nullable(),
   bignumber: zodCodecs.bigintToString,
@@ -39,7 +39,7 @@ async function* mapFakeRowStream(
 
 boxplot(() => {
   summary(() => {
-    bench('stream', async () => {
+    bench("stream", async () => {
       const a = rowsToColumnsChunks({
         rows: getFakeRowStream(),
         chunkSize: 2048,
@@ -53,8 +53,8 @@ boxplot(() => {
           `Expected ${limit} rows, got ${count} rows from stream`
         );
       return do_not_optimize(count);
-    }).gc('inner');
-    bench('stream with mapper 2048', async () => {
+    }).gc("inner");
+    bench("stream with mapper 2048", async () => {
       const fakeRowStream = getFakeRowStream();
       const a = rowsToColumnsChunks({
         rows: mapFakeRowStream(fakeRowStream),
@@ -69,9 +69,9 @@ boxplot(() => {
           `Expected ${limit} rows, got ${count} rows from stream`
         );
       return do_not_optimize(count);
-    }).gc('inner');
+    }).gc("inner");
 
-    bench('stream with mapper 1024', async () => {
+    bench("stream with mapper 1024", async () => {
       const fakeRowStream = getFakeRowStream();
 
       const a = rowsToColumnsChunks({
@@ -88,7 +88,7 @@ boxplot(() => {
           `Expected ${limit} rows, got ${count} rows from stream`
         );
       return do_not_optimize(count);
-    }).gc('inner');
+    }).gc("inner");
   });
 });
 

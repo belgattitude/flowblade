@@ -1,4 +1,4 @@
-import { duckIdentifierZodSchema } from './duck-identifier-zod-schema.ts';
+import { duckIdentifierZodSchema } from "./duck-identifier-zod-schema.ts";
 
 /**
  * Common validators for duckdb parameters, tables...

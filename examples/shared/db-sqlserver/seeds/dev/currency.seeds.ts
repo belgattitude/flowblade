@@ -1,11 +1,11 @@
-import { AbstractSeed } from '../../src/lib/abstract-seed';
-import type { PrismaSqlServer as Prisma } from '../../src/prisma';
-import jsonCurrencies from './currency.seeds.json' with { type: 'json' };
+import { AbstractSeed } from "../../src/lib/abstract-seed";
+import type { PrismaSqlServer as Prisma } from "../../src/prisma";
+import jsonCurrencies from "./currency.seeds.json" with { type: "json" };
 
 export class CurrencySeeds extends AbstractSeed {
   execute = async (): Promise<void> => {
     const currencyData: (Prisma.CurrencyCreateInput & {
-      translations: (typeof jsonCurrencies.currencies)[number]['translations'];
+      translations: (typeof jsonCurrencies.currencies)[number]["translations"];
     })[] = jsonCurrencies.currencies.map((currency) => {
       return {
         code: currency.iso_4217,
@@ -36,10 +36,10 @@ export class CurrencySeeds extends AbstractSeed {
           ...c,
         },
       });
-      this.log('UPSERT', `Currency ${inserted.code} ${inserted.id}`);
+      this.log("UPSERT", `Currency ${inserted.code} ${inserted.id}`);
       mapCurrencyi18n.set(inserted.code, inserted.id);
     }
-    this.collectStats('Currency', { totalAffected: currencyData.length });
+    this.collectStats("Currency", { totalAffected: currencyData.length });
 
     const locales = await this.prisma.locale.findMany({
       select: {
@@ -72,12 +72,12 @@ export class CurrencySeeds extends AbstractSeed {
           `;
           affected++;
           this.log(
-            'UPSERT',
+            "UPSERT",
             `CurrencyI18n ${currencyCode} ${localeCode} - ${name}`
           );
         }
       }
-      this.collectStats('CurrencyI18n', { totalAffected: affected });
+      this.collectStats("CurrencyI18n", { totalAffected: affected });
     }
   };
 }

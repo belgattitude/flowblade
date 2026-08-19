@@ -1,8 +1,8 @@
-import { cleanup, render } from '@testing-library/react';
-import type { ReactElement } from 'react';
-import { afterEach } from 'vitest';
+import { cleanup, render } from "@testing-library/react";
+import type { ReactElement } from "react";
+import { afterEach } from "vitest";
 
-import { AppTestProviders } from './app-test-providers';
+import { AppTestProviders } from "./app-test-providers";
 
 /** Recommended in vitest only to cleanup context */
 afterEach(() => {
@@ -19,8 +19,8 @@ const customRender = (ui: ReactElement, options?: any) =>
 
 // re-export everything
 // eslint-disable-next-line import-x/export
-export * from '@testing-library/react';
-export { default as userEvent } from '@testing-library/user-event';
+export * from "@testing-library/react";
+export { default as userEvent } from "@testing-library/user-event";
 
 // override render method
 // eslint-disable-next-line import-x/export

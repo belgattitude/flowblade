@@ -1,42 +1,49 @@
-'use client';
+"use client";
 
-import { MIntl } from '@httpx/memo-intl';
-import type { ColDef, GetRowIdParams, GridOptions } from 'ag-grid-community';
-import { type FC, useCallback, useState } from 'react';
+import { MIntl } from "@httpx/memo-intl";
+import type { ColDef, GetRowIdParams, GridOptions } from "ag-grid-community";
+import { useCallback, useState } from "react";
+import type { FC } from "react";
 
-import { ReportAgGrid } from '@/components/grid/ag-grid/report-ag-grid';
-import { cn } from '@/components/utils';
-import { useGetApiProductEthicalSearchSuspenseHook } from '@/features/api/generated';
-import type { EthicalProduct } from '@/features/products/server/ethical-product.repo.ts';
-import { useSelector } from '@/redux/redux-hooks';
+import { ReportAgGrid } from "@/components/grid/ag-grid/report-ag-grid";
+import { cn } from "@/components/utils";
+import { useGetApiProductEthicalSearchSuspenseHook } from "@/features/api/generated";
+import type { EthicalProduct } from "@/features/products/server/ethical-product.repo.ts";
+import { useSelector } from "@/redux/redux-hooks";
 
-type Props = {
+interface Props {
   className?: string;
-};
+}
 
-const correction = new Map([['Hemp Backpack', { category: 'Hello' }]]);
+const correction = new Map([["Hemp Backpack", { category: "Hello" }]]);
 
 const productColDefs: ColDef<EthicalProduct>[] = [
-  { field: 'brand' },
-  { field: 'label' },
+  { field: "brand" },
+  { field: "label" },
   {
-    field: 'price',
+    cellClass: "text-right",
     editable: true,
-    cellClass: 'text-right',
+    field: "price",
     valueGetter: (params) =>
-      MIntl.NumberFormat('fr-FR', {
-        style: 'currency',
-        currency: 'EUR',
-        notation: 'compact',
-        minimumFractionDigits: 2,
+      MIntl.NumberFormat("fr-FR", {
+        currency: "EUR",
         maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+        notation: "compact",
+        style: "currency",
       }).format(params.data!.price),
   },
-  { field: 'stock' },
-  { field: 'weight' },
+  { field: "stock" },
+  { field: "weight" },
   {
-    field: 'category',
+    cellStyle: (params) => {
+      const { label } = params.data!;
+      return correction.has(label)
+        ? { backgroundColor: "yellow" }
+        : { backgroundColor: "white" };
+    },
     editable: true,
+    field: "category",
     valueFormatter: (params) => {
       const { label } = params.data!;
       return correction.has(label)
@@ -49,16 +56,10 @@ const productColDefs: ColDef<EthicalProduct>[] = [
       });
       return false;
     },
-    cellStyle: (params) => {
-      const { label } = params.data!;
-      return correction.has(label)
-        ? { backgroundColor: 'yellow' }
-        : { backgroundColor: 'white' };
-    },
   },
-  { field: 'color' },
+  { field: "color" },
   {
-    colId: '88',
+    colId: "88",
     valueGetter: (params) => {
       const { label } = params.data!;
       return correction.has(label)
@@ -68,9 +69,9 @@ const productColDefs: ColDef<EthicalProduct>[] = [
   },
 ];
 
-const autoSizeStrategy: GridOptions['autoSizeStrategy'] = {
-  type: 'fitGridWidth',
+const autoSizeStrategy: GridOptions["autoSizeStrategy"] = {
   defaultMinWidth: 50,
+  type: "fitGridWidth",
 };
 
 export const ProductGrid: FC<Props> = (props) => {
@@ -84,16 +85,15 @@ export const ProductGrid: FC<Props> = (props) => {
   const [colDefs, _setColDefs] = useState<ColDef[]>(productColDefs);
 
   const getRowId = useCallback(
-    (params: GetRowIdParams<EthicalProduct>): string => {
-      return [params.data.label, params.data.brand].join('|');
-    },
+    (params: GetRowIdParams<EthicalProduct>): string =>
+      [params.data.label, params.data.brand].join("|"),
     []
   );
 
   return (
-    <div className={cn('flex w-full h-full', className)}>
+    <div className={cn("flex h-full w-full", className)}>
       <ReportAgGrid<EthicalProduct>
-        className={'flex-1'}
+        className="flex-1"
         rowData={data}
         columnDefs={colDefs}
         getRowId={getRowId}

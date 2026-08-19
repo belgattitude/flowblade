@@ -1,6 +1,6 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
-const testFiles = ['./src/**/*.test.{js,jsx,ts,tsx}'];
+const testFiles = ["./src/**/*.test.{js,jsx,ts,tsx}"];
 export default defineConfig({
   resolve: {
     tsconfigPaths: true,
@@ -12,16 +12,16 @@ export default defineConfig({
     },
     // threads is good, vmThreads is faster (perf++) but comes with possible memory leaks
     // @link https://vitest.dev/config/#vmthreads
-    pool: 'fork',
-    environment: 'node',
+    pool: "fork",
+    environment: "node",
     passWithNoTests: true,
     cache: {
-      dir: '../../.cache/vitest/fastify-app',
+      dir: "../../.cache/vitest/fastify-app",
     },
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'clover'],
-      include: ['src/**/*.{js,jsx,ts,tsx}'],
+      provider: "v8",
+      reporter: ["text", "clover"],
+      include: ["src/**/*.{js,jsx,ts,tsx}"],
     },
     include: testFiles,
     css: false,
@@ -31,10 +31,10 @@ export default defineConfig({
     mockReset: true,
     restoreMocks: true,
     exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/.next/**',
-      '**/.{idea,git,cache,output,temp}/**',
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/.next/**",
+      "**/.{idea,git,cache,output,temp}/**",
     ],
   },
 });

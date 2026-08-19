@@ -1,4 +1,4 @@
-import type * as z from 'zod';
+import type * as z from "zod";
 
 type TObject = Record<
   string,

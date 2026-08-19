@@ -1,36 +1,41 @@
-import codspeedPlugin from '@codspeed/vitest-plugin';
-import { defineConfig } from 'vitest/config';
+import codspeedPlugin from "@codspeed/vitest-plugin";
+import { defineConfig } from "vitest/config";
 
-const testFiles = ['./src/**/*.test.{js,ts}', './test/**/*.test.{js,ts}'];
+const testFiles = ["./src/**/*.test.{js,ts}", "./test/**/*.test.{js,ts}"];
 
-const isCodeSpeedEnabled = process.env?.CODSPEED === '1';
+const isCodeSpeedEnabled = process.env?.CODSPEED === "1";
 const cspeed = isCodeSpeedEnabled ? codspeedPlugin() : undefined;
 
 export default defineConfig({
   plugins: [cspeed].filter(Boolean),
   resolve: {
-    conditions: ['flowblade-monorepo-source'],
+    conditions: ["flowblade-monorepo-source"],
   },
-  cacheDir: '../../.cache/vite/source-kysely',
+  ssr: {
+    resolve: {
+      conditions: ["flowblade-monorepo-source", "import", "default"],
+    },
+  },
+  cacheDir: "../../.cache/vite/source-kysely",
   test: {
     // @link https://vitest.dev/config/#clearmocks
     clearMocks: true,
     coverage: {
-      include: ['src/**/*.{js,jsx,ts,tsx}'],
-      provider: 'istanbul',
-      reporter: ['text', 'json', 'clover'],
+      include: ["src/**/*.{js,jsx,ts,tsx}"],
+      provider: "istanbul",
+      reporter: ["text", "json", "clover"],
     },
     benchmark: {
-      reporters: ['default'],
-      outputJson: './bench/output/benchmark-results.json',
+      reporters: ["default"],
+      outputJson: "./bench/output/benchmark-results.json",
     },
-    setupFiles: './tests/vitest.setup.ts',
-    environment: 'node',
+    setupFiles: "./tests/vitest.setup.ts",
+    environment: "node",
     exclude: [
-      '**/node_modules/**',
-      'dist/**',
-      '**/coverage/**',
-      '**/.{idea,git,cache,output,temp}/**',
+      "**/node_modules/**",
+      "dist/**",
+      "**/coverage/**",
+      "**/.{idea,git,cache,output,temp}/**",
     ],
     globals: true,
     include: testFiles,

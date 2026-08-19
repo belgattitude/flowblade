@@ -5,15 +5,15 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@examples/base-ui/components/ui/breadcrumb';
-import { Separator } from '@examples/base-ui/components/ui/separator';
+} from "@examples/base-ui/components/ui/breadcrumb";
+import { Separator } from "@examples/base-ui/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from '@examples/base-ui/components/ui/sidebar';
-import { AppSidebar } from '@examples/base-ui/components/ux/app-sidebar';
-import type { FC, PropsWithChildren } from 'react';
+} from "@examples/base-ui/components/ui/sidebar";
+import { AppSidebar } from "@examples/base-ui/components/ux/app-sidebar";
+import type { FC, PropsWithChildren } from "react";
 
 type Props = PropsWithChildren;
 

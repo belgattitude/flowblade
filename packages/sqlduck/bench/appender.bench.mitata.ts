@@ -1,19 +1,19 @@
-import * as os from 'node:os';
-import v8 from 'node:v8';
+import * as os from "node:os";
+import v8 from "node:v8";
 
-import isInCi from 'is-in-ci';
-import { bench, boxplot, run, summary } from 'mitata';
-import * as z from 'zod';
+import isInCi from "is-in-ci";
+import { bench, boxplot, run, summary } from "mitata";
+import * as z from "zod";
 
-import { DuckMemory } from '../src/helpers/duck-memory.ts';
-import { Table } from '../src/objects/table.ts';
-import { SqlDuck } from '../src/sql-duck.ts';
-import { zodCodecs } from '../src/utils/zod-codecs.ts';
-import { createDuckdbTestMemoryDb } from '../tests/utils/create-duckdb-test-memory-db.ts';
-import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator.ts';
+import { DuckMemory } from "../src/helpers/duck-memory.ts";
+import { Table } from "../src/objects/table.ts";
+import { SqlDuck } from "../src/sql-duck.ts";
+import { zodCodecs } from "../src/utils/zod-codecs.ts";
+import { createDuckdbTestMemoryDb } from "../tests/utils/create-duckdb-test-memory-db.ts";
+import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator.ts";
 
 const userSchema = z.object({
-  id: z.int32().meta({ description: 'cool' }),
+  id: z.int32().meta({ description: "cool" }),
   name: z.string(),
   email: z.email().nullable(),
   bignumber: z.nullable(zodCodecs.bigintToString),
@@ -37,15 +37,15 @@ const getFakeRowStream = createFakeRowsAsyncIterator({
 
 const conn = await createDuckdbTestMemoryDb({
   // Keep it high to prevent going to .tmp directory
-  max_memory: isInCi ? '256M' : '512M',
+  max_memory: isInCi ? "256M" : "512M",
   threads: 1,
 });
 
-const dbName = 'memory_db';
+const dbName = "memory_db";
 // Arrange
 await conn.run(`ATTACH IF NOT EXISTS ':memory:' AS ${dbName} (COMPRESS)`);
 const testTable = new Table({
-  name: 'test',
+  name: "test",
   database: dbName,
 });
 
@@ -54,7 +54,7 @@ const duckMemory = new DuckMemory(conn);
 
 boxplot(() => {
   summary(() => {
-    bench('duckdb appender, chunk size 2048', async () => {
+    bench("duckdb appender, chunk size 2048", async () => {
       const { totalRows } = await sqlDuck.toTable({
         table: testTable,
         schema: userSchema,
@@ -72,7 +72,7 @@ boxplot(() => {
           });
         },
         createOptions: {
-          create: 'CREATE_OR_REPLACE',
+          create: "CREATE_OR_REPLACE",
         },
         checkpointChunksFrequency: 100,
         autoCheckpoint: true,
@@ -80,22 +80,22 @@ boxplot(() => {
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows}`);
       }
-    }).gc('inner');
+    }).gc("inner");
 
-    bench('duckdb appender, chunk size 1024', async () => {
+    bench("duckdb appender, chunk size 1024", async () => {
       const { totalRows } = await sqlDuck.toTable({
         table: testTable,
         schema: userSchema,
         rowStream: getFakeRowStream(),
         chunkSize: 1024,
         createOptions: {
-          create: 'CREATE_OR_REPLACE',
+          create: "CREATE_OR_REPLACE",
         },
       });
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows}`);
       }
-    }).gc('inner');
+    }).gc("inner");
   });
 });
 

@@ -1,10 +1,10 @@
-import react from '@vitejs/plugin-react';
-import { loadEnv } from 'vite';
-import { defineConfig } from 'vitest/config';
+import react from "@vitejs/plugin-react";
+import { loadEnv } from "vite";
+import { defineConfig } from "vitest/config";
 
-const testFiles = ['./src/**/*.test.{js,jsx,ts,tsx}'];
+const testFiles = ["./src/**/*.test.{js,jsx,ts,tsx}"];
 export default defineConfig({
-  cacheDir: '../../../.cache/vitest/nextjs-app',
+  cacheDir: "../../../.cache/vitest/nextjs-app",
   plugins: [react()],
   resolve: {
     tsconfigPaths: true,
@@ -14,14 +14,14 @@ export default defineConfig({
     typecheck: {
       enabled: false,
     },
-    environment: 'happy-dom',
+    environment: "happy-dom",
     passWithNoTests: true,
-    env: loadEnv('test', process.cwd(), ''),
+    env: loadEnv("test", process.cwd(), ""),
     // setupFiles: './setup/tests/setupVitest.ts',
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'clover'],
-      include: ['src/**/*.{js,jsx,ts,tsx}'],
+      include: ["src/**/*.{js,jsx,ts,tsx}"],
+      provider: "v8",
+      reporter: ["text", "clover"],
     },
     include: testFiles,
     // you might want to disable it, if you don't have tests that rely on CSS
@@ -33,10 +33,10 @@ export default defineConfig({
     mockReset: true,
     restoreMocks: true,
     exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/.next/**',
-      '**/.{idea,git,cache,output,temp}/**',
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/.next/**",
+      "**/.{idea,git,cache,output,temp}/**",
     ],
   },
 });

@@ -1,12 +1,12 @@
-import * as z from 'zod';
+import * as z from "zod";
 
-import { createAssertError } from '../core/create-assert-error.ts';
+import { createAssertError } from "../core/create-assert-error.ts";
 import type {
   DuckAliasName,
   DuckSchemaName,
   DuckTableName,
-} from '../core/types.ts';
-import { duckValidatorsZod } from './duck-validators-zod.ts';
+} from "../core/types.ts";
+import { duckValidatorsZod } from "./duck-validators-zod.ts";
 
 export function assertValidAliasName(
   aliasName: string

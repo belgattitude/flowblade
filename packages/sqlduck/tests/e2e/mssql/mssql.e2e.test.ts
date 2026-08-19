@@ -1,20 +1,20 @@
-import type { DuckDBConnection } from '@duckdb/node-api';
-import { DuckdbDatasource } from '@flowblade/source-duckdb';
-import type { KyselyDatasource } from '@flowblade/source-kysely';
-import { sql as sqlt } from '@flowblade/sql-tag';
-import { MSSQLServerContainer } from '@testcontainers/mssqlserver';
-import type { StartedMSSQLServerContainer } from '@testcontainers/mssqlserver/build/mssqlserver-container';
-import isInCi from 'is-in-ci';
-import { sql } from 'kysely';
-import { describe } from 'vitest';
-import * as z from 'zod';
+import type { DuckDBConnection } from "@duckdb/node-api";
+import { DuckdbDatasource } from "@flowblade/source-duckdb";
+import type { KyselyDatasource } from "@flowblade/source-kysely";
+import { sql as sqlt } from "@flowblade/sql-tag";
+import { MSSQLServerContainer } from "@testcontainers/mssqlserver";
+import type { StartedMSSQLServerContainer } from "@testcontainers/mssqlserver/build/mssqlserver-container";
+import isInCi from "is-in-ci";
+import { sql } from "kysely";
+import { describe } from "vitest";
+import * as z from "zod";
 
-import { createDuckdbTestMemoryDb } from '#/tests/utils/create-duckdb-test-memory-db.ts';
+import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
 
-import { SqlDuck, Table, zodCodecs } from '../../../src';
-import { createContainerMssql } from '../create-container-mssql';
+import { SqlDuck, Table, zodCodecs } from "../../../src";
+import { createContainerMssql } from "../create-container-mssql";
 
-const mssqlImage = 'mcr.microsoft.com/mssql/server:2025-latest';
+const mssqlImage = "mcr.microsoft.com/mssql/server:2025-latest";
 const startupTimeout = isInCi ? 300_000 : 60_000;
 
 const positiveBigint = 9_223_372_036_854_775_807n;
@@ -36,14 +36,14 @@ type DB = {
 
 const testDataCount = isInCi ? 2500 : 5000;
 
-const anIsoDate = new Date('2026-12-28T23:59:59.653Z');
+const anIsoDate = new Date("2026-12-28T23:59:59.653Z");
 
 const data = Array.from({ length: testDataCount }).map((_v, idx) => {
   return {
     id: idx,
     name: `name-${idx}`,
     decimal_18_3: Number.parseFloat(
-      `${idx + 1}.${((idx + 1) % 1000).toString(10).padStart(3, '0')}`
+      `${idx + 1}.${((idx + 1) % 1000).toString(10).padStart(3, "0")}`
     ),
     iso_date: anIsoDate,
   };
@@ -100,7 +100,7 @@ const getMigrations = (
 
 const testTimeout = 10_000;
 
-describe('MSSQL e2e tests', () => {
+describe("MSSQL e2e tests", () => {
   let container: StartedMSSQLServerContainer;
   let mssqlDs: KyselyDatasource<DB>;
   let duckConn: DuckDBConnection;
@@ -114,7 +114,7 @@ describe('MSSQL e2e tests', () => {
 
     duckConn = await createDuckdbTestMemoryDb({
       // Keep it high to prevent going to .tmp directory
-      max_memory: isInCi ? '128M' : '256M',
+      max_memory: isInCi ? "128M" : "256M",
       threads: 1,
     });
   }, startupTimeout);
@@ -128,27 +128,27 @@ describe('MSSQL e2e tests', () => {
     }
   });
 
-  describe('DB test', () => {
+  describe("DB test", () => {
     it(
-      'should retrieve dataset from source',
+      "should retrieve dataset from source",
       async () => {
         const query = mssqlDs.queryBuilder
-          .selectFrom('TestTable as t')
+          .selectFrom("TestTable as t")
           .select([
-            't.id',
-            't.name',
-            't.positive_bigint',
-            't.negative_bigint',
-            't.null_column',
-            't.decimal_18_3',
-            't.iso_date',
+            "t.id",
+            "t.name",
+            "t.positive_bigint",
+            "t.negative_bigint",
+            "t.null_column",
+            "t.decimal_18_3",
+            "t.iso_date",
           ]);
 
         const { data, error } = await mssqlDs.query(query);
         expect(error).toBeUndefined();
         expect(data?.[0]).toStrictEqual({
           id: 0,
-          name: 'name-0',
+          name: "name-0",
           // Cause mssql / tedious sends bigint as strings
           positive_bigint: positiveBigint.toString(10),
           negative_bigint: negativeBigint.toString(10),
@@ -156,34 +156,34 @@ describe('MSSQL e2e tests', () => {
           decimal_18_3: 1.001,
           // sqlserver will return the date as js date with T00:00:00.000Z
           iso_date: new Date(
-            `${anIsoDate.toISOString().split('T')[0]}T00:00:00.000Z`
+            `${anIsoDate.toISOString().split("T")[0]}T00:00:00.000Z`
           ),
         });
       },
       testTimeout
     );
   });
-  describe('ToTable', () => {
-    it('should append the mssql query results into duckdb', async () => {
+  describe("ToTable", () => {
+    it("should append the mssql query results into duckdb", async () => {
       const query = mssqlDs.queryBuilder
-        .selectFrom('TestTable as t')
+        .selectFrom("TestTable as t")
         .select([
-          't.id',
-          't.name',
-          't.positive_bigint',
-          'negative_bigint',
-          'null_column',
-          'decimal_18_3',
-          'iso_date',
+          "t.id",
+          "t.name",
+          "t.positive_bigint",
+          "negative_bigint",
+          "null_column",
+          "decimal_18_3",
+          "iso_date",
         ]);
 
       const rowStream = mssqlDs.stream(query, {
         chunkSize: 1000,
       });
 
-      const dbName = 'memory_db';
+      const dbName = "memory_db";
       const testTable = new Table({
-        name: 'test_table',
+        name: "test_table",
         database: dbName,
       });
 
@@ -217,7 +217,7 @@ describe('MSSQL e2e tests', () => {
         connection: duckConn,
       });
       const result = await duckDs.query(
-        sqlt<DB['TestTable']>`select * from memory_db.test_table`
+        sqlt<DB["TestTable"]>`select * from memory_db.test_table`
       );
       expect(result.error).toBeUndefined();
       expect(result.data).toStrictEqual(
@@ -227,8 +227,8 @@ describe('MSSQL e2e tests', () => {
             negative_bigint: negativeBigint.toString(10),
             positive_bigint: positiveBigint.toString(10),
             null_column: null,
-            iso_date: anIsoDate.toISOString().split('T')[0],
-            decimal_18_3: `${row.id + 1}.${((row.id + 1) % 1000).toString(10).padStart(3, '0')}`,
+            iso_date: anIsoDate.toISOString().split("T")[0],
+            decimal_18_3: `${row.id + 1}.${((row.id + 1) % 1000).toString(10).padStart(3, "0")}`,
           };
         })
       );

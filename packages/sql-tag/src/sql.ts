@@ -1,14 +1,6 @@
-// eslint-disable-next-line import-x/no-extraneous-dependencies
-import {
-  bulk,
-  default as sqlt,
-  empty,
-  join,
-  raw,
-  type RawValue,
-} from 'sql-template-tag';
+import sqlt, { bulk, empty, join, raw, type RawValue } from "sql-template-tag";
 
-import type { SqlTag } from './types';
+import type { SqlTag } from "./types";
 
 /**
  * Tagged Sql template literal function.
@@ -115,7 +107,7 @@ export const sql = Object.assign(
      * ```
      */
     raw<T = unknown>(sql: string | number): SqlTag<T> {
-      const sqlString = typeof sql === 'string' ? sql : String(sql);
+      const sqlString = typeof sql === "string" ? sql : String(sql);
       return raw(sqlString) as SqlTag<T>;
     },
     /**
@@ -142,7 +134,7 @@ export const sql = Object.assign(
      */
     join(
       array: readonly RawValue[],
-      separator = ', ',
+      separator = ", ",
       prefix?: string,
       suffix?: string
     ): SqlTag<unknown> {

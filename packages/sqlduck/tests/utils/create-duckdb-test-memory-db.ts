@@ -1,10 +1,10 @@
-import * as os from 'node:os';
-import path from 'node:path';
+import * as os from "node:os";
+import path from "node:path";
 
-import { type DuckDBConnection, DuckDBInstance } from '@duckdb/node-api';
+import { type DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
 
 export const createDuckdbTestMemoryDb = async (options?: {
-  access_mode?: 'READ_WRITE';
+  access_mode?: "READ_WRITE";
   max_memory?: `${number}M`;
   threads?: number;
   /**
@@ -14,11 +14,11 @@ export const createDuckdbTestMemoryDb = async (options?: {
   extension_directory?: string;
 }): Promise<DuckDBConnection> => {
   const {
-    access_mode = 'READ_WRITE',
-    max_memory = '256M',
+    access_mode = "READ_WRITE",
+    max_memory = "256M",
     threads = Math.max(1, Math.min(os.availableParallelism() - 1, 4)),
-    temp_directory = path.join(os.tmpdir(), 'duckdb-temp'),
-    extension_directory = path.join(os.tmpdir(), 'duckdb-temp/extensions'),
+    temp_directory = path.join(os.tmpdir(), "duckdb-temp"),
+    extension_directory = path.join(os.tmpdir(), "duckdb-temp/extensions"),
   } = options ?? {};
 
   const instance = await DuckDBInstance.create(undefined, {

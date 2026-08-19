@@ -1,7 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+// oxlint-disable
 
-import { useMDXComponents as getDocsMDXComponents } from 'nextra-theme-docs';
+import { useMDXComponents as getDocsMDXComponents } from "nextra-theme-docs";
 
 const {
   tr: Tr,

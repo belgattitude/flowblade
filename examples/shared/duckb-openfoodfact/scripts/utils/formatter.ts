@@ -1,7 +1,7 @@
-import { MIntl } from '@httpx/memo-intl';
+import { MIntl } from "@httpx/memo-intl";
 
 export const formatTimeMsToSeconds = (timeMs: number) => {
-  const formatter = MIntl.NumberFormat('en-US', {
+  const formatter = MIntl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });

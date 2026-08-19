@@ -1,6 +1,6 @@
-import * as z from 'zod';
+import * as z from "zod";
 
-import { zodCodecs } from '../../src/utils/zod-codecs.ts';
+import { zodCodecs } from "../../src/utils/zod-codecs.ts";
 
 /**
  * A full set of supported columns for testing purposes.
@@ -21,23 +21,23 @@ export const testFullSupportedColumnsZodSchema = z.strictObject({
   is_active: z.nullable(z.boolean()),
   alt_uuid_v7: z.uuidv7(),
   custom_type: z.string().meta({
-    duckdbType: 'UUID',
+    duckdbType: "UUID",
   }),
   custom_date_only_type: z.string().meta({
-    duckdbType: 'DATE',
+    duckdbType: "DATE",
   }),
   iso_date: z.iso.date(),
-  js_enum: z.enum(['a', 'b', 'c']),
+  js_enum: z.enum(["a", "b", "c"]),
   decimal_18_3: z.float32().meta({
     multipleOf: 0.001,
   }),
   list_of_strings_explicit: z.array(z.string()).meta({
-    duckdbType: 'VARCHAR[]',
+    duckdbType: "VARCHAR[]",
   }),
   list_of_strings: z.array(z.string()),
   list_of_bigints: z.array(zodCodecs.bigintToString),
   list_of_bigints_explicit: z.array(zodCodecs.bigintToString).meta({
-    duckdbType: 'BIGINT[]',
+    duckdbType: "BIGINT[]",
   }),
   list_of_numbers: z.array(z.number()),
   list_of_int32s: z.array(z.int32()),

@@ -1,11 +1,11 @@
-import { type ParsedDsn, parseDsn } from '@httpx/dsn-parser';
-import * as z from 'zod';
+import { type ParsedDsn, parseDsn } from "@httpx/dsn-parser";
+import * as z from "zod";
 
 import type {
   DuckAllConnectionOptions,
   DuckConnectionParams,
-} from '../core/types.ts';
-import { duckConnectionParamsZodSchema } from './duck-connection-params-zod-schema.ts';
+} from "../core/types.ts";
+import { duckConnectionParamsZodSchema } from "./duck-connection-params-zod-schema.ts";
 
 export const duckDsnZodSchema = z
   .string()
@@ -13,7 +13,7 @@ export const duckDsnZodSchema = z
     const result = parseDsn(dsn);
     if (!result.success) {
       ctx.addIssue({
-        code: 'custom',
+        code: "custom",
         message: result.message,
       });
       return z.NEVER;

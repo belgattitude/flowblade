@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 export const zodCodecs = {
   dateToString: z.codec(
@@ -12,7 +12,7 @@ export const zodCodecs = {
   bigintToString: z.codec(
     z.bigint(), // input schema
     z.string().meta({
-      format: 'int64',
+      format: "int64",
     }),
     {
       decode: (bigint) => bigint.toString(),

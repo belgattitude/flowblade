@@ -1,6 +1,6 @@
-import path from 'node:path';
+import path from "node:path";
 
-import { glob } from 'glob';
+import { glob } from "glob";
 
 const executeFile = async (file: string) => {
   const absolutePath = path.resolve(file);
@@ -9,7 +9,7 @@ const executeFile = async (file: string) => {
 };
 
 try {
-  const files = await glob('**/*.bench.mitata.ts');
+  const files = await glob("**/*.bench.mitata.ts");
 
   for (const file of files) {
     console.log(`# Executing ${file}`);

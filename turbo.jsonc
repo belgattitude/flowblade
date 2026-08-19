@@ -33,7 +33,10 @@
     "test-unit-browser": {},
     "test-unit-coverage": {},
     "lint": {
-      "env": ["TIMING"]
+      "outputLogs": "full"
+    },
+    "lint-fix": {
+      "cache": false
     },
     "lint-styles": {},
     "typecheck": {},

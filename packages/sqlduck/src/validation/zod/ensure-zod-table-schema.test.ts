@@ -1,8 +1,8 @@
-import * as z from 'zod';
+import * as z from "zod";
 
-import { ensureZodTableSchema } from './ensure-zod-table-schema.ts';
+import { ensureZodTableSchema } from "./ensure-zod-table-schema.ts";
 
-describe('createZodTableSchema', () => {
+describe("createZodTableSchema", () => {
   type Row = {
     aNumber: number;
     aString: string;
@@ -16,7 +16,7 @@ describe('createZodTableSchema', () => {
   };
   const row: Row = {
     aNumber: 1,
-    aString: 'a',
+    aString: "a",
     aNullableNumber: null,
     aNullableString: null,
     aBoolean: true,
@@ -25,7 +25,7 @@ describe('createZodTableSchema', () => {
     aNullableDate: null,
     anArrayOfStrings: null,
   };
-  it('a compatible schema wil pass', () => {
+  it("a compatible schema wil pass", () => {
     const _validSchema = ensureZodTableSchema<Row>(
       z.strictObject({
         aNumber: z.number(),
@@ -44,7 +44,7 @@ describe('createZodTableSchema', () => {
     expectTypeOf(row).toEqualTypeOf<TSchema>();
   });
 
-  it('should require explicit generic T', () => {
+  it("should require explicit generic T", () => {
     const _noGeneric = ensureZodTableSchema(
       // @ts-expect-error - without explicit generic, defaults to RequireExplicitGeneric which no schema satisfies
       z.strictObject({
@@ -54,7 +54,7 @@ describe('createZodTableSchema', () => {
     );
   });
 
-  it('should reject schema with missing keys', () => {
+  it("should reject schema with missing keys", () => {
     const _missingKeys = ensureZodTableSchema<Row>(
       // @ts-expect-error - missing aNullableNumber and other keys
       z.strictObject({
@@ -64,7 +64,7 @@ describe('createZodTableSchema', () => {
     );
   });
 
-  it('should reject schema with wrong value types', () => {
+  it("should reject schema with wrong value types", () => {
     const _wrongType = ensureZodTableSchema<Row>(
       // @ts-expect-error - aNumber should be z.number(), not z.string()
       z.strictObject({

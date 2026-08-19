@@ -1,11 +1,11 @@
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath } from "node:url";
 
 const dataPath = fileURLToPath(
-  import.meta.url + ['..', '..', '..', '..', 'data'].join('/')
+  import.meta.url + ["..", "..", "..", "..", "data"].join("/")
 );
 
 const foodRemoteParquetUrl =
-  'https://huggingface.co/datasets/openfoodfacts/product-database/resolve/main/food.parquet';
+  "https://huggingface.co/datasets/openfoodfacts/product-database/resolve/main/food.parquet";
 
 export const scriptsConfig = {
   openfoodfact: {

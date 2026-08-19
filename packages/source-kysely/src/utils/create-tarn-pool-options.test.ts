@@ -1,9 +1,9 @@
-import { expect } from 'vitest';
+import { expect } from "vitest";
 
-import { createTarnPoolOptions } from './create-tarn-pool-options';
+import { createTarnPoolOptions } from "./create-tarn-pool-options";
 
-describe('createTarnPoolOptions', () => {
-  it('should return the defaults', () => {
+describe("createTarnPoolOptions", () => {
+  it("should return the defaults", () => {
     const options = createTarnPoolOptions({});
     expect(options).toStrictEqual({
       min: 0,
@@ -17,7 +17,7 @@ describe('createTarnPoolOptions', () => {
       propagateCreateError: false,
     });
   });
-  it('should override the defaults', () => {
+  it("should override the defaults", () => {
     const options = createTarnPoolOptions({
       min: 1,
       max: 20,

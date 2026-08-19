@@ -16,12 +16,7 @@
 
 ### Minor Changes
 
-- [#1332](https://github.com/belgattitude/flowblade/pull/1332) [`32fc80a`](https://github.com/belgattitude/flowblade/commit/32fc80aff3bbb80592d62024ab76b291d8e53e89) Thanks [@belgattitude](https://github.com/belgattitude)! - Support for duckdb list (variable length array) from zod schemas. It automatically detects and
-  converts `z.array(z.string())` to `VARCHAR[]`, `z.array(z.number())` to `INTEGER[]`,
-  `z.array(z.boolean())` to `BOOLEAN[]`. When automatic inference isn't supported,
-  you can provide a custom `duckdbType` for each field. The following custom types are now
-  supported: `duckdbType: VARCHAR[] | INTEGER[] | BOOLEAN[] | BIGINT[] | DOUBLE[] | DATE[] | TIMESTAMP[]`.
-  The complete list of supported types is exported as `SupportedCustomDuckDbTypes`
+- [#1332](https://github.com/belgattitude/flowblade/pull/1332) [`32fc80a`](https://github.com/belgattitude/flowblade/commit/32fc80aff3bbb80592d62024ab76b291d8e53e89) Thanks [@belgattitude](https://github.com/belgattitude)! - Support for duckdb list (variable length array) from zod schemas. It automatically detects and converts `z.array(z.string())` to `VARCHAR[]`, `z.array(z.number())` to `INTEGER[]`, `z.array(z.boolean())` to `BOOLEAN[]`. When automatic inference isn't supported, you can provide a custom `duckdbType` for each field. The following custom types are now supported: `duckdbType: VARCHAR[] | INTEGER[] | BOOLEAN[] | BIGINT[] | DOUBLE[] | DATE[] | TIMESTAMP[]`. The complete list of supported types is exported as `SupportedCustomDuckDbTypes`
 
   ```typescript
   import * as z from "zod";
@@ -141,8 +136,7 @@
 
 - [#1274](https://github.com/belgattitude/flowblade/pull/1274) [`84df980`](https://github.com/belgattitude/flowblade/commit/84df980529798feb15501a67187543839a537a21) Thanks [@belgattitude](https://github.com/belgattitude)! - Support custom date when specified as meta
 
-  You can now specify a custom date type when using the `duckdbType` meta.
-  The create table will now use duckdb DATE type instead of VARCHAR.
+  You can now specify a custom date type when using the `duckdbType` meta. The create table will now use duckdb DATE type instead of VARCHAR.
 
   ```typescript
   export const testFullSupportedColumnsZodSchema = z.strictObject({
@@ -474,17 +468,17 @@
 
   ## Zod -> DuckDB
 
-  | Zod                                                                                                       | DuckDB                     |
-  | --------------------------------------------------------------------------------------------------------- | -------------------------- |
-  | `z.string()`, `z.email()`, `z.url()`, `z.cuid()`, `z.cuid2()`, `z.ulid()`, `z.iso.date()`, `z.iso.time()` | `VARCHAR`                  |
-  | `z.iso.datetime()`, `zodCodecs.dateToString`                                                              | `TIMESTAMP`                |
-  | `z.uuid()`, `z.uuidv7()`                                                                                  | `UUID`                     |
-  | `z.boolean()`                                                                                             | `BOOLEAN`                  |
-  | `z.int32()`                                                                                               | `INTEGER`                  |
-  | `z.float32()`                                                                                             | `FLOAT`                    |
-  | `z.float64()`                                                                                             | `DOUBLE`                   |
-  | `z.number()`                                                                                              | inferred, default `BIGINT` |
-  | `zodCodecs.bigintToString`                                                                                | `BIGINT`                   |
+  | Zod | DuckDB |
+  | --- | --- |
+  | `z.string()`, `z.email()`, `z.url()`, `z.cuid()`, `z.cuid2()`, `z.ulid()`, `z.iso.date()`, `z.iso.time()` | `VARCHAR` |
+  | `z.iso.datetime()`, `zodCodecs.dateToString` | `TIMESTAMP` |
+  | `z.uuid()`, `z.uuidv7()` | `UUID` |
+  | `z.boolean()` | `BOOLEAN` |
+  | `z.int32()` | `INTEGER` |
+  | `z.float32()` | `FLOAT` |
+  | `z.float64()` | `DOUBLE` |
+  | `z.number()` | inferred, default `BIGINT` |
+  | `zodCodecs.bigintToString` | `BIGINT` |
 
   ## Numeric inference
   - signed: `TINYINT` -> `SMALLINT` -> `INTEGER` -> `BIGINT` -> `HUGEINT`

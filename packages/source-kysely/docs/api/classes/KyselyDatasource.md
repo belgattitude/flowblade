@@ -20,7 +20,7 @@
 
 ### Constructor
 
-> **new KyselyDatasource**\<`TDatabase`\>(`params`): `KyselyDatasource`\<`TDatabase`\>
+> **new KyselyDatasource**\<`TDatabase`>\>(`params`): `KyselyDatasource`\<`TDatabase`>\>
 
 #### Parameters
 
@@ -38,7 +38,7 @@
 
 #### Get Signature
 
-> **get** **queryBuilder**(): `Pick`\<`Kysely`\<`TDatabase`\>, `"mergeInto"` \| `"selectFrom"` \| `"selectNoFrom"` \| `"deleteFrom"` \| `"updateTable"` \| `"insertInto"` \| `"replaceInto"` \| `"with"` \| `"withRecursive"` \| `"withSchema"` \| `"withPlugin"` \| `"withoutPlugins"` \| `"withTables"`\>
+> **get** **queryBuilder**(): `Pick`\<`Kysely`\<`TDatabase`>\>, `"mergeInto"` \| `"selectFrom"` \| `"selectNoFrom"` \| `"deleteFrom"` \| `"updateTable"` \| `"insertInto"` \| `"replaceInto"` \| `"with"` \| `"withRecursive"` \| `"withSchema"` \| `"withPlugin"` \| `"withoutPlugins"` \| `"withTables"`>\>
 
 Return a new Kysely expression builder.
 
@@ -63,7 +63,7 @@ const query = eb.selectFrom("brand as b").select(["b.id", "b.name"]);
 
 ### getConnection()
 
-> **getConnection**(): `Kysely`\<`TDatabase`\>
+> **getConnection**(): `Kysely`\<`TDatabase`>\>
 
 Return the underlying kysely connection.
 
@@ -81,7 +81,7 @@ Warning: this isn't covered by api stability. Use at your own risks.
 
 ### query()
 
-> **query**\<`TQuery`, `TData`\>(`query`, `info?`): `Promise`\<`QResult`\<`TData`, `QError`\>\>
+> **query**\<`TQuery`, `TData`>\>(`query`, `info?`): `Promise`\<`QResult`\<`TData`, `QError`>>\>\>
 
 Run a query on the datasource and return the result.
 
@@ -157,7 +157,7 @@ const { data } = result.map((row) => {
 
 ### stream()
 
-> **stream**\<`TQuery`, `TData`\>(`query`, `options?`): `AsyncIterableIterator`\<`TData`\[`0`\]\>
+> **stream**\<`TQuery`, `TData`>\>(`query`, `options?`): `AsyncIterableIterator`\<`TData`\[`0`\]\>
 
 Stream query
 

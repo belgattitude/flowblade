@@ -1,14 +1,14 @@
-import type { DuckDBConnection } from '@duckdb/node-api';
-import type { Logger } from '@logtape/logtape';
+import type { DuckDBConnection } from "@duckdb/node-api";
+import type { Logger } from "@logtape/logtape";
 
-import { sqlduckDefaultLogtapeLogger } from '../../logger/sqlduck-default-logtape-logger.ts';
-import { ManagerQueryExecutor } from '../core/manager-query-executor.ts';
+import { sqlduckDefaultLogtapeLogger } from "../../logger/sqlduck-default-logtape-logger.ts";
+import { ManagerQueryExecutor } from "../core/manager-query-executor.ts";
 
 export class DuckSettingsManager {
   #conn: DuckDBConnection;
   #logger: Logger;
   #executor: ManagerQueryExecutor;
-  readonly className = 'DuckSettingsManager';
+  readonly className = "DuckSettingsManager";
 
   constructor(conn: DuckDBConnection, params?: { logger?: Logger }) {
     this.#conn = conn;
@@ -30,7 +30,7 @@ export class DuckSettingsManager {
       .map((s) => {
         return `current_setting('${s}') as '${s}'`;
       })
-      .join(',\n');
+      .join(",\n");
 
     const query = `SELECT ${columns}`;
 
@@ -48,7 +48,7 @@ export class DuckSettingsManager {
     }
     const currentSettings = {} as Record<T, string>;
     for (const [key, value] of Object.entries(firstRow)) {
-      const v = typeof value === 'string' ? value : String(value);
+      const v = typeof value === "string" ? value : String(value);
       currentSettings[key as T] = v;
     }
     return currentSettings;

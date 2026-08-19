@@ -1,6 +1,6 @@
 [**@flowblade/sqlduck v0.16.0**](../README.md)
 
-***
+---
 
 [@flowblade/sqlduck](../README.md) / DuckDatabaseManager
 
@@ -32,12 +32,11 @@
 
 ### analyze()
 
-> **analyze**(): `Promise`\<`boolean`\>
+> **analyze**(): `Promise`\<`boolean`>>\>
 
 The statistics recomputed by the ANALYZE statement are only used for join order optimization.
 
-It is therefore recommended to recompute these statistics for improved join orders,
-especially after performing large updates (inserts and/or deletes).
+It is therefore recommended to recompute these statistics for improved join orders, especially after performing large updates (inserts and/or deletes).
 
 #### Returns
 
@@ -47,11 +46,11 @@ especially after performing large updates (inserts and/or deletes).
 
 https://duckdb.org/docs/stable/sql/statements/analyze
 
-***
+---
 
 ### attach()
 
-> **attach**(`dbParams`, `options?`): `Promise`\<[`Database`](Database.md)\>
+> **attach**(`dbParams`, `options?`): `Promise`\<[`Database`](Database.md)>>\>
 
 Attach a database to the current connection
 
@@ -74,19 +73,19 @@ Attach a database to the current connection
 ```typescript
 const dbManager = new DuckDatabaseManager(conn);
 const database = dbManager.attach({
-  type: 'memory', // can be 'filesystem'...
-  alias: 'mydb',
-  options: { COMPRESS: 'true' }
+  type: "memory", // can be 'filesystem'...
+  alias: "mydb",
+  options: { COMPRESS: "true" },
 });
 
 console.log(database.alias); // 'mydb'
 ```
 
-***
+---
 
 ### attachIfNotExists()
 
-> **attachIfNotExists**(`dbParams`): `Promise`\<[`Database`](Database.md)\>
+> **attachIfNotExists**(`dbParams`): `Promise`\<[`Database`](Database.md)>>\>
 
 #### Parameters
 
@@ -98,11 +97,11 @@ console.log(database.alias); // 'mydb'
 
 `Promise`\<[`Database`](Database.md)\>
 
-***
+---
 
 ### attachOrReplace()
 
-> **attachOrReplace**(`dbParams`): `Promise`\<[`Database`](Database.md)\>
+> **attachOrReplace**(`dbParams`): `Promise`\<[`Database`](Database.md)>>\>
 
 #### Parameters
 
@@ -114,11 +113,11 @@ console.log(database.alias); // 'mydb'
 
 `Promise`\<[`Database`](Database.md)\>
 
-***
+---
 
 ### checkpoint()
 
-> **checkpoint**(`dbAlias`): `Promise`\<`boolean`\>
+> **checkpoint**(`dbAlias`): `Promise`\<`boolean`>>\>
 
 #### Parameters
 
@@ -130,7 +129,7 @@ console.log(database.alias); // 'mydb'
 
 `Promise`\<`boolean`\>
 
-***
+---
 
 ### createDatabaseFile()
 
@@ -154,11 +153,11 @@ Helper to create an initial database file.
 
 `Promise`\<\{ `status`: `"exists"` \| `"created"`; \}\>
 
-***
+---
 
 ### detach()
 
-> **detach**(`dbAlias`): `Promise`\<`boolean`\>
+> **detach**(`dbAlias`): `Promise`\<`boolean`>>\>
 
 #### Parameters
 
@@ -170,11 +169,11 @@ Helper to create an initial database file.
 
 `Promise`\<`boolean`\>
 
-***
+---
 
 ### detachIfExists()
 
-> **detachIfExists**(`dbAlias`): `Promise`\<`boolean`\>
+> **detachIfExists**(`dbAlias`): `Promise`\<`boolean`>>\>
 
 #### Parameters
 
@@ -186,21 +185,21 @@ Helper to create an initial database file.
 
 `Promise`\<`boolean`\>
 
-***
+---
 
 ### showDatabases()
 
-> **showDatabases**(): `Promise`\<`Record`\<`string`, `JS`\>[]\>
+> **showDatabases**(): `Promise`\<`Record`\<`string`, `JS`>>\>[]\>
 
 #### Returns
 
 `Promise`\<`Record`\<`string`, `JS`\>[]\>
 
-***
+---
 
 ### vacuum()
 
-> **vacuum**(): `Promise`\<`boolean`\>
+> **vacuum**(): `Promise`\<`boolean`>>\>
 
 #### Returns
 

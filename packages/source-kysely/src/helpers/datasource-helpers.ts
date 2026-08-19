@@ -1,8 +1,8 @@
-import type { QError, QMeta, QResult } from '@flowblade/core';
+import type { QError, QMeta, QResult } from "@flowblade/core";
 
 export type JsonifiedDataSourceResponse<T extends QResult<unknown[], QError>> =
   {
-    data?: T['data'];
+    data?: T["data"];
     error?: QError;
     meta: QMeta;
   };

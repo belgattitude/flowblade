@@ -1,6 +1,6 @@
-import type { QMeta, QMetaSqlSpan } from '../meta/q-meta';
-import { QResult } from '../query-result/q-result';
-import type { QError } from '../query-result/types';
+import type { QMeta, QMetaSqlSpan } from "../meta/q-meta";
+import { QResult } from "../query-result/q-result";
+import type { QError } from "../query-result/types";
 
 /**
  * Create a new SQL span with sql query + params and initial timeMs: 0, affectedRows: 0.
@@ -11,13 +11,13 @@ export const createSqlSpan = ({
   timeMs,
   affectedRows,
 }: {
-  sql: QMetaSqlSpan['sql'];
-  params: QMetaSqlSpan['params'];
+  sql: QMetaSqlSpan["sql"];
+  params: QMetaSqlSpan["params"];
   timeMs?: number;
   affectedRows?: number;
 }): QMetaSqlSpan => {
   return {
-    type: 'sql',
+    type: "sql",
     sql,
     params,
     timeMs: timeMs ?? 0,

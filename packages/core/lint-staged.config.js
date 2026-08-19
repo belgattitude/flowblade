@@ -7,13 +7,13 @@
  * {@link https://github.com/belgattitude/nextjs-monorepo-example/blob/main/docs/about-lint-staged.md}
  */
 
-import path from 'node:path';
-import url from 'node:url';
+import path from "node:path";
+import url from "node:url";
 
 import {
   concatFilesForPrettier,
   getEslintFixCmd,
-} from '../../lint-staged.common.mjs';
+} from "../../lint-staged.common.mjs";
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
  * @type {import('lint-staged').Configuration}
  */
 export default {
-  '**/*.{js,jsx,ts,tsx}': (filenames) => {
+  "**/*.{js,jsx,ts,tsx}": (filenames) => {
     return getEslintFixCmd({
       cache: true,
       cwd: __dirname,
@@ -31,7 +31,7 @@ export default {
       maxWarnings: 25,
     });
   },
-  '**/*.{json,md,mdx,css,html,yml,yaml,scss}': (filenames) => {
+  "**/*.{json,md,mdx,css,html,yml,yaml,scss}": (filenames) => {
     return [`prettier --write ${concatFilesForPrettier(filenames)}`];
   },
 };

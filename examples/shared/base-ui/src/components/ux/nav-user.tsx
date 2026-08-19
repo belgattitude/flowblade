@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from '@examples/base-ui/components/ui/avatar';
+} from "@examples/base-ui/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,13 +13,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@examples/base-ui/components/ui/dropdown-menu';
+} from "@examples/base-ui/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@examples/base-ui/components/ui/sidebar';
+} from "@examples/base-ui/components/ui/sidebar";
 import {
   BadgeCheckIcon,
   BellIcon,
@@ -27,7 +27,7 @@ import {
   CreditCardIcon,
   LogOutIcon,
   SparklesIcon,
-} from 'lucide-react';
+} from "lucide-react";
 
 export function NavUser({
   user,
@@ -60,7 +60,7 @@ export function NavUser({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-fit"
-            side={isMobile ? 'bottom' : 'right'}
+            side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
           >

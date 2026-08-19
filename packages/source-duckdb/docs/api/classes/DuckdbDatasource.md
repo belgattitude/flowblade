@@ -34,8 +34,7 @@
 
 Return underlying duckdb connection.
 
-Warning: using the underling driver connection isn't recommended
-and not covered by api stability. Use at your own risks.
+Warning: using the underling driver connection isn't recommended and not covered by api stability. Use at your own risks.
 
 #### Returns
 
@@ -49,7 +48,7 @@ and not covered by api stability. Use at your own risks.
 
 ### query()
 
-> **query**\<`TData`\>(`rawQuery`, `info?`): `AsyncQResult`\<`TData`\>
+> **query**\<`TData`>>>\>(`rawQuery`, `info?`): `AsyncQResult`\<`TData`>>>\>
 
 Run a raw query on the datasource and return a query result (QResult).
 
@@ -122,7 +121,7 @@ const { data: mappedData } = result.map((row) => {
 
 ### stream()
 
-> **stream**(`_query`, `options?`): `AsyncIterableIterator`\<`QResult`\<`unknown`[], `QError`\>\>
+> **stream**(`_query`, `options?`): `AsyncIterableIterator`\<`QResult`\<`unknown`[], `QError`>>>>>>\>\>
 
 #### Parameters
 

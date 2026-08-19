@@ -1,33 +1,35 @@
-'use client';
+"use client";
 
-import { TreeSelect, type TreeSelectChangeEvent } from 'primereact/treeselect';
-import React, { type FC, useEffect, useState } from 'react';
+import { TreeSelect } from "primereact/treeselect";
+import type { TreeSelectChangeEvent } from "primereact/treeselect";
+import React, { useEffect, useState } from "react";
+import type { FC } from "react";
 
-import { cn } from '../utils';
-import { NodeService } from './NodeService';
+import { cn } from "../utils";
+import { NodeService } from "./NodeService";
 
-type Props = {
+interface Props {
   className?: string | undefined;
-};
+}
 
 type Data = Awaited<ReturnType<typeof NodeService.getTreeNodes>>;
 
 export const FolderTreeSelect: FC<Props> = (props) => {
   const [nodes, setNodes] = useState<Data>([]);
   const [selectedNodeKeys, setSelectedNodeKeys] =
-    useState<TreeSelectChangeEvent['value']>(null);
+    useState<TreeSelectChangeEvent["value"]>(null);
   const { className } = props;
 
   useEffect(() => {
     NodeService.getTreeNodes()
       .then((data) => setNodes(data))
-      .catch((e) => {
-        console.error('Error fetching nodes:', e);
+      .catch((error) => {
+        console.error("Error fetching nodes:", error);
       });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className={cn('', className)}>
+    <div className={cn("", className)}>
       <TreeSelect
         value={selectedNodeKeys}
         options={nodes}

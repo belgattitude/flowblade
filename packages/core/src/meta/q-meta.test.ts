@@ -1,23 +1,23 @@
-import { expectTypeOf } from 'vitest';
+import { expectTypeOf } from "vitest";
 
-import { QMeta, type QMetaJsonifiable, type QMetaSqlSpan } from './q-meta';
+import { QMeta, type QMetaJsonifiable, type QMetaSqlSpan } from "./q-meta";
 
-describe('QMeta', () => {
+describe("QMeta", () => {
   const sqlSpan: QMetaSqlSpan = {
-    type: 'sql',
-    sql: 'SELECT * FROM users',
+    type: "sql",
+    sql: "SELECT * FROM users",
     params: [],
     timeMs: 12,
     affectedRows: 10,
   };
   const createMeta = () =>
     new QMeta({
-      name: 'test-unit',
+      name: "test-unit",
       spans: sqlSpan,
     });
 
-  describe('withSpans()', () => {
-    it('should create a new instance with added meta', () => {
+  describe("withSpans()", () => {
+    it("should create a new instance with added meta", () => {
       const newSqlSpan = structuredClone(sqlSpan);
       const meta = createMeta();
       const newMeta = meta.withSpan(newSqlSpan);
@@ -25,7 +25,7 @@ describe('QMeta', () => {
       expect(newMeta).toBeInstanceOf(QMeta);
       expect(newMeta.getSpans().length).toBe(meta.getSpans().length + 1);
     });
-    it('should create a deep copy of initial spans', () => {
+    it("should create a deep copy of initial spans", () => {
       const newSqlSpan = structuredClone(sqlSpan);
       const meta = createMeta();
       const newMeta = meta.withSpan(newSqlSpan);
@@ -36,20 +36,20 @@ describe('QMeta', () => {
       expect(newMeta.getSpans()[0]!.timeMs).toBe(12);
     });
   });
-  describe('getTotalTimeMs', () => {
-    describe('when there is only one span', () => {
-      it('should return the time of the only span', () => {
+  describe("getTotalTimeMs", () => {
+    describe("when there is only one span", () => {
+      it("should return the time of the only span", () => {
         const meta = createMeta();
         expect(meta.getTotalTimeMs()).toBe(sqlSpan.timeMs);
       });
     });
-    describe('when multiple spans', () => {
-      it('should return the total time of all spans', () => {
+    describe("when multiple spans", () => {
+      it("should return the total time of all spans", () => {
         const meta = createMeta();
         expect(
           meta
             .withSpan({
-              type: 'map',
+              type: "map",
               timeMs: 1000,
             })
             .getTotalTimeMs()
@@ -58,30 +58,30 @@ describe('QMeta', () => {
     });
   });
 
-  describe('toJSON()', () => {
+  describe("toJSON()", () => {
     const sqlSpan: QMetaSqlSpan = {
-      type: 'sql',
-      sql: 'SELECT * FROM users',
+      type: "sql",
+      sql: "SELECT * FROM users",
       params: [],
       timeMs: 10.334,
       affectedRows: 10,
     };
     const meta = new QMeta({
-      name: 'test-unit',
+      name: "test-unit",
       spans: sqlSpan,
     });
-    it('should return a json serializable content', () => {
+    it("should return a json serializable content", () => {
       const jsonifiable = meta.toJSON();
       expect(jsonifiable).toStrictEqual({
-        name: 'test-unit',
+        name: "test-unit",
         spans: [sqlSpan],
       });
     });
-    it('should return a json serializable content type', () => {
+    it("should return a json serializable content type", () => {
       const jsonifiable = meta.toJSON();
       expectTypeOf(jsonifiable).toEqualTypeOf<QMetaJsonifiable>();
     });
-    it('jsonifiable content should match a native JSON.stringify call', () => {
+    it("jsonifiable content should match a native JSON.stringify call", () => {
       const jsonifiable = meta.toJSON();
       const jsonified = JSON.stringify(meta);
       expect(JSON.stringify(jsonifiable)).toStrictEqual(jsonified);

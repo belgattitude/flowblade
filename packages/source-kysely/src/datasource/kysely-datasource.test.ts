@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from "vitest";
 
-import { KyselyDatasource } from './kysely-datasource';
+import { KyselyDatasource } from "./kysely-datasource";
 
-describe('KyselyDatasource.stream logging', () => {
-  it('should call logger.info even if stream is partially consumed', async () => {
+describe("KyselyDatasource.stream logging", () => {
+  it("should call logger.info even if stream is partially consumed", async () => {
     const mockLogger = {
       debug: vi.fn(),
       info: vi.fn(),
@@ -13,7 +13,7 @@ describe('KyselyDatasource.stream logging', () => {
 
     const mockQuery = {
       compile: vi.fn().mockReturnValue({
-        sql: 'SELECT * FROM test',
+        sql: "SELECT * FROM test",
         parameters: [],
       }),
       stream: vi.fn().mockImplementation(async function* () {
@@ -28,11 +28,11 @@ describe('KyselyDatasource.stream logging', () => {
       logger: mockLogger as any,
     });
 
-    // @ts-ignore - access private to mock
+    // @ts-expect-error - access private to mock
     ds.db = { executeQuery: vi.fn() };
 
     const stream = ds.stream(mockQuery as any, {
-      name: 'test-stream',
+      name: "test-stream",
     });
 
     // Partially consume the stream

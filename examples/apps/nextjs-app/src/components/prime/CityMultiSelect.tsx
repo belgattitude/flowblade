@@ -1,31 +1,32 @@
-'use client';
+"use client";
 
-import { MultiSelect } from 'primereact/multiselect';
-import { type FC, useState } from 'react';
+import { MultiSelect } from "primereact/multiselect";
+import { useState } from "react";
+import type { FC } from "react";
 
-import { cn } from '../utils';
+import { cn } from "../utils";
 
-type City = {
+interface City {
   name: string;
   code: string;
-};
+}
 const cities: City[] = [
-  { name: 'New York', code: 'NY' },
-  { name: 'Rome', code: 'RM' },
-  { name: 'London', code: 'LDN' },
-  { name: 'Istanbul', code: 'IST' },
-  { name: 'Paris', code: 'PRS' },
+  { code: "NY", name: "New York" },
+  { code: "RM", name: "Rome" },
+  { code: "LDN", name: "London" },
+  { code: "IST", name: "Istanbul" },
+  { code: "PRS", name: "Paris" },
 ];
 
-type Props = {
+interface Props {
   className?: string | undefined;
-};
+}
 export const CityMultiSelect: FC<Props> = (props) => {
   const { className } = props;
   const [selectedCities, setSelectedCities] = useState<City[]>();
 
   return (
-    <div className={cn('', className)}>
+    <div className={cn("", className)}>
       <MultiSelect
         value={selectedCities}
         onChange={(e) => setSelectedCities(e.value as City[])}

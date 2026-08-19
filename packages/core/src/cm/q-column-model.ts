@@ -1,4 +1,4 @@
-const columnTypes = ['string', 'number', 'boolean'] as const;
+const columnTypes = ["string", "number", "boolean"] as const;
 type ColumnType = (typeof columnTypes)[number];
 
 export interface QColumn {

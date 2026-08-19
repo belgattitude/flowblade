@@ -1,5 +1,5 @@
-import type { FastifyInstance } from 'fastify';
-import { type Static, Type } from 'typebox';
+import type { FastifyInstance } from "fastify";
+import { type Static, Type } from "typebox";
 
 const healthSchema = Type.Object({
   time: Type.String(),
@@ -7,11 +7,11 @@ const healthSchema = Type.Object({
 
 export default async function TreeRoute(fastify: FastifyInstance) {
   fastify.get(
-    '/health',
+    "/health",
     {
       schema: {
         response: {
-          '2xx': healthSchema,
+          "2xx": healthSchema,
         },
       },
     },

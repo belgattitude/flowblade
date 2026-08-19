@@ -1,18 +1,18 @@
-import { format } from 'sql-formatter';
-import { default as sqlt, empty, join } from 'sql-template-tag';
-import { expectTypeOf } from 'vitest';
+import { format } from "sql-formatter";
+import sqlt, { empty, join } from "sql-template-tag";
+import { expectTypeOf } from "vitest";
 
-import { sql } from './sql';
-import type { SqlTag } from './types';
+import { sql } from "./sql";
+import type { SqlTag } from "./types";
 
 const formatPostresql = (sql: string) => {
-  return format(sql, { language: 'postgresql' });
+  return format(sql, { language: "postgresql" });
 };
 
-describe('sql tests', () => {
-  it('should return sql and params', () => {
+describe("sql tests", () => {
+  it("should return sql and params", () => {
     const params = {
-      users: ['John', 'Doe'],
+      users: ["John", "Doe"],
       ids: [1, 2],
     };
     const limit = 10;
@@ -38,9 +38,9 @@ describe('sql tests', () => {
     expect(query.values).toStrictEqual([...params.users, ...params.ids, limit]);
   });
 
-  describe('query composition', () => {
-    describe('when using an SqlTag inside another one', () => {
-      it('should return sql and params as expected', () => {
+  describe("query composition", () => {
+    describe("when using an SqlTag inside another one", () => {
+      it("should return sql and params as expected", () => {
         const getSqlUserCountByCountries = (minUsers: number) => sql`
           SELECT 
             c.name as country_name, 
@@ -51,7 +51,7 @@ describe('sql tests', () => {
           HAVING count(u.id) > ${minUsers}
         `;
 
-        const compression: 'zstd' | 'gzip' = 'zstd';
+        const compression: "zstd" | "gzip" = "zstd";
 
         const query = sql`
           COPY
@@ -60,7 +60,7 @@ describe('sql tests', () => {
           (FORMAT 'parquet', COMPRESSION ${compression}, ROW_GROUP_SIZE 100000);
         `;
 
-        expect(query.values).toStrictEqual([100, 'zstd']);
+        expect(query.values).toStrictEqual([100, "zstd"]);
         expect(formatPostresql(query.sql)).toStrictEqual(
           formatPostresql(`
               COPY (
@@ -85,36 +85,36 @@ describe('sql tests', () => {
     });
   });
 
-  describe('conditionals with if', () => {
-    describe('when condition is true', () => {
-      it('should return an the truthy part and as SqlTag type', () => {
-        const ids: string[] = ['1', '2'];
+  describe("conditionals with if", () => {
+    describe("when condition is true", () => {
+      it("should return an the truthy part and as SqlTag type", () => {
+        const ids: string[] = ["1", "2"];
         const conditional = sql.if(
           ids.length > 0,
           () => sql`AND id IN (${sql.join(ids)})`
         );
-        expect(conditional.sql).toStrictEqual('AND id IN (?, ?)');
+        expect(conditional.sql).toStrictEqual("AND id IN (?, ?)");
         expectTypeOf(conditional).toEqualTypeOf<SqlTag<unknown>>();
       });
     });
-    describe('when condition is false', () => {
-      it('should return an sql.empty with SqlTag unknown type', () => {
+    describe("when condition is false", () => {
+      it("should return an sql.empty with SqlTag unknown type", () => {
         const emptyIds: string[] = [];
         const conditional = sql.if(
           emptyIds.length > 0,
           () => sql`AND id IN (${sql.join(emptyIds)})`,
           () => sql.empty
         );
-        expect(conditional.sql).toStrictEqual('');
+        expect(conditional.sql).toStrictEqual("");
         expectTypeOf(conditional).toEqualTypeOf<SqlTag<unknown>>();
       });
     });
   });
 
-  describe('ensure same output between sql-template-tag and sql-tag', () => {
-    it('should return the same sql and params', () => {
+  describe("ensure same output between sql-template-tag and sql-tag", () => {
+    it("should return the same sql and params", () => {
       const params = {
-        users: ['John', 'Doe'],
+        users: ["John", "Doe"],
         ids: [1],
       };
       const sqlTag = sql`

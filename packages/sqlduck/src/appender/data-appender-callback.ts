@@ -22,7 +22,7 @@ export const isOnChunkAppendedAsyncCb = (
   v: OnChunkAppendedCb
 ): v is OnChunkAppendedAsyncCb => {
   return (
-    v.constructor.name === 'AsyncFunction' ||
+    v.constructor.name === "AsyncFunction" ||
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     v.constructor ===
       (async () => {

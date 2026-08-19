@@ -6,7 +6,7 @@
 
 # Type Alias: SqlTag\<T\>
 
-> **SqlTag**\<`T`\> = `Sql` & `object`
+> **SqlTag**\<`T`> > > \> = `Sql` & `object`
 
 ## Type Declaration
 

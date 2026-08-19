@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Badge } from '@examples/base-ui/components/ui/badge';
+import { Badge } from "@examples/base-ui/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -8,18 +8,18 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@examples/base-ui/components/ui/card';
-import { Progress } from '@examples/base-ui/components/ui/progress';
-import { Skeleton } from '@examples/base-ui/components/ui/skeleton';
-import { Spinner } from '@examples/base-ui/components/ui/spinner';
-import { cn } from '@examples/base-ui/lib/utils';
+} from "@examples/base-ui/components/ui/card";
+import { Progress } from "@examples/base-ui/components/ui/progress";
+import { Skeleton } from "@examples/base-ui/components/ui/skeleton";
+import { Spinner } from "@examples/base-ui/components/ui/spinner";
+import { cn } from "@examples/base-ui/lib/utils";
 import {
   AlertCircleIcon,
   CheckCircle2Icon,
   CircleDotIcon,
   TableIcon,
-} from 'lucide-react';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+} from "lucide-react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,7 +33,7 @@ export type DuckTableLoaderChunk = {
   error?: string;
 };
 
-type LoadingStatus = 'idle' | 'loading' | 'success' | 'error';
+type LoadingStatus = "idle" | "loading" | "success" | "error";
 
 export type DuckTableLoaderProps = {
   /** Display name of the table being populated */
@@ -66,7 +66,7 @@ type InternalState = {
 };
 
 const INITIAL_STATE: InternalState = {
-  status: 'idle',
+  status: "idle",
   totalRows: undefined,
   timeMs: undefined,
   progress: undefined,
@@ -76,30 +76,30 @@ const INITIAL_STATE: InternalState = {
 
 // ─── Badge config ─────────────────────────────────────────────────────────────
 
-type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline';
+type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
 const STATUS_BADGE: Record<
   LoadingStatus,
   { label: string; variant: BadgeVariant; icon: React.ReactNode }
 > = {
   idle: {
-    label: 'Idle',
-    variant: 'outline',
+    label: "Idle",
+    variant: "outline",
     icon: <CircleDotIcon className="size-3" />,
   },
   loading: {
-    label: 'Loading',
-    variant: 'secondary',
+    label: "Loading",
+    variant: "secondary",
     icon: <Spinner className="size-3" />,
   },
   success: {
-    label: 'Done',
-    variant: 'default',
+    label: "Done",
+    variant: "default",
     icon: <CheckCircle2Icon className="size-3" />,
   },
   error: {
-    label: 'Error',
-    variant: 'destructive',
+    label: "Error",
+    variant: "destructive",
     icon: <AlertCircleIcon className="size-3" />,
   },
 };
@@ -139,11 +139,11 @@ export function DuckTableLoader({
     }
 
     // Defer so setState is not called synchronously inside the effect body.
-    queueMicrotask(() => setState({ ...INITIAL_STATE, status: 'loading' }));
+    queueMicrotask(() => setState({ ...INITIAL_STATE, status: "loading" }));
 
     const reader = stream.getReader();
     const decoder = new TextDecoder();
-    let buffer = '';
+    let buffer = "";
     let cancelled = false;
     // Tracks the latest emitted stats so onComplete can receive them
     // without reading from a setState updater (which must stay pure).
@@ -156,7 +156,7 @@ export function DuckTableLoader({
           const err = new Error(chunk.error);
           setState((prev) => ({
             ...prev,
-            status: 'error',
+            status: "error",
             errorMessage: chunk.error,
           }));
           onErrorRef.current?.(err);
@@ -166,7 +166,7 @@ export function DuckTableLoader({
         latestStats.timeMs = chunk.timeMs;
         setState((prev) => ({
           ...prev,
-          status: 'loading',
+          status: "loading",
           totalRows: chunk.totalRows,
           timeMs: chunk.timeMs,
           progress: chunk.progress,
@@ -180,7 +180,7 @@ export function DuckTableLoader({
     /** Drain all complete newline-delimited lines from the current buffer. */
     function flushBuffer() {
       let newlineIdx: number;
-      while ((newlineIdx = buffer.indexOf('\n')) !== -1) {
+      while ((newlineIdx = buffer.indexOf("\n")) !== -1) {
         const line = buffer.slice(0, newlineIdx).trim();
         buffer = buffer.slice(newlineIdx + 1);
         if (line) processLine(line);
@@ -192,7 +192,7 @@ export function DuckTableLoader({
       // Flush any remaining buffered text (stream without trailing newline).
       const tail = buffer.trim();
       if (tail) processLine(tail);
-      setState((prev) => ({ ...prev, status: 'success' }));
+      setState((prev) => ({ ...prev, status: "success" }));
       // Call the callback outside the updater so the updater stays pure.
       onCompleteRef.current?.(latestStats);
     }
@@ -216,7 +216,7 @@ export function DuckTableLoader({
         const error = err instanceof Error ? err : new Error(String(err));
         setState((prev) => ({
           ...prev,
-          status: 'error',
+          status: "error",
           errorMessage: error.message,
         }));
         onErrorRef.current?.(error);
@@ -236,15 +236,15 @@ export function DuckTableLoader({
   const { status, totalRows, timeMs, progress, errorMessage, hasFirstChunk } =
     state;
   const badge = STATUS_BADGE[status];
-  const isLoading = status === 'loading';
-  const isError = status === 'error';
+  const isLoading = status === "loading";
+  const isError = status === "error";
   const showSkeletons = isLoading && !hasFirstChunk;
   const showStats =
-    (status === 'success' || (isLoading && hasFirstChunk)) &&
+    (status === "success" || (isLoading && hasFirstChunk)) &&
     (totalRows !== undefined || timeMs !== undefined);
 
   return (
-    <Card className={cn('w-full max-w-md', className)}>
+    <Card className={cn("w-full max-w-md", className)}>
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <CardHeader className="border-b">
         <div
@@ -258,7 +258,7 @@ export function DuckTableLoader({
         </div>
 
         <CardTitle className="flex items-center gap-2 truncate">
-          <TableIcon className="size-4 shrink-0 text-muted-foreground" />
+          <TableIcon className="text-muted-foreground size-4 shrink-0" />
           <span className="truncate font-mono text-sm">{tableName}</span>
         </CardTitle>
 
@@ -271,11 +271,11 @@ export function DuckTableLoader({
         {isLoading && (
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
-                {progress === undefined ? 'Processing…' : 'Progress'}
+              <span className="text-muted-foreground text-xs">
+                {progress === undefined ? "Processing…" : "Progress"}
               </span>
               {progress !== undefined && (
-                <span className="ml-auto text-xs text-muted-foreground tabular-nums">
+                <span className="text-muted-foreground ml-auto text-xs tabular-nums">
                   {Math.round(progress)}%
                 </span>
               )}
@@ -315,7 +315,7 @@ export function DuckTableLoader({
         {isError && errorMessage && (
           <p
             role="alert"
-            className="flex items-start gap-2 rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive"
+            className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md px-3 py-2 text-xs"
           >
             <AlertCircleIcon className="mt-0.5 size-3.5 shrink-0" />
             {errorMessage}
@@ -323,8 +323,8 @@ export function DuckTableLoader({
         )}
 
         {/* Idle prompt */}
-        {status === 'idle' && (
-          <p className="text-center text-xs text-muted-foreground">
+        {status === "idle" && (
+          <p className="text-muted-foreground text-center text-xs">
             Waiting for stream…
           </p>
         )}
@@ -352,12 +352,12 @@ function StatCell({
   highlight?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-lg bg-muted/40 px-3 py-2">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
+    <div className="bg-muted/40 flex flex-col gap-0.5 rounded-lg px-3 py-2">
+      <dt className="text-muted-foreground text-xs">{label}</dt>
       <dd
         className={cn(
-          'font-mono text-sm font-medium tabular-nums transition-colors',
-          highlight && 'text-primary'
+          "font-mono text-sm font-medium tabular-nums transition-colors",
+          highlight && "text-primary"
         )}
       >
         {value}
@@ -368,7 +368,7 @@ function StatCell({
 
 function SkeletonStat() {
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg bg-muted/40 px-3 py-2">
+    <div className="bg-muted/40 flex flex-col gap-1.5 rounded-lg px-3 py-2">
       <Skeleton className="h-3 w-20" />
       <Skeleton className="h-4 w-16" />
     </div>
@@ -379,11 +379,11 @@ function IndeterminateBar() {
   return (
     <div
       aria-hidden="true"
-      className="h-1 w-full overflow-hidden rounded-full bg-muted"
+      className="bg-muted h-1 w-full overflow-hidden rounded-full"
     >
       <div
-        className="h-full w-1/3 rounded-full bg-primary"
-        style={{ animation: 'duck-slide 1.4s ease-in-out infinite' }}
+        className="bg-primary h-full w-1/3 rounded-full"
+        style={{ animation: "duck-slide 1.4s ease-in-out infinite" }}
       />
       <style>{`
         @keyframes duck-slide {

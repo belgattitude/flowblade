@@ -1,7 +1,7 @@
-import type { QColumnModel } from '../cm/q-column-model';
+import type { QColumnModel } from "../cm/q-column-model";
 
 export interface QMetaMapSpan {
-  type: 'map';
+  type: "map";
   /**
    * Time in milliseconds
    */
@@ -9,7 +9,7 @@ export interface QMetaMapSpan {
 }
 
 export interface QMetaSqlSpan {
-  type: 'sql';
+  type: "sql";
   sql: string;
   params: unknown[];
   timeMs: number;

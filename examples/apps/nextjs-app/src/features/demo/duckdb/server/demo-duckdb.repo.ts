@@ -1,36 +1,39 @@
-import type { DuckdbDatasource } from '@flowblade/source-duckdb';
-import { sql, type SqlTag } from '@flowblade/sql-tag';
+import type { DuckdbDatasource } from "@flowblade/source-duckdb";
+import { sql } from "@flowblade/sql-tag";
+import type { SqlTag } from "@flowblade/sql-tag";
 
-type SearchParams = {
+interface SearchParams {
   min?: number;
   max?: number;
   name?: string;
   limit?: number;
   createdAt?: string;
-};
+}
 
-type SearchResult = {
+interface SearchResult {
   productId: number;
   name: string;
   createdAt: string;
-};
+}
 
 export class DemoDuckdbRepo {
-  constructor(private ds: DuckdbDatasource) {}
+  private ds: DuckdbDatasource;
+  constructor(ds: DuckdbDatasource) {
+    this.ds = ds;
+  }
 
-  search = async (params?: SearchParams) => {
-    return await this.ds.query(this.getSqlSearch(params), {
-      name: 'duckdb-demo-search',
+  search = async (params?: SearchParams) =>
+    await this.ds.query(this.getSqlSearch(params), {
+      name: "duckdb-demo-search",
     });
-  };
 
   getSqlSearch = (params?: SearchParams): SqlTag<SearchResult[]> => {
     const defaultLimit = 1000;
     const {
       min = 0,
       limit = defaultLimit,
-      name = 'test',
-      createdAt = '2025-01-22T23:54:41.114Z',
+      name = "test",
+      createdAt = "2025-01-22T23:54:41.114Z",
     } = params ?? {};
     const query = sql<SearchResult>`
       WITH products(productId, createdAt)

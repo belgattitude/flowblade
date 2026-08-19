@@ -1,17 +1,17 @@
-import type { FC } from 'react';
+import type { FC } from "react";
 
-import { IconBell } from '@/components/icons/IconBell';
-import { IconClose } from '@/components/icons/IconClose';
-import { cn } from '@/components/utils';
+import { IconBell } from "@/components/icons/IconBell";
+import { IconClose } from "@/components/icons/IconClose";
+import { cn } from "@/components/utils";
 
-type Props = {
+interface Props {
   className?: string;
-};
+}
 
 export const Banner: FC<Props> = (props) => {
   const { className } = props;
   return (
-    <div className={cn('bg-indigo-600', className)}>
+    <div className={cn("bg-indigo-600", className)}>
       <div className="mx-auto max-w-7xl p-3 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center justify-between">
           <div className="flex w-0 flex-1 items-center">
@@ -34,7 +34,7 @@ export const Banner: FC<Props> = (props) => {
           <div className="order-2 shrink-0 sm:order-3 sm:ml-3">
             <button
               type="button"
-              className="-mr-1 flex rounded-md p-2 hover:bg-indigo-500 focus:outline-hidden focus:ring-2 focus:ring-white sm:-mr-2"
+              className="-mr-1 flex rounded-md p-2 hover:bg-indigo-500 focus:ring-2 focus:ring-white focus:outline-hidden sm:-mr-2"
             >
               <span className="sr-only">Dismiss</span>
               <IconClose className="size-6 text-white" />

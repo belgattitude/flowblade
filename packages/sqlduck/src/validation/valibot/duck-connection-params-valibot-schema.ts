@@ -1,9 +1,9 @@
-import isSafeFilename from 'is-safe-filename';
-import * as v from 'valibot';
+import isSafeFilename from "is-safe-filename";
+import * as v from "valibot";
 
-import { duckStorageVersionRegexp } from '../core/base-validators.ts';
-import { duckConnectionsOptions } from '../core/duck-connections-options.ts';
-import { duckValidatorsValibot } from './duck-validators-valibot.ts';
+import { duckStorageVersionRegexp } from "../core/base-validators.ts";
+import { duckConnectionsOptions } from "../core/duck-connections-options.ts";
+import { duckValidatorsValibot } from "./duck-validators-valibot.ts";
 
 export const duckAllConnectionOptionsValibotSchema = v.object({
   accessMode: v.optional(v.picklist(duckConnectionsOptions.accessModes)),
@@ -14,7 +14,7 @@ export const duckAllConnectionOptionsValibotSchema = v.object({
   ),
   rowGroupSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
   storageVersion: v.optional(
-    v.pipe(v.string(), v.startsWith('v'), v.regex(duckStorageVersionRegexp))
+    v.pipe(v.string(), v.startsWith("v"), v.regex(duckStorageVersionRegexp))
   ),
   encryptionKey: v.optional(v.pipe(v.string(), v.minLength(8))),
   encryptionCipher: v.optional(
@@ -28,35 +28,35 @@ export type DuckAllConnectionOptionsValibotSchema = v.InferOutput<
   typeof duckAllConnectionOptionsValibotSchema
 >;
 
-export const duckConnectionParamsValibotSchema = v.variant('type', [
+export const duckConnectionParamsValibotSchema = v.variant("type", [
   v.object({
-    type: v.literal('memory'),
+    type: v.literal("memory"),
     alias: duckValidatorsValibot.aliasName,
     options: v.optional(duckAllConnectionOptionsValibotSchema),
   }),
   v.object({
-    type: v.literal('filesystem'),
+    type: v.literal("filesystem"),
     path: v.pipe(
       v.string(),
       v.check((path) => {
-        const filename = path.replace('\\', '/').split('/').at(-1);
-        return typeof filename === 'string' && isSafeFilename(filename);
-      }, 'Invalid database filename - it must be a safe filename (no path traversal, no absolute paths, no reserved names, etc.)'),
+        const filename = path.replace("\\", "/").split("/").at(-1);
+        return typeof filename === "string" && isSafeFilename(filename);
+      }, "Invalid database filename - it must be a safe filename (no path traversal, no absolute paths, no reserved names, etc.)"),
       v.check((path) => {
         const pathname =
-          '/' +
+          "/" +
           path
-            .replace('\\', '/')
-            .split('/')
+            .replace("\\", "/")
+            .split("/")
             .slice(0, -1)
             .filter(Boolean)
-            .join('/');
+            .join("/");
         return (
           pathname.length > 0 &&
-          pathname.startsWith('/') &&
-          !pathname.includes('..')
+          pathname.startsWith("/") &&
+          !pathname.includes("..")
         );
-      }, 'Invalid database pathname - it must be an absolute path with no traversal')
+      }, "Invalid database pathname - it must be an absolute path with no traversal")
     ),
     alias: duckValidatorsValibot.aliasName,
     options: v.optional(duckAllConnectionOptionsValibotSchema),

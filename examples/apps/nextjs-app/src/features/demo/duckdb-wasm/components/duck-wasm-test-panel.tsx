@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm';
-import type { FC } from 'react';
-import { useLayoutEffect, useRef } from 'react';
+import type { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm";
+import type { FC } from "react";
+import { useLayoutEffect, useRef } from "react";
 
-import { getDuckDB } from '@/lib/duckdb/duckdb-wasm-init';
+import { getDuckDB } from "@/lib/duckdb/duckdb-wasm-init";
 
 export const DuckdbWasmTestPanel: FC = () => {
   const connectionRef = useRef<AsyncDuckDBConnection | null>(null);
@@ -13,10 +13,10 @@ export const DuckdbWasmTestPanel: FC = () => {
     const init = async () => {
       const duckdb = await getDuckDB();
       connectionRef.current = await duckdb.connect();
-      console.log('DuckDB connection established');
+      console.log("DuckDB connection established");
 
       console.log(
-        'Duckdb query result...',
+        "Duckdb query result...",
         await connectionRef.current.query(`
         WITH products(productId, createdAt) AS MATERIALIZED (
         FROM RANGE(1,1000) SELECT

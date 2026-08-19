@@ -1,16 +1,16 @@
-import { sql } from 'kysely';
+import { sql } from "kysely";
 
-type Params = {
+interface Params {
   locale: string;
-};
+}
 
-type Response = {
+interface Response {
   currency_id: number;
   code: string;
   symbol: string;
   name: string;
   namePlural: string;
-};
+}
 
 /**
  * Example for a raw kysely SQL query to get currencies with i18n support

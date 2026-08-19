@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   DropdownMenu,
@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@examples/base-ui/components/ui/dropdown-menu';
+} from "@examples/base-ui/components/ui/dropdown-menu";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -15,13 +15,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@examples/base-ui/components/ui/sidebar';
+} from "@examples/base-ui/components/ui/sidebar";
 import {
   ArrowRightIcon,
   FolderIcon,
   MoreHorizontalIcon,
   Trash2Icon,
-} from 'lucide-react';
+} from "lucide-react";
 
 export function NavProjects({
   projects,
@@ -57,8 +57,8 @@ export function NavProjects({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className="w-fit"
-                side={isMobile ? 'bottom' : 'right'}
-                align={isMobile ? 'end' : 'start'}
+                side={isMobile ? "bottom" : "right"}
+                align={isMobile ? "end" : "start"}
               >
                 <DropdownMenuItem>
                   <FolderIcon />

@@ -1,6 +1,6 @@
-import type { PrismaClient } from '../generated/client';
-import { CliLogger } from './logger/cli-logger';
-import type { ILogger } from './logger/logger.interface';
+import type { PrismaClient } from "../generated/client";
+import { CliLogger } from "./logger/cli-logger";
+import type { ILogger } from "./logger/logger.interface";
 
 type Params = {
   prisma: PrismaClient;
@@ -30,7 +30,7 @@ export abstract class AbstractSeed {
     return this.statsCollector;
   };
 
-  protected log = (operation: 'UPSERT' | 'CREATE' | 'UPDATE', msg: string) => {
-    this.logger.log('info', `${operation}: ${msg}`);
+  protected log = (operation: "UPSERT" | "CREATE" | "UPDATE", msg: string) => {
+    this.logger.log("info", `${operation}: ${msg}`);
   };
 }

@@ -1,4 +1,4 @@
-import { assertNever } from '@httpx/assert';
+import { assertNever } from "@httpx/assert";
 
 export type SupportedSearchParamValues = string | number | boolean;
 export type ExtendedQuerySearchParams = Record<
@@ -14,27 +14,34 @@ export type SupportedSearchParams = Record<string, SupportedSearchParamValues>;
  */
 export const parseQuerySearchParams = (params: {
   searchParams: ExtendedQuerySearchParams;
-  serializeArrayStyle: 'pipe-delimited' | 'comma-delimited';
+  serializeArrayStyle: "pipe-delimited" | "comma-delimited";
 }): SupportedSearchParams => {
   const { searchParams, serializeArrayStyle } = params;
   const out: SupportedSearchParams = {};
 
   for (const [key, value] of Object.entries(searchParams)) {
-    if (value === undefined) continue; // omit undefined
+    if (value === undefined) {
+      continue;
+    } // omit undefined
 
     if (Array.isArray(value)) {
       const items = value.filter((v) => v !== undefined).map(String);
-      if (items.length === 0) continue;
+      if (items.length === 0) {
+        continue;
+      }
       let joined: string;
       switch (serializeArrayStyle) {
-        case 'pipe-delimited':
-          joined = items.join('|');
+        case "pipe-delimited": {
+          joined = items.join("|");
           break;
-        case 'comma-delimited':
-          joined = items.join(',');
+        }
+        case "comma-delimited": {
+          joined = items.join(",");
           break;
-        default:
+        }
+        default: {
           assertNever(serializeArrayStyle);
+        }
       }
       out[key] = joined;
       continue;

@@ -1,8 +1,8 @@
-import isInCi from 'is-in-ci';
-import { bench, type BenchOptions, describe } from 'vitest';
-import * as z from 'zod';
+import isInCi from "is-in-ci";
+import { bench, type BenchOptions, describe } from "vitest";
+import * as z from "zod";
 
-import { getTableCreateFromZod, Table, zodCodecs } from '../src';
+import { getTableCreateFromZod, Table, zodCodecs } from "../src";
 
 const benchConfig: BenchOptions = {
   iterations: isInCi ? 1 : 2,
@@ -29,7 +29,7 @@ describe(`Bench getTableCreateFromZod`, async () => {
     `getTableCreateFromZod`,
     async () => {
       const _result = getTableCreateFromZod({
-        table: new Table('test_table'),
+        table: new Table("test_table"),
         schema: userSchema,
       });
     },

@@ -1,10 +1,10 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
 
-import { generateSpecs } from 'hono-openapi';
+import { generateSpecs } from "hono-openapi";
 
-import { honoApiConfig } from '@/server/config/hono-api.config';
-import { honoApiSchemaConfig } from '@/server/config/hono-api-schema.config';
+import { honoApiSchemaConfig } from "@/server/config/hono-api-schema.config";
+import { honoApiConfig } from "@/server/config/hono-api.config";
 
 const content = await generateSpecs(honoApiConfig.app);
 
@@ -15,6 +15,6 @@ if (!fs.existsSync(openApiJsonFileDir)) {
   fs.mkdirSync(openApiJsonFileDir, { recursive: true });
 }
 
-fs.writeFileSync(openApiJsonFile, JSON.stringify(content, null, 2), 'utf8');
+fs.writeFileSync(openApiJsonFile, JSON.stringify(content, null, 2), "utf-8");
 
-console.log('Successfully generated OpenAPI JSON schema at:', openApiJsonFile);
+console.log("Successfully generated OpenAPI JSON schema at:", openApiJsonFile);

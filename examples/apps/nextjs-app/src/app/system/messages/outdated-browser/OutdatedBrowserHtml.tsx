@@ -1,15 +1,15 @@
-import type { FC } from 'react';
+import type { FC } from "react";
 
-type Props = {
+interface Props {
   lang: string;
-};
+}
 
 export const OutdatedBrowserHtml: FC<Props> = async (props) => {
   const { lang } = props;
   return (
     <html lang={lang}>
       <head>
-        <meta charSet="utf8" />
+        <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Browser Outdated</title>
 
@@ -172,9 +172,9 @@ export const OutdatedBrowserHtml: FC<Props> = async (props) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
             </div>
             <h1 className="card-title">Your Browser is Outdated</h1>
@@ -201,11 +201,11 @@ export const OutdatedBrowserHtml: FC<Props> = async (props) => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <circle cx="12" cy="12" r="4"></circle>
-                    <line x1="21.17" y1="8" x2="12" y2="8"></line>
-                    <line x1="3.95" y1="6.06" x2="8.54" y2="14"></line>
-                    <line x1="10.88" y1="21.94" x2="15.46" y2="14"></line>
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="4" />
+                    <line x1="21.17" y1="8" x2="12" y2="8" />
+                    <line x1="3.95" y1="6.06" x2="8.54" y2="14" />
+                    <line x1="10.88" y1="21.94" x2="15.46" y2="14" />
                   </svg>
                 </div>
                 <span className="browser-name">Chrome</span>
@@ -223,8 +223,8 @@ export const OutdatedBrowserHtml: FC<Props> = async (props) => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <circle cx="12" cy="12" r="4"></circle>
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="4" />
                   </svg>
                 </div>
                 <span className="browser-name">Firefox</span>
@@ -242,8 +242,8 @@ export const OutdatedBrowserHtml: FC<Props> = async (props) => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
-                    <path d="m14.59 11.5-2.59-2.59v7.18"></path>
+                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                    <path d="m14.59 11.5-2.59-2.59v7.18" />
                   </svg>
                 </div>
                 <span className="browser-name">Safari</span>
@@ -269,11 +269,11 @@ export const OutdatedBrowserHtml: FC<Props> = async (props) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <circle cx="12" cy="12" r="10"></circle>
-                <circle cx="12" cy="12" r="4"></circle>
-                <line x1="21.17" y1="8" x2="12" y2="8"></line>
-                <line x1="3.95" y1="6.06" x2="8.54" y2="14"></line>
-                <line x1="10.88" y1="21.94" x2="15.46" y2="14"></line>
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="4" />
+                <line x1="21.17" y1="8" x2="12" y2="8" />
+                <line x1="3.95" y1="6.06" x2="8.54" y2="14" />
+                <line x1="10.88" y1="21.94" x2="15.46" y2="14" />
               </svg>
               Download Chrome
             </a>
@@ -290,9 +290,9 @@ export const OutdatedBrowserHtml: FC<Props> = async (props) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="2" y1="12" x2="22" y2="12"></line>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                <circle cx="12" cy="12" r="10" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
               </svg>
               Continue anyway
             </a>

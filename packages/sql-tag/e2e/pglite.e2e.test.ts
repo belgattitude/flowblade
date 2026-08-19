@@ -1,7 +1,7 @@
-import { PGlite } from '@electric-sql/pglite';
-import { afterAll, beforeAll } from 'vitest';
+import { PGlite } from "@electric-sql/pglite";
+import { afterAll, beforeAll } from "vitest";
 
-import { sql } from '../src';
+import { sql } from "../src";
 
 const getDDLCreateTableProduct = () => sql`
   CREATE TABLE product (
@@ -13,23 +13,23 @@ const getDDLCreateTableProduct = () => sql`
      last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`;
 
-describe('sql-tag pglite e2e', () => {
+describe("sql-tag pglite e2e", () => {
   const db = new PGlite();
 
   beforeAll(async () => {
     await db.exec(getDDLCreateTableProduct().sql);
   });
   afterAll(async () => {
-    await db.exec('DROP TABLE IF EXISTS product');
+    await db.exec("DROP TABLE IF EXISTS product");
   });
 
-  it('should allow bulk', async () => {
+  it("should allow bulk", async () => {
     const insert = sql`
         INSERT INTO product (name, price, stock, status) 
         VALUES ${sql.bulk([
-          ['Laptop', 999.99, 50, 'active'],
-          ['Keyboard', 79.99, 100, 'active'],
-          ['Mouse', 29.99, 200, 'active'],
+          ["Laptop", 999.99, 50, "active"],
+          ["Keyboard", 79.99, 100, "active"],
+          ["Mouse", 29.99, 200, "active"],
         ])}
     `;
     const { text, values } = insert;
@@ -37,7 +37,7 @@ describe('sql-tag pglite e2e', () => {
     expect(result.affectedRows).toBe(3);
   });
 
-  it('should allow adding limit', async () => {
+  it("should allow adding limit", async () => {
     const limit = 1;
     const query = sql`
       SELECT unnest(ARRAY[1,2,3]) as id LIMIT ${limit}

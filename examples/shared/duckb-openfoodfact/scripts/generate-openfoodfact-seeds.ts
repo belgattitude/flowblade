@@ -1,18 +1,18 @@
-import * as os from 'node:os';
+import * as os from "node:os";
 
-import { DuckDBInstance } from '@duckdb/node-api';
-import { DuckdbDatasource } from '@flowblade/source-duckdb';
-import { sql } from '@flowblade/sql-tag';
-import { SqlFormatter } from '@flowblade/sql-tag-format';
-import boxen from 'boxen';
-import dedent from 'dedent';
-import pc from 'tinyrainbow';
+import { DuckDBInstance } from "@duckdb/node-api";
+import { DuckdbDatasource } from "@flowblade/source-duckdb";
+import { sql } from "@flowblade/sql-tag";
+import { SqlFormatter } from "@flowblade/sql-tag-format";
+import boxen from "boxen";
+import dedent from "dedent";
+import pc from "tinyrainbow";
 
-import type { OpenfoodfactImage } from '../src/internal/generate-openfoodfact-image';
-import { scriptsConfig } from './config/scripts.config';
-import { formatTimeMsToSeconds } from './utils/formatter';
+import type { OpenfoodfactImage } from "../src/internal/generate-openfoodfact-image";
+import { scriptsConfig } from "./config/scripts.config";
+import { formatTimeMsToSeconds } from "./utils/formatter";
 
-const sqlFormatter = new SqlFormatter('duckdb');
+const sqlFormatter = new SqlFormatter("duckdb");
 
 const getQueryCreateEtlLoadProductTable = () => {
   type Row = {
@@ -99,7 +99,7 @@ const getQueryCreateEtlBrands = () => {
 
 try {
   const threads = `${os.availableParallelism() - 1}`;
-  const memory = '512MB';
+  const memory = "512MB";
   console.log(
     pc.bold(
       boxen(
@@ -115,7 +115,7 @@ try {
   const instance = await DuckDBInstance.create(
     scriptsConfig.openfoodfact.foodData.duckdb,
     {
-      access_mode: 'READ_WRITE',
+      access_mode: "READ_WRITE",
       max_memory: memory,
       threads,
     }
@@ -126,11 +126,11 @@ try {
 
   const queries = [
     {
-      name: 'etl_load_product',
+      name: "etl_load_product",
       query: getQueryCreateEtlLoadProductTable(),
     },
     {
-      name: 'etl_brands',
+      name: "etl_brands",
       query: getQueryCreateEtlBrands(),
     },
   ];

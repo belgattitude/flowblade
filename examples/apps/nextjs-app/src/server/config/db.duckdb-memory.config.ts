@@ -1,14 +1,15 @@
-import { type DuckDBConnection, DuckDBInstance } from '@duckdb/node-api';
+import { DuckDBInstance } from "@duckdb/node-api";
+import type { DuckDBConnection } from "@duckdb/node-api";
 
-import { createAndEnsureWritableDirectory } from '@/server/utils/filesystem.utils.ts';
+import { createAndEnsureWritableDirectory } from "@/server/utils/filesystem.utils.ts";
 
-import { serverEnv } from '../../env/server.env.mjs';
+import { serverEnv } from "../../env/server.env.mjs";
 /**
  * Initial configuration of duckdb memory instance
  * @see https://github.com/duckdb/duckdb-node-neo/blob/main/api/pkgs/@duckdb/node-api/README.md#create-instance
  * @see https://duckdb.org/docs/current/configuration/overview
  */
-type DuckConfiguration = {
+interface DuckConfiguration {
   /**
    *
    * @see https://duckdb.org/docs/current/configuration/pragmas#threads
@@ -21,7 +22,7 @@ type DuckConfiguration = {
 
   tempDirectory?: string;
   extensionDirectory?: string;
-};
+}
 
 /**
  * @throws Error if tempDirectory or extensionDirectory are not writable or doesn't exist
@@ -36,10 +37,10 @@ export const createDuckDbMemoryConnection = async (
     extensionDirectory = serverEnv.DUCKDB_EXTENSION_DIRECTORY,
   } = config ?? {};
 
-  createAndEnsureWritableDirectory('tempDirectory', tempDirectory);
-  createAndEnsureWritableDirectory('extensionDirectory', extensionDirectory);
+  createAndEnsureWritableDirectory("tempDirectory", tempDirectory);
+  createAndEnsureWritableDirectory("extensionDirectory", extensionDirectory);
 
-  const instance = await DuckDBInstance.create(':memory:', {
+  const instance = await DuckDBInstance.create(":memory:", {
     ...(memoryLimit ? { memory_limit: memoryLimit } : {}),
     ...(threads ? { threads } : {}),
     ...(tempDirectory ? { temp_directory: tempDirectory } : {}),
@@ -50,7 +51,7 @@ export const createDuckDbMemoryConnection = async (
 
 // @see instrumentation.ts
 export const dbDuckDbMemoryConn =
-  process.env.NODE_ENV === 'production'
+  process.env.NODE_ENV === "production"
     ? await createDuckDbMemoryConnection()
     : (
         globalThis as unknown as {

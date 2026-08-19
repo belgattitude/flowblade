@@ -1,8 +1,8 @@
-import type { FC } from 'react';
+import type { FC } from "react";
 
-type Props = {
+interface Props {
   className?: string;
-};
+}
 
 export const IconClose: FC<Props> = (props) => {
   const { className } = props;
@@ -13,7 +13,7 @@ export const IconClose: FC<Props> = (props) => {
       fill="currentColor"
       className={className}
     >
-      <path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path>
+      <path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z" />
     </svg>
   );
 };

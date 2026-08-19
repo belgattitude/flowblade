@@ -3,18 +3,18 @@ import {
   getConsoleSink,
   type LogRecord,
   reset,
-} from '@logtape/logtape';
-import { prettyFormatter } from '@logtape/pretty';
-import { afterEach, beforeEach, expect, expectTypeOf } from 'vitest';
+} from "@logtape/logtape";
+import { prettyFormatter } from "@logtape/pretty";
+import { afterEach, beforeEach, expect, expectTypeOf } from "vitest";
 
 import {
   DuckdbDatasource,
   flowbladeLogtapeDuckdbConfig,
   sql,
-} from '../../../src';
-import { createDuckDBE2EMemoryDb } from '../utils/create-duckdb-e2e-memory-db';
+} from "../../../src";
+import { createDuckDBE2EMemoryDb } from "../utils/create-duckdb-e2e-memory-db";
 
-describe('DuckDBAsyncDatasource e2e', async () => {
+describe("DuckDBAsyncDatasource e2e", async () => {
   let ds: DuckdbDatasource;
 
   beforeEach(async () => {
@@ -26,15 +26,15 @@ describe('DuckDBAsyncDatasource e2e', async () => {
     ds.getConnection().closeSync();
   });
 
-  describe('query', () => {
+  describe("query", () => {
     const params = {
       min: 10,
       max: 99,
-      name: 'test',
-      createdAt: '2025-01-22T23:54:41.114Z',
+      name: "test",
+      createdAt: "2025-01-22T23:54:41.114Z",
     };
 
-    type Row = { id: number; name: 'test'; createdAt: Date };
+    type Row = { id: number; name: "test"; createdAt: Date };
 
     const rawSql = sql<Row>`
       WITH products(productId, createdAt)
@@ -53,7 +53,7 @@ describe('DuckDBAsyncDatasource e2e', async () => {
       AND createdAt < ${params.createdAt}::TIMESTAMPTZ
     `;
 
-    it('should return expected data', async () => {
+    it("should return expected data", async () => {
       const result = await ds.query(rawSql);
       // throw new Error('cool');
       const { data, error } = result;
@@ -64,7 +64,7 @@ describe('DuckDBAsyncDatasource e2e', async () => {
       expectTypeOf(data!).toEqualTypeOf<Row[]>();
     });
 
-    it('should return expected meta', async () => {
+    it("should return expected meta", async () => {
       const result = await ds.query(rawSql);
       const { meta } = result;
       expect(meta.getSpans().length).toBe(1);
@@ -79,8 +79,8 @@ describe('DuckDBAsyncDatasource e2e', async () => {
     });
   });
 
-  describe('queryOrThrow', () => {
-    it('should not throw when the query is ok', async () => {
+  describe("queryOrThrow", () => {
+    it("should not throw when the query is ok", async () => {
       const rawSql = sql<{ ok: number }>`SELECT 1 as ok`;
       const { data } = await ds.queryOrThrow(rawSql);
       expect(data).toStrictEqual([{ ok: 1 }]);
@@ -88,9 +88,9 @@ describe('DuckDBAsyncDatasource e2e', async () => {
 
     it("should throw when the query couldn't be executed", async () => {
       const rawSql = sql<{ ok: number }>`SELECT FRM 1`;
-      await expect(() => {
+      await expect(async () => {
         return ds.queryOrThrow(rawSql, {
-          name: 'nok query',
+          name: "nok query",
         });
       }).rejects.toThrowError(
         'Query failed: Failed to extract statements: Parser Error: syntax error at or near "1"'
@@ -98,7 +98,7 @@ describe('DuckDBAsyncDatasource e2e', async () => {
     });
   });
 
-  describe('Logger', () => {
+  describe("Logger", () => {
     let logBuffer: LogRecord[] = [];
     beforeEach(async () => {
       await configure({
@@ -114,14 +114,14 @@ describe('DuckDBAsyncDatasource e2e', async () => {
         },
         loggers: [
           {
-            category: ['logtape', 'meta'],
-            lowestLevel: 'error',
-            sinks: ['console'],
+            category: ["logtape", "meta"],
+            lowestLevel: "error",
+            sinks: ["console"],
           },
           {
-            category: ['flowblade', 'duckdb'],
-            lowestLevel: 'debug',
-            sinks: ['buffer'],
+            category: ["flowblade", "duckdb"],
+            lowestLevel: "debug",
+            sinks: ["buffer"],
           },
         ],
       });
@@ -132,37 +132,37 @@ describe('DuckDBAsyncDatasource e2e', async () => {
       logBuffer = [];
     });
 
-    it('should log success', async () => {
+    it("should log success", async () => {
       const { meta } = await ds.query(sql`SELECT 'test'`, {
-        name: 'TEST',
+        name: "TEST",
       });
       expect(logBuffer[0]!).toMatchObject({
         category: flowbladeLogtapeDuckdbConfig.categories,
-        level: 'debug',
+        level: "debug",
         rawMessage: 'Executing query "{queryName}"',
-        message: ['Executing query "', 'TEST', '"'],
+        message: ['Executing query "', "TEST", '"'],
         properties: {
-          queryName: 'TEST',
+          queryName: "TEST",
           sql: "SELECT 'test'",
           params: [],
         },
       });
       expect(logBuffer[1]!).toMatchObject({
         category: flowbladeLogtapeDuckdbConfig.categories,
-        level: 'info',
+        level: "info",
         rawMessage:
           'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
         message: [
           'Query "',
-          'TEST',
+          "TEST",
           '" executed in ',
           meta.getTotalTimeMs(),
-          'ms, affected ',
+          "ms, affected ",
           1,
-          ' row(s)',
+          " row(s)",
         ],
         properties: {
-          queryName: 'TEST',
+          queryName: "TEST",
           sql: "SELECT 'test'",
           params: [],
           affectedRows: 1,
@@ -171,35 +171,35 @@ describe('DuckDBAsyncDatasource e2e', async () => {
       });
     });
 
-    it('should log error', async () => {
+    it("should log error", async () => {
       const { meta } = await ds.query(sql`SELECT err`, {
-        name: 'ERROR',
+        name: "ERROR",
       });
       expect(logBuffer[0]!).toMatchObject({
         category: flowbladeLogtapeDuckdbConfig.categories,
-        level: 'debug',
+        level: "debug",
         rawMessage: 'Executing query "{queryName}"',
-        message: ['Executing query "', 'ERROR', '"'],
+        message: ['Executing query "', "ERROR", '"'],
         properties: {
-          queryName: 'ERROR',
-          sql: 'SELECT err',
+          queryName: "ERROR",
+          sql: "SELECT err",
           params: [],
         },
       });
       expect(logBuffer[1]!).toMatchObject({
         category: flowbladeLogtapeDuckdbConfig.categories,
-        level: 'error',
+        level: "error",
         message: [
           'Query "',
-          'ERROR',
+          "ERROR",
           expect.stringMatching(/" failed: Binder/),
         ],
         rawMessage: expect.stringMatching(
           /Query "\{queryName\}" failed: Binder(.*)FROM clause is missing/
         ),
         properties: {
-          queryName: 'ERROR',
-          sql: 'SELECT err',
+          queryName: "ERROR",
+          sql: "SELECT err",
           params: [],
           affectedRows: 0,
           timeMs: meta.getTotalTimeMs(),

@@ -30,8 +30,5 @@ export default {
       fix: true,
       maxWarnings: 25,
     });
-  },
-  '**/*.{json,md,mdx,css,html,yml,yaml,scss}': (filenames) => {
-    return [`prettier --write ${concatFilesForPrettier(filenames)}`];
-  },
+  }
 };

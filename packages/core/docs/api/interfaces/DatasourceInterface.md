@@ -14,8 +14,7 @@
 
 Return underlying duckdb connection.
 
-Warning: using the underling driver connection isn't recommended
-and not covered by api stability. Use at your own risks.
+Warning: using the underling driver connection isn't recommended and not covered by api stability. Use at your own risks.
 
 #### Returns
 
@@ -25,7 +24,7 @@ and not covered by api stability. Use at your own risks.
 
 ### query()
 
-> **query**: (`query`, `info?`) => [`AsyncQResult`](../type-aliases/AsyncQResult.md)\<`any`, `any`\>
+> **query**: (`query`, `info?`) => [`AsyncQResult`](../type-aliases/AsyncQResult.md)\<`any`, `any`>>\>
 
 ```typescript
 const ds = new Datasource();
@@ -49,7 +48,7 @@ const ds = new Datasource();
 
 ### stream()
 
-> **stream**: (`query`, `options?`) => `AsyncIterableIterator`\<`any`\>
+> **stream**: (`query`, `options?`) => `AsyncIterableIterator`\<`any`>>\>
 
 #### Parameters
 

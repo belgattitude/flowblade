@@ -12,7 +12,7 @@
 
 ### toJsonified()
 
-> **toJsonified**: \<`T`\>(`queryResponse`) => [`JsonifiedDataSourceResponse`](../type-aliases/JsonifiedDataSourceResponse.md)\<`T`\>
+> **toJsonified**: \<`T`>\>(`queryResponse`) => [`JsonifiedDataSourceResponse`](../type-aliases/JsonifiedDataSourceResponse.md)\<`T`>\>
 
 #### Type Parameters
 

@@ -1,4 +1,4 @@
-import type { DuckDBConnection } from '@duckdb/node-api';
+import type { DuckDBConnection } from "@duckdb/node-api";
 
 type GenericJSRowObject = Record<string, unknown>;
 type GenericJsonRowObject = Record<string, unknown>;
@@ -45,7 +45,7 @@ export class DuckExec {
     rows: GenericJSRowObject[] | GenericJsonRowObject[]
   ): void => {
     if (rows.length > 1) {
-      throw new Error('Expected one row, but got multiple rows');
+      throw new Error("Expected one row, but got multiple rows");
     }
   };
 }

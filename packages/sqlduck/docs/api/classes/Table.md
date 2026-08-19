@@ -1,6 +1,6 @@
 [**@flowblade/sqlduck v0.16.0**](../README.md)
 
-***
+---
 
 [@flowblade/sqlduck](../README.md) / Table
 
@@ -34,7 +34,7 @@
 
 `string` \| `undefined`
 
-***
+---
 
 ### schemaName
 
@@ -46,7 +46,7 @@
 
 `string` \| `undefined`
 
-***
+---
 
 ### tableName
 
@@ -64,8 +64,7 @@
 
 > **getFullName**(`options?`): `string`
 
-Return fully qualified table name by concatenating
-database, schema and table with a 'dot' separator.
+Return fully qualified table name by concatenating database, schema and table with a 'dot' separator.
 
 #### Parameters
 
@@ -83,7 +82,7 @@ database, schema and table with a 'dot' separator.
 
 `string`
 
-***
+---
 
 ### withDatabase()
 
@@ -99,7 +98,7 @@ database, schema and table with a 'dot' separator.
 
 `Table`
 
-***
+---
 
 ### withSchema()
 

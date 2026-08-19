@@ -1,16 +1,16 @@
-import path from 'node:path';
+import path from "node:path";
 
-import isInCi from 'is-in-ci';
-import { bench, type BenchOptions, describe } from 'vitest';
-import * as z from 'zod';
+import isInCi from "is-in-ci";
+import { bench, type BenchOptions, describe } from "vitest";
+import * as z from "zod";
 
-import { createDuckdbTestMemoryDb } from '#/tests/utils/create-duckdb-test-memory-db.ts';
-import { testTempDir } from '#/tests/utils/get-test-temp-dir.ts';
+import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
+import { testTempDir } from "#/tests/utils/get-test-temp-dir.ts";
 
-import { DuckDatabaseManager, zodCodecs } from '../src';
-import { Table } from '../src/objects/table.ts';
-import { SqlDuck } from '../src/sql-duck.ts';
-import { createFakeRowsAsyncIterator } from '../tests/utils/create-fake-rows-iterator.ts';
+import { DuckDatabaseManager, zodCodecs } from "../src";
+import { Table } from "../src/objects/table.ts";
+import { SqlDuck } from "../src/sql-duck.ts";
+import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator.ts";
 
 const benchConfig: BenchOptions = {
   iterations: isInCi ? 1 : 1,
@@ -18,9 +18,9 @@ const benchConfig: BenchOptions = {
   throws: true,
 };
 
-describe('appender benches', async () => {
+describe("appender benches", async () => {
   const userSchema = z.object({
-    id: z.int32().meta({ description: 'cool' }),
+    id: z.int32().meta({ description: "cool" }),
     name: z.string(),
     email: z.email().nullable(),
     bignumber: z.nullable(zodCodecs.bigintToString),
@@ -29,7 +29,7 @@ describe('appender benches', async () => {
 
   const limit = isInCi ? 10_000 : 100_000;
 
-  const now = new Date('2025-12-16 00:00:00');
+  const now = new Date("2025-12-16 00:00:00");
   const bignumberExample = 9_223_372_036_854_775_807n;
   const getFakeRowStream = createFakeRowsAsyncIterator({
     count: limit,
@@ -38,8 +38,8 @@ describe('appender benches', async () => {
       const repeatedIdx = String((rowIdx % 20) + 1);
       return {
         id: rowIdx,
-        name: `unique-record-for-tests${rowIdx === 0 ? '' : repeatedIdx}`,
-        email: `unique-record-for-tests${rowIdx === 0 ? '' : repeatedIdx}@example.com`,
+        name: `unique-record-for-tests${rowIdx === 0 ? "" : repeatedIdx}`,
+        email: `unique-record-for-tests${rowIdx === 0 ? "" : repeatedIdx}@example.com`,
         bignumber: bignumberExample,
         created_at: now,
       };
@@ -48,53 +48,53 @@ describe('appender benches', async () => {
 
   const conn = await createDuckdbTestMemoryDb({
     // Keep it high to prevent going to .tmp directory
-    max_memory: isInCi ? '256M' : '2048M',
+    max_memory: isInCi ? "256M" : "2048M",
     threads: isInCi ? 1 : 4,
   });
 
   const dbManager = new DuckDatabaseManager(conn);
   const memoryDb = await dbManager.attachIfNotExists({
-    type: 'memory',
-    alias: 'memory_db',
+    type: "memory",
+    alias: "memory_db",
     options: {
-      accessMode: 'READ_WRITE',
+      accessMode: "READ_WRITE",
       compress: true,
     },
   });
   const memoryTable = new Table({
-    name: 'test',
+    name: "test",
     database: memoryDb.alias,
   });
 
-  const dbFilePath = path.join(testTempDir, 'bench-appender.db');
-  const dbFilePathNoWAL = path.join(testTempDir, 'bench-appender-no-wal.db');
+  const dbFilePath = path.join(testTempDir, "bench-appender.db");
+  const dbFilePathNoWAL = path.join(testTempDir, "bench-appender-no-wal.db");
 
   const fileDb = await dbManager.attachOrReplace({
-    type: 'filesystem',
-    alias: 'bench_appender',
+    type: "filesystem",
+    alias: "bench_appender",
     path: dbFilePath,
     options: {
-      accessMode: 'READ_WRITE',
+      accessMode: "READ_WRITE",
       blockSize: 262_144,
     },
   });
   const fileTable = new Table({
-    name: 'test_file',
+    name: "test_file",
     database: fileDb.alias,
   });
 
   const fileDbNoWAL = await dbManager.attachOrReplace({
-    type: 'filesystem',
-    alias: 'bench_appender_no_wal',
+    type: "filesystem",
+    alias: "bench_appender_no_wal",
     path: dbFilePathNoWAL,
     options: {
-      accessMode: 'READ_WRITE',
+      accessMode: "READ_WRITE",
       blockSize: 262_144,
-      recoveryMode: 'no_wal_writes',
+      recoveryMode: "no_wal_writes",
     },
   });
   const fileTableNoWAL = new Table({
-    name: 'test_file',
+    name: "test_file",
     database: fileDbNoWAL.alias,
   });
 
@@ -109,7 +109,7 @@ describe('appender benches', async () => {
         rowStream: getFakeRowStream(),
         chunkSize: 2048,
         createOptions: {
-          create: 'CREATE_OR_REPLACE',
+          create: "CREATE_OR_REPLACE",
         },
         checkpointChunksFrequency: 100,
         autoCheckpoint: true,
@@ -130,7 +130,7 @@ describe('appender benches', async () => {
         rowStream: getFakeRowStream(),
         chunkSize: 2048,
         createOptions: {
-          create: 'CREATE_OR_REPLACE',
+          create: "CREATE_OR_REPLACE",
         },
         checkpointChunksFrequency: 100,
         autoCheckpoint: true,
@@ -151,7 +151,7 @@ describe('appender benches', async () => {
         rowStream: getFakeRowStream(),
         chunkSize: 2048,
         createOptions: {
-          create: 'CREATE_OR_REPLACE',
+          create: "CREATE_OR_REPLACE",
         },
         checkpointChunksFrequency: 100,
         autoCheckpoint: true,
@@ -172,7 +172,7 @@ describe('appender benches', async () => {
         rowStream: getFakeRowStream(),
         chunkSize: 1024,
         createOptions: {
-          create: 'CREATE_OR_REPLACE',
+          create: "CREATE_OR_REPLACE",
         },
         checkpointChunksFrequency: 100,
         autoCheckpoint: true,
@@ -201,7 +201,7 @@ describe('appender benches', async () => {
         });
       }, */
         createOptions: {
-          create: 'CREATE_OR_REPLACE',
+          create: "CREATE_OR_REPLACE",
         },
       });
       if (totalRows !== limit) {

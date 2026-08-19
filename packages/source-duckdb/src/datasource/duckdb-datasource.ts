@@ -1,4 +1,4 @@
-import type { DuckDBConnection, DuckDBValue } from '@duckdb/node-api';
+import type { DuckDBConnection, DuckDBValue } from "@duckdb/node-api";
 import {
   type AsyncQResult,
   createQResultError,
@@ -11,11 +11,11 @@ import {
   type QResult,
   type QueryOptions,
   type QueryStreamOptions,
-} from '@flowblade/core';
-import type { SqlTag } from '@flowblade/sql-tag';
-import type { Logger } from '@logtape/logtape';
+} from "@flowblade/core";
+import type { SqlTag } from "@flowblade/sql-tag";
+import type { Logger } from "@logtape/logtape";
 
-import { duckdbDefaultLogtapeLogger } from '../logger/duckdb-default-logtape-logger';
+import { duckdbDefaultLogtapeLogger } from "../logger/duckdb-default-logtape-logger";
 
 export type DuckdbDatasourceParams = {
   connection: DuckDBConnection;
@@ -96,7 +96,7 @@ export class DuckdbDatasource implements DatasourceInterface {
     rawQuery: SqlTag<TData> | SqlTagInformation,
     options?: QueryOptions
   ): AsyncQResult<TData> => {
-    const name = options?.name ?? 'anonymous';
+    const name = options?.name ?? "anonymous";
     const { text: sql, values: params } = rawQuery;
     const span = createSqlSpan({ sql, params });
     const start = Date.now();
@@ -119,14 +119,16 @@ export class DuckdbDatasource implements DatasourceInterface {
         rows.getRowObjectsJson() as TData,
         new QMeta({ name, spans: span })
       );
-    } catch (err) {
+    } catch (e) {
       span.timeMs = Math.round(Date.now() - start);
-      const message =
-        err instanceof Error
-          ? err.message
-          : typeof err === 'string'
-            ? err
-            : '<unknown>';
+      let message: string;
+      if (e instanceof Error) {
+        message = e.message;
+      } else if (typeof e === "string") {
+        message = e;
+      } else {
+        message = "unknown error";
+      }
       this.logger.error(
         `Query "{queryName}" failed: ${message}`,
         this.getLogFromSpan(name, span)
@@ -177,13 +179,13 @@ export class DuckdbDatasource implements DatasourceInterface {
     _query: unknown,
     _options?: QueryStreamOptions
   ): AsyncIterableIterator<QResult<unknown[], QError>> {
-    throw new Error('Not implemented yet');
+    throw new Error("Not implemented yet");
   }
 
   private getLogFromSpan = (queryName: string, span: QMetaSqlSpan) => {
     return {
       queryName,
-      source: 'duckdb',
+      source: "duckdb",
       type: span.type,
       sql: span.sql,
       params: span.params,

@@ -1,4 +1,4 @@
-import type { ValueMapperFn } from '../converter/create-duck-column-converters.ts';
+import type { ValueMapperFn } from "../converter/create-duck-column-converters.ts";
 
 // type SupportedRowTypes = string | number | boolean | Date | bigint | null;
 type SupportedRowTypes = unknown;
@@ -96,7 +96,7 @@ export async function* rowsToColumnsChunks<
     );
     if (unknownKeys.length > 0) {
       throw new Error(
-        `transformers parameter contains unknown row ids: ${unknownKeys.join(', ')}`
+        `transformers parameter contains unknown row ids: ${unknownKeys.join(", ")}`
       );
     }
     for (let i = 0; i < numKeys; i++) {

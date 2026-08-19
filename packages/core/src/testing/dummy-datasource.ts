@@ -1,4 +1,4 @@
-import type { SqlTag } from '@flowblade/sql-tag';
+import type { SqlTag } from "@flowblade/sql-tag";
 
 import {
   type AsyncQResult,
@@ -11,7 +11,7 @@ import {
   type QResult,
   type QueryOptions,
   type QueryStreamOptions,
-} from '../index';
+} from "../index";
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -135,6 +135,6 @@ export class DummyDatasource implements DatasourceInterface {
     _query: unknown,
     _options?: QueryStreamOptions
   ): AsyncIterableIterator<QResult<unknown[], QError>> {
-    throw new Error('Not implemented yet');
+    throw new Error("Not implemented yet");
   }
 }

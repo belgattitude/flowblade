@@ -1,30 +1,30 @@
-import type { DuckDBConnection } from '@duckdb/node-api';
-import { DuckdbDatasource, sql } from '@flowblade/source-duckdb';
-import { isParsableStrictIsoDateZ } from '@httpx/assert';
-import { type LogRecord, reset } from '@logtape/logtape';
-import isInCi from 'is-in-ci';
-import { beforeAll, describe } from 'vitest';
-import * as z from 'zod';
+import type { DuckDBConnection } from "@duckdb/node-api";
+import { DuckdbDatasource, sql } from "@flowblade/source-duckdb";
+import { isParsableStrictIsoDateZ } from "@httpx/assert";
+import { type LogRecord, reset } from "@logtape/logtape";
+import isInCi from "is-in-ci";
+import { beforeAll, describe } from "vitest";
+import * as z from "zod";
 
-import { configureTestLogger } from '#/tests/utils/configure-test-logger.ts';
-import { createDuckdbTestMemoryDb } from '#/tests/utils/create-duckdb-test-memory-db.ts';
-import { createFakeRowsAsyncIterator } from '#/tests/utils/create-fake-rows-iterator.ts';
+import { configureTestLogger } from "#/tests/utils/configure-test-logger.ts";
+import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
+import { createFakeRowsAsyncIterator } from "#/tests/utils/create-fake-rows-iterator.ts";
 
-import { flowbladeLogtapeSqlduckConfig } from './config/flowblade-logtape-sqlduck.config';
-import { DuckDatabaseManager } from './manager/database/duck-database-manager.ts';
-import { Table } from './objects/table';
-import { SqlDuck } from './sql-duck';
-import { getTableCreateFromZod } from './table/get-table-create-from-zod';
-import { zodCodecs } from './utils/zod-codecs.ts';
+import { flowbladeLogtapeSqlduckConfig } from "./config/flowblade-logtape-sqlduck.config";
+import { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts";
+import { Table } from "./objects/table";
+import { SqlDuck } from "./sql-duck";
+import { getTableCreateFromZod } from "./table/get-table-create-from-zod";
+import { zodCodecs } from "./utils/zod-codecs.ts";
 
 const testTimeout = 15_000;
 
-describe('Duckdb tests', async () => {
+describe("Duckdb tests", async () => {
   let conn: DuckDBConnection;
   beforeAll(async () => {
     conn = await createDuckdbTestMemoryDb({
       // Keep it high to prevent going to .tmp directory
-      max_memory: isInCi ? '128M' : '256M',
+      max_memory: isInCi ? "128M" : "256M",
       threads: 1,
     });
   });
@@ -33,16 +33,16 @@ describe('Duckdb tests', async () => {
   });
 
   describe(
-    'toTable',
+    "toTable",
     () => {
-      it('Should append data into duckdb memory table', async () => {
+      it("Should append data into duckdb memory table", async () => {
         const bignumberExample = 9_223_372_036_854_775_807n;
 
         // Arrange
         const dbManager = new DuckDatabaseManager(conn);
         const database = await dbManager.attachIfNotExists({
-          type: 'memory',
-          alias: 'sql_duck_test',
+          type: "memory",
+          alias: "sql_duck_test",
         });
 
         const ds = new DuckdbDatasource({
@@ -52,12 +52,12 @@ describe('Duckdb tests', async () => {
         const sqlDuck = new SqlDuck({ conn });
 
         const userSchema = z.strictObject({
-          id: z.int32().meta({ description: 'cool' }),
+          id: z.int32().meta({ description: "cool" }),
           name: z.string(),
           email: z.email().nullable(),
           bignumber: z.nullable(zodCodecs.bigintToString),
           created_at: zodCodecs.dateToString,
-          gender: z.nullable(z.enum(['M', 'F'])),
+          gender: z.nullable(z.enum(["M", "F"])),
           list_of_strings: z.nullable(z.array(z.string())),
           list_of_int32s: z.nullable(z.array(z.int32())),
           list_of_float32s: z.nullable(z.array(z.float32())),
@@ -68,16 +68,16 @@ describe('Duckdb tests', async () => {
         const limit = isInCi ? 10_000 : 100_000;
 
         const testTable = new Table({
-          name: 'test',
+          name: "test",
           database: database.alias,
         });
 
-        const now = new Date('2025-12-16 00:00:00');
+        const now = new Date("2025-12-16 00:00:00");
         const listColumns = {
           list_of_float32s: [1.1, 2.2, 3.3],
           list_of_int32s: [5, 6],
           list_of_booleans: [true, false],
-          list_of_strings: ['Hello', 'World'],
+          list_of_strings: ["Hello", "World"],
         };
         const getFakeRowStream = createFakeRowsAsyncIterator({
           count: limit,
@@ -90,7 +90,7 @@ describe('Duckdb tests', async () => {
                 email: `unique-record-for-tests@example.com`,
                 bignumber: bignumberExample,
                 created_at: now,
-                gender: 'F',
+                gender: "F",
                 // uuid_v7: '019d2155-d292-71fa-87d7-9d1f1ed83569',
                 ...listColumns,
               } as const;
@@ -101,7 +101,7 @@ describe('Duckdb tests', async () => {
               email: faker.internet.email(),
               bignumber: faker.number.bigInt(),
               created_at: faker.date.recent(),
-              gender: 'M',
+              gender: "M",
               // uuid_v7: faker.string.uuid({ version: 7 }),
               ...listColumns,
             } as const;
@@ -117,7 +117,7 @@ describe('Duckdb tests', async () => {
           chunkSize: 2048,
           onChunkAppended: cb,
           createOptions: {
-            create: 'CREATE_OR_REPLACE',
+            create: "CREATE_OR_REPLACE",
           },
           checkpointChunksFrequency: 4,
           autoCheckpoint: true,
@@ -144,7 +144,7 @@ describe('Duckdb tests', async () => {
             table: testTable,
             schema: userSchema,
             options: {
-              create: 'CREATE_OR_REPLACE',
+              create: "CREATE_OR_REPLACE",
             },
           }).ddl
         );
@@ -159,7 +159,7 @@ describe('Duckdb tests', async () => {
         ]);
 
         const params = {
-          name: 'unique-record-for-tests',
+          name: "unique-record-for-tests",
         } as const;
 
         const { data } = await ds.query(
@@ -199,13 +199,13 @@ describe('Duckdb tests', async () => {
           list_of_float32s,
           list_of_int32s,
         } = data?.[0] ?? {};
-        expect(name).toStrictEqual('unique-record-for-tests');
-        expect(email).toStrictEqual('unique-record-for-tests@example.com');
+        expect(name).toStrictEqual("unique-record-for-tests");
+        expect(email).toStrictEqual("unique-record-for-tests@example.com");
         expect(bignumber).toStrictEqual(bignumberExample.toString(10));
         expect(isParsableStrictIsoDateZ(created_at)).toBe(true);
 
         expect(created_at).toBe(now.toISOString());
-        expect(gender).toStrictEqual('F');
+        expect(gender).toStrictEqual("F");
         expect(list_of_booleans).toStrictEqual(listColumns.list_of_booleans);
         expect(
           list_of_float32s!.map((val) => Math.round(val * 100) / 100)
@@ -214,12 +214,12 @@ describe('Duckdb tests', async () => {
         expect(list_of_strings).toStrictEqual(listColumns.list_of_strings);
       });
 
-      it('Should respect onChunkAppendedFrequency', async () => {
+      it("Should respect onChunkAppendedFrequency", async () => {
         // Arrange
         const dbManager = new DuckDatabaseManager(conn);
         const database = await dbManager.attachIfNotExists({
-          type: 'memory',
-          alias: 'sql_duck_test_frequency',
+          type: "memory",
+          alias: "sql_duck_test_frequency",
         });
 
         const sqlDuck = new SqlDuck({ conn });
@@ -234,7 +234,7 @@ describe('Duckdb tests', async () => {
         const frequency = 3;
 
         const testTable = new Table({
-          name: 'test_frequency',
+          name: "test_frequency",
           database: database.alias,
         });
 
@@ -255,7 +255,7 @@ describe('Duckdb tests', async () => {
           onChunkAppended: cb,
           onChunkAppendedFrequency: frequency,
           createOptions: {
-            create: 'CREATE_OR_REPLACE',
+            create: "CREATE_OR_REPLACE",
           },
         });
 
@@ -278,12 +278,12 @@ describe('Duckdb tests', async () => {
         );
       });
 
-      it('Should respect flushSyncFrequency', async () => {
+      it("Should respect flushSyncFrequency", async () => {
         // Arrange
         const dbManager = new DuckDatabaseManager(conn);
         const database = await dbManager.attachIfNotExists({
-          type: 'memory',
-          alias: 'sql_duck_test_flush',
+          type: "memory",
+          alias: "sql_duck_test_flush",
         });
 
         const sqlDuck = new SqlDuck({ conn });
@@ -298,7 +298,7 @@ describe('Duckdb tests', async () => {
         const flushFrequency = 4;
 
         const testTable = new Table({
-          name: 'test_flush',
+          name: "test_flush",
           database: database.alias,
         });
 
@@ -320,7 +320,7 @@ describe('Duckdb tests', async () => {
           chunkSize: chunkSize,
           flushSyncFrequency: flushFrequency,
           createOptions: {
-            create: 'CREATE_OR_REPLACE',
+            create: "CREATE_OR_REPLACE",
           },
         });
 
@@ -340,7 +340,7 @@ describe('Duckdb tests', async () => {
     testTimeout * 2
   );
 
-  describe('Logger', () => {
+  describe("Logger", () => {
     let logBuffer: LogRecord[] = [];
     beforeEach(async () => {
       await configureTestLogger(logBuffer);
@@ -351,20 +351,20 @@ describe('Duckdb tests', async () => {
       logBuffer = [];
     });
 
-    it('should log success', async () => {
+    it("should log success", async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const database = await dbManager.attachIfNotExists({
-        type: 'memory',
-        alias: 'sql_duck_test',
+        type: "memory",
+        alias: "sql_duck_test",
       });
       const sqlDuck = new SqlDuck({ conn });
       const rowStream = async function* gen() {
-        yield { id: 'test' };
-        yield await Promise.resolve({ id: 'test2' });
+        yield { id: "test" };
+        yield await Promise.resolve({ id: "test2" });
       };
       await sqlDuck.toTable({
         table: new Table({
-          name: 'test',
+          name: "test",
           database: database.alias,
         }),
         schema: z.object({
@@ -372,7 +372,7 @@ describe('Duckdb tests', async () => {
         }),
         rowStream: rowStream(),
         createOptions: {
-          create: 'CREATE_OR_REPLACE',
+          create: "CREATE_OR_REPLACE",
         },
       });
       expect(logBuffer.at(-1)!).toMatchObject({
@@ -382,7 +382,7 @@ describe('Duckdb tests', async () => {
             /Successfully appended 2 rows into 'sql_duck_test.test' in \d+ms/
           ),
         ],
-        level: 'info',
+        level: "info",
         properties: {
           timeMs: expect.any(Number),
           totalRows: 2,
@@ -390,15 +390,15 @@ describe('Duckdb tests', async () => {
       });
     });
 
-    it('should log error', async () => {
+    it("should log error", async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const database = await dbManager.attachIfNotExists({
-        type: 'memory',
-        alias: 'sql_duck_test',
+        type: "memory",
+        alias: "sql_duck_test",
       });
       const sqlDuck = new SqlDuck({ conn });
       const rowStream = function* gen() {
-        yield { id: 'not a number' as unknown as number };
+        yield { id: "not a number" as unknown as number };
       };
 
       // on nodejs: Cannot convert 1 to a BigInt
@@ -409,7 +409,7 @@ describe('Duckdb tests', async () => {
       await expect(
         sqlDuck.toTable({
           table: new Table({
-            name: 'test',
+            name: "test",
             database: database.alias,
           }),
           schema: z.strictObject({
@@ -417,7 +417,7 @@ describe('Duckdb tests', async () => {
           }),
           rowStream: rowStream(),
           createOptions: {
-            create: 'CREATE_OR_REPLACE',
+            create: "CREATE_OR_REPLACE",
           },
         })
       ).rejects.toThrow(regexpError);
@@ -425,7 +425,7 @@ describe('Duckdb tests', async () => {
       expect(logBuffer.at(-1)!).toMatchObject({
         category: flowbladeLogtapeSqlduckConfig.categories,
         message: [expect.stringMatching(regexpError)],
-        level: 'error',
+        level: "error",
       });
     });
   });

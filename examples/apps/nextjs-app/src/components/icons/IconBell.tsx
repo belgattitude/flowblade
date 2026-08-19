@@ -1,10 +1,10 @@
-import type { FC } from 'react';
+import type { FC } from "react";
 
-import { cn } from '@/components/utils';
+import { cn } from "@/components/utils";
 
-type Props = {
+interface Props {
   className?: string;
-};
+}
 
 export const IconBell: FC<Props> = (props) => {
   const { className } = props;
@@ -15,7 +15,7 @@ export const IconBell: FC<Props> = (props) => {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className={cn('size-6', className)}
+      className={cn("size-6", className)}
     >
       <path
         strokeLinecap="round"

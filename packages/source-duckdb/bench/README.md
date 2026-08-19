@@ -1,2 +1,1 @@
 ## @flowblade/source-duckdb benchmarks
-

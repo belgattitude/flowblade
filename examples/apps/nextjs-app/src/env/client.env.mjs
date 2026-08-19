@@ -9,18 +9,20 @@
  * and create tree-shakability issues.
  */
 
-import { createEnv } from '@t3-oss/env-nextjs';
-import * as v from 'valibot';
+import { createEnv } from "@t3-oss/env-nextjs";
+import * as v from "valibot";
 
 export const clientEnv = createEnv({
   client: {
-    NEXT_PUBLIC_SENTRY_ENABLED: v.picklist(['true', 'false']),
-    NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED: v.picklist(['true', 'false']),
-  },
-  runtimeEnv: {
-    NEXT_PUBLIC_SENTRY_ENABLED: process.env.NEXT_PUBLIC_SENTRY_ENABLED,
-    NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED:
-      process.env.NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED,
+    NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED: v.picklist(["true", "false"]),
+    NEXT_PUBLIC_SENTRY_ENABLED: v.picklist(["true", "false"]),
+    NEXT_PUBLIC_SENTRY_DSN: v.optional(v.string()),
   },
   emptyStringAsUndefined: true,
+  runtimeEnv: {
+    NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED:
+      process.env.NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED,
+    NEXT_PUBLIC_SENTRY_ENABLED: process.env.NEXT_PUBLIC_SENTRY_ENABLED,
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  },
 });

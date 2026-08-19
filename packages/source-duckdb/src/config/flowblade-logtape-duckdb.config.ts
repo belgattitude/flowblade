@@ -1,3 +1,3 @@
 export const flowbladeLogtapeDuckdbConfig = {
-  categories: ['flowblade', 'duckdb'],
+  categories: ["flowblade", "duckdb"],
 };

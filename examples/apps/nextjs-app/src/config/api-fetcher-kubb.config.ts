@@ -1,32 +1,35 @@
-import { isPlainObject } from '@httpx/plain-object';
+import { isPlainObject } from "@httpx/plain-object";
 
-import { apiFetcher } from '@/config/api-fetcher.config.ts';
-import { apiLocalConfig } from '@/config/api-local.config.ts';
-import {
-  type ExtendedQuerySearchParams,
-  parseQuerySearchParams,
-} from '@/lib/utils/parse-query-search-params.ts';
+import { apiFetcher } from "@/config/api-fetcher.config.ts";
+import { apiLocalConfig } from "@/config/api-local.config.ts";
+import { parseQuerySearchParams } from "@/lib/utils/parse-query-search-params.ts";
+import type { ExtendedQuerySearchParams } from "@/lib/utils/parse-query-search-params.ts";
 
-export type RequestConfig<TData = unknown> = {
+export interface RequestConfig<TData = unknown> {
   url?: string;
-  method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE';
+  method: "GET" | "PUT" | "PATCH" | "POST" | "DELETE";
   /**
    * How to serialize array (search)params to string
    */
-  serializeArrayStyle?: 'pipe-delimited';
+  serializeArrayStyle?: "pipe-delimited";
   params?: ExtendedQuerySearchParams;
   data?: TData | FormData;
   responseType?:
-    'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream';
+    | "arraybuffer"
+    | "blob"
+    | "document"
+    | "json"
+    | "text"
+    | "stream";
   signal?: AbortSignal;
   headers?: HeadersInit;
-};
+}
 
-export type ResponseConfig<TData = unknown> = {
+export interface ResponseConfig<TData = unknown> {
   data: TData;
   status: number;
   statusText: string;
-};
+}
 
 export type ResponseErrorConfig<TError = unknown> = TError;
 
@@ -36,7 +39,7 @@ const getIsomorphicUrl = (url: string): string => {
   if (isBrowser) {
     return url;
   }
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  if (url.startsWith("http://") || url.startsWith("https://")) {
     return url;
   }
   return `${apiLocalConfig.baseUrl}${url}`;
@@ -47,27 +50,27 @@ const kubbApiFetcher = async <TData, TError = unknown, TVariables = unknown>(
   const {
     signal,
     headers,
-    url = '',
+    url = "",
     params = {},
-    serializeArrayStyle = 'pipe-delimited',
+    serializeArrayStyle = "pipe-delimited",
     data: formData,
   } = config;
   const method = config.method.toUpperCase();
-  const mutationMethods = ['POST', 'PUT', 'PATCH'];
+  const mutationMethods = new Set(["POST", "PUT", "PATCH"]);
 
   const isFormData =
-    formData instanceof FormData && mutationMethods.includes(method);
+    formData instanceof FormData && mutationMethods.has(method);
 
   const isJsonData =
     !isFormData &&
-    mutationMethods.includes(method) &&
+    mutationMethods.has(method) &&
     (Array.isArray(formData) || isPlainObject(formData));
 
   const safeHeaders = isFormData
     ? {
         ...headers,
         // Hack for ky, that doesn't support setting Content-Type when using FormData
-        'Content-Type': undefined,
+        "Content-Type": undefined,
       }
     : {
         ...headers,
@@ -76,14 +79,14 @@ const kubbApiFetcher = async <TData, TError = unknown, TVariables = unknown>(
   // Transform array of strings to pipe-delimited string
   const searchParams = parseQuerySearchParams({
     searchParams: params,
-    serializeArrayStyle: serializeArrayStyle,
+    serializeArrayStyle,
   });
   const response = await apiFetcher(getIsomorphicUrl(url), {
-    prefix: undefined,
+    credentials: "same-origin",
     method,
-    timeout: 90_000,
-    credentials: 'same-origin',
+    prefix: undefined,
     searchParams,
+    timeout: 90_000,
     ...(isJsonData ? { json: formData } : {}),
     ...(formData instanceof FormData ? { body: formData } : {}),
     ...(signal === undefined ? {} : { signal }),

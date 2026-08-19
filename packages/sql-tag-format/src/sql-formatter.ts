@@ -1,11 +1,11 @@
-import type { SqlTag } from '@flowblade/sql-tag';
+import type { SqlTag } from "@flowblade/sql-tag";
 import {
   format as sqlFormat,
   type FormatOptions,
   type SqlLanguage,
-} from 'sql-formatter';
+} from "sql-formatter";
 
-export type SqlFormatterOptions = Omit<FormatOptions, 'indentStyle'>;
+export type SqlFormatterOptions = Omit<FormatOptions, "indentStyle">;
 export type SqlFormatterDialect = SqlLanguage;
 
 type FormatParams = {
@@ -20,6 +20,9 @@ type FormatParams = {
 };
 
 export class SqlFormatter {
+  private dialect: SqlFormatterDialect;
+  private formatterOptions?: SqlFormatterOptions;
+
   /**
    * SqlFormatter constructor
    *
@@ -55,9 +58,12 @@ export class SqlFormatter {
    * ```
    */
   constructor(
-    private dialect: SqlFormatterDialect,
-    private formatterOptions?: SqlFormatterOptions
-  ) {}
+    dialect: SqlFormatterDialect,
+    formatterOptions?: SqlFormatterOptions
+  ) {
+    this.dialect = dialect;
+    this.formatterOptions = formatterOptions;
+  }
 
   /**
    * Format sql to string or return null if sql cannot be parsed
@@ -108,7 +114,7 @@ export class SqlFormatter {
     params?: FormatParams
   ): string => {
     const options = params?.options ?? this.formatterOptions;
-    const sqlString = typeof sql === 'string' ? sql : sql.sql;
+    const sqlString = typeof sql === "string" ? sql : sql.sql;
     return sqlFormat(sqlString, {
       language: params?.dialect ?? this.dialect,
       ...options,

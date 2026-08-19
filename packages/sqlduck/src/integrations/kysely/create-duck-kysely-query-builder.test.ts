@@ -1,46 +1,46 @@
-import { duckdb as duckDbDialect, formatDialect } from 'sql-formatter';
-import { describe, expectTypeOf } from 'vitest';
-import type * as z from 'zod';
+import { duckdb as duckDbDialect, formatDialect } from "sql-formatter";
+import { describe, expectTypeOf } from "vitest";
+import type * as z from "zod";
 
-import type { testFullSupportedColumnsZodSchema } from '#/tests/data/test-full-supported-columns-zod-schema.ts';
+import type { testFullSupportedColumnsZodSchema } from "#/tests/data/test-full-supported-columns-zod-schema.ts";
 
-import { createDuckKysekyQueryBuilder } from './create-duck-kysely-query-builder.ts';
+import { createDuckKysekyQueryBuilder } from "./create-duck-kysely-query-builder.ts";
 
-describe('createDuckKysekyQueryBuilder', () => {
-  it('should work', async () => {
+describe("createDuckKysekyQueryBuilder", () => {
+  it("should work", async () => {
     type Database = {
       full_schema: z.output<typeof testFullSupportedColumnsZodSchema>;
     };
     const eb = createDuckKysekyQueryBuilder<Database>({
-      schema: 'read_only_schema',
+      schema: "read_only_schema",
     });
-    const createdAt = new Date('2024-01-01T00:00:00.000Z');
+    const createdAt = new Date("2024-01-01T00:00:00.000Z");
     const query = eb
-      .selectFrom('full_schema')
+      .selectFrom("full_schema")
       .select([
-        'id',
-        'name',
-        'email',
-        'js_number',
-        'js_number_tinyint',
-        'js_number_int32',
-        'js_float_float32',
-        'js_float_float64',
-        'bignumber',
-        'created_at',
-        'is_active',
-        'alt_uuid_v7',
+        "id",
+        "name",
+        "email",
+        "js_number",
+        "js_number_tinyint",
+        "js_number_int32",
+        "js_float_float32",
+        "js_float_float64",
+        "bignumber",
+        "created_at",
+        "is_active",
+        "alt_uuid_v7",
         // 'custom_type',
         // 'js_enum',
       ])
       .where((eb) => {
         return eb.or([
-          eb('id', '=', 1),
-          eb('name', 'ilike', '%cool%'),
-          eb('name', 'in', ['Alice', 'Bob']),
-          eb('is_active', '=', true),
-          eb('js_enum', '=', 'a'),
-          eb('created_at', '>', createdAt.toISOString()),
+          eb("id", "=", 1),
+          eb("name", "ilike", "%cool%"),
+          eb("name", "in", ["Alice", "Bob"]),
+          eb("is_active", "=", true),
+          eb("js_enum", "=", "a"),
+          eb("created_at", ">", createdAt.toISOString()),
         ]);
       })
       .limit(3);
@@ -48,11 +48,11 @@ describe('createDuckKysekyQueryBuilder', () => {
     const { sql, parameters } = query.compile();
     expect(parameters).toStrictEqual([
       1,
-      '%cool%',
-      'Alice',
-      'Bob',
+      "%cool%",
+      "Alice",
+      "Bob",
       true,
-      'a',
+      "a",
       createdAt.toISOString(),
       3,
     ]);

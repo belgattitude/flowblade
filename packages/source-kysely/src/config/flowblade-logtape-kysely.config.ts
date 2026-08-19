@@ -1,3 +1,3 @@
 export const flowbladeLogtapeKyselyConfig = {
-  categories: ['flowblade', 'kysely'],
+  categories: ["flowblade", "kysely"],
 };
