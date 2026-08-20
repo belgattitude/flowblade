@@ -42,6 +42,10 @@ const npmPreapprovedPackages = [
   'shadcn',
   '@shadcn/*',
   '@logtape/*',
+  'ultracite',
+  'oxlint',
+  'oxfmt',
+  'oxlint-tsgolint',
 ];
 
 module.exports = defineConfig({
