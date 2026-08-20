@@ -36,7 +36,8 @@
       "outputLogs": "full"
     },
     "lint-fix": {
-      "cache": false
+      "cache": true,
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js"]
     },
     "lint-styles": {},
     "typecheck": {},

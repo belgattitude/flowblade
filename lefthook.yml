@@ -4,6 +4,6 @@ pre-commit:
     eslint:
       # {staged_files} targets only what you've added (replacing lint-staged)
       #run: npx eslint {staged_files} --fix && git add {staged_files}
-      run: yarn g:lint && git add {staged_files}
+      run: npx turbo run lint-fix fix -- {staged_files} && git add {staged_files}
       glob: '*.{ts,tsx,js,jsx,json,css,md,yml}'
 
