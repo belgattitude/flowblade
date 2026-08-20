@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.36.3
+
+### Patch Changes
+
+- [#1339](https://github.com/belgattitude/flowblade/pull/1339) [`73557ec`](https://github.com/belgattitude/flowblade/commit/73557ecd9dde6ce57e9904406cb391efd37a1c98) Thanks [@belgattitude](https://github.com/belgattitude)! - Small internal fixes and linter rules
+
 ## 0.36.2
 
 ### Patch Changes
@@ -468,24 +474,26 @@
 
   ## Zod -> DuckDB
 
-  | Zod | DuckDB |
-  | --- | --- |
-  | `z.string()`, `z.email()`, `z.url()`, `z.cuid()`, `z.cuid2()`, `z.ulid()`, `z.iso.date()`, `z.iso.time()` | `VARCHAR` |
-  | `z.iso.datetime()`, `zodCodecs.dateToString` | `TIMESTAMP` |
-  | `z.uuid()`, `z.uuidv7()` | `UUID` |
-  | `z.boolean()` | `BOOLEAN` |
-  | `z.int32()` | `INTEGER` |
-  | `z.float32()` | `FLOAT` |
-  | `z.float64()` | `DOUBLE` |
-  | `z.number()` | inferred, default `BIGINT` |
-  | `zodCodecs.bigintToString` | `BIGINT` |
+  | Zod                                                                                                       | DuckDB                     |
+  | --------------------------------------------------------------------------------------------------------- | -------------------------- |
+  | `z.string()`, `z.email()`, `z.url()`, `z.cuid()`, `z.cuid2()`, `z.ulid()`, `z.iso.date()`, `z.iso.time()` | `VARCHAR`                  |
+  | `z.iso.datetime()`, `zodCodecs.dateToString`                                                              | `TIMESTAMP`                |
+  | `z.uuid()`, `z.uuidv7()`                                                                                  | `UUID`                     |
+  | `z.boolean()`                                                                                             | `BOOLEAN`                  |
+  | `z.int32()`                                                                                               | `INTEGER`                  |
+  | `z.float32()`                                                                                             | `FLOAT`                    |
+  | `z.float64()`                                                                                             | `DOUBLE`                   |
+  | `z.number()`                                                                                              | inferred, default `BIGINT` |
+  | `zodCodecs.bigintToString`                                                                                | `BIGINT`                   |
 
   ## Numeric inference
+
   - signed: `TINYINT` -> `SMALLINT` -> `INTEGER` -> `BIGINT` -> `HUGEINT`
   - unsigned: `UTINYINT` -> `USMALLINT` -> `UINTEGER` -> `UBIGINT` -> `UHUGEINT`
   - floats: `FLOAT` if float32 range, else `DOUBLE`
 
   ## Notes
+
   - nullable only affects `NOT NULL`
   - `meta({ primaryKey: true })` -> `PRIMARY KEY`
   - `z.number()` falls back to `BIGINT` without min/max
