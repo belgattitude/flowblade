@@ -5,11 +5,11 @@
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "bundler",
+    "customConditions": ["flowblade-monorepo-source"],
     "verbatimModuleSyntax": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "strictNullChecks": true,
-    "customConditions": ["flowblade-monorepo-source"],
     "exactOptionalPropertyTypes": false,
     "types": ["vitest/globals"]
   },
