@@ -1,9 +1,12 @@
 pre-commit:
   parallel: true
   commands:
-    eslint:
-      # {staged_files} targets only what you've added (replacing lint-staged)
-      #run: npx eslint {staged_files} --fix && git add {staged_files}
-      run: npx turbo run lint-fix fix -- {staged_files} && git add {staged_files}
-      glob: '*.{ts,tsx,js,jsx,json,css,md,yml}'
+    lint:
+      run: |
+        echo "Running oxlint on staged files..." &&
+        npx oxlint fix --no-error-on-unmatched-pattern --max-warnings=100 {staged_files} &&
+        echo "Running oxfmt on staged files..." &&
+        npx oxfmt fix --no-error-on-unmatched-pattern {staged_files}
+      glob: '*.{ts,tsx,js,jsx,mjs,cjs,json,css,md,yml}'
+      stage_fixed: false # ✨ Automatically re-stages the file after formatting
 

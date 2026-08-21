@@ -1,0 +1,52 @@
+import codspeedPlugin from "@codspeed/vitest-plugin";
+import { defineConfig } from "vitest/config";
+
+const testFiles = [
+  "./src/**/*.test.{js,ts}",
+  "./test/**/*.test.{js,ts}",
+  "./e2e/**/*.test.ts",
+];
+
+const isCodeSpeedEnabled = process.env?.CODSPEED === "1";
+const cspeed = isCodeSpeedEnabled ? codspeedPlugin() : undefined;
+
+export default defineConfig({
+  plugins: [cspeed].filter(Boolean),
+  resolve: {
+    conditions: ["flowblade-monorepo-source"],
+  },
+  ssr: {
+    resolve: {
+      conditions: ["flowblade-monorepo-source", "import", "default"],
+    },
+  },
+  cacheDir: "../../.cache/vite/source-duckdb",
+  test: {
+    globalSetup: "./vitest.setup.ts",
+    // @link https://vitest.dev/config/#clearmocks
+    clearMocks: true,
+    coverage: {
+      include: ["src/**/*.{js,jsx,ts,tsx}"],
+      provider: "istanbul",
+      reporter: ["text", "json", "clover"],
+    },
+    benchmark: {
+      reporters: ["default"],
+      outputJson: "./bench/output/benchmark-results.json",
+    },
+    environment: "node",
+    exclude: [
+      "**/node_modules/**",
+      "dist/**",
+      "**/coverage/**",
+      "**/.{idea,git,cache,output,temp}/**",
+    ],
+    globals: true,
+    include: testFiles,
+    setupFiles: "./tests/vitest.setup.ts",
+    // To mimic Jest behaviour regarding mocks.
+    mockReset: true,
+    passWithNoTests: true,
+    restoreMocks: true,
+  },
+});
