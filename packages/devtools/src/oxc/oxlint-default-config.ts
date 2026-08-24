@@ -16,11 +16,6 @@ export const oxlintDefaultConfig = defineConfig({
     //antiSlop,
     selectJsPlugins([]),
   ],
-  // only to be set in monorepo root
-  // options: {
-  //  typeAware: true,
-  //  typeCheck: false,
-  //},
   ignorePatterns: core.ignorePatterns,
   settings: jsPluginSettings,
   overrides: [

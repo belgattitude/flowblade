@@ -1,27 +1,4 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "verbatimModuleSyntax": true,
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "strictNullChecks": true,
-    "exactOptionalPropertyTypes": false,
-    "customConditions": ["flowblade-monorepo-source"],
-    "types": ["vitest/globals"]
-  },
-  "exclude": ["**/node_modules", "**/.*/*", "dist", "coverage"],
-  "include": [
-    ".eslintrc.*",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
-    "**/*.cjs",
-    "**/*.mjs",
-    "**/*.json"
-  ]
+  "extends": "@flowblade/devtools/typescript/tsconfig.base.json"
 }

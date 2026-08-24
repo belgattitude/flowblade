@@ -44,11 +44,9 @@ export const createContainerMssql = <TDatabase = unknown>(
         }),
     },
   };
-  class MssqlExtendedDriver extends MssqlDriver {
-    constructor(props: MssqlDialectConfig) {
-      super(props);
-    }
-  }
+
+  class MssqlExtendedDriver extends MssqlDriver {}
+
   return new KyselyDatasource({
     connection: new Kysely<TDatabase>({
       dialect: {

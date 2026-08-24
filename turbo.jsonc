@@ -33,12 +33,12 @@
     "test-unit-browser": {},
     "test-unit-coverage": {},
     "lint": {
-      "cache": false,
-      "outputLogs": "full"
+      "cache": true,
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json"]
     },
     "lint-fix": {
       "cache": false,
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js","**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.md"]
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.md"]
     },
     "lint-styles": {},
     "typecheck": {},
