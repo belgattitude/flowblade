@@ -27,6 +27,11 @@ export const oxlintDefaultConfig = defineConfig({
     {
       files: ["*.ts", "*.js", "*.mjs", "*.cjs"],
       rules: {
+        // this breaks: unicorn(text-encoding-identifier-case): Prefer `utf-8` over `utf8`.
+        "unicorn/text-encoding-identifier-case": "off",
+        // this breaks: eslint(prefer-named-capture-group)
+        "prefer-named-capture-group": "off",
+        "promise/avoid-new": "off",
         "jsdoc/require-param-description": "off",
         "jsdoc/require-throws-type": "off",
         "require-unicode-regexp": "off",

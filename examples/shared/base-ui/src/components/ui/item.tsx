@@ -2,7 +2,8 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { Separator } from "@examples/base-ui/components/ui/separator";
 import { cn } from "@examples/base-ui/lib/utils";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 import * as React from "react";
 
 function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
@@ -36,21 +37,21 @@ function ItemSeparator({
 const itemVariants = cva(
   "group/item focus-visible:border-ring focus-visible:ring-ring/50 [a]:hover:bg-muted flex w-full flex-wrap items-center rounded-md border text-sm transition-colors duration-100 outline-none focus-visible:ring-[3px] [a]:transition-colors",
   {
+    defaultVariants: {
+      size: "default",
+      variant: "default",
+    },
     variants: {
-      variant: {
-        default: "border-transparent",
-        outline: "border-border",
-        muted: "bg-muted/50 border-transparent",
-      },
       size: {
         default: "gap-3.5 px-4 py-3.5",
         sm: "gap-2.5 px-3 py-2.5",
         xs: "gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0",
       },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
+      variant: {
+        default: "border-transparent",
+        muted: "bg-muted/50 border-transparent",
+        outline: "border-border",
+      },
     },
   }
 );
@@ -66,15 +67,15 @@ function Item({
     defaultTagName: "div",
     props: mergeProps<"div">(
       {
-        className: cn(itemVariants({ variant, size, className })),
+        className: cn(itemVariants({ className, size, variant })),
       },
       props
     ),
     render,
     state: {
+      size,
       slot: "item",
       variant,
-      size,
     },
   });
 }
@@ -82,6 +83,9 @@ function Item({
 const itemMediaVariants = cva(
   "flex shrink-0 items-center justify-center gap-2 group-has-data-[slot=item-description]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none",
   {
+    defaultVariants: {
+      variant: "default",
+    },
     variants: {
       variant: {
         default: "bg-transparent",
@@ -89,9 +93,6 @@ const itemMediaVariants = cva(
         image:
           "size-10 overflow-hidden rounded-sm group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 [&_img]:size-full [&_img]:object-cover",
       },
-    },
-    defaultVariants: {
-      variant: "default",
     },
   }
 );
@@ -105,7 +106,7 @@ function ItemMedia({
     <div
       data-slot="item-media"
       data-variant={variant}
-      className={cn(itemMediaVariants({ variant, className }))}
+      className={cn(itemMediaVariants({ className, variant }))}
       {...props}
     />
   );

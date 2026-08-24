@@ -8,39 +8,39 @@ const MiB = 1024 ** 2;
 
 // ─── Reusable disk fixtures ───────────────────────────────────────────────────
 const normalDisks: DiskInfo[] = [
-  { path: "/", totalBytes: 500 * GiB, freeBytes: 320 * GiB },
-  { path: "/data", totalBytes: 2048 * GiB, freeBytes: 1100 * GiB },
+  { freeBytes: 320 * GiB, path: "/", totalBytes: 500 * GiB },
+  { freeBytes: 1100 * GiB, path: "/data", totalBytes: 2048 * GiB },
 ];
 
 const highDiskUsageDisks: DiskInfo[] = [
-  { path: "/", totalBytes: 500 * GiB, freeBytes: 80 * GiB },
-  { path: "/data", totalBytes: 2048 * GiB, freeBytes: 200 * GiB },
+  { freeBytes: 80 * GiB, path: "/", totalBytes: 500 * GiB },
+  { freeBytes: 200 * GiB, path: "/data", totalBytes: 2048 * GiB },
 ];
 
 const criticalDiskDisks: DiskInfo[] = [
-  { path: "/", totalBytes: 500 * GiB, freeBytes: 18 * GiB },
+  { freeBytes: 18 * GiB, path: "/", totalBytes: 500 * GiB },
 ];
 
 const windowsDisks: DiskInfo[] = [
-  { path: "C:\\", totalBytes: 256 * GiB, freeBytes: 60 * GiB },
-  { path: "D:\\", totalBytes: 1024 * GiB, freeBytes: 700 * GiB },
-  { path: "E:\\", totalBytes: 4096 * GiB, freeBytes: 3800 * GiB },
+  { freeBytes: 60 * GiB, path: "C:\\", totalBytes: 256 * GiB },
+  { freeBytes: 700 * GiB, path: "D:\\", totalBytes: 1024 * GiB },
+  { freeBytes: 3800 * GiB, path: "E:\\", totalBytes: 4096 * GiB },
 ];
 
 // ─── Meta ─────────────────────────────────────────────────────────────────────
 const meta = {
-  title: "duck-ui/SystemInfo",
+  args: {
+    availableParallelism: 8,
+    freeMemory: 8 * GiB,
+    title: "System Info",
+    totalMemory: 16 * GiB,
+  },
   component: SystemInfo,
   parameters: {
     layout: "centered",
   },
   tags: ["autodocs"],
-  args: {
-    totalMemory: 16 * GiB,
-    freeMemory: 8 * GiB,
-    availableParallelism: 8,
-    title: "System Info",
-  },
+  title: "duck-ui/SystemInfo",
 } satisfies Meta<typeof SystemInfo>;
 
 export default meta;
@@ -51,11 +51,11 @@ type Story = StoryObj<typeof meta>;
  */
 export const Normal: Story = {
   args: {
-    totalMemory: 16 * GiB,
-    freeMemory: 8 * GiB,
     availableParallelism: 8,
     description: "DuckDB worker — stable memory usage",
     disks: normalDisks,
+    freeMemory: 8 * GiB,
+    totalMemory: 16 * GiB,
   },
 };
 
@@ -64,11 +64,11 @@ export const Normal: Story = {
  */
 export const HighMemory: Story = {
   args: {
-    totalMemory: 16 * GiB,
-    freeMemory: 3 * GiB,
     availableParallelism: 8,
     description: "DuckDB worker — elevated memory usage",
     disks: normalDisks,
+    freeMemory: 3 * GiB,
+    totalMemory: 16 * GiB,
   },
 };
 
@@ -77,11 +77,11 @@ export const HighMemory: Story = {
  */
 export const CriticalMemory: Story = {
   args: {
-    totalMemory: 16 * GiB,
-    freeMemory: 0.8 * GiB,
     availableParallelism: 8,
     description: "DuckDB worker — critical memory pressure",
     disks: normalDisks,
+    freeMemory: 0.8 * GiB,
+    totalMemory: 16 * GiB,
   },
 };
 
@@ -90,11 +90,11 @@ export const CriticalMemory: Story = {
  */
 export const HighDiskUsage: Story = {
   args: {
-    totalMemory: 16 * GiB,
-    freeMemory: 8 * GiB,
     availableParallelism: 8,
     description: "Elevated disk usage on root and data volumes",
     disks: highDiskUsageDisks,
+    freeMemory: 8 * GiB,
+    totalMemory: 16 * GiB,
   },
 };
 
@@ -103,11 +103,11 @@ export const HighDiskUsage: Story = {
  */
 export const CriticalDisk: Story = {
   args: {
-    totalMemory: 16 * GiB,
-    freeMemory: 8 * GiB,
     availableParallelism: 8,
     description: "Root disk nearly full",
     disks: criticalDiskDisks,
+    freeMemory: 8 * GiB,
+    totalMemory: 16 * GiB,
   },
 };
 
@@ -116,12 +116,12 @@ export const CriticalDisk: Story = {
  */
 export const WindowsDisks: Story = {
   args: {
-    totalMemory: 32 * GiB,
-    freeMemory: 16 * GiB,
     availableParallelism: 12,
-    title: "Windows Worker",
     description: "Multi-drive Windows machine",
     disks: windowsDisks,
+    freeMemory: 16 * GiB,
+    title: "Windows Worker",
+    totalMemory: 32 * GiB,
   },
 };
 
@@ -130,10 +130,10 @@ export const WindowsDisks: Story = {
  */
 export const NoDiskInfo: Story = {
   args: {
-    totalMemory: 16 * GiB,
-    freeMemory: 8 * GiB,
     availableParallelism: 8,
     description: "Disk info not available",
+    freeMemory: 8 * GiB,
+    totalMemory: 16 * GiB,
   },
 };
 
@@ -142,12 +142,12 @@ export const NoDiskInfo: Story = {
  */
 export const SmallMachine: Story = {
   args: {
-    totalMemory: 2 * GiB,
-    freeMemory: 512 * MiB,
     availableParallelism: 2,
-    title: "CI Runner",
     description: "Limited memory environment",
-    disks: [{ path: "/", totalBytes: 20 * GiB, freeBytes: 5 * GiB }],
+    disks: [{ freeBytes: 5 * GiB, path: "/", totalBytes: 20 * GiB }],
+    freeMemory: 512 * MiB,
+    title: "CI Runner",
+    totalMemory: 2 * GiB,
   },
 };
 
@@ -156,20 +156,20 @@ export const SmallMachine: Story = {
  */
 export const LargeServer: Story = {
   args: {
-    totalMemory: 128 * GiB,
-    freeMemory: 120 * GiB,
     availableParallelism: 64,
-    title: "Analytics Server",
     description: "High-memory production node",
     disks: [
-      { path: "/", totalBytes: 500 * GiB, freeBytes: 460 * GiB },
+      { freeBytes: 460 * GiB, path: "/", totalBytes: 500 * GiB },
       {
+        freeBytes: 14 * 1024 * GiB,
         path: "/data",
         totalBytes: 16 * 1024 * GiB,
-        freeBytes: 14 * 1024 * GiB,
       },
-      { path: "/scratch", totalBytes: 4096 * GiB, freeBytes: 3900 * GiB },
+      { freeBytes: 3900 * GiB, path: "/scratch", totalBytes: 4096 * GiB },
     ],
+    freeMemory: 120 * GiB,
+    title: "Analytics Server",
+    totalMemory: 128 * GiB,
   },
 };
 
@@ -178,11 +178,11 @@ export const LargeServer: Story = {
  */
 export const CustomTitle: Story = {
   args: {
-    totalMemory: 32 * GiB,
-    freeMemory: 18 * GiB,
     availableParallelism: 16,
-    title: "sqlduck worker node",
     description: "Ingestion pipeline — main instance",
     disks: normalDisks,
+    freeMemory: 18 * GiB,
+    title: "sqlduck worker node",
+    totalMemory: 32 * GiB,
   },
 };

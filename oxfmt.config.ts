@@ -1,2 +1,1 @@
-import { oxfmtDefaultConfig } from "@flowblade/devtools"
-export default oxfmtDefaultConfig;
+export { oxfmtDefaultConfig as default } from '@flowblade/devtools';

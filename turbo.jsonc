@@ -33,11 +33,12 @@
     "test-unit-browser": {},
     "test-unit-coverage": {},
     "lint": {
+      "cache": false,
       "outputLogs": "full"
     },
     "lint-fix": {
-      "cache": true,
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js"]
+      "cache": false,
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js","**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.md"]
     },
     "lint-styles": {},
     "typecheck": {},

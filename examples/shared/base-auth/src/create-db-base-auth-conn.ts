@@ -6,6 +6,7 @@ import {
 } from "./create-db-base-auth-dialect";
 import type { DBBaseAuth } from "./db-base-auth-types";
 import { dbBaseAuthConfig } from "./db-base-auth.config";
+
 export type CreateDbBaseAuthConnParams = CreateDbBaseAuthDialectParams & {
   schema?: string;
   skipSchemaPlugin?: boolean;

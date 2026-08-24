@@ -41,7 +41,7 @@ export const generateOpenfoodfactImage = (data: {
       continue;
     }
     const resolutions = Object.keys(image.sizes).map((key) =>
-      Number.parseInt(key, 10)
+        Math.trunc(Number(key))
     );
     img = {
       key: image.key,

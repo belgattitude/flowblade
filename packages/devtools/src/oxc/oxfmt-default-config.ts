@@ -6,6 +6,7 @@ export const oxfmtDefaultConfig = defineConfig({
   ignorePatterns: [
     ...(ultracite.ignorePatterns ?? []),
     "docs/**/*.md",
+    // because changesets generates it on release
     "CHANGELOG.md",
   ],
 });

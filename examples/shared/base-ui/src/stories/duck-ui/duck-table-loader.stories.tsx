@@ -4,13 +4,13 @@ import { useCallback, useState } from "react";
 import type { DuckTableLoaderChunk } from "../../components/duck-ui/duck-table-loader";
 import { DuckTableLoader } from "../../components/duck-ui/duck-table-loader";
 // ─── Mock stream helper ───────────────────────────────────────────────────────
-type MockStreamOptions = {
+interface MockStreamOptions {
   chunks: DuckTableLoaderChunk[];
   /** Delay between chunks in ms */
   intervalMs?: number;
   /** Delay before the stream starts emitting */
   startDelayMs?: number;
-};
+}
 /**
  * Build a `ReadableStream<Uint8Array>` that emits NDJSON lines at a given interval.
  * Mirrors what a real `fetch().body` stream would deliver.
@@ -24,20 +24,20 @@ function createMockStream({
   let timerId: ReturnType<typeof setTimeout>;
   let index = 0;
   return new ReadableStream<Uint8Array>({
+    cancel() {
+      clearTimeout(timerId);
+    },
     start(controller) {
       function sendNext() {
         if (index >= chunks.length) {
           controller.close();
           return;
         }
-        const line = JSON.stringify(chunks[index++]) + "\n";
+        const line = `${JSON.stringify(chunks[index++])}\n`;
         controller.enqueue(encoder.encode(line));
         timerId = setTimeout(sendNext, intervalMs);
       }
       timerId = setTimeout(sendNext, startDelayMs);
-    },
-    cancel() {
-      clearTimeout(timerId);
     },
   });
 }
@@ -114,7 +114,7 @@ function createFetchStub(
             controller.close();
             return;
           }
-          const line = JSON.stringify(chunks[index++]) + "\n";
+          const line = `${JSON.stringify(chunks[index++])}\n`;
           controller.enqueue(encoder.encode(line));
           setTimeout(sendNext, intervalMs);
         }
@@ -122,8 +122,8 @@ function createFetchStub(
       },
     });
     return new Response(body, {
-      status: 200,
       headers: { "Content-Type": "application/x-ndjson" },
+      status: 200,
     });
   };
 }
@@ -150,8 +150,8 @@ function FetchStreamDemo({
         throw new Error(`HTTP ${response.status}`);
       }
       setStream(response.body);
-    } catch (err) {
-      setFetchError((err as Error).message);
+    } catch (error) {
+      setFetchError((error as Error).message);
     }
   }, []);
   return (
@@ -197,9 +197,9 @@ type Story = StoryObj<typeof meta>;
 /** No stream provided – the card sits in idle state. */
 export const Idle: Story = {
   args: {
-    tableName: "main.orders",
     description: "Waiting for a fetch stream to be provided",
     stream: null,
+    tableName: "main.orders",
   },
 };
 /**
@@ -213,14 +213,14 @@ export const LoadingIndeterminate: Story = {
       description="Ingesting from API – indeterminate progress"
       makeStream={() =>
         createMockStream({
-          intervalMs: 700,
           chunks: [
-            { totalRows: 2048, timeMs: 210 },
-            { totalRows: 4096, timeMs: 490 },
-            { totalRows: 8192, timeMs: 910 },
-            { totalRows: 12_288, timeMs: 1380 },
-            { totalRows: 16_384, timeMs: 1800 },
+            { timeMs: 210, totalRows: 2048 },
+            { timeMs: 490, totalRows: 4096 },
+            { timeMs: 910, totalRows: 8192 },
+            { timeMs: 1380, totalRows: 12_288 },
+            { timeMs: 1800, totalRows: 16_384 },
           ],
+          intervalMs: 700,
         })
       }
     />
@@ -236,14 +236,14 @@ export const LoadingWithProgress: Story = {
       description="Ingesting with known row count"
       makeStream={() =>
         createMockStream({
-          intervalMs: 600,
           chunks: [
-            { totalRows: 10_000, timeMs: 300, progress: 10 },
-            { totalRows: 30_000, timeMs: 900, progress: 30 },
-            { totalRows: 50_000, timeMs: 1500, progress: 50 },
-            { totalRows: 75_000, timeMs: 2200, progress: 75 },
-            { totalRows: 100_000, timeMs: 3100, progress: 100 },
+            { progress: 10, timeMs: 300, totalRows: 10_000 },
+            { progress: 30, timeMs: 900, totalRows: 30_000 },
+            { progress: 50, timeMs: 1500, totalRows: 50_000 },
+            { progress: 75, timeMs: 2200, totalRows: 75_000 },
+            { progress: 100, timeMs: 3100, totalRows: 100_000 },
           ],
+          intervalMs: 600,
         })
       }
     />
@@ -254,13 +254,13 @@ export const LoadingWithProgress: Story = {
  */
 export const Success: Story = {
   args: {
-    tableName: "main.products",
     description: "Import complete",
     stream: createMockStream({
-      startDelayMs: 0,
-      intervalMs: 0,
       chunks: [{ totalRows: 125_952, timeMs: 3210 }],
+      intervalMs: 0,
+      startDelayMs: 0,
     }),
+    tableName: "main.products",
   },
 };
 /**
@@ -273,16 +273,16 @@ export const StreamError: Story = {
       description="Upload interrupted mid-stream"
       makeStream={() =>
         createMockStream({
-          intervalMs: 600,
           chunks: [
-            { totalRows: 4096, timeMs: 320 },
-            { totalRows: 8192, timeMs: 710 },
+            { timeMs: 320, totalRows: 4096 },
+            { timeMs: 710, totalRows: 8192 },
             {
-              totalRows: 8192,
-              timeMs: 711,
               error: "Connection reset by peer: upstream closed unexpectedly",
+              timeMs: 711,
+              totalRows: 8192,
             },
           ],
+          intervalMs: 600,
         })
       }
     />
@@ -298,14 +298,14 @@ export const LargeTable: Story = {
       description="Hydrating 1 billion+ rows from object storage"
       makeStream={() =>
         createMockStream({
-          intervalMs: 500,
           chunks: [
-            { totalRows: 10_000_000, timeMs: 800, progress: 1 },
-            { totalRows: 100_000_000, timeMs: 8000, progress: 10 },
-            { totalRows: 500_000_000, timeMs: 40_000, progress: 50 },
-            { totalRows: 999_999_999, timeMs: 79_000, progress: 99 },
-            { totalRows: 1_000_000_000, timeMs: 80_120, progress: 100 },
+            { progress: 1, timeMs: 800, totalRows: 10_000_000 },
+            { progress: 10, timeMs: 8000, totalRows: 100_000_000 },
+            { progress: 50, timeMs: 40_000, totalRows: 500_000_000 },
+            { progress: 99, timeMs: 79_000, totalRows: 999_999_999 },
+            { progress: 100, timeMs: 80_120, totalRows: 1_000_000_000 },
           ],
+          intervalMs: 500,
         })
       }
     />
@@ -327,11 +327,11 @@ export const WithFetchStream: Story = {
   beforeEach() {
     const originalFetch = globalThis.fetch;
     globalThis.fetch = createFetchStub(MOCK_FETCH_URL, [
-      { totalRows: 10_000, timeMs: 300, progress: 10 },
-      { totalRows: 30_000, timeMs: 900, progress: 30 },
-      { totalRows: 60_000, timeMs: 1800, progress: 60 },
-      { totalRows: 90_000, timeMs: 2700, progress: 90 },
-      { totalRows: 100_000, timeMs: 3100, progress: 100 },
+      { progress: 10, timeMs: 300, totalRows: 10_000 },
+      { progress: 30, timeMs: 900, totalRows: 30_000 },
+      { progress: 60, timeMs: 1800, totalRows: 60_000 },
+      { progress: 90, timeMs: 2700, totalRows: 90_000 },
+      { progress: 100, timeMs: 3100, totalRows: 100_000 },
     ]);
     // Storybook calls the returned function as cleanup after the story unmounts.
     return () => {

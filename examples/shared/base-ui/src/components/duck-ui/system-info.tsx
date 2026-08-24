@@ -12,16 +12,16 @@ import { CpuIcon, HardDriveIcon, MemoryStickIcon } from "lucide-react";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 /** Disk usage info for a single mount path. */
-export type DiskInfo = {
+export interface DiskInfo {
   /** Mount path or drive label, e.g. "/", "C:\", "/data" */
   path: string;
   /** Total disk capacity in bytes */
   totalBytes: number;
   /** Free/available bytes on disk */
   freeBytes: number;
-};
+}
 
-export type SystemInfoProps = {
+export interface SystemInfoProps {
   /**
    * Free memory in bytes (e.g. from `os.freemem()`).
    */
@@ -43,19 +43,29 @@ export type SystemInfoProps = {
   /** Optional subtitle */
   description?: string;
   className?: string;
-};
+}
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 /** Format bytes into a human-readable string (GiB / MiB / KiB / B). */
 function formatBytes(bytes: number): string {
-  if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(1)} GiB`;
-  if (bytes >= 1024 ** 2) return `${(bytes / 1024 ** 2).toFixed(1)} MiB`;
-  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KiB`;
+  if (bytes >= 1024 ** 3) {
+    return `${(bytes / 1024 ** 3).toFixed(1)} GiB`;
+  }
+  if (bytes >= 1024 ** 2) {
+    return `${(bytes / 1024 ** 2).toFixed(1)} MiB`;
+  }
+  if (bytes >= 1024) {
+    return `${(bytes / 1024).toFixed(1)} KiB`;
+  }
   return `${bytes} B`;
 }
 /** Returns a Tailwind colour class based on usage percentage. */
 function usageColour(pct: number): string {
-  if (pct >= 90) return "text-destructive";
-  if (pct >= 70) return "text-amber-500";
+  if (pct >= 90) {
+    return "text-destructive";
+  }
+  if (pct >= 70) {
+    return "text-amber-500";
+  }
   return "text-emerald-500";
 }
 // ─── Component ───────────────────────────────────────────────────────────────

@@ -10,7 +10,7 @@ import { apiFetcher } from "@/config/api-fetcher.config.ts";
 const useSearch = () =>
   useQuery({
     queryFn: async (): Promise<SerializedQResult> =>
-      apiFetcher
+      await apiFetcher
         .get("demo/duckdb/search", {
           searchParams: {
             limit: 10_000,

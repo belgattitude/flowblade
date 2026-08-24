@@ -4,12 +4,12 @@ import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer";
 import { cn } from "@examples/base-ui/lib/utils";
 import * as React from "react";
 
-type DrawerContextProps = {
+interface DrawerContextProps {
   hasSnapPoints: boolean;
   modal: DrawerPrimitive.Root.Props["modal"];
   showSwipeHandle: boolean;
   swipeDirection: NonNullable<DrawerPrimitive.Root.Props["swipeDirection"]>;
-};
+}
 
 const DrawerContext = React.createContext<DrawerContextProps | null>(null);
 

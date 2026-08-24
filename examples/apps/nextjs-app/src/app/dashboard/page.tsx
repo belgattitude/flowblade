@@ -3,7 +3,7 @@ import { ProductStatsPanel } from "@/features/products/components/product-stats-
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardRoute() {
+export default function DashboardRoute() {
   return (
     <>
       <ProductFiltersPanel />
