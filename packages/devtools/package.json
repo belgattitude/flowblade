@@ -33,6 +33,7 @@
     "clean": "rimraf --glob ./dist ./build ./coverage ./_release './tsconfig*.tsbuildinfo'",
     "lint": "ultracite check",
     "lint-fix": "ultracite fix",
+    "format": "oxfmt --write",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {

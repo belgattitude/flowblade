@@ -16,7 +16,8 @@
     "generate-better-auth-migrations": "better-auth generate",
     "codegen-db": "tsx scripts/generate-db-base-auth-types.ts",
     "lint": "ultracite check",
-    "lint-fix": "ultracite fix"
+    "lint-fix": "ultracite fix",
+    "format": "oxfmt --write"
   },
   "dependencies": {
     "@better-auth/api-key": "1.7.1",

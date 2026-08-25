@@ -1,4 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "@flowblade/devtools/typescript/tsconfig.base.json"
+  "extends": "@flowblade/devtools/typescript/tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@examples/db-sqlserver/kysely-types": [
+        "../../shared/db-sqlserver/src/kysely-types.ts"
+      ],
+      "@/config/*": ["./src/config/*"],
+      "@/routes/*": ["./src/routes/*"],
+      "@/plugins/*": ["./src/plugins/*"]
+    }
+  }
 }

@@ -59,9 +59,8 @@
       }
     ]
   },
-  "exclude": ["**/node_modules"],
+  "exclude": ["**/node_modules", "dist", "coverage", "oxlint.config.ts"],
   "include": [
-    ".eslintrc.*",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",

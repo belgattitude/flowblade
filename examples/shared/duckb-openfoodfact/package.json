@@ -29,7 +29,8 @@
     "test-unit-watch": "vitest --ui",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "lint": "ultracite check",
-    "lint-fix": "ultracite fix"
+    "lint-fix": "ultracite fix",
+    "format": "oxfmt --write"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "2.21.0",

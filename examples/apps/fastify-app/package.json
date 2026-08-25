@@ -24,7 +24,8 @@
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-no-paths": "tsc --project tsconfig.no-paths.json --noEmit",
     "lint": "ultracite check",
-    "lint-fix": "ultracite fix"
+    "lint-fix": "ultracite fix",
+    "format": "oxfmt --write"
   },
   "dependencies": {
     "@duckdb/node-api": "1.5.5-r.4",

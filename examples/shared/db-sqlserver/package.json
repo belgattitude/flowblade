@@ -34,6 +34,7 @@
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "lint": "ultracite check",
     "lint-fix": "ultracite fix",
+    "format": "oxfmt --write",
     "codegen": "run-s codegen-prisma codegen-ddl",
     "codegen-prisma": "prisma generate",
     "codegen-ddl": "tsx ./scripts/create-ddl.ts",
