@@ -33,6 +33,7 @@
     "typecheck-no-paths": "next typegen && tsc --project tsconfig.no-paths.json --noEmit",
     "lint": "next typegen && ultracite check",
     "lint-fix": "next typegen && ultracite fix",
+    "format": "oxfmt --write",
     "codegen": "run-s codegen-api",
     "codegen-api": "tsx ./scripts/codegen-openapi-json-schema.ts && kubb generate",
     "docker-build": "cd docker && docker buildx bake --file ./docker-compose.yml",
