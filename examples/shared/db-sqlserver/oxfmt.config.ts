@@ -1,1 +1,7 @@
-export { oxfmtDefaultConfig as default } from "@flowblade/devtools";
+import { oxfmtDefaultConfig } from "@flowblade/devtools";
+import { defineConfig } from "oxfmt";
+
+export default defineConfig({
+  ...oxfmtDefaultConfig,
+  ignorePatterns: ["**/generated/**"],
+});
