@@ -4,31 +4,31 @@
  */
 
 import type {
-  QueryClient,
   QueryKey,
+  QueryClient,
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
-} from '@tanstack/react-query';
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+} from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
-import type fetch from '@/config/api-fetcher-kubb.config.ts';
 import type {
+  Client,
   RequestConfig,
   ResponseErrorConfig,
-} from '@/config/api-fetcher-kubb.config.ts';
+} from "@/config/api-fetcher-kubb.config.ts";
 
-import { getApiProductEthicalSearch } from '../../getApiProductEthicalSearch';
+import { getApiProductEthicalSearch } from "../../getApiProductEthicalSearch";
 import type {
-  GetApiProductEthicalSearchQueryParams,
   GetApiProductEthicalSearchQueryResponse,
-} from '../../models/GetApiProductEthicalSearch';
+  GetApiProductEthicalSearchQueryParams,
+} from "../../models/GetApiProductEthicalSearch";
 
 export const getApiProductEthicalSearchSuspenseQueryKey = (
   params?: GetApiProductEthicalSearchQueryParams
 ) =>
   [
-    'v5',
-    { url: '/api/product/ethical/search' },
+    "v5",
+    { url: "/api/product/ethical/search" },
     ...(params ? [params] : []),
   ] as const;
 
@@ -38,7 +38,7 @@ export type GetApiProductEthicalSearchSuspenseQueryKey = ReturnType<
 
 export function getApiProductEthicalSearchSuspenseQueryOptionsHook(
   params?: GetApiProductEthicalSearchQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+  config: Partial<RequestConfig> & { client?: Client } = {}
 ) {
   const queryKey = getApiProductEthicalSearchSuspenseQueryKey(params);
   return queryOptions<
@@ -49,8 +49,10 @@ export function getApiProductEthicalSearchSuspenseQueryOptionsHook(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal;
-      return getApiProductEthicalSearch(params, config);
+      return getApiProductEthicalSearch(params, {
+        ...config,
+        signal: config.signal ?? signal,
+      });
     },
   });
 }
@@ -73,20 +75,20 @@ export function useGetApiProductEthicalSearchSuspenseHook<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<RequestConfig> & { client?: typeof fetch };
+    client?: Partial<RequestConfig> & { client?: Client };
   } = {}
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};
-  const { client: queryClient, ...queryOptions } = queryConfig;
+  const { client: queryClient, ...resolvedOptions } = queryConfig;
   const queryKey =
-    queryOptions?.queryKey ??
+    resolvedOptions?.queryKey ??
     getApiProductEthicalSearchSuspenseQueryKey(params);
 
   const query = useSuspenseQuery(
     {
       ...getApiProductEthicalSearchSuspenseQueryOptionsHook(params, config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & {

@@ -4,31 +4,31 @@
  */
 
 import type {
-  QueryClient,
   QueryKey,
+  QueryClient,
   QueryObserverOptions,
   UseQueryResult,
-} from '@tanstack/react-query';
-import { queryOptions, useQuery } from '@tanstack/react-query';
+} from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import type fetch from '@/config/api-fetcher-kubb.config.ts';
 import type {
+  Client,
   RequestConfig,
   ResponseErrorConfig,
-} from '@/config/api-fetcher-kubb.config.ts';
+} from "@/config/api-fetcher-kubb.config.ts";
 
-import { getApiSystemStats } from '../../getApiSystemStats';
-import type { GetApiSystemStatsQueryResponse } from '../../models/GetApiSystemStats';
+import { getApiSystemStats } from "../../getApiSystemStats";
+import type { GetApiSystemStatsQueryResponse } from "../../models/GetApiSystemStats";
 
 export const getApiSystemStatsQueryKey = () =>
-  ['v5', { url: '/api/system/stats' }] as const;
+  ["v5", { url: "/api/system/stats" }] as const;
 
 export type GetApiSystemStatsQueryKey = ReturnType<
   typeof getApiSystemStatsQueryKey
 >;
 
 export function getApiSystemStatsQueryOptionsHook(
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+  config: Partial<RequestConfig> & { client?: Client } = {}
 ) {
   const queryKey = getApiSystemStatsQueryKey();
   return queryOptions<
@@ -39,8 +39,7 @@ export function getApiSystemStatsQueryOptionsHook(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal;
-      return getApiSystemStats(config);
+      return getApiSystemStats({ ...config, signal: config.signal ?? signal });
     },
   });
 }
@@ -64,18 +63,18 @@ export function useGetApiSystemStatsHook<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<RequestConfig> & { client?: typeof fetch };
+    client?: Partial<RequestConfig> & { client?: Client };
   } = {}
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};
-  const { client: queryClient, ...queryOptions } = queryConfig;
-  const queryKey = queryOptions?.queryKey ?? getApiSystemStatsQueryKey();
+  const { client: queryClient, ...resolvedOptions } = queryConfig;
+  const queryKey = resolvedOptions?.queryKey ?? getApiSystemStatsQueryKey();
 
   const query = useQuery(
     {
       ...getApiSystemStatsQueryOptionsHook(config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient
   ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & {

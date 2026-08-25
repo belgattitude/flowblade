@@ -3,20 +3,20 @@ export type {
   GetApiDemoDuckdbSearchQuery,
   GetApiDemoDuckdbSearchQueryParams,
   GetApiDemoDuckdbSearchQueryResponse,
-} from './GetApiDemoDuckdbSearch';
+} from "./GetApiDemoDuckdbSearch";
 export type {
   GetApiProductEthicalBrands200,
   GetApiProductEthicalBrandsQuery,
   GetApiProductEthicalBrandsQueryResponse,
-} from './GetApiProductEthicalBrands';
+} from "./GetApiProductEthicalBrands";
 export type {
   GetApiProductEthicalSearch200,
   GetApiProductEthicalSearchQuery,
   GetApiProductEthicalSearchQueryParams,
   GetApiProductEthicalSearchQueryResponse,
-} from './GetApiProductEthicalSearch';
+} from "./GetApiProductEthicalSearch";
 export type {
   GetApiSystemStats200,
   GetApiSystemStatsQuery,
   GetApiSystemStatsQueryResponse,
-} from './GetApiSystemStats';
+} from "./GetApiSystemStats";

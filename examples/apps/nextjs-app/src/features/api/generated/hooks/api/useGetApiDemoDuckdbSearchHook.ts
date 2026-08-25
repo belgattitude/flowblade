@@ -4,31 +4,31 @@
  */
 
 import type {
-  QueryClient,
   QueryKey,
+  QueryClient,
   QueryObserverOptions,
   UseQueryResult,
-} from '@tanstack/react-query';
-import { queryOptions, useQuery } from '@tanstack/react-query';
+} from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import type fetch from '@/config/api-fetcher-kubb.config.ts';
 import type {
+  Client,
   RequestConfig,
   ResponseErrorConfig,
-} from '@/config/api-fetcher-kubb.config.ts';
+} from "@/config/api-fetcher-kubb.config.ts";
 
-import { getApiDemoDuckdbSearch } from '../../getApiDemoDuckdbSearch';
+import { getApiDemoDuckdbSearch } from "../../getApiDemoDuckdbSearch";
 import type {
-  GetApiDemoDuckdbSearchQueryParams,
   GetApiDemoDuckdbSearchQueryResponse,
-} from '../../models/GetApiDemoDuckdbSearch';
+  GetApiDemoDuckdbSearchQueryParams,
+} from "../../models/GetApiDemoDuckdbSearch";
 
 export const getApiDemoDuckdbSearchQueryKey = (
   params?: GetApiDemoDuckdbSearchQueryParams
 ) =>
   [
-    'v5',
-    { url: '/api/demo/duckdb/search' },
+    "v5",
+    { url: "/api/demo/duckdb/search" },
     ...(params ? [params] : []),
   ] as const;
 
@@ -38,7 +38,7 @@ export type GetApiDemoDuckdbSearchQueryKey = ReturnType<
 
 export function getApiDemoDuckdbSearchQueryOptionsHook(
   params?: GetApiDemoDuckdbSearchQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+  config: Partial<RequestConfig> & { client?: Client } = {}
 ) {
   const queryKey = getApiDemoDuckdbSearchQueryKey(params);
   return queryOptions<
@@ -49,8 +49,10 @@ export function getApiDemoDuckdbSearchQueryOptionsHook(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal;
-      return getApiDemoDuckdbSearch(params, config);
+      return getApiDemoDuckdbSearch(params, {
+        ...config,
+        signal: config.signal ?? signal,
+      });
     },
   });
 }
@@ -75,19 +77,19 @@ export function useGetApiDemoDuckdbSearchHook<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<RequestConfig> & { client?: typeof fetch };
+    client?: Partial<RequestConfig> & { client?: Client };
   } = {}
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};
-  const { client: queryClient, ...queryOptions } = queryConfig;
+  const { client: queryClient, ...resolvedOptions } = queryConfig;
   const queryKey =
-    queryOptions?.queryKey ?? getApiDemoDuckdbSearchQueryKey(params);
+    resolvedOptions?.queryKey ?? getApiDemoDuckdbSearchQueryKey(params);
 
   const query = useQuery(
     {
       ...getApiDemoDuckdbSearchQueryOptionsHook(params, config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient
   ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & {

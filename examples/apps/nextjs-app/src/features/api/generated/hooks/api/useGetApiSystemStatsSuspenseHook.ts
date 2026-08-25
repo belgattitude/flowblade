@@ -4,31 +4,31 @@
  */
 
 import type {
-  QueryClient,
   QueryKey,
+  QueryClient,
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
-} from '@tanstack/react-query';
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+} from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
-import type fetch from '@/config/api-fetcher-kubb.config.ts';
 import type {
+  Client,
   RequestConfig,
   ResponseErrorConfig,
-} from '@/config/api-fetcher-kubb.config.ts';
+} from "@/config/api-fetcher-kubb.config.ts";
 
-import { getApiSystemStats } from '../../getApiSystemStats';
-import type { GetApiSystemStatsQueryResponse } from '../../models/GetApiSystemStats';
+import { getApiSystemStats } from "../../getApiSystemStats";
+import type { GetApiSystemStatsQueryResponse } from "../../models/GetApiSystemStats";
 
 export const getApiSystemStatsSuspenseQueryKey = () =>
-  ['v5', { url: '/api/system/stats' }] as const;
+  ["v5", { url: "/api/system/stats" }] as const;
 
 export type GetApiSystemStatsSuspenseQueryKey = ReturnType<
   typeof getApiSystemStatsSuspenseQueryKey
 >;
 
 export function getApiSystemStatsSuspenseQueryOptionsHook(
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+  config: Partial<RequestConfig> & { client?: Client } = {}
 ) {
   const queryKey = getApiSystemStatsSuspenseQueryKey();
   return queryOptions<
@@ -39,8 +39,7 @@ export function getApiSystemStatsSuspenseQueryOptionsHook(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal;
-      return getApiSystemStats(config);
+      return getApiSystemStats({ ...config, signal: config.signal ?? signal });
     },
   });
 }
@@ -62,19 +61,19 @@ export function useGetApiSystemStatsSuspenseHook<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<RequestConfig> & { client?: typeof fetch };
+    client?: Partial<RequestConfig> & { client?: Client };
   } = {}
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};
-  const { client: queryClient, ...queryOptions } = queryConfig;
+  const { client: queryClient, ...resolvedOptions } = queryConfig;
   const queryKey =
-    queryOptions?.queryKey ?? getApiSystemStatsSuspenseQueryKey();
+    resolvedOptions?.queryKey ?? getApiSystemStatsSuspenseQueryKey();
 
   const query = useSuspenseQuery(
     {
       ...getApiSystemStatsSuspenseQueryOptionsHook(config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & {

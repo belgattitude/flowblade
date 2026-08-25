@@ -3,19 +3,20 @@
  * Do not edit manually.
  */
 
+import fetch from "@/config/api-fetcher-kubb.config.ts";
 import type {
+  Client,
   RequestConfig,
   ResponseErrorConfig,
-} from '@/config/api-fetcher-kubb.config.ts';
-import fetch from '@/config/api-fetcher-kubb.config.ts';
+} from "@/config/api-fetcher-kubb.config.ts";
 
 import type {
-  GetApiProductEthicalSearchQueryParams,
   GetApiProductEthicalSearchQueryResponse,
-} from './models/GetApiProductEthicalSearch';
+  GetApiProductEthicalSearchQueryParams,
+} from "./models/GetApiProductEthicalSearch";
 
 function getGetApiProductEthicalSearchUrl() {
-  const res = { method: 'GET', url: `/api/product/ethical/search` as const };
+  const res = { method: "GET", url: `/api/product/ethical/search` as const };
   return res;
 }
 
@@ -25,7 +26,7 @@ function getGetApiProductEthicalSearchUrl() {
  */
 export async function getApiProductEthicalSearch(
   params?: GetApiProductEthicalSearchQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+  config: Partial<RequestConfig> & { client?: Client } = {}
 ) {
   const { client: request = fetch, ...requestConfig } = config;
 
@@ -34,7 +35,7 @@ export async function getApiProductEthicalSearch(
     ResponseErrorConfig<Error>,
     unknown
   >({
-    method: 'GET',
+    method: "GET",
     url: getGetApiProductEthicalSearchUrl().url.toString(),
     params,
     ...requestConfig,

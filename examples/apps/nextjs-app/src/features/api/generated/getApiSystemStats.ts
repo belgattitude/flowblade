@@ -3,16 +3,17 @@
  * Do not edit manually.
  */
 
+import fetch from "@/config/api-fetcher-kubb.config.ts";
 import type {
+  Client,
   RequestConfig,
   ResponseErrorConfig,
-} from '@/config/api-fetcher-kubb.config.ts';
-import fetch from '@/config/api-fetcher-kubb.config.ts';
+} from "@/config/api-fetcher-kubb.config.ts";
 
-import type { GetApiSystemStatsQueryResponse } from './models/GetApiSystemStats';
+import type { GetApiSystemStatsQueryResponse } from "./models/GetApiSystemStats";
 
 function getGetApiSystemStatsUrl() {
-  const res = { method: 'GET', url: `/api/system/stats` as const };
+  const res = { method: "GET", url: `/api/system/stats` as const };
   return res;
 }
 
@@ -21,7 +22,7 @@ function getGetApiSystemStatsUrl() {
  * {@link /api/system/stats}
  */
 export async function getApiSystemStats(
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+  config: Partial<RequestConfig> & { client?: Client } = {}
 ) {
   const { client: request = fetch, ...requestConfig } = config;
 
@@ -30,7 +31,7 @@ export async function getApiSystemStats(
     ResponseErrorConfig<Error>,
     unknown
   >({
-    method: 'GET',
+    method: "GET",
     url: getGetApiSystemStatsUrl().url.toString(),
     ...requestConfig,
   });

@@ -7,6 +7,8 @@ export default defineConfig({
   ignorePatterns: [
     ...(oxlintDefaultConfig.ignorePatterns ?? []),
     "**/types.d/env.d.ts",
+    ".kubb",
+    "**/generated/**",
   ],
   rules: {
     "unicorn/filename-case": "off",

@@ -26,15 +26,23 @@ export type GetApiProductEthicalSearchQueryParams = {
  */
 export type GetApiProductEthicalSearch200 = {
   /**
-   * @description The name of the product
-   * @type string
-   */
-  label: string;
-  /**
    * @description The brand of the product
    * @type string
    */
   brand: string;
+  /**
+   * @type string
+   */
+  category: string;
+  /**
+   * @type string
+   */
+  color: string;
+  /**
+   * @description The name of the product
+   * @type string
+   */
+  label: string;
   /**
    * @type number
    */
@@ -47,14 +55,6 @@ export type GetApiProductEthicalSearch200 = {
    * @type string
    */
   weight: string;
-  /**
-   * @type string
-   */
-  color: string;
-  /**
-   * @type string
-   */
-  category: string;
 }[];
 
 export type GetApiProductEthicalSearchQueryResponse =

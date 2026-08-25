@@ -2,6 +2,8 @@ import { defineConfig } from "oxlint";
 import core from "ultracite/oxlint/core";
 import { jsPluginSettings, selectJsPlugins } from "ultracite/oxlint/js-plugins";
 import vitest from "ultracite/oxlint/vitest";
+
+import { defaultIgnorePatterns } from "./default-ignore-patterns.ts";
 //import tanstack from "ultracite/oxlint/tanstack";
 //import tanstackJsPlugins from "ultracite/oxlint/tanstack/js-plugins";
 //import antiSlop from "ultracite/oxlint/anti-slop";
@@ -16,7 +18,7 @@ export const oxlintDefaultConfig = defineConfig({
     //antiSlop,
     selectJsPlugins([]),
   ],
-  ignorePatterns: core.ignorePatterns,
+  ignorePatterns: [...defaultIgnorePatterns],
   settings: jsPluginSettings,
   overrides: [
     {

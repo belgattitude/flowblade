@@ -6,14 +6,6 @@
 
 export type GetApiDemoDuckdbSearchQueryParams = {
   /**
-   * @type number | undefined
-   */
-  min?: number;
-  /**
-   * @type string | undefined
-   */
-  name?: string;
-  /**
    * @type string | undefined
    */
   createdAt?: string;
@@ -21,12 +13,41 @@ export type GetApiDemoDuckdbSearchQueryParams = {
    * @type number | undefined
    */
   limit?: number;
+  /**
+   * @type number | undefined
+   */
+  min?: number;
+  /**
+   * @type string | undefined
+   */
+  name?: string;
 };
 
 /**
  * @description Successful response
  */
 export type GetApiDemoDuckdbSearch200 = {
+  /**
+   * @type array
+   */
+  data: {
+    /**
+     * @type string
+     */
+    createdAt: string;
+    /**
+     * @type string
+     */
+    name: string;
+    /**
+     * @type number
+     */
+    productId: number;
+  }[];
+  /**
+   * @type string | undefined
+   */
+  error?: string;
   /**
    * @type object
    */
@@ -36,27 +57,6 @@ export type GetApiDemoDuckdbSearch200 = {
      */
     count: number;
   };
-  /**
-   * @type array
-   */
-  data: {
-    /**
-     * @type number
-     */
-    productId: number;
-    /**
-     * @type string
-     */
-    name: string;
-    /**
-     * @type string
-     */
-    createdAt: string;
-  }[];
-  /**
-   * @type string | undefined
-   */
-  error?: string;
 };
 
 export type GetApiDemoDuckdbSearchQueryResponse = GetApiDemoDuckdbSearch200;
