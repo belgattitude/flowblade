@@ -5,6 +5,10 @@ import { apiLocalConfig } from "@/config/api-local.config.ts";
 import { parseQuerySearchParams } from "@/lib/utils/parse-query-search-params.ts";
 import type { ExtendedQuerySearchParams } from "@/lib/utils/parse-query-search-params.ts";
 
+export type Client = <TData, _TError = unknown, TVariables = unknown>(
+  config: RequestConfig<TVariables>
+) => Promise<ResponseConfig<TData>>;
+
 export interface RequestConfig<TData = unknown> {
   url?: string;
   method: "GET" | "PUT" | "PATCH" | "POST" | "DELETE";
