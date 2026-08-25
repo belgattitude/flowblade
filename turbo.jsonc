@@ -40,7 +40,9 @@
       "cache": false,
       "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.md"]
     },
-    "format": {},
+    "format": {
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.md", "**/*.yml", "**/*.css", "**/*.scss"]
+    },
     "lint-styles": {},
     "typecheck": {},
     "build-storybook": {},
