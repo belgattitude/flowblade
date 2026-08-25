@@ -8,5 +8,5 @@ export const parseBigIntToSafeInt = (v: unknown): number | undefined => {
   if (!isParsableSafeInt(strV)) {
     return undefined;
   }
-  return Number.parseInt(strV, 10);
+  return Math.trunc(Number(strV));
 };

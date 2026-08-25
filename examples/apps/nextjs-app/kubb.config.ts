@@ -26,11 +26,7 @@ if (openapiSchema.trim().length === 0) {
 
 export const config: UserConfig = {
   hooks: {
-    done: [
-      // 'yarn run typecheck',
-      // 'biome format --write ./',
-      `yarn eslint ${outputPath} --ext .ts,.tsx --fix`,
-    ],
+    done: [`yarn lint-fix ${outputPath}`],
   },
   input: {
     // path: 'http://localhost:3000/api/openapi',
@@ -38,6 +34,7 @@ export const config: UserConfig = {
   },
   output: {
     clean: true,
+    format: false,
     defaultBanner: "simple",
     extension: {
       ".ts": "",

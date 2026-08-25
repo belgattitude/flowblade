@@ -4,31 +4,31 @@
  */
 
 import type {
-  QueryClient,
   QueryKey,
+  QueryClient,
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
-} from '@tanstack/react-query';
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+} from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
-import type fetch from '@/config/api-fetcher-kubb.config.ts';
 import type {
+  Client,
   RequestConfig,
   ResponseErrorConfig,
-} from '@/config/api-fetcher-kubb.config.ts';
+} from "@/config/api-fetcher-kubb.config.ts";
 
-import { getApiProductEthicalBrands } from '../../getApiProductEthicalBrands';
-import type { GetApiProductEthicalBrandsQueryResponse } from '../../models/GetApiProductEthicalBrands';
+import { getApiProductEthicalBrands } from "../../getApiProductEthicalBrands";
+import type { GetApiProductEthicalBrandsQueryResponse } from "../../models/GetApiProductEthicalBrands";
 
 export const getApiProductEthicalBrandsSuspenseQueryKey = () =>
-  ['v5', { url: '/api/product/ethical/brands' }] as const;
+  ["v5", { url: "/api/product/ethical/brands" }] as const;
 
 export type GetApiProductEthicalBrandsSuspenseQueryKey = ReturnType<
   typeof getApiProductEthicalBrandsSuspenseQueryKey
 >;
 
 export function getApiProductEthicalBrandsSuspenseQueryOptionsHook(
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+  config: Partial<RequestConfig> & { client?: Client } = {}
 ) {
   const queryKey = getApiProductEthicalBrandsSuspenseQueryKey();
   return queryOptions<
@@ -39,8 +39,10 @@ export function getApiProductEthicalBrandsSuspenseQueryOptionsHook(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal;
-      return getApiProductEthicalBrands(config);
+      return getApiProductEthicalBrands({
+        ...config,
+        signal: config.signal ?? signal,
+      });
     },
   });
 }
@@ -62,19 +64,19 @@ export function useGetApiProductEthicalBrandsSuspenseHook<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<RequestConfig> & { client?: typeof fetch };
+    client?: Partial<RequestConfig> & { client?: Client };
   } = {}
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};
-  const { client: queryClient, ...queryOptions } = queryConfig;
+  const { client: queryClient, ...resolvedOptions } = queryConfig;
   const queryKey =
-    queryOptions?.queryKey ?? getApiProductEthicalBrandsSuspenseQueryKey();
+    resolvedOptions?.queryKey ?? getApiProductEthicalBrandsSuspenseQueryKey();
 
   const query = useSuspenseQuery(
     {
       ...getApiProductEthicalBrandsSuspenseQueryOptionsHook(config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & {

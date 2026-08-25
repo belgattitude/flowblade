@@ -1,41 +1,4 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "verbatimModuleSyntax": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "noUncheckedIndexedAccess": true,
-    "noUncheckedSideEffectImports": false,
-    "incremental": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "jsx": "react-jsx",
-    "paths": {
-      "@/test-utils": ["./tests/setup/test-utils"],
-      "@examples/base-ui/*": ["./src/*"]
-    },
-    "allowJs": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "resolveJsonModule": true,
-    "types": ["vitest/globals"]
-  },
-  "exclude": ["**/node_modules"],
-  "include": [
-    ".eslintrc.*",
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
-    "**/*.cjs",
-    "**/*.mjs",
-    "**/*.json",
-    ".next/types/**/*.ts",
-    ".storybook/**/*.ts",
-    ".storybook/**/*.tsx"
-  ]
+  "extends": "@flowblade/devtools/typescript/tsconfig.base.json"
 }

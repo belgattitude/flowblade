@@ -4,31 +4,31 @@
  */
 
 import type {
-  QueryClient,
   QueryKey,
+  QueryClient,
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
-} from '@tanstack/react-query';
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+} from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
-import type fetch from '@/config/api-fetcher-kubb.config.ts';
 import type {
+  Client,
   RequestConfig,
   ResponseErrorConfig,
-} from '@/config/api-fetcher-kubb.config.ts';
+} from "@/config/api-fetcher-kubb.config.ts";
 
-import { getApiDemoDuckdbSearch } from '../../getApiDemoDuckdbSearch';
+import { getApiDemoDuckdbSearch } from "../../getApiDemoDuckdbSearch";
 import type {
-  GetApiDemoDuckdbSearchQueryParams,
   GetApiDemoDuckdbSearchQueryResponse,
-} from '../../models/GetApiDemoDuckdbSearch';
+  GetApiDemoDuckdbSearchQueryParams,
+} from "../../models/GetApiDemoDuckdbSearch";
 
 export const getApiDemoDuckdbSearchSuspenseQueryKey = (
   params?: GetApiDemoDuckdbSearchQueryParams
 ) =>
   [
-    'v5',
-    { url: '/api/demo/duckdb/search' },
+    "v5",
+    { url: "/api/demo/duckdb/search" },
     ...(params ? [params] : []),
   ] as const;
 
@@ -38,7 +38,7 @@ export type GetApiDemoDuckdbSearchSuspenseQueryKey = ReturnType<
 
 export function getApiDemoDuckdbSearchSuspenseQueryOptionsHook(
   params?: GetApiDemoDuckdbSearchQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+  config: Partial<RequestConfig> & { client?: Client } = {}
 ) {
   const queryKey = getApiDemoDuckdbSearchSuspenseQueryKey(params);
   return queryOptions<
@@ -49,8 +49,10 @@ export function getApiDemoDuckdbSearchSuspenseQueryOptionsHook(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal;
-      return getApiDemoDuckdbSearch(params, config);
+      return getApiDemoDuckdbSearch(params, {
+        ...config,
+        signal: config.signal ?? signal,
+      });
     },
   });
 }
@@ -73,19 +75,19 @@ export function useGetApiDemoDuckdbSearchSuspenseHook<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<RequestConfig> & { client?: typeof fetch };
+    client?: Partial<RequestConfig> & { client?: Client };
   } = {}
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};
-  const { client: queryClient, ...queryOptions } = queryConfig;
+  const { client: queryClient, ...resolvedOptions } = queryConfig;
   const queryKey =
-    queryOptions?.queryKey ?? getApiDemoDuckdbSearchSuspenseQueryKey(params);
+    resolvedOptions?.queryKey ?? getApiDemoDuckdbSearchSuspenseQueryKey(params);
 
   const query = useSuspenseQuery(
     {
       ...getApiDemoDuckdbSearchSuspenseQueryOptionsHook(params, config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & {

@@ -14,10 +14,7 @@ console.log(
   `- ${pc.green("info")} Next.js output mode is "${output ?? "default"}"`
 );
 
-const monorepoRoot = path.resolve(
-  path.dirname(url.fileURLToPath(import.meta.url)),
-  ".."
-);
+const monorepoRoot = path.resolve(import.meta.dirname, "..");
 
 const withNextra = nextra({
   // contentDirBasePath: '/',

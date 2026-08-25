@@ -1,8 +1,8 @@
 import { Inter } from "next/font/google";
 
 export const fontInter = Inter({
-  subsets: ["latin"],
   display: "swap",
-  weight: "variable",
+  subsets: ["latin"],
   variable: "--font-family-inter",
+  weight: "variable",
 });

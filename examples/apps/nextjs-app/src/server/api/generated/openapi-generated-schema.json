@@ -26,9 +26,7 @@
                           "type": "number"
                         }
                       },
-                      "required": [
-                        "count"
-                      ]
+                      "required": ["count"]
                     },
                     "data": {
                       "type": "array",
@@ -45,21 +43,14 @@
                             "type": "string"
                           }
                         },
-                        "required": [
-                          "productId",
-                          "name",
-                          "createdAt"
-                        ]
+                        "required": ["productId", "name", "createdAt"]
                       }
                     },
                     "error": {
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "meta",
-                    "data"
-                  ]
+                  "required": ["meta", "data"]
                 }
               }
             }
@@ -92,11 +83,7 @@
                         "type": "number"
                       }
                     },
-                    "required": [
-                      "label",
-                      "brand",
-                      "price"
-                    ]
+                    "required": ["label", "brand", "price"]
                   }
                 }
               }
@@ -124,9 +111,7 @@
                         "type": "string"
                       }
                     },
-                    "required": [
-                      "name"
-                    ]
+                    "required": ["name"]
                   }
                 }
               }

@@ -16,7 +16,8 @@
     "generate-better-auth-migrations": "better-auth generate",
     "codegen-db": "tsx scripts/generate-db-base-auth-types.ts",
     "lint": "ultracite check",
-    "lint-fix": "ultracite fix"
+    "lint-fix": "ultracite fix",
+    "format": "oxfmt --write"
   },
   "dependencies": {
     "@better-auth/api-key": "1.7.1",
@@ -25,7 +26,7 @@
     "@flowblade/source-kysely": "workspace:^",
     "@flowblade/sql-tag": "workspace:^",
     "better-auth": "1.7.1",
-    "jose": "6.2.9",
+    "jose": "6.2.10",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "zod": "4.4.3"
@@ -34,7 +35,7 @@
     "@dotenvx/dotenvx": "2.21.0",
     "@testing-library/dom": "10.4.1",
     "@testing-library/react": "16.3.2",
-    "@testing-library/user-event": "14.6.5",
+    "@testing-library/user-event": "14.6.6",
     "@types/node": "26.2.0",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
@@ -43,11 +44,11 @@
     "@vitest/coverage-v8": "4.1.11",
     "@vitest/ui": "4.1.11",
     "dotenv": "17.4.2",
-    "happy-dom": "20.11.2",
+    "happy-dom": "20.11.6",
     "kysely": "0.29.5",
     "kysely-codegen": "0.20.0",
-    "oxfmt": "0.64.0",
-    "oxlint": "1.79.0",
+    "oxfmt": "0.65.0",
+    "oxlint": "1.80.0",
     "oxlint-tsgolint": "7.0.2001",
     "picocolors": "1.1.1",
     "rimraf": "6.1.3",

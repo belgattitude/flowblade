@@ -11,15 +11,11 @@ export type GetApiSystemStats200 = {
   /**
    * @type number
    */
-  totalMemory: number;
+  availableParallelism: number;
   /**
    * @type number
    */
   freeMemory: number;
-  /**
-   * @type number
-   */
-  availableParallelism: number;
   /**
    * @type object
    */
@@ -27,12 +23,16 @@ export type GetApiSystemStats200 = {
     /**
      * @type string
      */
-    totalMemory: string;
+    freeMemory: string;
     /**
      * @type string
      */
-    freeMemory: string;
+    totalMemory: string;
   };
+  /**
+   * @type number
+   */
+  totalMemory: number;
 };
 
 export type GetApiSystemStatsQueryResponse = GetApiSystemStats200;

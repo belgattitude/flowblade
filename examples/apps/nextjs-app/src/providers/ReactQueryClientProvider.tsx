@@ -13,7 +13,7 @@ type Props = PropsWithChildren & {
   /**
    * React query devtools are automatically when process.env.NODE_ENV !== 'development'.
    * For environement like storybook (watch) for example, it can be possible to disable them
-   * @link https://tanstack.com/query/latest/docs/framework/react/devtools
+   * @see https://tanstack.com/query/latest/docs/framework/react/devtools
    */
   forceDisableDevTools?: boolean | undefined;
 };
@@ -28,7 +28,7 @@ export const ReactQueryClientProvider: FC<Props> = (props) => {
   return (
     <QueryClientProvider client={client}>
       {children}
-      {forceDisableDevTools !== true && (
+      {!forceDisableDevTools && (
         <ReactQueryDevtools
           initialIsOpen={false}
           buttonPosition="bottom-right"

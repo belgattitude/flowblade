@@ -5,11 +5,11 @@ import { useMDXComponents } from "../../mdx-components";
 
 export const generateStaticParams = generateStaticParamsFor("mdxPath");
 
-type Props = {
+interface Props {
   params: Promise<{
     mdxPath: string[];
   }>;
-};
+}
 
 export async function generateMetadataOld(props: Props): Promise<Metadata> {
   const params = await props.params;

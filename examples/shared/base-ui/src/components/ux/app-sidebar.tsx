@@ -27,28 +27,6 @@ import * as React from "react";
 
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: <GalleryVerticalEndIcon />,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: <AudioLinesIcon />,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: <TerminalIcon />,
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
       title: "Playground",
@@ -153,6 +131,28 @@ const data = {
       icon: <MapIcon />,
     },
   ],
+  teams: [
+    {
+      name: "Acme Inc",
+      logo: <GalleryVerticalEndIcon />,
+      plan: "Enterprise",
+    },
+    {
+      name: "Acme Corp.",
+      logo: <AudioLinesIcon />,
+      plan: "Startup",
+    },
+    {
+      name: "Evil Corp.",
+      logo: <TerminalIcon />,
+      plan: "Free",
+    },
+  ],
+  user: {
+    avatar: "/avatars/shadcn.jpg",
+    email: "m@example.com",
+    name: "shadcn",
+  },
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

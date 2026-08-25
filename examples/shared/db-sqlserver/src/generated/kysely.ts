@@ -1,4 +1,4 @@
-import type { ColumnType } from 'kysely';
+import type { ColumnType } from "kysely";
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
     ? ColumnType<S, I | undefined, U>
@@ -74,12 +74,12 @@ export type ProductI18n = {
   updated_at: Timestamp | null;
 };
 export type DB = {
-  'common.barcode_type': BarcodeType;
-  'common.brand': Brand;
-  'common.currency': Currency;
-  'common.currency_i18n': CurrencyI18n;
-  'common.locale': Locale;
-  'common.product': Product;
-  'common.product_barcode': ProductBarcode;
-  'common.product_i18n': ProductI18n;
+  "common.barcode_type": BarcodeType;
+  "common.brand": Brand;
+  "common.currency": Currency;
+  "common.currency_i18n": CurrencyI18n;
+  "common.locale": Locale;
+  "common.product": Product;
+  "common.product_barcode": ProductBarcode;
+  "common.product_i18n": ProductI18n;
 };

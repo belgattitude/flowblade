@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-// oxlint-disable
+// oxlint-disable the website will be rewritten in the future
 
 import { useMDXComponents as getDocsMDXComponents } from "nextra-theme-docs";
 

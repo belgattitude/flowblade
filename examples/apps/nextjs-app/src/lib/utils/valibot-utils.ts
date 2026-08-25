@@ -15,7 +15,7 @@ export const vCoercedIntSchema = v.pipe(
         return v;
       }
       if (typeof v === "string") {
-        const parsed = Number.parseInt(v, 10);
+        const parsed = Math.trunc(Number(v));
         if (!Number.isNaN(parsed)) {
           return parsed;
         }

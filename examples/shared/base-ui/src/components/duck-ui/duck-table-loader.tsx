@@ -24,18 +24,18 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 /** Shape of each newline-delimited JSON chunk emitted by the server */
-export type DuckTableLoaderChunk = {
+export interface DuckTableLoaderChunk {
   totalRows: number;
   timeMs: number;
   /** Optional 0-100 progress percentage */
   progress?: number;
   /** If present the stream is considered failed */
   error?: string;
-};
+}
 
 type LoadingStatus = "idle" | "loading" | "success" | "error";
 
-export type DuckTableLoaderProps = {
+export interface DuckTableLoaderProps {
   /** Display name of the table being populated */
   tableName: string;
   /** Optional subtitle */
@@ -51,11 +51,11 @@ export type DuckTableLoaderProps = {
   /** Called when the stream errors */
   onError?: (error: Error) => void;
   className?: string;
-};
+}
 
 // ─── Internal state ───────────────────────────────────────────────────────────
 
-type InternalState = {
+interface InternalState {
   status: LoadingStatus;
   totalRows: number | undefined;
   timeMs: number | undefined;
@@ -63,15 +63,15 @@ type InternalState = {
   errorMessage: string | undefined;
   /** true once we received at least one valid chunk */
   hasFirstChunk: boolean;
-};
+}
 
 const INITIAL_STATE: InternalState = {
-  status: "idle",
-  totalRows: undefined,
-  timeMs: undefined,
-  progress: undefined,
   errorMessage: undefined,
   hasFirstChunk: false,
+  progress: undefined,
+  status: "idle",
+  timeMs: undefined,
+  totalRows: undefined,
 };
 
 // ─── Badge config ─────────────────────────────────────────────────────────────
@@ -82,25 +82,25 @@ const STATUS_BADGE: Record<
   LoadingStatus,
   { label: string; variant: BadgeVariant; icon: React.ReactNode }
 > = {
-  idle: {
-    label: "Idle",
-    variant: "outline",
-    icon: <CircleDotIcon className="size-3" />,
-  },
-  loading: {
-    label: "Loading",
-    variant: "secondary",
-    icon: <Spinner className="size-3" />,
-  },
-  success: {
-    label: "Done",
-    variant: "default",
-    icon: <CheckCircle2Icon className="size-3" />,
-  },
   error: {
+    icon: <AlertCircleIcon className="size-3" />,
     label: "Error",
     variant: "destructive",
-    icon: <AlertCircleIcon className="size-3" />,
+  },
+  idle: {
+    icon: <CircleDotIcon className="size-3" />,
+    label: "Idle",
+    variant: "outline",
+  },
+  loading: {
+    icon: <Spinner className="size-3" />,
+    label: "Loading",
+    variant: "secondary",
+  },
+  success: {
+    icon: <CheckCircle2Icon className="size-3" />,
+    label: "Done",
+    variant: "default",
   },
 };
 
@@ -131,7 +131,9 @@ export function DuckTableLoader({
       // Defer setState so it runs in a callback, not synchronously in the effect body.
       let active = true;
       queueMicrotask(() => {
-        if (active) setState(INITIAL_STATE);
+        if (active) {
+          setState(INITIAL_STATE);
+        }
       });
       return () => {
         active = false;
@@ -147,7 +149,7 @@ export function DuckTableLoader({
     let cancelled = false;
     // Tracks the latest emitted stats so onComplete can receive them
     // without reading from a setState updater (which must stay pure).
-    const latestStats = { totalRows: 0, timeMs: 0 };
+    const latestStats = { timeMs: 0, totalRows: 0 };
 
     function processLine(line: string) {
       try {
@@ -156,8 +158,8 @@ export function DuckTableLoader({
           const err = new Error(chunk.error);
           setState((prev) => ({
             ...prev,
-            status: "error",
             errorMessage: chunk.error,
+            status: "error",
           }));
           onErrorRef.current?.(err);
           return;
@@ -166,11 +168,11 @@ export function DuckTableLoader({
         latestStats.timeMs = chunk.timeMs;
         setState((prev) => ({
           ...prev,
-          status: "loading",
-          totalRows: chunk.totalRows,
-          timeMs: chunk.timeMs,
-          progress: chunk.progress,
           hasFirstChunk: true,
+          progress: chunk.progress,
+          status: "loading",
+          timeMs: chunk.timeMs,
+          totalRows: chunk.totalRows,
         }));
       } catch {
         // Silently skip non-JSON lines (keep-alive pings, etc.)
@@ -183,7 +185,9 @@ export function DuckTableLoader({
       while ((newlineIdx = buffer.indexOf("\n")) !== -1) {
         const line = buffer.slice(0, newlineIdx).trim();
         buffer = buffer.slice(newlineIdx + 1);
-        if (line) processLine(line);
+        if (line) {
+          processLine(line);
+        }
       }
     }
 
@@ -191,7 +195,9 @@ export function DuckTableLoader({
     function handleStreamEnd() {
       // Flush any remaining buffered text (stream without trailing newline).
       const tail = buffer.trim();
-      if (tail) processLine(tail);
+      if (tail) {
+        processLine(tail);
+      }
       setState((prev) => ({ ...prev, status: "success" }));
       // Call the callback outside the updater so the updater stays pure.
       onCompleteRef.current?.(latestStats);
@@ -202,7 +208,9 @@ export function DuckTableLoader({
         let isDone = false;
         while (!isDone) {
           const result = await reader.read();
-          if (cancelled) return;
+          if (cancelled) {
+            return;
+          }
           isDone = result.done;
           if (isDone) {
             handleStreamEnd();
@@ -211,13 +219,13 @@ export function DuckTableLoader({
           buffer += decoder.decode(result.value, { stream: true });
           flushBuffer();
         }
-      } catch (err) {
+      } catch (error) {
         if (cancelled) return;
-        const error = err instanceof Error ? err : new Error(String(err));
+        const error = error instanceof Error ? error : new Error(String(error));
         setState((prev) => ({
           ...prev,
-          status: "error",
           errorMessage: error.message,
+          status: "error",
         }));
         onErrorRef.current?.(error);
       }

@@ -29,7 +29,7 @@ describe("QResult map benchmarks", () => {
       productName: row.productName.toUpperCase(),
       productDesc: row.productDesc,
       airline: row.airline,
-      id: Number.parseInt(row.id, 10),
+      id: Math.trunc(Number(row.id)),
     };
   };
 
@@ -62,7 +62,7 @@ describe("QResult map benchmarks", () => {
         productName: row.productName.toUpperCase(),
         productDesc: row.productDesc,
         airline: row.airline,
-        id: Number.parseInt(row.id, 10),
+        id: Math.trunc(Number(row.id)),
       };
     });
   });

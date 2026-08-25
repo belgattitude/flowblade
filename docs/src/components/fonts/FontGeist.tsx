@@ -1,8 +1,8 @@
 import { Geist } from "next/font/google";
 
 export const fontGeist = Geist({
-  subsets: ["latin"],
   display: "swap",
-  weight: "variable",
+  subsets: ["latin"],
   variable: "--font-family-geist",
+  weight: "variable",
 });

@@ -12,12 +12,32 @@
         "description": "Search",
         "responses": {
           "200": {
-            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "productId": {
+                            "type": "number"
+                          }
+                        },
+                        "required": ["createdAt", "name", "productId"]
+                      }
+                    },
+                    "error": {
+                      "type": "string"
+                    },
                     "meta": {
                       "type": "object",
                       "properties": {
@@ -26,50 +46,16 @@
                         }
                       },
                       "required": ["count"]
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "productId": {
-                            "type": "number"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "createdAt": {
-                            "type": "string"
-                          }
-                        },
-                        "required": ["productId", "name", "createdAt"]
-                      }
-                    },
-                    "error": {
-                      "type": "string"
                     }
                   },
-                  "required": ["meta", "data"]
+                  "required": ["data", "meta"]
                 }
               }
-            }
+            },
+            "description": "Successful response"
           }
         },
         "parameters": [
-          {
-            "in": "query",
-            "name": "min",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "in": "query",
-            "name": "name",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "in": "query",
             "name": "createdAt",
@@ -83,6 +69,20 @@
             "schema": {
               "type": "number"
             }
+          },
+          {
+            "in": "query",
+            "name": "min",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            }
           }
         ]
       }
@@ -93,7 +93,6 @@
         "description": "Search for ethical products",
         "responses": {
           "200": {
-            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
@@ -101,13 +100,19 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "label": {
-                        "type": "string",
-                        "description": "The name of the product"
-                      },
                       "brand": {
                         "type": "string",
                         "description": "The brand of the product"
+                      },
+                      "category": {
+                        "type": "string"
+                      },
+                      "color": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "The name of the product"
                       },
                       "price": {
                         "type": "number"
@@ -117,27 +122,22 @@
                       },
                       "weight": {
                         "type": "string"
-                      },
-                      "color": {
-                        "type": "string"
-                      },
-                      "category": {
-                        "type": "string"
                       }
                     },
                     "required": [
-                      "label",
                       "brand",
+                      "category",
+                      "color",
+                      "label",
                       "price",
                       "stock",
-                      "weight",
-                      "color",
-                      "category"
+                      "weight"
                     ]
                   }
                 }
               }
-            }
+            },
+            "description": "Successful response"
           }
         },
         "parameters": [
@@ -177,7 +177,6 @@
         "description": "Get list of ethical brands",
         "responses": {
           "200": {
-            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
@@ -193,7 +192,8 @@
                   }
                 }
               }
-            }
+            },
+            "description": "Successful response"
           }
         }
       }
@@ -204,43 +204,43 @@
         "description": "System stats",
         "responses": {
           "200": {
-            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "totalMemory": {
+                    "availableParallelism": {
                       "type": "number"
                     },
                     "freeMemory": {
                       "type": "number"
                     },
-                    "availableParallelism": {
-                      "type": "number"
-                    },
                     "prettyBytes": {
                       "type": "object",
                       "properties": {
-                        "totalMemory": {
+                        "freeMemory": {
                           "type": "string"
                         },
-                        "freeMemory": {
+                        "totalMemory": {
                           "type": "string"
                         }
                       },
-                      "required": ["totalMemory", "freeMemory"]
+                      "required": ["freeMemory", "totalMemory"]
+                    },
+                    "totalMemory": {
+                      "type": "number"
                     }
                   },
                   "required": [
-                    "totalMemory",
-                    "freeMemory",
                     "availableParallelism",
-                    "prettyBytes"
+                    "freeMemory",
+                    "prettyBytes",
+                    "totalMemory"
                   ]
                 }
               }
-            }
+            },
+            "description": "Successful response"
           }
         }
       }

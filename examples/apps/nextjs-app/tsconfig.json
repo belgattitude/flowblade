@@ -1,5 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@flowblade/devtools/typescript/tsconfig.base.json",
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
@@ -58,9 +59,8 @@
       }
     ]
   },
-  "exclude": ["**/node_modules"],
+  "exclude": ["**/node_modules", "dist", "coverage", "oxlint.config.ts"],
   "include": [
-    ".eslintrc.*",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",

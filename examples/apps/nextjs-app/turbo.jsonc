@@ -9,7 +9,16 @@
       // Only exception @flowblade/sqlduck that is used for env
       "dependsOn": ["@flowblade/sqlduck#build"],
     },
-    "typecheck": {},
+    "typecheck": {
+      // We rely on tsconfig path aliases to ease starting
+      // Only exception @flowblade/sqlduck that is used for env
+      "dependsOn": ["@flowblade/sqlduck#build"],
+    },
+    "lint": {
+      // We rely on tsconfig path aliases to ease starting
+      // Only exception @flowblade/sqlduck that is used for env
+      "dependsOn": ["@flowblade/sqlduck#build"],
+    },
     "dev": {
       "cache": false,
       "persistent": true,

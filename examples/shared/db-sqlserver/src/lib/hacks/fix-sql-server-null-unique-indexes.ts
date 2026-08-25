@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import escape from "regexp.escape";
+
 const tableRegexp =
   // eslint-disable-next-line regexp/no-unused-capturing-group
   /^CREATE TABLE (?<tableName>([\w\-[\].]{1,200}))/i;

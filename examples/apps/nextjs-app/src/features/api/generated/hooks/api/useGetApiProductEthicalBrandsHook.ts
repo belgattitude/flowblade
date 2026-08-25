@@ -4,31 +4,31 @@
  */
 
 import type {
-  QueryClient,
   QueryKey,
+  QueryClient,
   QueryObserverOptions,
   UseQueryResult,
-} from '@tanstack/react-query';
-import { queryOptions, useQuery } from '@tanstack/react-query';
+} from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import type fetch from '@/config/api-fetcher-kubb.config.ts';
 import type {
+  Client,
   RequestConfig,
   ResponseErrorConfig,
-} from '@/config/api-fetcher-kubb.config.ts';
+} from "@/config/api-fetcher-kubb.config.ts";
 
-import { getApiProductEthicalBrands } from '../../getApiProductEthicalBrands';
-import type { GetApiProductEthicalBrandsQueryResponse } from '../../models/GetApiProductEthicalBrands';
+import { getApiProductEthicalBrands } from "../../getApiProductEthicalBrands";
+import type { GetApiProductEthicalBrandsQueryResponse } from "../../models/GetApiProductEthicalBrands";
 
 export const getApiProductEthicalBrandsQueryKey = () =>
-  ['v5', { url: '/api/product/ethical/brands' }] as const;
+  ["v5", { url: "/api/product/ethical/brands" }] as const;
 
 export type GetApiProductEthicalBrandsQueryKey = ReturnType<
   typeof getApiProductEthicalBrandsQueryKey
 >;
 
 export function getApiProductEthicalBrandsQueryOptionsHook(
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {}
+  config: Partial<RequestConfig> & { client?: Client } = {}
 ) {
   const queryKey = getApiProductEthicalBrandsQueryKey();
   return queryOptions<
@@ -39,8 +39,10 @@ export function getApiProductEthicalBrandsQueryOptionsHook(
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal;
-      return getApiProductEthicalBrands(config);
+      return getApiProductEthicalBrands({
+        ...config,
+        signal: config.signal ?? signal,
+      });
     },
   });
 }
@@ -64,19 +66,19 @@ export function useGetApiProductEthicalBrandsHook<
         TQueryKey
       >
     > & { client?: QueryClient };
-    client?: Partial<RequestConfig> & { client?: typeof fetch };
+    client?: Partial<RequestConfig> & { client?: Client };
   } = {}
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {};
-  const { client: queryClient, ...queryOptions } = queryConfig;
+  const { client: queryClient, ...resolvedOptions } = queryConfig;
   const queryKey =
-    queryOptions?.queryKey ?? getApiProductEthicalBrandsQueryKey();
+    resolvedOptions?.queryKey ?? getApiProductEthicalBrandsQueryKey();
 
   const query = useQuery(
     {
       ...getApiProductEthicalBrandsQueryOptionsHook(config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient
   ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & {

@@ -16,7 +16,7 @@ describe("KyselyDatasource.stream logging", () => {
         sql: "SELECT * FROM test",
         parameters: [],
       }),
-      stream: vi.fn().mockImplementation(async function* () {
+      stream: vi.fn().mockImplementation(async function* stream() {
         yield { id: 1 };
         yield { id: 2 };
         yield { id: 3 };

@@ -4,7 +4,7 @@ interface Props {
   lang: string;
 }
 
-export const OutdatedBrowserHtml: FC<Props> = async (props) => {
+export const OutdatedBrowserHtml: FC<Props> = (props) => {
   const { lang } = props;
   return (
     <html lang={lang}>
