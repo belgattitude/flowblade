@@ -1,5 +1,15 @@
 # @flowblade/source-duckdb
 
+## 0.27.1
+
+### Patch Changes
+
+- [#1346](https://github.com/belgattitude/flowblade/pull/1346) [`0508230`](https://github.com/belgattitude/flowblade/commit/050823071af28214b351f393d3f270bacc9acf1c) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild with latest tsdown, modernize monorepo
+
+- Updated dependencies [[`0508230`](https://github.com/belgattitude/flowblade/commit/050823071af28214b351f393d3f270bacc9acf1c)]:
+  - @flowblade/sql-tag@0.3.5
+  - @flowblade/core@0.2.30
+
 ## 0.27.0
 
 ### Minor Changes

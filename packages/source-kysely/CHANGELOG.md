@@ -1,5 +1,15 @@
 # @flowblade/source-kysely
 
+## 1.7.1
+
+### Patch Changes
+
+- [#1346](https://github.com/belgattitude/flowblade/pull/1346) [`0508230`](https://github.com/belgattitude/flowblade/commit/050823071af28214b351f393d3f270bacc9acf1c) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild with latest tsdown, modernize monorepo
+
+- Updated dependencies [[`0508230`](https://github.com/belgattitude/flowblade/commit/050823071af28214b351f393d3f270bacc9acf1c)]:
+  - @flowblade/sql-tag@0.3.5
+  - @flowblade/core@0.2.30
+
 ## 1.7.0
 
 ### Minor Changes
@@ -647,6 +657,7 @@
 - [#241](https://github.com/belgattitude/flowblade/pull/241) [`f7ab188`](https://github.com/belgattitude/flowblade/commit/f7ab1881c1c7fdc8571c96cf09c49ad9387ed8f9) Thanks [@belgattitude](https://github.com/belgattitude)! - Support new Kysely validateConnections and resetConnectionOnRelease options.
 
   **Warning this release contains a breaking change**
+
   - [x] Kysely minimum supported version is ^0.27.5.
   - [x] createKyselySqlServerDialect signature refactored
 

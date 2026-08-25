@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.2.30
+
+### Patch Changes
+
+- [#1346](https://github.com/belgattitude/flowblade/pull/1346) [`0508230`](https://github.com/belgattitude/flowblade/commit/050823071af28214b351f393d3f270bacc9acf1c) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild with latest tsdown, modernize monorepo
+
 ## 0.2.29
 
 ### Patch Changes

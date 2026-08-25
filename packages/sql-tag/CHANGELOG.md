@@ -1,5 +1,11 @@
 # @flowblade/sql-tag
 
+## 0.3.5
+
+### Patch Changes
+
+- [#1346](https://github.com/belgattitude/flowblade/pull/1346) [`0508230`](https://github.com/belgattitude/flowblade/commit/050823071af28214b351f393d3f270bacc9acf1c) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild with latest tsdown, modernize monorepo
+
 ## 0.3.4
 
 ### Patch Changes
@@ -125,6 +131,7 @@
 ### Patch Changes
 
 - [#279](https://github.com/belgattitude/flowblade/pull/279) [`2c61d77`](https://github.com/belgattitude/flowblade/commit/2c61d77025259157fe2e4e4917f52682dcd578aa) Thanks [@belgattitude](https://github.com/belgattitude)! - - Improve README with recipes for conditionals and query composition
+
   - Add `sql.if` helper for alternative conditional syntax.
 
   ```typescript
@@ -214,7 +221,11 @@
      AND username IN (${sql.join(params.users)}) -- 👈 sql.join
   
      -- 👇 conditional clause with sql.empty
-     ${params.ids.length > 0 ? sql`AND id IN (${sql.join(params.ids)})` : sql.empty}
+     ${
+       params.ids.length > 0
+         ? sql`AND id IN (${sql.join(params.ids)})`
+         : sql.empty
+     }
   `;
 
   // query.sql === "SELECT id, username FROM users WHERE country = ? AND username IN (?, ?) AND id IN (?)";
