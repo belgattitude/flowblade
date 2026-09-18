@@ -1,11 +1,13 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
 import * as z from "zod";
+import { Table } from '../../objects/table.ts';
 
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
 import { createDummyKyselyDb } from "#/tests/utils/create-dummy-kysely-db.ts";
 
 import { KyselyMaterializableTable } from "./kysely-materializable-table.ts";
 import { withMaterializedKyselyQuery } from "./with-materialized-kysely-query.ts";
+import {sql} from "@flowblade/sql-tag";
 
 describe("withMaterializedKyselyQuery", () => {
   let duckConn: DuckDBConnection;
@@ -38,24 +40,40 @@ describe("withMaterializedKyselyQuery", () => {
       schema,
     });
 
-    const data = await withMaterializedKyselyQuery({
+    const result = await withMaterializedKyselyQuery({
       duckConn,
       table,
-      query: async ({ duckConn }) => {
-        const reader = await duckConn.runAndReadAll("SELECT * FROM cool");
-        return reader.getRowObjectsJS();
+      query: async ({ dsDuck, table }) => {
+        return await dsDuck.query(sql`SELECT * FROM ${sql.raw(table.getFullName())}`);
       },
     });
 
-    expect(data).toStrictEqual({
+
+    expect(result.isError()).toBe(false);
+
+    const {data, meta} = result;
+
+    console.log('meata', meta.getSpans());
+
+    expect(meta.getSpansByType('materialization').length).toBe(1);
+
+    const spans = meta.getSpans();;
+    expect(spans.length).toBe(2)
+
+    expect(meta.getLatestSpan()?.type).toBe('sql')
+
+    /*
+    expect(result).toStrictEqual({
       data: [],
       meta: {
         create: {
-          ddl: expect.stringMatching(/^CREATE TABLE*/),
+          ddl: expect.stringMatching(/^CREATE TABLE/),
           rows: 0,
           timeMs: expect.any(Number),
+          table: expect.any(Table)
         },
       },
     });
+*/
   });
 });

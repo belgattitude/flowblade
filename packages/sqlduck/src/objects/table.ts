@@ -1,3 +1,5 @@
+import {isDuckdbValidIdentifier} from "../validation/core/is-duckdb-valid-identifier.ts";
+
 /**
  * Fully qualified table information
  */

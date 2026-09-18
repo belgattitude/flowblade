@@ -63,6 +63,7 @@ describe("MSSQL materialized e2e tests", () => {
     it(
       "should work",
       async () => {
+
         const query = mssqlDs.queryBuilder.selectFrom("TestTable as t").select([
           "t.id",
           "t.name",
@@ -87,9 +88,13 @@ describe("MSSQL materialized e2e tests", () => {
             //iso_date: z.nullable(z.iso.date()),
           }),
         });
+
         const result = await withMaterializedKyselyQuery({
           duckConn,
           table,
+          query: async () => {
+
+          }
         });
         expect(result.meta.create.rows).toStrictEqual(testDataCount);
       },

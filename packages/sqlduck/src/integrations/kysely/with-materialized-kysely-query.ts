@@ -1,57 +1,97 @@
-import type { DuckDBConnection } from "@duckdb/node-api";
+import { DuckDBConnection } from "@duckdb/node-api";
 
-import { Table } from "../../objects/table.ts";
-import { SqlDuck } from "../../sql-duck.ts";
+import type { Table } from "../../objects/table.ts";
+import {SqlDuck, type ToTableParams, type ToTableResult} from "../../sql-duck.ts";
 import type { KyselyMaterializableTable } from "./kysely-materializable-table.ts";
+import {createRandomTable} from "../../table/create-random-table.ts";
+import {DuckdbDatasource } from "@flowblade/source-duckdb";
+import type {
+  QResult,
+  QError, AsyncQResult, QMetaSqlSpan} from '@flowblade/core';
+import {
+  createQResultError,
+  createQResultSuccess,
+  QMeta,
+} from '@flowblade/core';
 
-type Return = {
-  data: Record<string, unknown>[];
-  meta: {
-    create: {
-      ddl: string;
-      timeMs: number;
-      rows: number;
-    };
+type WithMaterializedQueryResult = QResult<Record<string, unknown>[], QError>;
+
+type Params = {
+  duckConn: DuckdbDatasource | DuckDBConnection;
+  table: KyselyMaterializableTable;
+  query: (options: {
+    dsDuck: DuckdbDatasource
+    table: Table;
+  }) => Promise<QResult<Record<string, unknown>[], QError>>;
+};
+
+
+export interface QMetaMaterializationSpan {
+  type: 'materialization';
+  ddl: string;
+  timeMs: number;
+  affectedRows: number;
+  table: Table
+}
+
+export const createMaterializationSpan = (params: Omit<QMetaMaterializationSpan, 'type'>): QMetaMaterializationSpan => {
+  return {
+    type: "materialization",
+    ...params
   };
 };
 
-type Params = {
-  duckConn: DuckDBConnection;
-  table: KyselyMaterializableTable;
-  query: (options: {
-    duckConn: DuckDBConnection;
-  }) => Promise<Record<string, unknown>[]>;
-};
 
 export const withMaterializedKyselyQuery = async (
   params: Params
-): Promise<Return> => {
+): Promise<WithMaterializedQueryResult> => {
   const chunkSize = 1024;
   const { duckConn, table, query } = params;
-  const sqlDuck = new SqlDuck({ conn: duckConn });
+  const dsDuck = duckConn instanceof DuckDBConnection ? new DuckdbDatasource({
+    connection: duckConn
+  }) : duckConn;
+  const sqlDuck = new SqlDuck({ conn: dsDuck.getConnection() });
   const rowStream = table.getSourceQuery().stream({
     chunkSize,
   });
-  const result = await sqlDuck.toTable({
-    chunkSize,
-    rowStream,
-    schema: table.getSchema(),
-    table: new Table({
-      name: "cool",
-      database: "memory",
-    }),
+
+  const materializedTable = createRandomTable({
+    prefix: '_materialized'
   });
 
-  const data = await query({ duckConn });
+  let result: ToTableResult;
 
-  return {
-    data,
-    meta: {
-      create: {
-        ddl: result.createTableDDL,
-        timeMs: result.timeMs,
-        rows: result.totalRows,
-      },
-    },
-  };
+  try {
+    result = await sqlDuck.toTable({
+      chunkSize,
+      rowStream,
+      schema: table.getSchema(),
+      table: materializedTable,
+      autoCheckpoint: materializedTable.databaseName !== undefined
+    });
+  } catch (error) {
+    const message = `Can't materialize table ${materializedTable.getFullName()} - ${(error as Error).message}`
+    return createQResultError(
+        { message },
+        new QMeta({})
+    );
+  }
+
+  const materializedSpan = createMaterializationSpan({
+    ddl: result.createTableDDL,
+    timeMs: result.timeMs,
+    affectedRows: result.totalRows,
+    table: materializedTable
+  });
+
+  const queryResult = await query({ dsDuck, table: materializedTable });
+  if (queryResult.error) {
+    return queryResult;
+  }
+  console.log('queryResult', queryResult);
+  console.log('queryResult', queryResult.toJsonifiable());
+
+  queryResult.meta.addSpan(materializedSpan);
+
+  return queryResult;
 };
