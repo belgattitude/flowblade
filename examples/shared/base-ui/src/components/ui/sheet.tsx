@@ -2,7 +2,7 @@
 
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog";
 import { Button } from "@examples/base-ui/components/ui/button";
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 import { XIcon } from "lucide-react";
 import * as React from "react";
 
@@ -123,11 +123,11 @@ function SheetDescription({
 
 export {
   Sheet,
+  SheetTrigger,
   SheetClose,
   SheetContent,
-  SheetDescription,
-  SheetFooter,
   SheetHeader,
+  SheetFooter,
   SheetTitle,
-  SheetTrigger,
+  SheetDescription,
 };

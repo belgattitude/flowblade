@@ -1,4 +1,4 @@
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 import * as React from "react";
 
 function MessageGroup({ className, ...props }: React.ComponentProps<"div">) {
@@ -82,10 +82,10 @@ function MessageFooter({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 export {
+  MessageGroup,
   Message,
   MessageAvatar,
   MessageContent,
   MessageFooter,
-  MessageGroup,
   MessageHeader,
 };

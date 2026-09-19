@@ -8,8 +8,8 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@examples/base-ui/components/ui/input-group";
-import { cn } from "@examples/base-ui/lib/utils";
-import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react";
+import { cn } from "cn";
+import { ChevronDownIcon, XIcon, CheckIcon } from "lucide-react";
 import * as React from "react";
 
 const Combobox = ComboboxPrimitive.Root;
@@ -281,18 +281,18 @@ function useComboboxAnchor() {
 
 export {
   Combobox,
-  ComboboxChip,
-  ComboboxChips,
-  ComboboxChipsInput,
-  ComboboxCollection,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxGroup,
   ComboboxInput,
-  ComboboxItem,
-  ComboboxLabel,
+  ComboboxContent,
   ComboboxList,
+  ComboboxItem,
+  ComboboxGroup,
+  ComboboxLabel,
+  ComboboxCollection,
+  ComboboxEmpty,
   ComboboxSeparator,
+  ComboboxChips,
+  ComboboxChip,
+  ComboboxChipsInput,
   ComboboxTrigger,
   ComboboxValue,
   useComboboxAnchor,

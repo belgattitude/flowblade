@@ -1,4 +1,4 @@
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 import * as React from "react";
 
 function Card({
@@ -93,10 +93,10 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
 
 export {
   Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
+  CardFooter,
   CardTitle,
+  CardAction,
+  CardDescription,
+  CardContent,
 };
