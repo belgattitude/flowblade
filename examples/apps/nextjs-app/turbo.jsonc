@@ -4,6 +4,7 @@
   "tasks": {
     "build": {
       "env": ["NEXT_BUILD_*", "NEXT_PUBLIC_*", "SENTRY_*"],
+      "passThroughEnv": ["BLOB_READ_WRITE_TOKEN", "BETTER_AUTH_SECRET", "DUCKDB_MAIN_DB_DSN"],
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"],
       // We rely on tsconfig path aliases to ease starting
       // Only exception @flowblade/sqlduck that is used for env
