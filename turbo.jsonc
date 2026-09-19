@@ -34,14 +34,14 @@
     "test-unit-coverage": {},
     "lint": {
       "cache": true,
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json"]
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.jsonc"]
     },
     "lint-fix": {
       "cache": false,
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.md"]
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.jsonc", "**/*.md"]
     },
     "format": {
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.md", "**/*.yml", "**/*.css", "**/*.scss", "**/*.jsonc"]
+      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.jsonc", "**/*.md", "**/*.yml", "**/*.css", "**/*.scss", "**/*.jsonc"]
     },
     "lint-styles": {},
     "typecheck": {},
