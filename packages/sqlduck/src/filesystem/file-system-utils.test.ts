@@ -15,9 +15,11 @@ describe("FileSystemUtils", () => {
     });
     const relative = path.relative(cwd, currentFile);
 
-    expect(fsUtils.isSamePath(currentFile, currentFile)).toStrictEqual(true);
-    expect(fsUtils.isSamePath(relative, currentFile)).toStrictEqual(true);
-    expect(fsUtils.isSamePath("/", currentFile)).toStrictEqual(false);
+    it("should return equality for smae paths", () => {
+      expect(fsUtils.isSamePath(currentFile, currentFile)).toStrictEqual(true);
+      expect(fsUtils.isSamePath(relative, currentFile)).toStrictEqual(true);
+      expect(fsUtils.isSamePath("/", currentFile)).toStrictEqual(false);
+    });
   });
 
   describe("isSamePathAndExists", () => {
@@ -26,13 +28,17 @@ describe("FileSystemUtils", () => {
     const cwd = process.cwd();
     const relative = path.relative(cwd, currentFile);
 
-    expect(fsUtils.isSamePathAndExists(currentFile, currentFile)).toStrictEqual(
-      true
-    );
-    expect(fsUtils.isSamePathAndExists(relative, currentFile)).toStrictEqual(
-      true
-    );
-    expect(fsUtils.isSamePathAndExists("/", currentFile)).toStrictEqual(false);
+    it("should return equality when same path and exists", () => {
+      expect(
+        fsUtils.isSamePathAndExists(currentFile, currentFile)
+      ).toStrictEqual(true);
+      expect(fsUtils.isSamePathAndExists(relative, currentFile)).toStrictEqual(
+        true
+      );
+      expect(fsUtils.isSamePathAndExists("/", currentFile)).toStrictEqual(
+        false
+      );
+    });
   });
   describe("join", () => {
     const fsUtils = new FileSystemUtils();
@@ -40,11 +46,15 @@ describe("FileSystemUtils", () => {
       dirname: "/tmp/../tmp",
       filename: "hello.txt",
     });
-    expect(abs).toStrictEqual(path.resolve("/tmp/hello.txt"));
+    it("should join the path with relative", () => {
+      expect(abs).toStrictEqual(path.resolve("/tmp/hello.txt"));
+    });
   });
   describe("getFileSize", () => {
     const fsUtils = new FileSystemUtils();
     const currentFile = import.meta.filename;
-    expect(fsUtils.getFileSize(currentFile)).toBeGreaterThan(10);
+    it("should return the file size", () => {
+      expect(fsUtils.getFileSize(currentFile)).toBeGreaterThan(10);
+    });
   });
 });
