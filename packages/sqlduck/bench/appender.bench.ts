@@ -1,8 +1,7 @@
 import path from "node:path";
 
 import isInCi from "is-in-ci";
-import { bench, describe } from "vitest";
-import type { BenchOptions } from "vitest";
+import { type BenchCompareOptions, test } from "vitest";
 import * as z from "zod";
 
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
@@ -13,13 +12,13 @@ import { Table } from "../src/objects/table.ts";
 import { SqlDuck } from "../src/sql-duck.ts";
 import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator.ts";
 
-const benchConfig: BenchOptions = {
+const benchConfig: BenchCompareOptions = {
   iterations: isInCi ? 1 : 1,
   warmupIterations: isInCi ? 1 : 1,
   throws: true,
 };
 
-describe("appender benches", async () => {
+test("appender benches", async ({ bench }) => {
   const userSchema = z.object({
     id: z.int32().meta({ description: "cool" }),
     name: z.string(),
@@ -101,9 +100,8 @@ describe("appender benches", async () => {
 
   const sqlDuck = new SqlDuck({ conn });
 
-  bench(
-    `duckdb appender memory, count: ${limit}, chunk size 2048`,
-    async () => {
+  await bench.compare(
+    bench(`duckdb appender memory, count: ${limit}, chunk size 2048`, async () => {
       const { totalRows } = await sqlDuck.toTable({
         table: memoryTable,
         schema: userSchema,
@@ -118,13 +116,8 @@ describe("appender benches", async () => {
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
       }
-    },
-    benchConfig
-  );
-
-  bench(
-    `duckdb appender file, count: ${limit}, chunk size 2048`,
-    async () => {
+    }),
+    bench(`duckdb appender file, count: ${limit}, chunk size 2048`, async () => {
       const { totalRows } = await sqlDuck.toTable({
         table: fileTable,
         schema: userSchema,
@@ -139,13 +132,8 @@ describe("appender benches", async () => {
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
       }
-    },
-    benchConfig
-  );
-
-  bench(
-    `duckdb appender file no wal, count: ${limit}, chunk size 2048`,
-    async () => {
+    }),
+    bench(`duckdb appender file no wal, count: ${limit}, chunk size 2048`, async () => {
       const { totalRows } = await sqlDuck.toTable({
         table: fileTableNoWAL,
         schema: userSchema,
@@ -160,13 +148,8 @@ describe("appender benches", async () => {
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
       }
-    },
-    benchConfig
-  );
-
-  bench(
-    `duckdb appender file no wal, count: ${limit}, chunk size 1024`,
-    async () => {
+    }),
+    bench(`duckdb appender file no wal, count: ${limit}, chunk size 1024`, async () => {
       const { totalRows } = await sqlDuck.toTable({
         table: fileTableNoWAL,
         schema: userSchema,
@@ -181,34 +164,33 @@ describe("appender benches", async () => {
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
       }
-    },
-    benchConfig
-  );
-
-  bench.skipIf(isInCi)(
-    `duckdb appender, count: ${limit}, chunk size 1024`,
-    async () => {
-      const { totalRows: totalRows } = await sqlDuck.toTable({
-        table: memoryTable,
-        schema: userSchema,
-        rowStream: getFakeRowStream(),
-        chunkSize: 1024,
-        /*
-      onChunkAppended: (stats) => {
-        const heap = v8.getHeapStatistics();
-        console.log({
-          ...stats,
-          mem: Math.round(heap.used_heap_size / 1024 / 1024),
+    }),
+    bench(
+      `duckdb appender, count: ${limit}, chunk size 1024`,
+      benchConfig,
+      async () => {
+        const { totalRows: totalRows } = await sqlDuck.toTable({
+          table: memoryTable,
+          schema: userSchema,
+          rowStream: getFakeRowStream(),
+          chunkSize: 1024,
+          /*
+          onChunkAppended: (stats) => {
+            const heap = v8.getHeapStatistics();
+            console.log({
+              ...stats,
+              mem: Math.round(heap.used_heap_size / 1024 / 1024),
+            });
+          }, */
+          createOptions: {
+            create: "CREATE_OR_REPLACE",
+          },
         });
-      }, */
-        createOptions: {
-          create: "CREATE_OR_REPLACE",
-        },
-      });
-      if (totalRows !== limit) {
-        throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
+        if (totalRows !== limit) {
+          throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
+        }
       }
-    },
+    ),
     benchConfig
   );
 });

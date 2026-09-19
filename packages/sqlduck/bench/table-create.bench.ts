@@ -1,17 +1,16 @@
 import isInCi from "is-in-ci";
-import { bench, describe } from "vitest";
-import type { BenchOptions } from "vitest";
+import { type BenchCompareOptions, test } from "vitest";
 import * as z from "zod";
 
 import { getTableCreateFromZod, Table, zodCodecs } from "../src";
 
-const benchConfig: BenchOptions = {
+const benchConfig: BenchCompareOptions = {
   iterations: isInCi ? 1 : 2,
   warmupIterations: isInCi ? 1 : 1,
   throws: true,
 };
 
-describe(`Bench getTableCreateFromZod`, async () => {
+test(`Bench getTableCreateFromZod`, async ({ bench }) => {
   const userSchema = z.object({
     id: z.number().meta({ primaryKey: true }),
     name: z.string(),
@@ -26,14 +25,10 @@ describe(`Bench getTableCreateFromZod`, async () => {
     alt_uuid_v7: z.uuidv7(),
   });
 
-  bench(
-    `getTableCreateFromZod`,
-    async () => {
-      const _result = getTableCreateFromZod({
-        table: new Table("test_table"),
-        schema: userSchema,
-      });
-    },
-    benchConfig
-  );
+  await bench(`getTableCreateFromZod`, benchConfig, () => {
+    const _result = getTableCreateFromZod({
+      table: new Table("test_table"),
+      schema: userSchema,
+    });
+  }).run();
 });

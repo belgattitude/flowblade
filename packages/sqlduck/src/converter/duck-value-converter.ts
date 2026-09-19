@@ -28,10 +28,6 @@ const createDuckValueConverterTypeError = (params: {
 };
 
 export class DuckValueConverter {
-  /**
-   *
-   * @param value
-   */
   toUUID = (value: string | bigint | null | undefined): bigint | null => {
     if (typeof value === "bigint") {
       return value;
@@ -97,21 +93,20 @@ export class DuckValueConverter {
       value,
     });
   };
-
-  toBigIntString = (
+  toBigInt = (
     value: string | number | bigint | null | undefined
-  ): string | null => {
-    if (typeof value === "string") {
+  ): bigint | null => {
+    if (typeof value === "bigint") {
       return value;
     }
-    if (typeof value === "number" || typeof value === "bigint") {
-      return value.toString(10);
+    if (typeof value === "string" || typeof value === "number") {
+      return BigInt(value);
     }
     if (value === undefined || value === null) {
       return null;
     }
     throw createDuckValueConverterTypeError({
-      method: "toBigIntString",
+      method: "toBigInt",
       value,
     });
   };

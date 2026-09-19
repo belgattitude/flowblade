@@ -24,12 +24,6 @@ export default defineConfig({
       include: ["src/**/*.{js,jsx,ts,tsx}"],
     },
     include: testFiles,
-    css: false,
-    // To mimic Jest behaviour regarding mocks.
-    // @link https://vitest.dev/config/#clearmocks
-    clearMocks: true,
-    mockReset: true,
-    restoreMocks: true,
     exclude: [
       "**/node_modules/**",
       "**/dist/**",

@@ -30,10 +30,6 @@ export default defineConfig({
       provider: "istanbul",
       reporter: ["text", "json", "clover"],
     },
-    benchmark: {
-      reporters: ["default"],
-      outputJson: "./bench/output/benchmark-results.json",
-    },
     environment: "node",
     exclude: [
       "**/node_modules/**",

@@ -8,22 +8,22 @@ import { DuckValueConverter } from "./duck-value-converter.ts";
 
 describe("DuckValueConverter", () => {
   const converter = new DuckValueConverter();
-  describe("toBigIntString", () => {
+  describe("toBigInt", () => {
     const expectations = [
       [null, null],
       [undefined, null],
-      [222, "222"],
-      [333n, "333"],
-      [BigInt(555), "555"],
-      ["777", "777"],
+      [222, 222n],
+      [333n, 333n],
+      [BigInt(555), 555n],
+      ["777", 777n],
     ] as const;
     it.each(expectations)("should convert %s to %s", (value, expected) => {
-      expect(converter.toBigIntString(value)).toBe(expected);
+      expect(converter.toBigInt(value)).toBe(expected);
     });
     it("should throw when invalid value is given", () => {
       // @ts-expect-error testing invalid value
-      expect(() => converter.toBigIntString(new Date())).toThrow(
-        /\[DuckValueConverter.toBigIntString\]: Unsupported type object with value/
+      expect(() => converter.toBigInt(new Date())).toThrow(
+        /\[DuckValueConverter.toBigInt\]: Unsupported type object with value/
       );
     });
   });

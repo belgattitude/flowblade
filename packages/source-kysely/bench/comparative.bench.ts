@@ -1,6 +1,6 @@
-import { bench, describe } from "vitest";
+import { test } from "vitest";
 
-describe(`Bootstrap`, async () => {
+test(`Bootstrap`, async ({ bench }) => {
   bench("test nothing", () => {
     const _a = ["hello"].map((x) => x.toUpperCase());
   });

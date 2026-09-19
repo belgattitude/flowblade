@@ -1,9 +1,11 @@
 "use client";
 
-import { buttonVariants } from "@examples/base-ui/components/ui/button";
-import type { Button } from "@examples/base-ui/components/ui/button";
-import { cn } from "@examples/base-ui/lib/utils";
+import {
+  buttonVariants,
+  type Button,
+} from "@examples/base-ui/components/ui/button";
 import { Questionnaire as QuestionnairePrimitive } from "@shadcn/react/questionnaire";
+import { cn } from "cn";
 import { CheckIcon } from "lucide-react";
 import * as React from "react";
 

@@ -2,14 +2,14 @@
 
 import { Toast as ToastPrimitive } from "@base-ui/react/toast";
 import { Button } from "@examples/base-ui/components/ui/button";
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 import {
+  XIcon,
   CircleCheckIcon,
   InfoIcon,
-  Loader2Icon,
-  OctagonXIcon,
   TriangleAlertIcon,
-  XIcon,
+  OctagonXIcon,
+  Loader2Icon,
 } from "lucide-react";
 import * as React from "react";
 
@@ -208,21 +208,21 @@ function Toaster({
   );
 }
 
-const { createToastManager } = ToastPrimitive;
-const { useToastManager } = ToastPrimitive;
+const createToastManager = ToastPrimitive.createToastManager;
+const useToastManager = ToastPrimitive.useToastManager;
 
 export {
-  createToastManager,
+  Toaster,
   Toast,
-  toast,
   ToastAction,
   ToastClose,
   ToastContent,
   ToastDescription,
-  Toaster,
   ToastPortal,
   ToastProvider,
   ToastTitle,
   ToastViewport,
+  createToastManager,
+  toast,
   useToastManager,
 };

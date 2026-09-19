@@ -17,7 +17,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@examples/base-ui/components/ui/dropdown-menu";
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 import { CheckIcon } from "lucide-react";
 import * as React from "react";
 
@@ -265,19 +265,19 @@ function MenubarSubContent({
 
 export {
   Menubar,
-  MenubarCheckboxItem,
+  MenubarPortal,
+  MenubarMenu,
+  MenubarTrigger,
   MenubarContent,
   MenubarGroup,
-  MenubarItem,
+  MenubarSeparator,
   MenubarLabel,
-  MenubarMenu,
-  MenubarPortal,
+  MenubarItem,
+  MenubarShortcut,
+  MenubarCheckboxItem,
   MenubarRadioGroup,
   MenubarRadioItem,
-  MenubarSeparator,
-  MenubarShortcut,
   MenubarSub,
-  MenubarSubContent,
   MenubarSubTrigger,
-  MenubarTrigger,
+  MenubarSubContent,
 };

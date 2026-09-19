@@ -1,4 +1,4 @@
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 import { ChevronDownIcon } from "lucide-react";
 import * as React from "react";
 

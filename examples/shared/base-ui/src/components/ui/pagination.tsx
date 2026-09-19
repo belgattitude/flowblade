@@ -1,5 +1,5 @@
 import { Button } from "@examples/base-ui/components/ui/button";
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,

@@ -1,15 +1,15 @@
 "use client";
 
 import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer";
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 import * as React from "react";
 
-interface DrawerContextProps {
+type DrawerContextProps = {
   hasSnapPoints: boolean;
   modal: DrawerPrimitive.Root.Props["modal"];
   showSwipeHandle: boolean;
   swipeDirection: NonNullable<DrawerPrimitive.Root.Props["swipeDirection"]>;
-}
+};
 
 const DrawerContext = React.createContext<DrawerContextProps | null>(null);
 
@@ -211,14 +211,14 @@ function DrawerDescription({
 
 export {
   Drawer,
+  DrawerPortal,
+  DrawerOverlay,
+  DrawerSwipeHandle,
+  DrawerTrigger,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
-  DrawerOverlay,
-  DrawerPortal,
-  DrawerSwipeHandle,
+  DrawerFooter,
   DrawerTitle,
-  DrawerTrigger,
+  DrawerDescription,
 };
