@@ -97,7 +97,11 @@ describe("Duckdb tests", async () => {
               } as const;
             }
             return {
-              id: faker.number.int(),
+              id:
+                faker.number.int({
+                  min: 10,
+                  max: 1_000_000,
+                }) + rowIdx,
               name: faker.person.fullName(),
               email: faker.internet.email(),
               bignumber: faker.number.bigInt(),

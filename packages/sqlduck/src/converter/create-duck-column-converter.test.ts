@@ -11,6 +11,6 @@ describe("createDuckColumnConverter", () => {
     const map = createDuckColumnConverters(colDef);
     const converter = map.one!;
     expect(converter).toBeInstanceOf(Function);
-    expect(converter(10n)).toBe("10");
+    expect(converter(10n)).toBe(10n);
   });
 });

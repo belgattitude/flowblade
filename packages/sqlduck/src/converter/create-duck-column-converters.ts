@@ -21,14 +21,16 @@ export const createDuckColumnConverters = <
       case DuckDBTypeId.TIMESTAMP_MS:
         conv = converter.toTimestampMs;
         break;
+      case DuckDBTypeId.INTEGER:
+      case DuckDBTypeId.UINTEGER:
+        conv = false;
+        break;
       case DuckDBTypeId.BIGINT:
       case DuckDBTypeId.UBIGINT:
       case DuckDBTypeId.HUGEINT:
       case DuckDBTypeId.UHUGEINT:
-      case DuckDBTypeId.INTEGER:
-      case DuckDBTypeId.UINTEGER:
       case DuckDBTypeId.BIGNUM:
-        conv = converter.toBigIntString;
+        conv = converter.toBigInt;
         break;
       case DuckDBTypeId.ENUM:
         conv = converter.toStringEnum;
