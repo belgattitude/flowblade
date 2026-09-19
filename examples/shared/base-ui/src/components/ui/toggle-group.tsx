@@ -3,8 +3,8 @@
 import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";
 import { ToggleGroup as ToggleGroupPrimitive } from "@base-ui/react/toggle-group";
 import { toggleVariants } from "@examples/base-ui/components/ui/toggle";
-import { cn } from "@examples/base-ui/lib/utils";
-import type { VariantProps } from "class-variance-authority";
+import { type VariantProps } from "class-variance-authority";
+import { cn } from "cn";
 import * as React from "react";
 
 const ToggleGroupContext = React.createContext<
@@ -13,10 +13,10 @@ const ToggleGroupContext = React.createContext<
     orientation?: "horizontal" | "vertical";
   }
 >({
-  orientation: "horizontal",
   size: "default",
-  spacing: 2,
   variant: "default",
+  spacing: 2,
+  orientation: "horizontal",
 });
 
 function ToggleGroup({
@@ -47,7 +47,7 @@ function ToggleGroup({
       {...props}
     >
       <ToggleGroupContext.Provider
-        value={{ orientation, size, spacing, variant }}
+        value={{ variant, size, spacing, orientation }}
       >
         {children}
       </ToggleGroupContext.Provider>
@@ -73,8 +73,8 @@ function ToggleGroupItem({
       className={cn(
         "data-[state=on]:bg-muted shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 group-data-[spacing=0]/toggle-group:shadow-none focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-l-md group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-md group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-r-md group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-md group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-l-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-l group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t",
         toggleVariants({
-          size: context.size || size,
           variant: context.variant || variant,
+          size: context.size || size,
         }),
         className
       )}

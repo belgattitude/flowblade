@@ -1,14 +1,21 @@
 {
   "name": "flowblade-monorepo",
   "private": true,
+  "homepage": "https://github.com/belgattitude/flowblade",
   "license": "MIT",
   "author": {
     "name": "Vanvelthem Sébastien",
     "url": "https://github.com/belgattitude"
   },
-  "type": "module",
-  "homepage": "https://github.com/belgattitude/flowblade",
   "repository": "belgattitude/flowblade",
+  "workspaces": [
+    "benchmark",
+    "docs",
+    "examples/*/*",
+    "integrations/*",
+    "packages/*"
+  ],
+  "type": "module",
   "scripts": {
     "g:clean": "rimraf ./out && run clean:global-cache && yarn workspaces foreach --all -pv run clean && run clean:turbo",
     "clean:global-cache": "rimraf ./.cache",
@@ -53,22 +60,6 @@
     "nuke:node_modules": "rimraf --glob '**/node_modules'",
     "skills:update": "npx skills update"
   },
-  "workspaces": [
-    "benchmark",
-    "docs",
-    "examples/*/*",
-    "integrations/*",
-    "packages/*"
-  ],
-  "packageManager": "yarn@4.18.0",
-  "dependenciesMeta": {
-    "@prisma/client": {
-      "built": true
-    },
-    "@sentry/cli": {
-      "built": true
-    }
-  },
   "devDependencies": {
     "@changesets/changelog-github": "0.7.0",
     "@changesets/cli": "2.31.1",
@@ -78,28 +69,37 @@
     "@types/shell-quote": "1.7.5",
     "cross-env": "10.1.0",
     "is-ci": "4.1.0",
-    "lefthook": "2.1.10",
+    "lefthook": "2.1.14",
     "npm-check-updates": "23.1.0",
     "npm-run-all2": "9.0.3",
-    "oxfmt": "0.65.0",
-    "oxlint": "1.80.0",
+    "oxfmt": "0.68.0",
+    "oxlint": "1.83.0",
     "picocolors": "1.1.1",
     "pkg-pr-new": "0.0.88",
-    "react-doctor": "0.9.12",
+    "react-doctor": "0.9.14",
     "rimraf": "6.1.3",
     "shell-quote": "1.10.0",
     "syncpack": "15.3.3",
-    "turbo": "2.10.11",
+    "turbo": "2.11.2",
     "typescript": "7.0.2",
-    "ultracite": "7.10.6"
+    "ultracite": "7.12.0"
+  },
+  "dependenciesMeta": {
+    "@prisma/client": {
+      "built": true
+    },
+    "@sentry/cli": {
+      "built": true
+    }
   },
   "resolutions": {
     "esbuild": "^0.28.2"
   },
-  "resolutions-help": {
-    "esbuild": "Generally is safe to keep only the latest version (vite, vitest, tsup...)"
-  },
   "engines": {
     "node": ">=22.11.0"
+  },
+  "packageManager": "yarn@4.18.0",
+  "resolutions-help": {
+    "esbuild": "Generally is safe to keep only the latest version (vite, vitest, tsup...)"
   }
 }

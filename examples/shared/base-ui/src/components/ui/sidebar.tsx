@@ -19,9 +19,8 @@ import {
   TooltipTrigger,
 } from "@examples/base-ui/components/ui/tooltip";
 import { useIsMobile } from "@examples/base-ui/hooks/use-mobile";
-import { cn } from "@examples/base-ui/lib/utils";
-import { cva } from "class-variance-authority";
-import type { VariantProps } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "cn";
 import { PanelLeftIcon } from "lucide-react";
 import * as React from "react";
 
@@ -32,7 +31,7 @@ const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
-interface SidebarContextProps {
+type SidebarContextProps = {
   state: "expanded" | "collapsed";
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -40,7 +39,7 @@ interface SidebarContextProps {
   setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
-}
+};
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
 
@@ -89,11 +88,9 @@ function SidebarProvider({
   );
 
   // Helper to toggle the sidebar.
-  const toggleSidebar = React.useCallback(
-    () =>
-      isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open),
-    [isMobile, setOpen, setOpenMobile]
-  );
+  const toggleSidebar = React.useCallback(() => {
+    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
+  }, [isMobile, setOpen, setOpenMobile]);
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -117,12 +114,12 @@ function SidebarProvider({
 
   const contextValue = React.useMemo<SidebarContextProps>(
     () => ({
-      isMobile,
-      open,
-      openMobile,
-      setOpen,
-      setOpenMobile,
       state,
+      open,
+      setOpen,
+      isMobile,
+      openMobile,
+      setOpenMobile,
       toggleSidebar,
     }),
     [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
@@ -410,8 +407,8 @@ function SidebarGroupLabel({
     ),
     render,
     state: {
-      sidebar: "group-label",
       slot: "sidebar-group-label",
+      sidebar: "group-label",
     },
   });
 }
@@ -434,8 +431,8 @@ function SidebarGroupAction({
     ),
     render,
     state: {
-      sidebar: "group-action",
       slot: "sidebar-group-action",
+      sidebar: "group-action",
     },
   });
 }
@@ -479,21 +476,21 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 const sidebarMenuButtonVariants = cva(
   "peer/menu-button group/menu-button ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-active:font-medium [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
   {
-    defaultVariants: {
-      size: "default",
-      variant: "default",
-    },
     variants: {
-      size: {
-        default: "h-8 text-sm",
-        lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
-        sm: "h-7 text-xs",
-      },
       variant: {
         default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
         outline:
           "bg-background hover:bg-sidebar-accent hover:text-sidebar-accent-foreground shadow-[0_0_0_1px_var(--sidebar-border)] hover:shadow-[0_0_0_1px_var(--sidebar-accent)]",
       },
+      size: {
+        default: "h-8 text-sm",
+        sm: "h-7 text-xs",
+        lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
     },
   }
 );
@@ -516,16 +513,16 @@ function SidebarMenuButton({
     defaultTagName: "button",
     props: mergeProps<"button">(
       {
-        className: cn(sidebarMenuButtonVariants({ size, variant }), className),
+        className: cn(sidebarMenuButtonVariants({ variant, size }), className),
       },
       props
     ),
-    render: tooltip ? <TooltipTrigger render={render} /> : render,
+    render: !tooltip ? render : <TooltipTrigger render={render} />,
     state: {
-      active: isActive,
+      slot: "sidebar-menu-button",
       sidebar: "menu-button",
       size,
-      slot: "sidebar-menu-button",
+      active: isActive,
     },
   });
 
@@ -576,8 +573,8 @@ function SidebarMenuAction({
     ),
     render,
     state: {
-      sidebar: "menu-action",
       slot: "sidebar-menu-action",
+      sidebar: "menu-action",
     },
   });
 }
@@ -607,9 +604,9 @@ function SidebarMenuSkeleton({
   showIcon?: boolean;
 }) {
   // Random width between 50 to 90%.
-  const [width] = React.useState(
-    () => `${Math.floor(Math.random() * 40) + 50}%`
-  );
+  const [width] = React.useState(() => {
+    return `${Math.floor(Math.random() * 40) + 50}%`;
+  });
 
   return (
     <div
@@ -689,10 +686,10 @@ function SidebarMenuSubButton({
     ),
     render,
     state: {
-      active: isActive,
+      slot: "sidebar-menu-sub-button",
       sidebar: "menu-sub-button",
       size,
-      slot: "sidebar-menu-sub-button",
+      active: isActive,
     },
   });
 }

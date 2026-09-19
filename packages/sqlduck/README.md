@@ -124,79 +124,54 @@ const queryResult = await dbDuckDbMemoryConn.query<{
 
 ## Benchmarks
 
-### Node 24.19
+### Node 24.21
 
 ```
- RUN  v4.1.10 /home/sebastien/github/flowblade/packages/sqlduck
+ RUN  v5.0.1 /home/sebastien/github/flowblade/packages/sqlduck
 
-
- ✓ bench/appender.bench.ts > appender benches 4702ms
-     name                                                             hz     min     max    mean     p75     p99    p995    p999       rme  samples
-   · duckdb appender memory, count: 100000, chunk size 2048       2.9565  297.19  379.28  338.23  379.28  379.28  379.28  379.28  ±154.25%        2
-   · duckdb appender file, count: 100000, chunk size 2048         3.2467  302.16  313.84  308.00  313.84  313.84  313.84  313.84   ±24.10%        2
-   · duckdb appender file no wal, count: 100000, chunk size 2048  3.5982  272.83  283.01  277.92  283.01  283.01  283.01  283.01   ±23.29%        2
-   · duckdb appender file no wal, count: 100000, chunk size 1024  3.1962  307.89  317.86  312.87  317.86  317.86  317.86  317.86   ±20.24%        2
-   · duckdb appender, count: 100000, chunk size 1024              3.9457  238.32  268.56  253.44  268.56  268.56  268.56  268.56   ±75.84%        2
-
- ✓ bench/stream.bench.ts > Bench rowsToColumnsChunks 2768ms
-     name                                                                         hz      min     max     mean      p75     p99    p995    p999      rme  samples
-   · rowToColumnsChunk with chunkSize 2048 (count: 100000)                   14.7282  55.8866  117.44  67.8968  66.1927  117.44  117.44  117.44  ±18.84%       10
-   · rowToColumnsChunk with transformer with chunkSize 2048 (count: 100000)  12.1404  62.2024  138.60  82.3693  80.8803  138.60  138.60  138.60  ±26.30%       10
-   · mapFakeRowStream with chunkSize 2048 (count: 100000)                    11.5408  79.1225  102.85  86.6494  89.3379  102.85  102.85  102.85   ±5.60%       10
-
- ✓ bench/table-create.bench.ts > Bench getTableCreateFromZod 613ms
-     name                          hz     min     max    mean     p75     p99    p995    p999     rme  samples
-   · getTableCreateFromZod  24,208.11  0.0247  5.2321  0.0413  0.0434  0.1512  0.2186  0.7364  ±2.68%    12105
-
- BENCH  Summary
-
-  duckdb appender, count: 100000, chunk size 1024 - bench/appender.bench.ts > appender benches
-    1.10x faster than duckdb appender file no wal, count: 100000, chunk size 2048
-    1.22x faster than duckdb appender file, count: 100000, chunk size 2048
-    1.23x faster than duckdb appender file no wal, count: 100000, chunk size 1024
-    1.33x faster than duckdb appender memory, count: 100000, chunk size 2048
-
-  rowToColumnsChunk with chunkSize 2048 (count: 100000) - bench/stream.bench.ts > Bench rowsToColumnsChunks
-    1.21x faster than rowToColumnsChunk with transformer with chunkSize 2048 (count: 100000)
-    1.28x faster than mapFakeRowStream with chunkSize 2048 (count: 100000)
-```
-
-### Bun 1.4.0-dev
-
-```
-RUN  v4.1.10 /home/sebastien/github/flowblade/packages/sqlduck
-
-
- ✓ bench/appender.bench.ts > appender benches 4421ms
+ ✓  bench  bench/appender.bench.ts (1 test) 7533ms
+   ✓ appender benches 7530ms
      name                                                             hz     min     max    mean     p75     p99    p995    p999      rme  samples
-   · duckdb appender memory, count: 100000, chunk size 2048       3.6500  271.84  276.10  273.97  276.10  276.10  276.10  276.10   ±9.88%        2
-   · duckdb appender file, count: 100000, chunk size 2048         3.6469  272.29  276.12  274.21  276.12  276.12  276.12  276.12   ±8.88%        2
-   · duckdb appender file no wal, count: 100000, chunk size 2048  3.6858  271.23  271.39  271.31  271.39  271.39  271.39  271.39   ±0.36%        2
-   · duckdb appender file no wal, count: 100000, chunk size 1024  3.8828  245.82  269.28  257.55  269.28  269.28  269.28  269.28  ±57.90%        2
-   · duckdb appender, count: 100000, chunk size 1024              4.3164  228.90  233.35  231.68  233.35  233.35  233.35  233.35   ±2.60%        3
-
- ✓ bench/stream.bench.ts > Bench rowsToColumnsChunks 1944ms
+     duckdb appender, count: 100000, chunk size 1024              5.1751  180.11  231.60  194.56  192.86  229.70  230.65  231.41  ±10.12%        6   fastest
+     duckdb appender memory, count: 100000, chunk size 2048       5.0295  172.58  244.98  202.55  226.73  244.25  244.62  244.91  ±19.34%        5
+     duckdb appender file no wal, count: 100000, chunk size 1024  4.2547  210.67  317.28  240.39  237.64  314.09  315.69  316.96  ±22.80%        5
+     duckdb appender file no wal, count: 100000, chunk size 2048  3.8371  200.49  323.42  268.76  295.48  322.31  322.87  323.31  ±30.51%        4
+     duckdb appender file, count: 100000, chunk size 2048         3.7207  257.80  287.20  269.21  272.99  286.63  286.91  287.14   ±7.53%        4   slowest
+ ✓  bench  bench/stream.bench.ts (1 test) 3986ms
+   ✓ Bench rowsToColumnsChunks 3985ms
      name                                                                         hz      min      max     mean      p75      p99     p995     p999      rme  samples
-   · rowToColumnsChunk with chunkSize 2048 (count: 100000)                   23.3620  34.5897  57.6520  42.8045  46.5939  57.6520  57.6520  57.6520   ±9.96%       12
-   · rowToColumnsChunk with transformer with chunkSize 2048 (count: 100000)  19.9773  38.8665  71.6678  50.0569  51.5838  71.6678  71.6678  71.6678  ±14.39%       10
-   · mapFakeRowStream with chunkSize 2048 (count: 100000)                    19.0996  45.5100  66.2385  52.3572  53.0091  66.2385  66.2385  66.2385   ±7.43%       10
+     rowToColumnsChunk with chunkSize 2048 (count: 100000)                   16.4982  53.5190  78.3487  61.5746  70.6733  78.0419  78.1953  78.3180   ±7.00%       17   fastest
+     rowToColumnsChunk with transformer with chunkSize 2048 (count: 100000)  13.4073  63.2078   105.13  76.1133  81.6002   102.92   104.03   104.91   ±8.98%       14
+     mapFakeRowStream with chunkSize 2048 (count: 100000)                    10.3533  82.5579   120.58  98.5407   113.23   120.25   120.42   120.54  ±10.12%       11   slowest
+ ✓  bench  bench/table-create.bench.ts (1 test) 1286ms
+   ✓ Bench getTableCreateFromZod 1284ms
+     name                          hz     min      max    mean     p75     p99    p995    p999     rme  samples
+     getTableCreateFromZod  20,993.53  0.0343  10.9287  0.0597  0.0619  0.2081  0.3518  0.6929  ±4.00%    16755
+```
 
- ✓ bench/table-create.bench.ts > Bench getTableCreateFromZod 634ms
-     name                          hz     min     max    mean     p75     p99    p995    p999     rme  samples
-   · getTableCreateFromZod  30,647.46  0.0177  4.5320  0.0326  0.0335  0.1058  0.1550  0.7740  ±4.73%    15324
+### Bun 1.4.2
 
- BENCH  Summary
+```
+ RUN  v5.0.1 /home/sebastien/github/flowblade/packages/sqlduck
 
-  rowToColumnsChunk with chunkSize 2048 (count: 100000) - bench/stream.bench.ts > Bench rowsToColumnsChunks
-    1.17x faster than rowToColumnsChunk with transformer with chunkSize 2048 (count: 100000)
-    1.22x faster than mapFakeRowStream with chunkSize 2048 (count: 100000)
-
-  duckdb appender, count: 100000, chunk size 1024 - bench/appender.bench.ts > appender benches
-    1.11x faster than duckdb appender file no wal, count: 100000, chunk size 1024
-    1.17x faster than duckdb appender file no wal, count: 100000, chunk size 2048
-    1.18x faster than duckdb appender memory, count: 100000, chunk size 2048
-    1.18x faster than duckdb appender file, count: 100000, chunk size 2048
-
+ ✓  bench  bench/appender.bench.ts (1 test) 7353ms
+   ✓ appender benches 7351ms
+     name                                                             hz     min     max    mean     p75     p99    p995    p999      rme  samples
+     duckdb appender memory, count: 100000, chunk size 2048       6.5010  141.93  167.82  154.19  158.35  167.29  167.55  167.77   ±4.92%        7   fastest
+     duckdb appender, count: 100000, chunk size 1024              5.8972  158.33  185.98  170.04  174.01  185.43  185.70  185.92   ±6.09%        6
+     duckdb appender file no wal, count: 100000, chunk size 2048  5.1876  181.29  250.19  195.34  189.16  247.18  248.69  249.89  ±14.55%        6
+     duckdb appender file no wal, count: 100000, chunk size 1024  4.8410  187.20  264.48  209.80  208.05  262.22  263.35  264.26  ±18.63%        5
+     duckdb appender file, count: 100000, chunk size 2048         4.1319  229.30  261.16  242.64  253.36  260.85  261.00  261.13   ±7.09%        5   slowest
+ ✓  bench  bench/stream.bench.ts (1 test) 3933ms
+   ✓ Bench rowsToColumnsChunks 3931ms
+     name                                                                         hz      min      max     mean      p75      p99     p995     p999     rme  samples
+     rowToColumnsChunk with chunkSize 2048 (count: 100000)                   24.5296  34.3957  51.2149  41.1676  43.4825  50.3109  50.7629  51.1245  ±4.18%       25   fastest
+     rowToColumnsChunk with transformer with chunkSize 2048 (count: 100000)  23.5864  36.3807  57.7801  42.8068  43.2094  56.3888  57.0845  57.6410  ±4.56%       24
+     mapFakeRowStream with chunkSize 2048 (count: 100000)                    21.5954  42.7406  51.6524  46.4448  48.1176  51.5462  51.5993  51.6418  ±2.52%       22   slowest
+ ✓  bench  bench/table-create.bench.ts (1 test) 1310ms
+   ✓ Bench getTableCreateFromZod 1308ms
+     name                          hz     min      max    mean     p75     p99    p995    p999     rme  samples
+     getTableCreateFromZod  37,765.77  0.0185  10.1286  0.0360  0.0346  0.1235  0.1771  2.3683  ±4.27%    27781
 ```
 
 ### Local scripts

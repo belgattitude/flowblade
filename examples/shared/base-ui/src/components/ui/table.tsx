@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 import * as React from "react";
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
@@ -105,11 +105,11 @@ function TableCaption({
 
 export {
   Table,
+  TableHeader,
   TableBody,
-  TableCaption,
-  TableCell,
   TableFooter,
   TableHead,
-  TableHeader,
   TableRow,
+  TableCell,
+  TableCaption,
 };

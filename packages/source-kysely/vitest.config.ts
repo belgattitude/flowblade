@@ -25,10 +25,6 @@ export default defineConfig({
       provider: "istanbul",
       reporter: ["text", "json", "clover"],
     },
-    benchmark: {
-      reporters: ["default"],
-      outputJson: "./bench/output/benchmark-results.json",
-    },
     setupFiles: "./tests/vitest.setup.ts",
     environment: "node",
     exclude: [

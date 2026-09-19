@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 import * as React from "react";
 
 function Avatar({
@@ -100,9 +100,9 @@ function AvatarGroupCount({
 
 export {
   Avatar,
-  AvatarBadge,
+  AvatarImage,
   AvatarFallback,
   AvatarGroup,
   AvatarGroupCount,
-  AvatarImage,
+  AvatarBadge,
 };

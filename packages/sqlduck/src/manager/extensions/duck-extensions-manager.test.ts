@@ -33,7 +33,7 @@ describe("DuckExtensionsManagerTest", async () => {
     });
   });
 
-  describe.sequential("install", () => {
+  describe("install", { concurrent: false }, () => {
     it("should force install an extension", async () => {
       const extManager = new DuckExtensionsManager(conn);
       const installed = await extManager.install("fts", {

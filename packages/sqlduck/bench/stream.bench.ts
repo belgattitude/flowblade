@@ -1,18 +1,18 @@
 import isInCi from "is-in-ci";
-import { bench, describe } from "vitest";
-import type { BenchOptions } from "vitest";
+import { test } from "vitest";
+import type { BenchCompareOptions } from "vitest";
 import * as z from "zod";
 
 import { rowsToColumnsChunks } from "../src/utils/rows-to-columns-chunks";
 import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator";
 
-const benchConfig: BenchOptions = {
+const benchConfig: BenchCompareOptions = {
   iterations: isInCi ? 1 : 10,
   warmupIterations: isInCi ? 1 : 1,
   throws: true,
 };
 
-describe(`Bench rowsToColumnsChunks`, async () => {
+test(`Bench rowsToColumnsChunks`, async ({ bench }) => {
   const userSchema = z.object({
     id: z.number().meta({ description: "cool" }),
     name: z.string(),
@@ -46,9 +46,8 @@ describe(`Bench rowsToColumnsChunks`, async () => {
     }
   }
 
-  bench(
-    `rowToColumnsChunk with chunkSize 2048 (count: ${limit})`,
-    async () => {
+  await bench.compare(
+    bench(`rowToColumnsChunk with chunkSize 2048 (count: ${limit})`, async () => {
       const chunkSize = 2048;
       const a = rowsToColumnsChunks({
         rows: getFakeRowStream(),
@@ -57,13 +56,8 @@ describe(`Bench rowsToColumnsChunks`, async () => {
       for await (const row of a) {
         const _a = row;
       }
-    },
-    benchConfig
-  );
-
-  bench(
-    `rowToColumnsChunk with transformer with chunkSize 2048 (count: ${limit})`,
-    async () => {
+    }),
+    bench(`rowToColumnsChunk with transformer with chunkSize 2048 (count: ${limit})`, async () => {
       const chunkSize = 2048;
       const a = rowsToColumnsChunks({
         rows: getFakeRowStream(),
@@ -77,13 +71,8 @@ describe(`Bench rowsToColumnsChunks`, async () => {
       for await (const row of a) {
         const _a = row;
       }
-    },
-    benchConfig
-  );
-
-  bench(
-    `mapFakeRowStream with chunkSize 2048 (count: ${limit})`,
-    async () => {
+    }),
+    bench(`mapFakeRowStream with chunkSize 2048 (count: ${limit})`, async () => {
       const a = rowsToColumnsChunks({
         rows: mapFakeRowStream(getFakeRowStream()),
         chunkSize: 2048,
@@ -91,7 +80,7 @@ describe(`Bench rowsToColumnsChunks`, async () => {
       for await (const row of a) {
         const _a = row;
       }
-    },
+    }),
     benchConfig
   );
 });

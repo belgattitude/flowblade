@@ -22,14 +22,6 @@ export default defineConfig({
       reporter: ["text", "json", "clover"],
     },
     include: testFiles,
-    // you might want to disable it, if you don't have tests that rely on CSS
-    // since parsing CSS is slow
-    // css: true,
-    // To mimic Jest behaviour regarding mocks.
-    // @link https://vitest.dev/config/#clearmocks
-    clearMocks: true,
-    mockReset: true,
-    restoreMocks: true,
     exclude: [
       "**/node_modules/**",
       "**/dist/**",

@@ -1,8 +1,7 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
-import { cn } from "@examples/base-ui/lib/utils";
-import { cva } from "class-variance-authority";
-import type { VariantProps } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "cn";
 import * as React from "react";
 
 const markerVariants = cva(
@@ -10,10 +9,10 @@ const markerVariants = cva(
   {
     variants: {
       variant: {
-        border: "border-border border-b pb-2",
         default: "",
         separator:
           "before:bg-border after:bg-border before:mr-1 before:h-px before:min-w-0 before:flex-1 after:ml-1 after:h-px after:min-w-0 after:flex-1",
+        border: "border-border border-b pb-2",
       },
     },
   }
@@ -29,7 +28,7 @@ function Marker({
     defaultTagName: "div",
     props: mergeProps<"div">(
       {
-        className: cn(markerVariants({ className, variant })),
+        className: cn(markerVariants({ variant, className })),
       },
       props
     ),
@@ -68,4 +67,4 @@ function MarkerContent({ className, ...props }: React.ComponentProps<"span">) {
   );
 }
 
-export { Marker, MarkerContent, MarkerIcon, markerVariants };
+export { Marker, MarkerIcon, MarkerContent, markerVariants };

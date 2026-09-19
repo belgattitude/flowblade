@@ -18,16 +18,10 @@ export default defineConfig({
   },
   cacheDir: "../../.cache/vite/sql-tag-format",
   test: {
-    // @link https://vitest.dev/config/#clearmocks
-    clearMocks: true,
     coverage: {
       include: ["src/**/*.{js,jsx,ts,tsx}"],
       provider: "istanbul",
       reporter: ["text", "json", "clover"],
-    },
-    benchmark: {
-      reporters: ["default"],
-      outputJson: "./bench/output/benchmark-results.json",
     },
     environment: "node",
     exclude: [
@@ -38,9 +32,5 @@ export default defineConfig({
     ],
     globals: true,
     include: testFiles,
-    // To mimic Jest behaviour regarding mocks.
-    mockReset: true,
-    passWithNoTests: false,
-    restoreMocks: true,
   },
 });
