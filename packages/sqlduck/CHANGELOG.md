@@ -1,5 +1,21 @@
 # @flowblade/sqlduck
 
+## 0.37.0
+
+### Minor Changes
+
+- [#1348](https://github.com/belgattitude/flowblade/pull/1348) [`6740eb1`](https://github.com/belgattitude/flowblade/commit/6740eb102f70af458229237f300fc753058c6c84) Thanks [@belgattitude](https://github.com/belgattitude)! - Fix js to duckdbvalue conversion to support latest duckdb neo release
+
+- [#1348](https://github.com/belgattitude/flowblade/pull/1348) [`6740eb1`](https://github.com/belgattitude/flowblade/commit/6740eb102f70af458229237f300fc753058c6c84) Thanks [@belgattitude](https://github.com/belgattitude)! - Duckdb node neo minimum version updated to 1.5.5-r5
+
+- [#1348](https://github.com/belgattitude/flowblade/pull/1348) [`6740eb1`](https://github.com/belgattitude/flowblade/commit/6740eb102f70af458229237f300fc753058c6c84) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to latest
+
+### Patch Changes
+
+- Updated dependencies [[`6740eb1`](https://github.com/belgattitude/flowblade/commit/6740eb102f70af458229237f300fc753058c6c84)]:
+  - @flowblade/source-duckdb@0.28.0
+  - @flowblade/core@0.3.0
+
 ## 0.36.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.3.0
+
+### Minor Changes
+
+- [#1348](https://github.com/belgattitude/flowblade/pull/1348) [`6740eb1`](https://github.com/belgattitude/flowblade/commit/6740eb102f70af458229237f300fc753058c6c84) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to latest
+
 ## 0.2.30
 
 ### Patch Changes
