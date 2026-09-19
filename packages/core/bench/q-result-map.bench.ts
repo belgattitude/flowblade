@@ -1,12 +1,11 @@
 import { faker } from "@faker-js/faker/locale/en";
-import { bench } from "vitest";
 
 import { QResult } from "../src";
 import { QMeta } from "../src/meta/q-meta";
 
 const GENERATED_ROWS = 100_000;
 
-describe("QResult map benchmarks", () => {
+test("QResult map benchmarks", ({ bench }) => {
   const fakeMeta = new QMeta({
     spans: {
       type: "sql",
