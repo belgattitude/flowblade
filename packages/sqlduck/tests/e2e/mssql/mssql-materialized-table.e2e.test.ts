@@ -6,7 +6,7 @@ import { MSSQLServerContainer } from "@testcontainers/mssqlserver";
 import type { StartedMSSQLServerContainer } from "@testcontainers/mssqlserver/build/mssqlserver-container";
 import isInCi from "is-in-ci";
 import { sql } from "kysely";
-import { describe } from "vitest";
+import {describe, expect} from "vitest";
 import * as z from "zod";
 
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
@@ -63,16 +63,17 @@ describe("MSSQL materialized e2e tests", () => {
     it(
       "should work",
       async () => {
-
         const query = mssqlDs.queryBuilder.selectFrom("TestTable as t").select([
           "t.id",
           "t.name",
           "t.positive_bigint",
           "t.negative_bigint",
           "t.null_column",
-          "t.decimal_18_3",
+          "t.decimal_18_3", // https://github.com/tediousjs/tedious/issues/1675 - sql`CAST(t.decimal_18_3 AS VARCHAR(30))`.as("decimal_18_3"),
           //"t.iso_date",
         ]);
+
+        const sqlserverResult = await mssqlDs.queryOrThrow(query);
 
         const table = new KyselyMaterializableTable({
           sourceQuery: query,
@@ -92,10 +93,23 @@ describe("MSSQL materialized e2e tests", () => {
         const result = await withMaterializedKyselyQuery({
           duckConn,
           table,
-          query: async () => {
-
-          }
+          query: async ({dsDuck, table}) => {
+            console.log('AAAA', table.getFullName());
+            return await dsDuck.query(
+                sqlt<{id: number}>`SELECT * FROM ${sqlt.raw(table.getFullName())}`
+            );
+          },
         });
+
+        expect(result.isError()).toBe(false);
+
+        const normalizedData = sqlserverResult.data.map((row) => ({
+            ...row,
+          decimal_18_3: row.decimal_18_3?.toFixed(3),
+        }));
+
+        expect(result.data).toStrictEqual(normalizedData)
+        expect(result.meta).toStrictEqual([])
         expect(result.meta.create.rows).toStrictEqual(testDataCount);
       },
       testTimeout

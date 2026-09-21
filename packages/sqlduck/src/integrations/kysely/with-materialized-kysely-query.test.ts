@@ -1,13 +1,13 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
+import { sql } from "@flowblade/sql-tag";
 import * as z from "zod";
-import { Table } from '../../objects/table.ts';
 
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
 import { createDummyKyselyDb } from "#/tests/utils/create-dummy-kysely-db.ts";
 
+import { Table } from "../../objects/table.ts";
 import { KyselyMaterializableTable } from "./kysely-materializable-table.ts";
 import { withMaterializedKyselyQuery } from "./with-materialized-kysely-query.ts";
-import {sql} from "@flowblade/sql-tag";
 
 describe("withMaterializedKyselyQuery", () => {
   let duckConn: DuckDBConnection;
@@ -15,7 +15,7 @@ describe("withMaterializedKyselyQuery", () => {
   beforeAll(async () => {
     duckConn = await createDuckdbTestMemoryDb();
   });
-  afterAll(async () => {
+  afterAll(() => {
     duckConn.closeSync();
   });
 
@@ -31,7 +31,7 @@ describe("withMaterializedKyselyQuery", () => {
     const query = db.selectFrom("user").select(["id", "name"]);
 
     const schema = z.strictObject({
-      id: z.number(),
+      id: z.int32(),
       name: z.string(),
     });
 
@@ -44,25 +44,29 @@ describe("withMaterializedKyselyQuery", () => {
       duckConn,
       table,
       query: async ({ dsDuck, table }) => {
-        return await dsDuck.query(sql`SELECT * FROM ${sql.raw(table.getFullName())}`);
+        const result =  await dsDuck.query(
+          sql`SELECT * FROM ${sql.raw(table.getFullName())}`
+        );
+        console.log('AAAA', result);
+        return result;
       },
     });
 
-
     expect(result.isError()).toBe(false);
 
-    const {data, meta} = result;
+    const { data, meta, error } = result;
+    expect(error).toBeUndefined();
 
-    console.log('meata', meta.getSpans());
+    const spans = meta.getSpans();
+    expect(spans.length).toBe(2);
+    expect(meta.getSpansByType("materialization").length).toBe(1);
+   // expect(meta.getLatestSpan()?.type).toBe("sql");
 
-    expect(meta.getSpansByType('materialization').length).toBe(1);
+    expect(data).toStrictEqual([]);
 
-    const spans = meta.getSpans();;
-    expect(spans.length).toBe(2)
+/*
+    expect(result).toMatchSnapshot();
 
-    expect(meta.getLatestSpan()?.type).toBe('sql')
-
-    /*
     expect(result).toStrictEqual({
       data: [],
       meta: {

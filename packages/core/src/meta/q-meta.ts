@@ -88,7 +88,7 @@ export class QMeta {
    * Return spans by type 'sql'...
    */
   getSpansByType = (type: string): Readonly<QMetaSpan>[] => {
-    return (this.spans.find((span) => span.type === type) ?? []) as Readonly<QMetaSpan>[];
+    return (this.spans.filter((span) => span.type === type) ?? []);
   };
 
   /**
