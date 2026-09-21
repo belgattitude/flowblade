@@ -33,13 +33,13 @@ jobs:
           package-manager-cache: false
 
       - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
+        uses: ./.github/actions/pnpm-install
 
       - name: 🦋 Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: yarn g:release
+          publish: pnpm g:release
           setupGitUser: true
         env:
           # See https://github.com/changesets/action/issues/147
@@ -51,4 +51,3 @@ jobs:
           # setting a custom PAT token from a GH account and setting it the secrets.
           GITHUB_TOKEN: ${{ secrets.BELGATTITUDE_FLOWBLADE_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
-

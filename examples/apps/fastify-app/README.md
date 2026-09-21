@@ -4,7 +4,7 @@
 
 ```bash
 cd examples/fastify-app
-yarn dev
+pnpm dev
 ```
 
 ### Swagger UI

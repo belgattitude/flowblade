@@ -1,6 +1,6 @@
 # Agent instructions for flowblade monorepo
 
-This repository is a TypeScript monorepo managed by **Yarn 4** (Berry) and **Turborepo**.
+This repository is a TypeScript monorepo managed by **pnpm 12** and **Turborepo**.
 
 ## Repository Structure
 
@@ -11,7 +11,7 @@ This repository is a TypeScript monorepo managed by **Yarn 4** (Berry) and **Tur
 
 ## Tech Stack
 
-- **Package Manager**: Yarn 4 (`yarn`) with `node_modules` linker (check `.yarnrc.yml`).
+- **Package Manager**: pnpm 12 (`pnpm`) with an isolated `node_modules` linker (check `pnpm-workspace.yaml`).
 - **Orchestration**: Turborepo (`turbo`).
 - **Language**: TypeScript.
 - **Testing**: Vitest (`vitest`).
@@ -22,23 +22,23 @@ This repository is a TypeScript monorepo managed by **Yarn 4** (Berry) and **Tur
 
 Run these from the root:
 
-- `yarn g:build`: Build all packages (excluding examples/docs).
-- `yarn g:test-unit`: Run unit tests for all packages.
-- `yarn g:lint`: Lint the entire repository.
-- `yarn g:lint-fix`: Auto fix lint errors in the entire repository.
-- `yarn g:typecheck`: Run TypeScript type checking.
-- `yarn workspaces foreach -A run <script>`: Run a script in all workspaces.
+- `pnpm g:build`: Build all packages (excluding examples/docs).
+- `pnpm g:test-unit`: Run unit tests for all packages.
+- `pnpm g:lint`: Lint the entire repository.
+- `pnpm g:lint-fix`: Auto fix lint errors in the entire repository.
+- `pnpm g:typecheck`: Run TypeScript type checking.
+- `pnpm -r run <script>`: Run a script in all workspaces.
 
 ## Package-Specific Development
 
 Each package in `packages/` has its own `package.json` and local scripts:
 
-- `yarn workspace @flowblade/<package-name> run typecheck`: Run typecheck for a specific package.
-- `yarn workspace @flowblade/<package-name> run test-unit`: Run unit tests for a specific package.
-- `yarn workspace @flowblade/<package-name> run test-e2e`: Run e2e tests for a specific package.
-- `yarn workspace @flowblade/<package-name> run lint`: Run lint for a specific package.
-- `yarn workspace @flowblade/<package-name> run lint-fix`: Run lint auto fixes for a specific package.
-- `yarn workspace @flowblade/<package-name> run build`: Build a specific package.
+- `pnpm --filter @flowblade/<package-name> run typecheck`: Run typecheck for a specific package.
+- `pnpm --filter @flowblade/<package-name> run test-unit`: Run unit tests for a specific package.
+- `pnpm --filter @flowblade/<package-name> run test-e2e`: Run e2e tests for a specific package.
+- `pnpm --filter @flowblade/<package-name> run lint`: Run lint for a specific package.
+- `pnpm --filter @flowblade/<package-name> run lint-fix`: Run lint auto fixes for a specific package.
+- `pnpm --filter @flowblade/<package-name> run build`: Build a specific package.
 
 ## Coding Standards
 

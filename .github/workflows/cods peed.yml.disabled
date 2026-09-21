@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          # Fetch all git history so that yarn workspaces --since can compare with the correct commits
+          # Fetch all git history so workspace comparisons have the correct commits.
           # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           fetch-depth: 0
 
@@ -29,11 +29,11 @@ jobs:
           package-manager-cache: false
 
       - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
+        uses: ./.github/actions/pnpm-install
 
       - name: 🌠 Run benchmarks
         uses: CodSpeedHQ/action@v4
         with:
-          run: yarn g:bench-codspeed
+          run: pnpm g:bench-codspeed
           mode: "simulation"
           token: ${{ secrets.CODSPEED_TOKEN }}

@@ -37,12 +37,13 @@
     "./package.json": "./package.json"
   },
   "publishConfig": {
-    "directory": "_release/package"
+    "directory": "_release/package",
+    "linkDirectory": false
   },
   "scripts": {
     "?build-release": "When https://github.com/atlassian/changesets/issues/432 has a solution we can remove this trick",
     "build": "tsdown",
-    "build-release": "yarn build && rimraf ./_release && yarn pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz",
+    "build-release": "pnpm build && rimraf ./_release && pnpm pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz",
     "bench": "vitest bench --run",
     "bench-codspeed": "cross-env CODSPEED=1 vitest bench --run",
     "bench-watch": "vitest bench",
@@ -86,6 +87,7 @@
     "@codspeed/vitest-plugin": "5.7.1",
     "@edge-runtime/vm": "5.0.0",
     "@faker-js/faker": "10.6.0",
+    "@flowblade/devtools": "workspace:*",
     "@logtape/pretty": "2.3.6",
     "@size-limit/esbuild": "14.0.0",
     "@size-limit/file": "14.0.0",
@@ -99,6 +101,7 @@
     "es-check": "9.8.0",
     "esbuild": "0.28.2",
     "execa": "10.0.1",
+    "is-in-ci": "2.0.0",
     "kysely": "0.29.6",
     "npm-run-all2": "9.0.3",
     "oxfmt": "0.68.0",

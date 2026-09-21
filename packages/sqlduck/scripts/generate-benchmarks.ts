@@ -213,7 +213,7 @@ const runBenchmark = async (
   outputFile: string
 ): Promise<VitestBenchmarkReport> => {
   await execa(
-    "yarn",
+    "pnpm",
     [
       "run",
       script,

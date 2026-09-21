@@ -49,7 +49,7 @@ jobs:
           server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
 
       - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
+        uses: ./.github/actions/pnpm-install
 
       - name: ♻️ Restore website docs build caches
         uses: actions/cache@v6
@@ -58,16 +58,16 @@ jobs:
             ${{ github.workspace }}/docs/.next/cache
             ${{ github.workspace }}/.cache
             ${{ github.workspace }}/docs/tsconfig.tsbuildinfo
-          key: website-docs-build-cache-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          key: website-docs-build-cache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: 🕵️ Typecheck
-        run: yarn turbo run typecheck --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: pnpm turbo run typecheck --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🔬 ESLint checks
-        run: yarn turbo run lint --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: pnpm turbo run lint --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🏗 Build docs
-        run: yarn workspace @docs/website run build-static
+        run: pnpm --filter @docs/website run build-static
         env:
           NEXT_BUILD_BASE_PATH: "/flowblade"
           NEXT_TELEMETRY_DISABLED: true
@@ -86,7 +86,6 @@ jobs:
       #  if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
       #  run: |
       #    git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-      #    yarn website:deploy -u "github-actions-bot <support+actions@github.com>"
+      #    pnpm website:deploy -u "github-actions-bot <support+actions@github.com>"
       #  env:
       #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

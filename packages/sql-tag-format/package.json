@@ -37,12 +37,13 @@
     "./package.json": "./package.json"
   },
   "publishConfig": {
-    "directory": "_release/package"
+    "directory": "_release/package",
+    "linkDirectory": false
   },
   "scripts": {
     "?build-release": "When https://github.com/atlassian/changesets/issues/432 has a solution we can remove this trick",
     "build": "tsdown",
-    "build-release": "yarn build && rimraf ./_release && yarn pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz",
+    "build-release": "pnpm build && rimraf ./_release && pnpm pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz",
     "bench-disabled": "vitest bench --run",
     "bench-codspeed-disabled": "cross-env CODSPEED=1 vitest bench --run",
     "bench-watch-disabled": "vitest bench",
@@ -75,6 +76,7 @@
     "@arethetypeswrong/cli": "0.18.5",
     "@codspeed/vitest-plugin": "5.7.1",
     "@edge-runtime/vm": "5.0.0",
+    "@flowblade/devtools": "workspace:*",
     "@size-limit/esbuild": "14.0.0",
     "@size-limit/file": "14.0.0",
     "@vitest/coverage-istanbul": "5.0.1",

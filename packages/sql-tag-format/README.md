@@ -12,7 +12,7 @@ Sql formatter utilities for [@flowblade/sql-tag](https://github.com/belgattitude
 ## Install
 
 ```bash
-yarn add @flowblade/sql-tag-format @flowblade/sql-tag
+pnpm add @flowblade/sql-tag-format @flowblade/sql-tag
 ```
 
 ## Usage

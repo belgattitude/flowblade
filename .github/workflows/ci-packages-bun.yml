@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          # Fetch all git history so that yarn workspaces --since can compare with the correct commits
+          # Fetch all git history so workspace comparisons have the correct commits.
           # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           fetch-depth: 0
 
@@ -40,10 +40,10 @@ jobs:
           server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
 
       - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
+        uses: ./.github/actions/pnpm-install
 
       - name: 🧪 Bun unit tests
-        run: yarn turbo run test-unit-bun --filter='!@examples/*' --filter='!@docs/*'
+        run: pnpm turbo run test-unit-bun --filter='!@examples/*' --filter='!@docs/*'
 
       - name: 🧪 Bun e2e tests
-        run: yarn turbo run test-e2e-bun --filter='!@examples/*' --filter='!@docs/*'
+        run: pnpm turbo run test-e2e-bun --filter='!@examples/*' --filter='!@docs/*'

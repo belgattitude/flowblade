@@ -1,0 +1,70 @@
+name: 'Monorepo install (pnpm)'
+description: 'Run pnpm install with store and optional node_modules caches'
+inputs:
+  cwd:
+    description: "Changes node's process.cwd() if the project is not located on the root. Default to process.cwd()"
+    required: false
+    default: '.'
+  cache-prefix:
+    description: 'Add a specific cache-prefix'
+    required: false
+    default: 'default'
+  cache-npm-cache:
+    description: 'Cache the npm global cache folder used by node-gyp and prebuild binaries'
+    required: false
+    default: 'true'
+  cache-node-modules:
+    description: 'Cache node_modules (invalidated by lockfile, OS, Node version, and branch)'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: ⚙️ Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 12.5.1
+        run_install: false
+
+    - name: ⚙️ Expose pnpm config as "$GITHUB_OUTPUT"
+      id: pnpm-config
+      shell: bash
+      working-directory: ${{ inputs.cwd }}
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+        echo "CURRENT_NODE_VERSION=node-$(node --version)" >> $GITHUB_OUTPUT
+        echo "CURRENT_BRANCH=$(echo "${GITHUB_REF#refs/heads/}" | sed -r 's,/,-,g')" >> $GITHUB_OUTPUT
+        echo "NPM_GLOBAL_CACHE_FOLDER=$(npm config get cache)" >> $GITHUB_OUTPUT
+
+    - name: ♻️ Restore pnpm store
+      uses: actions/cache@v6
+      id: pnpm-store-cache
+      with:
+        path: ${{ steps.pnpm-config.outputs.STORE_PATH }}
+        key: pnpm-store-${{ inputs.cache-prefix }}-${{ hashFiles(format('{0}/pnpm-lock.yaml', inputs.cwd), format('{0}/.npmrc', inputs.cwd), format('{0}/pnpm-workspace.yaml', inputs.cwd)) }}
+        restore-keys: |
+          pnpm-store-${{ inputs.cache-prefix }}-
+
+    - name: ♻️ Restore node_modules
+      if: inputs.cache-node-modules == 'true'
+      id: pnpm-nm-cache
+      uses: actions/cache@v6
+      with:
+        path: ${{ inputs.cwd }}/**/node_modules
+        key: pnpm-nm-cache-${{ inputs.cache-prefix }}-${{ runner.os }}-${{ steps.pnpm-config.outputs.CURRENT_NODE_VERSION }}-${{ steps.pnpm-config.outputs.CURRENT_BRANCH }}-${{ hashFiles(format('{0}/pnpm-lock.yaml', inputs.cwd), format('{0}/.npmrc', inputs.cwd), format('{0}/pnpm-workspace.yaml', inputs.cwd)) }}
+
+    - name: ♻️ Restore global npm cache folder
+      if: inputs.cache-npm-cache == 'true'
+      id: npm-global-cache
+      uses: actions/cache@v6
+      with:
+        path: ${{ steps.pnpm-config.outputs.NPM_GLOBAL_CACHE_FOLDER }}
+        key: npm-global-cache-${{ inputs.cache-prefix }}-${{ runner.os }}-${{ steps.pnpm-config.outputs.CURRENT_NODE_VERSION }}-${{ hashFiles(format('{0}/pnpm-lock.yaml', inputs.cwd), format('{0}/.npmrc', inputs.cwd), format('{0}/pnpm-workspace.yaml', inputs.cwd)) }}
+
+    - name: 📥 Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.cwd }}
+      run: pnpm install --frozen-lockfile
+      env:
+        HUSKY: '0'

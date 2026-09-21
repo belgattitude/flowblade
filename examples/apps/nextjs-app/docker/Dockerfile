@@ -9,11 +9,10 @@ ARG COREPACK_VERSION=0.35.0
 FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS prepare
 
 RUN apt-get update \
-  #&& apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
-  && apt-get install git jq --no-install-recommends -y \
+  # && apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
+  && apt-get install git jq wget --no-install-recommends -y \
   && rm -rf /var/cache/apt/* \
   && rm -rf /var/lib/apt/lists/* \
-  ## Corepack won't be bundled in node 25+
   && npm i -g corepack@${COREPACK_VERSION} && corepack enable
 
 
@@ -21,7 +20,7 @@ WORKDIR /app
 
 COPY --link package.json turbo.jsonc ./
 
-# We can't run turbo without yarn install first, let's install locally and make sure
+# Install Turbo at the version declared by the pruned workspace.
 # both local and docker are aligned on the package.json version.
 RUN TURBO_VERSION=$(cat package.json | jq '.devDependencies["turbo"]' -r) npm i -g turbo@${TURBO_VERSION}
 
@@ -38,18 +37,6 @@ FROM prepare AS builder
 
 ENV TZ=Etc/UTC
 
-# Optimize for YARN installation speed
-ENV YARN_ENABLE_GLOBAL_CACHE=false
-ENV YARN_ENABLE_MIRROR=false
-ENV YARN_ENABLE_TELEMETRY=false
-ENV YARN_NODE_LINKER=node-modules
-ENV YARN_NM_MODE=hardlinks-local
-ENV YARN_ENABLE_HARDENED_MODE=0
-ENV YARN_ENABLE_CONSTRAINTS_CHECKS=false
-# If using different compression level than in local (recommended: prefer to not do this)
-#ENV YARN_COMPRESSION_LEVEL 0
-#ENV YARN_CHECKSUM_BEHAVIOR ignore
-
 # Disabling some well-known postinstall scripts
 ENV PRISMA_SKIP_POSTINSTALL_GENERATE=true
 ENV HUSKY=0
@@ -59,15 +46,16 @@ WORKDIR /app
 # First install the dependencies (as they change less often)
 COPY --link .gitignore ./
 COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/json/ .
-COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/yarn.lock ./yarn.lock
+COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+
 
 # Option 1: run install without cache
-#RUN yarn install --inline-builds
+RUN pnpm install --lockfile-only && pnpm install --frozen-lockfile
 
 # Option 2: run install with buildx cache mount (buildx)
-RUN --mount=type=cache,target=/root/.yarn3-cache,id=yarn3-cache,sharing=locked \
-    YARN_CACHE_FOLDER=/root/.yarn3-cache \
-    yarn install --inline-builds
+#RUN --mount=type=cache,target=/root/.local/share/pnpm/store,id=pnpm-store,sharing=locked \
+#    pnpm install --frozen-lockfile
 
 # Build the project
 COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
@@ -80,11 +68,11 @@ ENV NODE_ENV=production
 # ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
 # ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
 
-RUN yarn workspace @examples/db-sqlserver prisma-generate
+RUN pnpm --filter @examples/db-sqlserver prisma-generate
 
-RUN yarn turbo run build --filter=@examples/nextjs-app
+RUN pnpm turbo run build --filter=@examples/nextjs-app
 # Alternative we can also
-#RUN yarn turbo run build --filter=@examples/nextjs-app...
+#RUN pnpm turbo run build --filter=@examples/nextjs-app...
 
 #############################################################
 # Stage 3 - App runner                                      #
@@ -136,4 +124,3 @@ COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/public .
 EXPOSE ${PORT}
 
 CMD ["node", "examples/apps/nextjs-app/server.js"]
-

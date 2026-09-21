@@ -21,7 +21,7 @@ jobs:
           package-manager-cache: false
 
       - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
+        uses: ./.github/actions/pnpm-install
 
       - name: ⏩ TurboRepo local server
         uses: felixmosh/turborepo-gh-artifacts@v4
@@ -30,7 +30,7 @@ jobs:
           server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
 
       - name: 🏗 Build packages
-        run: yarn turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: pnpm turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 📦 Publish on pkg.pr.new
-        run: yarn exec pkg-pr-new publish "./packages/*"
+        run: pnpm exec pkg-pr-new publish "./packages/*"

@@ -28,16 +28,10 @@ jobs:
           package-manager-cache: false
 
       - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
-
-      - name: 👬🏽 Check for duplicates
-        run: yarn dedupe --check
-
-      - name: 🦺 Check for yarn constraints.pro
-        run: yarn constraints
+        uses: ./.github/actions/pnpm-install
 
       #- name: 🛟 Check monorepo dependency graph
-      #  run: yarn check:install
+      #  run: pnpm check:install
 
       #- name: 🦺 Syncpack checks - packages - lint-semver-ranges
-      #  run: yarn syncpack:check
+      #  run: pnpm syncpack:check

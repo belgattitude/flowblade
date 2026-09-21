@@ -50,12 +50,13 @@
     "./package.json": "./package.json"
   },
   "publishConfig": {
-    "directory": "_release/package"
+    "directory": "_release/package",
+    "linkDirectory": false
   },
   "scripts": {
     "clean": "rimraf ./dist ./coverage ./tsconfig.tsbuildinfo",
     "build": "tsdown",
-    "build-release": "yarn build && rimraf ./_release && yarn pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz",
+    "build-release": "pnpm build && rimraf ./_release && pnpm pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz",
     "docgen": "run-s docgen-typedoc",
     "docgen-typedoc": "rimraf ./docs/api && typedoc --plugin typedoc-plugin-markdown --out ./docs/api",
     "bench": "vitest bench --run",
@@ -122,6 +123,7 @@
     "esbuild": "0.28.2",
     "eslint-plugin-sonarjs": "^4.2.1",
     "execa": "10.0.1",
+    "glob": "13.0.6",
     "is-in-ci": "2.0.0",
     "kysely": "0.29.6",
     "mitata": "1.0.34",

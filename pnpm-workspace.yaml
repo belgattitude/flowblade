@@ -1,0 +1,98 @@
+packages:
+  - benchmark
+  - docs
+  - examples/*/*
+  - integrations/*
+  - packages/*
+
+# Use pnpm's symlinked node_modules layout rather than Yarn PnP.
+nodeLinker: isolated
+packageImportMethod: hardlink
+savePrefix: ''
+
+supportedArchitectures:
+  os:
+    - current
+  cpu:
+    - current
+  libc:
+    - current
+
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': false
+  '@sentry/cli': true
+  core-js: false
+  cpu-features: false
+  es5-ext: false
+  esbuild: false
+  lefthook: false
+  prisma: false
+  protobufjs: false
+  ssh2: false
+
+strictDepBuilds: false
+
+overrides:
+  esbuild: ^0.28.2
+
+# Keep the existing supply-chain cooldown while allowing trusted packages immediately.
+minimumReleaseAge: 2880
+minimumReleaseAgeExclude:
+  - '@azure/*'
+  - '@belgattitude/*'
+  - '@better-auth/*'
+  - '@duckdb/*'
+  - '@esbuild/*'
+  - '@flowblade/*'
+  - '@hono/*'
+  - '@httpx/*'
+  - '@kubb/*'
+  - '@logtape/*'
+  - '@napi-rs/*'
+  - '@next/*'
+  - '@orpc/*'
+  - '@oxc-project/*'
+  - '@oxfmt/*'
+  - '@oxlint-tsgolint/*'
+  - '@oxlint/*'
+  - '@prisma/*'
+  - '@rolldown/*'
+  - '@sentry-internal/*'
+  - '@sentry/*'
+  - '@shadcn/*'
+  - '@standard-schema/*'
+  - '@standard-server/*'
+  - '@storybook/*'
+  - '@typescript-eslint/*'
+  - '@typescript/*'
+  - '@valibot/*'
+  - '@vitejs/*'
+  - '@vitest/*'
+  - better-auth
+  - better-call
+  - esbuild
+  - hono
+  - kysely
+  - next
+  - npm-check-updates
+  - oxfmt
+  - oxlint
+  - postcss
+  - prettier
+  - prisma
+  - rolldown
+  - rolldown-plugin-dts
+  - shadcn
+  - storybook
+  - tinyexec
+  - tsdown
+  - turbo
+  - turbo-*
+  - typebox
+  - ultracite
+  - valibot
+  - vite
+  - vitest
+  - ws
+  - zod
