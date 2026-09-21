@@ -43,6 +43,11 @@ ENV HUSKY=0
 
 WORKDIR /app
 
+ENV pnpm_config_nodeLinker=hoisted
+# https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
+ENV pnpm_config_package_import_method=copy
+ENV pnpm_config_trust_lockfile=true
+
 # First install the dependencies (as they change less often)
 COPY --link .gitignore ./
 COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/json/ .
