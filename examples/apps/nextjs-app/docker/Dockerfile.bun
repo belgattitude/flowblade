@@ -1,0 +1,136 @@
+ARG BUN_VERSION=1.4.2
+ARG COREPACK_VERSION=0.35.0
+
+#############################################################
+# Stage 1 - App extraction / pruning                        #
+#############################################################
+
+FROM oven/bun:${BUN_VERSION}-slim AS prepare
+
+ENV BUN_INSTALL=/usr/local
+
+RUN apt-get update \
+  #&& apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
+  && apt-get install git jq --no-install-recommends -y \
+  && rm -rf /var/cache/apt/* \
+  && rm -rf /var/lib/apt/lists/* \
+  && bun add --global corepack@${COREPACK_VERSION} \
+  && bun /usr/local/bin/corepack enable
+
+
+WORKDIR /app
+
+COPY --link package.json turbo.jsonc ./
+
+# Use the Turbo version declared in package.json so local and Docker builds stay aligned.
+RUN TURBO_VERSION=$(jq -r '.devDependencies["turbo"]' package.json) \
+  && bun add --global turbo@${TURBO_VERSION}
+
+COPY --link . .
+
+# https://turbo.build/repo/docs/handbook/deploying-with-docker
+RUN turbo prune --scope=@examples/nextjs-app --docker --out-dir=./.turbo-pruned/nextjs-app/
+
+#############################################################
+# Stage 2 - App installation                                #
+#############################################################
+
+FROM prepare AS builder
+
+ENV TZ=Etc/UTC
+
+# Optimize for YARN installation speed
+ENV YARN_ENABLE_GLOBAL_CACHE=false
+ENV YARN_ENABLE_MIRROR=false
+ENV YARN_ENABLE_TELEMETRY=false
+ENV YARN_NODE_LINKER=node-modules
+ENV YARN_NM_MODE=hardlinks-local
+ENV YARN_ENABLE_HARDENED_MODE=0
+ENV YARN_ENABLE_CONSTRAINTS_CHECKS=false
+# If using different compression level than in local (recommended: prefer to not do this)
+#ENV YARN_COMPRESSION_LEVEL 0
+#ENV YARN_CHECKSUM_BEHAVIOR ignore
+
+# Disabling some well-known postinstall scripts
+ENV PRISMA_SKIP_POSTINSTALL_GENERATE=true
+ENV HUSKY=0
+
+WORKDIR /app
+
+# First install the dependencies (as they change less often)
+COPY --link .gitignore ./
+COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/json/ .
+COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/yarn.lock ./yarn.lock
+
+# Option 1: run install without cache
+#RUN bun /usr/local/bin/yarn install --inline-builds
+
+# Option 2: run install with buildx cache mount (buildx)
+RUN --mount=type=cache,target=/root/.yarn3-cache,id=yarn3-cache,sharing=locked \
+    YARN_CACHE_FOLDER=/root/.yarn3-cache \
+    bun /usr/local/bin/yarn install --inline-builds
+
+# Build the project
+COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
+COPY --link .gitignore turbo.jsonc tsconfig.base.json ./
+
+ENV NEXT_BUILD_IGNORE_ESLINT=true
+ENV NEXT_BUILD_IGNORE_TYPECHECK=true
+ENV NEXT_BUILD_OUTPUT=standalone
+ENV NODE_ENV=production
+# ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
+# ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
+
+RUN bun /usr/local/bin/yarn workspace @examples/db-sqlserver prisma-generate
+
+RUN bun /usr/local/bin/yarn turbo run build --filter=@examples/nextjs-app
+# Alternative we can also
+#RUN bun /usr/local/bin/yarn turbo run build --filter=@examples/nextjs-app...
+
+#############################################################
+# Stage 3 - App runner                                      #
+#############################################################
+
+FROM oven/bun:${BUN_VERSION}-slim AS runner
+
+ARG NEXTJS_APP_PORT
+
+# Bort PORT / HOSTNAME envs are respected by nextjs start/dev.
+ENV HOSTNAME=0.0.0.0
+ENV PORT=${NEXTJS_APP_PORT:-3000}
+ENV TZ=Etc/UTC
+ENV NODE_ENV=production
+
+RUN apt-get update \
+  && apt-get install tzdata ca-certificates --no-install-recommends -y \
+  && rm -rf /var/cache/apt/* \
+  && rm -rf /var/lib/apt/lists/*
+
+
+# For duckdb azure extension, we need to have the certs available in the runner image as well, so we link them to the expected location.
+# see https://github.com/duckdb/duckdb/discussions/9675
+RUN mkdir -p /etc/pki/tls/certs && ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
+
+WORKDIR /app
+
+# Set the correct permission for prerender cache
+RUN groupadd --system --gid 1001 nodejs \
+    && useradd --system --uid 1001 --gid nodejs nextjs \
+    && mkdir .next \
+    && chown nextjs:nodejs .next
+
+USER nextjs
+
+COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/next.config.mjs \
+                    /app/examples/apps/nextjs-app/package.json \
+                    ./
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/.next/static ./examples/apps/nextjs-app/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/public ./examples/apps/nextjs-app/public
+
+EXPOSE ${PORT}
+
+CMD ["bun", "examples/apps/nextjs-app/server.js"]
