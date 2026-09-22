@@ -31,7 +31,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "clean": "rimraf --glob ./dist ./build ./coverage ./_release './tsconfig*.tsbuildinfo'",
+    "clean": "rimraf --glob ./dist ./build ./coverage './tsconfig*.tsbuildinfo'",
     "lint": "ultracite check",
     "lint-fix": "ultracite fix",
     "format": "oxfmt --write",

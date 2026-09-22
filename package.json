@@ -17,7 +17,7 @@
   ],
   "type": "module",
   "scripts": {
-    "g:clean": "rimraf ./out && run clean:global-cache && pnpm -r --parallel --if-present run clean && run clean:turbo",
+    "g:clean": "rimraf ./out ./.turbo-pruned && pnpm clean:global-cache && pnpm -r --parallel --if-present run clean && pnpm clean:turbo",
     "clean:global-cache": "rimraf ./.cache",
     "clean:turbo": "rimraf .turbo",
     "g:bench": "turbo run bench --concurrency 1",

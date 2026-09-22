@@ -49,9 +49,6 @@
     },
     "./package.json": "./package.json"
   },
-  "publishConfig": {
-    "directory": "_release/package"
-  },
   "scripts": {
     "clean": "rimraf ./dist ./coverage ./tsconfig.tsbuildinfo",
     "build": "tsdown",
