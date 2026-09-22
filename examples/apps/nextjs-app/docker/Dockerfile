@@ -28,7 +28,7 @@ RUN TURBO_VERSION=$(jq -r '.devDependencies["turbo"]' package.json) npm i -g tur
 COPY --link . .
 
 # https://turbo.build/repo/docs/handbook/deploying-with-docker
-RUN turbo prune --scope=@examples/nextjs-app --docker --out-dir=./.turbo-pruned/nextjs-app/
+RUN turbo prune @examples/nextjs-app --docker --out-dir=./.turbo-pruned/nextjs-app/
 
 #############################################################
 # Stage 2 - App installation                                #
