@@ -29,7 +29,6 @@ jobs:
       - name: Use Node.js 24.x
         uses: actions/setup-node@v7
         with:
-          node-version: 24.19.0
           package-manager-cache: false
 
       - name: 📥 Monorepo install
@@ -37,18 +36,11 @@ jobs:
 
       - name: 🦋 Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
-          publish: yarn g:release
-          setupGitUser: true
+          publish-script: yarn g:release
+          commit-message: "ci: release"
+          pr-title: "ci: release"
         env:
-          # See https://github.com/changesets/action/issues/147
-          HOME: ${{ github.workspace }}
-          # https://github.com/changesets/changesets/issues/1152#issuecomment-3190884868
-          NPM_TOKEN: ''
-          # The regular GITHUB_TOKEN won't allow the created "Version Packages" pr to
-          # trigger the regular CI workflow. This limitation can be circumvented by
-          # setting a custom PAT token from a GH account and setting it the secrets.
-          GITHUB_TOKEN: ${{ secrets.BELGATTITUDE_FLOWBLADE_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
