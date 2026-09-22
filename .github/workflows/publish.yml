@@ -91,7 +91,7 @@ jobs:
         run: yarn install
 
       - name: Build packages
-        run: yarn g:release
+        run: yarn g:build-release
 
       - name: Pack packages
         id: pack
