@@ -1,6 +1,6 @@
 {
   "name": "@flowblade/sqlduck",
-  "version": "0.37.0",
+  "version": "0.37.2",
   "homepage": "https://github.com/belgattitude/flowblade",
   "license": "MIT",
   "author": {
@@ -50,13 +50,12 @@
     "./package.json": "./package.json"
   },
   "publishConfig": {
-    "directory": "_release/package",
-    "linkDirectory": false
+    "directory": "_release/package"
   },
   "scripts": {
     "clean": "rimraf ./dist ./coverage ./tsconfig.tsbuildinfo",
     "build": "tsdown",
-    "build-release": "pnpm build && rimraf ./_release && pnpm pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz",
+    "build-release": "tsdown",
     "docgen": "run-s docgen-typedoc",
     "docgen-typedoc": "rimraf ./docs/api && typedoc --plugin typedoc-plugin-markdown --out ./docs/api",
     "bench": "vitest bench --run",
@@ -123,7 +122,6 @@
     "esbuild": "0.28.2",
     "eslint-plugin-sonarjs": "^4.2.1",
     "execa": "10.0.1",
-    "glob": "13.0.6",
     "is-in-ci": "2.0.0",
     "kysely": "0.29.6",
     "mitata": "1.0.34",
