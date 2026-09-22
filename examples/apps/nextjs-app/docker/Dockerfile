@@ -41,9 +41,9 @@ ENV PATH="/opt/pnpm/bin:${PATH}"
 
 WORKDIR /app
 
-#ENV pnpm_config_nodeLinker=hoisted
+ENV pnpm_config_nodeLinker=hoisted
 # https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
-ENV pnpm_config_package_import_method=copy
+ENV pnpm_config_package_import_method=auto
 
 # First install the dependencies (as they change less often)
 COPY --link .gitignore ./
