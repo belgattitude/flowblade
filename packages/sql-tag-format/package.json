@@ -36,13 +36,10 @@
     },
     "./package.json": "./package.json"
   },
-  "publishConfig": {
-    "directory": "_release/package"
-  },
   "scripts": {
     "?build-release": "When https://github.com/atlassian/changesets/issues/432 has a solution we can remove this trick",
     "build": "tsdown",
-    "build-release": "yarn build && rimraf ./_release && yarn pack && mkdir ./_release && tar zxvf ./package.tgz --directory ./_release && rm ./package.tgz",
+    "build-release": "tsdown",
     "bench-disabled": "vitest bench --run",
     "bench-codspeed-disabled": "cross-env CODSPEED=1 vitest bench --run",
     "bench-watch-disabled": "vitest bench",
