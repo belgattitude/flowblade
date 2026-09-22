@@ -79,10 +79,6 @@ module.exports = defineConfig({
     'prisma',
     '@prisma/client',
 
-    // changesets
-    '@changesets/changelog-github',
-    '@changesets/cli',
-
     // kubb
     "@kubb/cli",
     "@kubb/core",
