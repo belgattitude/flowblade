@@ -10,19 +10,20 @@ FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS prepare
 
 RUN apt-get update \
   # && apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
-  && apt-get install git jq wget --no-install-recommends -y \
+  && apt-get install git jq --no-install-recommends -y \
   && rm -rf /var/cache/apt/* \
-  && rm -rf /var/lib/apt/lists/* \
-  && npm i -g corepack@${COREPACK_VERSION} && corepack enable
-
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY --link package.json turbo.jsonc ./
 
+# Install pnpm at the version declared by the package manager.
+RUN PNPM_VERSION=$(jq -r '.packageManager | sub("^pnpm@"; "")' package.json) PNPM_HOME=/opt/pnpm SHELL=bash npx get-pnpm
+ENV PATH="/opt/pnpm/bin:${PATH}"
+
 # Install Turbo at the version declared by the pruned workspace.
-# both local and docker are aligned on the package.json version.
-RUN TURBO_VERSION=$(cat package.json | jq '.devDependencies["turbo"]' -r) npm i -g turbo@${TURBO_VERSION}
+RUN TURBO_VERSION=$(jq -r '.devDependencies["turbo"]' package.json) npm i -g turbo@${TURBO_VERSION}
 
 COPY --link . .
 
@@ -36,35 +37,28 @@ RUN turbo prune --scope=@examples/nextjs-app --docker --out-dir=./.turbo-pruned/
 FROM prepare AS builder
 
 ENV TZ=Etc/UTC
-
-# Disabling some well-known postinstall scripts
-ENV PRISMA_SKIP_POSTINSTALL_GENERATE=true
-ENV HUSKY=0
+ENV PATH="/opt/pnpm/bin:${PATH}"
 
 WORKDIR /app
 
-ENV pnpm_config_nodeLinker=hoisted
+#ENV pnpm_config_nodeLinker=hoisted
 # https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
 ENV pnpm_config_package_import_method=copy
-ENV pnpm_config_trust_lockfile=true
 
 # First install the dependencies (as they change less often)
 COPY --link .gitignore ./
-COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/json/ .
-COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/pnpm-workspace.yaml ./pnpm-workspace.yaml
-
+COPY --from=prepare /app/.turbo-pruned/nextjs-app/json/ .
 
 # Option 1: run install without cache
-RUN pnpm install --lockfile-only && pnpm install --frozen-lockfile
+RUN pnpm install --trust-lockfile --no-runtime --frozen-lockfile --ignore-manifest-check
 
 # Option 2: run install with buildx cache mount (buildx)
-#RUN --mount=type=cache,target=/root/.local/share/pnpm/store,id=pnpm-store,sharing=locked \
-#    pnpm install --frozen-lockfile
+#RUN --mount=type=cache,target=/root/.cache/pnpm,id=pnpm-cache,sharing=locked \
+#    pnpm install --trust-lockfile --no-runtime --frozen-lockfile --ignore-manifest-check
 
 # Build the project
-COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
-COPY --link .gitignore turbo.jsonc tsconfig.base.json ./
+COPY --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
+COPY .gitignore turbo.jsonc tsconfig.base.json ./
 
 ENV NEXT_BUILD_IGNORE_ESLINT=true
 ENV NEXT_BUILD_IGNORE_TYPECHECK=true
@@ -76,8 +70,6 @@ ENV NODE_ENV=production
 RUN pnpm --filter @examples/db-sqlserver prisma-generate
 
 RUN pnpm turbo run build --filter=@examples/nextjs-app
-# Alternative we can also
-#RUN pnpm turbo run build --filter=@examples/nextjs-app...
 
 #############################################################
 # Stage 3 - App runner                                      #
@@ -97,10 +89,6 @@ RUN apt-get update \
   && apt-get install tzdata ca-certificates --no-install-recommends -y \
   && rm -rf /var/cache/apt/* \
   && rm -rf /var/lib/apt/lists/*
-  # If needed, we can enable corepack in the runner as well, but for now we don't need it  \
-  # since we're running the built server.js directly with node.
-  # && npm i -g corepack@${COREPACK_VERSION} && corepack enable
-
 
 # For duckdb azure extension, we need to have the certs available in the runner image as well, so we link them to the expected location.
 # see https://github.com/duckdb/duckdb/discussions/9675
