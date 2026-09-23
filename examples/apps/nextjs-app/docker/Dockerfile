@@ -70,7 +70,7 @@ ENV NODE_ENV=production
 # ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
 # ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
 
-RUN pnpm run --trust-lockfile --filter @examples/db-sqlserver prisma-generate
+RUN pnpm turbo run prisma-generate --filter @examples/db-sqlserver
 
 RUN pnpm turbo run build --filter=@examples/nextjs-app
 
