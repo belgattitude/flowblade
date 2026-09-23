@@ -67,40 +67,9 @@ jobs:
         id: version
         uses: changesets/action/version@v2
 
-  pack:
+  publish:
     if: needs.select-mode.outputs.mode == 'publish'
     needs: select-mode
-    runs-on: ubuntu-latest
-    outputs:
-      pack-dir-artifact-id: ${{ steps.pack.outputs.pack-dir-artifact-id }}
-    permissions:
-      contents: read # to check out repo (actions/checkout)
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false # recommended: do not persist git credentials on disk
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          package-manager-cache: false # recommended: avoid cache poisoning
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build packages
-        run: yarn g:release
-
-      - name: Pack packages
-        id: pack
-        uses: changesets/action/pack@v2
-        with:
-          publish-plan-artifact-id: ${{ needs.select-mode.outputs.publish-plan-artifact-id }}
-
-  publish:
-    needs: pack
     runs-on: ubuntu-latest
     permissions:
       contents: write # to check out repo (actions/checkout) and to create releases (changesets/action/publish)
@@ -117,10 +86,23 @@ jobs:
           node-version: 24
           package-manager-cache: false # recommended: avoid cache poisoning
 
+      # setup-node's registry-url writes an `_authToken` placeholder into
+      # ~/.npmrc; a configured (even empty) token shadows OIDC trusted
+      # publishing, so strip it before publishing.
+      #- name: Clear token auth from npmrc
+      #  run: sed -i '/_authToken/d' ~/.npmrc || true
+
       - name: Install dependencies
         run: yarn install
 
+      - name: Build packages
+        run: yarn g:build-release
+
       - name: Publish packages
         uses: changesets/action/publish@v2
+        env:
+          NPM_CONFIG_PROVENANCE: true
+          # GITHUB_TOKEN: ${{ secrets.BELGATTITUDE_FLOWBLADE_TOKEN }}
         with:
-          pack-dir-artifact-id: ${{ needs.pack.outputs.pack-dir-artifact-id }}
+          script: yarn changeset publish
+          #pack-dir-artifact-id: ${{ needs.pack.outputs.pack-dir-artifact-id }}

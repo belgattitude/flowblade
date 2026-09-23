@@ -1,5 +1,23 @@
 # @flowblade/sqlduck
 
+## 0.37.5
+
+### Patch Changes
+
+- [#1366](https://github.com/belgattitude/flowblade/pull/1366) [`bfff622`](https://github.com/belgattitude/flowblade/commit/bfff6226e0de0ef2662b9d1ea2624d0383acf217) Thanks [@belgattitude](https://github.com/belgattitude)! - Republish
+
+## 0.37.4
+
+### Patch Changes
+
+- [#1363](https://github.com/belgattitude/flowblade/pull/1363) [`900501b`](https://github.com/belgattitude/flowblade/commit/900501b706a8436d55a89233df0cc729b6ad2387) Thanks [@belgattitude](https://github.com/belgattitude)! - Republish
+
+## 0.37.3
+
+### Patch Changes
+
+- [#1361](https://github.com/belgattitude/flowblade/pull/1361) [`57da599`](https://github.com/belgattitude/flowblade/commit/57da59968ad2c781acd98fb53c1ffd290d835ace) Thanks [@belgattitude](https://github.com/belgattitude)! - Republish with latest changesets
+
 ## 0.37.2
 
 ### Patch Changes
