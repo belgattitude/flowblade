@@ -9,9 +9,7 @@ FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS prepare
 
 RUN apt-get update \
   # && apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
-  && apt-get install git jq --no-install-recommends -y \
-  && rm -rf /var/cache/apt/* \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get install git jq --no-install-recommends -y
 
 WORKDIR /app
 
@@ -35,20 +33,21 @@ RUN turbo prune @examples/nextjs-app --docker --out-dir=./.turbo-pruned/nextjs-a
 
 FROM prepare AS builder
 
-ENV TZ=Etc/UTC
-ENV PATH="/opt/pnpm/bin:${PATH}"
-
 WORKDIR /app
 
+ENV TZ=Etc/UTC
+ENV PATH="/opt/pnpm/bin:${PATH}"
 # Hoisted linker will give the smallest image size. As tested with pnpm 12.6.0
 # native deps like duckdb will be duplicated otherwise
-ENV pnpm_config_node_linker=hoisted
+ENV PNPM_CONFIG_NODE_LINKER=hoisted
 # https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
-ENV pnpm_config_package_import_method=copy
+ENV PNPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
+# Disabling some well-known postinstall scripts
+ENV PRISMA_SKIP_POSTINSTALL_GENERATE=true
 
 # First install the dependencies (as they change less often)
 COPY --link .gitignore ./
-COPY --from=prepare /app/.turbo-pruned/nextjs-app/json/ .
+COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/json/ .
 
 # Option 1: run install without cache
 RUN pnpm install --trust-lockfile --no-runtime --frozen-lockfile --ignore-manifest-check
@@ -58,8 +57,8 @@ RUN pnpm install --trust-lockfile --no-runtime --frozen-lockfile --ignore-manife
 #    pnpm install --trust-lockfile --no-runtime --frozen-lockfile --ignore-manifest-check
 
 # Build the project
-COPY --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
-COPY .gitignore turbo.jsonc tsconfig.base.json ./
+COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
+COPY --link .gitignore turbo.jsonc tsconfig.base.json ./
 
 ENV NEXT_BUILD_IGNORE_ESLINT=true
 ENV NEXT_BUILD_IGNORE_TYPECHECK=true
@@ -68,7 +67,7 @@ ENV NODE_ENV=production
 # ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
 # ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
 
-RUN pnpm --filter @examples/db-sqlserver prisma-generate
+RUN pnpm run --trust-lockfile --filter @examples/db-sqlserver prisma-generate
 
 RUN pnpm turbo run build --filter=@examples/nextjs-app
 
@@ -85,6 +84,7 @@ ENV HOSTNAME=0.0.0.0
 ENV PORT=${NEXTJS_APP_PORT:-3000}
 ENV TZ=Etc/UTC
 ENV NODE_ENV=production
+
 
 RUN apt-get update \
   && apt-get install tzdata ca-certificates --no-install-recommends -y \
