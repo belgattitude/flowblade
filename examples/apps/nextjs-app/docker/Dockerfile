@@ -1,4 +1,4 @@
-ARG NODE_VERSION=26.9
+ARG NODE_VERSION=26.10
 ARG DEBIAN_VERSION=trixie-slim
 
 #############################################################
@@ -40,9 +40,11 @@ ENV PATH="/opt/pnpm/bin:${PATH}"
 
 WORKDIR /app
 
-ENV pnpm_config_nodeLinker=hoisted
+# Hoisted linker will give the smallest image size. As tested with pnpm 12.6.0
+# native deps like duckdb will be duplicated otherwise
+ENV pnpm_config_node_linker=hoisted
 # https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
-ENV pnpm_config_package_import_method=auto
+ENV pnpm_config_package_import_method=copy
 
 # First install the dependencies (as they change less often)
 COPY --link .gitignore ./
