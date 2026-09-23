@@ -63,14 +63,14 @@ RUN pnpm install --trust-lockfile --no-runtime --frozen-lockfile --ignore-manife
 COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
 COPY --link .gitignore turbo.jsonc tsconfig.base.json ./
 
+RUN pnpm turbo run prisma-generate --filter @examples/db-sqlserver
+
 ENV NEXT_BUILD_IGNORE_ESLINT=true
 ENV NEXT_BUILD_IGNORE_TYPECHECK=true
 ENV NEXT_BUILD_OUTPUT=standalone
 ENV NODE_ENV=production
 # ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
 # ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
-
-RUN pnpm turbo run prisma-generate --filter @examples/db-sqlserver
 
 RUN pnpm turbo run build --filter=@examples/nextjs-app
 
