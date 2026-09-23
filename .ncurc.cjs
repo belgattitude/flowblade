@@ -79,6 +79,8 @@ module.exports = defineConfig({
     'prisma',
     '@prisma/client',
 
+    '@sentry/nextjs',
+
     // kubb
     "@kubb/cli",
     "@kubb/core",
