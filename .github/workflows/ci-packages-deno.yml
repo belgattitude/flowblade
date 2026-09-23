@@ -43,4 +43,6 @@ jobs:
         uses: ./.github/actions/pnpm-install
 
       - name: 🧪 Deno unit tests
+        env:
+          PNPM_CONFIG_PREFER_SYMLINKED_EXECUTABLES: true
         run: pnpm turbo run test-unit-deno --filter='!@examples/*' --filter='!@docs/*'
