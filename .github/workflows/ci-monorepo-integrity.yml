@@ -21,14 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: ⚙️ Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@v3
         with:
-          node-version: ${{ matrix.node-version }}
-          package-manager-cache: false
-
-      - name: 📥 Monorepo install
-        uses: ./.github/actions/pnpm-install
+          runtime: node@${{ matrix.node-version }}
+          cache: true
 
       #- name: 🛟 Check monorepo dependency graph
       #  run: pnpm check:install
