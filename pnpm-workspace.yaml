@@ -11,6 +11,10 @@ savePrefix: ''
 autoDedupe: true
 preferSymlinkedExecutables: true
 
+#https://github.com/pnpm/pnpm/issues/14972
+enableGlobalVirtualStore: false
+virtualStoreType: project
+
 supportedArchitectures:
   os:
     - current
