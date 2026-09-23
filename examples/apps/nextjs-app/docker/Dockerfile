@@ -42,6 +42,9 @@ ENV PATH="/opt/pnpm/bin:${PATH}"
 ENV PNPM_CONFIG_NODE_LINKER=hoisted
 # https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
 ENV PNPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
+ENV PNPM_CONFIG_TRUST_LOCKFILE=true
+ENV PNPM_CONFIG_IGNORE_MANIFEST_CHECK=true
+
 # Disabling some well-known postinstall scripts
 ENV PRISMA_SKIP_POSTINSTALL_GENERATE=true
 
