@@ -1572,7 +1572,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@docs/website@workspace:docs"
   dependencies:
-    "@dotenvx/dotenvx": "npm:2.28.0"
+    "@dotenvx/dotenvx": "npm:2.29.0"
     "@t3-oss/env-nextjs": "npm:0.13.11"
     "@tailwindcss/postcss": "npm:4.3.3"
     "@total-typescript/ts-reset": "npm:0.6.1"
@@ -1618,6 +1618,23 @@ __metadata:
     dotenvx: src/cli/dotenvx.js
     dx: src/cli/dotenvx.js
   checksum: 10c0/280e5634c02c1b05b4a56b4b728898decb953f2403075bab3fd6c1855bf9e628f4427c18ffda49efeebcc486d2943f1a9e82b0a8055e47ebcb3e32a8f39340a7
+  languageName: node
+  linkType: hard
+
+"@dotenvx/dotenvx@npm:2.29.0":
+  version: 2.29.0
+  resolution: "@dotenvx/dotenvx@npm:2.29.0"
+  dependencies:
+    "@dotenvx/primitives": "npm:^3.0.2"
+    "@dotenvx/tooling": "npm:^1.0.3"
+    global-agent: "npm:^3.0.0"
+    node-forge: "npm:^1.4.0"
+    undici: "npm:^6.28.1"
+    yocto-spinner: "npm:^1.2.1"
+  bin:
+    dotenvx: src/cli/dotenvx.js
+    dx: src/cli/dotenvx.js
+  checksum: 10c0/37eaefe2024b1ef921256367fc37589a7d808a50acf2d4f1b2c07f8aabaa2cb798ed4661dcbd256ad1a2113c32a1f9cae79263948c95c66e7057b24239b0dcad
   languageName: node
   linkType: hard
 
@@ -2969,7 +2986,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@flowblade/sqlduck@workspace:packages/sqlduck"
   dependencies:
-    "@dotenvx/dotenvx": "npm:2.28.0"
+    "@dotenvx/dotenvx": "npm:2.29.0"
     "@duckdb/node-api": "npm:1.5.5-r.5"
     "@faker-js/faker": "npm:10.6.0"
     "@flowblade/core": "workspace:^"
