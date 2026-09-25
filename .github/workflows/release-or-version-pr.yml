@@ -29,7 +29,7 @@ jobs:
       - name: ⚙️Install pnpm and Node.js
         uses: pnpm/setup@v3
         with:
-          runtime: 24.x
+          runtime: node@24
           cache: true
 
       - name: Select Changesets mode
@@ -54,7 +54,7 @@ jobs:
       - name: ⚙️Install pnpm and Node.js
         uses: pnpm/setup@v3
         with:
-          runtime: 24.x
+          runtime: node@24
           cache: true
 
       - name: Version packages
@@ -77,7 +77,7 @@ jobs:
       - name: ⚙️Install pnpm and Node.js
         uses: pnpm/setup@v3
         with:
-          runtime: 24.x
+          runtime: node@24
           cache: false # avoid cache poisoning
 
       # setup-node's registry-url writes an `_authToken` placeholder into
