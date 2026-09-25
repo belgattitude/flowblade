@@ -17,7 +17,7 @@ WORKDIR /app
 COPY --link package.json turbo.jsonc ./
 
 # Install pnpm at the version declared by the package manager.
-RUN PNPM_VERSION=$(jq -r '.packageManager | sub("^pnpm@"; "")' package.json) PNPM_HOME=/opt/pnpm SHELL=bash bunx get-pnpm
+RUN PNPM_VERSION=$(jq -r '.devEngines["packageManager"]["version"]' package.json) PNPM_HOME=/opt/pnpm SHELL=bash bunx get-pnpm
 ENV PATH="/opt/pnpm/bin:${PATH}"
 
 # Install Turbo at the version declared by the pruned workspace.
