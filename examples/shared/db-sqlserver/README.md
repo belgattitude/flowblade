@@ -8,7 +8,7 @@ Example of a product database using SQL Server, Prisma and Kysely.
 
 ```bash
 pnpm prisma generate
-pnpm db-recreate-dev
+pnpm db-recreate
 pnpm prisma-db-seed
 ```
 
@@ -26,6 +26,8 @@ Check the [.env](./.env) file for the environment variables used in this example
 DB_FLOWBLADE_SQLSERVER_JDBC="sqlserver://localhost:1433;database=flowblade;user=sa;password=FlowbladeSADev123;trustServerCertificate=true;encrypt=false"
 ```
 
+Prisma 7 loads this connection string through [`prisma.config.ts`](./prisma.config.ts).
+
 > Yon can create a './env.local' file to override the default values.
 
 ### Schema
@@ -37,9 +39,9 @@ DB_FLOWBLADE_SQLSERVER_JDBC="sqlserver://localhost:1433;database=flowblade;user=
 | Name | Description |
 | --- | --- |
 | `pnpm codegen` | Run codegen (prisma generate...) |
-| `pnpm db-recreate-dev` | Reset the database and apply the latest schema with seeds |
+| `pnpm db-recreate` | Reset the database and apply the latest schema with filtered nullable unique indexes |
 | `pnpm prisma-db-seed` | Load seeds into database |
-| `pnpm prisma-db-reset-push` | Drop and recreate database |
+| `pnpm prisma-db-reset-push` | Alias for `db-recreate` |
 | `pnpm prisma-db-push` | Attempt to apply schema changes to database |
 | `pnpm prisma-studio` | Launch prisma studio (ui admin) |
 | `pnpm prisma-validate` | Validate schema.prisma |

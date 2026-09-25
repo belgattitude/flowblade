@@ -1,11 +1,10 @@
 datasource db {
   provider = "sqlserver"
-  url      = env("DB_FLOWBLADE_SQLSERVER_JDBC")
   schemas  = ["common", "user"]
 }
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["multiSchema", "views"]
+  provider        = "prisma-client"
+  previewFeatures = ["views"]
   output          = "../src/generated/client/reset"
 }
