@@ -39,23 +39,17 @@ ENV TZ=Etc/UTC
 ENV PATH="/opt/pnpm/bin:${PATH}"
 # Hoisted linker will give the smallest image size. As tested with pnpm 12.6.0
 # native deps like duckdb will be duplicated otherwise
-#ENV PNPM_CONFIG_NODE_LINKER=hoisted
+ENV PNPM_CONFIG_NODE_LINKER=hoisted
 # https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
-#ENV PNPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
-#ENV PNPM_CONFIG_TRUST_LOCKFILE=true
-#ENV PNPM_CONFIG_IGNORE_MANIFEST_CHECK=true
+ENV PNPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
+ENV PNPM_CONFIG_TRUST_LOCKFILE=true
+ENV PNPM_CONFIG_IGNORE_MANIFEST_CHECK=true
 
 # Disabling some well-known postinstall scripts
 ENV PRISMA_SKIP_POSTINSTALL_GENERATE=true
 
-
 # First install the dependencies (as they change less often)
-COPY --link .gitignore ./
-COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/json/ .
-
-RUN pnpm config set --location=project trustLockfile=true && \
-    pnpm config set --location=project packageImportMethod=copy
-
+COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/json/ .
 
 # Option 1: run install without cache
 RUN pnpm install --no-runtime --frozen-lockfile --ignore-manifest-check
@@ -65,10 +59,10 @@ RUN pnpm install --no-runtime --frozen-lockfile --ignore-manifest-check
 #    pnpm install --trust-lockfile --no-runtime --frozen-lockfile --ignore-manifest-check
 
 # Build the project
-COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
 COPY --link .gitignore turbo.jsonc tsconfig.base.json ./
+COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
 
-RUN pnpm turbo run prisma-generate --filter @examples/db-sqlserver
+RUN PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=warn pnpm turbo run prisma-generate --filter=@examples/db-sqlserver
 
 ENV NEXT_BUILD_IGNORE_ESLINT=true
 ENV NEXT_BUILD_IGNORE_TYPECHECK=true
@@ -77,7 +71,7 @@ ENV NODE_ENV=production
 # ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
 # ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
 
-RUN pnpm turbo run build --filter=@examples/nextjs-app
+RUN PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false pnpm turbo run build --filter=@examples/nextjs-app
 
 #############################################################
 # Stage 3 - App runner                                      #

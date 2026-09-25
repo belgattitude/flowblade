@@ -50,19 +50,20 @@ ENV PNPM_CONFIG_IGNORE_MANIFEST_CHECK=true
 ENV PRISMA_SKIP_POSTINSTALL_GENERATE=true
 
 # First install the dependencies (as they change less often)
-COPY --link .gitignore ./
-COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/json/ .
+COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/json/ .
 
 # Option 1: run install without cache
-RUN pnpm install --trust-lockfile --no-runtime --frozen-lockfile --ignore-manifest-check
+RUN pnpm install --no-runtime --frozen-lockfile --ignore-manifest-check
 
 # Option 2: run install with buildx cache mount (buildx)
 #RUN --mount=type=cache,target=/root/.cache/pnpm,id=pnpm-cache,sharing=locked \
 #    pnpm install --trust-lockfile --no-runtime --frozen-lockfile --ignore-manifest-check
 
 # Build the project
-COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
 COPY --link .gitignore turbo.jsonc tsconfig.base.json ./
+COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
+
+RUN PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=warn pnpm turbo run prisma-generate --filter=@examples/db-sqlserver
 
 ENV NEXT_BUILD_IGNORE_ESLINT=true
 ENV NEXT_BUILD_IGNORE_TYPECHECK=true
@@ -71,9 +72,7 @@ ENV NODE_ENV=production
 # ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
 # ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
 
-RUN pnpm turbo run prisma-generate --filter @examples/db-sqlserver
-
-RUN pnpm turbo run build --filter=@examples/nextjs-app
+RUN PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false pnpm turbo run build --filter=@examples/nextjs-app
 
 #############################################################
 # Stage 3 - App runner                                      #

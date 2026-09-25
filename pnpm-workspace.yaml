@@ -20,6 +20,8 @@ trustPolicyExclude:
   - 'undici-types@6.21.0'
   - 'chokidar@4.0.3'
 
+verifyDepsBeforeRun: install
+
 #https://github.com/pnpm/pnpm/issues/14972
 virtualStoreType: project
 
