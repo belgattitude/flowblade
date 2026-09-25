@@ -109,10 +109,11 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
    * Controls DuckDB's `preserve_insertion_order` session setting while the data is being appended.
    *
    * When set to `false`, DuckDB is allowed to reorder rows (e.g. across threads) in exchange for
-   * improved performance and lower memory usage. The setting is restored to `true` (DuckDB's
-   * default) once the insertion completes, whether it succeeds or fails.
+   * improved performance and lower memory usage. The original session value is captured before
+   * the change and restored once the insertion completes, whether it succeeds or fails.
+   *
+   * If omitted, the session's current `preserve_insertion_order` setting is left untouched.
    * @see {@link https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads.html#preserving-insertion-order}
-   * @default false
    */
   preserveInsertionOrder?: boolean;
 };
@@ -197,7 +198,7 @@ export class SqlDuck {
       flushSyncFrequency = 10,
       autoCheckpoint = true,
       checkpointChunksFrequency,
-      preserveInsertionOrder = false,
+      preserveInsertionOrder,
     } = params;
 
     if (!Number.isSafeInteger(chunkSize) || chunkSize < 1 || chunkSize > 2048) {
@@ -257,9 +258,18 @@ export class SqlDuck {
       options: createOptions,
     });
 
-    await this.#conn.run(
-      `SET preserve_insertion_order = ${preserveInsertionOrder};`
-    );
+    let originalPreserveInsertionOrder: boolean | undefined;
+    if (preserveInsertionOrder !== undefined) {
+      const settingQuery = await this.#conn.runAndReadAll(
+        "SELECT current_setting('preserve_insertion_order') as value"
+      );
+      originalPreserveInsertionOrder = settingQuery.getRowObjects()[0]
+        ?.value as boolean;
+
+      await this.#conn.run(
+        `SET preserve_insertion_order = ${preserveInsertionOrder};`
+      );
+    }
 
     const appender = await this.#conn.createAppender(
       table.tableName,
@@ -396,15 +406,19 @@ export class SqlDuck {
         cause: e,
       });
     } finally {
-      try {
-        await this.#conn.run("SET preserve_insertion_order = true;");
-      } catch (e) {
-        this.#logger.warning(
-          `Failed to restore preserve_insertion_order to true after appending data into table '${tableName}' - ${(e as Error)?.message ?? ""}`,
-          {
-            table: tableFullName,
-          }
-        );
+      if (preserveInsertionOrder !== undefined) {
+        try {
+          await this.#conn.run(
+            `SET preserve_insertion_order = ${originalPreserveInsertionOrder};`
+          );
+        } catch (e) {
+          this.#logger.warning(
+            `Failed to restore preserve_insertion_order to ${originalPreserveInsertionOrder} after appending data into table '${tableName}' - ${(e as Error)?.message ?? ""}`,
+            {
+              table: tableFullName,
+            }
+          );
+        }
       }
     }
   };
