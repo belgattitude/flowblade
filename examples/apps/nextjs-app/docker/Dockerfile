@@ -9,7 +9,7 @@ FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS prepare
 
 RUN apt-get update \
   # && apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
-  && apt-get install git jq --no-install-recommends -y
+  && apt-get install jq --no-install-recommends -y
 
 WORKDIR /app
 
@@ -39,21 +39,26 @@ ENV TZ=Etc/UTC
 ENV PATH="/opt/pnpm/bin:${PATH}"
 # Hoisted linker will give the smallest image size. As tested with pnpm 12.6.0
 # native deps like duckdb will be duplicated otherwise
-ENV PNPM_CONFIG_NODE_LINKER=hoisted
+#ENV PNPM_CONFIG_NODE_LINKER=hoisted
 # https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
-ENV PNPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
-ENV PNPM_CONFIG_TRUST_LOCKFILE=true
-ENV PNPM_CONFIG_IGNORE_MANIFEST_CHECK=true
+#ENV PNPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
+#ENV PNPM_CONFIG_TRUST_LOCKFILE=true
+#ENV PNPM_CONFIG_IGNORE_MANIFEST_CHECK=true
 
 # Disabling some well-known postinstall scripts
 ENV PRISMA_SKIP_POSTINSTALL_GENERATE=true
+
 
 # First install the dependencies (as they change less often)
 COPY --link .gitignore ./
 COPY --from=prepare --link /app/.turbo-pruned/nextjs-app/json/ .
 
+RUN pnpm config set --location=project trustLockfile=true && \
+    pnpm config set --location=project packageImportMethod=copy
+
+
 # Option 1: run install without cache
-RUN pnpm install --trust-lockfile --no-runtime --frozen-lockfile --ignore-manifest-check
+RUN pnpm install --no-runtime --frozen-lockfile --ignore-manifest-check
 
 # Option 2: run install with buildx cache mount (buildx)
 #RUN --mount=type=cache,target=/root/.cache/pnpm,id=pnpm-cache,sharing=locked \

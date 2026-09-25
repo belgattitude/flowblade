@@ -10,7 +10,7 @@ ENV BUN_INSTALL=/usr/local
 
 RUN apt-get update \
   # && apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
-  && apt-get install git jq --no-install-recommends -y
+  && apt-get install jq --no-install-recommends -y
 
 WORKDIR /app
 
