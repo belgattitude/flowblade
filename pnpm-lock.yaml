@@ -424,9 +424,6 @@ importers:
       pino-pretty:
         specifier: 13.1.3
         version: 13.1.3
-      tedious:
-        specifier: 20.0.0
-        version: 20.0.0(supports-color@8.1.1)
       typebox:
         specifier: 1.3.34
         version: 1.3.34
@@ -732,8 +729,8 @@ importers:
         specifier: 3.1.2
         version: 3.1.2
       tedious:
-        specifier: 20.0.0
-        version: 20.0.0(supports-color@8.1.1)
+        specifier: 20.3.3
+        version: 20.3.3(supports-color@8.1.1)
       type-fest:
         specifier: 5.10.0
         version: 5.10.0
@@ -960,7 +957,7 @@ importers:
         version: 0.29.6
       kysely-codegen:
         specifier: 0.20.0
-        version: 0.20.0(kysely@0.29.6)(tarn@3.1.2)(tedious@20.0.0(supports-color@8.1.1))(typescript@7.0.2)
+        version: 0.20.0(kysely@0.29.6)(tarn@3.1.2)(tedious@20.3.3(supports-color@8.1.1))(typescript@7.0.2)
       oxfmt:
         specifier: 0.70.0
         version: 0.70.0
@@ -980,8 +977,8 @@ importers:
         specifier: 3.1.2
         version: 3.1.2
       tedious:
-        specifier: 20.0.0
-        version: 20.0.0(supports-color@8.1.1)
+        specifier: 20.3.3
+        version: 20.3.3(supports-color@8.1.1)
       tsx:
         specifier: 4.23.15
         version: 4.23.15
@@ -1215,8 +1212,8 @@ importers:
         specifier: 6.1.3
         version: 6.1.3
       tedious:
-        specifier: 20.0.0
-        version: 20.0.0(supports-color@8.1.1)
+        specifier: 20.3.3
+        version: 20.3.3(supports-color@8.1.1)
       tinyrainbow:
         specifier: 3.1.1
         version: 3.1.1
@@ -1725,8 +1722,8 @@ importers:
         specifier: 3.1.2
         version: 3.1.2
       tedious:
-        specifier: 20.0.0
-        version: 20.0.0(supports-color@8.1.1)
+        specifier: 20.3.3
+        version: 20.3.3(supports-color@8.1.1)
       tsdown:
         specifier: 0.23.0
         version: 0.23.0(@arethetypeswrong/core@0.18.5)(oxc-resolver@11.24.2)(publint@0.3.24)(tsx@4.23.15)(typescript@7.0.2)
@@ -2088,8 +2085,8 @@ importers:
         specifier: 3.1.2
         version: 3.1.2
       tedious:
-        specifier: 20.3.0
-        version: 20.3.0(supports-color@8.1.1)
+        specifier: 20.3.3
+        version: 20.3.3(supports-color@8.1.1)
       testcontainers:
         specifier: 12.1.0
         version: 12.1.0(supports-color@8.1.1)
@@ -12267,12 +12264,8 @@ packages:
     resolution: {integrity: sha512-3RTvqKZcK/17jnJ8rMKFXbyNogywTs1z0gVPPwFsJGX46rkmUHOdIaSQ/aVO1rS7nH+soiXiWk7rvUXxndm8Dg==}
     engines: {node: '>=8.0.0'}
 
-  tedious@20.0.0:
-    resolution: {integrity: sha512-bTR0aou0Ghucf0ytvZUJjnKHGKDV8tT57jPYtEkSpfTWFe++4uR1wxJLQ4mh5wlSvAYXzmgBxbI0vaE56qigXw==}
-    engines: {node: '>=22'}
-
-  tedious@20.3.0:
-    resolution: {integrity: sha512-/vCv9KpURTkr/IemXHlTtkRJJ5YBQSa7KGtJQGbdebMfNQD3kBEuq1RLyCplH+zNvqwbpFhu+DuyF/eWysdCyg==}
+  tedious@20.3.3:
+    resolution: {integrity: sha512-PgK/FhX/I4A6IfuQrZ03pok0hXa2LSVsvfXR+EmLeagiFhXzm97UtKQI4+lDDdQx9sKg1U2ag0dN8k7CQRgPhw==}
     engines: {node: '>=22'}
 
   teex@1.0.1:
@@ -20850,7 +20843,7 @@ snapshots:
 
   ky@2.1.0: {}
 
-  kysely-codegen@0.20.0(kysely@0.29.6)(tarn@3.1.2)(tedious@20.0.0(supports-color@8.1.1))(typescript@7.0.2):
+  kysely-codegen@0.20.0(kysely@0.29.6)(tarn@3.1.2)(tedious@20.3.3(supports-color@8.1.1))(typescript@7.0.2):
     dependencies:
       chalk: 4.1.2
       cosmiconfig: 9.0.2(typescript@7.0.2)
@@ -20864,7 +20857,7 @@ snapshots:
       zod: 4.6.5
     optionalDependencies:
       tarn: 3.1.2
-      tedious: 20.0.0(supports-color@8.1.1)
+      tedious: 20.3.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - typescript
 
@@ -24189,22 +24182,7 @@ snapshots:
 
   tarn@3.1.2: {}
 
-  tedious@20.0.0(supports-color@8.1.1):
-    dependencies:
-      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
-      '@azure/identity': 4.13.3(supports-color@8.1.1)
-      '@azure/keyvault-keys': 4.10.2(supports-color@8.1.1)
-      '@js-joda/core': 6.1.0
-      '@types/node': 26.6.2
-      bl: 6.1.6
-      iconv-lite: 0.7.3
-      js-md4: 0.3.2
-      native-duplexpair: 1.0.0
-      sprintf-js: 1.1.3
-    transitivePeerDependencies:
-      - supports-color
-
-  tedious@20.3.0(supports-color@8.1.1):
+  tedious@20.3.3(supports-color@8.1.1):
     dependencies:
       '@azure/core-auth': 1.11.0(supports-color@8.1.1)
       '@azure/identity': 4.13.3(supports-color@8.1.1)
