@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.3.1
+
+### Patch Changes
+
+- [#1353](https://github.com/belgattitude/flowblade/pull/1353) [`3f74e46`](https://github.com/belgattitude/flowblade/commit/3f74e46d5006a191ca5c9cf7209136cc8d8b086f) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild using newly pnpm setup
+
 ## 0.3.0
 
 ### Minor Changes
