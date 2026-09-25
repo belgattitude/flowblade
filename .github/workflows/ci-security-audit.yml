@@ -24,15 +24,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [24.x]
+        runtime: ['node@24']
     steps:
       - uses: actions/checkout@v7
 
       - name: ⚙️Install pnpm and Node.js
         uses: pnpm/setup@v3
         with:
-          runtime: node@${{ matrix.node-version }}
+          runtime: ${{ matrix.runtime }}
           cache: true
+          node-version-file: false
 
       - name: 🛡️ Check for security vulnerabilities
         run: pnpm audit --audit-level critical
