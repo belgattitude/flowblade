@@ -80,7 +80,13 @@
   "engines": {
     "node": ">=22.13.0"
   },
-  "packageManager": "pnpm@12.6.0",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.6.0",
+      "onFail": "warn"
+    }
+  },
   "resolutions-help": {
     "esbuild": "Generally is safe to keep only the latest version (vite, vitest, tsup...)"
   }
