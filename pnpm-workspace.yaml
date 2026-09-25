@@ -15,10 +15,13 @@ resolutionMode: highest
 optimisticRepeatInstall: true
 trustPolicy: no-downgrade
 trustPolicyExclude:
-  - semver
-  - '@vercel/*'
+  - '@vercel/oidc@3.8.8'
+  - '@vercel/cli-config@0.2.7'
+  - '@vercel/cli-exec@1.0.1'
+  - 'semver@6.3.1'
   - 'undici-types@6.21.0'
   - 'chokidar@4.0.3'
+  - 'why-is-node-running@3.2.2'
 
 verifyDepsBeforeRun: install
 
@@ -114,10 +117,9 @@ minimumReleaseAgeExclude:
   - turbo-*
   - typebox
   - ultracite
-  - valibot
   - vite
   - vitest
-  - ws
   - zod
   - '@turbo/*'
   - tedious@20.3.3
+  - oxlint-tsgolint@7.0.2003
