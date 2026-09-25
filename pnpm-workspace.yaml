@@ -11,9 +11,16 @@ savePrefix: ''
 autoDedupe: true
 # Set it to true for deno
 preferSymlinkedExecutables: true
+resolutionMode: highest
+optimisticRepeatInstall: true
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - semver
+  - '@vercel/*'
+  - 'undici-types@6.21.0'
+  - 'chokidar@4.0.3'
 
 #https://github.com/pnpm/pnpm/issues/14972
-enableGlobalVirtualStore: false
 virtualStoreType: project
 
 supportedArchitectures:
@@ -25,7 +32,7 @@ supportedArchitectures:
     - current
 
 allowBuilds:
-  '@prisma/client': true
+  '@prisma/client': false
   '@prisma/engines': false
   '@sentry/cli': true
   core-js: false
@@ -112,3 +119,4 @@ minimumReleaseAgeExclude:
   - zod
   - '@turbo/*'
   - nock@15.0.0-beta.15
+nodeLinker: hoisted
