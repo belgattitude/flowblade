@@ -76,8 +76,8 @@ module.exports = defineConfig({
     'apache-arrow',
 
     // prisma
-    'prisma',
-    '@prisma/client',
+    //'prisma',
+    //'@prisma/client',
 
     '@sentry/nextjs',
 
