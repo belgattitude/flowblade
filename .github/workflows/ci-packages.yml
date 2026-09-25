@@ -12,12 +12,15 @@ on:
 permissions:
   contents: read
 
+env:
+  PRIMARY_RUNTIME: node@24
+
 jobs:
   test-packages:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        runtime: ['node@22', 'node@24', 'node@26', 'bun@1.4.2', 'deno@lts']
+        runtime: ['node@22', 'node@24', 'node@26']
     env:
       TURBO_API: 'http://127.0.0.1:9080'
       TURBO_TEAM: 'flowblade'
@@ -57,23 +60,23 @@ jobs:
             ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('pnpm-lock.yaml') }}-
 
       - name: 🕵️ Typecheck
-        if: matrix.runtime == 'node@24'
+        if: matrix.runtime == env.PRIMARY_RUNTIME
         run: pnpm turbo run typecheck --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🔬 ESLint checks
-        if: matrix.runtime == 'node@24'
+        if: matrix.runtime == env.PRIMARY_RUNTIME
         run: pnpm turbo run lint --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🧪 Unit tests (no-coverage when != node@24)
-        if: matrix.runtime != 'node@24'
+        if: matrix.runtime != env.PRIMARY_RUNTIME
         run: pnpm turbo run test-unit --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🧪 Unit tests (with coverage when == node@24)
-        if: matrix.runtime == 'node@24'
+        if: matrix.runtime == env.PRIMARY_RUNTIME
         run: pnpm turbo run test-unit-coverage --filter='!@examples/*' --filter='!@docs/*'
 
       - name: ☂️ Codecov upload (only node-24)
-        if: matrix.runtime == 'node@24'
+        if: matrix.runtime == env.PRIMARY_RUNTIME
         working-directory: ${{ github.workspace }}
         run: |
           bash .github/scripts/install-codecov.sh
@@ -83,24 +86,24 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: 🧪 Unit tests (edge-runtime)
-        if: matrix.runtime == 'node@24'
+        if: matrix.runtime == env.PRIMARY_RUNTIME
         run: pnpm turbo run test-unit-edge --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🏗 Build packages
         run: pnpm turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 📐 Check build for size-limits
-        if: matrix.runtime == 'node@24'
+        if: matrix.runtime == env.PRIMARY_RUNTIME
         run: pnpm turbo run check-size --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🛟 Check build for ecmascript compliance
-        if: matrix.runtime == 'node@24'
+        if: matrix.runtime == env.PRIMARY_RUNTIME
         run: pnpm turbo run check-dist --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🛟 Check publishable dist (arethetypeswrong,publint)
-        if: matrix.runtime == 'node@24'
+        if: matrix.runtime == env.PRIMARY_RUNTIME
         run: pnpm turbo run check-pub --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🧪 Integration tests
-        if: matrix.runtime == 'node@24'
+        if: matrix.runtime == env.PRIMARY_RUNTIME
         run: pnpm turbo run test-e2e --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"

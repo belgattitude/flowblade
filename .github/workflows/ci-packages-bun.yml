@@ -1,0 +1,52 @@
+name: CI-packages-bun
+
+on:
+  push:
+    branches:
+     - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+
+jobs:
+  test-packages-bun:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runtime: ['bun@latest']
+    env:
+      TURBO_API: 'http://127.0.0.1:9080'
+      TURBO_TEAM: 'flowblade'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Fetch all git history so workspace comparisons have the correct commits.
+          # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          fetch-depth: 0
+
+      - name: ⏩ TurboRepo local server
+        uses: felixmosh/turborepo-gh-artifacts@v4
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
+
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@v3
+        with:
+          runtime: ${{ matrix.runtime }}
+          cache: true
+          node-version-file: false
+
+      - name: 🧪 Unit tests
+        run: pnpm turbo run test-unit-bun --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+
+      - name: 🏗 Build packages
+        run: pnpm turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+
+      - name: 🧪 Integration tests
+        if: matrix.runtime == env.PRIMARY_RUNTIME
+        run: pnpm turbo run test-e2e-bun --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"

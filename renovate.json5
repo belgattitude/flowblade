@@ -3,7 +3,7 @@
   extends: ["config:recommended"],
   enabled: true,
   enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
-  postUpdateOptions: ["yarnDedupeHighest"],
+  postUpdateOptions: ["pnpmDedupe"],
   minimumReleaseAge: "2 days",
   packageRules: [
     {
