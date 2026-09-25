@@ -13,11 +13,11 @@ permissions:
   contents: read
 
 jobs:
-  test-packages-bun:
+  test-packages-deno:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        runtime: ['deno@lts']
+        runtime: ['deno@2']
     env:
       TURBO_API: 'http://127.0.0.1:9080'
       TURBO_TEAM: 'flowblade'
