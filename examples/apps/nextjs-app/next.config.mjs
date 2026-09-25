@@ -58,10 +58,9 @@ let nextConfig = {
       include: ["light-dark", "oklab-colors"],
     },
   },
-  /*
   turbopack: {
     root: monorepoRoot,
-  },*/
+  },
   async headers() {
     return [
       {

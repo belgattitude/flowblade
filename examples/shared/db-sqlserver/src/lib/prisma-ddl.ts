@@ -13,11 +13,11 @@ export class PrismaDdl {
 
   getDdl = (): string => {
     this.execPrismaCliOrThrow(
-      "yarn prisma format",
+      "pnpm prisma format",
       "Formatting prisma schema failed"
     );
     const { stdout } = this.execPrismaCliOrThrow(
-      "yarn prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script",
+      "pnpm prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script",
       `Cannot generate initial migration ddl from schema.prisma`
     );
 

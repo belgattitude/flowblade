@@ -1,7 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local", "**/tsconfig*.json"],
-  "globalPassThroughEnv": ["AWS_SECRET_KEY", "GITHUB_TOKEN", "CODSPEED_TOKEN"],
+  "globalPassThroughEnv": ["AWS_SECRET_KEY", "GITHUB_TOKEN", "CODSPEED_TOKEN", "PNPM_CONFIG_*"],
   "cacheDir": ".turbo",
   "ui": "stream",
   "tasks": {
@@ -60,6 +60,8 @@
     },
     "check-pub": {
       "dependsOn": ["build"]
+    },
+    "prisma-generate": {
     }
   }
 }

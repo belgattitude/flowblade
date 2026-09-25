@@ -26,7 +26,7 @@ if (openapiSchema.trim().length === 0) {
 
 export const config: UserConfig = {
   hooks: {
-    done: [`yarn lint-fix ${outputPath}`],
+    done: [`pnpm lint-fix ${outputPath}`],
   },
   input: {
     // path: 'http://localhost:3000/api/openapi',

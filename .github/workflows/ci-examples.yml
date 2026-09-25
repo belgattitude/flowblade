@@ -17,22 +17,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [24.x]
+        runtime: ['node@24']
     env:
       TURBO_API: 'http://127.0.0.1:9080'
       TURBO_TEAM: 'flowblade'
     steps:
       - uses: actions/checkout@v7
         with:
-          # Fetch all git history so that yarn workspaces --since can compare with the correct commits
+          # Fetch all git history so workspace comparisons have the correct commits.
           # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           fetch-depth: 0
 
-      - name: ⚙️ Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@v3
         with:
-          node-version: ${{ matrix.node-version }}
-          package-manager-cache: false
+          runtime: {{ matrix.runtime }}
+          cache: true
 
       - name: ⏩ TurboRepo local server
         uses: felixmosh/turborepo-gh-artifacts@v4
@@ -40,38 +40,20 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
 
-      - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
-
-      - name: Cache rotation keys
-        id: cache-rotation
-        shell: bash
-        run: |
-          echo "YEAR_MONTH=$(/bin/date -u "+%Y%m")" >> $GITHUB_OUTPUT
-
-      - name: ♻️ Restore packages cache
-        uses: actions/cache@v6
-        with:
-          path: |
-            ${{ github.workspace }}/.cache
-          key: ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-${{ hashFiles('packages/**.[jt]sx?', 'integrations/**.[jt]sx?') }}
-          restore-keys: |
-            ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-
-
       - name: 🛣️ Prisma generate
-        run: yarn workspace @examples/db-sqlserver prisma-generate
+        run: pnpm --filter @examples/db-sqlserver prisma-generate
 
       - name: 🛣️ Pre build sqlduck
-        run: yarn workspace @flowblade/sqlduck build
+        run: pnpm --filter @flowblade/sqlduck build
 
       - name: 🕵️ Typecheck
-        run: yarn turbo run typecheck --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: pnpm turbo run typecheck --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🔬 ESLint checks
-        run: yarn turbo run lint --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: pnpm turbo run lint --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🧪 Unit tests
-        run: yarn turbo run test-unit --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: pnpm turbo run test-unit --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🏗 Build packages
-        run: yarn turbo run build --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: pnpm turbo run build --filter='@examples/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"

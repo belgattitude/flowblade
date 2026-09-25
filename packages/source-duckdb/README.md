@@ -7,7 +7,7 @@ Duckdb datasource adapter based on [@duckdb/node-api](https://github.com/duckdb/
 ## Install
 
 ```bash
-yarn add @flowblade/source-duckdb @duckdb/node-api
+pnpm add @flowblade/source-duckdb @duckdb/node-api
 ```
 
 ### Query the database

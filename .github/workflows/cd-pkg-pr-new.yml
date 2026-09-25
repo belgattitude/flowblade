@@ -14,14 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: ⚙️ Use Node.js 24.x
-        uses: actions/setup-node@v7
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@v3
         with:
-          node-version: 24.x
-          package-manager-cache: false
-
-      - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
+          runtime: node@24
+          cache: true
 
       - name: ⏩ TurboRepo local server
         uses: felixmosh/turborepo-gh-artifacts@v4
@@ -30,7 +27,7 @@ jobs:
           server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
 
       - name: 🏗 Build packages
-        run: yarn turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: pnpm turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 📦 Publish on pkg.pr.new
-        run: yarn exec pkg-pr-new publish "./packages/*"
+        run: pnpm exec pkg-pr-new publish "./packages/*"

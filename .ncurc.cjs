@@ -2,7 +2,7 @@
 
 const { defineConfig } = require('npm-check-updates');
 
-// @todo read the content from .yarnrc.yml
+// Keep this in sync with pnpm-workspace.yaml.
 const npmPreapprovedPackages = [
   'npm-check-updates',
   '@belgattitude/*',
@@ -52,7 +52,7 @@ module.exports = defineConfig({
   workspaces: true,
   mergeConfig: true,
   root: true,
-  packageManager: 'yarn',
+  packageManager: 'pnpm',
   cooldown: (packageName) => {
     if (
       npmPreapprovedPackages.some((allowed) =>
@@ -78,6 +78,8 @@ module.exports = defineConfig({
     // prisma
     'prisma',
     '@prisma/client',
+
+    '@sentry/nextjs',
 
     // kubb
     "@kubb/cli",

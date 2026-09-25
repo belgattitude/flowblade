@@ -1,0 +1,51 @@
+ARG NODE_VERSION=26.9
+ARG DEBIAN_VERSION=trixie-slim
+
+#############################################################
+# Stage 1 - App extraction / pruning                        #
+#############################################################
+
+FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS prepare
+
+# RUN --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+RUN apt-get update \
+  # && apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
+  && apt-get install git jq --no-install-recommends -y
+
+WORKDIR /app
+
+COPY --link package.json turbo.jsonc ./
+
+# Install pnpm at the version declared by the package manager.
+RUN PNPM_VERSION=$(jq -r '.packageManager | sub("^pnpm@"; "")' package.json) PNPM_HOME=/opt/pnpm SHELL=bash npx get-pnpm
+ENV PATH="/opt/pnpm/bin:${PATH}"
+
+# Install Turbo at the version declared by the pruned workspace.
+RUN TURBO_VERSION=$(jq -r '.devDependencies["turbo"]' package.json) npm i -g turbo@${TURBO_VERSION}
+
+COPY --link . .
+
+# https://turbo.build/repo/docs/handbook/deploying-with-docker
+RUN turbo prune --scope=@examples/nextjs-app --docker --out-dir=./.turbo-pruned/nextjs-app/
+
+#############################################################
+# Stage 2 - App installation                                #
+#############################################################
+
+FROM prepare AS builder
+
+ENV TZ=Etc/UTC
+
+WORKDIR /app
+
+ENV pnpm_config_nodeLinker=hoisted
+# https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
+ENV pnpm_config_package_import_method=copy
+
+
+# First install the dependencies (as they change less often)
+COPY --from=prepare /app/.turbo-pruned/nextjs-app/json/ .
+
+#RUN pnpm install --trust-lockfile --no-runtime --frozen-lockfile --ignore-manifest-check
+
+CMD ["node"]

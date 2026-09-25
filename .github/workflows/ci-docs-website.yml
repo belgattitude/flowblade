@@ -36,11 +36,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: ⚙️ Setup node 24.x
-        uses: actions/setup-node@v7
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@v3
         with:
-          node-version: "24.x"
-          package-manager-cache: false
+          runtime: node@24
+          cache: true
 
       - name: ⏩ TurboRepo local server
         uses: felixmosh/turborepo-gh-artifacts@v4
@@ -48,26 +48,14 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
 
-      - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
-
-      - name: ♻️ Restore website docs build caches
-        uses: actions/cache@v6
-        with:
-          path: |
-            ${{ github.workspace }}/docs/.next/cache
-            ${{ github.workspace }}/.cache
-            ${{ github.workspace }}/docs/tsconfig.tsbuildinfo
-          key: website-docs-build-cache-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
-
       - name: 🕵️ Typecheck
-        run: yarn turbo run typecheck --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: pnpm turbo run typecheck --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🔬 ESLint checks
-        run: yarn turbo run lint --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: pnpm turbo run lint --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🏗 Build docs
-        run: yarn workspace @docs/website run build-static
+        run: pnpm --filter @docs/website run build-static
         env:
           NEXT_BUILD_BASE_PATH: "/flowblade"
           NEXT_TELEMETRY_DISABLED: true
@@ -86,7 +74,6 @@ jobs:
       #  if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
       #  run: |
       #    git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-      #    yarn website:deploy -u "github-actions-bot <support+actions@github.com>"
+      #    pnpm website:deploy -u "github-actions-bot <support+actions@github.com>"
       #  env:
       #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

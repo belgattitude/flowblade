@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'yarn.lock'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/**'
 
   pull_request:
@@ -13,7 +13,7 @@ on:
     branches:
       - '**'
     paths:
-      - 'yarn.lock'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/**'
 
 permissions:
@@ -24,18 +24,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [24.x]
+        runtime: ['node@24']
     steps:
       - uses: actions/checkout@v7
 
-      - name: ⚙️ Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@v3
         with:
-          node-version: ${{ matrix.node-version }}
-          package-manager-cache: false
-
-      - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
+          runtime: ${{ matrix.runtime }}
+          cache: true
+          node-version-file: false
 
       - name: 🛡️ Check for security vulnerabilities
-        run: yarn npm audit --no-deprecations --all
+        run: pnpm audit --audit-level critical

@@ -3,5 +3,5 @@
 ### Run the tests
 
 ```bash
-yarn test-e2e
+pnpm test-e2e
 ```

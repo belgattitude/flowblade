@@ -1,0 +1,123 @@
+packages:
+  - docs
+  - examples/*/*
+  - integrations/*
+  - packages/*
+
+# Use pnpm's symlinked node_modules layout rather than Yarn PnP.
+nodeLinker: isolated
+packageImportMethod: auto
+savePrefix: ''
+autoDedupe: true
+# Set it to true for deno
+preferSymlinkedExecutables: true
+resolutionMode: highest
+optimisticRepeatInstall: true
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - semver
+  - '@vercel/*'
+  - 'undici-types@6.21.0'
+  - 'chokidar@4.0.3'
+
+verifyDepsBeforeRun: install
+
+#https://github.com/pnpm/pnpm/issues/14972
+virtualStoreType: project
+
+supportedArchitectures:
+  os:
+    - current
+  cpu:
+    - current
+  libc:
+    - current
+
+allowBuilds:
+  '@prisma/client': false
+  '@prisma/engines': false
+  '@sentry/cli': true
+  core-js: false
+  cpu-features: false
+  es5-ext: false
+  esbuild: false
+  lefthook: false
+  prisma: false
+  protobufjs: false
+  ssh2: false
+
+strictDepBuilds: false
+
+overrides:
+  '@opentelemetry/core@<2.8.0': 2.8.0
+  '@xmldom/xmldom@>=0.9.0 <=0.9.10': 0.9.12
+  '@xmldom/xmldom@>=0.9.0 <=0.9.11': 0.9.12
+  '@xmldom/xmldom@>=0.9.0-beta.1 <=0.9.11': 0.9.12
+  '@xmldom/xmldom@>=0.9.0-beta.9 <=0.9.10': 0.9.12
+  '@xmldom/xmldom@>=0.9.10 <=0.9.11': 0.9.12
+  esbuild: ^0.28.2
+  lodash-es@<=4.17.23: 4.18.1
+  lodash-es@>=4.0.0 <=4.17.23: 4.18.1
+
+# Keep the existing supply-chain cooldown while allowing trusted packages immediately.
+minimumReleaseAge: 2880
+minimumReleaseAgeExclude:
+  - '@azure/*'
+  - '@belgattitude/*'
+  - '@better-auth/*'
+  - '@duckdb/*'
+  - '@esbuild/*'
+  - '@flowblade/*'
+  - '@hono/*'
+  - '@httpx/*'
+  - '@kubb/*'
+  - '@logtape/*'
+  - '@napi-rs/*'
+  - '@next/*'
+  - '@orpc/*'
+  - '@oxc-project/*'
+  - '@oxfmt/*'
+  - '@oxlint-tsgolint/*'
+  - '@oxlint/*'
+  - '@prisma/*'
+  - '@rolldown/*'
+  - '@sentry-internal/*'
+  - '@sentry/*'
+  - '@shadcn/*'
+  - '@standard-schema/*'
+  - '@standard-server/*'
+  - '@storybook/*'
+  - '@typescript-eslint/*'
+  - '@typescript/*'
+  - '@valibot/*'
+  - '@vitejs/*'
+  - '@vitest/*'
+  - better-auth
+  - better-call
+  - esbuild
+  - hono
+  - kysely
+  - next
+  - npm-check-updates
+  - oxfmt
+  - oxlint
+  - postcss
+  - prettier
+  - prisma
+  - rolldown
+  - rolldown-plugin-dts
+  - shadcn
+  - storybook
+  - tinyexec
+  - tsdown
+  - turbo
+  - turbo-*
+  - typebox
+  - ultracite
+  - valibot
+  - vite
+  - vitest
+  - ws
+  - zod
+  - '@turbo/*'
+  - tedious@20.3.3
