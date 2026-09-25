@@ -5,10 +5,7 @@
   enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
   postUpdateOptions: ["pnpmDedupe"],
   minimumReleaseAge: "2 days",
-  packageRules: [
-    {
-      matchPackageNames: [],
-      enabled: false,
-    },
-  ],
+  toolSettings: {
+    "nodeMaxMemory": "2048"
+  }
 }
