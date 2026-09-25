@@ -1,5 +1,14 @@
 # @flowblade/source-duckdb
 
+## 0.28.2
+
+### Patch Changes
+
+- [#1372](https://github.com/belgattitude/flowblade/pull/1372) [`512e273`](https://github.com/belgattitude/flowblade/commit/512e273a11a0608438fdc29a85bc0578f9e37656) Thanks [@belgattitude](https://github.com/belgattitude)! - Minimum version of logtape to include upstream security fixes
+- Updated dependencies [[`512e273`](https://github.com/belgattitude/flowblade/commit/512e273a11a0608438fdc29a85bc0578f9e37656), [`512e273`](https://github.com/belgattitude/flowblade/commit/512e273a11a0608438fdc29a85bc0578f9e37656)]:
+  - @flowblade/core@0.3.2
+  - @flowblade/sql-tag@0.3.6
+
 ## 0.28.1
 
 ### Patch Changes
