@@ -2,37 +2,48 @@
 
 Generated with Vitest. Positive differences favor Bun: lower latency and higher throughput.
 
-| Environment | Value |
-| --- | --- |
-| Node.js | `v24.21.0` |
-| Bun | `1.4.2` |
-| CPU | Apple M5 Pro (18 logical cores) |
-| RAM | 24 GiB |
+| Environment | Value                           |
+| ----------- | ------------------------------- |
+| Node.js     | `v24.21.0`                      |
+| Bun         | `1.4.2`                         |
+| CPU         | Apple M5 Pro (18 logical cores) |
+| RAM         | 24 GiB                          |
 
 ## appender benches
 
 Source: `bench/appender.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| duckdb appender memory, count: 100000, chunk size 2048 | 61.6 ms | 50.36 ms | +22.32% | 16.24 ops/s | 19.95 ops/s | +22.85% |
-| duckdb appender, count: 100000, chunk size 1024 | 61.94 ms | 50.62 ms | +22.37% | 16.15 ops/s | 19.76 ops/s | +22.4% |
-| duckdb appender file no wal, count: 100000, chunk size 2048 | 66.84 ms | 52.97 ms | +26.18% | 14.96 ops/s | 18.88 ops/s | +26.17% |
-| duckdb appender file no wal, count: 100000, chunk size 1024 | 68.71 ms | 54.39 ms | +26.34% | 14.56 ops/s | 18.39 ops/s | +26.29% |
-| duckdb appender file, count: 100000, chunk size 2048 | 70.26 ms | 57.96 ms | +21.23% | 14.23 ops/s | 17.26 ops/s | +21.25% |
+| --- | --: | --: | --: | --: | --: | --: |
+| duckdb appender memory, count: 100000, chunk size 2048 | 63.91 ms | 49.01 ms | +30.41% | 15.65 ops/s | 20.41 ops/s | +30.43% |
+| duckdb appender, count: 100000, chunk size 1024 | 66.67 ms | 51.01 ms | +30.71% | 15.02 ops/s | 19.61 ops/s | +30.54% |
+| duckdb appender file no wal, count: 100000, chunk size 2048 | 68.68 ms | 53.59 ms | +28.14% | 14.56 ops/s | 18.66 ops/s | +28.12% |
+| duckdb appender file no wal, count: 100000, chunk size 1024 | 73.07 ms | 56.41 ms | +29.52% | 13.78 ops/s | 17.73 ops/s | +28.73% |
+| duckdb appender file, count: 100000, chunk size 2048 | 73.19 ms | 58.07 ms | +26.05% | 13.67 ops/s | 17.23 ops/s | +26.06% |
+
 ## Bench rowsToColumnsChunks
 
 Source: `bench/stream.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| rowToColumnsChunk with chunkSize 2048 (count: 100000) | 23.61 ms | 11.44 ms | +106.38% | 42.38 ops/s | 87.53 ops/s | +106.53% |
-| rowToColumnsChunk with transformer with chunkSize 2048 (count: 100000) | 24.77 ms | 12.88 ms | +92.25% | 40.39 ops/s | 77.84 ops/s | +92.73% |
-| mapFakeRowStream with chunkSize 2048 (count: 100000) | 32.64 ms | 16.08 ms | +102.99% | 30.65 ops/s | 62.25 ops/s | +103.14% |
+| --- | --: | --: | --: | --: | --: | --: |
+| rowToColumnsChunk with chunkSize 2048 (count: 100000) | 23.29 ms | 11.39 ms | +104.42% | 42.96 ops/s | 87.97 ops/s | +104.76% |
+| rowToColumnsChunk with transformer with chunkSize 2048 (count: 100000) | 24.62 ms | 12.73 ms | +93.42% | 40.66 ops/s | 78.65 ops/s | +93.44% |
+| mapFakeRowStream with chunkSize 2048 (count: 100000) | 32.12 ms | 15.58 ms | +106.16% | 31.15 ops/s | 64.22 ops/s | +106.17% |
+
+## Bench rowsToColumnsChunks with full supported-columns schema
+
+Source: `bench/stream.bench.ts`
+
+| Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
+| --- | --: | --: | --: | --: | --: | --: |
+| full schema, no transformers, chunkSize 2048 (count: 100000) | 98.43 ms | 48.69 ms | +102.17% | 10.16 ops/s | 20.54 ops/s | +102.12% |
+| full schema, with all column converters, chunkSize 2048 (count: 100000) | 213.88 ms | 106.85 ms | +100.16% | 4.68 ops/s | 9.36 ops/s | +100.17% |
+
 ## Bench getTableCreateFromZod
 
 Source: `bench/table-create.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| getTableCreateFromZod | 15.62 us | 9.17 us | +70.24% | 64,914.62 ops/s | 118,044.31 ops/s | +81.85% |
+| --- | --: | --: | --: | --: | --: | --: |
+| getTableCreateFromZod | 15.64 us | 8.6 us | +81.8% | 64,617.56 ops/s | 122,828.13 ops/s | +90.08% |
