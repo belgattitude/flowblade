@@ -1,4 +1,4 @@
-name: CI-packages-bun
+name: CI-deno
 
 on:
   push:
@@ -13,11 +13,11 @@ permissions:
   contents: read
 
 jobs:
-  test-packages-bun:
+  test-deno:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        runtime: ['deno@lts']
+        runtime: ['deno@2']
     env:
       TURBO_API: 'http://127.0.0.1:9080'
       TURBO_TEAM: 'flowblade'
@@ -42,11 +42,11 @@ jobs:
           node-version-file: false
 
       - name: 🧪 Unit tests
-        run: pnpm turbo run test-unit-bun --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: pnpm turbo run test-unit-deno --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🏗 Build packages
         run: pnpm turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
-      - name: 🧪 Integration tests
-        if: matrix.runtime == env.PRIMARY_RUNTIME
-        run: pnpm turbo run test-e2e-bun --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+      #- name: 🧪 Integration tests
+      #  if: matrix.runtime == env.PRIMARY_RUNTIME
+      #  run: pnpm turbo run test-e2e-deno --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"

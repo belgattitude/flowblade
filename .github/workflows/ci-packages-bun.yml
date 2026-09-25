@@ -1,4 +1,4 @@
-name: CI-packages-bun
+name: CI-bun
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  test-packages-bun:
+  test-bun:
     runs-on: ubuntu-latest
     strategy:
       matrix:

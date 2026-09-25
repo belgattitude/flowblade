@@ -1,4 +1,4 @@
-import type { PrismaClient } from "../generated/client";
+import type { PrismaClient } from "../generated/client/client";
 import { CliLogger } from "./logger/cli-logger";
 import type { ILogger } from "./logger/logger.interface";
 

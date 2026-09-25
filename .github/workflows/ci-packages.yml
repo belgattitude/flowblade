@@ -1,4 +1,4 @@
-name: CI-packages
+name: CI-node
 
 on:
   push:
@@ -16,7 +16,7 @@ env:
   PRIMARY_RUNTIME: node@24
 
 jobs:
-  test-packages:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
