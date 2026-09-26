@@ -1,5 +1,13 @@
 # @flowblade/sqlduck
 
+## 0.37.9
+
+### Patch Changes
+
+- [#1381](https://github.com/belgattitude/flowblade/pull/1381) [`582dfa1`](https://github.com/belgattitude/flowblade/commit/582dfa190ba73e340b1fec96800ba4f85c20cb44) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to 2.3.8
+- Updated dependencies [[`582dfa1`](https://github.com/belgattitude/flowblade/commit/582dfa190ba73e340b1fec96800ba4f85c20cb44)]:
+  - @flowblade/source-duckdb@0.28.3
+
 ## 0.37.8
 
 ### Patch Changes
