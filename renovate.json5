@@ -2,7 +2,8 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["config:recommended"],
   enabled: true,
-  enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
+  //enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
+  enabledManagers: ["npm"],
   // postUpdateOptions: ["pnpmDedupe"],
   minimumReleaseAge: "2 days",
   // https://github.com/renovatebot/renovate/discussions/40942
