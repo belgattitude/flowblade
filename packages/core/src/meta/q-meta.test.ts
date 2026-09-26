@@ -1,4 +1,4 @@
-import { expectTypeOf } from "vitest";
+import {describe, expectTypeOf} from "vitest";
 
 import { QMeta, type QMetaJsonifiable, type QMetaSqlSpan } from "./q-meta";
 
@@ -55,6 +55,45 @@ describe("QMeta", () => {
             .getTotalTimeMs()
         ).toBe(1000 + sqlSpan.timeMs);
       });
+    });
+  });
+
+  describe("getLatestSpan()", () => {
+    it("should return the latest span", () => {
+      const meta = createMeta();
+      const latestSpan = meta.getLatestSpan();
+      expect(latestSpan).toBe(sqlSpan);
+    });
+  });
+
+  describe('getSpansByType()', () => {
+    it('should return spans of the specified type', () => {
+      const meta = createMeta();
+      const sqlSpans = meta.getSpansByType('sql');
+      expect(sqlSpans).toHaveLength(1);
+      expect(sqlSpans[0]).toBe(sqlSpan);
+    });
+    it('should return an empty array if no spans of the specified type exist', () => {
+      const meta = createMeta();
+      const transformSpans = meta.getSpansByType('transform');
+      expect(transformSpans).toHaveLength(0);
+    });
+  });
+
+  describe('addSpan()', () => {
+    it('should add a new span to the meta', () => {
+      const meta = createMeta();
+      const newSpan: QMetaSqlSpan = {
+        type: 'sql',
+        sql: 'SELECT * FROM orders',
+        params: [],
+        timeMs: 5,
+        affectedRows: 5,
+      };
+      meta.addSpan(newSpan);
+      const spans = meta.getSpans();
+      expect(spans).toHaveLength(2);
+      expect(spans[1]).toBe(newSpan);
     });
   });
 

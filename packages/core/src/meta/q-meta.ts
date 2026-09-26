@@ -16,7 +16,16 @@ export interface QMetaSqlSpan {
   affectedRows: number;
 }
 
-export type QMetaSpan = QMetaSqlSpan | QMetaMapSpan;
+export interface QMetaCustomSpan<T extends string> {
+  type: T;
+  timeMs: number;
+  affectedRows: number;
+}
+
+export type QMetaSpan<TCustom extends string = string> =
+  | QMetaSqlSpan
+  | QMetaMapSpan
+  | QMetaCustomSpan<TCustom>;
 
 type ConstructorParams = {
   cm?: QColumnModel;
@@ -73,6 +82,13 @@ export class QMeta {
    */
   getLatestSpan = (): Readonly<QMetaSpan> | undefined => {
     return this.spans.at(-1)!;
+  };
+
+  /**
+   * Return spans by type 'sql'...
+   */
+  getSpansByType = (type: string): Readonly<QMetaSpan>[] => {
+    return (this.spans.filter((span) => span.type === type) ?? []);
   };
 
   /**
