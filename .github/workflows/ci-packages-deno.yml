@@ -1,9 +1,9 @@
-name: CI-packages
+name: CI-deno
 
 on:
   push:
     branches:
-      - main
+     - main
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
@@ -13,35 +13,41 @@ permissions:
   contents: read
 
 jobs:
-  test-packages-deno:
+  test-deno:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        deno-version: ['lts']
+        runtime: ['deno@2']
     env:
       TURBO_API: 'http://127.0.0.1:9080'
       TURBO_TEAM: 'flowblade'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Fetch all git history so that yarn workspaces --since can compare with the correct commits
+          # Fetch all git history so workspace comparisons have the correct commits.
           # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           fetch-depth: 0
-
-      - name: ⚙️ Use Deno ${{ matrix.bun-version }}
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: ${{ matrix.bun-version }}
+          persist-credentials: false
 
       - name: ⏩ TurboRepo local server
-        uses: felixmosh/turborepo-gh-artifacts@v4
+        uses: felixmosh/turborepo-gh-artifacts@118f869397261f74bc39cb8565f2d02c0ed4209f # v4.1.1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
 
-      - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        with:
+          runtime: ${{ matrix.runtime }}
+          cache: true
+          node-version-file: false
 
-      - name: 🧪 Deno unit tests
-        run: yarn turbo run test-unit-deno --filter='!@examples/*' --filter='!@docs/*'
+      - name: 🧪 Unit tests
+        run: pnpm turbo run test-unit-deno --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
+      - name: 🏗 Build packages
+        run: pnpm turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+
+      #- name: 🧪 Integration tests
+      #  if: matrix.runtime == env.PRIMARY_RUNTIME
+      #  run: pnpm turbo run test-e2e-deno --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"

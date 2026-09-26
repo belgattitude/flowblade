@@ -3,14 +3,18 @@ import { defineConfig } from "tsdown";
 
 export default defineConfig({
   entry: ["./src/index.ts"],
+  attw: {
+    profile: "esm-only",
+    level: "error",
+  },
+  publint: {
+    level: "error",
+  },
   dts: true,
   clean: true,
   format: {
     esm: {
-      target: ["node20", ...browserslistToEsbuild()],
-    },
-    cjs: {
-      target: ["node20", ...browserslistToEsbuild()],
+      target: ["node22", ...browserslistToEsbuild()],
     },
   },
   platform: "neutral",

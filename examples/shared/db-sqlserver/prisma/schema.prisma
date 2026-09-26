@@ -1,14 +1,12 @@
 datasource db {
   provider = "sqlserver"
-  url      = env("DB_FLOWBLADE_SQLSERVER_JDBC")
   schemas  = ["common", "user"]
 }
 
 generator client {
-  provider        = "prisma-client-js"
+  provider        = "prisma-client"
   previewFeatures = ["views"]
   output          = "../src/generated/client"
-  moduleFormat    = "esm"
 }
 
 /// https://github.com/samchon/prisma-markdown

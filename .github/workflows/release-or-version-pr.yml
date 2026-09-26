@@ -1,54 +1,99 @@
-name: ReleaseOrVersionPR
+name: Publish
 
 on:
   push:
     branches:
       - main
 
-concurrency: "${{ github.workflow }}-${{ github.ref }}"
+# recommended: reset permissions and explicitly specify for each job
+permissions: {}
+
+# recommended: avoid concurrent runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  release:
-    name: Release and changelog
-    # Security: the release job can only be executed from this repo and from the main branch (not a remote thing)
-    if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
-    permissions:
-      contents: write  #  to create release (changesets/action)
-      pull-requests: write
-      id-token: write # to allow npm provenance
+  select-mode:
     runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.select-mode.outputs.mode }}
+      publish-plan-artifact-id: ${{ steps.select-mode.outputs.publish-plan-artifact-id }}
+    permissions:
+      contents: read # to check out repo (actions/checkout)
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v7
+      - name: Check out repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # To run comparison we need more than the latest commit. Keep the fetch-depth relatively
-          # high or set it to zero to get all commits from the git repo.
-          # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
-          fetch-depth: 0
+          persist-credentials: false # recommended: do not persist git credentials on disk
 
-      - name: Use Node.js 24.x
-        uses: actions/setup-node@v7
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
         with:
-          node-version: 24.19.0
-          package-manager-cache: false
+          runtime: node@24
+          cache: true
 
-      - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
+      - name: Select Changesets mode
+        id: select-mode
+        uses: changesets/action/select-mode@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
 
-      - name: 🦋 Create Release Pull Request or Publish to npm
-        id: changesets
-        uses: changesets/action@v1
+  version:
+    if: needs.select-mode.outputs.mode == 'version'
+    needs: select-mode
+    runs-on: ubuntu-latest
+    outputs:
+      version-dir-artifact-id: ${{ steps.version.outputs.version-dir-artifact-id }}
+    permissions:
+      contents: write # to check out repo (actions/checkout) and commit version changes (changesets/action/version)
+      pull-requests: write # to create pull request (changesets/action/version)
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          publish: yarn g:release
-          setupGitUser: true
+          persist-credentials: false # recommended: do not persist git credentials on disk
+
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        with:
+          runtime: node@24
+          cache: true
+
+      - name: Version packages
+        id: version
+        uses: changesets/action/version@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
+
+  publish:
+    if: needs.select-mode.outputs.mode == 'publish'
+    needs: select-mode
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # to check out repo (actions/checkout) and to create releases (changesets/action/publish)
+      id-token: write # for trusted publishing (changesets/action/publish)
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false # recommended: do not persist git credentials on disk
+
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        with:
+          runtime: node@24
+          cache: false # avoid cache poisoning
+
+      # setup-node's registry-url writes an `_authToken` placeholder into
+      # ~/.npmrc; a configured (even empty) token shadows OIDC trusted
+      # publishing, so strip it before publishing.
+      #- name: Clear token auth from npmrc
+      #  run: sed -i '/_authToken/d' ~/.npmrc || true
+
+      - name: Build packages
+        run: pnpm g:build-release
+
+      - name: Publish packages
+        uses: changesets/action/publish@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         env:
-          # See https://github.com/changesets/action/issues/147
-          HOME: ${{ github.workspace }}
-          # https://github.com/changesets/changesets/issues/1152#issuecomment-3190884868
-          NPM_TOKEN: ''
-          # The regular GITHUB_TOKEN won't allow the created "Version Packages" pr to
-          # trigger the regular CI workflow. This limitation can be circumvented by
-          # setting a custom PAT token from a GH account and setting it the secrets.
-          GITHUB_TOKEN: ${{ secrets.BELGATTITUDE_FLOWBLADE_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
-
+          # GITHUB_TOKEN: ${{ secrets.BELGATTITUDE_FLOWBLADE_TOKEN }}
+        with:
+          script: pnpm changeset publish
+          #pack-dir-artifact-id: ${{ needs.pack.outputs.pack-dir-artifact-id }}

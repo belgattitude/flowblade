@@ -1,27 +1,27 @@
-ARG NODE_VERSION=26.10
-ARG DEBIAN_VERSION=trixie-slim
+ARG BUN_VERSION=1.4.2
 
 #############################################################
 # Stage 1 - App extraction / pruning                        #
 #############################################################
 
-FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS prepare
+FROM oven/bun:${BUN_VERSION}-slim AS prepare
+
+ENV BUN_INSTALL=/usr/local
 
 RUN apt-get update \
   # && apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
-  && apt-get install jq --no-install-recommends -y \
-  && npm install -g npm
+  && apt-get install jq --no-install-recommends -y
 
 WORKDIR /app
 
 COPY --link package.json turbo.jsonc ./
 
 # Install pnpm at the version declared by the package manager.
-RUN PNPM_VERSION=$(jq -r '.devEngines["packageManager"]["version"]' package.json) PNPM_HOME=/opt/pnpm SHELL=bash npx get-pnpm
+RUN PNPM_VERSION=$(jq -r '.devEngines["packageManager"]["version"]' package.json) PNPM_HOME=/opt/pnpm SHELL=bash bunx get-pnpm
 ENV PATH="/opt/pnpm/bin:${PATH}"
 
 # Install Turbo at the version declared by the pruned workspace.
-RUN TURBO_VERSION=$(jq -r '.devDependencies["turbo"]' package.json) npm i -g turbo@${TURBO_VERSION}
+RUN TURBO_VERSION=$(jq -r '.devDependencies["turbo"]' package.json) bun i -g turbo@${TURBO_VERSION}
 
 COPY --link . .
 
@@ -42,7 +42,7 @@ ENV PATH="/opt/pnpm/bin:${PATH}"
 # native deps like duckdb will be duplicated otherwise
 ENV PNPM_CONFIG_NODE_LINKER=hoisted
 # https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
-ENV PNPM_CONFIG_PACKAGE_IMPORT_METHOD=harlinks
+ENV PNPM_CONFIG_PACKAGE_IMPORT_METHOD=hardlinks
 ENV PNPM_CONFIG_TRUST_LOCKFILE=true
 ENV PNPM_CONFIG_IGNORE_MANIFEST_CHECK=true
 ENV PNPM_CONFIG_STORE_DIR=/opt/pnpm-store
@@ -79,7 +79,7 @@ RUN PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false pnpm turbo run build --filter=@exam
 # Stage 3 - App runner                                      #
 #############################################################
 
-FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS runner
+FROM oven/bun:${BUN_VERSION}-slim AS runner
 
 ARG NEXTJS_APP_PORT
 
@@ -88,7 +88,6 @@ ENV HOSTNAME=0.0.0.0
 ENV PORT=${NEXTJS_APP_PORT:-3000}
 ENV TZ=Etc/UTC
 ENV NODE_ENV=production
-
 
 RUN apt-get update \
   && apt-get install tzdata ca-certificates --no-install-recommends -y \
@@ -102,8 +101,8 @@ RUN mkdir -p /etc/pki/tls/certs && ln -s /etc/ssl/certs/ca-certificates.crt /etc
 WORKDIR /app
 
 # Set the correct permission for prerender cache
-RUN addgroup --system --gid 1001 nodejs \
-    && adduser --system --uid 1001 nextjs \
+RUN groupadd --system --gid 1001 nodejs \
+    && useradd --system --uid 1001 --gid nodejs nextjs \
     && mkdir .next \
     && chown nextjs:nodejs .next
 
@@ -121,4 +120,4 @@ COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/public .
 
 EXPOSE ${PORT}
 
-CMD ["node", "examples/apps/nextjs-app/server.js"]
+CMD ["bun", "examples/apps/nextjs-app/server.js"]

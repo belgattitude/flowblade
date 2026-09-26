@@ -7,9 +7,9 @@ Example of a product database using SQL Server, Prisma and Kysely.
 ### Quick start
 
 ```bash
-yarn prisma generate
-yarn db-recreate-dev
-yarn prisma-db-seed
+pnpm prisma generate
+pnpm db-recreate
+pnpm prisma-db-seed
 ```
 
 DDL operations requires a SQL Server instance to be running.
@@ -26,6 +26,8 @@ Check the [.env](./.env) file for the environment variables used in this example
 DB_FLOWBLADE_SQLSERVER_JDBC="sqlserver://localhost:1433;database=flowblade;user=sa;password=FlowbladeSADev123;trustServerCertificate=true;encrypt=false"
 ```
 
+Prisma 7 loads this connection string through [`prisma.config.ts`](./prisma.config.ts).
+
 > Yon can create a './env.local' file to override the default values.
 
 ### Schema
@@ -36,15 +38,15 @@ DB_FLOWBLADE_SQLSERVER_JDBC="sqlserver://localhost:1433;database=flowblade;user=
 
 | Name | Description |
 | --- | --- |
-| `yarn codegen` | Run codegen (prisma generate...) |
-| `yarn db-recreate-dev` | Reset the database and apply the latest schema with seeds |
-| `yarn prisma-db-seed` | Load seeds into database |
-| `yarn prisma-db-reset-push` | Drop and recreate database |
-| `yarn prisma-db-push` | Attempt to apply schema changes to database |
-| `yarn prisma-studio` | Launch prisma studio (ui admin) |
-| `yarn prisma-validate` | Validate schema.prisma |
-| `yarn prisma-format` | Format schema.prisma |
-| `yarn lint` | Check for lint errors |
-| `yarn lint --fix` | Attempt to run linter auto-fix |
-| `yarn test-unit` | Run unit tests |
-| `yarn clean` | Remove all caches |
+| `pnpm codegen` | Run codegen (prisma generate...) |
+| `pnpm db-recreate` | Reset the database and apply the latest schema with filtered nullable unique indexes |
+| `pnpm prisma-db-seed` | Load seeds into database |
+| `pnpm prisma-db-reset-push` | Alias for `db-recreate` |
+| `pnpm prisma-db-push` | Attempt to apply schema changes to database |
+| `pnpm prisma-studio` | Launch prisma studio (ui admin) |
+| `pnpm prisma-validate` | Validate schema.prisma |
+| `pnpm prisma-format` | Format schema.prisma |
+| `pnpm lint` | Check for lint errors |
+| `pnpm lint --fix` | Attempt to run linter auto-fix |
+| `pnpm test-unit` | Run unit tests |
+| `pnpm clean` | Remove all caches |

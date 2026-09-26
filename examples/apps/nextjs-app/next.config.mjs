@@ -36,8 +36,10 @@ let nextConfig = {
     // correctly traced (included).
     // This bug might be more general and impact optional dependencies
     "/api/\\[\\[\\.\\.\\.route\\]\\]": [
-      "../../../node_modules/@duckdb/node-bindings-linux-x64/*.so",
-      "../../../node_modules/@duckdb/node-bindings-linux-x64/*.node",
+      "../../../node_modules/@duckdb/node-bindings-*/*.so",
+      "../../../node_modules/@duckdb/node-bindings-*/*.node",
+      "../../../node_modules/@duckdb/node-bindings-*/*.dylib",
+      "../../../node_modules/@duckdb/node-bindings-*/*.dll",
     ],
   },
   experimental: {
@@ -58,12 +60,9 @@ let nextConfig = {
       include: ["light-dark", "oklab-colors"],
     },
   },
-  /*
   turbopack: {
     root: monorepoRoot,
   },
-  */
-
   async headers() {
     return [
       {

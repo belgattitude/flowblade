@@ -17,7 +17,7 @@ Fast and lightweight ([~700B](#bundle-size)) sql template tag based on [sql-temp
 ## Install
 
 ```bash
-yarn add @flowblade/sql-tag
+pnpm add @flowblade/sql-tag
 ```
 
 ## API

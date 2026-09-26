@@ -5,7 +5,7 @@ Internal contracts and utilities for flowblade adapters. You generally don't hav
 ## Install
 
 ```bash
-yarn add @flowblade/core
+pnpm add @flowblade/core
 ```
 
 ## Usage

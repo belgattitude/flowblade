@@ -49,6 +49,7 @@ export const createDuckColumnConverters = <
         conv = false;
         break;
       case DuckDBTypeId.FLOAT:
+      case DuckDBTypeId.DOUBLE:
         conv = false;
         break;
       case DuckDBTypeId.DECIMAL:

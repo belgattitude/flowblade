@@ -1,4 +1,4 @@
-name: CI-packages
+name: CI-node
 
 on:
   push:
@@ -12,36 +12,38 @@ on:
 permissions:
   contents: read
 
+env:
+  PRIMARY_RUNTIME: node@24
+
 jobs:
-  test-packages:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22.x, 24.x, 26.x]
+        runtime: ['node@22', 'node@24', 'node@26']
     env:
       TURBO_API: 'http://127.0.0.1:9080'
       TURBO_TEAM: 'flowblade'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Fetch all git history so that yarn workspaces --since can compare with the correct commits
+          # Fetch all git history so workspace comparisons have the correct commits.
           # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           fetch-depth: 0
-
-      - name: ⚙️ Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
-        with:
-          node-version: ${{ matrix.node-version }}
-          package-manager-cache: false
+          persist-credentials: false
 
       - name: ⏩ TurboRepo local server
-        uses: felixmosh/turborepo-gh-artifacts@v4
+        uses: felixmosh/turborepo-gh-artifacts@118f869397261f74bc39cb8565f2d02c0ed4209f # v4.1.1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
 
-      - name: 📥 Monorepo install
-        uses: ./.github/actions/yarn-nm-install
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        with:
+          runtime: ${{ matrix.runtime }}
+          cache: true
+          node-version-file: false
 
       - name: Cache rotation keys
         id: cache-rotation
@@ -50,59 +52,55 @@ jobs:
           echo "YEAR_MONTH=$(/bin/date -u "+%Y%m")" >> $GITHUB_OUTPUT
 
       - name: ♻️ Restore packages cache
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ${{ github.workspace }}/.cache
-          key: ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-${{ hashFiles('packages/**.[jt]sx?', 'integrations/**.[jt]sx?') }}
+          key: ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('packages/**.[jt]sx?', 'integrations/**.[jt]sx?') }}
           restore-keys: |
-            ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('yarn.lock') }}-
+            ${{ runner.os }}-packages-cache-${{ steps.cache-rotation.outputs.YEAR_MONTH }}-${{ hashFiles('pnpm-lock.yaml') }}-
 
       - name: 🕵️ Typecheck
-        if: matrix.node-version == '24.x'
-        run: yarn turbo run typecheck --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        if: matrix.runtime == env.PRIMARY_RUNTIME
+        run: pnpm turbo run typecheck --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🔬 ESLint checks
-        if: matrix.node-version == '24.x'
-        run: yarn turbo run lint --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        if: matrix.runtime == env.PRIMARY_RUNTIME
+        run: pnpm turbo run lint --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
-      - name: 🧪 Unit tests (no-coverage - node !== 24.x)
-        if: matrix.node-version != '24.x'
-        run: yarn turbo run test-unit --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+      - name: 🧪 Unit tests (no-coverage when != node@24)
+        if: matrix.runtime != env.PRIMARY_RUNTIME
+        run: pnpm turbo run test-unit --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
-      - name: 🧪 Unit tests (coverage - only node 24.x)
-        if: matrix.node-version == '24.x'
-        run: yarn turbo run test-unit-coverage --filter='!@examples/*' --filter='!@docs/*'
+      - name: 🧪 Unit tests (with coverage when == node@24)
+        if: matrix.runtime == env.PRIMARY_RUNTIME
+        run: pnpm turbo run test-unit-coverage --filter='!@examples/*' --filter='!@docs/*'
 
-      - name: ☂️ Codecov upload (only node-20)
-        if: matrix.node-version == '24.x'
+      - name: ☂️ Codecov upload (only node-24)
+        if: matrix.runtime == env.PRIMARY_RUNTIME
         working-directory: ${{ github.workspace }}
         run: |
           bash .github/scripts/install-codecov.sh
-          yarn g:ci-coverage-upload
+          pnpm g:ci-coverage-upload
         shell: bash
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: 🧪 Unit tests (edge-runtime)
-        if: matrix.node-version == '24.x'
-        run: yarn turbo run test-unit-edge --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        if: matrix.runtime == env.PRIMARY_RUNTIME
+        run: pnpm turbo run test-unit-edge --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🏗 Build packages
-        run: yarn turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: pnpm turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 📐 Check build for size-limits
-        if: matrix.node-version == '24.x'
-        run: yarn turbo run check-size --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        if: matrix.runtime == env.PRIMARY_RUNTIME
+        run: pnpm turbo run check-size --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🛟 Check build for ecmascript compliance
-        if: matrix.node-version == '24.x'
-        run: yarn turbo run check-dist --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
-
-      - name: 🛟 Check publishable dist (arethetypeswrong,publint)
-        if: matrix.node-version == '24.x'
-        run: yarn turbo run check-pub --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        if: matrix.runtime == env.PRIMARY_RUNTIME
+        run: pnpm turbo run check-dist --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🧪 Integration tests
-        if: matrix.node-version == '24.x'
-        run: yarn turbo run test-e2e --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        if: matrix.runtime == env.PRIMARY_RUNTIME
+        run: pnpm turbo run test-e2e --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"

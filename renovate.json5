@@ -2,13 +2,10 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["config:recommended"],
   enabled: true,
-  enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
-  postUpdateOptions: ["yarnDedupeHighest"],
+  // disabled npm deps, cause renovate fails with pnpm
+  // https://github.com/renovatebot/renovate/discussions/40942
+  enabledManagers: ["docker-compose", "dockerfile", "github-actions"],
+  // enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
+  // postUpdateOptions: ["pnpmDedupe"],
   minimumReleaseAge: "2 days",
-  packageRules: [
-    {
-      matchPackageNames: [],
-      enabled: false,
-    },
-  ],
 }

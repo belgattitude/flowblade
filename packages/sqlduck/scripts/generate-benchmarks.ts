@@ -3,6 +3,9 @@ import { cpus, totalmem } from "node:os";
 import path from "node:path";
 
 import { execa } from "execa";
+import { format } from "oxfmt";
+
+import oxfmtConfig from "../oxfmt.config.ts";
 
 type BenchmarkTask = {
   name: string;
@@ -213,7 +216,7 @@ const runBenchmark = async (
   outputFile: string
 ): Promise<VitestBenchmarkReport> => {
   await execa(
-    "yarn",
+    "pnpm",
     [
       "run",
       script,
@@ -245,9 +248,24 @@ const nodeReport = await runBenchmark("bench", nodeJsonOutputFile);
 const bunReport = await runBenchmark("bench-bun", bunJsonOutputFile);
 const { stdout: bunVersion } = await execa("bun", ["--version"]);
 
-await writeFile(
+const markdown = getBenchmarkMarkdown(nodeReport, bunReport, bunVersion);
+
+// `docs/**/*.md` is excluded from `oxfmt.config.ts`'s `ignorePatterns` so
+// that routine `lint`/`format` runs don't touch this generated file. That
+// pattern only affects CLI file discovery, not this direct `format()` call,
+// so the report still gets the project's normal table/markdown formatting
+// right after being generated.
+const { code: formattedMarkdown, errors } = await format(
   markdownOutputFile,
-  getBenchmarkMarkdown(nodeReport, bunReport, bunVersion)
+  markdown,
+  oxfmtConfig
 );
+if (errors.length > 0) {
+  for (const error of errors) {
+    console.warn(`oxfmt: ${error.message}`);
+  }
+}
+
+await writeFile(markdownOutputFile, formattedMarkdown);
 
 console.log(`Benchmark report written to ${markdownOutputFile}`);

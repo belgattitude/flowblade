@@ -178,9 +178,9 @@ const queryResult = await dbDuckDbMemoryConn.query<{
 
 | Name              | Description                    |
 | ----------------- | ------------------------------ |
-| `yarn build`      |                                |
-| `yarn typecheck`  |                                |
-| `yarn lint`       | Check for lint errors          |
-| `yarn lint --fix` | Attempt to run linter auto-fix |
-| `yarn test-unit`  | Run unit tests                 |
-| `yarn test-e2e`   | Run unit tests                 |
+| `pnpm build`      |                                |
+| `pnpm typecheck`  |                                |
+| `pnpm lint`       | Check for lint errors          |
+| `pnpm lint --fix` | Attempt to run linter auto-fix |
+| `pnpm test-unit`  | Run unit tests                 |
+| `pnpm test-e2e`   | Run unit tests                 |

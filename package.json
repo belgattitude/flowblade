@@ -8,26 +8,19 @@
     "url": "https://github.com/belgattitude"
   },
   "repository": "belgattitude/flowblade",
-  "workspaces": [
-    "benchmark",
-    "docs",
-    "examples/*/*",
-    "integrations/*",
-    "packages/*"
-  ],
   "type": "module",
   "scripts": {
-    "g:clean": "rimraf ./out && run clean:global-cache && yarn workspaces foreach --all -pv run clean && run clean:turbo",
-    "clean:global-cache": "rimraf ./.cache",
-    "clean:turbo": "rimraf .turbo",
+    "g:clean": "rimraf ./out ./.turbo-pruned && pnpm clean:global-cache && pnpm -r --parallel --if-present run clean && pnpm clean:turbo",
+    "clean:global-cache": "PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false rimraf ./.cache",
+    "clean:turbo": "PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false rimraf .turbo",
     "g:bench": "turbo run bench --concurrency 1",
     "g:bench-codspeed": "turbo run bench --concurrency 1",
     "g:build": "turbo run build --filter='!@examples/*' --filter='!@docs/*'",
-    "g:build-release": "yarn workspaces foreach -tv --worktree --from 'packages/*' run build-release",
-    "g:build-packages": "yarn workspaces foreach -tv --worktree --from 'packages/*' run build",
+    "g:build-release": "pnpm --filter './packages/*' -r --stream run build-release",
+    "g:build-packages": "pnpm --filter './packages/*' -r --stream run build",
     "g:build-examples": "turbo run build --filter='@examples/*'",
     "g:docgen": "turbo run docgen --affected",
-    "g:test": "yarn workspaces foreach --all -pv run test",
+    "g:test": "pnpm -r --parallel --if-present run test",
     "g:test-unit": "turbo run test-unit --filter='!@examples/*' --filter='!@docs/*'",
     "g:test-unit-examples": "turbo run test-unit --filter='@examples/*'",
     "g:test-e2e": "turbo run test-e2e --filter='!@examples/*' --filter='!@docs/*'",
@@ -41,65 +34,45 @@
     "g:lint-fix": "turbo run lint-fix --concurrency 1",
     "g:format": "turbo run format --continue --concurrency 1",
     "g:typecheck": "turbo run typecheck",
-    "g:lint-staged-files": "lint-staged --allow-empty",
-    "g:fix-all-files": "yarn workspaces foreach --all -ptv run fix-all-files",
     "g:changeset": "changeset",
     "g:codegen": "turbo run codegen",
     "g:check-dist": "turbo run check-dist --filter='!@examples/**' --filter='!docs/**'",
     "g:check-size": "turbo run check-size --filter='!@examples/**' --filter='!docs/**'",
-    "g:check-pub": "turbo run check-pub --filter='!@examples/**' --filter='!docs/**'",
-    "g:release": "yarn g:build-release && yarn exec changeset publish",
-    "g:ci-coverage-upload": "yarn workspaces foreach --all -tv run ci-coverage-upload",
+    "g:release": "pnpm run g:build-release && pnpm exec changeset publish",
+    "g:ci-coverage-upload": "pnpm -r --if-present --stream run ci-coverage-upload",
     "deps:check": "npm-check-updates --configFileName .ncurc.cjs",
     "deps:update": "npm-check-updates --configFileName .ncurc.cjs -u",
-    "check:install": "yarn dlx @yarnpkg/doctor@3 .",
-    "check:security": "yarn npm audit --no-deprecations --all",
-    "syncpack:format": "syncpack format",
-    "syncpack:check": "syncpack lint --dependency-types dev --source \"package.json\" --source \"packages/*/package.json\"",
-    "syncpack:list": "syncpack list --dependency-types prod,dev --source \"package.json\" --source \"packages/*/package.json\"",
-    "nuke:node_modules": "rimraf --glob '**/node_modules'",
-    "skills:update": "npx skills update"
+    "check:security": "pnpm audit",
+    "nuke:node_modules": "PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false rimraf --glob '**/node_modules'",
+    "skills:update": "npx skills update",
+    "actions:update": "npx actions-up"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "0.7.0",
-    "@changesets/cli": "2.31.1",
-    "@commitlint/cli": "21.2.2",
-    "@commitlint/config-conventional": "21.2.2",
-    "@commitlint/types": "21.2.0",
-    "@types/shell-quote": "1.7.5",
+    "@changesets/changelog-github": "1.0.1",
+    "@changesets/cli": "3.0.3",
+    "@flowblade/devtools": "workspace:*",
     "cross-env": "10.1.0",
     "is-ci": "4.1.0",
     "lefthook": "2.1.14",
     "npm-check-updates": "23.1.0",
     "npm-run-all2": "9.0.3",
-    "oxfmt": "0.68.0",
-    "oxlint": "1.83.0",
-    "picocolors": "1.1.1",
+    "oxfmt": "0.70.0",
+    "oxlint": "1.85.0",
     "pkg-pr-new": "0.0.88",
     "react-doctor": "0.9.14",
     "rimraf": "6.1.3",
-    "shell-quote": "1.10.0",
-    "syncpack": "15.3.3",
-    "turbo": "2.11.2",
+    "turbo": "2.11.4",
     "typescript": "7.0.2",
     "ultracite": "7.12.0"
   },
-  "dependenciesMeta": {
-    "@prisma/client": {
-      "built": true
-    },
-    "@sentry/cli": {
-      "built": true
-    }
-  },
-  "resolutions": {
-    "esbuild": "^0.28.2"
-  },
   "engines": {
-    "node": ">=22.11.0"
+    "node": ">=22.13.0"
   },
-  "packageManager": "yarn@4.18.0",
-  "resolutions-help": {
-    "esbuild": "Generally is safe to keep only the latest version (vite, vitest, tsup...)"
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.7.0",
+      "onFail": "warn"
+    }
   }
 }

@@ -1,5 +1,81 @@
 # @flowblade/sqlduck
 
+## 0.37.10
+
+### Patch Changes
+
+- Updated dependencies [[`55b813c`](https://github.com/belgattitude/flowblade/commit/55b813c92b8b92aa85f66663808b355ef70fff48)]:
+  - @flowblade/core@0.4.0
+  - @flowblade/source-duckdb@0.29.0
+  - @flowblade/sql-tag@0.4.0
+
+## 0.37.9
+
+### Patch Changes
+
+- [#1381](https://github.com/belgattitude/flowblade/pull/1381) [`582dfa1`](https://github.com/belgattitude/flowblade/commit/582dfa190ba73e340b1fec96800ba4f85c20cb44) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to 2.3.8
+- Updated dependencies [[`582dfa1`](https://github.com/belgattitude/flowblade/commit/582dfa190ba73e340b1fec96800ba4f85c20cb44)]:
+  - @flowblade/source-duckdb@0.28.3
+
+## 0.37.8
+
+### Patch Changes
+
+- [#1380](https://github.com/belgattitude/flowblade/pull/1380) [`2f0e75f`](https://github.com/belgattitude/flowblade/commit/2f0e75fddaa85a35b19993e712c1e926b548d9b0) Thanks [@belgattitude](https://github.com/belgattitude)! - Add preserverInsertionOrder option
+
+- [#1378](https://github.com/belgattitude/flowblade/pull/1378) [`2c71d0b`](https://github.com/belgattitude/flowblade/commit/2c71d0b12d96855dedb61405f05e37e88d55d7dc) Thanks [@belgattitude](https://github.com/belgattitude)! - Minor performance 1.05x on nodejs (v8 optimization)
+
+- [#1380](https://github.com/belgattitude/flowblade/pull/1380) [`2f0e75f`](https://github.com/belgattitude/flowblade/commit/2f0e75fddaa85a35b19993e712c1e926b548d9b0) Thanks [@belgattitude](https://github.com/belgattitude)! - Add new benchmarks
+
+## 0.37.7
+
+### Patch Changes
+
+- [#1372](https://github.com/belgattitude/flowblade/pull/1372) [`512e273`](https://github.com/belgattitude/flowblade/commit/512e273a11a0608438fdc29a85bc0578f9e37656) Thanks [@belgattitude](https://github.com/belgattitude)! - Minimum version of logtape to include upstream security fixes
+- Updated dependencies [[`512e273`](https://github.com/belgattitude/flowblade/commit/512e273a11a0608438fdc29a85bc0578f9e37656), [`512e273`](https://github.com/belgattitude/flowblade/commit/512e273a11a0608438fdc29a85bc0578f9e37656)]:
+  - @flowblade/core@0.3.2
+  - @flowblade/source-duckdb@0.28.2
+  - @flowblade/sql-tag@0.3.6
+
+## 0.37.6
+
+### Patch Changes
+
+- [#1353](https://github.com/belgattitude/flowblade/pull/1353) [`3f74e46`](https://github.com/belgattitude/flowblade/commit/3f74e46d5006a191ca5c9cf7209136cc8d8b086f) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild using newly pnpm setup
+- Updated dependencies [[`3f74e46`](https://github.com/belgattitude/flowblade/commit/3f74e46d5006a191ca5c9cf7209136cc8d8b086f)]:
+  - @flowblade/core@0.3.1
+  - @flowblade/source-duckdb@0.28.1
+
+## 0.37.5
+
+### Patch Changes
+
+- [#1366](https://github.com/belgattitude/flowblade/pull/1366) [`bfff622`](https://github.com/belgattitude/flowblade/commit/bfff6226e0de0ef2662b9d1ea2624d0383acf217) Thanks [@belgattitude](https://github.com/belgattitude)! - Republish
+
+## 0.37.4
+
+### Patch Changes
+
+- [#1363](https://github.com/belgattitude/flowblade/pull/1363) [`900501b`](https://github.com/belgattitude/flowblade/commit/900501b706a8436d55a89233df0cc729b6ad2387) Thanks [@belgattitude](https://github.com/belgattitude)! - Republish
+
+## 0.37.3
+
+### Patch Changes
+
+- [#1361](https://github.com/belgattitude/flowblade/pull/1361) [`57da599`](https://github.com/belgattitude/flowblade/commit/57da59968ad2c781acd98fb53c1ffd290d835ace) Thanks [@belgattitude](https://github.com/belgattitude)! - Republish with latest changesets
+
+## 0.37.2
+
+### Patch Changes
+
+- [#1356](https://github.com/belgattitude/flowblade/pull/1356) [`da3bc3a`](https://github.com/belgattitude/flowblade/commit/da3bc3aa4bfdd5a6334b9a6b204715299453893c) Thanks [@belgattitude](https://github.com/belgattitude)! - Release with changeset v3
+
+## 0.37.1
+
+### Patch Changes
+
+- [#1354](https://github.com/belgattitude/flowblade/pull/1354) [`0cabc23`](https://github.com/belgattitude/flowblade/commit/0cabc234c9a42954c2fd7a68ae7829d8722e866e) Thanks [@belgattitude](https://github.com/belgattitude)! - No change, republishing
+
 ## 0.37.0
 
 ### Minor Changes

@@ -15,21 +15,21 @@ The base branch is **`main`**.
 
 If applicable:
 
-- [x] **tests** should be included part of your PR (`yarn g:test-unit`).
-- [x] a **changeset** should be provided (`yarn g:changeset`) to request a version bump.
-- [x] **documentation** should be updated (`yarn g:build-doc` to rebuild the api doc).
+- [x] **tests** should be included part of your PR (`pnpm g:test-unit`).
+- [x] a **changeset** should be provided (`pnpm g:changeset`) to request a version bump.
+- [x] **documentation** should be updated (`pnpm g:build-doc` to rebuild the api doc).
 
 ## Quick start
 
 ```bash
 # make a fork and clone it, then
-yarn install
-yarn g:test-unit
-yarn g:lint
-yarn g:typecheck
+pnpm install
+pnpm g:test-unit
+pnpm g:lint
+pnpm g:typecheck
 ```
 
-> If you don't have yarn on your system: `npm i -g yarn` then enable corepack with `corepack enable`
+> If pnpm is not available, enable Corepack with `corepack enable`.
 
 ## Structure
 
@@ -48,22 +48,21 @@ yarn g:typecheck
 
 | Name                         | Description                                                                                                                               |
 |------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| `yarn g:changeset`           | Add a changeset to declare a new version                                                                                                  |
-| `yarn g:typecheck`           | Run typechecks in all workspaces                                                                                                          |
-| `yarn g:lint`                | Display linter issues in all workspaces                                                                                                   |
-| `yarn g:lint --fix`          | Attempt to run linter auto-fix in all workspaces                                                                                          |
-| `yarn g:test-unit`           | Run unit tests in all workspaces                                                                                                          |
-| `yarn g:build`               | Run build in all workspaces                                                                                                               |
-| `yarn g:clean`               | Clean builds in all workspaces                                                                                                            |
-| `yarn g:check-dist`          | Ensure build dist files passes es2017 (run `g:build` first).                                                                              |
-| `yarn g:check-size`          | Ensure build files are within size limit (run `g:build` first).                                                                           |
-| `yarn g:docgen`              | Build documentation (generally api doc)                                                                                                   |
-| `yarn g:bench`               | Run benchmarks for all workspaces.                                                                                                        |
-| `yarn clean:global-cache`    | Clean tooling caches (eslint, jest...)                                                                                                    |
-| `yarn deps:check --dep dev`  | Will print what packages can be upgraded globally (see also [.ncurc.yml](https://github.com/belgattitude/flowblade/blob/main/.ncurc.yml)) |
-| `yarn deps:update --dep dev` | Apply possible updates (run `yarn install && yarn dedupe` after)                                                                          |
-| `yarn check:install`         | Verify if there's no peer-deps missing in packages                                                                                        |
-| `yarn dedupe`                | Built-in yarn deduplication of the lock file                                                                                              |
+| `pnpm g:changeset`           | Add a changeset to declare a new version                                                                                                  |
+| `pnpm g:typecheck`           | Run typechecks in all workspaces                                                                                                          |
+| `pnpm g:lint`                | Display linter issues in all workspaces                                                                                                   |
+| `pnpm g:lint --fix`          | Attempt to run linter auto-fix in all workspaces                                                                                          |
+| `pnpm g:test-unit`           | Run unit tests in all workspaces                                                                                                          |
+| `pnpm g:build`               | Run build in all workspaces                                                                                                               |
+| `pnpm g:clean`               | Clean builds in all workspaces                                                                                                            |
+| `pnpm g:check-dist`          | Ensure build dist files passes es2017 (run `g:build` first).                                                                              |
+| `pnpm g:check-size`          | Ensure build files are within size limit (run `g:build` first).                                                                           |
+| `pnpm g:docgen`              | Build documentation (generally api doc)                                                                                                   |
+| `pnpm g:bench`               | Run benchmarks for all workspaces.                                                                                                        |
+| `pnpm clean:global-cache`    | Clean tooling caches (eslint, jest...)                                                                                                    |
+| `pnpm deps:check --dep dev`  | Will print what packages can be upgraded globally (see also [.ncurc.cjs](https://github.com/belgattitude/flowblade/blob/main/.ncurc.cjs)) |
+| `pnpm deps:update --dep dev` | Apply possible updates, then run `pnpm install && pnpm dedupe`.                                                                          |
+| `pnpm check:install`         | Verify the lockfile and installation are in sync                                                                                          |
 
 ## Git message format
 

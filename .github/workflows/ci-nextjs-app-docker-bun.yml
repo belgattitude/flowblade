@@ -1,4 +1,4 @@
-name: CI-nextjs-app-docker
+name: CI-nextjs-app-docker-bun
 
 on:
   push:
@@ -10,16 +10,16 @@ on:
       - '**'
 
 env:
-  IMAGE: flowblade/example-nextjs-app
+  IMAGE: flowblade/example-nextjs-app-bun
 
 permissions:
   contents: read
 
 jobs:
-  docker:
+  docker-bun:
     #if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
     runs-on: ubuntu-latest
-    name: nextjs-app example docker build
+    name: nextjs-app bun example docker build
     defaults:
       run:
         shell: bash
@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-
+          
       - name: ⚙️ Setup Docker meta
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
@@ -56,7 +56,7 @@ jobs:
         with:
           load: true
           context: .
-          file: ./examples/apps/nextjs-app/docker/Dockerfile
+          file: ./examples/apps/nextjs-app/docker/Dockerfile.bun
           # Disabled for example
           # push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}

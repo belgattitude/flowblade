@@ -7,11 +7,11 @@ A source adapter for [Kysely](https://github.com/kysely-org/kysely).
 ## Install
 
 ```bash
-yarn add @flowblade/source-kysely kysely
+pnpm add @flowblade/source-kysely kysely
 
 # Install optional drivers
 # 01. for Ms SqlServer or Azure Sql Edge
-yarn add tedious tarn
+pnpm add tedious tarn
 ```
 
 Kysely supports

@@ -1,5 +1,17 @@
 # @flowblade/sql-tag
 
+## 0.4.0
+
+### Minor Changes
+
+- [#1385](https://github.com/belgattitude/flowblade/pull/1385) [`55b813c`](https://github.com/belgattitude/flowblade/commit/55b813c92b8b92aa85f66663808b355ef70fff48) Thanks [@belgattitude](https://github.com/belgattitude)! - Move to esm only
+
+## 0.3.6
+
+### Patch Changes
+
+- [#1372](https://github.com/belgattitude/flowblade/pull/1372) [`512e273`](https://github.com/belgattitude/flowblade/commit/512e273a11a0608438fdc29a85bc0578f9e37656) Thanks [@belgattitude](https://github.com/belgattitude)! - Update sql-formater to 15.9.0
+
 ## 0.3.5
 
 ### Patch Changes

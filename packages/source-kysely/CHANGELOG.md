@@ -1,5 +1,40 @@
 # @flowblade/source-kysely
 
+## 1.9.0
+
+### Minor Changes
+
+- [#1385](https://github.com/belgattitude/flowblade/pull/1385) [`55b813c`](https://github.com/belgattitude/flowblade/commit/55b813c92b8b92aa85f66663808b355ef70fff48) Thanks [@belgattitude](https://github.com/belgattitude)! - Move to esm only
+
+### Patch Changes
+
+- Updated dependencies [[`55b813c`](https://github.com/belgattitude/flowblade/commit/55b813c92b8b92aa85f66663808b355ef70fff48)]:
+  - @flowblade/core@0.4.0
+  - @flowblade/sql-tag@0.4.0
+
+## 1.8.3
+
+### Patch Changes
+
+- [#1381](https://github.com/belgattitude/flowblade/pull/1381) [`582dfa1`](https://github.com/belgattitude/flowblade/commit/582dfa190ba73e340b1fec96800ba4f85c20cb44) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to 2.3.8
+
+## 1.8.2
+
+### Patch Changes
+
+- [#1372](https://github.com/belgattitude/flowblade/pull/1372) [`512e273`](https://github.com/belgattitude/flowblade/commit/512e273a11a0608438fdc29a85bc0578f9e37656) Thanks [@belgattitude](https://github.com/belgattitude)! - Minimum version of logtape to include upstream security fixes
+- Updated dependencies [[`512e273`](https://github.com/belgattitude/flowblade/commit/512e273a11a0608438fdc29a85bc0578f9e37656), [`512e273`](https://github.com/belgattitude/flowblade/commit/512e273a11a0608438fdc29a85bc0578f9e37656)]:
+  - @flowblade/core@0.3.2
+  - @flowblade/sql-tag@0.3.6
+
+## 1.8.1
+
+### Patch Changes
+
+- [#1353](https://github.com/belgattitude/flowblade/pull/1353) [`3f74e46`](https://github.com/belgattitude/flowblade/commit/3f74e46d5006a191ca5c9cf7209136cc8d8b086f) Thanks [@belgattitude](https://github.com/belgattitude)! - Rebuild using newly pnpm setup
+- Updated dependencies [[`3f74e46`](https://github.com/belgattitude/flowblade/commit/3f74e46d5006a191ca5c9cf7209136cc8d8b086f)]:
+  - @flowblade/core@0.3.1
+
 ## 1.8.0
 
 ### Minor Changes

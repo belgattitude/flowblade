@@ -1,10 +1,13 @@
 name: flowblade-example-nextjs
 services:
-  app-alpine:
+  app-bun:
+    container_name: "flowblade-nextjs-app-bun"
     build:
       # Start from root of the monorepo
       context: ../../../../
-      dockerfile: ./examples/apps/nextjs-app/docker/Dockerfile.alpine
+      dockerfile: ./examples/apps/nextjs-app/docker/Dockerfile.bun
+      tags:
+        - flowblade-nextjs-app-bun:latest
     restart: no
     networks:
       - flowblade-net

@@ -114,20 +114,40 @@ export async function* rowsToColumnsChunks<
     return obj;
   }
 
+  // Applies each column's mapper in-place, once per chunk, after all of the
+  // chunk's raw values have been copied in. Isolating the mapper call in its
+  // own per-column loop keeps each call site monomorphic — it only ever
+  // invokes that column's own mapper — instead of a single shared call site
+  // that cycles through every column's differently-typed mapper on every
+  // row, which V8 can degrade to a slower polymorphic/megamorphic dispatch.
+  function applyMappers(cols: TReturn) {
+    for (let i = 0; i < numKeys; i++) {
+      const fn = mappers[i];
+      if (fn === undefined) {
+        continue;
+      }
+      const k = keys[i]!;
+      const target = cols[k] as unknown[];
+      for (let r = 0; r < target.length; r++) {
+        target[r] = fn(target[r]);
+      }
+    }
+  }
+
   let columns = createColumns();
   let rowsInChunk = 0;
 
   for (let i = 0; i < numKeys; i++) {
     const k = keys[i]!;
-    const fn = mappers[i];
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const val = (first.value as Record<keyof TRow, unknown>)[k];
-    (columns[k] as unknown[]).push(fn === undefined ? val : fn(val));
+    (columns[k] as unknown[]).push(val);
   }
   rowsInChunk++;
   // In case chunkSize === 1 (or generally if the threshold already reached),
   // flush immediately after the first row to avoid off-by-one errors.
   if (rowsInChunk >= chunkSize) {
+    applyMappers(columns);
     yield columns;
     columns = createColumns();
     rowsInChunk = 0;
@@ -137,13 +157,13 @@ export async function* rowsToColumnsChunks<
   for await (const row of rows) {
     for (let i = 0; i < numKeys; i++) {
       const k = keys[i]!;
-      const fn = mappers[i];
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const val = (row as Record<keyof TRow, unknown>)[k];
-      (columns[k] as unknown[]).push(fn === undefined ? val : fn(val));
+      (columns[k] as unknown[]).push(val);
     }
     rowsInChunk++;
     if (rowsInChunk >= chunkSize) {
+      applyMappers(columns);
       yield columns;
       columns = createColumns();
       rowsInChunk = 0;
@@ -151,6 +171,7 @@ export async function* rowsToColumnsChunks<
   }
 
   if (rowsInChunk > 0) {
+    applyMappers(columns);
     yield columns;
   }
 }
