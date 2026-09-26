@@ -22,19 +22,19 @@ jobs:
       contents: read # to check out repo (actions/checkout)
     steps:
       - name: Check out repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false # recommended: do not persist git credentials on disk
 
       - name: ⚙️Install pnpm and Node.js
-        uses: pnpm/setup@v3
+        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
         with:
           runtime: node@24
           cache: true
 
       - name: Select Changesets mode
         id: select-mode
-        uses: changesets/action/select-mode@v2
+        uses: changesets/action/select-mode@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
 
   version:
     if: needs.select-mode.outputs.mode == 'version'
@@ -47,19 +47,19 @@ jobs:
       pull-requests: write # to create pull request (changesets/action/version)
     steps:
       - name: Check out repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false # recommended: do not persist git credentials on disk
 
       - name: ⚙️Install pnpm and Node.js
-        uses: pnpm/setup@v3
+        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
         with:
           runtime: node@24
           cache: true
 
       - name: Version packages
         id: version
-        uses: changesets/action/version@v2
+        uses: changesets/action/version@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
 
   publish:
     if: needs.select-mode.outputs.mode == 'publish'
@@ -70,12 +70,12 @@ jobs:
       id-token: write # for trusted publishing (changesets/action/publish)
     steps:
       - name: Check out repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false # recommended: do not persist git credentials on disk
 
       - name: ⚙️Install pnpm and Node.js
-        uses: pnpm/setup@v3
+        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
         with:
           runtime: node@24
           cache: false # avoid cache poisoning
@@ -90,7 +90,7 @@ jobs:
         run: pnpm g:build-release
 
       - name: Publish packages
-        uses: changesets/action/publish@v2
+        uses: changesets/action/publish@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         env:
           NPM_CONFIG_PROVENANCE: true
           # GITHUB_TOKEN: ${{ secrets.BELGATTITUDE_FLOWBLADE_TOKEN }}

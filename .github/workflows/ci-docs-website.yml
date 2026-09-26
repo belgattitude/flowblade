@@ -30,20 +30,21 @@ jobs:
       NEXT_TELEMETRY_DISABLED: true
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.13.1
+        uses: styfle/cancel-workflow-action@d07a454dad7609a92316b57b23c9ccfd4f59af66 # 0.13.1
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: ⚙️Install pnpm and Node.js
-        uses: pnpm/setup@v3
+        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
         with:
           runtime: node@24
           cache: true
 
       - name: ⏩ TurboRepo local server
-        uses: felixmosh/turborepo-gh-artifacts@v4
+        uses: felixmosh/turborepo-gh-artifacts@118f869397261f74bc39cb8565f2d02c0ed4209f # v4.1.1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
@@ -61,17 +62,17 @@ jobs:
           NEXT_TELEMETRY_DISABLED: true
 
       - name: 🚀 Upload doc website artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: ./docs/out
 
       - name: 🚀 Deploy
-        if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
+        if: github.repository == 'belgattitude/flowblade' && github.ref == 'refs/heads/main'
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
 
       #- name: 🚀 Deploy
-      #  if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
+      #  if: github.repository == 'belgattitude/flowblade' && github.ref == 'refs/heads/main'
       #  run: |
       #    git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
       #    pnpm website:deploy -u "github-actions-bot <support+actions@github.com>"
