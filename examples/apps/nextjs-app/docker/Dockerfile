@@ -42,7 +42,7 @@ ENV PATH="/opt/pnpm/bin:${PATH}"
 # native deps like duckdb will be duplicated otherwise
 ENV PNPM_CONFIG_NODE_LINKER=hoisted
 # https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
-ENV PNPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
+ENV PNPM_CONFIG_PACKAGE_IMPORT_METHOD=harlinks
 ENV PNPM_CONFIG_TRUST_LOCKFILE=true
 ENV PNPM_CONFIG_IGNORE_MANIFEST_CHECK=true
 ENV PNPM_CONFIG_STORE_DIR=/opt/pnpm-store
@@ -61,7 +61,7 @@ RUN --mount=type=cache,target=/opt/pnpm-store,id=pnpm-cache,sharing=locked \
     pnpm install --no-runtime --frozen-lockfile --ignore-manifest-check
 
 # Build the project
-COPY --link .gitignore turbo.jsonc tsconfig.base.json ./
+COPY --link .gitignore turbo.jsonc ./
 COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
 
 RUN PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=warn pnpm turbo run prisma-generate --filter=@examples/db-sqlserver
