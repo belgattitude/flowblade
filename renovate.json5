@@ -2,12 +2,22 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["config:recommended"],
   enabled: true,
-  //enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
-  enabledManagers: ["npm"],
+  enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
   // postUpdateOptions: ["pnpmDedupe"],
   minimumReleaseAge: "2 days",
   // https://github.com/renovatebot/renovate/discussions/40942
   toolSettings: {
     "nodeMaxMemory": 1536
+  },
+  ignoreDeps: [
+    // causing failure with renovate cause it doesn't check for overridden version
+    // from pnpm-workspace
+    'deepmerge-ts'
+  ],
+  env: {
+    PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN: false,
+    PNPM_CONFIG_IGNORE_MANIFEST_CHECK: true,
+    PNPM_CONFIG_TRUST_LOCKFILE: true,
+    PNPM_MAX_WORKERS: 4
   }
 }
