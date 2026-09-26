@@ -27,6 +27,7 @@ jobs:
           # Fetch all git history so workspace comparisons have the correct commits.
           # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           fetch-depth: 0
+          persist-credentials: false
 
       - name: ⚙️Install pnpm and Node.js
         uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
