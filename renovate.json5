@@ -5,7 +5,8 @@
   enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
   postUpdateOptions: ["pnpmDedupe"],
   minimumReleaseAge: "2 days",
+  // https://github.com/renovatebot/renovate/discussions/40942
   toolSettings: {
-    "nodeMaxMemory": 2048
+    "nodeMaxMemory": 1536
   }
 }
