@@ -8,6 +8,13 @@ export default defineConfig({
     "./src/validation/valibot/index.ts",
     "./src/integrations/kysely/index.ts",
   ],
+  attw: {
+    profile: "esm-only",
+    level: "error",
+  },
+  publint: {
+    level: "error",
+  },
   dts: true,
   clean: true,
   format: {
