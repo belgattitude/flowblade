@@ -67,12 +67,12 @@ jobs:
           path: ./docs/out
 
       - name: 🚀 Deploy
-        if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
+        if: github.repository == 'belgattitude/flowblade' && github.ref == 'refs/heads/main'
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
 
       #- name: 🚀 Deploy
-      #  if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
+      #  if: github.repository == 'belgattitude/flowblade' && github.ref == 'refs/heads/main'
       #  run: |
       #    git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
       #    pnpm website:deploy -u "github-actions-bot <support+actions@github.com>"

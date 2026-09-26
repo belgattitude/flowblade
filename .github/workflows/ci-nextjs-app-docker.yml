@@ -70,10 +70,14 @@ jobs:
           outputs: 'type=image,compression=zstd,compression-level=8,oci-mediatypes=true'
 
       - name: 🕵️ Docker image inspect
-        run: docker image inspect ${{ env.IMAGE }}:${{ steps.meta.outputs.version }}
+        run: docker image inspect ${{ env.IMAGE }}:${STEPS_META_OUTPUTS_VERSION}
+        env:
+          STEPS_META_OUTPUTS_VERSION: ${{ steps.meta.outputs.version }}
 
       - name: 💾 Save docker image
-        run: docker save ${{ env.IMAGE }}:${{ steps.meta.outputs.version }} -o ./docker-image.tar
+        run: docker save ${{ env.IMAGE }}:${STEPS_META_OUTPUTS_VERSION} -o ./docker-image.tar
+        env:
+          STEPS_META_OUTPUTS_VERSION: ${{ steps.meta.outputs.version }}
 
       - name: 📐 Compress saved image and show size
         env:
