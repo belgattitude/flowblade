@@ -9,7 +9,8 @@ FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS prepare
 
 RUN apt-get update \
   # && apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
-  && apt-get install jq --no-install-recommends -y
+  && apt-get install jq --no-install-recommends -y \
+  && npm install -g npm
 
 WORKDIR /app
 
