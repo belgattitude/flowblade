@@ -1,5 +1,15 @@
 # @flowblade/sqlduck
 
+## 0.37.8
+
+### Patch Changes
+
+- [#1380](https://github.com/belgattitude/flowblade/pull/1380) [`2f0e75f`](https://github.com/belgattitude/flowblade/commit/2f0e75fddaa85a35b19993e712c1e926b548d9b0) Thanks [@belgattitude](https://github.com/belgattitude)! - Add preserverInsertionOrder option
+
+- [#1378](https://github.com/belgattitude/flowblade/pull/1378) [`2c71d0b`](https://github.com/belgattitude/flowblade/commit/2c71d0b12d96855dedb61405f05e37e88d55d7dc) Thanks [@belgattitude](https://github.com/belgattitude)! - Minor performance 1.05x on nodejs (v8 optimization)
+
+- [#1380](https://github.com/belgattitude/flowblade/pull/1380) [`2f0e75f`](https://github.com/belgattitude/flowblade/commit/2f0e75fddaa85a35b19993e712c1e926b548d9b0) Thanks [@belgattitude](https://github.com/belgattitude)! - Add new benchmarks
+
 ## 0.37.7
 
 ### Patch Changes
