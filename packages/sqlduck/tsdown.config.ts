@@ -9,11 +9,11 @@ export default defineConfig({
     "./src/integrations/kysely/index.ts",
   ],
   attw: {
-    profile: 'esm-only',
-    level: 'error',
+    profile: "esm-only",
+    level: "error",
   },
   publint: {
-    level: 'error',
+    level: "error",
   },
   dts: true,
   clean: true,

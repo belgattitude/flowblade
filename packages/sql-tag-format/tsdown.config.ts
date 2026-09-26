@@ -4,11 +4,11 @@ import { defineConfig } from "tsdown";
 export default defineConfig({
   entry: ["./src/index.ts"],
   attw: {
-    profile: 'esm-only',
-    level: 'error',
+    profile: "esm-only",
+    level: "error",
   },
   publint: {
-    level: 'error',
+    level: "error",
   },
   dts: true,
   clean: true,
