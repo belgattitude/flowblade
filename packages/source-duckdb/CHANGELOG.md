@@ -1,5 +1,17 @@
 # @flowblade/source-duckdb
 
+## 0.29.0
+
+### Minor Changes
+
+- [#1385](https://github.com/belgattitude/flowblade/pull/1385) [`55b813c`](https://github.com/belgattitude/flowblade/commit/55b813c92b8b92aa85f66663808b355ef70fff48) Thanks [@belgattitude](https://github.com/belgattitude)! - Move to esm only
+
+### Patch Changes
+
+- Updated dependencies [[`55b813c`](https://github.com/belgattitude/flowblade/commit/55b813c92b8b92aa85f66663808b355ef70fff48)]:
+  - @flowblade/core@0.4.0
+  - @flowblade/sql-tag@0.4.0
+
 ## 0.28.3
 
 ### Patch Changes

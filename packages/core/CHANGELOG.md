@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.4.0
+
+### Minor Changes
+
+- [#1385](https://github.com/belgattitude/flowblade/pull/1385) [`55b813c`](https://github.com/belgattitude/flowblade/commit/55b813c92b8b92aa85f66663808b355ef70fff48) Thanks [@belgattitude](https://github.com/belgattitude)! - Move to esm only
+
 ## 0.3.2
 
 ### Patch Changes
