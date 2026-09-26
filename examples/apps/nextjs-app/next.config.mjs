@@ -38,6 +38,8 @@ let nextConfig = {
     "/api/\\[\\[\\.\\.\\.route\\]\\]": [
       "../../../node_modules/@duckdb/node-bindings-*/*.so",
       "../../../node_modules/@duckdb/node-bindings-*/*.node",
+      "../../../node_modules/@duckdb/node-bindings-*/*.dylib",
+      "../../../node_modules/@duckdb/node-bindings-*/*.dll",
     ],
   },
   experimental: {
