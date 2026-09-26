@@ -76,7 +76,6 @@
     "lint-fix": "ultracite fix",
     "format": "oxfmt --write",
     "check-dist": "es-check --config=.escheckrc.json",
-    "check-pub": "publint",
     "check-size-disabled": "size-limit",
     "check": "ultracite check",
     "fix": "ultracite fix"
@@ -96,6 +95,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@arethetypeswrong/core": "0.18.5",
     "@dotenvx/dotenvx": "2.30.0",
     "@duckdb/node-api": "1.5.5-r.5",
     "@faker-js/faker": "10.6.0",

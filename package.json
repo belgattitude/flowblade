@@ -38,7 +38,6 @@
     "g:codegen": "turbo run codegen",
     "g:check-dist": "turbo run check-dist --filter='!@examples/**' --filter='!docs/**'",
     "g:check-size": "turbo run check-size --filter='!@examples/**' --filter='!docs/**'",
-    "g:check-pub": "turbo run check-pub --filter='!@examples/**' --filter='!docs/**'",
     "g:release": "pnpm run g:build-release && pnpm exec changeset publish",
     "g:ci-coverage-upload": "pnpm -r --if-present --stream run ci-coverage-upload",
     "deps:check": "npm-check-updates --configFileName .ncurc.cjs",

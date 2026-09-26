@@ -1,15 +1,20 @@
 import { defineConfig } from "tsdown";
+import browserslistToEsbuild from "browserslist-to-esbuild";
 
 export default defineConfig({
   entry: ["./src/index.ts"],
   dts: true,
   clean: true,
+  attw: {
+    profile: 'esm-only',
+    level: 'error',
+  },
+  publint: {
+    level: 'error',
+  },
   format: {
     esm: {
-      target: ["node20"],
-    },
-    cjs: {
-      target: ["node20"],
+      target: ["node22", ...browserslistToEsbuild()],
     },
   },
   platform: "node",

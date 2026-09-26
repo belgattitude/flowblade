@@ -19,19 +19,12 @@
   ],
   "type": "module",
   "sideEffects": false,
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
   "exports": {
     ".": {
       "flowblade-monorepo-source": "./src/index.ts",
       "import": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
       }
     },
     "./package.json": "./package.json"
@@ -45,10 +38,7 @@
     "bench-watch-disabled": "vitest bench",
     "docgen": "run-s docgen-typedoc",
     "docgen-typedoc": "rimraf ./docs/api && typedoc --plugin typedoc-plugin-markdown --out ./docs/api",
-    "check-dist": "run-s check-dist-esm check-dist-cjs",
-    "check-dist-cjs": "es-check es2022 './dist/**/*.cjs' --not './dist/*.map.js'",
-    "check-dist-esm": "es-check es2022 './dist/**/*.js' --not './dist/*.map.js' --module",
-    "check-pub": "attw --pack && publint",
+    "check-dist": "es-check es2022 './dist/**/*.js' --not './dist/*.map.js' --module",
     "check-size": "size-limit",
     "clean": "rimraf --glob ./dist ./build ./coverage './tsconfig*.tsbuildinfo'",
     "dev": "tsdown --watch",
@@ -71,7 +61,7 @@
     "sql-template-tag": "^5.2.1"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.18.5",
+    "@arethetypeswrong/core": "0.18.5",
     "@codspeed/vitest-plugin": "5.7.1",
     "@edge-runtime/vm": "5.0.0",
     "@electric-sql/pglite": "0.5.8",
