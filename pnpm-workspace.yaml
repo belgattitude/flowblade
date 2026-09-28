@@ -32,6 +32,20 @@ verifyDepsBeforeRun: install
 #https://github.com/pnpm/pnpm/issues/14972
 virtualStoreType: project
 
+# nextjs standalone build requires this to be hoisted without symlinks
+# publicHoistPattern:
+  # Next.js Image Optimization Binaries (Sharp & libvips engines)
+#  - "sharp"
+#  - "@img/*"
+
+  # Database Engines & Native Clients
+#  - "prisma"
+#  - "@prisma/client"
+#  - ".prisma/*"
+
+  # Duckdb
+# - "@duckdb/*"
+
 supportedArchitectures:
   os:
     - current
