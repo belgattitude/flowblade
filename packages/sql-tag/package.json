@@ -48,11 +48,11 @@
     "test": "vitest run",
     "test-unit": "vitest run",
     "test-e2e": "vitest --config=vitest.e2e.config.ts run",
-    "test-e2e-watch": "vitest --config=vitest.e2e.config.ts  --ui --api 4516",
+    "test-e2e-watch": "vitest --config=vitest.e2e.config.ts  --ui --api 4516 --coverage.enabled=true --coverage.reporter=html",
     "test-unit-coverage": "vitest run --coverage",
     "test-unit-bun": "bun --bun run vitest run",
     "test-unit-edge": "vitest run --environment edge-runtime",
-    "test-unit-watch": "vitest --ui --api 4515",
+    "test-unit-watch": "vitest --ui --api 4519 --coverage.enabled=true --coverage.reporter=html",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-build": "tsc --project tsconfig.build.json --noEmit",
     "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-sql-tag --dir ./coverage"
