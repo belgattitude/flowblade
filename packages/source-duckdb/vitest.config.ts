@@ -23,12 +23,10 @@ export default defineConfig({
   cacheDir: "../../.cache/vite/source-duckdb",
   test: {
     globalSetup: "./vitest.setup.ts",
-    // @link https://vitest.dev/config/#clearmocks
-    clearMocks: true,
     coverage: {
       include: ["src/**/*.{js,jsx,ts,tsx}"],
-      provider: "istanbul",
-      reporter: ["text", "json", "clover"],
+      provider: "v8",
+      reporter: ["text", "clover"],
     },
     environment: "node",
     exclude: [
@@ -40,9 +38,6 @@ export default defineConfig({
     globals: true,
     include: testFiles,
     setupFiles: "./tests/vitest.setup.ts",
-    // To mimic Jest behaviour regarding mocks.
-    mockReset: true,
     passWithNoTests: true,
-    restoreMocks: true,
   },
 });

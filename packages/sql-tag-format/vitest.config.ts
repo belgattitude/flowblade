@@ -18,10 +18,11 @@ export default defineConfig({
   },
   cacheDir: "../../.cache/vite/sql-tag-format",
   test: {
+    pool: "vmThreads",
     coverage: {
       include: ["src/**/*.{js,jsx,ts,tsx}"],
-      provider: "istanbul",
-      reporter: ["text", "json", "clover"],
+      provider: "v8",
+      reporter: ["text", "clover"],
     },
     environment: "node",
     exclude: [

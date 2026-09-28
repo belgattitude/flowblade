@@ -22,7 +22,6 @@ export default defineConfig({
   },
   test: {
     globalSetup: "./vitest.setup.ts",
-    pool: "vmForks",
     deps: {
       optimizer: {
         ssr: { enabled: true },
@@ -31,7 +30,7 @@ export default defineConfig({
     coverage: {
       include: ["src/**/*.{js,jsx,ts,tsx}"],
       provider: "v8",
-      reporter: ["text", "json", "clover"],
+      reporter: ["text", "clover"],
     },
     environment: "node",
     exclude: [

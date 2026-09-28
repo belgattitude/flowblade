@@ -13,8 +13,6 @@ export default defineConfig({
   },
   test: {
     globalSetup: "./vitest.setup.ts",
-    // @link https://vitest.dev/config/#clearmocks
-    clearMocks: true,
     environment: "node",
     exclude: [
       "**/node_modules/**",
@@ -25,9 +23,5 @@ export default defineConfig({
     globals: true,
     setupFiles: "./tests/vitest.setup.ts",
     include: testFiles,
-    // To mimic Jest behaviour regarding mocks.
-    mockReset: true,
-    passWithNoTests: false,
-    restoreMocks: true,
   },
 });

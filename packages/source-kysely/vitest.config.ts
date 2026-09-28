@@ -18,12 +18,11 @@ export default defineConfig({
   },
   cacheDir: "../../.cache/vite/source-kysely",
   test: {
-    // @link https://vitest.dev/config/#clearmocks
-    clearMocks: true,
+    pool: "vmThreads",
     coverage: {
       include: ["src/**/*.{js,jsx,ts,tsx}"],
-      provider: "istanbul",
-      reporter: ["text", "json", "clover"],
+      provider: "v8",
+      reporter: ["text", "clover"],
     },
     setupFiles: "./tests/vitest.setup.ts",
     environment: "node",
@@ -35,9 +34,5 @@ export default defineConfig({
     ],
     globals: true,
     include: testFiles,
-    // To mimic Jest behaviour regarding mocks.
-    mockReset: true,
-    passWithNoTests: false,
-    restoreMocks: true,
   },
 });
