@@ -34,10 +34,10 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text"],
       thresholds: {
-        lines: 40,        // Fails if total line coverage is under 80%
-        statements: 40,   // Fails if total statement coverage is under 80%
-        functions: 40,    // Fails if total function coverage is under 85%
-        branches: 30,     // Fails if total branch coverage is under 75%
+        lines: 40, // Fails if total line coverage is under 80%
+        statements: 40, // Fails if total statement coverage is under 80%
+        functions: 40, // Fails if total function coverage is under 85%
+        branches: 30, // Fails if total branch coverage is under 75%
       },
     },
     setupFiles: "./tests/vitest.setup.ts",

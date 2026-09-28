@@ -25,10 +25,10 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text"],
       thresholds: {
-        lines: 80,        // Fails if total line coverage is under 80%
-        statements: 80,   // Fails if total statement coverage is under 80%
-        functions: 80,    // Fails if total function coverage is under 85%
-        branches: 70,     // Fails if total branch coverage is under 75%
+        lines: 80, // Fails if total line coverage is under 80%
+        statements: 80, // Fails if total statement coverage is under 80%
+        functions: 80, // Fails if total function coverage is under 85%
+        branches: 70, // Fails if total branch coverage is under 75%
       },
     },
     environment: "node",
