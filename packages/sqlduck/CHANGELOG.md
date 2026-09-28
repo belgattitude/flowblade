@@ -1,5 +1,16 @@
 # @flowblade/sqlduck
 
+## 0.38.0
+
+### Minor Changes
+
+- [#1392](https://github.com/belgattitude/flowblade/pull/1392) [`69aa44a`](https://github.com/belgattitude/flowblade/commit/69aa44a23d963f725f81d44c2c48958ac85c8fdf) Thanks [@belgattitude](https://github.com/belgattitude)! - Support @duckdb/node-api 1.5.6-r.1
+
+### Patch Changes
+
+- Updated dependencies [[`69aa44a`](https://github.com/belgattitude/flowblade/commit/69aa44a23d963f725f81d44c2c48958ac85c8fdf)]:
+  - @flowblade/source-duckdb@0.30.0
+
 ## 0.37.11
 
 ### Patch Changes
