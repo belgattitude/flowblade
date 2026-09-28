@@ -1,5 +1,13 @@
 # @flowblade/source-kysely
 
+## 1.9.1
+
+### Patch Changes
+
+- [#1390](https://github.com/belgattitude/flowblade/pull/1390) [`d92d2a6`](https://github.com/belgattitude/flowblade/commit/d92d2a6b94028ef2571d9ef7b42055f1db8d5089) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to latest 2.3.9
+- Updated dependencies [[`d92d2a6`](https://github.com/belgattitude/flowblade/commit/d92d2a6b94028ef2571d9ef7b42055f1db8d5089)]:
+  - @flowblade/core@0.4.1
+
 ## 1.9.0
 
 ### Minor Changes
