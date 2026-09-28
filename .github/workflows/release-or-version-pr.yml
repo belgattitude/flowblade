@@ -31,6 +31,7 @@ jobs:
         with:
           runtime: node@24
           cache: true
+          node-version-file: false
 
       - name: Select Changesets mode
         id: select-mode
@@ -56,6 +57,7 @@ jobs:
         with:
           runtime: node@24
           cache: true
+          node-version-file: false
 
       - name: Version packages
         id: version
@@ -79,6 +81,7 @@ jobs:
         with:
           runtime: node@24
           cache: false # avoid cache poisoning
+          node-version-file: false
 
       # setup-node's registry-url writes an `_authToken` placeholder into
       # ~/.npmrc; a configured (even empty) token shadows OIDC trusted
