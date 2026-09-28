@@ -1,8 +1,8 @@
 "use client";
 
+import { cn } from "cn";
 import { PrimeReactProvider } from "primereact/api";
 import type { FC, PropsWithChildren } from "react";
-import { twMerge } from "tailwind-merge";
 
 const providerValue = {
   // Will add  as a pass through preset based on PrimeOne Design
@@ -10,7 +10,7 @@ const providerValue = {
   unstyled: false,
   pt: {},
   ptOptions: {
-    classNameMergeFunction: twMerge,
+    classNameMergeFunction: cn,
     mergeProps: true,
     mergeSections: true,
   },
