@@ -5,7 +5,6 @@ import { sql as sqlt } from "@flowblade/sql-tag";
 import { MSSQLServerContainer } from "@testcontainers/mssqlserver";
 import type { StartedMSSQLServerContainer } from "@testcontainers/mssqlserver/build/mssqlserver-container";
 import isInCi from "is-in-ci";
-import { sql } from "kysely";
 import { describe } from "vitest";
 import * as z from "zod";
 
@@ -13,96 +12,24 @@ import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memor
 
 import { SqlDuck, Table, zodCodecs } from "../../../src";
 import { createContainerMssql } from "../create-container-mssql";
+import {
+  anIsoDate,
+  getMssqlE2eMigrations,
+  mssqlE2eData,
+  type mssqlE2eDb,
+  negativeBigint,
+  positiveBigint,
+  testDataCount,
+} from "./get-mssql-e2e-migrations.ts";
 
 const mssqlImage = "mcr.microsoft.com/mssql/server:2025-latest";
 const startupTimeout = isInCi ? 300_000 : 60_000;
-
-const positiveBigint = 9_223_372_036_854_775_807n;
-const negativeBigint = -9_223_372_036_854_775_808n;
-
-type DB = {
-  TestTable: {
-    id: number;
-    name: string;
-    // tedious doesn't support returning numbers as bigint,
-    // they're sent as string
-    positive_bigint: string | null;
-    negative_bigint: string | null;
-    null_column: number | null;
-    iso_date: Date | null;
-    decimal_18_3: number;
-  };
-};
-
-const testDataCount = isInCi ? 2500 : 5000;
-
-const anIsoDate = new Date("2026-12-28T23:59:59.653Z");
-
-const data = Array.from({ length: testDataCount }).map((_v, idx) => {
-  return {
-    id: idx,
-    name: `name-${idx}`,
-    decimal_18_3: Number(
-      `${idx + 1}.${((idx + 1) % 1000).toString(10).padStart(3, "0")}`
-    ),
-    iso_date: anIsoDate,
-  };
-});
-
-const getMigrations = (
-  sqlServerDs: KyselyDatasource<DB>
-): {
-  up: () => Promise<void>;
-  down: () => Promise<void>;
-} => {
-  return {
-    up: async () => {
-      await sqlServerDs.queryOrThrow(
-        sql`CREATE TABLE TestTable (
-               id INT PRIMARY KEY, 
-               name NVARCHAR(255) NOT NULL,
-               positive_bigint BIGINT,
-               negative_bigint BIGINT,
-               null_column INT,
-               decimal_18_3 DECIMAL(18,3),
-               iso_date DATE,
-            );`
-      );
-
-      const insert = sql`
-
-        DECLARE @Data NVARCHAR(MAX); -- WARNING LIMIT TO 2GB
-        SET @Data = ${JSON.stringify(data)};
-
-        INSERT INTO TestTable (id, name, decimal_18_3, iso_date)
-        SELECT id, name, decimal_18_3, iso_date
-        FROM OPENJSON(@Data) WITH (
-          id INT,
-          name NVARCHAR(255),
-          decimal_18_3 DECIMAL(18,3),
-          iso_date DATE
-        );
-      `;
-
-      await sqlServerDs.queryOrThrow(insert);
-
-      await sqlServerDs.queryOrThrow(sql`
-           update TestTable set 
-             positive_bigint = ${positiveBigint},
-             negative_bigint = ${negativeBigint}          
-      `);
-    },
-    down: async () => {
-      await sqlServerDs.query(sql`DROP TABLE TestTable;`);
-    },
-  };
-};
 
 const testTimeout = 10_000;
 
 describe("MSSQL e2e tests", () => {
   let container: StartedMSSQLServerContainer;
-  let mssqlDs: KyselyDatasource<DB>;
+  let mssqlDs: KyselyDatasource<mssqlE2eDb>;
   let duckConn: DuckDBConnection;
 
   beforeAll(async () => {
@@ -110,7 +37,7 @@ describe("MSSQL e2e tests", () => {
       .acceptLicense()
       .start();
     mssqlDs = createContainerMssql(container);
-    await getMigrations(mssqlDs).up();
+    await getMssqlE2eMigrations(mssqlDs).up();
 
     duckConn = await createDuckdbTestMemoryDb({
       // Keep it high to prevent going to .tmp directory
@@ -120,7 +47,7 @@ describe("MSSQL e2e tests", () => {
   }, startupTimeout);
 
   afterAll(async () => {
-    await getMigrations(mssqlDs).down();
+    await getMssqlE2eMigrations(mssqlDs).down();
     await mssqlDs.getConnection().destroy();
     await container.stop();
     if (duckConn) {
@@ -217,11 +144,11 @@ describe("MSSQL e2e tests", () => {
         connection: duckConn,
       });
       const result = await duckDs.query(
-        sqlt<DB["TestTable"]>`select * from memory_db.test_table`
+        sqlt<mssqlE2eDb["TestTable"]>`select *from memory_db.test_table`
       );
       expect(result.error).toBeUndefined();
       expect(result.data).toStrictEqual(
-        data.map((row) => {
+        mssqlE2eData.map((row) => {
           return {
             ...row,
             negative_bigint: negativeBigint.toString(10),
