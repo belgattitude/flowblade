@@ -18,7 +18,6 @@ export default defineConfig({
   },
   cacheDir: "../../.cache/vite/sql-tag-format",
   test: {
-    pool: "vmThreads",
     coverage: {
       include: ["src/**/*.{js,jsx,ts,tsx}"],
       provider: "v8",
