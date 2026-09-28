@@ -30,7 +30,7 @@ jobs:
         uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
         with:
           runtime: node@24
-          cache: true
+          cache: false
           node-version-file: false
 
       - name: Select Changesets mode
@@ -56,7 +56,7 @@ jobs:
         uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
         with:
           runtime: node@24
-          cache: true
+          cache: false
           node-version-file: false
 
       - name: Version packages

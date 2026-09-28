@@ -5,9 +5,9 @@ on:
     branches:
       - main
     paths:
-      - 'docs/**'
-      - '.github/actions/**'
-      - '.github/workflows/**'
+      - "docs/**"
+      - ".github/actions/**"
+      - ".github/workflows/**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -41,7 +41,8 @@ jobs:
         uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
         with:
           runtime: node@24
-          cache: true
+          cache: false
+          node-version-file: false
 
       - name: ⏩ TurboRepo local server
         uses: felixmosh/turborepo-gh-artifacts@118f869397261f74bc39cb8565f2d02c0ed4209f # v4.1.1
