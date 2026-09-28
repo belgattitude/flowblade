@@ -19,6 +19,11 @@ export default defineConfig({
   cacheDir: "../../.cache/vite/source-kysely",
   test: {
     pool: "vmThreads",
+    server: {
+      deps: {
+        inline: ["@azure/identity"],
+      },
+    },
     coverage: {
       include: ["src/**/*.{js,jsx,ts,tsx}"],
       provider: "v8",
