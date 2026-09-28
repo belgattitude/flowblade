@@ -46,6 +46,7 @@ const npmPreapprovedPackages = [
   'oxlint',
   'oxfmt',
   'oxlint-tsgolint',
+  '@dotenvx/*'
 ];
 
 module.exports = defineConfig({
@@ -57,11 +58,11 @@ module.exports = defineConfig({
     if (
       npmPreapprovedPackages.some((allowed) =>
       {
-          if (allowed.endsWith('/*')) {
-           return packageName.startsWith(allowed.slice(0, -1));
-          } else {
-            return packageName === allowed;
-          }
+        if (allowed.endsWith('/*')) {
+          return packageName.startsWith(allowed.slice(0, -1));
+        } else {
+          return packageName === allowed;
+        }
       })
     ) {
       return 0;

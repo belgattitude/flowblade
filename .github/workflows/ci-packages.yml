@@ -3,11 +3,11 @@ name: CI-node
 on:
   push:
     branches:
-     - main
+      - main
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
-      - '**'
+      - "**"
 
 permissions:
   contents: read
@@ -20,10 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        runtime: ['node@22', 'node@24', 'node@26']
+        runtime: ["node@22", "node@24", "node@26"]
     env:
-      TURBO_API: 'http://127.0.0.1:9080'
-      TURBO_TEAM: 'flowblade'
+      TURBO_API: "http://127.0.0.1:9080"
+      TURBO_TEAM: "flowblade"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -42,7 +42,7 @@ jobs:
         uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
         with:
           runtime: ${{ matrix.runtime }}
-          cache: true
+          cache: false
           node-version-file: false
 
       - name: Cache rotation keys

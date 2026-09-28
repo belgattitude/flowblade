@@ -3,6 +3,8 @@
   "globalDependencies": ["**/.env.*local", "**/tsconfig*.json"],
   "globalPassThroughEnv": ["AWS_SECRET_KEY", "GITHUB_TOKEN", "CODSPEED_TOKEN", "PNPM_CONFIG_*"],
   "cacheDir": ".turbo",
+  "cacheMaxSize": "10GB",
+  "cacheMaxAge": "14d",
   "ui": "stream",
   "tasks": {
     "codegen": {
