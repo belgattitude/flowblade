@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.4.2
+
+### Patch Changes
+
+- [#1395](https://github.com/belgattitude/flowblade/pull/1395) [`b4c728a`](https://github.com/belgattitude/flowblade/commit/b4c728ab8dccac395700a60da494957228817258) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to latest
+
 ## 0.4.1
 
 ### Patch Changes
