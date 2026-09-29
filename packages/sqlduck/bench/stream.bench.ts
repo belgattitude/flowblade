@@ -112,7 +112,7 @@ test(`Bench rowsToColumnsChunks with full supported-columns schema`, async ({
     typeof columnTypes extends Map<unknown, infer V> ? V : never
   >;
   for (const [key, duckType] of columnTypes) {
-    columnTypeIds[key as keyof FullSchemaRow] = duckType;
+    columnTypeIds[key] = duckType;
   }
   const transformers = createDuckColumnConverters(columnTypeIds);
 

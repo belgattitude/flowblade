@@ -30,7 +30,9 @@ export const SideBar: FC<Props> = (props) => {
       <div>
         <button
           className="group-data-[collapsed=true]:rotate-180"
-          onClick={() => setIsCollapsed((prevState) => !prevState)}
+          onClick={() => {
+            setIsCollapsed((prevState) => !prevState);
+          }}
         >
           Collapse
         </button>

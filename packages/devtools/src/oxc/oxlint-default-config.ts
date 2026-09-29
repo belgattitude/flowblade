@@ -18,6 +18,10 @@ export const oxlintDefaultConfig = defineConfig({
     //antiSlop,
     selectJsPlugins([]),
   ],
+  options: {
+    typeAware: true,
+    typeCheck: false,
+  },
   ignorePatterns: [...defaultIgnorePatterns],
   settings: jsPluginSettings,
   overrides: [

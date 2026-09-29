@@ -9,7 +9,7 @@ export default async function StreamCsvRoute(fastify: FastifyInstance) {
     reply.header("Content-Type", "application/octet-stream");
     reply.send(ReadableStream.from(stream));
 
-    return reply
+    return await reply
       .headers({
         // 'Content-Type', 'application/octet-stream'
         "content-type": "text/csv",

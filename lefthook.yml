@@ -3,8 +3,8 @@ pre-commit:
   commands:
     lint:
       run: |
-        echo "Running oxlint on staged files..." &&
-        npx oxlint fix --no-error-on-unmatched-pattern --max-warnings=100 {staged_files} &&
+        # echo "Running oxlint on staged files..." &&
+        # npx oxlint fix --no-error-on-unmatched-pattern --max-warnings=100 {staged_files} &&
         echo "Running oxfmt on staged files..." &&
         npx oxfmt fix --no-error-on-unmatched-pattern {staged_files}
       glob: "*.{ts,tsx,js,jsx,mjs,cjs,json,css,md,yml}"

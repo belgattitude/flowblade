@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 export const NodeService = {
-  getTreeNodes() {
-    return Promise.resolve(this.getTreeNodesData());
+  async getTreeNodes() {
+    return this.getTreeNodesData();
   },
 
   getTreeNodesData() {
@@ -126,8 +126,8 @@ export const NodeService = {
     ];
   },
 
-  getTreeTableNodes() {
-    return Promise.resolve(this.getTreeTableNodesData());
+  async getTreeTableNodes() {
+    return this.getTreeTableNodesData();
   },
 
   getTreeTableNodesData() {

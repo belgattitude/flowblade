@@ -29,7 +29,9 @@ export const CityMultiSelect: FC<Props> = (props) => {
     <div className={cn("", className)}>
       <MultiSelect
         value={selectedCities}
-        onChange={(e) => setSelectedCities(e.value as City[])}
+        onChange={(e) => {
+          setSelectedCities(e.value as City[]);
+        }}
         options={cities}
         optionLabel="name"
         display="chip"

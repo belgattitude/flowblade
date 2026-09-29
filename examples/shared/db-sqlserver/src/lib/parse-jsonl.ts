@@ -7,7 +7,7 @@ export const parseJsonl = async <T>(file: string): Promise<T[]> => {
     crlfDelay: Infinity,
   });
 
-  return new Promise((resolve, reject) => {
+  return await new Promise((resolve, reject) => {
     const jsonArray: T[] = [];
     rl.on("line", (line) => {
       jsonArray.push(JSON.parse(line) as T);
