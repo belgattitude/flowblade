@@ -67,8 +67,6 @@ export type KyselyMssqlDialectParams = {
  *    // 👉 Override Tedious types to enhance compatibility and modern support
  *    tediousTypes: {
  *      ...Tedious.TYPES,
- *      // see https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
- *      NVarChar: Tedious.TYPES.VarChar,
  *      // see https://github.com/kysely-org/kysely/issues/1596#issuecomment-3341591075
  *      DateTime: Tedious.TYPES.DateTime2,
  *    }
@@ -84,7 +82,6 @@ export const createKyselyMssqlDialect = (
   params: KyselyMssqlDialectParams
 ): MssqlDialect => {
   const { tediousConfig, poolOptions = {}, dialectConfig } = params;
-
   const {
     tediousTypes,
     resetConnectionsOnRelease = false,

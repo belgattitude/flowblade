@@ -28,6 +28,7 @@ jobs:
       NEXTJS_IGNORE_TYPECHECK: true
       NEXT_DISABLE_SOURCEMAPS: true
       NEXT_TELEMETRY_DISABLED: true
+      PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN: "false"
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@d07a454dad7609a92316b57b23c9ccfd4f59af66 # 0.13.1

@@ -7,7 +7,7 @@ import { TediousConnUtils } from "./tedious-conn-utils";
 describe("createKyselyMssqlDialect", () => {
   it("should allow to redefine tedious types", () => {
     const jdbcDsn =
-      "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
+      "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false;packetSize=8192";
     const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
 
     const dialect = createKyselyMssqlDialect({
@@ -21,7 +21,7 @@ describe("createKyselyMssqlDialect", () => {
         resetConnectionsOnRelease: false,
         tediousTypes: {
           ...Tedious.TYPES,
-          NVarChar: Tedious.TYPES.VarChar,
+          DateTime: Tedious.TYPES.DateTime2,
         },
       },
     });
