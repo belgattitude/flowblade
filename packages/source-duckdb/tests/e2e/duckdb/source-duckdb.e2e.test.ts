@@ -89,7 +89,7 @@ describe("DuckDBAsyncDatasource e2e", async () => {
     it("should throw when the query couldn't be executed", async () => {
       const rawSql = sql<{ ok: number }>`SELECT FRM 1`;
       await expect(async () => {
-        return ds.queryOrThrow(rawSql, {
+        return await ds.queryOrThrow(rawSql, {
           name: "nok query",
         });
       }).rejects.toThrowError(

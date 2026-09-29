@@ -15,7 +15,13 @@ export const ReportBoundary: FC<PropsWithChildren> = (props) => {
           fallbackRender={({ resetErrorBoundary }) => (
             <div>
               There was an error!
-              <button onClick={() => resetErrorBoundary()}>Try again</button>
+              <button
+                onClick={() => {
+                  resetErrorBoundary();
+                }}
+              >
+                Try again
+              </button>
             </div>
           )}
         >

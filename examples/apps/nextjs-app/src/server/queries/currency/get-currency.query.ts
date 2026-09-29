@@ -7,10 +7,10 @@ interface Params {
 /**
  * Example for a kysely query builder query to get currencies with i18n support
  */
-export const getCurrencyQuery = (params: Params) => {
+export const getCurrencyQuery = async (params: Params) => {
   const { locale } = params;
   const { fn } = dbKyselyMssql;
-  return dbKyselyMssql
+  return await dbKyselyMssql
     .selectFrom("common.currency as cu")
     .leftJoin("common.currency_i18n as cu18", (join) =>
       join

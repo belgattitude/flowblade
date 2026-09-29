@@ -4,8 +4,8 @@ import dynamic from "next/dynamic";
 import type { FC } from "react";
 
 const DuckdbWasmTestPanel = dynamic(
-  () =>
-    import("@/features/demo/duckdb-wasm/components/duck-wasm-test-panel").then(
+  async () =>
+    await import("@/features/demo/duckdb-wasm/components/duck-wasm-test-panel").then(
       (mod) => mod.DuckdbWasmTestPanel
     ),
   { ssr: false }

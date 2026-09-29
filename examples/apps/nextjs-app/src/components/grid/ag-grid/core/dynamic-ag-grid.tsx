@@ -8,8 +8,10 @@ import dynamic from "next/dynamic";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const DynamicallyLoadedAgGrid = dynamic(
-  () =>
-    import("ag-grid-react").then((mod): typeof AgGridReact => mod.AgGridReact),
+  async () =>
+    await import("ag-grid-react").then(
+      (mod): typeof AgGridReact => mod.AgGridReact
+    ),
   {
     ssr: false,
   }

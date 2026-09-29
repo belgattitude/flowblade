@@ -22,7 +22,9 @@ export const FolderTreeSelect: FC<Props> = (props) => {
 
   useEffect(() => {
     NodeService.getTreeNodes()
-      .then((data) => setNodes(data))
+      .then((data) => {
+        setNodes(data);
+      })
       .catch((error) => {
         console.error("Error fetching nodes:", error);
       });
@@ -33,7 +35,9 @@ export const FolderTreeSelect: FC<Props> = (props) => {
       <TreeSelect
         value={selectedNodeKeys}
         options={nodes}
-        onChange={(e) => setSelectedNodeKeys(e.value)}
+        onChange={(e) => {
+          setSelectedNodeKeys(e.value);
+        }}
         metaKeySelection={false}
         selectionMode="checkbox"
         display="chip"
