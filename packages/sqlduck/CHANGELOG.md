@@ -1,5 +1,11 @@
 # @flowblade/sqlduck
 
+## 0.38.2
+
+### Patch Changes
+
+- [#1398](https://github.com/belgattitude/flowblade/pull/1398) [`0cc76dd`](https://github.com/belgattitude/flowblade/commit/0cc76ddee5badda4432d0f2f16ab06a8e2a0456c) Thanks [@belgattitude](https://github.com/belgattitude)! - Optimize timestamp conversions
+
 ## 0.38.1
 
 ### Patch Changes
