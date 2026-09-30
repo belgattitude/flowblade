@@ -977,6 +977,9 @@ importers:
       '@shadcn/react':
         specifier: 0.3.1
         version: 0.3.1(@types/react@19.3.0)(react@19.3.0)
+      class-variance-authority:
+        specifier: 0.7.1
+        version: 0.7.1
       cmdk:
         specifier: 1.1.1
         version: 1.1.1(@types/react-dom@19.3.0)(@types/react@19.3.0)(react-dom@19.3.0)(react@19.3.0)
@@ -986,9 +989,6 @@ importers:
       date-fns:
         specifier: 4.4.0
         version: 4.4.0
-      embla-carousel-react:
-        specifier: 8.6.0
-        version: 8.6.0(react@19.3.0)
       input-otp:
         specifier: 1.5.0
         version: 1.5.0(react-dom@19.3.0)(react@19.3.0)
@@ -998,9 +998,6 @@ importers:
       react-day-picker:
         specifier: 10.0.1
         version: 10.0.1(@types/react@19.3.0)(react@19.3.0)
-      react-resizable-panels:
-        specifier: 4.14.1
-        version: 4.14.1(react-dom@19.3.0)(react@19.3.0)
       recharts:
         specifier: 3.10.1
         version: 3.10.1(@types/react@19.3.0)(react-dom@19.3.0)(react-is@17.0.2)(react@19.3.0)
@@ -1059,6 +1056,9 @@ importers:
       '@vitest/ui':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
+      embla-carousel-react:
+        specifier: 8.6.0
+        version: 8.6.0(react@19.3.0)
       happy-dom:
         specifier: 20.14.5
         version: 20.14.5
@@ -7482,6 +7482,9 @@ packages:
   cjs-module-lexer@2.2.1:
     resolution: {integrity: sha512-Ca8swihM+/4yKecYHY52kgJd300hi2lADU/a1RxNTRe+RJ9jvqQlESpbz9DnG9mowez8qwXHB8qYdIUw9e+F5Q==}
 
+  class-variance-authority@0.7.1:
+    resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
+
   classnames@2.5.1:
     resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
 
@@ -11020,12 +11023,6 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
-
-  react-resizable-panels@4.14.1:
-    resolution: {integrity: sha512-OB1bXDNTLcGgTTbaX6Dn5efZhlMboSnkfr1w4xpsJTHPEbRJpACBhXpgRCXozgPO1ztgFeZRUe5J3mFNCVKm5g==}
-    peerDependencies:
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
 
   react-responsive-carousel@3.2.23:
     resolution: {integrity: sha512-pqJLsBaKHWJhw/ItODgbVoziR2z4lpcJg+YwmRlSk4rKH32VE633mAtZZ9kDXjy4wFO+pgUZmDKPsPe1fPmHCg==}
@@ -17822,6 +17819,10 @@ snapshots:
 
   cjs-module-lexer@2.2.1: {}
 
+  class-variance-authority@0.7.1:
+    dependencies:
+      clsx: 2.1.1
+
   classnames@2.5.1: {}
 
   cli-boxes@4.0.1: {}
@@ -22052,11 +22053,6 @@ snapshots:
       use-sidecar: 1.1.3(@types/react@19.3.0)(react@19.3.0)
     optionalDependencies:
       '@types/react': 19.3.0
-
-  react-resizable-panels@4.14.1(react-dom@19.3.0)(react@19.3.0):
-    dependencies:
-      react: 19.3.0
-      react-dom: 19.3.0(react@19.3.0)
 
   react-responsive-carousel@3.2.23:
     dependencies:

@@ -12,21 +12,43 @@ import { NavProjects } from "@examples/base-ui/components/ux/nav-projects";
 import { NavUser } from "@examples/base-ui/components/ux/nav-user";
 import { TeamSwitcher } from "@examples/base-ui/components/ux/team-switcher";
 import {
-  AudioLinesIcon,
-  BookOpenIcon,
-  BotIcon,
-  FrameIcon,
   GalleryVerticalEndIcon,
-  MapIcon,
-  PieChartIcon,
-  Settings2Icon,
+  AudioLinesIcon,
   TerminalIcon,
   TerminalSquareIcon,
+  BotIcon,
+  BookOpenIcon,
+  Settings2Icon,
+  FrameIcon,
+  PieChartIcon,
+  MapIcon,
 } from "lucide-react";
 import * as React from "react";
 
 // This is sample data.
 const data = {
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
+  teams: [
+    {
+      name: "Acme Inc",
+      logo: <GalleryVerticalEndIcon />,
+      plan: "Enterprise",
+    },
+    {
+      name: "Acme Corp.",
+      logo: <AudioLinesIcon />,
+      plan: "Startup",
+    },
+    {
+      name: "Evil Corp.",
+      logo: <TerminalIcon />,
+      plan: "Free",
+    },
+  ],
   navMain: [
     {
       title: "Playground",
@@ -131,28 +153,6 @@ const data = {
       icon: <MapIcon />,
     },
   ],
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: <GalleryVerticalEndIcon />,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: <AudioLinesIcon />,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: <TerminalIcon />,
-      plan: "Free",
-    },
-  ],
-  user: {
-    avatar: "/avatars/shadcn.jpg",
-    email: "m@example.com",
-    name: "shadcn",
-  },
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
