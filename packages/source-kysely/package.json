@@ -52,7 +52,7 @@
     "test-unit-coverage": "vitest run --coverage",
     "test-unit-bun": "bun --bun run vitest run",
     "test-unit-edge": "vitest run --environment edge-runtime",
-    "test-unit-watch": "vitest --ui --api 4515",
+    "test-unit-watch": "vitest --ui --api 4518 --coverage.enabled=true --coverage.reporter=html",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-build": "tsc --project tsconfig.build.json --noEmit",
     "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-source-kysely --dir ./coverage"
