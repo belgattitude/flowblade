@@ -62,6 +62,11 @@ let nextConfig = {
   },
   turbopack: {
     root: monorepoRoot,
+    resolveAlias: {
+      // See https://github.com/shadcn-ui/cn
+      clsx: "cn",
+      "tailwind-merge": "cn",
+    },
   },
   async headers() {
     return [

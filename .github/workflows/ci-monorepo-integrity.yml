@@ -34,6 +34,9 @@ jobs:
           cache: false
           node-version-file: false
 
+      - name: 🛟 Doctor
+        run: pnpm doctor
+
       - name: 🛟 Check monorepo duplicates
         run: pnpm dedupe --check
 

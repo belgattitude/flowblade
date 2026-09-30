@@ -19,7 +19,7 @@ export default function GlobalError(props: Readonly<Props>) {
   const { error } = props;
   useEffect(() => {
     if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === "true") {
-      sendToSentry(error).catch((error) => {
+      sendToSentry(error).catch((error: unknown) => {
         console.error(
           "Failed to send error to Sentry:",
           (error as Error)?.message

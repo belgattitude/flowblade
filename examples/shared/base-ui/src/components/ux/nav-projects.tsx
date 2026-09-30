@@ -17,9 +17,9 @@ import {
   useSidebar,
 } from "@examples/base-ui/components/ui/sidebar";
 import {
-  ArrowRightIcon,
-  FolderIcon,
   MoreHorizontalIcon,
+  FolderIcon,
+  ArrowRightIcon,
   Trash2Icon,
 } from "lucide-react";
 

@@ -15,7 +15,7 @@ const msInDay = 86_400_000;
 const createDuckValueConverterTypeError = (params: {
   method: keyof typeof DuckValueConverter.prototype;
   value: unknown;
-}) => {
+}): TypeError => {
   let serializableValue: string;
   try {
     serializableValue = JSON.stringify(params.value);

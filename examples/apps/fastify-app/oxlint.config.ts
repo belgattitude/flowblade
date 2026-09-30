@@ -8,4 +8,12 @@ export default defineConfig({
     "typescript/no-empty-interface": "off",
     "promise/prefer-await-to-callbacks": "off",
   },
+  overrides: [
+    {
+      files: ["swagger.ts"],
+      rules: {
+        "typescript/no-unsafe-argument": "off",
+      },
+    },
+  ],
 });

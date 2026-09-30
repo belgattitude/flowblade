@@ -21,12 +21,12 @@ import {
   useSidebar,
 } from "@examples/base-ui/components/ui/sidebar";
 import {
-  BadgeCheckIcon,
-  BellIcon,
   ChevronsUpDownIcon,
-  CreditCardIcon,
-  LogOutIcon,
   SparklesIcon,
+  BadgeCheckIcon,
+  CreditCardIcon,
+  BellIcon,
+  LogOutIcon,
 } from "lucide-react";
 
 export function NavUser({
