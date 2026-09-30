@@ -15,11 +15,11 @@ Source: `bench/appender.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| duckdb appender memory, count: 100000, chunk size 2048 | 61.39 ms | 47.22 ms | +30.03% | 16.29 ops/s | 21.18 ops/s | +30.04% |
-| duckdb appender, count: 100000, chunk size 1024 | 61.62 ms | 49.74 ms | +23.89% | 16.23 ops/s | 20.13 ops/s | +24.02% |
-| duckdb appender file no wal, count: 100000, chunk size 2048 | 66.32 ms | 52.47 ms | +26.4% | 15.08 ops/s | 19.06 ops/s | +26.4% |
-| duckdb appender file no wal, count: 100000, chunk size 1024 | 66.97 ms | 54.17 ms | +23.61% | 14.93 ops/s | 18.46 ops/s | +23.62% |
-| duckdb appender file, count: 100000, chunk size 2048 | 70.58 ms | 56.64 ms | +24.6% | 14.17 ops/s | 17.66 ops/s | +24.6% |
+| duckdb appender, count: 100000, chunk size 1024 | 61.97 ms | 49.16 ms | +26.06% | 16.14 ops/s | 20.34 ops/s | +26.03% |
+| duckdb appender memory, count: 100000, chunk size 2048 | 62.12 ms | 47.65 ms | +30.36% | 16.1 ops/s | 20.99 ops/s | +30.38% |
+| duckdb appender file no wal, count: 100000, chunk size 2048 | 66.19 ms | 52.93 ms | +25.06% | 15.11 ops/s | 18.89 ops/s | +25.05% |
+| duckdb appender file no wal, count: 100000, chunk size 1024 | 67.26 ms | 54.77 ms | +22.81% | 14.87 ops/s | 18.26 ops/s | +22.78% |
+| duckdb appender file, count: 100000, chunk size 2048 | 78.5 ms | 58.25 ms | +34.77% | 12.92 ops/s | 17.19 ops/s | +33.02% |
 
 ## Bench rowsToColumnsChunks
 
@@ -27,9 +27,9 @@ Source: `bench/stream.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| rowToColumnsChunk with chunkSize 2048 (count: 100000) | 23.96 ms | 11.15 ms | +114.93% | 41.76 ops/s | 89.82 ops/s | +115.09% |
-| rowToColumnsChunk with transformer with chunkSize 2048 (count: 100000) | 24.94 ms | 12.56 ms | +98.52% | 40.11 ops/s | 79.75 ops/s | +98.83% |
-| mapFakeRowStream with chunkSize 2048 (count: 100000) | 32.72 ms | 15.27 ms | +114.26% | 30.57 ops/s | 65.49 ops/s | +114.27% |
+| rowToColumnsChunk with chunkSize 2048 (count: 100000) | 23.57 ms | 11.18 ms | +110.8% | 42.44 ops/s | 89.54 ops/s | +110.95% |
+| rowToColumnsChunk with transformer with chunkSize 2048 (count: 100000) | 24.64 ms | 12.48 ms | +97.46% | 40.61 ops/s | 80.25 ops/s | +97.61% |
+| mapFakeRowStream with chunkSize 2048 (count: 100000) | 32.27 ms | 15.47 ms | +108.63% | 30.99 ops/s | 64.66 ops/s | +108.63% |
 
 ## Bench rowsToColumnsChunks with full supported-columns schema
 
@@ -37,8 +37,8 @@ Source: `bench/stream.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| full schema, no transformers, chunkSize 2048 (count: 100000) | 99.72 ms | 49.24 ms | +102.51% | 10.03 ops/s | 20.31 ops/s | +102.47% |
-| full schema, with all column converters, chunkSize 2048 (count: 100000) | 217.17 ms | 106.76 ms | +103.41% | 4.61 ops/s | 9.37 ops/s | +103.41% |
+| full schema, no transformers, chunkSize 2048 (count: 100000) | 101.04 ms | 48.78 ms | +107.13% | 9.9 ops/s | 20.5 ops/s | +107.05% |
+| full schema, with all column converters, chunkSize 2048 (count: 100000) | 215.51 ms | 105.84 ms | +103.62% | 4.64 ops/s | 9.45 ops/s | +103.63% |
 
 ## Bench getTableCreateFromZod
 
@@ -46,4 +46,4 @@ Source: `bench/table-create.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| getTableCreateFromZod | 15.55 us | 8.33 us | +86.7% | 64,991.61 ops/s | 126,748.96 ops/s | +95.02% |
+| getTableCreateFromZod | 15.88 us | 8.4 us | +89.04% | 63,764.9 ops/s | 125,610.97 ops/s | +96.99% |
