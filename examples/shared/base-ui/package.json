@@ -34,10 +34,8 @@
     "@base-ui/react": "1.8.0",
     "@shadcn/react": "0.3.1",
     "class-variance-authority": "0.7.1",
-    "cmdk": "1.1.1",
     "cn": "0.4.0",
     "date-fns": "4.4.0",
-    "input-otp": "1.5.0",
     "next-themes": "0.4.6",
     "react-day-picker": "10.0.1",
     "sonner": "2.0.8",
@@ -60,6 +58,7 @@
     "@vitest/browser": "5.0.2",
     "@vitest/coverage-v8": "5.0.2",
     "@vitest/ui": "5.0.2",
+    "cmdk": "1.1.1",
     "embla-carousel-react": "8.6.0",
     "happy-dom": "20.14.5",
     "lucide-react": "1.48.0",
@@ -82,16 +81,24 @@
     "vitest": "5.0.2"
   },
   "peerDependencies": {
+    "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.6.0",
+    "input-otp": "^1.5.0",
     "lucide-react": "^1.48.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "sonner": "^2.0.8",
+    "react-resizable-panels": "^4.14.1",
     "recharts": "^3.10.1",
-    "react-resizable-panels": "^4.14.1"
+    "sonner": "^2.0.8"
   },
   "peerDependenciesMeta": {
+    "cmdk": {
+      "optional": true
+    },
     "embla-carousel-react": {
+      "optional": true
+    },
+    "input-otp": {
       "optional": true
     },
     "recharts": {
