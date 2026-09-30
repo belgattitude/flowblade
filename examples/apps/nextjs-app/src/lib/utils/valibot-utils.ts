@@ -24,6 +24,9 @@ export const vCoercedIntSchema = v.pipe(
         `Invalid value: ${typeof v === "string" ? v : ""} (type: '${typeof v}'). Expected a number or numeric string.`
       );
     }
+
+    // Explicitly return undefined to satisfy the consistent-return rule
+    return undefined;
   }),
   v.optional(v.number())
 );

@@ -11,6 +11,7 @@ export default defineConfig({
     "**/generated/**",
   ],
   rules: {
+    "typescript/no-unsafe-type-assertion": "off",
     "typescript/no-misused-spread": "off",
     "unicorn/filename-case": "off",
     "promise/prefer-await-to-then": "off",

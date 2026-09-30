@@ -25,7 +25,7 @@ export const FolderTreeSelect: FC<Props> = (props) => {
       .then((data) => {
         setNodes(data);
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         console.error("Error fetching nodes:", error);
       });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

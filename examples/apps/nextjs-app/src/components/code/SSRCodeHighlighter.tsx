@@ -20,7 +20,7 @@ interface Props {
 }
 export async function SSRCodeHighlighter(props: Props) {
   const {
-    code = "",
+    code,
     className,
     filename = "",
     lang = "typescript",
