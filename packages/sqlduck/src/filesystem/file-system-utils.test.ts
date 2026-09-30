@@ -15,7 +15,7 @@ describe("FileSystemUtils", () => {
     });
     const relative = path.relative(cwd, currentFile);
 
-    it("should return equality for smae paths", () => {
+    it("should return equality for same paths", () => {
       expect(fsUtils.isSamePath(currentFile, currentFile)).toStrictEqual(true);
       expect(fsUtils.isSamePath(relative, currentFile)).toStrictEqual(true);
       expect(fsUtils.isSamePath("/", currentFile)).toStrictEqual(false);
