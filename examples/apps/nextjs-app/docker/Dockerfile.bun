@@ -1,28 +1,31 @@
 ARG BUN_VERSION=1.4.2
 
 #############################################################
-# Stage 1 - App extraction / pruning                        #
+# Stage 1 - Base with the monorepo tools (pnpm, turbo)      #
 #############################################################
 
-FROM oven/bun:${BUN_VERSION}-slim AS prepare
+FROM oven/bun:${BUN_VERSION}-slim AS base
 
-ENV BUN_INSTALL=/usr/local
+ENV BUN_INSTALL=/usr/local \
+    PATH="/opt/pnpm/bin:${PATH}"
+
+# get-tool-version.ts reads tool versions from package.json (avoids installing jq)
+COPY --link package.json examples/apps/nextjs-app/docker/scripts/get-tool-version.ts /opt/docker-tools/
+
+# Install pnpm and turbo at the versions declared in the root package.json
+RUN PNPM_VERSION="$(bun /opt/docker-tools/get-tool-version.ts pnpm /opt/docker-tools/package.json)" \
+  && TURBO_VERSION="$(bun /opt/docker-tools/get-tool-version.ts turbo /opt/docker-tools/package.json)" \
+  && export PNPM_VERSION \
+  && PNPM_HOME=/opt/pnpm SHELL=bash bunx get-pnpm \
+  && bun i -g "turbo@${TURBO_VERSION}"
+
+#############################################################
+# Stage 2 - App extraction / pruning                        #
+#############################################################
+
+FROM base AS prepare
 
 WORKDIR /app
-
-COPY --link package.json turbo.jsonc ./
-# Reads tool versions from package.json (avoids installing jq)
-COPY --link examples/apps/nextjs-app/docker/scripts/get-tool-version.ts /opt/docker-scripts/
-
-# Install pnpm at the version declared by the package manager.
-RUN PNPM_VERSION="$(bun /opt/docker-scripts/get-tool-version.ts pnpm ./package.json)" \
-  && export PNPM_VERSION \
-  && PNPM_HOME=/opt/pnpm SHELL=bash bunx get-pnpm
-ENV PATH="/opt/pnpm/bin:${PATH}"
-
-# Install Turbo at the version declared by the pruned workspace.
-RUN TURBO_VERSION="$(bun /opt/docker-scripts/get-tool-version.ts turbo ./package.json)" \
-  && bun i -g "turbo@${TURBO_VERSION}"
 
 COPY --link . .
 
@@ -30,26 +33,26 @@ COPY --link . .
 RUN turbo prune @examples/nextjs-app --docker --out-dir=./.turbo-pruned/nextjs-app/
 
 #############################################################
-# Stage 2 - App installation                                #
+# Stage 3 - App installation and build                      #
 #############################################################
 
-FROM prepare AS builder
+# Start from base (not prepare) so the install layer only depends on the
+# pruned manifests, not on every file of the monorepo.
+FROM base AS builder
 
 WORKDIR /app
 
-ENV TZ=Etc/UTC
-ENV PATH="/opt/pnpm/bin:${PATH}"
 # Hoisted linker will give the smallest image size. As tested with pnpm 12.6.0
 # native deps like duckdb will be duplicated otherwise
-ENV PNPM_CONFIG_NODE_LINKER=hoisted
 # https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
-ENV PNPM_CONFIG_PACKAGE_IMPORT_METHOD=hardlinks
-ENV PNPM_CONFIG_TRUST_LOCKFILE=true
-ENV PNPM_CONFIG_IGNORE_MANIFEST_CHECK=true
-ENV PNPM_CONFIG_STORE_DIR=/opt/pnpm-store
-
-# Disabling some well-known postinstall scripts
-ENV PRISMA_SKIP_POSTINSTALL_GENERATE=true
+# PRISMA_SKIP_POSTINSTALL_GENERATE: disabling some well-known postinstall scripts
+ENV TZ=Etc/UTC \
+    PNPM_CONFIG_NODE_LINKER=hoisted \
+    PNPM_CONFIG_PACKAGE_IMPORT_METHOD=hardlinks \
+    PNPM_CONFIG_TRUST_LOCKFILE=true \
+    PNPM_CONFIG_IGNORE_MANIFEST_CHECK=true \
+    PNPM_CONFIG_STORE_DIR=/opt/pnpm-store \
+    PRISMA_SKIP_POSTINSTALL_GENERATE=true
 
 # First install the dependencies (as they change less often)
 COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/json/ .
@@ -61,63 +64,60 @@ COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/json/ .
 RUN --mount=type=cache,target=/opt/pnpm-store,id=pnpm-cache,sharing=locked \
     pnpm install --no-runtime --frozen-lockfile --ignore-manifest-check
 
-# Build the project
-COPY --link .gitignore turbo.jsonc ./
+# Build the project (pruned full output includes .gitignore and turbo.jsonc)
 COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/full/ .
 
-RUN PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=warn pnpm turbo run prisma-generate --filter=@examples/db-sqlserver
-
-ENV NEXT_BUILD_IGNORE_ESLINT=true
-ENV NEXT_BUILD_IGNORE_TYPECHECK=true
-ENV NEXT_BUILD_OUTPUT=standalone
-ENV NODE_ENV=production
+ENV NEXT_BUILD_IGNORE_ESLINT=true \
+    NEXT_BUILD_IGNORE_TYPECHECK=true \
+    NEXT_BUILD_OUTPUT=standalone \
+    NODE_ENV=production
 # ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
 # ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
 
-RUN PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false pnpm turbo run build --filter=@examples/nextjs-app
+# Build, then assemble the runner files in /app/out so the runner needs a single COPY
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+RUN PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=warn pnpm turbo run prisma-generate --filter=@examples/db-sqlserver \
+  && PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false pnpm turbo run build --filter=@examples/nextjs-app \
+  && cd examples/apps/nextjs-app \
+  && mv .next/standalone /app/out \
+  && mv .next/static /app/out/examples/apps/nextjs-app/.next/static \
+  && mv public /app/out/examples/apps/nextjs-app/public \
+  && cp next.config.mjs package.json /app/out/
 
 #############################################################
-# Stage 3 - App runner                                      #
+# Stage 4 - App runner                                      #
 #############################################################
 
 FROM oven/bun:${BUN_VERSION}-slim AS runner
 
 ARG NEXTJS_APP_PORT
 
-# Bort PORT / HOSTNAME envs are respected by nextjs start/dev.
-ENV HOSTNAME=0.0.0.0
-ENV PORT=${NEXTJS_APP_PORT:-3000}
-ENV TZ=Etc/UTC
-ENV NODE_ENV=production
+# Both PORT / HOSTNAME envs are respected by nextjs start/dev.
+ENV HOSTNAME=0.0.0.0 \
+    PORT=${NEXTJS_APP_PORT:-3000} \
+    TZ=Etc/UTC \
+    NODE_ENV=production
 
+# - tzdata / ca-certificates
+# - For duckdb azure extension, we need to have the certs available at the
+#   expected location, see https://github.com/duckdb/duckdb/discussions/9675
+# - Non root user with the correct permission for prerender cache
 RUN apt-get update \
   && apt-get install tzdata ca-certificates --no-install-recommends -y \
-  && rm -rf /var/cache/apt/* \
-  && rm -rf /var/lib/apt/lists/*
-
-# For duckdb azure extension, we need to have the certs available in the runner image as well, so we link them to the expected location.
-# see https://github.com/duckdb/duckdb/discussions/9675
-RUN mkdir -p /etc/pki/tls/certs && ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
+  && rm -rf /var/cache/apt/* /var/lib/apt/lists/* \
+  && mkdir -p /etc/pki/tls/certs \
+  && ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt \
+  && groupadd --system --gid 1001 nodejs \
+  && useradd --system --uid 1001 --gid nodejs nextjs \
+  && mkdir -p /app/.next \
+  && chown nextjs:nodejs /app/.next
 
 WORKDIR /app
 
-# Set the correct permission for prerender cache
-RUN groupadd --system --gid 1001 nodejs \
-    && useradd --system --uid 1001 --gid nodejs nextjs \
-    && mkdir .next \
-    && chown nextjs:nodejs .next
-
 USER nextjs
 
-COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/next.config.mjs \
-                    /app/examples/apps/nextjs-app/package.json \
-                    ./
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/.next/static ./examples/apps/nextjs-app/.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/examples/apps/nextjs-app/public ./examples/apps/nextjs-app/public
+# Numeric ids (nextjs:nodejs) as --link doesn't resolve names from previous layers
+COPY --link --from=builder --chown=1001:1001 /app/out/ ./
 
 EXPOSE ${PORT}
 
