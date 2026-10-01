@@ -178,4 +178,21 @@ describe("getTableCreateFromZod", () => {
       }
     });
   });
+  describe("When the zod schema uses multipleOf", () => {
+    it("should infer the DECIMAL width and scale", () => {
+      const { columnTypes } = getTableCreateFromZod({
+        table: new Table("test"),
+        schema: z.object({
+          price: z.number().multipleOf(0.01).min(0).max(999.99),
+          tiny: z.number().multipleOf(1e-7),
+          huge: z.number().multipleOf(0.01).min(0).max(1e25),
+          list: z.array(z.number().multipleOf(0.5)),
+        }),
+      });
+      expect(columnTypes.get("price")).toStrictEqual(DECIMAL(18, 2));
+      expect(columnTypes.get("tiny")).toStrictEqual(DECIMAL(18, 7));
+      expect(columnTypes.get("huge")).toStrictEqual(DECIMAL(28, 2));
+      expect(columnTypes.get("list")).toStrictEqual(LIST(DECIMAL(18, 1)));
+    });
+  });
 });

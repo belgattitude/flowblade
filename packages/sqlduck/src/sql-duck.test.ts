@@ -530,6 +530,56 @@ describe("Duckdb tests", async () => {
           },
         ]);
       });
+
+      it("Should append decimal columns inferred from multipleOf", async () => {
+        const sqlDuck = new SqlDuck({ conn });
+        const testTable = new Table("test_decimals_multiple_of");
+
+        async function* rowStream() {
+          yield { id: 1, price: 999.99, tiny: 0.000_000_3, huge: 1.5e20 };
+          yield { id: 2, price: 0, tiny: -1.234_567_8, huge: 12.34 };
+        }
+
+        await sqlDuck.toTable({
+          table: testTable,
+          schema: z.strictObject({
+            id: z.int32(),
+            price: z.number().multipleOf(0.01).min(0).max(999.99),
+            tiny: z.number().multipleOf(1e-7),
+            huge: z.number().multipleOf(0.01).min(0).max(1e25),
+          }),
+          rowStream: rowStream(),
+          autoCheckpoint: false,
+          createOptions: {
+            create: "CREATE_OR_REPLACE",
+          },
+        });
+
+        const query = await conn.runAndReadAll(
+          `SELECT typeof(price) as price_type, price::VARCHAR as price,
+                  typeof(tiny) as tiny_type, tiny::VARCHAR as tiny,
+                  typeof(huge) as huge_type, huge::VARCHAR as huge
+           FROM ${testTable.getFullName()} ORDER BY id`
+        );
+        expect(query.getRowObjects()).toStrictEqual([
+          {
+            price_type: "DECIMAL(18,2)",
+            price: "999.99",
+            tiny_type: "DECIMAL(18,7)",
+            tiny: "0.0000003",
+            huge_type: "DECIMAL(28,2)",
+            huge: "150000000000000000000.00",
+          },
+          {
+            price_type: "DECIMAL(18,2)",
+            price: "0.00",
+            tiny_type: "DECIMAL(18,7)",
+            tiny: "-1.2345678",
+            huge_type: "DECIMAL(28,2)",
+            huge: "12.34",
+          },
+        ]);
+      });
     },
     testTimeout * 2
   );
