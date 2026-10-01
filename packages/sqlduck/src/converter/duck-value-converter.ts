@@ -2,8 +2,10 @@ import {
   DuckDBDateValue,
   DuckDBDecimalValue,
   DuckDBTimestampMillisecondsValue,
+  DuckDBUUIDValue,
   listValue,
 } from "@duckdb/node-api";
+import type { DuckDBValue } from "@duckdb/node-api";
 
 const stringTimestampRegexp =
   /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d{3,6})?Z?$/i;
@@ -127,21 +129,24 @@ const createDuckValueConverterTypeError = (params: {
 };
 
 export class DuckValueConverter {
-  toUUID = (value: string | bigint | null | undefined): bigint | null => {
+  /**
+   * Bigint values are expected to be the unsigned 128-bit representation of
+   * the uuid (ie: BigInt("0x019d2155d29271fa87d79d1f1ed83569")).
+   */
+  toUUID = (
+    value: string | bigint | null | undefined
+  ): DuckDBUUIDValue | null => {
     if (typeof value === "bigint") {
-      return value;
+      return DuckDBUUIDValue.fromUint128(value);
     } else if (typeof value === "string") {
-      if (isDashedUUID(value)) {
-        return BigInt(
-          "0x" +
-            value.slice(0, 8) +
-            value.slice(9, 13) +
-            value.slice(14, 18) +
-            value.slice(19, 23) +
-            value.slice(24)
-        );
-      }
-      return BigInt("0x" + value.replaceAll("-", ""));
+      const hex = isDashedUUID(value)
+        ? value.slice(0, 8) +
+          value.slice(9, 13) +
+          value.slice(14, 18) +
+          value.slice(19, 23) +
+          value.slice(24)
+        : value.replaceAll("-", "");
+      return DuckDBUUIDValue.fromUint128(BigInt("0x" + hex));
     }
     if (value === undefined || value === null) {
       return null;
@@ -251,6 +256,24 @@ export class DuckValueConverter {
     }
     return listValue(arrayValue);
   };
+  /**
+   * Create a list converter applying `itemConverter` to each item, ie: to
+   * convert numbers or strings items to bigint for a BIGINT[] column.
+   */
+  createListConverter =
+    (itemConverter: (item: never) => DuckDBValue) =>
+    (arrayValue: readonly unknown[] | null | undefined) => {
+      if (arrayValue === undefined || arrayValue === null) {
+        return null;
+      }
+      const len = arrayValue.length;
+      // eslint-disable-next-line unicorn/no-new-array
+      const items = new Array<DuckDBValue>(len);
+      for (let i = 0; i < len; i++) {
+        items[i] = itemConverter(arrayValue[i] as never);
+      }
+      return listValue(items);
+    };
   toTimestampMs = (
     value: bigint | number | Date | null | string | undefined
   ): DuckDBTimestampMillisecondsValue | null => {

@@ -1,7 +1,9 @@
 import {
   DuckDBDateValue,
   DuckDBDecimalValue,
+  DuckDBListValue,
   DuckDBTimestampMillisecondsValue,
+  DuckDBUUIDValue,
 } from "@duckdb/node-api";
 import { describe } from "vitest";
 
@@ -119,16 +121,57 @@ describe("DuckValueConverter", () => {
       );
     });
   });
-  it("should convert uuid", () => {
-    const uuid = "019d2155-d292-71fa-87d7-9d1f1ed83569";
-    expect(converter.toUUID(uuid)).toBe(
-      BigInt("0x019d2155d29271fa87d79d1f1ed83569")
-    );
+  describe("toUUID", () => {
+    it.each([
+      "019d2155-d292-71fa-87d7-9d1f1ed83569",
+      "019d2155d29271fa87d79d1f1ed83569",
+      "019D2155-D292-71FA-87D7-9D1F1ED83569",
+    ])("should convert %s to a DuckDBUUIDValue", (uuid) => {
+      const value = converter.toUUID(uuid);
+      expect(value).toBeInstanceOf(DuckDBUUIDValue);
+      expect(value?.toString()).toBe("019d2155-d292-71fa-87d7-9d1f1ed83569");
+      expect(value?.toUint128()).toBe(
+        BigInt("0x019d2155d29271fa87d79d1f1ed83569")
+      );
+    });
+    it.each([
+      "00000000-0000-0000-0000-000000000000",
+      "80000000-0000-0000-0000-000000000000",
+      "ffffffff-ffff-ffff-ffff-ffffffffffff",
+    ])("should round trip %s", (uuid) => {
+      expect(converter.toUUID(uuid)?.toString()).toBe(uuid);
+    });
+    it("should convert an unsigned 128-bit bigint", () => {
+      const uint128 = BigInt("0x019d2155d29271fa87d79d1f1ed83569");
+      expect(converter.toUUID(uint128)).toStrictEqual(
+        DuckDBUUIDValue.fromUint128(uint128)
+      );
+    });
+    it("should return null for null or undefined", () => {
+      expect(converter.toUUID(null)).toBeNull();
+      expect(converter.toUUID(undefined)).toBeNull();
+    });
+    it("should throw on invalid values", () => {
+      // @ts-expect-error testing invalid value
+      expect(() => converter.toUUID(1)).toThrow(
+        "[DuckValueConverter.toUUID]: Unsupported type number with value 1"
+      );
+      expect(() => converter.toUUID("not-a-uuid")).toThrow(SyntaxError);
+    });
   });
-  it("should convert uuid without dashes", () => {
-    expect(converter.toUUID("019d2155d29271fa87d79d1f1ed83569")).toBe(
-      BigInt("0x019d2155d29271fa87d79d1f1ed83569")
-    );
+  describe("createListConverter", () => {
+    it("should convert each item", () => {
+      const toBigIntList = converter.createListConverter(converter.toBigInt);
+      expect(toBigIntList([1, "2", 3n, null])).toStrictEqual(
+        new DuckDBListValue([1n, 2n, 3n, null])
+      );
+      expect(toBigIntList([])).toStrictEqual(new DuckDBListValue([]));
+    });
+    it("should return null for null or undefined", () => {
+      const toBigIntList = converter.createListConverter(converter.toBigInt);
+      expect(toBigIntList(null)).toBeNull();
+      expect(toBigIntList(undefined)).toBeNull();
+    });
   });
   describe("string date fast path parity with Date parsing", () => {
     const timestamps = [

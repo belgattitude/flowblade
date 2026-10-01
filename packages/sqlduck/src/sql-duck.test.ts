@@ -341,6 +341,74 @@ describe("Duckdb tests", async () => {
           },
         ]);
       });
+
+      it("Should append uuid and bigint list columns", async () => {
+        const sqlDuck = new SqlDuck({ conn });
+        const testTable = new Table("test_uuid_and_lists");
+        const uuid = "019d2155-d292-71fa-87d7-9d1f1ed83569";
+        const highBitUuid = "ffffffff-ffff-ffff-ffff-ffffffffffff";
+
+        async function* rowStream() {
+          yield {
+            id: 1,
+            uuid_v7: uuid,
+            nullable_uuid: highBitUuid,
+            list_of_numbers: [1, 2],
+            list_of_bigints: ["9223372036854775807", "-1"],
+          };
+          yield {
+            id: 2,
+            uuid_v7: highBitUuid,
+            nullable_uuid: null,
+            list_of_numbers: [],
+            list_of_bigints: [],
+          };
+        }
+
+        const { totalRows } = await sqlDuck.toTable({
+          table: testTable,
+          schema: z.strictObject({
+            id: z.int32(),
+            uuid_v7: z.uuidv7(),
+            nullable_uuid: z.nullable(z.uuid()),
+            list_of_numbers: z.array(z.number()),
+            list_of_bigints: z.array(zodCodecs.bigintToString).meta({
+              duckdbType: "BIGINT[]",
+            }),
+          }),
+          rowStream: rowStream(),
+          autoCheckpoint: false,
+          createOptions: {
+            create: "CREATE_OR_REPLACE",
+          },
+        });
+
+        expect(totalRows).toBe(2);
+        const query = await conn.runAndReadAll(
+          `SELECT uuid_v7::VARCHAR as uuid_v7,
+                  nullable_uuid::VARCHAR as nullable_uuid,
+                  typeof(list_of_numbers) as list_of_numbers_type,
+                  list_of_numbers::VARCHAR as list_of_numbers,
+                  list_of_bigints::VARCHAR as list_of_bigints
+           FROM ${testTable.getFullName()} ORDER BY id`
+        );
+        expect(query.getRowObjects()).toStrictEqual([
+          {
+            uuid_v7: uuid,
+            nullable_uuid: highBitUuid,
+            list_of_numbers_type: "BIGINT[]",
+            list_of_numbers: "[1, 2]",
+            list_of_bigints: "[9223372036854775807, -1]",
+          },
+          {
+            uuid_v7: highBitUuid,
+            nullable_uuid: null,
+            list_of_numbers_type: "BIGINT[]",
+            list_of_numbers: "[]",
+            list_of_bigints: "[]",
+          },
+        ]);
+      });
     },
     testTimeout * 2
   );
