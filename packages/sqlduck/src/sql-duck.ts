@@ -87,6 +87,10 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
    *
    * For example, if `chunkSize` is 2048 and `flushSyncFrequency` is 5,
    * the appender will be flushed every 10,240 rows (5 chunks * 2048 rows/chunk).
+   *
+   * Each flush has a fixed cost, frequent flushes slow down inserts
+   * (~30% slower with 10 than 100 on a file database).
+   * @default 100
    */
   flushSyncFrequency?: number;
 
@@ -167,7 +171,7 @@ export class SqlDuck {
    *  schema: userSchema,
    *  rowStream: getUserRows(),
    *  chunkSize: 2048,
-   *  flushSyncFrequency: 10, // flush after every 10 chunks
+   *  flushSyncFrequency: 100, // flush after every 100 chunks
    *  onChunkAppendedFrequency: 1, // multiple of chunks
    *  onChunkAppended: ({ totalRows }) => {
    *    console.log(`Appended ${totalRows} rows so far`);
@@ -195,7 +199,7 @@ export class SqlDuck {
       createOptions,
       onChunkAppended,
       onChunkAppendedFrequency,
-      flushSyncFrequency = 10,
+      flushSyncFrequency = 100,
       autoCheckpoint = true,
       checkpointChunksFrequency,
       preserveInsertionOrder,
