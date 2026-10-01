@@ -6,6 +6,11 @@ export default defineConfig({
   resolve: {
     conditions: ["flowblade-monorepo-source"],
   },
+  ssr: {
+    resolve: {
+      conditions: ["flowblade-monorepo-source", "import", "default"],
+    },
+  },
   test: {
     environment: "node",
     exclude: [
