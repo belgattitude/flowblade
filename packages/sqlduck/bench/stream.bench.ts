@@ -178,6 +178,18 @@ test(`Bench rowsToColumnsChunks with full supported-columns schema`, async ({
         chunkSize,
         columns: [...columnTypes.keys()],
         converters: transformers,
+        compile: false,
+      });
+      for await (const row of a) {
+        const _a = row;
+      }
+    }),
+    bench(`full schema, rowsToConvertedColumnsChunks compiled, chunkSize 2048 (count: ${limit})`, async () => {
+      const a = rowsToConvertedColumnsChunks({
+        rows: getFakeRowStream(),
+        chunkSize,
+        columns: [...columnTypes.keys()],
+        converters: transformers,
       });
       for await (const row of a) {
         const _a = row;

@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { rowsToConvertedColumnsChunks } from "./rows-to-converted-columns-chunks";
+import {
+  compileFillRow,
+  rowsToConvertedColumnsChunks,
+} from "./rows-to-converted-columns-chunks";
 
 describe("rowsToConvertedColumnsChunks", () => {
   type Row = { id: number; name: string | null };
@@ -127,5 +130,145 @@ describe("rowsToConvertedColumnsChunks", () => {
     await expect(Array.fromAsync(gen)).rejects.toThrow(
       "chunkSize must be a positive integer, got 0"
     );
+  });
+
+  describe.each([true, false])("with compile: %s", (compile) => {
+    it("yields the same converted chunks", async () => {
+      const gen = rowsToConvertedColumnsChunks({
+        rows: makeRows(input),
+        chunkSize: 2,
+        columns: ["name", "id"],
+        converters: { id: BigInt },
+        compile,
+      });
+      expect(await Array.fromAsync(gen)).toStrictEqual([
+        [
+          ["A", "B"],
+          [1n, 2n],
+        ],
+        [
+          ["C", "D"],
+          [3n, 4n],
+        ],
+        [[null], [5n]],
+      ]);
+    });
+
+    it("supports column names that are not valid identifiers", async () => {
+      type OddRow = Record<string, unknown>;
+      const keys = ['a"b', "c\\d", "e\nf", "]; throw 1; //", "\u2028"];
+      const row = Object.fromEntries(keys.map((k, i) => [k, i]));
+      async function* oddRows(): AsyncGenerator<OddRow> {
+        yield row;
+      }
+      const gen = rowsToConvertedColumnsChunks<OddRow>({
+        rows: oddRows(),
+        chunkSize: 2,
+        columns: keys,
+        converters: { [keys[3]!]: (v: number) => v * 10 },
+        compile,
+      });
+      expect(await Array.fromAsync(gen)).toStrictEqual([
+        [[0], [1], [2], [30], [4]],
+      ]);
+    });
+  });
+
+  describe("compileFillRow", () => {
+    it("compiles a row filler applying converters", () => {
+      const fillRow = compileFillRow(
+        ["a", "b"],
+        [undefined, (v: number) => -v]
+      );
+      expect(fillRow).toBeInstanceOf(Function);
+      const cols: unknown[][] = [[], []];
+      fillRow!(cols, { a: 1, b: 2 }, 0);
+      fillRow!(cols, { b: 3 }, 1);
+      expect(cols).toStrictEqual([
+        [1, undefined],
+        [-2, -3],
+      ]);
+    });
+
+    it("returns null for non-string columns", () => {
+      expect(compileFillRow([Symbol("a")], [undefined])).toBeNull();
+    });
+
+    it("returns null when new Function is not allowed", () => {
+      const original = globalThis.Function;
+      // Simulates a CSP forbidding eval
+      vi.spyOn(globalThis, "Function").mockImplementation(() => {
+        throw new EvalError("Code generation from strings disallowed");
+      });
+      try {
+        expect(compileFillRow(["a"], [undefined])).toBeNull();
+      } finally {
+        vi.restoreAllMocks();
+      }
+      expect(globalThis.Function).toBe(original);
+    });
+  });
+
+  describe("signal", () => {
+    it("throws the abort reason and closes rows when aborted mid-stream", async () => {
+      const controller = new AbortController();
+      let closed = false;
+      async function* abortingRows(): AsyncGenerator<Row> {
+        try {
+          for (let id = 1; id <= 10; id++) {
+            if (id === 4) {
+              controller.abort(new Error("stop"));
+            }
+            yield { id, name: `n${id}` };
+          }
+        } finally {
+          closed = true;
+        }
+      }
+      const received: unknown[] = [];
+      await expect(async () => {
+        for await (const chunk of rowsToConvertedColumnsChunks({
+          rows: abortingRows(),
+          chunkSize: 3,
+          columns: ["id", "name"],
+          converters: {},
+          signal: controller.signal,
+        })) {
+          received.push(chunk);
+        }
+      }).rejects.toThrow("stop");
+      expect(received).toHaveLength(1);
+      expect(closed).toBe(true);
+    });
+
+    it("throws without reading rows when already aborted", async () => {
+      let pulled = false;
+      async function* rows(): AsyncGenerator<Row> {
+        pulled = true;
+        yield { id: 1, name: "A" };
+      }
+      const gen = rowsToConvertedColumnsChunks({
+        rows: rows(),
+        chunkSize: 3,
+        columns: ["id", "name"],
+        converters: {},
+        signal: AbortSignal.abort(),
+      });
+      await expect(Array.fromAsync(gen)).rejects.toThrow(
+        expect.objectContaining({ name: "AbortError" })
+      );
+      expect(pulled).toBe(false);
+    });
+
+    it("yields all chunks when not aborted", async () => {
+      const gen = rowsToConvertedColumnsChunks({
+        rows: makeRows([{ id: 1, name: "A" }]),
+        chunkSize: 3,
+        columns: ["id", "name"],
+        converters: {},
+        signal: new AbortController().signal,
+      });
+      expect(await Array.fromAsync(gen)).toHaveLength(1);
+    });
   });
 });

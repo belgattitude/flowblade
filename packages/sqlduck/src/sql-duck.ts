@@ -87,6 +87,10 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
    *
    * For example, if `chunkSize` is 2048 and `flushSyncFrequency` is 5,
    * the appender will be flushed every 10,240 rows (5 chunks * 2048 rows/chunk).
+   *
+   * Each flush has a fixed cost, frequent flushes slow down inserts
+   * (~30% slower with 10 than 100 on a file database).
+   * @default 100
    */
   flushSyncFrequency?: number;
 
@@ -116,6 +120,15 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
    * @see {@link https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads.html#preserving-insertion-order}
    */
   preserveInsertionOrder?: boolean;
+
+  /**
+   * Aborts the insertion, `toTable` then rejects with `signal.reason` (an
+   * `AbortError` DOMException by default) and closes `rowStream`.
+   *
+   * The signal is checked before each row: the table is still created, and
+   * the chunks appended before the abort are kept, but no checkpoint happens.
+   */
+  signal?: AbortSignal;
 };
 
 export type ToTableResult = {
@@ -167,7 +180,7 @@ export class SqlDuck {
    *  schema: userSchema,
    *  rowStream: getUserRows(),
    *  chunkSize: 2048,
-   *  flushSyncFrequency: 10, // flush after every 10 chunks
+   *  flushSyncFrequency: 100, // flush after every 100 chunks
    *  onChunkAppendedFrequency: 1, // multiple of chunks
    *  onChunkAppended: ({ totalRows }) => {
    *    console.log(`Appended ${totalRows} rows so far`);
@@ -195,10 +208,11 @@ export class SqlDuck {
       createOptions,
       onChunkAppended,
       onChunkAppendedFrequency,
-      flushSyncFrequency = 10,
+      flushSyncFrequency = 100,
       autoCheckpoint = true,
       checkpointChunksFrequency,
       preserveInsertionOrder,
+      signal,
     } = params;
 
     if (!Number.isSafeInteger(chunkSize) || chunkSize < 1 || chunkSize > 2048) {
@@ -246,6 +260,8 @@ export class SqlDuck {
         "flushSyncFrequency must be a number between 1 and 100_000."
       );
     }
+
+    signal?.throwIfAborted();
 
     const dbManager = new DuckDatabaseManager(this.#conn);
 
@@ -299,6 +315,7 @@ export class SqlDuck {
       chunkSize: chunkSize,
       columns: columnKeys as (keyof TSchema["shape"])[],
       converters: transformers,
+      signal,
     });
 
     let appendedChunkCount = 0;
@@ -395,6 +412,17 @@ export class SqlDuck {
       };
     } catch (e) {
       appender.closeSync();
+      if (signal?.aborted && e === signal.reason) {
+        this.#logger.warning(
+          `Aborted appending data into table '${tableFullName}' after ${totalRows} rows`,
+          {
+            table: tableFullName,
+            totalRows,
+          }
+        );
+        // Not wrapped so callers can check for an AbortError
+        throw e;
+      }
       const msg = `Failed to append data into table '${table.getFullName()}' - ${(e as Error)?.message ?? ""}`;
       this.#logger.error(msg, {
         table: table.getFullName(),
