@@ -1,5 +1,21 @@
 # @flowblade/sqlduck
 
+## 0.38.3
+
+### Patch Changes
+
+- [#1402](https://github.com/belgattitude/flowblade/pull/1402) [`7957220`](https://github.com/belgattitude/flowblade/commit/79572209eb74f26a303db292918e2edef69b43e4) Thanks [@belgattitude](https://github.com/belgattitude)! - Fix toTable failing on UUID columns and on BIGINT[] (or other converted type) list columns
+  
+  - `DuckValueConverter.toUUID` now returns a `DuckDBUUIDValue` instead of a bigint
+  - List items are converted according to the list value type (ie: numbers or strings to bigint for BIGINT[])
+
+- [#1402](https://github.com/belgattitude/flowblade/pull/1402) [`7957220`](https://github.com/belgattitude/flowblade/commit/79572209eb74f26a303db292918e2edef69b43e4) Thanks [@belgattitude](https://github.com/belgattitude)! - Faster DuckValueConverter: string dates/timestamps (~2x), uuid (~1.8x) and decimal from number (~7x)
+  
+  - Fix timestamps strings ending with a lowercase `z` throwing a RangeError
+  - Decimal conversion now throws a RangeError for NaN, Infinity or values not fitting in the DECIMAL(width, scale) instead of silently inserting 0
+
+- [#1402](https://github.com/belgattitude/flowblade/pull/1402) [`7957220`](https://github.com/belgattitude/flowblade/commit/79572209eb74f26a303db292918e2edef69b43e4) Thanks [@belgattitude](https://github.com/belgattitude)! - Faster toTable (~13% on node, ~6% on bun) with a specialized rowsToConvertedColumnsChunks
+
 ## 0.38.2
 
 ### Patch Changes
