@@ -9,6 +9,7 @@ import { createDuckColumnConverters } from "../src/converter/create-duck-column-
 import { Table } from "../src/objects/table.ts";
 import { getTableCreateFromZod } from "../src/table/get-table-create-from-zod.ts";
 import { rowsToColumnsChunks } from "../src/utils/rows-to-columns-chunks";
+import { rowsToConvertedColumnsChunks } from "../src/utils/rows-to-converted-columns-chunks";
 import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator";
 
 const benchConfig: BenchCompareOptions = {
@@ -169,6 +170,65 @@ test(`Bench rowsToColumnsChunks with full supported-columns schema`, async ({
       });
       for await (const row of a) {
         const _a = row;
+      }
+    }),
+    bench(`full schema, rowsToConvertedColumnsChunks, chunkSize 2048 (count: ${limit})`, async () => {
+      const a = rowsToConvertedColumnsChunks({
+        rows: getFakeRowStream(),
+        chunkSize,
+        columns: [...columnTypes.keys()],
+        converters: transformers,
+      });
+      for await (const row of a) {
+        const _a = row;
+      }
+    }),
+    benchConfig
+  );
+});
+
+test(`Bench rowsToColumnsChunks with pre-generated rows`, async ({ bench }) => {
+  const limit = isInCi ? 1000 : 100_000;
+  const chunkSize = 2048;
+  const numColumns = 26;
+
+  // Rows are generated upfront so the bench measures rowsToColumnsChunks
+  // itself, not the row factory.
+  const rows = Array.from({ length: limit }, (_, rowIdx) => {
+    const row: Record<string, unknown> = {};
+    for (let c = 0; c < numColumns; c++) {
+      row[`col_${c}`] = c % 2 === 0 ? rowIdx : `value-${rowIdx}`;
+    }
+    return row;
+  });
+
+  async function* asyncRows() {
+    for (const row of rows) {
+      yield row;
+    }
+  }
+
+  function* syncRows() {
+    for (const row of rows) {
+      yield row;
+    }
+  }
+
+  await bench.compare(
+    bench(`${numColumns} columns, async generator, chunkSize ${chunkSize} (count: ${limit})`, async () => {
+      for await (const chunk of rowsToColumnsChunks({
+        rows: asyncRows(),
+        chunkSize,
+      })) {
+        const _a = chunk;
+      }
+    }),
+    bench(`${numColumns} columns, sync generator, chunkSize ${chunkSize} (count: ${limit})`, async () => {
+      for await (const chunk of rowsToColumnsChunks({
+        rows: syncRows(),
+        chunkSize,
+      })) {
+        const _a = chunk;
       }
     }),
     benchConfig

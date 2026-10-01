@@ -19,7 +19,7 @@ import { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts
 import type { Table } from "./objects/table.ts";
 import { createTableFromZod } from "./table/create-table-from-zod.ts";
 import type { TableCreateOptions } from "./table/get-table-create-from-zod.ts";
-import { rowsToColumnsChunks } from "./utils/rows-to-columns-chunks.ts";
+import { rowsToConvertedColumnsChunks } from "./utils/rows-to-converted-columns-chunks.ts";
 import type {
   InferZodRelaxedDataSchema,
   TableSchemaZod,
@@ -285,7 +285,6 @@ export class SqlDuck {
       columnKeys.push(key);
       columnTypeIds[key as keyof z.output<TSchema>] = duckType;
     }
-    const numColumns = columnKeys.length;
 
     const transformers = createDuckColumnConverters(columnTypeIds);
 
@@ -293,12 +292,13 @@ export class SqlDuck {
 
     const chunkAppendedCollector = createOnChunkAppendedCollector();
 
-    const columnStream = rowsToColumnsChunks<
+    const columnStream = rowsToConvertedColumnsChunks<
       InferZodRelaxedDataSchema<TSchema>
     >({
       rows: rowStream,
       chunkSize: chunkSize,
-      transformers: transformers,
+      columns: columnKeys as (keyof TSchema["shape"])[],
+      converters: transformers,
     });
 
     let appendedChunkCount = 0;
@@ -313,10 +313,7 @@ export class SqlDuck {
       for await (const dataChunk of columnStream) {
         const chunk = DuckDBDataChunk.create(chunkTypes);
 
-        const columns = Array.from<DuckDBValue[]>({ length: numColumns });
-        for (let i = 0; i < numColumns; i++) {
-          columns[i] = dataChunk[columnKeys[i]] as unknown as DuckDBValue[];
-        }
+        const columns = dataChunk as DuckDBValue[][];
 
         totalRows += columns[0]?.length ?? 0;
 
