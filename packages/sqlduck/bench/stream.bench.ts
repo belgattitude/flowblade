@@ -9,6 +9,7 @@ import { createDuckColumnConverters } from "../src/converter/create-duck-column-
 import { Table } from "../src/objects/table.ts";
 import { getTableCreateFromZod } from "../src/table/get-table-create-from-zod.ts";
 import { rowsToColumnsChunks } from "../src/utils/rows-to-columns-chunks";
+import { rowsToConvertedColumnsChunks } from "../src/utils/rows-to-converted-columns-chunks";
 import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator";
 
 const benchConfig: BenchCompareOptions = {
@@ -166,6 +167,17 @@ test(`Bench rowsToColumnsChunks with full supported-columns schema`, async ({
         rows: getFakeRowStream(),
         chunkSize,
         transformers,
+      });
+      for await (const row of a) {
+        const _a = row;
+      }
+    }),
+    bench(`full schema, rowsToConvertedColumnsChunks, chunkSize 2048 (count: ${limit})`, async () => {
+      const a = rowsToConvertedColumnsChunks({
+        rows: getFakeRowStream(),
+        chunkSize,
+        columns: [...columnTypes.keys()],
+        converters: transformers,
       });
       for await (const row of a) {
         const _a = row;
