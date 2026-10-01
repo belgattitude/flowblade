@@ -474,6 +474,62 @@ describe("Duckdb tests", async () => {
           },
         ]);
       });
+
+      it("Should append decimal columns with their declared width and scale", async () => {
+        const sqlDuck = new SqlDuck({ conn });
+        const testTable = new Table("test_decimals");
+
+        async function* rowStream() {
+          yield {
+            id: 1,
+            price: 1.235,
+            rate: 1.234_567_891_2,
+            default_dec: 1.2345,
+          };
+          yield { id: 2, price: -99_999_999.99, rate: null, default_dec: 0 };
+        }
+
+        const { totalRows } = await sqlDuck.toTable({
+          table: testTable,
+          schema: z.strictObject({
+            id: z.int32(),
+            price: z.number().meta({ duckdbType: "DECIMAL(10,2)" }),
+            rate: z.nullable(z.number().meta({ duckdbType: "DECIMAL(38,10)" })),
+            default_dec: z.number().meta({ duckdbType: "DECIMAL" }),
+          }),
+          rowStream: rowStream(),
+          autoCheckpoint: false,
+          createOptions: {
+            create: "CREATE_OR_REPLACE",
+          },
+        });
+
+        expect(totalRows).toBe(2);
+        const query = await conn.runAndReadAll(
+          `SELECT typeof(price) as price_type,
+                  price::VARCHAR as price,
+                  typeof(rate) as rate_type,
+                  rate::VARCHAR as rate,
+                  default_dec::VARCHAR as default_dec
+           FROM ${testTable.getFullName()} ORDER BY id`
+        );
+        expect(query.getRowObjects()).toStrictEqual([
+          {
+            price_type: "DECIMAL(10,2)",
+            price: "1.24",
+            rate_type: "DECIMAL(38,10)",
+            rate: "1.2345678912",
+            default_dec: "1.235",
+          },
+          {
+            price_type: "DECIMAL(10,2)",
+            price: "-99999999.99",
+            rate_type: "DECIMAL(38,10)",
+            rate: null,
+            default_dec: "0.000",
+          },
+        ]);
+      });
     },
     testTimeout * 2
   );

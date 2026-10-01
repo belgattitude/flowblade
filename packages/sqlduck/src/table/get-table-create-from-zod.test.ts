@@ -147,4 +147,35 @@ describe("getTableCreateFromZod", () => {
       ).toThrow();
     });
   });
+  describe("When duckdbType is an explicit DECIMAL(width,scale)", () => {
+    it("should use the provided width and scale", () => {
+      const { ddl, columnTypes } = getTableCreateFromZod({
+        table: new Table("test"),
+        schema: z.object({
+          price: z.number().meta({ duckdbType: "DECIMAL(10,2)" }),
+          rate: z.number().meta({ duckdbType: "decimal( 38, 10 )" }),
+          amount: z.number().meta({ duckdbType: "DECIMAL" }),
+        }),
+      });
+      expect(columnTypes.get("price")).toStrictEqual(DECIMAL(10, 2));
+      expect(columnTypes.get("rate")).toStrictEqual(DECIMAL(38, 10));
+      expect(columnTypes.get("amount")).toStrictEqual(DECIMAL(18, 3));
+      expect(ddl).toContain("price DECIMAL(10,2) NOT NULL");
+      expect(ddl).toContain("rate DECIMAL(38,10) NOT NULL");
+    });
+    it("should fail when width or scale are out of range", () => {
+      for (const duckdbType of [
+        "DECIMAL(39,2)",
+        "DECIMAL(0,0)",
+        "DECIMAL(4,5)",
+      ]) {
+        expect(() =>
+          getTableCreateFromZod({
+            table: new Table("test"),
+            schema: z.object({ price: z.number().meta({ duckdbType }) }),
+          })
+        ).toThrow(/Invalid duckdbType/);
+      }
+    });
+  });
 });

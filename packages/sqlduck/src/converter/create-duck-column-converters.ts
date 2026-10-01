@@ -44,7 +44,7 @@ const getDuckTypeConverter = (
     case DuckDBTypeId.DOUBLE:
       return false;
     case DuckDBTypeId.DECIMAL:
-      return converter.createDecimalConverter(18, 3);
+      return converter.createDecimalConverter(duckType.width, duckType.scale);
     case DuckDBTypeId.DATE:
       return converter.toDate;
     case DuckDBTypeId.LIST: {
