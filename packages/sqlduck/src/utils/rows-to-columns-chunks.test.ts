@@ -129,4 +129,38 @@ describe("rowsToColumnsChunk", () => {
       name: ["A"],
     });
   });
+
+  it("supports sync generators", async () => {
+    function* makeSyncRows(rows: Row[]): Generator<Row> {
+      for (const r of rows) yield r;
+    }
+    const gen = rowsToColumnsChunks({
+      rows: makeSyncRows([
+        { id: 1, name: "A" },
+        { id: 2, name: "B" },
+        { id: 3, name: "C" },
+      ]),
+      chunkSize: 2,
+      transformers: { id: (v: number) => v * 10 },
+    });
+    expect(await Array.fromAsync(gen)).toStrictEqual([
+      { id: [10, 20], name: ["A", "B"] },
+      { id: [30], name: ["C"] },
+    ]);
+  });
+
+  it("fills missing keys with undefined and ignores extra keys", async () => {
+    const gen = rowsToColumnsChunks({
+      rows: makeRows([
+        { id: 1, name: "A" },
+        { id: 2 } as Row,
+        { id: 3, name: "C", extra: true } as Row,
+      ]),
+      chunkSize: 10,
+    });
+    const out = await Array.fromAsync(gen);
+    expect(out).toStrictEqual([{ id: [1, 2, 3], name: ["A", undefined, "C"] }]);
+    // no holes in the yielded arrays
+    expect(1 in out[0]!.name).toBe(true);
+  });
 });

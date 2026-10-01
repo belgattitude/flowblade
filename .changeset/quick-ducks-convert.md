@@ -6,3 +6,4 @@ Faster DuckValueConverter: string dates/timestamps (~2x), uuid (~1.8x) and decim
 
 - Fix timestamps strings ending with a lowercase `z` throwing a RangeError
 - Decimal conversion now throws a RangeError for NaN, Infinity or values not fitting in the DECIMAL(width, scale) instead of silently inserting 0
+- Faster rowsToColumnsChunks (~1.6x with async row streams, ~2x with sync generators)

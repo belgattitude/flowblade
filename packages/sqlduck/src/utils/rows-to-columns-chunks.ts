@@ -104,14 +104,17 @@ export async function* rowsToColumnsChunks<
     }
   }
 
-  function createColumns() {
-    const obj = {} as TReturn;
+  // Columns are kept as an array of preallocated arrays indexed by key
+  // position: assigning by index avoids both the per-row keyed lookup on the
+  // output object and the repeated backing store growth of push().
+  function createColumns(): unknown[][] {
+    // eslint-disable-next-line unicorn/no-new-array
+    const cols = new Array<unknown[]>(numKeys);
     for (let i = 0; i < numKeys; i++) {
-      const k = keys[i];
-      // @ts-expect-error - obj starts empty
-      obj[k] = [];
+      // eslint-disable-next-line unicorn/no-new-array
+      cols[i] = new Array<unknown>(chunkSize);
     }
-    return obj;
+    return cols;
   }
 
   // Applies each column's mapper in-place, once per chunk, after all of the
@@ -120,58 +123,68 @@ export async function* rowsToColumnsChunks<
   // invokes that column's own mapper — instead of a single shared call site
   // that cycles through every column's differently-typed mapper on every
   // row, which V8 can degrade to a slower polymorphic/megamorphic dispatch.
-  function applyMappers(cols: TReturn) {
+  function toChunk(cols: unknown[][], length: number): TReturn {
+    const chunk = {} as Record<keyof TRow, unknown[]>;
     for (let i = 0; i < numKeys; i++) {
+      const target = cols[i]!;
+      if (length < chunkSize) {
+        target.length = length;
+      }
       const fn = mappers[i];
-      if (fn === undefined) {
-        continue;
+      if (fn !== undefined) {
+        for (let r = 0; r < length; r++) {
+          target[r] = fn(target[r]);
+        }
       }
-      const k = keys[i]!;
-      const target = cols[k] as unknown[];
-      for (let r = 0; r < target.length; r++) {
-        target[r] = fn(target[r]);
-      }
+      chunk[keys[i]!] = target;
     }
+    return chunk as TReturn;
   }
 
-  let columns = createColumns();
+  let columns: unknown[][] | null = createColumns();
   let rowsInChunk = 0;
 
-  for (let i = 0; i < numKeys; i++) {
-    const k = keys[i]!;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const val = (first.value as Record<keyof TRow, unknown>)[k];
-    (columns[k] as unknown[]).push(val);
+  function addRow(row: TRow) {
+    columns ??= createColumns();
+    for (let i = 0; i < numKeys; i++) {
+      columns[i]![rowsInChunk] = row[keys[i]!];
+    }
+    rowsInChunk++;
   }
-  rowsInChunk++;
+
+  addRow(first.value);
   // In case chunkSize === 1 (or generally if the threshold already reached),
   // flush immediately after the first row to avoid off-by-one errors.
   if (rowsInChunk >= chunkSize) {
-    applyMappers(columns);
-    yield columns;
-    columns = createColumns();
+    yield toChunk(columns, rowsInChunk);
+    // Allocated lazily on the next row, so no empty chunk is created when
+    // the input ends on a chunk boundary.
+    columns = null;
     rowsInChunk = 0;
   }
 
-  // consume the rest
-  for await (const row of rows) {
-    for (let i = 0; i < numKeys; i++) {
-      const k = keys[i]!;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const val = (row as Record<keyof TRow, unknown>)[k];
-      (columns[k] as unknown[]).push(val);
+  // consume the rest, sync iterators are drained without awaiting each row
+  if (Symbol.asyncIterator in rows) {
+    for await (const row of rows) {
+      addRow(row);
+      if (rowsInChunk >= chunkSize) {
+        yield toChunk(columns!, rowsInChunk);
+        columns = null;
+        rowsInChunk = 0;
+      }
     }
-    rowsInChunk++;
-    if (rowsInChunk >= chunkSize) {
-      applyMappers(columns);
-      yield columns;
-      columns = createColumns();
-      rowsInChunk = 0;
+  } else {
+    for (const row of rows) {
+      addRow(row);
+      if (rowsInChunk >= chunkSize) {
+        yield toChunk(columns!, rowsInChunk);
+        columns = null;
+        rowsInChunk = 0;
+      }
     }
   }
 
-  if (rowsInChunk > 0) {
-    applyMappers(columns);
-    yield columns;
+  if (columns !== null && rowsInChunk > 0) {
+    yield toChunk(columns, rowsInChunk);
   }
 }
