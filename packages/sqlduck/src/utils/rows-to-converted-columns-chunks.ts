@@ -12,7 +12,67 @@ type RowsToConvertedColumnsChunksParams<TRow extends Record<string, unknown>> =
      * Value converters by column, columns without a converter are copied as is.
      */
     converters: Partial<Record<keyof TRow, ValueMapperFn>>;
+    /**
+     * Compile a specialized row filler with `new Function` (unrolled columns,
+     * static property access). Falls back to the generic loops when
+     * compilation fails (ie: CSP forbidding eval) or columns aren't strings.
+     * @default true
+     */
+    compile?: boolean;
   };
+
+/**
+ * Fill row `r` of `cols` with the (converted) values of `row`.
+ */
+type FillRowFn = (cols: unknown[][], row: unknown, r: number) => void;
+
+/**
+ * Compile a FillRowFn unrolled over the columns, ie for columns ['id', 'name']
+ * with a converter on 'id':
+ *
+ * ```js
+ * cols[0][r] = f0(row["id"]);
+ * cols[1][r] = row["name"];
+ * ```
+ *
+ * Static property names keep the property loads monomorphic and each
+ * converter gets its own call site. Returns null when compilation isn't
+ * possible, the caller must then use the generic path.
+ */
+export const compileFillRow = (
+  columns: readonly PropertyKey[],
+  converters: readonly (ValueMapperFn | undefined)[]
+): FillRowFn | null => {
+  const fnNames: string[] = [];
+  const fns: ValueMapperFn[] = [];
+  const lines: string[] = [];
+  for (const [i, key] of columns.entries()) {
+    if (typeof key !== "string") {
+      return null;
+    }
+    // JSON.stringify produces a valid and safe js string literal
+    const access = `row[${JSON.stringify(key)}]`;
+    const fn = converters[i];
+    if (fn === undefined) {
+      lines.push(`cols[${i}][r] = ${access};`);
+    } else {
+      const name = `f${fns.length}`;
+      fnNames.push(name);
+      fns.push(fn);
+      lines.push(`cols[${i}][r] = ${name}(${access});`);
+    }
+  }
+  const body = `"use strict";\nreturn function fillRow(cols, row, r) {\n${lines.join("\n")}\n};`;
+  try {
+    // oxlint-disable-next-line no-new-func, typescript/no-implied-eval
+    const factory = new Function(...fnNames, body) as (
+      ...fns: ValueMapperFn[]
+    ) => FillRowFn;
+    return factory(...fns);
+  } catch {
+    return null;
+  }
+};
 
 /**
  * Specialized version of `rowsToColumnsChunks` for when the columns and their
@@ -45,7 +105,7 @@ export async function* rowsToConvertedColumnsChunks<
 >(
   params: RowsToConvertedColumnsChunksParams<TRow>
 ): AsyncIterableIterator<unknown[][]> {
-  const { rows, chunkSize, columns, converters } = params;
+  const { rows, chunkSize, columns, converters, compile = true } = params;
   if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
     throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
   }
@@ -72,6 +132,13 @@ export async function* rowsToConvertedColumnsChunks<
   }
   const numConverted = convertedIdx.length;
 
+  const fillRow = compile
+    ? compileFillRow(
+        columns,
+        columns.map((c) => converters[c])
+      )
+    : null;
+
   // Preallocated arrays filled by index, avoids growing them with push()
   function createColumns(): unknown[][] {
     // eslint-disable-next-line unicorn/no-new-array
@@ -83,13 +150,17 @@ export async function* rowsToConvertedColumnsChunks<
     return cols;
   }
 
-  // Converters are applied per column, once per chunk, so each call site
-  // stays monomorphic (see rowsToColumnsChunks).
+  // Without compilation, converters are applied per column, once per chunk,
+  // so each call site stays monomorphic (see rowsToColumnsChunks).
   function toChunk(cols: unknown[][], length: number): unknown[][] {
     if (length < chunkSize) {
       for (let i = 0; i < numColumns; i++) {
         cols[i]!.length = length;
       }
+    }
+    if (fillRow !== null) {
+      // Already converted by fillRow
+      return cols;
     }
     for (let j = 0; j < numConverted; j++) {
       const fn = convertedFns[j]!;
@@ -105,8 +176,12 @@ export async function* rowsToConvertedColumnsChunks<
   let rowsInChunk = 0;
 
   for await (const row of rows) {
-    for (let i = 0; i < numColumns; i++) {
-      cols[i]![rowsInChunk] = row[columns[i]!];
+    if (fillRow === null) {
+      for (let i = 0; i < numColumns; i++) {
+        cols[i]![rowsInChunk] = row[columns[i]!];
+      }
+    } else {
+      fillRow(cols, row, rowsInChunk);
     }
     rowsInChunk++;
     if (rowsInChunk >= chunkSize) {
