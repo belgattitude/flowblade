@@ -8,6 +8,7 @@ import type { Logger } from "@logtape/logtape";
 import type * as z from "zod";
 import type { ZodObject } from "zod";
 
+import { createDataChunkWriter } from "./appender/create-data-chunk-writer.ts";
 import {
   createOnChunkAppendedCollector,
   isOnChunkAppendedAsyncCb,
@@ -294,6 +295,7 @@ export class SqlDuck {
     );
 
     const chunkTypes = Array.from(columnTypes.values());
+    const writeChunk = createDataChunkWriter(chunkTypes);
 
     const columnTypeIds = {} as Record<keyof z.output<TSchema>, DuckDBType>;
     const columnKeys = [] as (keyof z.output<TSchema>)[];
@@ -334,7 +336,7 @@ export class SqlDuck {
 
         totalRows += columns[0]?.length ?? 0;
 
-        chunk.setColumns(columns);
+        writeChunk(chunk, columns);
         appender.appendDataChunk(chunk);
 
         appendedChunkCount += 1;
