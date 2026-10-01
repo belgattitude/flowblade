@@ -1,5 +1,6 @@
 import {
   DuckDBDateValue,
+  DuckDBDecimalValue,
   DuckDBTimestampMillisecondsValue,
 } from "@duckdb/node-api";
 import { describe } from "vitest";
@@ -123,5 +124,101 @@ describe("DuckValueConverter", () => {
     expect(converter.toUUID(uuid)).toBe(
       BigInt("0x019d2155d29271fa87d79d1f1ed83569")
     );
+  });
+  it("should convert uuid without dashes", () => {
+    expect(converter.toUUID("019d2155d29271fa87d79d1f1ed83569")).toBe(
+      BigInt("0x019d2155d29271fa87d79d1f1ed83569")
+    );
+  });
+  describe("string date fast path parity with Date parsing", () => {
+    const timestamps = [
+      "2023-12-28 23:37:31",
+      "2023-12-28t23:37:31.653",
+      "2023-12-28T23:37:31.653999Z",
+      // day overflow rolls over to the next month, like Date parsing
+      "2025-02-30T10:00:00Z",
+      // years 0-99 must not be mapped to 1900-1999
+      "0050-01-01T00:00:00Z",
+      "2025-01-01T24:00:00Z",
+      "2025-01-01T24:00:00z",
+    ];
+    it.each(timestamps)("toTimestampMs(%s)", (value) => {
+      const expected = new Date(/z$/i.test(value) ? value : `${value}Z`);
+      expect(converter.toTimestampMs(value)).toStrictEqual(
+        new DuckDBTimestampMillisecondsValue(BigInt(expected.getTime()))
+      );
+    });
+    it.each(["2025-02-30", "0050-01-01", "2025-01-31T23:59:59Z"])(
+      "toDate(%s)",
+      (value) => {
+        const expected = new Date(`${value.slice(0, 10)}T00:00:00Z`);
+        expect(converter.toDate(value)).toStrictEqual(
+          new DuckDBDateValue(expected.getTime() / 86_400_000)
+        );
+      }
+    );
+    it.each([
+      ["2023-12-28T23:37:31.653z", 1_703_806_651_653n],
+      ["2023-12-28 23:37:31z", 1_703_806_651_000n],
+      ["2023-12-28T23:37:31.653999z", 1_703_806_651_653n],
+    ] as const)("should accept a lowercase z in %s", (value, expected) => {
+      expect(converter.toTimestampMs(value)).toStrictEqual(
+        new DuckDBTimestampMillisecondsValue(expected)
+      );
+    });
+    it.each(["2025-13-01T00:00:00Z", "2025-01-01T23:60:00Z", "2025-00-01"])(
+      "should throw on invalid timestamp %s",
+      (value) => {
+        expect(() => converter.toTimestampMs(value)).toThrow();
+      }
+    );
+  });
+  describe("createDecimalConverter", () => {
+    it.each([
+      [1.2345, 1235n],
+      [-1.2345, -1235n],
+      [0.0005, 1n],
+      [-0.0005, -1n],
+      [-0, 0n],
+      [123_456_789_012.345, 123_456_789_012_345n],
+    ] as const)("should round %s half away from zero", (value, expected) => {
+      const toDecimal = converter.createDecimalConverter(18, 3);
+      expect(toDecimal(value)).toStrictEqual(
+        DuckDBDecimalValue.fromDouble(value, 18, 3)
+      );
+      expect(toDecimal(value)?.value).toBe(expected);
+    });
+    it.each([
+      1e15,
+      -1e15,
+      2 ** 53,
+      Number.NaN,
+      Number.POSITIVE_INFINITY,
+      Number.NEGATIVE_INFINITY,
+    ])("should throw for out of range value %s", (value) => {
+      const toDecimal = converter.createDecimalConverter(18, 3);
+      expect(() => toDecimal(value)).toThrow(RangeError);
+      expect(() => toDecimal(value)).toThrow(
+        `[DuckValueConverter.createDecimalConverter]: Value ${value} does not fit in DECIMAL(18,3)`
+      );
+    });
+    it("should throw when rounding overflows the width", () => {
+      const toDecimal = converter.createDecimalConverter(4, 2);
+      expect(toDecimal(99.99)?.value).toBe(9999n);
+      expect(() => toDecimal(99.995)).toThrow(RangeError);
+    });
+    it("should match native conversion beyond safe integer range", () => {
+      const toDecimal = converter.createDecimalConverter(18, 3);
+      const value = 123_456_789_012_345.67;
+      expect(toDecimal(value)).toStrictEqual(
+        DuckDBDecimalValue.fromDouble(value, 18, 3)
+      );
+    });
+    it("should keep bigint values as is", () => {
+      const toDecimal = converter.createDecimalConverter(18, 3);
+      expect(toDecimal(1234n)).toStrictEqual(
+        new DuckDBDecimalValue(1234n, 18, 3)
+      );
+    });
   });
 });
