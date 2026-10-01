@@ -21,10 +21,50 @@ const isFloatValue = (value: number): boolean => {
   return !Number.isInteger(value);
 };
 
+/**
+ * Number of decimal digits of a value, handles exponent notation (ie: 1e-7)
+ */
 const getScale = (value: number): number => {
-  const parts = value.toString().split(".");
-  if (parts.length < 2) return 0;
-  return parts[1]!.length;
+  const [mantissa = "", exponent = "0"] = value.toString().split("e");
+  const mantissaScale = mantissa.split(".")[1]?.length ?? 0;
+  return Math.max(0, mantissaScale - Number(exponent));
+};
+
+const DECIMAL_DEFAULT_WIDTH = 18;
+const DECIMAL_MAX_WIDTH = 38;
+
+/**
+ * Infer the DECIMAL width from the scale and the optional bounds. Starts at
+ * the default width (18) and widens up to 38 when the bounds or the scale
+ * require it. Bounds too large to fit (ie: implicit z.float32() / z.float64()
+ * ones) are ignored, out of range values will be rejected at conversion.
+ */
+const getDecimalWidth = (params: {
+  scale: number;
+  minimum: number | undefined;
+  maximum: number | undefined;
+}): number => {
+  const { scale, minimum, maximum } = params;
+  if (scale > DECIMAL_MAX_WIDTH) {
+    throw new RangeError(
+      `Cannot infer a DECIMAL type, scale ${scale} exceeds the maximum width of ${DECIMAL_MAX_WIDTH}`
+    );
+  }
+  const minWidth =
+    scale > DECIMAL_DEFAULT_WIDTH ? DECIMAL_MAX_WIDTH : DECIMAL_DEFAULT_WIDTH;
+  if (minimum === undefined || maximum === undefined) {
+    return minWidth;
+  }
+  const maxAbs = Math.max(Math.abs(minimum), Math.abs(maximum));
+  if (!Number.isFinite(maxAbs)) {
+    return minWidth;
+  }
+  const integerDigits = maxAbs < 1 ? 1 : Math.floor(Math.log10(maxAbs)) + 1;
+  const requiredWidth = integerDigits + scale;
+  if (requiredWidth > DECIMAL_MAX_WIDTH) {
+    return minWidth;
+  }
+  return Math.max(DECIMAL_DEFAULT_WIDTH, requiredWidth);
 };
 
 export const getDuckdbNumberColumnType = (params: {
@@ -34,9 +74,13 @@ export const getDuckdbNumberColumnType = (params: {
 }) => {
   const { minimum, maximum, multipleOf } = params;
 
-  if (multipleOf !== undefined && isFloatValue(multipleOf)) {
+  if (
+    multipleOf !== undefined &&
+    Number.isFinite(multipleOf) &&
+    !Number.isInteger(multipleOf)
+  ) {
     const scale = getScale(multipleOf);
-    return DECIMAL(18, scale);
+    return DECIMAL(getDecimalWidth({ scale, minimum, maximum }), scale);
   }
 
   if (minimum === undefined || maximum === undefined) {

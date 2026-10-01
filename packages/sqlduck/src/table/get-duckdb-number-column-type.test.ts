@@ -68,6 +68,98 @@ describe("getDuckdbNumberColumnType", () => {
     });
   });
 
+  describe("DECIMAL from multipleOf", () => {
+    const getDecimal = (
+      params: Parameters<typeof getDuckdbNumberColumnType>[0]
+    ) => {
+      const colType = getDuckdbNumberColumnType(params) as DuckDBDecimalType;
+      return {
+        typeId: colType.typeId,
+        width: colType.width,
+        scale: colType.scale,
+      };
+    };
+    const expectDecimal = (width: number, scale: number) => {
+      const { typeId } = DECIMAL(width, scale);
+      return { typeId, width, scale };
+    };
+
+    it("should support multipleOf in exponent notation", () => {
+      expect(
+        getDecimal({ minimum: undefined, maximum: undefined, multipleOf: 1e-7 })
+      ).toStrictEqual(expectDecimal(18, 7));
+      expect(
+        getDecimal({
+          minimum: undefined,
+          maximum: undefined,
+          multipleOf: 2.5e-10,
+        })
+      ).toStrictEqual(expectDecimal(18, 11));
+    });
+
+    it("should default to width 18 without bounds", () => {
+      expect(
+        getDecimal({ minimum: undefined, maximum: undefined, multipleOf: 0.01 })
+      ).toStrictEqual(expectDecimal(18, 2));
+    });
+
+    it("should widen when the bounds require it", () => {
+      expect(
+        getDecimal({ minimum: 0, maximum: 1e20, multipleOf: 0.01 })
+      ).toStrictEqual(expectDecimal(23, 2));
+      expect(
+        getDecimal({ minimum: -1e30, maximum: 10, multipleOf: 0.000_001 })
+      ).toStrictEqual(expectDecimal(37, 6));
+    });
+
+    it("should widen to 38 when the scale exceeds the default width", () => {
+      expect(
+        getDecimal({
+          minimum: undefined,
+          maximum: undefined,
+          multipleOf: 1e-20,
+        })
+      ).toStrictEqual(expectDecimal(38, 20));
+      expect(
+        getDecimal({ minimum: 0, maximum: 1, multipleOf: 1e-20 })
+      ).toStrictEqual(expectDecimal(21, 20));
+    });
+
+    it("should ignore bounds that cannot fit in a DECIMAL", () => {
+      // ie: implicit bounds from z.float32() / z.float64()
+      expect(
+        getDecimal({
+          minimum: -3.402_823_466_385_288_6e38,
+          maximum: 3.402_823_466_385_288_6e38,
+          multipleOf: 0.001,
+        })
+      ).toStrictEqual(expectDecimal(18, 3));
+      expect(
+        getDecimal({
+          minimum: -Number.MAX_VALUE,
+          maximum: Number.MAX_VALUE,
+          multipleOf: 0.5,
+        })
+      ).toStrictEqual(expectDecimal(18, 1));
+    });
+
+    it("should throw when the scale exceeds 38", () => {
+      expect(() =>
+        getDuckdbNumberColumnType({
+          minimum: undefined,
+          maximum: undefined,
+          multipleOf: 1e-39,
+        })
+      ).toThrow(RangeError);
+    });
+
+    it("should not return a DECIMAL for integer multipleOf", () => {
+      expect(
+        getDuckdbNumberColumnType({ minimum: 0, maximum: 100, multipleOf: 5 })
+      ).toBe(UTINYINT);
+    });
+  });
+
   describe("Unsigned Integers", () => {
     it("should return UTINYINT for range [0, 255]", () => {
       expect(getDuckdbNumberColumnType({ minimum: 0, maximum: 255 })).toBe(
