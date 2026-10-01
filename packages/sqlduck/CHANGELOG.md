@@ -1,5 +1,17 @@
 # @flowblade/sqlduck
 
+## 0.39.0
+
+### Minor Changes
+
+- [#1404](https://github.com/belgattitude/flowblade/pull/1404) [`38d98a7`](https://github.com/belgattitude/flowblade/commit/38d98a79e7ae06d360edc309ea0b18ee3cbb220e) Thanks [@belgattitude](https://github.com/belgattitude)! - Add an optional `signal` (AbortSignal) to `SqlDuck.toTable`, `rowsToColumnsChunks` and `rowsToConvertedColumnsChunks`: once aborted, the iteration throws `signal.reason` and closes the row source. `toTable` rejects with the unwrapped reason so `AbortError` can be detected, keeps the chunks appended before the abort and skips the checkpoint.
+
+### Patch Changes
+
+- [#1404](https://github.com/belgattitude/flowblade/pull/1404) [`38d98a7`](https://github.com/belgattitude/flowblade/commit/38d98a79e7ae06d360edc309ea0b18ee3cbb220e) Thanks [@belgattitude](https://github.com/belgattitude)! - Faster `toTable` row conversion: rows are now filled by a function compiled with `new Function` (unrolled columns, static property access, one call site per converter). It falls back to the generic loops when compilation isn't allowed (ie: CSP forbidding eval).
+
+- [#1404](https://github.com/belgattitude/flowblade/pull/1404) [`38d98a7`](https://github.com/belgattitude/flowblade/commit/38d98a79e7ae06d360edc309ea0b18ee3cbb220e) Thanks [@belgattitude](https://github.com/belgattitude)! - `toTable` is ~30% faster on file databases: the default `flushSyncFrequency` goes from 10 to 100 chunks (every 204,800 rows with the default chunkSize). Pass `flushSyncFrequency: 10` to keep the previous behaviour.
+
 ## 0.38.3
 
 ### Patch Changes
