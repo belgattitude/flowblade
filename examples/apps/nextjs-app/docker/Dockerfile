@@ -7,21 +7,23 @@ ARG DEBIAN_VERSION=trixie-slim
 
 FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS prepare
 
-RUN apt-get update \
-  # && apt-get install build-essential cmake curl unzip ca-certificates git jq --no-install-recommends -y \
-  && apt-get install jq --no-install-recommends -y \
-  && npm install -g npm
+RUN npm install -g npm
 
 WORKDIR /app
 
 COPY --link package.json turbo.jsonc ./
+# Reads tool versions from package.json (avoids installing jq)
+COPY --link examples/apps/nextjs-app/docker/scripts/get-tool-version.ts /opt/docker-scripts/
 
 # Install pnpm at the version declared by the package manager.
-RUN PNPM_VERSION=$(jq -r '.devEngines["packageManager"]["version"]' package.json) PNPM_HOME=/opt/pnpm SHELL=bash npx get-pnpm
+RUN PNPM_VERSION="$(node /opt/docker-scripts/get-tool-version.ts pnpm ./package.json)" \
+  && export PNPM_VERSION \
+  && PNPM_HOME=/opt/pnpm SHELL=bash npx get-pnpm
 ENV PATH="/opt/pnpm/bin:${PATH}"
 
 # Install Turbo at the version declared by the pruned workspace.
-RUN TURBO_VERSION=$(jq -r '.devDependencies["turbo"]' package.json) npm i -g turbo@${TURBO_VERSION}
+RUN TURBO_VERSION="$(node /opt/docker-scripts/get-tool-version.ts turbo ./package.json)" \
+  && npm i -g "turbo@${TURBO_VERSION}"
 
 COPY --link . .
 
