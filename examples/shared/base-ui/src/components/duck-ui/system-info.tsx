@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@examples/base-ui/components/ui/card";
 import { Progress } from "@examples/base-ui/components/ui/progress";
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 import { CpuIcon, HardDriveIcon, MemoryStickIcon } from "lucide-react";
 // ─── Types ────────────────────────────────────────────────────────────────────
 

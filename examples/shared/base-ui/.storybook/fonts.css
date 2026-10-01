@@ -1,0 +1,14 @@
+/**
+ * Mirror the nextjs-app fonts (loaded with next/font in the app). The css
+ * variables match the ones next/font defines.
+ */
+:root {
+  --font-inter: "Inter Variable";
+  --font-jetbrains-mono: "JetBrains Mono Variable";
+  --font-plus-jakarta-sans: "Plus Jakarta Sans Variable";
+}
+
+/* Like the app MainLayout */
+body {
+  font-family: var(--font-plus-jakarta-sans), var(--font-sans);
+}

@@ -1,7 +1,7 @@
 import { Button } from "@examples/base-ui/components/ui/button";
 import { Input } from "@examples/base-ui/components/ui/input";
 import { Label } from "@examples/base-ui/components/ui/label";
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 
 export function LoginForm({
   className,
