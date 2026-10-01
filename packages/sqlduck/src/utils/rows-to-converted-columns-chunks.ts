@@ -19,6 +19,12 @@ type RowsToConvertedColumnsChunksParams<TRow extends Record<string, unknown>> =
      * @default true
      */
     compile?: boolean;
+    /**
+     * Aborts the iteration: checked before each row, the generator then throws
+     * `signal.reason` and closes `rows`. An abort while waiting for the next row
+     * is only seen once that row arrives.
+     */
+    signal?: AbortSignal;
   };
 
 /**
@@ -105,10 +111,18 @@ export async function* rowsToConvertedColumnsChunks<
 >(
   params: RowsToConvertedColumnsChunksParams<TRow>
 ): AsyncIterableIterator<unknown[][]> {
-  const { rows, chunkSize, columns, converters, compile = true } = params;
+  const {
+    rows,
+    chunkSize,
+    columns,
+    converters,
+    compile = true,
+    signal,
+  } = params;
   if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
     throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
   }
+  signal?.throwIfAborted();
   const unknownKeys = Object.keys(converters).filter(
     (k) => !columns.includes(k as keyof TRow)
   );
@@ -176,6 +190,8 @@ export async function* rowsToConvertedColumnsChunks<
   let rowsInChunk = 0;
 
   for await (const row of rows) {
+    // Throwing inside for-await closes rows
+    signal?.throwIfAborted();
     if (fillRow === null) {
       for (let i = 0; i < numColumns; i++) {
         cols[i]![rowsInChunk] = row[columns[i]!];

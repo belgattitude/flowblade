@@ -129,4 +129,61 @@ describe("rowsToColumnsChunk", () => {
       name: ["A"],
     });
   });
+
+  describe("signal", () => {
+    it("throws the abort reason and closes rows when aborted mid-stream", async () => {
+      const controller = new AbortController();
+      let closed = false;
+      async function* abortingRows(): AsyncGenerator<Row> {
+        try {
+          for (let id = 1; id <= 10; id++) {
+            if (id === 4) {
+              controller.abort(new Error("stop"));
+            }
+            yield { id, name: `n${id}` };
+          }
+        } finally {
+          closed = true;
+        }
+      }
+      const received: unknown[] = [];
+      await expect(async () => {
+        for await (const chunk of rowsToColumnsChunks({
+          rows: abortingRows(),
+          chunkSize: 3,
+          signal: controller.signal,
+        })) {
+          received.push(chunk);
+        }
+      }).rejects.toThrow("stop");
+      expect(received).toHaveLength(1);
+      expect(closed).toBe(true);
+    });
+
+    it("throws without reading rows when already aborted", async () => {
+      let pulled = false;
+      async function* rows(): AsyncGenerator<Row> {
+        pulled = true;
+        yield { id: 1, name: "A" };
+      }
+      const gen = rowsToColumnsChunks({
+        rows: rows(),
+        chunkSize: 3,
+        signal: AbortSignal.abort(),
+      });
+      await expect(Array.fromAsync(gen)).rejects.toThrow(
+        expect.objectContaining({ name: "AbortError" })
+      );
+      expect(pulled).toBe(false);
+    });
+
+    it("yields all chunks when not aborted", async () => {
+      const gen = rowsToColumnsChunks({
+        rows: makeRows([{ id: 1, name: "A" }]),
+        chunkSize: 3,
+        signal: new AbortController().signal,
+      });
+      expect(await Array.fromAsync(gen)).toHaveLength(1);
+    });
+  });
 });

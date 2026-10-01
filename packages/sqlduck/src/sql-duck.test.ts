@@ -342,6 +342,71 @@ describe("Duckdb tests", async () => {
         ]);
       });
 
+      describe("signal", () => {
+        const schema = z.object({ id: z.number() });
+
+        it("Should reject with the abort reason and keep appended chunks", async () => {
+          const sqlDuck = new SqlDuck({ conn });
+          const testTable = new Table({ name: "test_abort" });
+          const controller = new AbortController();
+          let closed = false;
+          async function* rows() {
+            try {
+              for (let id = 0; id < 100; id++) {
+                if (id === 25) {
+                  controller.abort();
+                }
+                yield { id };
+              }
+            } finally {
+              closed = true;
+            }
+          }
+
+          const error = await sqlDuck
+            .toTable({
+              table: testTable,
+              schema,
+              rowStream: rows(),
+              chunkSize: 10,
+              autoCheckpoint: false,
+              signal: controller.signal,
+              createOptions: { create: "CREATE_OR_REPLACE" },
+            })
+            .catch((e: unknown) => e);
+          expect(error).toBe(controller.signal.reason);
+          expect(error).toMatchObject({ name: "AbortError" });
+          expect(closed).toBe(true);
+
+          // The 2 full chunks appended before the abort are kept
+          const query = await conn.runAndReadAll(
+            `SELECT count(*) as count_star from ${testTable.getFullName()}`
+          );
+          expect(query.getRowObjects()).toStrictEqual([{ count_star: 20n }]);
+        });
+
+        it("Should reject before creating the table when already aborted", async () => {
+          const sqlDuck = new SqlDuck({ conn });
+          const testTable = new Table({ name: "test_abort_before_start" });
+          const reason = new Error("cancelled");
+          await expect(
+            sqlDuck.toTable({
+              table: testTable,
+              schema,
+              rowStream: [{ id: 1 }][Symbol.iterator]() as Generator<{
+                id: number;
+              }>,
+              autoCheckpoint: false,
+              signal: AbortSignal.abort(reason),
+            })
+          ).rejects.toBe(reason);
+          const query = await conn.runAndReadAll(
+            `SELECT count(*) as count_star FROM duckdb_tables() WHERE table_name = 'test_abort_before_start'`
+          );
+          expect(query.getRowObjects()).toStrictEqual([{ count_star: 0n }]);
+        });
+      });
+
       it("Should append uuid and bigint list columns", async () => {
         const sqlDuck = new SqlDuck({ conn });
         const testTable = new Table("test_uuid_and_lists");

@@ -12,6 +12,12 @@ type RowsToColumnsChunksParams<
   rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>;
   chunkSize: number;
   transformers?: TTransformers;
+  /**
+   * Aborts the iteration: checked before each row, the generator then throws
+   * `signal.reason` and closes `rows`. An abort while waiting for the next row
+   * is only seen once that row arrives.
+   */
+  signal?: AbortSignal;
 };
 
 /**
@@ -28,6 +34,7 @@ type RowsToColumnsChunksParams<
  * @param params.rows - An async or sync iterable of rows.
  * @param params.chunkSize - The maximum number of rows per yielded chunk. Must be a positive integer.
  * @param params.transformers - Optional mappers for specific columns to transform values before chunking.
+ * @param params.signal - Optional AbortSignal to stop the iteration, throws `signal.reason`.
  *
  * @returns An async iterator yielding chunks of column-oriented data.
  *
@@ -75,10 +82,11 @@ export async function* rowsToColumnsChunks<
       ? TOut[]
       : TRow[K][];
   };
-  const { rows, chunkSize, transformers } = params;
+  const { rows, chunkSize, transformers, signal } = params;
   if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
     throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
   }
+  signal?.throwIfAborted();
 
   // Pull the first row to determine column order
   const first = await rows.next();
@@ -155,6 +163,8 @@ export async function* rowsToColumnsChunks<
 
   // consume the rest
   for await (const row of rows) {
+    // Throwing inside for-await closes rows
+    signal?.throwIfAborted();
     for (let i = 0; i < numKeys; i++) {
       const k = keys[i]!;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
