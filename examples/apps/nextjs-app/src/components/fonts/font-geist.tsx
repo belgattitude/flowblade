@@ -1,15 +1,4 @@
-import localFont from "next/font/local";
-
-export const fontGeistSans = localFont({
-  display: "swap",
-  src: "../../../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-
-export const fontGeistMono = localFont({
-  display: "swap",
-  src: "../../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+// The geist package calls next/font/local with its own bundled files, so it
+// works with any pnpm linker (no copy needed, see scripts/copy-fonts.mjs)
+export { GeistMono as fontGeistMono } from "geist/font/mono";
+export { GeistSans as fontGeistSans } from "geist/font/sans";
