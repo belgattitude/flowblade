@@ -1,23 +1,24 @@
 import { defineConfig } from "oxlint";
+import oxlintTailwindcss from "oxlint-tailwindcss";
 import antiSlop from "ultracite/oxlint/anti-slop";
 import core from "ultracite/oxlint/core";
 import { jsPluginSettings, selectJsPlugins } from "ultracite/oxlint/js-plugins";
+import tanstack from "ultracite/oxlint/tanstack";
 import vitest from "ultracite/oxlint/vitest";
+//import tanstackJsPlugins from "ultracite/oxlint/tanstack/js-plugins";
 
 import { defaultIgnorePatterns } from "./default-ignore-patterns.ts";
-//import tanstack from "ultracite/oxlint/tanstack";
-//import tanstackJsPlugins from "ultracite/oxlint/tanstack/js-plugins";
 
 export const oxlintDefaultConfig = defineConfig({
   extends: [
     core,
     vitest,
-    //tanstack,
+    tanstack,
     //tanstackJsPlugins,
     antiSlop,
     selectJsPlugins([]),
   ],
-  jsPlugins: ["eslint-plugin-security"],
+  jsPlugins: ["eslint-plugin-security", "oxlint-tailwindcss"],
   options: {
     typeAware: true,
     typeCheck: false,
@@ -35,6 +36,9 @@ export const oxlintDefaultConfig = defineConfig({
         "security/detect-new-buffer": "error",
         "security/detect-non-literal-require": "error",
         "security/detect-child-process": "error",
+
+        "tailwindcss/no-conflicting-classes": "error",
+        "tailwindcss/enforce-sort-order": "off",
 
         // this breaks: unicorn(text-encoding-identifier-case): Prefer `utf-8` over `utf8`.
         "unicorn/text-encoding-identifier-case": "off",
