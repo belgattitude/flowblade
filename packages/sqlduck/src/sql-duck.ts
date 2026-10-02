@@ -219,7 +219,7 @@ export class SqlDuck {
       throw new Error("chunkSize must be a number between 1 and 2048");
     }
 
-    if (autoCheckpoint && typeof table.databaseName !== "string") {
+    if (autoCheckpoint && table.databaseName === undefined) {
       throw new Error(
         "autoCheckpoint requires table.databaseName to be provided."
       );
@@ -227,7 +227,7 @@ export class SqlDuck {
 
     if (
       checkpointChunksFrequency !== undefined &&
-      typeof table.databaseName !== "string"
+      table.databaseName === undefined
     ) {
       throw new Error(
         "checkpointChunksFrequency requires table.databaseName to be provided."
@@ -364,7 +364,7 @@ export class SqlDuck {
         if (
           checkpointChunksFrequency !== undefined &&
           appendedChunkCount % checkpointChunksFrequency === 0 &&
-          typeof table.databaseName === "string"
+          table.databaseName !== undefined
         ) {
           try {
             await dbManager.checkpoint(table.databaseName);
@@ -382,7 +382,7 @@ export class SqlDuck {
       appender.flushSync();
       appender.closeSync();
 
-      if (autoCheckpoint && typeof table.databaseName === "string") {
+      if (autoCheckpoint && table.databaseName !== undefined) {
         try {
           await dbManager.checkpoint(table.databaseName);
         } catch (e) {

@@ -1,13 +1,12 @@
 import { defineConfig } from "oxlint";
 import core from "ultracite/oxlint/core";
+import antiSlop from "ultracite/oxlint/anti-slop";
 import { jsPluginSettings, selectJsPlugins } from "ultracite/oxlint/js-plugins";
 import vitest from "ultracite/oxlint/vitest";
 
 import { defaultIgnorePatterns } from "./default-ignore-patterns.ts";
 //import tanstack from "ultracite/oxlint/tanstack";
 //import tanstackJsPlugins from "ultracite/oxlint/tanstack/js-plugins";
-//import antiSlop from "ultracite/oxlint/anti-slop";
-// import { selectJsPlugins } from "ultracite/oxlint/js-plugins";
 
 export const oxlintDefaultConfig = defineConfig({
   extends: [
@@ -15,7 +14,7 @@ export const oxlintDefaultConfig = defineConfig({
     // vitest,
     //tanstack,
     //tanstackJsPlugins,
-    //antiSlop,
+    antiSlop,
     selectJsPlugins([]),
   ],
   options: {
@@ -54,7 +53,7 @@ export const oxlintDefaultConfig = defineConfig({
         "no-unnecessary-boolean-literal-compare": "off",
         "no-unnecessary-template-expression": "off",
         "no-deprecated": "off",
-        // 'anti-slop/require-safety-comment-for-type-assertion': 'off',
+        "anti-slop/require-safety-comment-for-type-assertion": "off",
         // 'anti-slop/no-unsafe-dictionary-type': 'off',
         "require-yields": "off",
         "no-non-null-assertion": "off",
@@ -103,6 +102,27 @@ export const oxlintDefaultConfig = defineConfig({
         "prefer-named-capture-group": "off",
         "unicorn/no-useless-undefined": "off",
         "unicorn/prefer-bigint-literals": "off",
+      },
+    },
+    {
+      // Test, bench and script code builds fixtures and mocks, so anti-slop's
+      // boundary-parsing rules add noise rather than safety there.
+      files: [
+        "*.test.ts",
+        "*.spec.ts",
+        "**/tests/**",
+        "**/bench/**",
+        "**/scripts/**",
+      ],
+      rules: {
+        "anti-slop/require-safety-comment-for-type-assertion": "off",
+        "anti-slop/no-chained-type-assertions": "off",
+        "anti-slop/no-runtime-typeof": "off",
+        "anti-slop/no-unsafe-dictionary-type": "off",
+        "anti-slop/no-unknown-parameters": "off",
+        "anti-slop/no-unknown-returns": "off",
+        "anti-slop/no-known-value-widening": "off",
+        "anti-slop/no-module-mocking": "off",
       },
     },
   ],

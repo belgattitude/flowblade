@@ -30,7 +30,7 @@ type RowsToConvertedColumnsChunksParams<TRow extends Record<string, unknown>> =
 /**
  * Fill row `r` of `cols` with the (converted) values of `row`.
  */
-type FillRowFn = (cols: unknown[][], row: unknown, r: number) => void;
+type FillRowFn = <TRow>(cols: unknown[][], row: TRow, r: number) => void;
 
 /**
  * Compile a FillRowFn unrolled over the columns, ie for columns ['id', 'name']

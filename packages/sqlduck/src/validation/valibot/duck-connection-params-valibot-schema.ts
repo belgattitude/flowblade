@@ -40,7 +40,7 @@ export const duckConnectionParamsValibotSchema = v.variant("type", [
       v.string(),
       v.check((path) => {
         const filename = path.replace("\\", "/").split("/").at(-1);
-        return typeof filename === "string" && isSafeFilename(filename);
+        return filename !== undefined && isSafeFilename(filename);
       }, "Invalid database filename - it must be a safe filename (no path traversal, no absolute paths, no reserved names, etc.)"),
       v.check((path) => {
         const pathname =

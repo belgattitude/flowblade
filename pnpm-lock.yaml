@@ -1469,6 +1469,9 @@ importers:
       cross-env:
         specifier: 10.1.0
         version: 10.1.0
+      eslint-plugin-security:
+        specifier: 4.2.0
+        version: 4.2.0
       oxfmt:
         specifier: 0.71.0
         version: 0.71.0
@@ -8292,6 +8295,10 @@ packages:
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0 || ^10.0.0
 
+  eslint-plugin-security@4.2.0:
+    resolution: {integrity: sha512-LL5jbxRzlNv0vkSyBtbO7qAPofqd3xlseAFTDevyDTMmScjBrLv2/VkQ7ZFQxBaFYsa3dhpE7NcV+JkwJ9l6RQ==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
   eslint-plugin-sonarjs@4.2.2:
     resolution: {integrity: sha512-usNF9GfP89ibwhfxpZaCMW40sC7UEOusDgDCk7lyqAhh4AYdbBaAgLVL5Y/QS0jSed8eJ2ACGH6zzE8ezd/yZQ==}
     peerDependencies:
@@ -11118,6 +11125,10 @@ packages:
     resolution: {integrity: sha512-sZuz1dYW/ZsfG17WSAG7eS85r5a0dDsvg+7BiiYR5o6lKCAtUrEwdmRmaGF6rwVj3LcmAeYkOWKEPlbPzN3Y3A==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
 
+  regexp-tree@0.1.27:
+    resolution: {integrity: sha512-iETxpjK6YoRWJG5o6hXLwvjYAoW+FEZn9os0PD/b6AP6xQwsa/Y7lCVgIixBbUPMfhu+i2LtdeAqVTgGlQarfA==}
+    hasBin: true
+
   regexp.escape@2.0.1:
     resolution: {integrity: sha512-JItRb4rmyTzmERBkAf6J87LjDPy/RscIwmaJQ3gsFlAzrmZbZU8LwBw5IydFZXW9hqpgbPlGbMhtpqtuAhMgtg==}
     engines: {node: '>= 0.4'}
@@ -11355,6 +11366,9 @@ packages:
   safe-regex2@5.1.1:
     resolution: {integrity: sha512-mOSBvHGDZMuIEZMdOz/aCEYDCv0E7nfcNsIhUF+/P+xC7Hyf3FkvymqgPbg9D1EdSGu+uKbJgy09K/RKKc7kJA==}
     hasBin: true
+
+  safe-regex@2.1.1:
+    resolution: {integrity: sha512-rx+x8AMzKb5Q5lQ95Zoi6ZbJqwCLkqi3XuJXp5P3rT8OEc6sZCJG5AE5dU3lsgRr/F4Bs31jSlVN+j5KrsGu9A==}
 
   safe-stable-stringify@2.5.0:
     resolution: {integrity: sha512-b3rppTKm9T+PsVCBEOUR46GWI7fdOs00VKZ1+9c1EWDaDMvjQc6tUwuFyIprgGgTcWoVHSKrU8H31ZHA2e0RHA==}
@@ -18673,6 +18687,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  eslint-plugin-security@4.2.0:
+    dependencies:
+      safe-regex: 2.1.1
+
   eslint-plugin-sonarjs@4.2.2:
     dependencies:
       '@eslint-community/regexpp': 4.12.2
@@ -22174,6 +22192,8 @@ snapshots:
       '@eslint-community/regexpp': 4.12.2
       refa: 0.12.1
 
+  regexp-tree@0.1.27: {}
+
   regexp.escape@2.0.1:
     dependencies:
       call-bind: 1.0.9
@@ -22527,6 +22547,10 @@ snapshots:
   safe-regex2@5.1.1:
     dependencies:
       ret: 0.5.0
+
+  safe-regex@2.1.1:
+    dependencies:
+      regexp-tree: 0.1.27
 
   safe-stable-stringify@2.5.0: {}
 

@@ -39,7 +39,7 @@ export const duckConnectionParamsZodSchema = z.discriminatedUnion("type", [
       .refine(
         (path) => {
           const filename = path.replace("\\", "/").split("/").at(-1);
-          return typeof filename === "string" && isSafeFilename(filename);
+          return filename !== undefined && isSafeFilename(filename);
         },
         {
           message:

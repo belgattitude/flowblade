@@ -6,6 +6,8 @@ import type { Logger } from "@logtape/logtape";
 
 import { sqlduckDefaultLogtapeLogger } from "../logger/sqlduck-default-logtape-logger.ts";
 
+type ParsedPath = { directory: string; filename: string };
+
 export class FileSystemUtils {
   #logger: Logger;
   constructor(params?: { logger?: Logger }) {
@@ -94,7 +96,7 @@ export class FileSystemUtils {
     }
   };
 
-  parsePath = (path: string): { directory: string; filename: string } => {
+  parsePath = (path: string): ParsedPath => {
     const dir = dirname(path);
     if (dir.trim() === "") {
       throw new Error(`Invalid path, missing directory '${path}'`);

@@ -85,7 +85,7 @@ describe("getTableCreateFromZod", () => {
         schema: testFullSupportedColumnsZodSchema,
       });
       expectTypeOf(columnTypes).toEqualTypeOf<
-        Map<keyof typeof testFullSupportedColumnsZodSchema.shape, DuckDBType>
+        Map<keyof z.infer<typeof testFullSupportedColumnsZodSchema>, DuckDBType>
       >();
 
       expect([...columnTypes.keys()]).toStrictEqual(
@@ -98,7 +98,7 @@ describe("getTableCreateFromZod", () => {
 
       expect(columnTypes).toStrictEqual(
         new Map<
-          keyof typeof testFullSupportedColumnsZodSchema.shape,
+          keyof z.infer<typeof testFullSupportedColumnsZodSchema>,
           DuckDBType
         >([
           ["id", BIGINT],

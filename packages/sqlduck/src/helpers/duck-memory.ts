@@ -82,10 +82,7 @@ export class DuckMemory {
 
   getSummary = async (): Promise<DuckMemorySummary> => {
     const rows = await this.getAll();
-    const summaryInBytes: {
-      total: bigint;
-      totalTemp: bigint;
-    } = {
+    const summaryInBytes = {
       total: 0n,
       totalTemp: 0n,
     };

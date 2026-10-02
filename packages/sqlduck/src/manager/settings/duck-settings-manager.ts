@@ -48,7 +48,7 @@ export class DuckSettingsManager {
     }
     const currentSettings = {} as Record<T, string>;
     for (const [key, value] of Object.entries(firstRow)) {
-      const v = typeof value === "string" ? value : String(value);
+      const v = String(value);
       currentSettings[key as T] = v;
     }
     return currentSettings;
