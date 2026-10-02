@@ -9,9 +9,9 @@ type DefaultRow = Awaited<
 >[number];
 
 export class ManagerQueryExecutor {
-  #conn: DuckDBConnection;
-  #logger: Logger;
-  #className: string;
+  readonly #conn: DuckDBConnection;
+  readonly #logger: Logger;
+  readonly #className: string;
 
   constructor(
     conn: DuckDBConnection,

@@ -105,6 +105,8 @@ export const compileFillRow = (
  * }
  * // [[1n, 2n], ['A', 'B']]
  * ```
+ *
+ * @yields {unknown[][]} Chunks of columns aligned with `columns`, each column holding up to `chunkSize` values.
  */
 export async function* rowsToConvertedColumnsChunks<
   TRow extends Record<string, unknown>,

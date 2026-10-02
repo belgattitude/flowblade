@@ -122,10 +122,10 @@ export const TediousConnUtils = {
       requestTimeout?: number;
       connectTimeout?: number;
     } = baseOptions;
-    if (requestTimeout) {
+    if (requestTimeout !== undefined && requestTimeout !== 0) {
       options.requestTimeout = requestTimeout;
     }
-    if (connectTimeout) {
+    if (connectTimeout !== undefined && connectTimeout !== 0) {
       options.connectTimeout = connectTimeout;
     }
     return {

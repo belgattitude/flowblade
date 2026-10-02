@@ -32,7 +32,7 @@ export class ProductRepo<
   T extends KyselyDatasource<DBKyselySqlServer> =
     KyselyDatasource<DBKyselySqlServer>,
 > {
-  private ds: T;
+  private readonly ds: T;
   public static readonly validators = validators;
 
   constructor(params: { ds: T }) {

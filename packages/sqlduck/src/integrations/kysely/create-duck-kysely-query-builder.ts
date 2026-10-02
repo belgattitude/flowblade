@@ -34,8 +34,9 @@ export const createDuckKysekyQueryBuilder = <TDatabase>(params?: {
       createQueryCompiler: () => new PostgresQueryCompiler(),
     },
   });
-  if (params?.schema) {
-    return kyselyCache.withSchema(params.schema);
+  const schema = params?.schema;
+  if (schema !== undefined && schema !== "") {
+    return kyselyCache.withSchema(schema);
   }
   return kyselyCache;
 };

@@ -5,9 +5,9 @@ import { sqlduckDefaultLogtapeLogger } from "../../logger/sqlduck-default-logtap
 import { ManagerQueryExecutor } from "../core/manager-query-executor.ts";
 
 export class DuckExtensionsManager {
-  #conn: DuckDBConnection;
-  #logger: Logger;
-  #executor: ManagerQueryExecutor;
+  readonly #conn: DuckDBConnection;
+  readonly #logger: Logger;
+  readonly #executor: ManagerQueryExecutor;
   readonly className = "DuckExtensionsManager";
 
   constructor(conn: DuckDBConnection, params?: { logger?: Logger }) {
@@ -31,7 +31,7 @@ export class DuckExtensionsManager {
     const { force } = params ?? {};
     await this.#executor.getRowObjectsJS(
       "install",
-      `${force ? "FORCE " : ""} INSTALL ${name}`
+      `${force === true ? "FORCE " : ""} INSTALL ${name}`
     );
     return true;
   };

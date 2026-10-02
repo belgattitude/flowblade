@@ -9,7 +9,7 @@ import { sqlduckDefaultLogtapeLogger } from "../logger/sqlduck-default-logtape-l
 type ParsedPath = { directory: string; filename: string };
 
 export class FileSystemUtils {
-  #logger: Logger;
+  readonly #logger: Logger;
   constructor(params?: { logger?: Logger }) {
     this.#logger =
       params?.logger ??
@@ -57,7 +57,8 @@ export class FileSystemUtils {
         this.createDirectory(path);
       } catch (e) {
         throw new Error(
-          `Failed to create ${label} '${path}' - ${(e as Error)?.message ?? ""}`
+          `Failed to create ${label} '${path}' - ${(e as Error)?.message ?? ""}`,
+          { cause: e }
         );
       }
     }

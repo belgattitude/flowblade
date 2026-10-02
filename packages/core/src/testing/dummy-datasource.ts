@@ -23,7 +23,7 @@ type DummyDatasourceParams = {
  * @internal
  */
 export class DummyDatasource implements DatasourceInterface {
-  private db: VoluntaryAny;
+  private readonly db: VoluntaryAny;
 
   constructor(params: DummyDatasourceParams) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

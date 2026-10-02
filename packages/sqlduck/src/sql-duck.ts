@@ -147,8 +147,8 @@ export type ToTableResult = {
 };
 
 export class SqlDuck {
-  #conn: DuckDBConnection;
-  #logger: Logger;
+  readonly #conn: DuckDBConnection;
+  readonly #logger: Logger;
 
   constructor(params: SqlDuckParams) {
     this.#conn = params.conn;
@@ -293,7 +293,7 @@ export class SqlDuck {
       table.databaseName
     );
 
-    const chunkTypes = Array.from(columnTypes.values());
+    const chunkTypes = [...columnTypes.values()];
 
     const columnTypeIds = {} as Record<keyof z.output<TSchema>, DuckDBType>;
     const columnKeys = [] as (keyof z.output<TSchema>)[];
@@ -321,7 +321,7 @@ export class SqlDuck {
     let appendedChunkCount = 0;
 
     const tableFullName = table.getFullName();
-    const tableName = table.tableName;
+    const { tableName } = table;
     try {
       const isAsyncCb =
         onChunkAppended !== undefined &&
@@ -412,7 +412,7 @@ export class SqlDuck {
       };
     } catch (e) {
       appender.closeSync();
-      if (signal?.aborted && e === signal.reason) {
+      if (signal?.aborted === true && e === signal.reason) {
         this.#logger.warning(
           `Aborted appending data into table '${tableFullName}' after ${totalRows} rows`,
           {

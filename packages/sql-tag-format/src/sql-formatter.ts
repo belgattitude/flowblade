@@ -20,8 +20,8 @@ type FormatParams = {
 };
 
 export class SqlFormatter {
-  private dialect: SqlFormatterDialect;
-  private formatterOptions?: SqlFormatterOptions;
+  private readonly dialect: SqlFormatterDialect;
+  private readonly formatterOptions?: SqlFormatterOptions;
 
   /**
    * SqlFormatter constructor

@@ -5,9 +5,9 @@ import { sqlduckDefaultLogtapeLogger } from "../../logger/sqlduck-default-logtap
 import { ManagerQueryExecutor } from "../core/manager-query-executor.ts";
 
 export class DuckSettingsManager {
-  #conn: DuckDBConnection;
-  #logger: Logger;
-  #executor: ManagerQueryExecutor;
+  readonly #conn: DuckDBConnection;
+  readonly #logger: Logger;
+  readonly #executor: ManagerQueryExecutor;
   readonly className = "DuckSettingsManager";
 
   constructor(conn: DuckDBConnection, params?: { logger?: Logger }) {
@@ -38,7 +38,7 @@ export class DuckSettingsManager {
       fnName,
       query
     );
-    const firstRow = rows[0];
+    const [firstRow] = rows;
     if (firstRow === undefined) {
       const msg = `Failed to get current settings - no rows returned`;
       this.#logger.error(msg, {

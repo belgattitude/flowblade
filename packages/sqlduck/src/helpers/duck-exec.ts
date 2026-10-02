@@ -11,7 +11,7 @@ type GenericJsonRowObject = Awaited<
 >[number];
 
 export class DuckExec {
-  #conn: DuckDBConnection;
+  readonly #conn: DuckDBConnection;
   constructor(duckConn: DuckDBConnection) {
     this.#conn = duckConn;
   }
@@ -48,7 +48,7 @@ export class DuckExec {
     return rows[0] as T;
   };
 
-  #ensureOneRow = (
+  readonly #ensureOneRow = (
     rows: GenericJSRowObject[] | GenericJsonRowObject[]
   ): void => {
     if (rows.length > 1) {

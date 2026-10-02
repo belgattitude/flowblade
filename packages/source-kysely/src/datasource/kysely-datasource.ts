@@ -37,8 +37,8 @@ type KyselyInferQueryOrRawQuery<T extends KyselyQueryOrRawQuery> =
       : never;
 
 export class KyselyDatasource<TDatabase> implements DatasourceInterface {
-  private db: Kysely<TDatabase>;
-  private logger: Logger;
+  private readonly db: Kysely<TDatabase>;
+  private readonly logger: Logger;
 
   /**
    * Return a new Kysely expression builder.
@@ -178,7 +178,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
           .map((e) => (e instanceof Error ? e.message : String(e)))
           .join("; ");
       } else if (err instanceof Error) {
-        message = err.message;
+        ({ message } = err);
       }
 
       this.logger.error(
@@ -266,6 +266,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    * }
    * ```
    *
+   * @yields {TData[0]} Each row of the query result as it is streamed.
    * @throws Error
    */
   async *stream<
@@ -308,7 +309,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
           .map((e) => (e instanceof Error ? e.message : String(e)))
           .join("; ");
       } else if (err instanceof Error) {
-        message = err.message;
+        ({ message } = err);
       }
 
       this.logger.error(
@@ -330,7 +331,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     }
   }
 
-  private getLogFromSpan = (
+  private readonly getLogFromSpan = (
     queryName: string,
     span: QMetaSqlSpan,
     method: "stream" | "query"

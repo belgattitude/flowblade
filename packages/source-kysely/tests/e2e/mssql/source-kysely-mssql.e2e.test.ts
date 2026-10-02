@@ -331,7 +331,9 @@ describe("MSSQL e2e tests", () => {
     beforeEach(async () => {
       await configure({
         sinks: {
-          buffer: logBuffer.push.bind(logBuffer),
+          buffer: (record) => {
+            logBuffer.push(record);
+          },
           console: getConsoleSink({
             nonBlocking: {
               bufferSize: 1000, // Flush after 1000 records

@@ -33,6 +33,7 @@ type RowsToColumnsChunksParams<
  * @param params.transformers - Optional mappers for specific columns to transform values before chunking.
  * @param params.signal - Optional AbortSignal to stop the iteration, throws `signal.reason`.
  *
+ * @yields {Record<keyof TRow, unknown[]>} Chunks of column-oriented data, each column holding up to `chunkSize` values.
  * @returns An async iterator yielding chunks of column-oriented data.
  *
  * @example
@@ -87,7 +88,7 @@ export async function* rowsToColumnsChunks<
 
   // Pull the first row to determine column order
   const first = await rows.next();
-  if (first.done) return; // empty input → yield nothing
+  if (first.done === true) return; // empty input → yield nothing
 
   const keys = Object.keys(first.value) as (keyof TRow)[];
   const numKeys = keys.length;

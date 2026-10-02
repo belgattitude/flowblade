@@ -32,7 +32,7 @@ export const duckDsnValibotSchema = v.pipe(
       },
     };
     return (
-      path ? { ...base, path } : base
+      path !== undefined && path !== "" ? { ...base, path } : base
     ) as DuckConnectionParamsValibotSchema;
   }),
   duckConnectionParamsValibotSchema

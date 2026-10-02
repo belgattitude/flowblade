@@ -37,9 +37,9 @@ export class QResult<
    */
   declare $inferError: TError;
 
-  #meta: QMeta;
+  readonly #meta: QMeta;
 
-  #innerResult:
+  readonly #innerResult:
     | Result.Ok<{
         rows: TData;
         meta: QMeta;
@@ -229,7 +229,7 @@ export class QResult<
       } catch (e) {
         let message: string;
         if (e instanceof Error) {
-          message = e.message;
+          ({ message } = e);
         } else if (typeof e === "string") {
           message = e;
         } else {

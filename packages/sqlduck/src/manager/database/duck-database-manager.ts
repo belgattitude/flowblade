@@ -41,10 +41,10 @@ type AttachOptions =
     };
 
 export class DuckDatabaseManager {
-  #conn: DuckDBConnection;
-  #logger: Logger;
+  readonly #conn: DuckDBConnection;
+  readonly #logger: Logger;
   #fs: FileSystemUtils | undefined;
-  #executor: ManagerQueryExecutor;
+  readonly #executor: ManagerQueryExecutor;
   readonly className = "DuckDatabaseManager";
 
   constructor(conn: DuckDBConnection, params?: { logger?: Logger }) {
@@ -402,7 +402,7 @@ export class DuckDatabaseManager {
     };
   };
 
-  #getFs = (): FileSystemUtils => {
+  readonly #getFs = (): FileSystemUtils => {
     this.#fs ??= new FileSystemUtils({
       logger: this.#logger,
     });

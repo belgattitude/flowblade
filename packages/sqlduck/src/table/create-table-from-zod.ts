@@ -48,7 +48,7 @@ export const createTableFromZod = async <TSchema extends TableSchemaZod>(
     throw new Error(
       `Failed to create table '${table.getFullName()}': ${(e as Error).message}`,
       {
-        cause: e as Error,
+        cause: e,
       }
     );
   }

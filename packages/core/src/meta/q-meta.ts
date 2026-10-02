@@ -30,13 +30,13 @@ export type QMetaJsonifiable = {
 };
 
 export class QMeta {
-  #name: string | undefined;
+  readonly #name: string | undefined;
 
   get name(): string | undefined {
     return this.#name;
   }
 
-  private spans: QMetaSpan[] = [];
+  private readonly spans: QMetaSpan[] = [];
 
   /**
    * Construct a new span
