@@ -236,7 +236,8 @@ describe(DuckValueConverter, () => {
       "should throw on invalid timestamp %s",
       (value) => {
         expect(() => converter.toTimestampMs(value)).toThrow(
-          "cannot be converted to a BigInt"
+          // message depends on the engine (V8: "cannot be converted to a BigInt", JSC/Bun: "Not an integer")
+          /cannot be converted to a BigInt|Not an integer/
         );
       }
     );
