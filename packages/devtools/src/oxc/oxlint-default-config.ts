@@ -17,6 +17,7 @@ export const oxlintDefaultConfig = defineConfig({
     antiSlop,
     selectJsPlugins([]),
   ],
+  jsPlugins: ["eslint-plugin-security"],
   options: {
     typeAware: true,
     typeCheck: false,
@@ -27,6 +28,14 @@ export const oxlintDefaultConfig = defineConfig({
     {
       files: ["*.ts", "*.js", "*.mjs", "*.cjs"],
       rules: {
+        "security/detect-bidi-characters": "error",
+        "security/detect-invisible-characters": "error",
+        "security/detect-buffer-noassert": "error",
+        "security/detect-eval-with-expression": "error",
+        "security/detect-new-buffer": "error",
+        "security/detect-non-literal-require": "error",
+        "security/detect-child-process": "error",
+
         // this breaks: unicorn(text-encoding-identifier-case): Prefer `utf-8` over `utf8`.
         "unicorn/text-encoding-identifier-case": "off",
         // this breaks: eslint(prefer-named-capture-group)
