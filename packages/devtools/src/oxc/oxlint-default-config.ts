@@ -1,6 +1,6 @@
 import { defineConfig } from "oxlint";
-import core from "ultracite/oxlint/core";
 import antiSlop from "ultracite/oxlint/anti-slop";
+import core from "ultracite/oxlint/core";
 import { jsPluginSettings, selectJsPlugins } from "ultracite/oxlint/js-plugins";
 import vitest from "ultracite/oxlint/vitest";
 
@@ -102,6 +102,12 @@ export const oxlintDefaultConfig = defineConfig({
         "prefer-named-capture-group": "off",
         "unicorn/no-useless-undefined": "off",
         "unicorn/prefer-bigint-literals": "off",
+      },
+    },
+    {
+      files: ["*.tsx", "*.jsx"],
+      rules: {
+        "anti-slop/require-safety-comment-for-type-assertion": "off",
       },
     },
     {

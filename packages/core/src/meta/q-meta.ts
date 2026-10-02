@@ -146,9 +146,10 @@ export class QMeta {
    */
   toJSON = (): QMetaJsonifiable => {
     const { name } = this;
-    return {
-      spans: this.spans,
-      ...(name === undefined ? {} : { name: name }),
-    };
+    const json: QMetaJsonifiable = { spans: this.spans };
+    if (name !== undefined) {
+      json.name = name;
+    }
+    return json;
   };
 }

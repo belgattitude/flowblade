@@ -1,7 +1,9 @@
 import { isParsableSafeInt } from "@httpx/assert";
 
-export const parseBigIntToSafeInt = (v: unknown): number | undefined => {
-  if (v === undefined || typeof v !== "bigint") {
+export const parseBigIntToSafeInt = (
+  v: bigint | undefined
+): number | undefined => {
+  if (v === undefined) {
     return undefined;
   }
   const strV = v.toString(10);

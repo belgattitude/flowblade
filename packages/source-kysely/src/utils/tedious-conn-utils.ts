@@ -110,6 +110,24 @@ export const TediousConnUtils = {
       default:
         throw new Error(`Unsupported authentication type: ${authentication}`);
     }
+    const baseOptions = {
+      database: database,
+      packetSize: packetSize,
+      port: parsed.port,
+      useUTC: useUtc,
+      encrypt: encrypt,
+      trustServerCertificate,
+    };
+    const options: typeof baseOptions & {
+      requestTimeout?: number;
+      connectTimeout?: number;
+    } = baseOptions;
+    if (requestTimeout) {
+      options.requestTimeout = requestTimeout;
+    }
+    if (connectTimeout) {
+      options.connectTimeout = connectTimeout;
+    }
     return {
       server: parsed.host,
       authentication: {
@@ -117,16 +135,7 @@ export const TediousConnUtils = {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         options: authConnOptions,
       },
-      options: {
-        database: database,
-        packetSize: packetSize,
-        port: parsed.port,
-        useUTC: useUtc,
-        encrypt: encrypt,
-        trustServerCertificate,
-        ...(requestTimeout ? { requestTimeout } : {}),
-        ...(connectTimeout ? { connectTimeout } : {}),
-      },
+      options,
     };
   },
 };

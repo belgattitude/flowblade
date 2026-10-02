@@ -221,12 +221,15 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     data: TData;
     meta: QMeta;
   }> => {
-    const { data, meta, error } = await this.query(query, options);
+    const { data, meta, error } = await this.query<TQuery, TData>(
+      query,
+      options
+    );
     if (error !== undefined) {
       throw new Error(`Query failed: ${error.message}`);
     }
     return {
-      data: data! as unknown as TData,
+      data: data!,
       meta,
     };
   };
@@ -293,9 +296,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     );
 
     try {
-      yield* query.stream(chunkSize) as unknown as AsyncIterableIterator<
-        TData[0]
-      >;
+      yield* query.stream(chunkSize) as AsyncIterableIterator<TData[0]>;
     } catch (err) {
       span.timeMs = Date.now() - start;
 

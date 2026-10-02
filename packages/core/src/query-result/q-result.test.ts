@@ -220,6 +220,30 @@ describe("QResult", () => {
       expect(span?.timeMs).toBeGreaterThanOrEqual(10);
     });
 
+    it("should return an error when the transform function throws a string", () => {
+      const mappedResult = createSuccessResult().map((_data) => {
+        // oxlint-disable-next-line no-throw-literal, typescript/only-throw-error
+        throw "Hello string";
+      });
+      expect(mappedResult.isError()).toBe(true);
+      expect(mappedResult.error).toStrictEqual({
+        message: "Hello string",
+      });
+    });
+
+    // Some libraries (ie: tedious) might throw an array of errors
+    it("should return an error with a fallback message when the transform function throws an array", () => {
+      const mappedResult = createSuccessResult().map((_data) => {
+        // oxlint-disable-next-line no-throw-literal, typescript/only-throw-error
+        throw [new Error("first"), new Error("second")];
+      });
+      expect(mappedResult.isError()).toBe(true);
+      expect(mappedResult.error).toStrictEqual({
+        message: "mapper: unknown error",
+      });
+      expect(mappedResult.meta.getLatestSpan()?.type).toStrictEqual("map");
+    });
+
     it("should be chainable", () => {
       const successResult = createSuccessResult();
       const mappedResult = successResult

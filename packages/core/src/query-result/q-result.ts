@@ -317,10 +317,15 @@ export class QResult<
    * ```
    */
   toJsonifiable = (): QResultJsonifiable<TData, TError> => {
-    return {
-      ...(this.data === undefined ? {} : { data: this.data }),
-      ...(this.error === undefined ? {} : { error: this.error }),
+    const json: QResultJsonifiable<TData, TError> = {
       meta: this.meta.toJSON(),
     };
+    if (this.data !== undefined) {
+      json.data = this.data;
+    }
+    if (this.error !== undefined) {
+      json.error = this.error;
+    }
+    return json;
   };
 }
