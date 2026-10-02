@@ -1,5 +1,14 @@
 # @flowblade/source-kysely
 
+## 1.9.3
+
+### Patch Changes
+
+- [#1411](https://github.com/belgattitude/flowblade/pull/1411) [`489125f`](https://github.com/belgattitude/flowblade/commit/489125fd0bf82e9869082f281675d43057327a26) Thanks [@belgattitude](https://github.com/belgattitude)! - Relint code for best practices
+- Updated dependencies [[`489125f`](https://github.com/belgattitude/flowblade/commit/489125fd0bf82e9869082f281675d43057327a26)]:
+  - @flowblade/core@0.4.3
+  - @flowblade/sql-tag@0.4.1
+
 ## 1.9.2
 
 ### Patch Changes
