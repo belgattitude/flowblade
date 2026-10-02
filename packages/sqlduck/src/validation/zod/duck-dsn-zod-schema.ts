@@ -20,16 +20,19 @@ export const duckDsnZodSchema = z
       return z.NEVER;
     }
 
-    const parsed = result.value as unknown as ParsedDsn & {
-      params?: DuckAllConnectionOptions & { path?: string };
+    const parsed = result.value;
+    const { path, ...options } = (parsed.params ??
+      {}) as DuckAllConnectionOptions & {
+      path?: string;
     };
-    const { path, ...options } = parsed.params ?? {};
 
-    return {
+    const base = {
       type: parsed.host,
       alias: parsed.db,
-      ...(path === undefined ? {} : { path }),
       options: { ...options },
-    } as DuckConnectionParams;
+    };
+    return (
+      path === undefined ? base : { ...base, path }
+    ) as DuckConnectionParams;
   })
   .pipe(duckConnectionParamsZodSchema);

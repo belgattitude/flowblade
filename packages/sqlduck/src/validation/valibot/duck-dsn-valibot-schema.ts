@@ -11,30 +11,29 @@ export const duckDsnValibotSchema = v.pipe(
   v.check(
     (dsn) => parseDsn(dsn).success,
     (input) => {
-      return (
-        (parseDsn(input.input) as unknown as { message?: string })?.message ??
-        "Invalid DSN"
-      );
+      const result = parseDsn(input.input);
+      return result.success ? "Invalid DSN" : result.message;
     }
   ),
   v.transform((dsn) => {
     const parsedDsn = parseDsnOrThrow(dsn);
     // result.success is guaranteed by v.check above
-    const parsed = parsedDsn as unknown as ParsedDsn & {
-      params?: DuckAllConnectionOptions & {
-        path?: string;
-      };
+    const parsed = parsedDsn;
+    const { path, ...options } = (parsed.params ??
+      {}) as DuckAllConnectionOptions & {
+      path?: string;
     };
-    const { path, ...options } = parsed.params ?? {};
 
-    return {
+    const base = {
       type: parsed.host,
       alias: parsed.db,
-      ...(path ? { path: path } : {}),
       options: {
         ...options,
       },
-    } as DuckConnectionParamsValibotSchema;
+    };
+    return (
+      path !== undefined && path !== "" ? { ...base, path } : base
+    ) as DuckConnectionParamsValibotSchema;
   }),
   duckConnectionParamsValibotSchema
 );

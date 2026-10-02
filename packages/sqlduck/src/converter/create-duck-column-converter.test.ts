@@ -9,6 +9,7 @@ import {
   UUID,
   VARCHAR,
 } from "@duckdb/node-api";
+import { describe, expect, it } from "vitest";
 
 import { createDuckColumnConverters } from "./create-duck-column-converters.ts";
 

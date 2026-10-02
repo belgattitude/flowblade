@@ -110,7 +110,7 @@ if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === "true") {
       project: process.env.SENTRY_PROJECT,
 
       // Only print logs for uploading source maps in CI
-      silent: !process.env.CI,
+      silent: (process.env.CI ?? "") === "",
 
       // For all available options, see:
       // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/

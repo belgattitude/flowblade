@@ -9,6 +9,6 @@ export type JsonifiedDataSourceResponse<T extends QResult<unknown[], QError>> =
 
 export const DatasourceHelpers = {
   toJsonified: <T extends QResult<unknown[], QError>>(queryResponse: T) => {
-    return queryResponse as unknown as JsonifiedDataSourceResponse<T>;
+    return queryResponse as JsonifiedDataSourceResponse<T>;
   },
 };

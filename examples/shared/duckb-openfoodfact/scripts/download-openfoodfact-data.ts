@@ -8,8 +8,8 @@ import yoctoSpinner from "yocto-spinner";
 import { scriptsConfig } from "./config/scripts.config";
 
 const remoteParquet = scriptsConfig.openfoodfact.foodData.remote;
-const localParquet = scriptsConfig.openfoodfact.foodData.local;
-const downloadPath = scriptsConfig.openfoodfact.downloadPath;
+const { local: localParquet } = scriptsConfig.openfoodfact.foodData;
+const { downloadPath } = scriptsConfig.openfoodfact;
 
 console.log(`Will download openfoodfact data:`);
 console.log(`- remoteParquetUrl: ${remoteParquet}`);

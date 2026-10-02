@@ -6,7 +6,9 @@ import { flowbladeLogtapeSqlduckConfig } from "../../src/index.ts";
 export const configureTestLogger = async (logBuffer: LogRecord[]) => {
   return await configure({
     sinks: {
-      buffer: logBuffer.push.bind(logBuffer),
+      buffer: (record) => {
+        logBuffer.push(record);
+      },
     },
     loggers: [
       {

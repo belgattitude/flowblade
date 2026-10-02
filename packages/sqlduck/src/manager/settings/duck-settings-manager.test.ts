@@ -1,5 +1,5 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
-import { afterEach, beforeEach, describe } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
 

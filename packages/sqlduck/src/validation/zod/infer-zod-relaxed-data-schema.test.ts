@@ -1,4 +1,4 @@
-import { expectTypeOf } from "vitest";
+import { expectTypeOf, describe, it } from "vitest";
 import * as z from "zod";
 
 import type { InferZodRelaxedDataSchema } from "./infer-zod-relaxed-data-schema.ts";

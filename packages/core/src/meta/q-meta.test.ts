@@ -1,8 +1,8 @@
-import { expectTypeOf } from "vitest";
+import { expectTypeOf, describe, expect, it } from "vitest";
 
 import { QMeta, type QMetaJsonifiable, type QMetaSqlSpan } from "./q-meta";
 
-describe("QMeta", () => {
+describe(QMeta, () => {
   const sqlSpan: QMetaSqlSpan = {
     type: "sql",
     sql: "SELECT * FROM users",
@@ -23,8 +23,9 @@ describe("QMeta", () => {
       const newMeta = meta.withSpan(newSqlSpan);
       expect(newMeta).not.toStrictEqual(meta);
       expect(newMeta).toBeInstanceOf(QMeta);
-      expect(newMeta.getSpans().length).toBe(meta.getSpans().length + 1);
+      expect(newMeta.getSpans()).toHaveLength(meta.getSpans().length + 1);
     });
+
     it("should create a deep copy of initial spans", () => {
       const newSqlSpan = structuredClone(sqlSpan);
       const meta = createMeta();
@@ -70,6 +71,7 @@ describe("QMeta", () => {
       name: "test-unit",
       spans: sqlSpan,
     });
+
     it("should return a json serializable content", () => {
       const jsonifiable = meta.toJSON();
       expect(jsonifiable).toStrictEqual({
@@ -77,10 +79,12 @@ describe("QMeta", () => {
         spans: [sqlSpan],
       });
     });
+
     it("should return a json serializable content type", () => {
       const jsonifiable = meta.toJSON();
       expectTypeOf(jsonifiable).toEqualTypeOf<QMetaJsonifiable>();
     });
+
     it("jsonifiable content should match a native JSON.stringify call", () => {
       const jsonifiable = meta.toJSON();
       const jsonified = JSON.stringify(meta);

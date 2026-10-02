@@ -147,8 +147,8 @@ export type ToTableResult = {
 };
 
 export class SqlDuck {
-  #conn: DuckDBConnection;
-  #logger: Logger;
+  readonly #conn: DuckDBConnection;
+  readonly #logger: Logger;
 
   constructor(params: SqlDuckParams) {
     this.#conn = params.conn;
@@ -219,7 +219,7 @@ export class SqlDuck {
       throw new Error("chunkSize must be a number between 1 and 2048");
     }
 
-    if (autoCheckpoint && typeof table.databaseName !== "string") {
+    if (autoCheckpoint && table.databaseName === undefined) {
       throw new Error(
         "autoCheckpoint requires table.databaseName to be provided."
       );
@@ -227,7 +227,7 @@ export class SqlDuck {
 
     if (
       checkpointChunksFrequency !== undefined &&
-      typeof table.databaseName !== "string"
+      table.databaseName === undefined
     ) {
       throw new Error(
         "checkpointChunksFrequency requires table.databaseName to be provided."
@@ -293,7 +293,7 @@ export class SqlDuck {
       table.databaseName
     );
 
-    const chunkTypes = Array.from(columnTypes.values());
+    const chunkTypes = [...columnTypes.values()];
 
     const columnTypeIds = {} as Record<keyof z.output<TSchema>, DuckDBType>;
     const columnKeys = [] as (keyof z.output<TSchema>)[];
@@ -321,7 +321,7 @@ export class SqlDuck {
     let appendedChunkCount = 0;
 
     const tableFullName = table.getFullName();
-    const tableName = table.tableName;
+    const { tableName } = table;
     try {
       const isAsyncCb =
         onChunkAppended !== undefined &&
@@ -364,7 +364,7 @@ export class SqlDuck {
         if (
           checkpointChunksFrequency !== undefined &&
           appendedChunkCount % checkpointChunksFrequency === 0 &&
-          typeof table.databaseName === "string"
+          table.databaseName !== undefined
         ) {
           try {
             await dbManager.checkpoint(table.databaseName);
@@ -382,7 +382,7 @@ export class SqlDuck {
       appender.flushSync();
       appender.closeSync();
 
-      if (autoCheckpoint && typeof table.databaseName === "string") {
+      if (autoCheckpoint && table.databaseName !== undefined) {
         try {
           await dbManager.checkpoint(table.databaseName);
         } catch (e) {
@@ -412,7 +412,7 @@ export class SqlDuck {
       };
     } catch (e) {
       appender.closeSync();
-      if (signal?.aborted && e === signal.reason) {
+      if (signal?.aborted === true && e === signal.reason) {
         this.#logger.warning(
           `Aborted appending data into table '${tableFullName}' after ${totalRows} rows`,
           {

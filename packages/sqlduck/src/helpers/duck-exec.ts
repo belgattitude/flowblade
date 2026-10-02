@@ -1,10 +1,17 @@
-import type { DuckDBConnection } from "@duckdb/node-api";
+import type {
+  DuckDBConnection,
+  DuckDBMaterializedResult,
+} from "@duckdb/node-api";
 
-type GenericJSRowObject = Record<string, unknown>;
-type GenericJsonRowObject = Record<string, unknown>;
+type GenericJSRowObject = Awaited<
+  ReturnType<DuckDBMaterializedResult["getRowObjectsJS"]>
+>[number];
+type GenericJsonRowObject = Awaited<
+  ReturnType<DuckDBMaterializedResult["getRowObjectsJson"]>
+>[number];
 
 export class DuckExec {
-  #conn: DuckDBConnection;
+  readonly #conn: DuckDBConnection;
   constructor(duckConn: DuckDBConnection) {
     this.#conn = duckConn;
   }
@@ -12,15 +19,15 @@ export class DuckExec {
     sql: string
   ): Promise<T> => {
     const res = await this.#conn.run(sql);
-    return res.getRowObjectsJS() as unknown as T;
+    return (await res.getRowObjectsJS()) as T;
   };
   getRowObjectJson = async <T extends GenericJSRowObject[]>(
     sql: string
   ): Promise<T> => {
     const res = await this.#conn.run(sql);
-    return res.getRowObjectsJson() as unknown as T;
+    return (await res.getRowObjectsJson()) as T;
   };
-  getOneRowObjectJS = async <T extends GenericJsonRowObject>(
+  getOneRowObjectJS = async <T extends GenericJSRowObject>(
     sql: string
   ): Promise<T | null> => {
     const rows = await this.getRowObjectJS(sql);
@@ -41,7 +48,7 @@ export class DuckExec {
     return rows[0] as T;
   };
 
-  #ensureOneRow = (
+  readonly #ensureOneRow = (
     rows: GenericJSRowObject[] | GenericJsonRowObject[]
   ): void => {
     if (rows.length > 1) {

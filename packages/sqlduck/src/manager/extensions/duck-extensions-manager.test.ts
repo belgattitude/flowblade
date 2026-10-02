@@ -1,5 +1,5 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
-import { afterEach, beforeEach, describe } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
 
@@ -53,7 +53,7 @@ describe("DuckExtensionsManagerTest", async () => {
       // const installed = await extManager.install('not_existsing_extension');
       await expect(
         extManager.install("not_existing_extension")
-      ).rejects.toThrow();
+      ).rejects.toThrow('Failed to run "DuckExtensionsManager.install"');
     });
   });
 });

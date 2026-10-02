@@ -5,6 +5,13 @@ export default defineConfig({
   extends: [oxlintDefaultConfig],
   plugins: [],
   rules: {
+    // example/doc code is illustrative, boundary-parsing rules add noise here
+    "anti-slop/no-runtime-typeof": "off",
+    "anti-slop/no-conditional-empty-object-spread": "off",
+    "anti-slop/no-chained-type-assertions": "off",
+    "anti-slop/no-unsafe-dictionary-type": "off",
+    "anti-slop/no-unknown-parameters": "off",
+    "anti-slop/no-known-value-widening": "off",
     "unicorn/filename-case": "off",
     "promise/prefer-await-to-then": "off",
     "typescript/no-unsafe-member-access": "off",

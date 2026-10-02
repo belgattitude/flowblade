@@ -30,7 +30,7 @@ type RowsToConvertedColumnsChunksParams<TRow extends Record<string, unknown>> =
 /**
  * Fill row `r` of `cols` with the (converted) values of `row`.
  */
-type FillRowFn = (cols: unknown[][], row: unknown, r: number) => void;
+type FillRowFn = <TRow>(cols: unknown[][], row: TRow, r: number) => void;
 
 /**
  * Compile a FillRowFn unrolled over the columns, ie for columns ['id', 'name']
@@ -105,6 +105,8 @@ export const compileFillRow = (
  * }
  * // [[1n, 2n], ['A', 'B']]
  * ```
+ *
+ * @yields {unknown[][]} Chunks of columns aligned with `columns`, each column holding up to `chunkSize` values.
  */
 export async function* rowsToConvertedColumnsChunks<
   TRow extends Record<string, unknown>,

@@ -1,5 +1,5 @@
 import { PGlite } from "@electric-sql/pglite";
-import { afterAll, beforeAll } from "vitest";
+import { afterAll, beforeAll, expect, describe, it } from "vitest";
 
 import { sql } from "../src";
 
@@ -19,6 +19,7 @@ describe("sql-tag pglite e2e", () => {
   beforeAll(async () => {
     await db.exec(getDDLCreateTableProduct().sql);
   });
+
   afterAll(async () => {
     await db.exec("DROP TABLE IF EXISTS product");
   });
@@ -44,6 +45,6 @@ describe("sql-tag pglite e2e", () => {
     `;
     const { text, values } = query;
     const result = await db.query(text, values, {});
-    expect(result.rows.length).toBe(1);
+    expect(result.rows).toHaveLength(1);
   });
 });

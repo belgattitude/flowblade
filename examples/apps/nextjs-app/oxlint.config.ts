@@ -10,7 +10,19 @@ export default defineConfig({
     ".kubb",
     "**/generated/**",
   ],
+  settings: {
+    tailwindcss: {
+      entryPoint: "src/globals.css",
+    },
+  },
   rules: {
+    // example/doc code is illustrative, boundary-parsing rules add noise here
+    "anti-slop/no-runtime-typeof": "off",
+    "anti-slop/no-conditional-empty-object-spread": "off",
+    "anti-slop/no-chained-type-assertions": "off",
+    "anti-slop/no-unsafe-dictionary-type": "off",
+    "anti-slop/no-unknown-parameters": "off",
+    "anti-slop/no-known-value-widening": "off",
     "typescript/no-unsafe-type-assertion": "off",
     "typescript/no-misused-spread": "off",
     "unicorn/filename-case": "off",

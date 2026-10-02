@@ -5,10 +5,15 @@ import { default as fastify } from "fastify";
 import { app } from "./app";
 
 const host = process.env.HOST ?? "localhost";
-const port = process.env.PORT ? Number(process.env.PORT) : 8080;
-const graceDelay = process.env.FASTIFY_CLOSE_GRACE_DELAY
-  ? Number(process.env.FASTIFY_CLOSE_GRACE_DELAY)
-  : 1000;
+const port =
+  process.env.PORT !== undefined && process.env.PORT !== ""
+    ? Number(process.env.PORT)
+    : 8080;
+const graceDelay =
+  process.env.FASTIFY_CLOSE_GRACE_DELAY !== undefined &&
+  process.env.FASTIFY_CLOSE_GRACE_DELAY !== ""
+    ? Number(process.env.FASTIFY_CLOSE_GRACE_DELAY)
+    : 1000;
 
 const server = fastify({
   logger: true,
@@ -18,7 +23,7 @@ server.register(app);
 
 closeWithGrace({ delay: graceDelay }, async ({ signal, err, manual }) => {
   server.log.info(
-    `Closing with grace delay "${signal}" ${manual ? "(manual)" : ""}`
+    `Closing with grace delay "${signal}" ${manual === true ? "(manual)" : ""}`
   );
   if (err) {
     server.log.error(err);

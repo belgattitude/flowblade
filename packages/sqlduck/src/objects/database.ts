@@ -3,7 +3,7 @@ type DatabaseProperties = {
 };
 
 export class Database {
-  #params: DatabaseProperties;
+  readonly #params: DatabaseProperties;
   get alias() {
     return this.#params.alias;
   }

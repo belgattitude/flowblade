@@ -40,25 +40,26 @@ const _initializeDuckDb = async (
 
   // Instantiate the async version of DuckDB-wasm
   const worker = new Worker(worker_url);
-  const logger = DEBUG ? new duckdb.ConsoleLogger() : new duckdb.VoidLogger();
+  const logger =
+    DEBUG === true ? new duckdb.ConsoleLogger() : new duckdb.VoidLogger();
   const db = new AsyncDuckDB(logger, worker);
   await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
   URL.revokeObjectURL(worker_url);
 
   if (config) {
-    if (config.path) {
+    if (config.path !== undefined && config.path !== "") {
       const res = await fetch(config.path);
       const buffer = await res.arrayBuffer();
       const fileNameMatch = /[^/]*$/.exec(config.path);
       if (fileNameMatch) {
-        config.path = fileNameMatch[0];
+        [config.path] = fileNameMatch;
       }
       await db.registerFileBuffer(config.path, new Uint8Array(buffer));
     }
     await db.open(config);
   }
 
-  if (DEBUG && config) {
+  if (DEBUG === true && config !== undefined) {
     console.debug(`DuckDbConfig: ${JSON.stringify(config, null, 2)}`);
   }
   return db;

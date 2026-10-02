@@ -41,10 +41,16 @@ export const createDuckDbMemoryConnection = async (
   createAndEnsureWritableDirectory("extensionDirectory", extensionDirectory);
 
   const instance = await DuckDBInstance.create(":memory:", {
-    ...(memoryLimit ? { memory_limit: memoryLimit } : {}),
-    ...(threads ? { threads } : {}),
-    ...(tempDirectory ? { temp_directory: tempDirectory } : {}),
-    ...(extensionDirectory ? { extension_directory: extensionDirectory } : {}),
+    ...(memoryLimit !== undefined && memoryLimit !== ""
+      ? { memory_limit: memoryLimit }
+      : {}),
+    ...(threads !== undefined && threads !== "" ? { threads } : {}),
+    ...(tempDirectory !== undefined && tempDirectory !== ""
+      ? { temp_directory: tempDirectory }
+      : {}),
+    ...(extensionDirectory !== undefined && extensionDirectory !== ""
+      ? { extension_directory: extensionDirectory }
+      : {}),
   });
   return await instance.connect();
 };

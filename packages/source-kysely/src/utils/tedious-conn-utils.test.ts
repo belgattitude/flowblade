@@ -1,3 +1,5 @@
+import { expect, describe, it } from "vitest";
+
 import { TediousConnUtils } from "./tedious-conn-utils";
 
 describe("TediousConnUtils", () => {
@@ -25,6 +27,7 @@ describe("TediousConnUtils", () => {
         server: "localhost",
       });
     });
+
     it("should error when packetSize isn't a power of 2", () => {
       const jdbcDsn =
         "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false;packetSize=4097";
@@ -32,6 +35,7 @@ describe("TediousConnUtils", () => {
         "The packetSize must be a valid power of 2"
       );
     });
+
     it("should error when packetSize is lower than 512", () => {
       const jdbcDsn =
         "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false;packetSize=256";

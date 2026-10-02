@@ -5,7 +5,7 @@ import {
   rowsToConvertedColumnsChunks,
 } from "./rows-to-converted-columns-chunks";
 
-describe("rowsToConvertedColumnsChunks", () => {
+describe(rowsToConvertedColumnsChunks, () => {
   type Row = { id: number; name: string | null };
 
   async function* makeRows(rows: Row[]): AsyncGenerator<Row> {
@@ -27,7 +27,7 @@ describe("rowsToConvertedColumnsChunks", () => {
       columns: ["name", "id"],
       converters: { id: BigInt },
     });
-    expect(await Array.fromAsync(gen)).toStrictEqual([
+    await expect(Array.fromAsync(gen)).resolves.toStrictEqual([
       [
         ["A", "B"],
         [1n, 2n],
@@ -47,7 +47,7 @@ describe("rowsToConvertedColumnsChunks", () => {
       columns: ["id"],
       converters: {},
     });
-    expect(await Array.fromAsync(gen)).toStrictEqual([[[1]], [[2]]]);
+    await expect(Array.fromAsync(gen)).resolves.toStrictEqual([[[1]], [[2]]]);
   });
 
   it("does not emit an empty final chunk when rows are multiple of chunkSize", async () => {
@@ -58,7 +58,7 @@ describe("rowsToConvertedColumnsChunks", () => {
       converters: {},
     });
     const out = await Array.fromAsync(gen);
-    expect(out.length).toBe(2);
+    expect(out).toHaveLength(2);
     expect(out[1]).toStrictEqual([
       [3, 4],
       ["C", "D"],
@@ -72,7 +72,7 @@ describe("rowsToConvertedColumnsChunks", () => {
       columns: ["id", "name"],
       converters: {},
     });
-    expect(await Array.fromAsync(gen)).toStrictEqual([]);
+    await expect(Array.fromAsync(gen)).resolves.toStrictEqual([]);
   });
 
   it("supports sync generators", async () => {
@@ -85,7 +85,10 @@ describe("rowsToConvertedColumnsChunks", () => {
       columns: ["id"],
       converters: { id: (v: number) => v * 10 },
     });
-    expect(await Array.fromAsync(gen)).toStrictEqual([[[10, 20]], [[30]]]);
+    await expect(Array.fromAsync(gen)).resolves.toStrictEqual([
+      [[10, 20]],
+      [[30]],
+    ]);
   });
 
   it("passes undefined to converters for missing keys and ignores extra keys", async () => {
@@ -141,7 +144,7 @@ describe("rowsToConvertedColumnsChunks", () => {
         converters: { id: BigInt },
         compile,
       });
-      expect(await Array.fromAsync(gen)).toStrictEqual([
+      await expect(Array.fromAsync(gen)).resolves.toStrictEqual([
         [
           ["A", "B"],
           [1n, 2n],
@@ -168,13 +171,13 @@ describe("rowsToConvertedColumnsChunks", () => {
         converters: { [keys[3]!]: (v: number) => v * 10 },
         compile,
       });
-      expect(await Array.fromAsync(gen)).toStrictEqual([
+      await expect(Array.fromAsync(gen)).resolves.toStrictEqual([
         [[0], [1], [2], [30], [4]],
       ]);
     });
   });
 
-  describe("compileFillRow", () => {
+  describe(compileFillRow, () => {
     it("compiles a row filler applying converters", () => {
       const fillRow = compileFillRow(
         ["a", "b"],
@@ -268,7 +271,7 @@ describe("rowsToConvertedColumnsChunks", () => {
         converters: {},
         signal: new AbortController().signal,
       });
-      expect(await Array.fromAsync(gen)).toHaveLength(1);
+      await expect(Array.fromAsync(gen)).resolves.toHaveLength(1);
     });
   });
 });

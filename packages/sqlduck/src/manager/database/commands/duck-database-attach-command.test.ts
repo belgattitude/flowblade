@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import type {
   DuckAllConnectionOptions,
   DuckConnectionParams,
@@ -30,6 +32,7 @@ describe("DuckDataBaseManagerAttachCommand", () => {
       behaviour: DuckDatabaseAttachCommandOptions["behaviour"],
       sql: string,
     ][];
+
     it.each(valid)(
       "should produce expected sql %s with behaviour %s",
       (options, behaviour, expectedSql) => {
@@ -58,6 +61,7 @@ describe("DuckDataBaseManagerAttachCommand", () => {
       behaviour: DuckDatabaseAttachCommandOptions["behaviour"],
       sql: string,
     ][];
+
     it.each(valid)(
       "should produce expected sql %s with behaviour %s",
       (options, behaviour, expectedSql) => {

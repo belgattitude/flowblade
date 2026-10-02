@@ -1,10 +1,17 @@
-import type { DuckDBConnection } from "@duckdb/node-api";
+import type {
+  DuckDBConnection,
+  DuckDBMaterializedResult,
+} from "@duckdb/node-api";
 import type { Logger } from "@logtape/logtape";
 
+type DefaultRow = Awaited<
+  ReturnType<DuckDBMaterializedResult["getRowObjectsJS"]>
+>[number];
+
 export class ManagerQueryExecutor {
-  #conn: DuckDBConnection;
-  #logger: Logger;
-  #className: string;
+  readonly #conn: DuckDBConnection;
+  readonly #logger: Logger;
+  readonly #className: string;
 
   constructor(
     conn: DuckDBConnection,
@@ -16,9 +23,7 @@ export class ManagerQueryExecutor {
     this.#className = className;
   }
 
-  getRowObjectsJS = async <
-    TRow extends Record<string, unknown> = Record<string, unknown>,
-  >(
+  getRowObjectsJS = async <TRow extends object = DefaultRow>(
     name: string,
     rawSql: string
   ): Promise<TRow[]> => {
@@ -31,7 +36,7 @@ export class ManagerQueryExecutor {
       this.#logger.debug(`${fnName} in ${timeMs}ms`, {
         timeMs: timeMs,
       });
-      return data as unknown as TRow[];
+      return data as TRow[];
     } catch (e) {
       const msg = `Failed to run "${fnName}" - ${(e as Error)?.message ?? ""}`;
       const timeMs = Math.round(Date.now() - startTime);

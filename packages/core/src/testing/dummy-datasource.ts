@@ -23,7 +23,7 @@ type DummyDatasourceParams = {
  * @internal
  */
 export class DummyDatasource implements DatasourceInterface {
-  private db: VoluntaryAny;
+  private readonly db: VoluntaryAny;
 
   constructor(params: DummyDatasourceParams) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -132,7 +132,7 @@ export class DummyDatasource implements DatasourceInterface {
 
   // eslint-disable-next-line require-yield,sonarjs/generator-without-yield
   async *stream(
-    _query: unknown,
+    _query: Parameters<DatasourceInterface["stream"]>[0],
     _options?: QueryStreamOptions
   ): AsyncIterableIterator<QResult<unknown[], QError>> {
     throw new Error("Not implemented yet");

@@ -5,22 +5,26 @@ import { KyselyDatasource } from "./kysely-datasource";
 describe("KyselyDatasource.stream logging", () => {
   it("should call logger.info even if stream is partially consumed", async () => {
     const mockLogger = {
-      debug: vi.fn(),
-      info: vi.fn(),
-      error: vi.fn(),
-      warn: vi.fn(),
+      debug: vi.fn<() => void>(),
+      info: vi.fn<() => void>(),
+      error: vi.fn<() => void>(),
+      warn: vi.fn<() => void>(),
     };
 
     const mockQuery = {
-      compile: vi.fn().mockReturnValue({
-        sql: "SELECT * FROM test",
-        parameters: [],
-      }),
-      stream: vi.fn().mockImplementation(async function* stream() {
-        yield { id: 1 };
-        yield { id: 2 };
-        yield { id: 3 };
-      }),
+      compile: vi
+        .fn<() => { sql: string; parameters: unknown[] }>()
+        .mockReturnValue({
+          sql: "SELECT * FROM test",
+          parameters: [],
+        }),
+      stream: vi
+        .fn<() => AsyncGenerator<{ id: number }>>()
+        .mockImplementation(async function* stream() {
+          yield { id: 1 };
+          yield { id: 2 };
+          yield { id: 3 };
+        }),
     };
 
     const ds = new KyselyDatasource({
@@ -29,7 +33,7 @@ describe("KyselyDatasource.stream logging", () => {
     });
 
     // @ts-expect-error - access private to mock
-    ds.db = { executeQuery: vi.fn() };
+    ds.db = { executeQuery: vi.fn<() => void>() };
 
     const stream = ds.stream(mockQuery as any, {
       name: "test-stream",
@@ -37,7 +41,7 @@ describe("KyselyDatasource.stream logging", () => {
 
     // Partially consume the stream
     const first = await stream.next();
-    expect(first.value).toEqual({ id: 1 });
+    expect(first.value).toStrictEqual({ id: 1 });
 
     // Stop here and trigger generator return
     await stream.return!();

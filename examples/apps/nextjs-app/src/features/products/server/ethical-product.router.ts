@@ -51,7 +51,7 @@ app.get(
   ),
   async (c) => {
     const { slowdownApiMs, brands, minPrice } = c.req.valid("query");
-    if (slowdownApiMs) {
+    if (slowdownApiMs !== undefined && slowdownApiMs !== 0) {
       await wait(slowdownApiMs);
     }
     return c.json(

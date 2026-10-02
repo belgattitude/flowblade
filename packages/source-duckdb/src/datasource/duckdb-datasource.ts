@@ -33,8 +33,8 @@ type SqlTagInformation = {
 };
 
 export class DuckdbDatasource implements DatasourceInterface {
-  private db: DuckDBConnection;
-  private logger: Logger;
+  private readonly db: DuckDBConnection;
+  private readonly logger: Logger;
 
   constructor(params: DuckdbDatasourceParams) {
     this.db = params.connection;
@@ -123,7 +123,7 @@ export class DuckdbDatasource implements DatasourceInterface {
       span.timeMs = Math.round(Date.now() - start);
       let message: string;
       if (e instanceof Error) {
-        message = e.message;
+        ({ message } = e);
       } else if (typeof e === "string") {
         message = e;
       } else {
@@ -176,13 +176,13 @@ export class DuckdbDatasource implements DatasourceInterface {
 
   // eslint-disable-next-line require-yield,sonarjs/generator-without-yield
   async *stream(
-    _query: unknown,
+    _query: Parameters<DatasourceInterface["stream"]>[0],
     _options?: QueryStreamOptions
   ): AsyncIterableIterator<QResult<unknown[], QError>> {
     throw new Error("Not implemented yet");
   }
 
-  private getLogFromSpan = (queryName: string, span: QMetaSqlSpan) => {
+  private readonly getLogFromSpan = (queryName: string, span: QMetaSqlSpan) => {
     return {
       queryName,
       source: "duckdb",

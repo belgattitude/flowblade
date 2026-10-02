@@ -15,6 +15,7 @@ import {
 } from "@duckdb/node-api";
 import type { DuckDBType } from "@duckdb/node-api";
 import { duckdb as duckDbDialect, formatDialect } from "sql-formatter";
+import { expectTypeOf, describe, expect, it } from "vitest";
 import * as z from "zod";
 
 import { testFullSupportedColumnsZodSchema } from "#/tests/data/test-full-supported-columns-zod-schema.ts";
@@ -22,7 +23,7 @@ import { testFullSupportedColumnsZodSchema } from "#/tests/data/test-full-suppor
 import { Table } from "../objects/table.ts";
 import { getTableCreateFromZod } from "./get-table-create-from-zod.ts";
 
-describe("getTableCreateFromZod", () => {
+describe(getTableCreateFromZod, () => {
   describe("DDL", () => {
     describe("when create or replace is specified", () => {
       it("should return a valid create table from the schema", () => {
@@ -85,7 +86,7 @@ describe("getTableCreateFromZod", () => {
         schema: testFullSupportedColumnsZodSchema,
       });
       expectTypeOf(columnTypes).toEqualTypeOf<
-        Map<keyof typeof testFullSupportedColumnsZodSchema.shape, DuckDBType>
+        Map<keyof z.infer<typeof testFullSupportedColumnsZodSchema>, DuckDBType>
       >();
 
       expect([...columnTypes.keys()]).toStrictEqual(
@@ -98,7 +99,7 @@ describe("getTableCreateFromZod", () => {
 
       expect(columnTypes).toStrictEqual(
         new Map<
-          keyof typeof testFullSupportedColumnsZodSchema.shape,
+          keyof z.infer<typeof testFullSupportedColumnsZodSchema>,
           DuckDBType
         >([
           ["id", BIGINT],
@@ -144,7 +145,7 @@ describe("getTableCreateFromZod", () => {
           // @ts-expect-error schema cannot contain a nested object
           schema: schema,
         })
-      ).toThrow();
+      ).toThrow("Cannot guess 'nestedObject' type");
     });
   });
   describe("When duckdbType is an explicit DECIMAL(width,scale)", () => {
@@ -163,6 +164,7 @@ describe("getTableCreateFromZod", () => {
       expect(ddl).toContain("price DECIMAL(10,2) NOT NULL");
       expect(ddl).toContain("rate DECIMAL(38,10) NOT NULL");
     });
+
     it("should fail when width or scale are out of range", () => {
       for (const duckdbType of [
         "DECIMAL(39,2)",

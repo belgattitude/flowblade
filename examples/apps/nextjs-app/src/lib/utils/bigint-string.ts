@@ -59,9 +59,12 @@ export class BigintString {
       );
     } catch (error) {
       const e = error as ValiError<typeof BigintString.valibotSchema>;
-      throw new TypeError(`${fieldName ? `${fieldName}: ` : ""}${e.message}`, {
-        cause: error,
-      });
+      throw new TypeError(
+        `${fieldName !== undefined && fieldName !== "" ? `${fieldName}: ` : ""}${e.message}`,
+        {
+          cause: error,
+        }
+      );
     }
   };
 
