@@ -71,8 +71,5 @@ export const serverEnv = createEnv({
     OTEL_EXPORTER_OTLP_PROTOCOL: v.optional(
       v.picklist(["http/json", "http/protobuf", "grpc"], "http/json")
     ),
-    SENTRY_ORG: v.optional(v.string()),
-    SENTRY_PROJECT: v.optional(v.string()),
-    SENTRY_DSN: v.optional(v.string()),
   },
 });

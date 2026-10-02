@@ -1,7 +1,6 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
 import type { DBKyselySqlServer } from "@examples/db-sqlserver/kysely-types";
 import { configure } from "@logtape/logtape";
-import type * as Sentry from "@sentry/nextjs";
 import type { Kysely } from "kysely";
 
 import { logtapeServerConfig } from "@/server/config/logtape-server.config.ts";
@@ -11,17 +10,6 @@ export async function register() {
     await configure(logtapeServerConfig);
   }
 
-  // #######################################################
-  // # Sentry                                              #
-  // #######################################################
-  if (process.env.NEXT_PUBLIC_SENTRY_ENABLED === "true") {
-    if (process.env.NEXT_RUNTIME === "nodejs") {
-      await import("../sentry.server.config");
-    }
-    if (process.env.NEXT_RUNTIME === "edge") {
-      await import("../sentry.edge.config");
-    }
-  }
   // ##################################################################################
   // # HACK FOR KEEPING ONE INSTANCE OF DATABASES IN DEV MODE                         #
   // # @see https://github.com/vercel/next.js/issues/65350#issuecomment-2831480955    #
@@ -70,13 +58,3 @@ export async function register() {
     }
   }
 }
-
-let captureRequestError: typeof Sentry.captureRequestError | undefined;
-
-if (process.env.NEXT_PUBLIC_SENTRY_ENABLED === "true") {
-  captureRequestError = await import("@sentry/nextjs").then(
-    (mod) => mod.captureRequestError
-  );
-}
-
-export const onRequestError = captureRequestError;

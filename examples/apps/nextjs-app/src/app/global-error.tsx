@@ -1,33 +1,8 @@
 "use client";
 
 import NextError from "next/error";
-import { useEffect } from "react";
 
-import { clientEnv } from "../env/client.env.mjs";
-
-interface Props {
-  error: Error & { digest?: string };
-}
-
-const sendToSentry = async (error: Props["error"]) => {
-  await import("@sentry/nextjs").then((sentry) => {
-    sentry.captureException(error);
-  });
-};
-
-export default function GlobalError(props: Readonly<Props>) {
-  const { error } = props;
-  useEffect(() => {
-    if (clientEnv.NEXT_PUBLIC_SENTRY_ENABLED === "true") {
-      sendToSentry(error).catch((error: unknown) => {
-        console.error(
-          "Failed to send error to Sentry:",
-          (error as Error)?.message
-        );
-      });
-    }
-  }, [error]);
-
+export default function GlobalError() {
   return (
     <html lang="en">
       <body>
