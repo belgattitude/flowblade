@@ -1,4 +1,4 @@
-import { expectTypeOf } from "vitest";
+import { expectTypeOf, describe, it } from "vitest";
 
 import { QMeta, type QMetaSqlSpan } from "../meta/q-meta";
 import { QResult } from "./q-result";

@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { fixSqlServerNullUniqueIndexes } from "./fix-sql-server-null-unique-indexes";
 
 describe("hack", () => {

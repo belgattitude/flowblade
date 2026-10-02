@@ -1,6 +1,6 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
 import isInCi from "is-in-ci";
-import { beforeAll, describe } from "vitest";
+import { beforeAll, describe, expect, afterAll, it } from "vitest";
 
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
 
@@ -17,6 +17,7 @@ describe("DuckMemory tests", async () => {
       threads: 1,
     });
   });
+
   afterAll(() => {
     conn.closeSync();
   });
@@ -27,7 +28,7 @@ describe("DuckMemory tests", async () => {
       async () => {
         const duckMem = new DuckMemory(conn);
         const rows = await duckMem.getAll();
-        expect(rows.length).toBe(duckMemoryTags.length);
+        expect(rows).toHaveLength(duckMemoryTags.length);
         expect(rows[0]).toMatchObject({
           tag: expect.any(String),
           memory_usage_bytes: 0n,
@@ -36,6 +37,7 @@ describe("DuckMemory tests", async () => {
       },
       testTimeout
     );
+
     it(
       "Should respect order by",
       async () => {

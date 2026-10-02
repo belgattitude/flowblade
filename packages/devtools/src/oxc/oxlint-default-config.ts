@@ -11,7 +11,7 @@ import { defaultIgnorePatterns } from "./default-ignore-patterns.ts";
 export const oxlintDefaultConfig = defineConfig({
   extends: [
     core,
-    // vitest,
+    vitest,
     //tanstack,
     //tanstackJsPlugins,
     antiSlop,
@@ -90,6 +90,7 @@ export const oxlintDefaultConfig = defineConfig({
     },
     {
       files: ["*.test.ts", "*.spec.ts"],
+      plugins: ["vitest"],
       rules: {
         "func-name-matching": "off",
         "unicorn/consistent-function-scoping": "off",
@@ -102,6 +103,16 @@ export const oxlintDefaultConfig = defineConfig({
         "prefer-named-capture-group": "off",
         "unicorn/no-useless-undefined": "off",
         "unicorn/prefer-bigint-literals": "off",
+        "vitest/max-expects": "off",
+        // a hint renames every snapshot key, forcing a full snapshot rewrite
+        "vitest/prefer-snapshot-hint": "off",
+        // `toBe(true)` is stricter than `toBeTruthy()`
+        "vitest/prefer-to-be-truthy": "off",
+        "vitest/prefer-to-be-falsy": "off",
+        // false positive when the described subject isn't a function
+        "vitest/prefer-describe-function-title": "off",
+        // typed `import()` mocks reject partial module mocks
+        "vitest/prefer-import-in-mock": "off",
       },
     },
     {

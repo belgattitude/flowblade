@@ -3,7 +3,7 @@ import path from "node:path";
 
 import type { DuckDBConnection } from "@duckdb/node-api";
 import { sortBy } from "es-toolkit";
-import { afterEach, beforeEach, describe, expect } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
 import { testTempDir } from "#/tests/utils/get-test-temp-dir.ts";
@@ -36,7 +36,7 @@ describe("DuckDatabaseManagerTest", async () => {
         },
       });
       expect(database).toBeInstanceOf(Database);
-      expect(database.alias).toStrictEqual("memory_db");
+      expect(database.alias).toBe("memory_db");
     });
 
     it("should attach a file database", async () => {
@@ -51,7 +51,7 @@ describe("DuckDatabaseManagerTest", async () => {
         },
       });
       expect(database).toBeInstanceOf(Database);
-      expect(database.alias).toStrictEqual("duckdb_test_file");
+      expect(database.alias).toBe("duckdb_test_file");
       expect(fs.existsSync(dbFile)).toBeTruthy();
       await dbManager.detach(database.alias);
     });
@@ -68,7 +68,7 @@ describe("DuckDatabaseManagerTest", async () => {
         },
       });
       expect(database).toBeInstanceOf(Database);
-      expect(database.alias).toStrictEqual("duckdb_first_attached_file");
+      expect(database.alias).toBe("duckdb_first_attached_file");
       expect(fs.existsSync(dbFile)).toBeTruthy();
 
       // re-attach
@@ -86,7 +86,7 @@ describe("DuckDatabaseManagerTest", async () => {
         }
       );
       expect(database2).toBeInstanceOf(Database);
-      expect(database2.alias).toStrictEqual("duckdb_second_attached_file");
+      expect(database2.alias).toBe("duckdb_second_attached_file");
       expect(fs.existsSync(dbFile)).toBeTruthy();
 
       await dbManager.detachOrIgnore(database.alias);
@@ -113,13 +113,14 @@ describe("DuckDatabaseManagerTest", async () => {
     it("should return true when attached", async () => {
       const dbManager = new DuckDatabaseManager(conn);
       await dbManager.attach({ type: "memory", alias: "test_is_attached" });
-      expect(await dbManager.isAttached("test_is_attached")).toStrictEqual(
+      await expect(dbManager.isAttached("test_is_attached")).resolves.toBe(
         true
       );
     });
+
     it("should return false when not attached", async () => {
       const dbManager = new DuckDatabaseManager(conn);
-      expect(await dbManager.isAttached("test_is_not_attached")).toStrictEqual(
+      await expect(dbManager.isAttached("test_is_not_attached")).resolves.toBe(
         false
       );
     });
@@ -128,7 +129,7 @@ describe("DuckDatabaseManagerTest", async () => {
     it("should return information about attached databases", async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const databases = await dbManager.getDatabases();
-      expect(databases?.[0]).toEqual(
+      expect(databases?.[0]).toStrictEqual(
         expect.schemaMatching(duckDatabaseManagerZodSchemas.getDatabases)
       );
     });
@@ -137,8 +138,8 @@ describe("DuckDatabaseManagerTest", async () => {
     it("should return information about attached databases", async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const database = await dbManager.getDatabaseByName("memory");
-      expect(database?.database_name).toStrictEqual("memory");
-      expect(database).toEqual(
+      expect(database?.database_name).toBe("memory");
+      expect(database).toStrictEqual(
         expect.schemaMatching(duckDatabaseManagerZodSchemas.getDatabases)
       );
     });
@@ -157,9 +158,9 @@ describe("DuckDatabaseManagerTest", async () => {
         },
       });
       const database = await dbManager.getDatabasesByPath(dbFile);
-      expect(database?.database_name).toStrictEqual("getDuckdbDatabaseByPath");
+      expect(database?.database_name).toBe("getDuckdbDatabaseByPath");
       expect(database?.path).toStrictEqual(dbFile);
-      expect(database).toEqual(
+      expect(database).toStrictEqual(
         expect.schemaMatching(duckDatabaseManagerZodSchemas.getDatabases)
       );
     });
@@ -177,9 +178,10 @@ describe("DuckDatabaseManagerTest", async () => {
         { database_name: "memory" },
       ]);
     });
+
     it("should throw when a database is not attached", async () => {
       const dbManager = new DuckDatabaseManager(conn);
-      await expect(dbManager.detach("unattached_db")).rejects.toThrowError(
+      await expect(dbManager.detach("unattached_db")).rejects.toThrow(
         /Failed to detach database with name "unattached_db"/
       );
     });
@@ -189,16 +191,17 @@ describe("DuckDatabaseManagerTest", async () => {
       const dbManager = new DuckDatabaseManager(conn);
       await dbManager.attach({ type: "memory", alias: "db2" });
       const result = await dbManager.detachOrIgnore("db2");
-      expect(result).toStrictEqual(true);
+      expect(result).toBe(true);
       const databases = await dbManager.showDatabases();
       expect(sortBy(databases, ["database_name"])).toStrictEqual([
         { database_name: "memory" },
       ]);
     });
+
     it("should not throw when a database is not attached", async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const result = await dbManager.detachOrIgnore("unattached_db");
-      expect(result).toStrictEqual(false);
+      expect(result).toBe(false);
     });
   });
 
@@ -229,7 +232,7 @@ describe("DuckDatabaseManagerTest", async () => {
       });
       await dbManager.use("test222");
       const currCatalog = await dbManager.getCurrentCatalog();
-      expect(currCatalog).toStrictEqual("test222");
+      expect(currCatalog).toBe("test222");
     });
   });
   describe("getCurrentDatabase", async () => {
@@ -241,7 +244,7 @@ describe("DuckDatabaseManagerTest", async () => {
       });
       await dbManager.use("test444");
       const currDb = await dbManager.getCurrentDatabase();
-      expect(currDb).toStrictEqual("test444");
+      expect(currDb).toBe("test444");
     });
   });
   describe("getCurrentSchema", async () => {
@@ -253,7 +256,7 @@ describe("DuckDatabaseManagerTest", async () => {
       });
       await dbManager.use("test555");
       const currSchema = await dbManager.getCurrentSchema();
-      expect(currSchema).toStrictEqual("main");
+      expect(currSchema).toBe("main");
     });
   });
 
@@ -265,9 +268,9 @@ describe("DuckDatabaseManagerTest", async () => {
         alias: "test777",
       });
       const result = await dbManager.use("test777");
-      expect(result).toStrictEqual(true);
+      expect(result).toBe(true);
       const currDb = await dbManager.getCurrentDatabase();
-      expect(currDb).toStrictEqual("test777");
+      expect(currDb).toBe("test777");
     });
 
     it("should throw on non exitant alias", async () => {

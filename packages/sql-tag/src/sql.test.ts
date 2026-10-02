@@ -1,6 +1,6 @@
 import { format } from "sql-formatter";
 import sqlt, { empty, join } from "sql-template-tag";
-import { expectTypeOf } from "vitest";
+import { expectTypeOf, expect, describe, it } from "vitest";
 
 import { sql } from "./sql";
 import type { SqlTag } from "./types";
@@ -93,7 +93,7 @@ describe("sql tests", () => {
           ids.length > 0,
           () => sql`AND id IN (${sql.join(ids)})`
         );
-        expect(conditional.sql).toStrictEqual("AND id IN (?, ?)");
+        expect(conditional.sql).toBe("AND id IN (?, ?)");
         expectTypeOf(conditional).toEqualTypeOf<SqlTag<unknown>>();
       });
     });
@@ -105,7 +105,7 @@ describe("sql tests", () => {
           () => sql`AND id IN (${sql.join(emptyIds)})`,
           () => sql.empty
         );
-        expect(conditional.sql).toStrictEqual("");
+        expect(conditional.sql).toBe("");
         expectTypeOf(conditional).toEqualTypeOf<SqlTag<unknown>>();
       });
     });

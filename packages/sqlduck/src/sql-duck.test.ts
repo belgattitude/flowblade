@@ -4,13 +4,23 @@ import { isParsableStrictIsoDateZ } from "@httpx/assert";
 import { reset } from "@logtape/logtape";
 import type { LogRecord } from "@logtape/logtape";
 import isInCi from "is-in-ci";
-import { beforeAll, describe } from "vitest";
+import {
+  beforeAll,
+  describe,
+  it,
+  vi,
+  afterEach,
+  expect,
+  afterAll,
+  beforeEach,
+} from "vitest";
 import * as z from "zod";
 
 import { configureTestLogger } from "#/tests/utils/configure-test-logger.ts";
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
 import { createFakeRowsAsyncIterator } from "#/tests/utils/create-fake-rows-iterator.ts";
 
+import type { OnChunkAppendedCb } from "./appender/data-appender-callback.ts";
 import { flowbladeLogtapeSqlduckConfig } from "./config/flowblade-logtape-sqlduck.config";
 import { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts";
 import { Table } from "./objects/table";
@@ -29,6 +39,7 @@ describe("Duckdb tests", async () => {
       threads: 1,
     });
   });
+
   afterAll(() => {
     conn.closeSync();
   });
@@ -113,7 +124,7 @@ describe("Duckdb tests", async () => {
           },
         });
 
-        const cb = vi.fn();
+        const cb = vi.fn<OnChunkAppendedCb>();
 
         const { timeMs, totalRows, createTableDDL } = await sqlDuck.toTable({
           table: testTable,
@@ -204,13 +215,13 @@ describe("Duckdb tests", async () => {
           list_of_float32s,
           list_of_int32s,
         } = data?.[0] ?? {};
-        expect(name).toStrictEqual("unique-record-for-tests");
-        expect(email).toStrictEqual("unique-record-for-tests@example.com");
+        expect(name).toBe("unique-record-for-tests");
+        expect(email).toBe("unique-record-for-tests@example.com");
         expect(bignumber).toStrictEqual(bignumberExample.toString(10));
         expect(isParsableStrictIsoDateZ(created_at)).toBe(true);
 
         expect(created_at).toBe(now.toISOString());
-        expect(gender).toStrictEqual("F");
+        expect(gender).toBe("F");
         expect(list_of_booleans).toStrictEqual(listColumns.list_of_booleans);
         expect(
           list_of_float32s!.map((val) => Math.round(val * 100) / 100)
@@ -249,7 +260,7 @@ describe("Duckdb tests", async () => {
           factory: ({ rowIdx }) => ({ id: rowIdx }),
         });
 
-        const cb = vi.fn();
+        const cb = vi.fn<OnChunkAppendedCb>();
 
         // Act
         await sqlDuck.toTable({

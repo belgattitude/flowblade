@@ -27,7 +27,7 @@ describe("rowsToColumnsChunk", () => {
       { id: number[]; name: (string | null)[] }[]
     >();
 
-    expect(out.length).toBe(3);
+    expect(out).toHaveLength(3);
     expect(out[0]).toStrictEqual({
       id: [1, 2],
       name: ["A", "B"],
@@ -88,7 +88,7 @@ describe("rowsToColumnsChunk", () => {
       chunkSize: 3,
     });
     const out = await Array.fromAsync(gen);
-    expect(out.length).toBe(0);
+    expect(out).toHaveLength(0);
   });
 
   it("throws an error if transformers contains keys not present in the row", async () => {
@@ -108,6 +108,7 @@ describe("rowsToColumnsChunk", () => {
       "transformers parameter contains unknown row ids: not_exists"
     );
   });
+
   it("properly infers the transformer function return type", async () => {
     const input: Row[] = [{ id: 1, name: "A" }];
 
@@ -183,7 +184,7 @@ describe("rowsToColumnsChunk", () => {
         chunkSize: 3,
         signal: new AbortController().signal,
       });
-      expect(await Array.fromAsync(gen)).toHaveLength(1);
+      await expect(Array.fromAsync(gen)).resolves.toHaveLength(1);
     });
   });
 });

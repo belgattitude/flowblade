@@ -17,7 +17,7 @@ import { describe, expect, it } from "vitest";
 
 import { getDuckdbNumberColumnType } from "./get-duckdb-number-column-type";
 
-describe("getDuckdbNumberColumnType", () => {
+describe(getDuckdbNumberColumnType, () => {
   it("should return BIGINT if minimum or maximum is undefined", () => {
     expect(
       getDuckdbNumberColumnType({ minimum: undefined, maximum: 100 })
