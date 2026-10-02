@@ -37,7 +37,8 @@
     "format": "oxfmt --write",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "@codspeed/vitest-plugin": "5.7.1",
     "@vitest/coverage-v8": "5.0.3",
     "@vitest/ui": "5.0.3",
@@ -53,6 +54,35 @@
     "tsdown": "0.23.0",
     "typescript": "7.0.2",
     "ultracite": "7.12.2",
+    "vite": "8.3.2",
     "vitest": "5.0.3"
+  },
+  "peerDependencies": {
+    "eslint-plugin-security": "4.2.0",
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.86.0",
+    "oxlint-tailwindcss": "^1.14.0",
+    "oxlint-tsgolint": "^7.0.2003",
+    "ultracite": "^7.12.2"
+  },
+  "peerDependenciesMeta": {
+    "eslint-plugin-security": {
+      "optional": false
+    },
+    "oxlint": {
+      "optional": false
+    },
+    "oxfmt": {
+      "optional": false
+    },
+    "oxlint-tailwindcss": {
+      "optional": false
+    },
+    "oxlint-tsgolint": {
+      "optional": false
+    },
+    "ultracite": {
+      "optional": false
+    }
   }
 }
