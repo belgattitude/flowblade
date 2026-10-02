@@ -71,8 +71,6 @@ ENV NEXT_BUILD_IGNORE_ESLINT=true \
     NEXT_BUILD_IGNORE_TYPECHECK=true \
     NEXT_BUILD_OUTPUT=standalone \
     NODE_ENV=production
-# ENV NEXT_BUILD_ENV_SENTRY_ENABLED=false
-# ENV NEXT_BUILD_ENV_SENTRY_TRACING=false
 
 # Build, then assemble the runner files in /app/out so the runner needs a single COPY
 # https://nextjs.org/docs/advanced-features/output-file-tracing
