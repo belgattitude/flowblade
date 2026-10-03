@@ -103,6 +103,7 @@ ENV HOSTNAME=0.0.0.0 \
 RUN apt-get update \
   && apt-get install tzdata ca-certificates --no-install-recommends -y \
   && rm -rf /var/cache/apt/* /var/lib/apt/lists/* \
+  && rm -rf /usr/bin/apt* \
   && mkdir -p /etc/pki/tls/certs \
   && ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt \
   && groupadd --system --gid 1001 nodejs \
