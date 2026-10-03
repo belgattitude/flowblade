@@ -108,9 +108,6 @@ RUN apt-get update \
             /var/cache/apt/archives/* \
             /usr/share/doc/* \
             /usr/share/man/* \
-            /usr/bin/apt* \
-            /usr/bin/dpkg* \
-            /var/lib/dpkg/* \
   && mkdir -p /etc/pki/tls/certs \
   && ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt \
   && mkdir -p /etc/pki/tls/certs \
