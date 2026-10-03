@@ -9,10 +9,10 @@ nodeLinker: isolated
 packageImportMethod: auto
 savePrefix: ''
 #autoDedupe: true
-forceIgnoresPlatform: true
+forceIgnoresPlatform: false
 autoInstallPeers: false
 strictPeerDependencies: false
-resolvePeersFromWorkspaceRoot: false
+resolvePeersFromWorkspaceRoot: true
 dedupePeers: true
 # Set it to true for deno
 preferSymlinkedExecutables: true
