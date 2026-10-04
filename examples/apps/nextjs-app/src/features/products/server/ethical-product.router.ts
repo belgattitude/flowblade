@@ -15,6 +15,7 @@ app.get(
   "/search",
   describeRoute({
     description: "Search for ethical products",
+    tags: ["products"],
     responses: {
       200: {
         content: {

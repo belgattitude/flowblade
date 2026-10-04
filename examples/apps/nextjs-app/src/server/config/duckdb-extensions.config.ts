@@ -4,7 +4,7 @@ export const duckdbExtensionsConfig = {
     "httpfs", // 15Mb
     "excel", // 8Mb
     "fts", // 5Mb
-    // "quack", // 25Mb
+    "quack", // 25Mb
     // "vortex", // 55Mb
     // "ducklake", // 29Mb
     // "sqlite", // 26Mb

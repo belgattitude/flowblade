@@ -1,0 +1,100 @@
+name: CI-nextjs-app-docker-nodejs
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - '**'
+
+env:
+  # Image built (and tagged) by the turbo task, see examples/apps/nextjs-app/docker/docker-compose*.yml
+  IMAGE: flowblade-nextjs-app-nodejs:latest
+  TURBO_TASK: docker:build-nodejs
+  APP_PACKAGE: "@examples/nextjs-app"
+
+permissions:
+  contents: read
+
+jobs:
+  docker-nodejs:
+    #if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
+    runs-on: ubuntu-latest
+    name: nextjs-app nodejs example docker build
+    env:
+      TURBO_API: "http://127.0.0.1:9080"
+      TURBO_TEAM: "flowblade"
+      PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN: "false"
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ github.workspace }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Fetch all git history so turbo can find the affected packages.
+          # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: ⏩ TurboRepo local server
+        uses: felixmosh/turborepo-gh-artifacts@118f869397261f74bc39cb8565f2d02c0ed4209f # v4.1.1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
+
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        with:
+          runtime: node@24
+          cache: false
+          node-version-file: false
+
+      - name: 🔎 Check if the app is affected
+        id: affected
+        run: |
+          count=$(pnpm exec turbo query affected --packages "${APP_PACKAGE}" --tasks "${TURBO_TASK}" | jq '.data.affectedTasks.length')
+          echo "Affected tasks: ${count}"
+          if [ "${count}" -gt 0 ]; then
+            echo "affected=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "affected=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::${APP_PACKAGE} is not affected by the changes, docker build skipped"
+          fi
+
+      - name: 🤫 Login to Docker Hub
+        # Disabled for example
+        if: false
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🏗 Build docker image
+        if: steps.affected.outputs.affected == 'true'
+        run: pnpm turbo run "${TURBO_TASK}" --filter="${APP_PACKAGE}" --log-prefix=none --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+
+      - name: 🕵️ Docker image inspect
+        if: steps.affected.outputs.affected == 'true'
+        run: docker image inspect "${IMAGE}"
+
+      - name: 💾 Save docker image
+        if: steps.affected.outputs.affected == 'true'
+        run: docker save "${IMAGE}" -o ./docker-image.tar
+
+      - name: 📐 Compress saved image and show size
+        if: steps.affected.outputs.affected == 'true'
+        env:
+          MAX_SIZE_IN_MB: 200
+          ZSTD_LEVEL: 8
+        run: |
+          zstd -${{ env.ZSTD_LEVEL }} -i ./docker-image.tar -o ./docker-image.tar.zst          
+          ls -lah | grep docker-image.tar
+          if [ $(ls -s --block-size=1048576 ./docker-image.tar.zst | cut -d' ' -f1)  -gt ${{ env.MAX_SIZE_IN_MB }} ]; then 
+             echo 'Error: docker image too big'; 
+             exit 1; 
+          else echo "Size ok"; fi
