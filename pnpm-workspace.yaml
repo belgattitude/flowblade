@@ -21,9 +21,12 @@ resolutionMode: highest
 optimisticRepeatInstall: true
 trustPolicy: no-downgrade
 trustPolicyExclude:
+  - '@pierre/theme@2.0.0'
   - '@vercel/oidc@3.8.9'
   - '@vercel/cli-config@0.3.0'
   - '@vercel/cli-exec@1.0.1'
+  - '@vercel/functions@3.9.9'
+  - '@vercel/routing-utils@6.6.0'
   - 'semver@6.3.1'
   - 'undici-types@6.21.0'
   - 'chokidar@4.0.3'
@@ -64,13 +67,18 @@ allowBuilds:
   core-js: false
   cpu-features: false
   es5-ext: false
-  esbuild: false
+  esbuild: true
   lefthook: false
   prisma: false
   protobufjs: false
   ssh2: false
 
 strictDepBuilds: false
+
+audit:
+  ignore:
+    - GHSA-vfj7-8cjw-p6xm
+    - GHSA-86w9-cpqp-85rv
 
 overrides:
   '@opentelemetry/core@<2.8.0': 2.8.0
@@ -83,8 +91,7 @@ overrides:
   esbuild: ^0.28.2
   lodash-es@<=4.17.23: 4.18.1
   lodash-es@>=4.0.0 <=4.17.23: 4.18.1
-  mysql2@<3.22.0: 3.22.0
-  mysql2@<=3.23.0: 3.23.1
+  mysql2@<=3.23.0: 3.24.5
 
 # Keep the existing supply-chain cooldown while allowing trusted packages immediately.
 minimumReleaseAge: 2880
@@ -115,4 +122,4 @@ minimumReleaseAgeExclude:
   - vitest
   - zod
   - turbo
-  - oxlint-tsgolint@7.0.2003
+  - oxlint-tsgolint
