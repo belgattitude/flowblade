@@ -1,4 +1,4 @@
-name: CI-nextjs-app-docker-bun
+name: CI-nextjs-app-docker-nodejs
 
 on:
   push:
@@ -11,18 +11,18 @@ on:
 
 env:
   # Image built (and tagged) by the turbo task, see examples/apps/nextjs-app/docker/docker-compose*.yml
-  IMAGE: flowblade-nextjs-app-bun:latest
-  TURBO_TASK: docker:build-bun
+  IMAGE: flowblade-nextjs-app-nodejs:latest
+  TURBO_TASK: docker:build-nodejs
   APP_PACKAGE: "@examples/nextjs-app"
 
 permissions:
   contents: read
 
 jobs:
-  docker-bun:
+  docker-nodejs:
     #if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
     runs-on: ubuntu-latest
-    name: nextjs-app bun example docker build
+    name: nextjs-app nodejs example docker build
     env:
       TURBO_API: "http://127.0.0.1:9080"
       TURBO_TEAM: "flowblade"

@@ -100,9 +100,14 @@ ENV HOSTNAME=0.0.0.0 \
 # - For duckdb azure extension, we need to have the certs available at the
 #   expected location, see https://github.com/duckdb/duckdb/discussions/9675
 # - Non root user with the correct permission for prerender cache
-RUN apt-get update \
+# - apt packages / lists are kept in BuildKit cache mounts (not part of the image),
+#   docker-clean is disabled and `apt-get clean` is not run so the cache is reused
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=apt-cache \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked,id=apt-lists \
+    rm -f /etc/apt/apt.conf.d/docker-clean \
+  && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache \
+  && apt-get update \
   && apt-get install tzdata ca-certificates --no-install-recommends -y \
-  && rm -rf /var/cache/apt/* /var/lib/apt/lists/* \
   && rm -rf /usr/bin/apt* \
   && mkdir -p /etc/pki/tls/certs \
   && ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt \

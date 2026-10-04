@@ -1,13 +1,13 @@
 name: flowblade-example-nextjs
 services:
-  app-debian:
+  app-nodejs:
     container_name: "flowblade-nextjs-app"
     build:
       # Start from root of the monorepo
       context: ../../../../
-      dockerfile: ./examples/apps/nextjs-app/docker/Dockerfile
+      dockerfile: ./examples/apps/nextjs-app/docker/Dockerfile.nodejs
       tags:
-        - flowblade-nextjs-app:latest
+        - flowblade-nextjs-app-nodejs:latest
     restart: no
     networks:
       - flowblade-net

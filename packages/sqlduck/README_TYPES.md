@@ -46,24 +46,25 @@ Nullability does not change the DuckDB type:
 
 ## Caveats
 
-- `z.number()` falls back to `BIGINT` when no usable `minimum` / `maximum` is available.
+- `z.number()` falls back to `BIGINT` when no usable `minimum` / `maximum` is
+  available.
 - `z.bigint()` is currently supported through `zodCodecs.bigintToString`.
 - Only a few string formats are specialized:
-  - `date-time` -> `TIMESTAMP`
-  - `int64` -> `BIGINT`
-  - `uuid` -> `UUID`
+    - `date-time` -> `TIMESTAMP`
+    - `int64` -> `BIGINT`
+    - `uuid` -> `UUID`
 - Nested `z.object(...)` columns are not supported.
 
 ## Example
 
 ```ts
 const schema = z.object({
-  id: z.number().meta({ primaryKey: true }), // BIGINT PRIMARY KEY
-  name: z.string(), // VARCHAR NOT NULL
-  email: z.email().nullable(), // VARCHAR
-  score: z.float32(), // FLOAT NOT NULL
-  created_at: z.iso.date(), // DATE NOT NULL
-  ext_id: z.uuidv7(), // UUID NOT NULL
-  big_counter: z.nullable(zodCodecs.bigintToString), // BIGINT
+    id: z.number().meta({ primaryKey: true }), // BIGINT PRIMARY KEY
+    name: z.string(), // VARCHAR NOT NULL
+    email: z.email().nullable(), // VARCHAR
+    score: z.float32(), // FLOAT NOT NULL
+    created_at: z.iso.date(), // DATE NOT NULL
+    ext_id: z.uuidv7(), // UUID NOT NULL
+    big_counter: z.nullable(zodCodecs.bigintToString), // BIGINT
 });
 ```
