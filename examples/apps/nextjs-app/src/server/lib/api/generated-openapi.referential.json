@@ -1,5 +1,6 @@
 {
   "openapi": "3.1.0",
+  "components": {},
   "info": {
     "title": "Hono Documentation",
     "description": "Development documentation",
@@ -10,6 +11,7 @@
       "get": {
         "operationId": "getApiDemoDuckdbSearch",
         "description": "Search",
+        "tags": ["duckdb"],
         "responses": {
           "200": {
             "content": {
@@ -53,6 +55,28 @@
               }
             },
             "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [false]
+                    },
+                    "error": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "data": {}
+                  },
+                  "required": ["success", "error", "data"]
+                }
+              }
+            }
           }
         },
         "parameters": [
@@ -91,6 +115,7 @@
       "get": {
         "operationId": "getApiProductEthicalSearch",
         "description": "Search for ethical products",
+        "tags": ["products"],
         "responses": {
           "200": {
             "content": {
@@ -138,6 +163,28 @@
               }
             },
             "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [false]
+                    },
+                    "error": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "data": {}
+                  },
+                  "required": ["success", "error", "data"]
+                }
+              }
+            }
           }
         },
         "parameters": [
@@ -202,6 +249,7 @@
       "get": {
         "operationId": "getApiSystemStats",
         "description": "System stats",
+        "tags": ["system"],
         "responses": {
           "200": {
             "content": {
@@ -245,6 +293,5 @@
         }
       }
     }
-  },
-  "components": {}
+  }
 }

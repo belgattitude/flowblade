@@ -1,22 +1,18 @@
 // @ts-check
 
 import { convertJdbcToDsn, isParsableDsn } from "@httpx/dsn-parser";
-import * as v from "valibot";
+import * as z from "zod";
 
-export const vDsn = v.custom(
-  (dsn) => isParsableDsn(dsn),
-  "Invalid DSN format."
-);
+export const zDsn = z
+  .string()
+  .refine((dsn) => isParsableDsn(dsn), "Invalid DSN format.");
 
-export const vJdbcUrlDsnCompatible = v.custom((jdbcUrl) => {
-  if (typeof jdbcUrl === "string") {
-    let dsn = "";
-    try {
-      dsn = convertJdbcToDsn(jdbcUrl);
-    } catch {
-      return false;
-    }
-    return isParsableDsn(dsn);
+export const zJdbcUrlDsnCompatible = z.string().refine((jdbcUrl) => {
+  let dsn = "";
+  try {
+    dsn = convertJdbcToDsn(jdbcUrl);
+  } catch {
+    return false;
   }
-  return false;
+  return isParsableDsn(dsn);
 }, "Invalid JDBCUrl format.");

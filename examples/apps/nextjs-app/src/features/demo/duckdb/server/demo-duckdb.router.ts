@@ -32,6 +32,7 @@ app.get(
   "/search",
   describeRoute({
     description: "Search",
+    tags: ["duckdb"],
     responses: {
       200: {
         content: {

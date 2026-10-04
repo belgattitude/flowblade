@@ -1,5 +1,7 @@
-# this file should won't be read unless it exists in the
-# context directory specified in the docker compose file
+# Ignore rules for docker/Dockerfile and docker/Dockerfile.bun
+# (Dockerfile.bun.dockerignore is a symlink to this file).
+# BuildKit reads <Dockerfile>.dockerignore next to the Dockerfile; when it exists
+# the root .dockerignore is NOT used for these builds, keep both in sync if needed.
 
 # git (disable if needed in the container)
 .git
@@ -13,8 +15,19 @@
 **/tsconfig.*.tsbuildinfo
 **/.eslintcache
 
+# temp files
+**/tmp
+**/.tmp
+*.tmp
+
+# repository data
+**/data/local/duckdb
+# nextjs-app local data (duckdb extensions + manifest)
+**/apps/nextjs-app/data
+
 # turbo (comment if you want to copy the turbo cache into the image)
 **/.turbo
+**/.turbo-pruned
 
 # package managers
 **/.yarn/*
@@ -26,11 +39,19 @@
 # testing
 **/coverage
 **/.out/
+*.bench.ts
+*.test.ts
+**/e2e
 
 # Build directories
 **/apps/*/.next
 **/packages/*/dist
-**/packages/*/docs
+
+# documentation
+docs
+**/apps/*/docs
+**/packages²²/*/docs
+*.md
 
 # Misc
 .DS_Store
@@ -49,3 +70,4 @@ pnpm-debug.log*
 *.launch
 *.sublime-workspace
 .vscode/
+

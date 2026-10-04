@@ -15,14 +15,14 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "node ./scripts/copy-fonts.mjs && next dev",
-    "dev-bun": "node ./scripts/copy-fonts.mjs && bun --bun run next dev",
-    "build": "node ./scripts/copy-fonts.mjs && next build",
-    "build-bun": "node ./scripts/copy-fonts.mjs && bun --bun run next build",
+    "dev": "tsx ./scripts/copy-nextjs-required-local-fonts.ts && next dev",
+    "dev-bun": "tsx ./scripts/copy-nextjs-required-local-fonts.ts && bun --bun run next dev",
+    "build": "tsx ./scripts/copy-nextjs-required-local-fonts.ts && next build",
+    "build-bun": "tsx ./scripts/copy-nextjs-required-local-fonts.ts && bun --bun run next build",
     "typegen": "next typegen",
-    "fonts-copy": "node ./scripts/copy-fonts.mjs",
-    "build-no-paths": "node ./scripts/copy-fonts.mjs && cross-env NEXT_BUILD_TSCONFIG=./tsconfig.no-paths.json next build",
-    "build-standalone": "node ./scripts/copy-fonts.mjs && cross-env NEXT_BUILD_OUTPUT=standalone next build",
+    "fonts-copy": "tsx ./scripts/copy-nextjs-required-local-fonts.ts",
+    "build-no-paths": "tsx ./scripts/copy-nextjs-required-local-fonts.ts && cross-env NEXT_BUILD_TSCONFIG=./tsconfig.no-paths.json next build",
+    "build-standalone": "tsx ./scripts/copy-nextjs-required-local-fonts.ts && cross-env NEXT_BUILD_OUTPUT=standalone next build",
     "build-pruned": "pnpm --workspace-root turbo prune @examples/nextjs-app --docker --out-dir=./.turbo-pruned/nextjs-app/",
     "bundle-analyze": "next experimental-analyze",
     "start": "next start",
@@ -36,7 +36,7 @@
     "lint-fix": "next typegen && ultracite fix",
     "format": "oxfmt --write",
     "codegen": "run-s codegen-api",
-    "codegen-api": "tsx ./scripts/codegen-openapi-json-schema.ts && kubb generate",
+    "codegen-api": "tsx ./scripts/codegen-openapi-json-schema.ts && orval --config ./orval.config.ts",
     "docker-build": "cd docker && docker buildx bake --file ./docker-compose.yml",
     "docker-build-alpine": "cd docker && docker buildx bake --file ./docker-compose.alpine.yml",
     "doctor": "react-doctor",
@@ -132,16 +132,6 @@
     "@dotenvx/dotenvx": "2.32.4",
     "@faker-js/faker": "10.6.0",
     "@flowblade/devtools": "workspace:*",
-    "@kubb/cli": "4.39.3",
-    "@kubb/core": "4.39.3",
-    "@kubb/fabric-core": "0.16.1",
-    "@kubb/oas": "4.39.3",
-    "@kubb/plugin-client": "4.39.3",
-    "@kubb/plugin-oas": "4.39.3",
-    "@kubb/plugin-react-query": "4.39.3",
-    "@kubb/plugin-ts": "4.39.3",
-    "@kubb/react": "4.3.1",
-    "@kubb/react-fabric": "0.16.1",
     "@standard-schema/spec": "1.1.0",
     "@tailwindcss/postcss": "4.3.3",
     "@tanstack/react-query-devtools": "5.104.0",
@@ -163,6 +153,7 @@
     "happy-dom": "20.14.5",
     "npm-run-all2": "9.0.3",
     "openapi-types": "12.1.3",
+    "orval": "8.39.0",
     "oxfmt": "0.71.0",
     "oxlint": "1.86.0",
     "oxlint-plugin-react-doctor": "^0.9.14",
@@ -188,6 +179,6 @@
     "safari 16.4"
   ],
   "engines": {
-    "node": ">=22.11.0"
+    "node": ">=22.22.0"
   }
 }

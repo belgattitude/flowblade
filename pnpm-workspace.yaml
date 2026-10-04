@@ -10,6 +10,7 @@ packageImportMethod: auto
 savePrefix: ''
 #autoDedupe: true
 forceIgnoresPlatform: false
+ignoreCompatibilityDb: true
 autoInstallPeers: false
 strictPeerDependencies: false
 resolvePeersFromWorkspaceRoot: true
@@ -29,7 +30,6 @@ trustPolicyExclude:
   - 'why-is-node-running@3.2.2'
   - 'prisma@7.10.0'
   - 'reselect@5.1.1'
-  - 'lefthook@2.1.15'
 
 verifyDepsBeforeRun: install
 
@@ -90,61 +90,29 @@ overrides:
 minimumReleaseAge: 2880
 minimumReleaseAgeExclude:
   - '@azure/*'
-  - '@belgattitude/*'
   - '@better-auth/*'
   - '@duckdb/*'
-  - '@esbuild/*'
-  - '@flowblade/*'
   - '@hono/*'
   - '@httpx/*'
-  - '@kubb/*'
   - '@logtape/*'
   - '@napi-rs/*'
   - '@next/*'
-  - '@orpc/*'
   - '@oxc-project/*'
   - '@oxfmt/*'
   - '@oxlint-tsgolint/*'
   - '@oxlint/*'
-  - '@prisma/*'
-  - '@rolldown/*'
   - '@shadcn/*'
-  - '@standard-schema/*'
-  - '@standard-server/*'
-  - '@storybook/*'
-  - '@typescript-eslint/*'
-  - '@typescript/*'
-  - '@valibot/*'
-  - '@vitejs/*'
-  - '@vitest/*'
+  - '@turbo/*'
   - better-auth
   - better-call
-  - esbuild
   - hono
   - kysely
   - next
-  - npm-check-updates
   - oxfmt
   - oxlint
-  - postcss
-  - prettier
-  - prisma
-  - rolldown
-  - rolldown-plugin-dts
   - shadcn
-  - storybook
-  - tinyexec
-  - tsdown
-  - turbo
-  - turbo-*
-  - typebox
-  - ultracite
   - vite
   - vitest
   - zod
-  - '@turbo/*'
-  - tedious@20.3.3
+  - turbo
   - oxlint-tsgolint@7.0.2003
-  - '@dotenvx/*'
-  - eslint-plugin-security@4.2.0
-  - '@types/node@26.6.4'

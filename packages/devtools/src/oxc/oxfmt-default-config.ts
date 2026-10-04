@@ -7,6 +7,17 @@ const { ignorePatterns: _ignorePatterns, ...restUltracite } = ultracite;
 
 export const oxfmtDefaultConfig = defineConfig({
   ...restUltracite,
+  "printWidth": 80,
+  "proseWrap": "always",
+  "embeddedLanguageFormatting": "auto",
+  "overrides": [
+    {
+      "files": ["*.md", "*.mdx"],
+      "options": {
+        "tabWidth": 4
+      }
+    }
+  ],
   ignorePatterns: [
     ...defaultIgnorePatterns,
     "docs/**/*.md",

@@ -33,7 +33,6 @@ const npmPreapprovedPackages = [
   '@better-auth/*',
   '@typescript-eslint/*',
   'prettier',
-  '@kubb/*',
   'tsdown',
   'valibot',
   'zod',
@@ -82,15 +81,6 @@ module.exports = defineConfig({
 
     '@sentry/nextjs',
 
-    // kubb
-    "@kubb/cli",
-    "@kubb/core",
-    "@kubb/oas",
-    "@kubb/plugin-client",
-    "@kubb/plugin-oas",
-    "@kubb/plugin-react-query",
-    "@kubb/plugin-ts",
-    "@kubb/react",
 
     // Depending on v1/v2 support you might want to disable these updates
     /*
