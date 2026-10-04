@@ -6,7 +6,7 @@ import { MSSQLServerContainer } from "@testcontainers/mssqlserver";
 import type { StartedMSSQLServerContainer } from "@testcontainers/mssqlserver/build/mssqlserver-container";
 import isInCi from "is-in-ci";
 import { sql } from "kysely";
-import {describe, expect} from "vitest";
+import { describe, expect, afterAll, beforeAll, it } from "vitest";
 import * as z from "zod";
 
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
@@ -93,10 +93,12 @@ describe("MSSQL materialized e2e tests", () => {
         const result = await withMaterializedKyselyQuery({
           duckConn,
           table,
-          query: async ({dsDuck, table}) => {
-            console.log('AAAA', table.getFullName());
+          query: async ({ dsDuck, table }) => {
+            console.log("AAAA", table.getFullName());
             return await dsDuck.query(
-                sqlt<{id: number}>`SELECT * FROM ${sqlt.raw(table.getFullName())}`
+              sqlt<{
+                id: number;
+              }>`SELECT * FROM ${sqlt.raw(table.getFullName())}`
             );
           },
         });
@@ -104,12 +106,12 @@ describe("MSSQL materialized e2e tests", () => {
         expect(result.isError()).toBe(false);
 
         const normalizedData = sqlserverResult.data.map((row) => ({
-            ...row,
+          ...row,
           decimal_18_3: row.decimal_18_3?.toFixed(3),
         }));
 
-        expect(result.data).toStrictEqual(normalizedData)
-        expect(result.meta).toStrictEqual([])
+        expect(result.data).toStrictEqual(normalizedData);
+        expect(result.meta).toStrictEqual([]);
         expect(result.meta.create.rows).toStrictEqual(testDataCount);
       },
       testTimeout

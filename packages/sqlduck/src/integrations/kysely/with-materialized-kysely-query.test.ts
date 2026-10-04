@@ -1,5 +1,6 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
 import { sql } from "@flowblade/sql-tag";
+import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import * as z from "zod";
 
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
@@ -15,6 +16,7 @@ describe("withMaterializedKyselyQuery", () => {
   beforeAll(async () => {
     duckConn = await createDuckdbTestMemoryDb();
   });
+
   afterAll(() => {
     duckConn.closeSync();
   });
@@ -44,10 +46,10 @@ describe("withMaterializedKyselyQuery", () => {
       duckConn,
       table,
       query: async ({ dsDuck, table }) => {
-        const result =  await dsDuck.query(
+        const result = await dsDuck.query(
           sql`SELECT * FROM ${sql.raw(table.getFullName())}`
         );
-        console.log('AAAA', result);
+        console.log("AAAA", result);
         return result;
       },
     });
@@ -58,13 +60,13 @@ describe("withMaterializedKyselyQuery", () => {
     expect(error).toBeUndefined();
 
     const spans = meta.getSpans();
-    expect(spans.length).toBe(2);
-    expect(meta.getSpansByType("materialization").length).toBe(1);
-   // expect(meta.getLatestSpan()?.type).toBe("sql");
+    expect(spans).toHaveLength(2);
+    expect(meta.getSpansByType("materialization")).toHaveLength(1);
+    // expect(meta.getLatestSpan()?.type).toBe("sql");
 
     expect(data).toStrictEqual([]);
 
-/*
+    /*
     expect(result).toMatchSnapshot();
 
     expect(result).toStrictEqual({

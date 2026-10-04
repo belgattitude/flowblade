@@ -5,7 +5,7 @@ import { sql as sqlt } from "@flowblade/sql-tag";
 import { MSSQLServerContainer } from "@testcontainers/mssqlserver";
 import type { StartedMSSQLServerContainer } from "@testcontainers/mssqlserver/build/mssqlserver-container";
 import isInCi from "is-in-ci";
-import { describe } from "vitest";
+import { describe, afterAll, expect, beforeAll, it } from "vitest";
 import * as z from "zod";
 
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";

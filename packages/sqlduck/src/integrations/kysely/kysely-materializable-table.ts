@@ -16,7 +16,7 @@ export class KyselyMaterializableTable<
     any
   >,
 > {
-  #params: Params<TQuery>;
+  readonly #params: Params<TQuery>;
   constructor(params: Params<TQuery>) {
     this.#params = params;
   }
