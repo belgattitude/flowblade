@@ -825,9 +825,6 @@ importers:
 
   examples/shared/base-auth:
     dependencies:
-      '@better-auth/api-key':
-        specifier: 1.7.7
-        version: 1.7.7(@better-auth/core@1.7.7)(@better-auth/utils@0.5.0)(better-auth@1.7.7)(better-call@1.4.1)
       '@better-auth/sso':
         specifier: 1.7.7
         version: 1.7.7(@better-auth/core@1.7.7)(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-auth@1.7.7)(better-call@1.4.1)
@@ -846,12 +843,6 @@ importers:
       jose:
         specifier: 6.2.12
         version: 6.2.12
-      react:
-        specifier: 19.3.0
-        version: 19.3.0
-      react-dom:
-        specifier: 19.3.0
-        version: 19.3.0(react@19.3.0)
       zod:
         specifier: 4.6.5
         version: 4.6.5
@@ -2651,14 +2642,6 @@ packages:
   '@bcoe/v8-coverage@1.0.2':
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
-
-  '@better-auth/api-key@1.7.7':
-    resolution: {integrity: sha512-XWtZxF37A7BURHh/GvsYh2Vype1p+R1ZxvQHkRzB4tK3uniZpILe2WRIXfVj3m8NIBHdg8Ez8S8sZJY/ewTu7w==}
-    peerDependencies:
-      '@better-auth/core': ^1.7.7
-      '@better-auth/utils': 0.4.2
-      better-auth: ^1.7.7
-      better-call: 1.4.0
 
   '@better-auth/core@1.7.7':
     resolution: {integrity: sha512-srgFzHEjB2WWlokFz1i4BfG41sNhsA105Pukgqu6RrEh5A+LSkzf1mCHydVipkjt9l5qswtBMi7IL6ouHbZL4Q==}
@@ -13791,14 +13774,6 @@ snapshots:
       '@types/react': 19.3.0
 
   '@bcoe/v8-coverage@1.0.2': {}
-
-  '@better-auth/api-key@1.7.7(@better-auth/core@1.7.7)(@better-auth/utils@0.5.0)(better-auth@1.7.7)(better-call@1.4.1)':
-    dependencies:
-      '@better-auth/core': 1.7.7(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.9.1)(better-call@1.4.1)(jose@6.2.12)(kysely@0.29.6)(nanostores@1.5.4)
-      '@better-auth/utils': 0.5.0
-      better-auth: 1.7.7(@opentelemetry/api@1.9.1)(@prisma/client@7.10.0)(mysql2@3.24.5)(next@16.3.8)(prisma@7.10.0)(react-dom@19.3.0)(react@19.3.0)(solid-js@1.9.15)(vitest@5.0.3)
-      better-call: 1.4.1(zod@4.6.5)
-      zod: 4.6.5
 
   '@better-auth/core@1.7.7(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.9.1)(better-call@1.4.0)(jose@6.2.12)(kysely@0.29.6)(nanostores@1.5.4)':
     dependencies:

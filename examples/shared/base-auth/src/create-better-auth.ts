@@ -1,4 +1,3 @@
-import { apiKey } from "@better-auth/api-key";
 import { sso } from "@better-auth/sso";
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
@@ -43,7 +42,7 @@ export const createBetterAuth = (params: CreateBetterAuthParams) => {
     session,
     advanced,
     socialProviders,
-    plugins: [nextCookies(), sso(), openAPI(), jwt(), apiKey()],
+    plugins: [nextCookies(), sso(), openAPI(), jwt()],
     // https://www.better-auth.com/docs/basic-usage
     emailAndPassword: {
       enabled: true,
