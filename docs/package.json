@@ -40,5 +40,22 @@
     "typescript": "7.0.2",
     "ultracite": "7.12.2",
     "vitest": "5.0.3"
+  },
+  "devEngines": {
+    "runtime": [
+      {
+        "name": "node",
+        "version": "^24",
+        "onFail": "warn"
+      },
+      {
+        "name": "bun",
+        "version": "*",
+        "onFail": "warn"
+      }
+    ]
+  },
+  "engines": {
+    "node": "^24"
   }
 }
