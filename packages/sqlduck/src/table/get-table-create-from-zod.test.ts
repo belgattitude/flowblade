@@ -15,6 +15,7 @@ import {
 } from "@duckdb/node-api";
 import type { DuckDBType } from "@duckdb/node-api";
 import { duckdb as duckDbDialect, formatDialect } from "sql-formatter";
+import { expectTypeOf, describe, expect, it } from "vitest";
 import * as z from "zod";
 
 import { testFullSupportedColumnsZodSchema } from "#/tests/data/test-full-supported-columns-zod-schema.ts";
@@ -22,7 +23,7 @@ import { testFullSupportedColumnsZodSchema } from "#/tests/data/test-full-suppor
 import { Table } from "../objects/table.ts";
 import { getTableCreateFromZod } from "./get-table-create-from-zod.ts";
 
-describe("getTableCreateFromZod", () => {
+describe(getTableCreateFromZod, () => {
   describe("DDL", () => {
     describe("when create or replace is specified", () => {
       it("should return a valid create table from the schema", () => {
@@ -85,7 +86,7 @@ describe("getTableCreateFromZod", () => {
         schema: testFullSupportedColumnsZodSchema,
       });
       expectTypeOf(columnTypes).toEqualTypeOf<
-        Map<keyof typeof testFullSupportedColumnsZodSchema.shape, DuckDBType>
+        Map<keyof z.infer<typeof testFullSupportedColumnsZodSchema>, DuckDBType>
       >();
 
       expect([...columnTypes.keys()]).toStrictEqual(
@@ -98,7 +99,7 @@ describe("getTableCreateFromZod", () => {
 
       expect(columnTypes).toStrictEqual(
         new Map<
-          keyof typeof testFullSupportedColumnsZodSchema.shape,
+          keyof z.infer<typeof testFullSupportedColumnsZodSchema>,
           DuckDBType
         >([
           ["id", BIGINT],
@@ -144,7 +145,56 @@ describe("getTableCreateFromZod", () => {
           // @ts-expect-error schema cannot contain a nested object
           schema: schema,
         })
-      ).toThrow();
+      ).toThrow("Cannot guess 'nestedObject' type");
+    });
+  });
+  describe("When duckdbType is an explicit DECIMAL(width,scale)", () => {
+    it("should use the provided width and scale", () => {
+      const { ddl, columnTypes } = getTableCreateFromZod({
+        table: new Table("test"),
+        schema: z.object({
+          price: z.number().meta({ duckdbType: "DECIMAL(10,2)" }),
+          rate: z.number().meta({ duckdbType: "decimal( 38, 10 )" }),
+          amount: z.number().meta({ duckdbType: "DECIMAL" }),
+        }),
+      });
+      expect(columnTypes.get("price")).toStrictEqual(DECIMAL(10, 2));
+      expect(columnTypes.get("rate")).toStrictEqual(DECIMAL(38, 10));
+      expect(columnTypes.get("amount")).toStrictEqual(DECIMAL(18, 3));
+      expect(ddl).toContain("price DECIMAL(10,2) NOT NULL");
+      expect(ddl).toContain("rate DECIMAL(38,10) NOT NULL");
+    });
+
+    it("should fail when width or scale are out of range", () => {
+      for (const duckdbType of [
+        "DECIMAL(39,2)",
+        "DECIMAL(0,0)",
+        "DECIMAL(4,5)",
+      ]) {
+        expect(() =>
+          getTableCreateFromZod({
+            table: new Table("test"),
+            schema: z.object({ price: z.number().meta({ duckdbType }) }),
+          })
+        ).toThrow(/Invalid duckdbType/);
+      }
+    });
+  });
+  describe("When the zod schema uses multipleOf", () => {
+    it("should infer the DECIMAL width and scale", () => {
+      const { columnTypes } = getTableCreateFromZod({
+        table: new Table("test"),
+        schema: z.object({
+          price: z.number().multipleOf(0.01).min(0).max(999.99),
+          tiny: z.number().multipleOf(1e-7),
+          huge: z.number().multipleOf(0.01).min(0).max(1e25),
+          list: z.array(z.number().multipleOf(0.5)),
+        }),
+      });
+      expect(columnTypes.get("price")).toStrictEqual(DECIMAL(18, 2));
+      expect(columnTypes.get("tiny")).toStrictEqual(DECIMAL(18, 7));
+      expect(columnTypes.get("huge")).toStrictEqual(DECIMAL(28, 2));
+      expect(columnTypes.get("list")).toStrictEqual(LIST(DECIMAL(18, 1)));
     });
   });
 });

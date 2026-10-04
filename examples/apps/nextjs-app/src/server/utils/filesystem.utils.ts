@@ -17,7 +17,7 @@ export const createDirectory = (path: string) => {
 
 export const createAndEnsureWritableDirectory = (
   label: string,
-  path?: string | undefined
+  path?: string
 ) => {
   if (path === undefined) {
     return;

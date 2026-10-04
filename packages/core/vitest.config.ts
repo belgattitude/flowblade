@@ -22,8 +22,14 @@ export default defineConfig({
     clearMocks: true,
     coverage: {
       include: ["src/**/*.{js,jsx,ts,tsx}"],
-      provider: "istanbul",
-      reporter: ["text", "json", "clover"],
+      provider: "v8",
+      reporter: ["text"],
+      thresholds: {
+        lines: 80, // Fails if total line coverage is under 80%
+        statements: 80, // Fails if total statement coverage is under 80%
+        functions: 80, // Fails if total function coverage is under 85%
+        branches: 70, // Fails if total branch coverage is under 75%
+      },
     },
     environment: "node",
     exclude: [

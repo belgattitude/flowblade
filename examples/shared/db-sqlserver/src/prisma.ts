@@ -19,7 +19,7 @@ if (dotenvxConfig.error) {
 export class PrismaClientSqlServer extends PrismaClient {
   constructor() {
     const databaseUrl = process.env.DB_FLOWBLADE_SQLSERVER_JDBC;
-    if (!databaseUrl) {
+    if (databaseUrl === undefined || databaseUrl === "") {
       throw new Error("DB_FLOWBLADE_SQLSERVER_JDBC must be configured");
     }
     super({ adapter: new PrismaMssql(databaseUrl) });

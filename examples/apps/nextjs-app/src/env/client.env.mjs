@@ -1,7 +1,7 @@
 // @ts-check
 
 /*
- * Please avoid to use valibot default and/or coercion.
+ * Please avoid to use zod default and/or coercion.
  *
  * Default should live under the main Next.js committed ".env" file.
  * As coercion is only available when passing through
@@ -10,19 +10,15 @@
  */
 
 import { createEnv } from "@t3-oss/env-nextjs";
-import * as v from "valibot";
+import * as z from "zod";
 
 export const clientEnv = createEnv({
   client: {
-    NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED: v.picklist(["true", "false"]),
-    NEXT_PUBLIC_SENTRY_ENABLED: v.picklist(["true", "false"]),
-    NEXT_PUBLIC_SENTRY_DSN: v.optional(v.string()),
+    NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED: z.enum(["true", "false"]),
   },
   emptyStringAsUndefined: true,
   runtimeEnv: {
     NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED:
       process.env.NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED,
-    NEXT_PUBLIC_SENTRY_ENABLED: process.env.NEXT_PUBLIC_SENTRY_ENABLED,
-    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   },
 });

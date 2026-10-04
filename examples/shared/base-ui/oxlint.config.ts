@@ -9,6 +9,13 @@ export default defineConfig({
     "src/components/**",
   ],
   rules: {
+    // example/doc code is illustrative, boundary-parsing rules add noise here
+    "anti-slop/no-runtime-typeof": "off",
+    "anti-slop/no-conditional-empty-object-spread": "off",
+    "anti-slop/no-chained-type-assertions": "off",
+    "anti-slop/no-unsafe-dictionary-type": "off",
+    "anti-slop/no-unknown-parameters": "off",
+    "anti-slop/no-known-value-widening": "off",
     "sort-keys": "off",
   },
   overrides: [
@@ -18,6 +25,10 @@ export default defineConfig({
         "func-style": "off",
         "no-plusplus": "off",
         "require-await": "off",
+        "typescript/no-misused-promises": "off",
+        "typescript/strict-void-return": "off",
+        "typescript/strict-boolean-expressions": "off",
+        "typescript/no-unsafe-type-assertion": "off",
       },
     },
   ],

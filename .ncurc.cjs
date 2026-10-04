@@ -33,7 +33,6 @@ const npmPreapprovedPackages = [
   '@better-auth/*',
   '@typescript-eslint/*',
   'prettier',
-  '@kubb/*',
   'tsdown',
   'valibot',
   'zod',
@@ -46,6 +45,7 @@ const npmPreapprovedPackages = [
   'oxlint',
   'oxfmt',
   'oxlint-tsgolint',
+  '@dotenvx/*'
 ];
 
 module.exports = defineConfig({
@@ -57,11 +57,11 @@ module.exports = defineConfig({
     if (
       npmPreapprovedPackages.some((allowed) =>
       {
-          if (allowed.endsWith('/*')) {
-           return packageName.startsWith(allowed.slice(0, -1));
-          } else {
-            return packageName === allowed;
-          }
+        if (allowed.endsWith('/*')) {
+          return packageName.startsWith(allowed.slice(0, -1));
+        } else {
+          return packageName === allowed;
+        }
       })
     ) {
       return 0;
@@ -81,15 +81,6 @@ module.exports = defineConfig({
 
     '@sentry/nextjs',
 
-    // kubb
-    "@kubb/cli",
-    "@kubb/core",
-    "@kubb/oas",
-    "@kubb/plugin-client",
-    "@kubb/plugin-oas",
-    "@kubb/plugin-react-query",
-    "@kubb/plugin-ts",
-    "@kubb/react",
 
     // Depending on v1/v2 support you might want to disable these updates
     /*

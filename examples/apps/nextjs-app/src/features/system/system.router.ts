@@ -12,6 +12,7 @@ app.get(
   "/stats",
   describeRoute({
     description: "System stats",
+    tags: ["system"],
     responses: {
       200: {
         content: {

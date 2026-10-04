@@ -9,7 +9,16 @@ import { MSSQLServerContainer } from "@testcontainers/mssqlserver";
 import type { StartedMSSQLServerContainer } from "@testcontainers/mssqlserver/build/mssqlserver-container";
 import isInCi from "is-in-ci";
 import { type InferResult, sql } from "kysely";
-import { afterEach, beforeEach, describe, expect, expectTypeOf } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  expectTypeOf,
+  it,
+  afterAll,
+  beforeAll,
+} from "vitest";
 
 import {
   flowbladeLogtapeKyselyConfig,
@@ -258,7 +267,7 @@ describe("MSSQL e2e tests", () => {
           const { data, meta, error } = result;
 
           expect(error).toBeUndefined();
-          expect(meta.getSpans().length).toBe(1);
+          expect(meta.getSpans()).toHaveLength(1);
           expect(data![0]!).toMatchObject({
             id: expect.any(Number),
             created_at: expect.any(Date),
@@ -322,7 +331,9 @@ describe("MSSQL e2e tests", () => {
     beforeEach(async () => {
       await configure({
         sinks: {
-          buffer: logBuffer.push.bind(logBuffer),
+          buffer: (record) => {
+            logBuffer.push(record);
+          },
           console: getConsoleSink({
             nonBlocking: {
               bufferSize: 1000, // Flush after 1000 records

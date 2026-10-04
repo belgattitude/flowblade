@@ -82,11 +82,33 @@ const duckDbTypes = [
   ["FLOAT[]", new DuckDBListType(FLOAT)],
 ] as const satisfies [string, DuckDBType][];
 
-export type SupportedCustomDuckDbTypes = (typeof duckDbTypes)[number][0];
+export type SupportedCustomDuckDbTypes =
+  | (typeof duckDbTypes)[number][0]
+  | `DECIMAL(${number},${number})`
+  | `DECIMAL(${number}, ${number})`;
 
-const duckDbTypesMap = new Map<SupportedCustomDuckDbTypes, DuckDBType>(
-  duckDbTypes
-);
+const duckDbTypesMap = new Map<string, DuckDBType>(duckDbTypes);
+
+const decimalTypeRegexp = /^DECIMAL\(\s*(\d+)\s*,\s*(\d+)\s*\)$/i;
+
+/**
+ * Resolve a custom duckdbType (ie: 'UUID', 'DECIMAL(10,2)') to its DuckDBType,
+ * returns undefined when not supported.
+ */
+const getCustomDuckDbType = (duckdbType: string): DuckDBType | undefined => {
+  const decimalMatch = decimalTypeRegexp.exec(duckdbType.trim());
+  if (decimalMatch === null) {
+    return duckDbTypesMap.get(duckdbType);
+  }
+  const width = Number(decimalMatch[1]);
+  const scale = Number(decimalMatch[2]);
+  if (width < 1 || width > 38 || scale > width) {
+    throw new Error(
+      `Invalid duckdbType '${duckdbType}', DECIMAL width must be between 1 and 38 and scale must not exceed width`
+    );
+  }
+  return new DuckDBDecimalType(width, scale);
+};
 
 export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
   params: GetTableCreateFromZodParams<TSchema>
@@ -150,18 +172,13 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       name: columnName,
     } satisfies Partial<ColumnDDL>;
 
-    if (
-      duckdbType !== undefined &&
-      !duckDbTypesMap.has(duckdbType as SupportedCustomDuckDbTypes)
-    ) {
+    const customDuckDbType =
+      duckdbType === undefined ? undefined : getCustomDuckDbType(duckdbType);
+    if (duckdbType !== undefined && customDuckDbType === undefined) {
       throw new Error(
         `The provided "duckdbType: '${duckdbType}'" for '${columnName}' isn't currently supported - ${JSON.stringify(def)}`
       );
     }
-    const customDuckDbType =
-      duckdbType === undefined
-        ? undefined
-        : duckDbTypesMap.get(duckdbType as SupportedCustomDuckDbTypes);
 
     if (customDuckDbType === undefined) {
       switch (type) {

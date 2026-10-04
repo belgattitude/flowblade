@@ -10,7 +10,7 @@ async function* makeRows(rows: Row[]): AsyncGenerator<Row> {
   }
 }
 
-describe("rowsToColumns", () => {
+describe(rowsToColumns, () => {
   it("should convert rows to columns (two rows)", async () => {
     const input: Row[] = [
       { id: "1", name: "Seb" },
@@ -21,7 +21,7 @@ describe("rowsToColumns", () => {
     const out = await Array.fromAsync(gen);
 
     // rowsToColumns yields exactly one columns array [[ids...], [names...]]
-    expect(out.length).toBe(1);
+    expect(out).toHaveLength(1);
     expect(out[0]).toStrictEqual([
       ["1", "2"],
       ["Seb", "Ada"],
@@ -31,7 +31,7 @@ describe("rowsToColumns", () => {
   it("should yield nothing for empty input", async () => {
     const gen = rowsToColumns<Row>(makeRows([]));
     const out = await Array.fromAsync(gen);
-    expect(out.length).toBe(0);
+    expect(out).toHaveLength(0);
   });
 
   it("preserves column order based on first row keys", async () => {

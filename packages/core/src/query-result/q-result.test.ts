@@ -1,4 +1,12 @@
-import { expectTypeOf } from "vitest";
+import {
+  expectTypeOf,
+  beforeEach,
+  vi,
+  afterEach,
+  describe,
+  expect,
+  it,
+} from "vitest";
 
 import {
   QMeta,
@@ -8,7 +16,7 @@ import {
 import { QResult } from "./q-result";
 import type { QError } from "./types";
 
-describe("QResult", () => {
+describe(QResult, () => {
   const initialSqlSpan: QMetaSqlSpan = {
     type: "sql",
     timeMs: 12,
@@ -47,14 +55,17 @@ describe("QResult", () => {
   describe("Constructor", () => {
     describe("With a success result", () => {
       const successResult = createSuccessResult();
+
       it("should type the data as optional", () => {
         expectTypeOf(successResult.data).toEqualTypeOf<
           { name: string }[] | undefined
         >();
       });
+
       it("should type the error as optional", () => {
         expectTypeOf(successResult.error).toEqualTypeOf<QError | undefined>();
       });
+
       it("should type the meta as required", () => {
         expectTypeOf(successResult.meta).toEqualTypeOf<QMeta>();
       });
@@ -90,12 +101,15 @@ describe("QResult", () => {
           spans: initialSqlSpan,
         }),
       });
+
       it("should type the data as optional", () => {
         expectTypeOf(errorResult.data).toEqualTypeOf<SuccessData | undefined>();
       });
+
       it("should type the error as optional", () => {
         expectTypeOf(errorResult.error).toEqualTypeOf<QError | undefined>();
       });
+
       it("should type the meta as required", () => {
         expectTypeOf(errorResult.meta).toEqualTypeOf<QMeta>();
       });
@@ -148,25 +162,26 @@ describe("QResult", () => {
       expect(value).toStrictEqual(successData);
       expectTypeOf(value).toEqualTypeOf<SuccessData>();
     });
+
     it("should throw the error if a failure", () => {
       const errorResult = createErrorResult("errorMessage");
-      expect(() => errorResult.getOrThrow()).toThrowError(
-        new Error("errorMessage")
-      );
+      expect(() => errorResult.getOrThrow()).toThrow(new Error("errorMessage"));
     });
+
     it("should throw custom error if a failure", () => {
       const errorResult = createErrorResult("qErrMsg");
       expect(() =>
         errorResult.getOrThrow((qErr) => {
           return new EvalError(`${qErr.message} & custom`);
         })
-      ).toThrowError(new EvalError(`qErrMsg & custom`));
+      ).toThrow(new EvalError(`qErrMsg & custom`));
     });
   });
 
   describe("map", () => {
     describe("when a result is success", () => {
       const successResult = createSuccessResult();
+
       it("should apply transformation with updated metadata", () => {
         const mappedResult = successResult.map((row) => {
           vi.advanceTimersByTime(1000);
@@ -185,8 +200,8 @@ describe("QResult", () => {
 
         expect(mappedResult.isOk()).toBe(true);
         const { meta, data } = mappedResult;
-        expect(meta.getSpans().length).toBe(2);
-        expect(meta.getLatestSpan()?.type).toStrictEqual("map");
+        expect(meta.getSpans()).toHaveLength(2);
+        expect(meta.getLatestSpan()?.type).toBe("map");
         expect(meta.getLatestSpan()?.timeMs).toBeGreaterThanOrEqual(1000);
         expect(meta.getTotalTimeMs()).toBeGreaterThan(initialSqlSpan.timeMs);
         expect(data).toStrictEqual([
@@ -205,6 +220,7 @@ describe("QResult", () => {
         >();
       });
     });
+
     it("should return an error when the transform function throws", () => {
       const successResult = createSuccessResult();
       const mappedResult = successResult.map((_data) => {
@@ -216,8 +232,32 @@ describe("QResult", () => {
         message: "Hello",
       });
       const span = mappedResult.meta.getLatestSpan();
-      expect(span?.type).toStrictEqual("map");
+      expect(span?.type).toBe("map");
       expect(span?.timeMs).toBeGreaterThanOrEqual(10);
+    });
+
+    it("should return an error when the transform function throws a string", () => {
+      const mappedResult = createSuccessResult().map((_data) => {
+        // oxlint-disable-next-line no-throw-literal, typescript/only-throw-error
+        throw "Hello string";
+      });
+      expect(mappedResult.isError()).toBe(true);
+      expect(mappedResult.error).toStrictEqual({
+        message: "Hello string",
+      });
+    });
+
+    // Some libraries (ie: tedious) might throw an array of errors
+    it("should return an error with a fallback message when the transform function throws an array", () => {
+      const mappedResult = createSuccessResult().map((_data) => {
+        // oxlint-disable-next-line no-throw-literal, typescript/only-throw-error
+        throw [new Error("first"), new Error("second")];
+      });
+      expect(mappedResult.isError()).toBe(true);
+      expect(mappedResult.error).toStrictEqual({
+        message: "mapper: unknown error",
+      });
+      expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
     });
 
     it("should be chainable", () => {

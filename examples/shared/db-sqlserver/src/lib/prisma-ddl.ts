@@ -43,7 +43,7 @@ export class PrismaDdl {
    * @throws Error
    */
   createDdlFile = (outputFile = "prisma/schema.prisma") => {
-    const log = this.logger.log;
+    const { log } = this.logger;
     log("info", "Running create ddl...");
 
     const createTablesStr = this.getDdl();

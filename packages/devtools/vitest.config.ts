@@ -20,13 +20,17 @@ export default defineConfig({
       conditions: ["flowblade-monorepo-source", "import", "default"],
     },
   },
-  cacheDir: "../../.cache/vite/source-duckdb",
   test: {
     globalSetup: "./vitest.setup.ts",
+    deps: {
+      optimizer: {
+        ssr: { enabled: true },
+      },
+    },
     coverage: {
       include: ["src/**/*.{js,jsx,ts,tsx}"],
-      provider: "istanbul",
-      reporter: ["text", "json", "clover"],
+      provider: "v8",
+      reporter: ["text", "clover"],
     },
     environment: "node",
     exclude: [

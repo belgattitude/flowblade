@@ -1,12 +1,12 @@
 import { duckdb as duckDbDialect, formatDialect } from "sql-formatter";
-import { describe, expectTypeOf } from "vitest";
+import { describe, expectTypeOf, expect, it } from "vitest";
 import type * as z from "zod";
 
 import type { testFullSupportedColumnsZodSchema } from "#/tests/data/test-full-supported-columns-zod-schema.ts";
 
 import { createDuckKysekyQueryBuilder } from "./create-duck-kysely-query-builder.ts";
 
-describe("createDuckKysekyQueryBuilder", () => {
+describe(createDuckKysekyQueryBuilder, () => {
   it("should work", async () => {
     type Database = {
       full_schema: z.output<typeof testFullSupportedColumnsZodSchema>;

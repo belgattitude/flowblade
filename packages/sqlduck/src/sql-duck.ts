@@ -19,7 +19,7 @@ import { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts
 import type { Table } from "./objects/table.ts";
 import { createTableFromZod } from "./table/create-table-from-zod.ts";
 import type { TableCreateOptions } from "./table/get-table-create-from-zod.ts";
-import { rowsToColumnsChunks } from "./utils/rows-to-columns-chunks.ts";
+import { rowsToConvertedColumnsChunks } from "./utils/rows-to-converted-columns-chunks.ts";
 import type {
   InferZodRelaxedDataSchema,
   TableSchemaZod,
@@ -87,6 +87,10 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
    *
    * For example, if `chunkSize` is 2048 and `flushSyncFrequency` is 5,
    * the appender will be flushed every 10,240 rows (5 chunks * 2048 rows/chunk).
+   *
+   * Each flush has a fixed cost, frequent flushes slow down inserts
+   * (~30% slower with 10 than 100 on a file database).
+   * @default 100
    */
   flushSyncFrequency?: number;
 
@@ -116,6 +120,15 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
    * @see {@link https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads.html#preserving-insertion-order}
    */
   preserveInsertionOrder?: boolean;
+
+  /**
+   * Aborts the insertion, `toTable` then rejects with `signal.reason` (an
+   * `AbortError` DOMException by default) and closes `rowStream`.
+   *
+   * The signal is checked before each row: the table is still created, and
+   * the chunks appended before the abort are kept, but no checkpoint happens.
+   */
+  signal?: AbortSignal;
 };
 
 export type ToTableResult = {
@@ -134,8 +147,8 @@ export type ToTableResult = {
 };
 
 export class SqlDuck {
-  #conn: DuckDBConnection;
-  #logger: Logger;
+  readonly #conn: DuckDBConnection;
+  readonly #logger: Logger;
 
   constructor(params: SqlDuckParams) {
     this.#conn = params.conn;
@@ -167,7 +180,7 @@ export class SqlDuck {
    *  schema: userSchema,
    *  rowStream: getUserRows(),
    *  chunkSize: 2048,
-   *  flushSyncFrequency: 10, // flush after every 10 chunks
+   *  flushSyncFrequency: 100, // flush after every 100 chunks
    *  onChunkAppendedFrequency: 1, // multiple of chunks
    *  onChunkAppended: ({ totalRows }) => {
    *    console.log(`Appended ${totalRows} rows so far`);
@@ -195,17 +208,18 @@ export class SqlDuck {
       createOptions,
       onChunkAppended,
       onChunkAppendedFrequency,
-      flushSyncFrequency = 10,
+      flushSyncFrequency = 100,
       autoCheckpoint = true,
       checkpointChunksFrequency,
       preserveInsertionOrder,
+      signal,
     } = params;
 
     if (!Number.isSafeInteger(chunkSize) || chunkSize < 1 || chunkSize > 2048) {
       throw new Error("chunkSize must be a number between 1 and 2048");
     }
 
-    if (autoCheckpoint && typeof table.databaseName !== "string") {
+    if (autoCheckpoint && table.databaseName === undefined) {
       throw new Error(
         "autoCheckpoint requires table.databaseName to be provided."
       );
@@ -213,7 +227,7 @@ export class SqlDuck {
 
     if (
       checkpointChunksFrequency !== undefined &&
-      typeof table.databaseName !== "string"
+      table.databaseName === undefined
     ) {
       throw new Error(
         "checkpointChunksFrequency requires table.databaseName to be provided."
@@ -247,6 +261,8 @@ export class SqlDuck {
       );
     }
 
+    signal?.throwIfAborted();
+
     const dbManager = new DuckDatabaseManager(this.#conn);
 
     const timeStart = Date.now();
@@ -277,7 +293,7 @@ export class SqlDuck {
       table.databaseName
     );
 
-    const chunkTypes = Array.from(columnTypes.values());
+    const chunkTypes = [...columnTypes.values()];
 
     const columnTypeIds = {} as Record<keyof z.output<TSchema>, DuckDBType>;
     const columnKeys = [] as (keyof z.output<TSchema>)[];
@@ -285,7 +301,6 @@ export class SqlDuck {
       columnKeys.push(key);
       columnTypeIds[key as keyof z.output<TSchema>] = duckType;
     }
-    const numColumns = columnKeys.length;
 
     const transformers = createDuckColumnConverters(columnTypeIds);
 
@@ -293,18 +308,20 @@ export class SqlDuck {
 
     const chunkAppendedCollector = createOnChunkAppendedCollector();
 
-    const columnStream = rowsToColumnsChunks<
+    const columnStream = rowsToConvertedColumnsChunks<
       InferZodRelaxedDataSchema<TSchema>
     >({
       rows: rowStream,
       chunkSize: chunkSize,
-      transformers: transformers,
+      columns: columnKeys as (keyof TSchema["shape"])[],
+      converters: transformers,
+      signal,
     });
 
     let appendedChunkCount = 0;
 
     const tableFullName = table.getFullName();
-    const tableName = table.tableName;
+    const { tableName } = table;
     try {
       const isAsyncCb =
         onChunkAppended !== undefined &&
@@ -313,10 +330,7 @@ export class SqlDuck {
       for await (const dataChunk of columnStream) {
         const chunk = DuckDBDataChunk.create(chunkTypes);
 
-        const columns = Array.from<DuckDBValue[]>({ length: numColumns });
-        for (let i = 0; i < numColumns; i++) {
-          columns[i] = dataChunk[columnKeys[i]] as unknown as DuckDBValue[];
-        }
+        const columns = dataChunk as DuckDBValue[][];
 
         totalRows += columns[0]?.length ?? 0;
 
@@ -350,7 +364,7 @@ export class SqlDuck {
         if (
           checkpointChunksFrequency !== undefined &&
           appendedChunkCount % checkpointChunksFrequency === 0 &&
-          typeof table.databaseName === "string"
+          table.databaseName !== undefined
         ) {
           try {
             await dbManager.checkpoint(table.databaseName);
@@ -368,7 +382,7 @@ export class SqlDuck {
       appender.flushSync();
       appender.closeSync();
 
-      if (autoCheckpoint && typeof table.databaseName === "string") {
+      if (autoCheckpoint && table.databaseName !== undefined) {
         try {
           await dbManager.checkpoint(table.databaseName);
         } catch (e) {
@@ -398,6 +412,17 @@ export class SqlDuck {
       };
     } catch (e) {
       appender.closeSync();
+      if (signal?.aborted === true && e === signal.reason) {
+        this.#logger.warning(
+          `Aborted appending data into table '${tableFullName}' after ${totalRows} rows`,
+          {
+            table: tableFullName,
+            totalRows,
+          }
+        );
+        // Not wrapped so callers can check for an AbortError
+        throw e;
+      }
       const msg = `Failed to append data into table '${table.getFullName()}' - ${(e as Error)?.message ?? ""}`;
       this.#logger.error(msg, {
         table: table.getFullName(),

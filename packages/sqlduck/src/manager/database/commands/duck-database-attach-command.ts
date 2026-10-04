@@ -26,7 +26,7 @@ export class DuckDatabaseAttachCommand implements IGetRawSql {
   }
 
   getRawSql = () => {
-    const dbParams = this.dbParams;
+    const { dbParams } = this;
     const parts = ["ATTACH", this.options.behaviour].filter(Boolean);
     const { type, alias } = dbParams;
     switch (type) {

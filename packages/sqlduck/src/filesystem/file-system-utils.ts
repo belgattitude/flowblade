@@ -6,8 +6,10 @@ import type { Logger } from "@logtape/logtape";
 
 import { sqlduckDefaultLogtapeLogger } from "../logger/sqlduck-default-logtape-logger.ts";
 
+type ParsedPath = { directory: string; filename: string };
+
 export class FileSystemUtils {
-  #logger: Logger;
+  readonly #logger: Logger;
   constructor(params?: { logger?: Logger }) {
     this.#logger =
       params?.logger ??
@@ -55,7 +57,8 @@ export class FileSystemUtils {
         this.createDirectory(path);
       } catch (e) {
         throw new Error(
-          `Failed to create ${label} '${path}' - ${(e as Error)?.message ?? ""}`
+          `Failed to create ${label} '${path}' - ${(e as Error)?.message ?? ""}`,
+          { cause: e }
         );
       }
     }
@@ -94,7 +97,7 @@ export class FileSystemUtils {
     }
   };
 
-  parsePath = (path: string): { directory: string; filename: string } => {
+  parsePath = (path: string): ParsedPath => {
     const dir = dirname(path);
     if (dir.trim() === "") {
       throw new Error(`Invalid path, missing directory '${path}'`);

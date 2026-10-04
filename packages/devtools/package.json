@@ -37,20 +37,66 @@
     "format": "oxfmt --write",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "@codspeed/vitest-plugin": "5.7.1",
-    "@vitest/coverage-istanbul": "5.0.2",
-    "@vitest/ui": "5.0.2",
-    "browserslist": "4.29.0",
+    "@types/node": "26.6.4",
+    "@vitest/coverage-v8": "5.0.3",
+    "@vitest/ui": "5.0.3",
+    "browserslist": "4.29.3",
     "browserslist-to-esbuild": "2.1.1",
     "cross-env": "10.1.0",
-    "oxfmt": "0.70.0",
-    "oxlint": "1.85.0",
+    "eslint-plugin-security": "4.2.0",
+    "oxfmt": "0.71.0",
+    "oxlint": "1.86.0",
+    "oxlint-tailwindcss": "1.14.0",
     "oxlint-tsgolint": "7.0.2003",
     "rimraf": "6.1.3",
+    "tinybench": "6.2.0",
     "tsdown": "0.23.0",
     "typescript": "7.0.2",
-    "ultracite": "7.12.0",
-    "vitest": "5.0.2"
+    "ultracite": "7.12.2",
+    "vite": "8.3.2",
+    "vitest": "5.0.3"
+  },
+  "peerDependencies": {
+    "@types/node": "^26.6.4",
+    "eslint-plugin-security": "^4.2.0",
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.86.0",
+    "oxlint-tailwindcss": "^1.14.0",
+    "oxlint-tsgolint": "^7.0.2003",
+    "ultracite": "^7.12.2",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3"
+  },
+  "peerDependenciesMeta": {
+    "@types/node": {
+      "optional": false
+    },
+    "eslint-plugin-security": {
+      "optional": false
+    },
+    "oxlint": {
+      "optional": false
+    },
+    "oxfmt": {
+      "optional": false
+    },
+    "oxlint-tailwindcss": {
+      "optional": true
+    },
+    "oxlint-tsgolint": {
+      "optional": false
+    },
+    "ultracite": {
+      "optional": false
+    },
+    "vite": {
+      "optional": true
+    },
+    "vitest": {
+      "optional": true
+    }
   }
 }

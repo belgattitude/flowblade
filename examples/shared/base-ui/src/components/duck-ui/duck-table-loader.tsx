@@ -12,7 +12,7 @@ import {
 import { Progress } from "@examples/base-ui/components/ui/progress";
 import { Skeleton } from "@examples/base-ui/components/ui/skeleton";
 import { Spinner } from "@examples/base-ui/components/ui/spinner";
-import { cn } from "@examples/base-ui/lib/utils";
+import { cn } from "cn";
 import {
   AlertCircleIcon,
   CheckCircle2Icon,
@@ -219,9 +219,10 @@ export function DuckTableLoader({
           buffer += decoder.decode(result.value, { stream: true });
           flushBuffer();
         }
-      } catch (error) {
+      } catch (caught) {
         if (cancelled) return;
-        const error = error instanceof Error ? error : new Error(String(error));
+        const error =
+          caught instanceof Error ? caught : new Error(String(caught));
         setState((prev) => ({
           ...prev,
           errorMessage: error.message,

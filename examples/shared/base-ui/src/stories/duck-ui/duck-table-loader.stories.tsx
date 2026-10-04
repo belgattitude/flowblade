@@ -64,14 +64,18 @@ function StreamDemo({
         tableName={tableName}
         description={description}
         stream={stream}
-        onComplete={({ totalRows, timeMs }) =>
-          console.log(`[onComplete] totalRows=${totalRows} timeMs=${timeMs}`)
-        }
-        onError={(err) => console.error("[onError]", err)}
+        onComplete={({ totalRows, timeMs }) => {
+          console.log(`[onComplete] totalRows=${totalRows} timeMs=${timeMs}`);
+        }}
+        onError={(err) => {
+          console.error("[onError]", err);
+        }}
       />
       <button
         type="button"
-        onClick={() => setStream(makeStream())}
+        onClick={() => {
+          setStream(makeStream());
+        }}
         className="border-border bg-background text-foreground hover:bg-muted rounded-md border px-3 py-1.5 text-xs"
       >
         ↺ Restart
@@ -104,7 +108,7 @@ function createFetchStub(
     const requestUrl =
       typeof input === "string" ? input : (input as Request).url;
     if (!requestUrl.endsWith(url)) {
-      return globalThis.fetch(input, init);
+      return await globalThis.fetch(input, init);
     }
     const body = new ReadableStream<Uint8Array>({
       start(controller) {
@@ -160,10 +164,12 @@ function FetchStreamDemo({
         tableName={tableName}
         description={description}
         stream={stream}
-        onComplete={({ totalRows, timeMs }) =>
-          console.log(`[onComplete] totalRows=${totalRows} timeMs=${timeMs}`)
-        }
-        onError={(err) => console.error("[onError]", err)}
+        onComplete={({ totalRows, timeMs }) => {
+          console.log(`[onComplete] totalRows=${totalRows} timeMs=${timeMs}`);
+        }}
+        onError={(err) => {
+          console.error("[onError]", err);
+        }}
       />
       {fetchError && (
         <p className="text-destructive text-xs">Fetch error: {fetchError}</p>

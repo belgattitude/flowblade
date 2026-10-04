@@ -1,5 +1,11 @@
 # @flowblade/sql-tag
 
+## 0.4.1
+
+### Patch Changes
+
+- [#1411](https://github.com/belgattitude/flowblade/pull/1411) [`489125f`](https://github.com/belgattitude/flowblade/commit/489125fd0bf82e9869082f281675d43057327a26) Thanks [@belgattitude](https://github.com/belgattitude)! - Relint code for best practices
+
 ## 0.4.0
 
 ### Minor Changes

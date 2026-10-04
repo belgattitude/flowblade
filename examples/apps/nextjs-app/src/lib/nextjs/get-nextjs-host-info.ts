@@ -2,7 +2,7 @@ const isBrowser = typeof window !== "undefined";
 
 const getVercelUrl = (): string | undefined => {
   const vercelEnv = process.env.NEXT_PUBLIC_VERCEL_ENV;
-  if (!vercelEnv) {
+  if (vercelEnv === undefined || vercelEnv === "") {
     return undefined;
   }
   return process.env.NEXT_PUBLIC_VERCEL_ENV === "preview"

@@ -67,8 +67,6 @@ export type KyselyMssqlDialectParams = {
  *    // 👉 Override Tedious types to enhance compatibility and modern support
  *    tediousTypes: {
  *      ...Tedious.TYPES,
- *      // see https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
- *      NVarChar: Tedious.TYPES.VarChar,
  *      // see https://github.com/kysely-org/kysely/issues/1596#issuecomment-3341591075
  *      DateTime: Tedious.TYPES.DateTime2,
  *    }
@@ -84,12 +82,21 @@ export const createKyselyMssqlDialect = (
   params: KyselyMssqlDialectParams
 ): MssqlDialect => {
   const { tediousConfig, poolOptions = {}, dialectConfig } = params;
-
   const {
     tediousTypes,
     resetConnectionsOnRelease = false,
     validateConnections = true,
   } = dialectConfig ?? {};
+  const tedious = {
+    ...Tedious,
+    connectionFactory: () => {
+      return new Tedious.Connection(tediousConfig);
+    },
+  };
+  if (tediousTypes !== undefined) {
+    // See https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
+    tedious.TYPES = tediousTypes;
+  }
   return new MssqlDialect({
     tarn: {
       ...tarn,
@@ -99,13 +106,6 @@ export const createKyselyMssqlDialect = (
     },
     validateConnections,
     resetConnectionsOnRelease,
-    tedious: {
-      ...Tedious,
-      // See https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764
-      ...(tediousTypes === undefined ? {} : { TYPES: tediousTypes }),
-      connectionFactory: () => {
-        return new Tedious.Connection(tediousConfig);
-      },
-    },
+    tedious,
   });
 };

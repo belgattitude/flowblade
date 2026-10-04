@@ -7,7 +7,7 @@ import type { FC } from "react";
 
 import { ReportAgGrid } from "@/components/grid/ag-grid/report-ag-grid";
 import { cn } from "@/components/utils";
-import { useGetApiProductEthicalSearchSuspenseHook } from "@/features/api/generated";
+import { useGetApiProductEthicalSearchSuspense } from "@/features/api/generated";
 import type { EthicalProduct } from "@/features/products/server/ethical-product.repo.ts";
 import { useSelector } from "@/redux/redux-hooks";
 
@@ -77,7 +77,7 @@ const autoSizeStrategy: GridOptions["autoSizeStrategy"] = {
 export const ProductGrid: FC<Props> = (props) => {
   const { className } = props;
   const filter = useSelector((state) => state.productFilters.filters);
-  const { data } = useGetApiProductEthicalSearchSuspenseHook({
+  const { data } = useGetApiProductEthicalSearchSuspense({
     brands: filter.brands.map((b) => b.name),
     slowdownApiMs: filter.slowdownApiMs,
   });

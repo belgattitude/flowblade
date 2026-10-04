@@ -1,8 +1,8 @@
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 
-export const fontInter = Inter({
+export const fontInter = localFont({
   display: "swap",
-  subsets: ["latin"],
+  src: "./files/inter-latin-wght-normal.woff2",
   variable: "--font-inter",
-  weight: "variable",
+  weight: "100 900",
 });

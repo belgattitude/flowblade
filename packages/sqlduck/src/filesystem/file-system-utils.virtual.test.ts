@@ -6,10 +6,10 @@ import { FileSystemUtils } from "./file-system-utils.ts";
 
 vi.mock("node:fs", () => ({
   default: {
-    mkdirSync: vi.fn(),
-    existsSync: vi.fn(),
-    statSync: vi.fn(),
-    accessSync: vi.fn(),
+    mkdirSync: vi.fn<() => void>(),
+    existsSync: vi.fn<() => boolean>(),
+    statSync: vi.fn<() => unknown>(),
+    accessSync: vi.fn<() => void>(),
     constants: {
       W_OK: 2,
     },

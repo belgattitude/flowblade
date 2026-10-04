@@ -1,5 +1,89 @@
 # @flowblade/sqlduck
 
+## 0.39.2
+
+### Patch Changes
+
+- [#1411](https://github.com/belgattitude/flowblade/pull/1411) [`489125f`](https://github.com/belgattitude/flowblade/commit/489125fd0bf82e9869082f281675d43057327a26) Thanks [@belgattitude](https://github.com/belgattitude)! - Relint code for best practices
+- Updated dependencies [[`489125f`](https://github.com/belgattitude/flowblade/commit/489125fd0bf82e9869082f281675d43057327a26)]:
+  - @flowblade/core@0.4.3
+  - @flowblade/source-duckdb@0.30.2
+  - @flowblade/sql-tag@0.4.1
+
+## 0.39.1
+
+### Patch Changes
+
+- [#1407](https://github.com/belgattitude/flowblade/pull/1407) [`9213925`](https://github.com/belgattitude/flowblade/commit/92139257a92829f2fbcdba62403cf61daa79fd12) Thanks [@belgattitude](https://github.com/belgattitude)! - Support DECIMAL width and scale
+  
+  - Value converters now use the column's DECIMAL width and scale instead of a hardcoded DECIMAL(18,3)
+  - Zod schemas can declare an explicit precision with `duckdbType: "DECIMAL(10,2)"` (a bare `"DECIMAL"` still maps to DECIMAL(18,3))
+  - DECIMAL inferred from `multipleOf` widens beyond 18 (up to 38) when the `min` / `max` bounds or the scale require it
+  - Fix `multipleOf` in exponent notation (ie: `1e-7`) being inferred as BIGINT instead of DECIMAL(18,7)
+
+## 0.39.0
+
+### Minor Changes
+
+- [#1404](https://github.com/belgattitude/flowblade/pull/1404) [`38d98a7`](https://github.com/belgattitude/flowblade/commit/38d98a79e7ae06d360edc309ea0b18ee3cbb220e) Thanks [@belgattitude](https://github.com/belgattitude)! - Add an optional `signal` (AbortSignal) to `SqlDuck.toTable`, `rowsToColumnsChunks` and `rowsToConvertedColumnsChunks`: once aborted, the iteration throws `signal.reason` and closes the row source. `toTable` rejects with the unwrapped reason so `AbortError` can be detected, keeps the chunks appended before the abort and skips the checkpoint.
+
+### Patch Changes
+
+- [#1404](https://github.com/belgattitude/flowblade/pull/1404) [`38d98a7`](https://github.com/belgattitude/flowblade/commit/38d98a79e7ae06d360edc309ea0b18ee3cbb220e) Thanks [@belgattitude](https://github.com/belgattitude)! - Faster `toTable` row conversion: rows are now filled by a function compiled with `new Function` (unrolled columns, static property access, one call site per converter). It falls back to the generic loops when compilation isn't allowed (ie: CSP forbidding eval).
+
+- [#1404](https://github.com/belgattitude/flowblade/pull/1404) [`38d98a7`](https://github.com/belgattitude/flowblade/commit/38d98a79e7ae06d360edc309ea0b18ee3cbb220e) Thanks [@belgattitude](https://github.com/belgattitude)! - `toTable` is ~30% faster on file databases: the default `flushSyncFrequency` goes from 10 to 100 chunks (every 204,800 rows with the default chunkSize). Pass `flushSyncFrequency: 10` to keep the previous behaviour.
+
+## 0.38.3
+
+### Patch Changes
+
+- [#1402](https://github.com/belgattitude/flowblade/pull/1402) [`7957220`](https://github.com/belgattitude/flowblade/commit/79572209eb74f26a303db292918e2edef69b43e4) Thanks [@belgattitude](https://github.com/belgattitude)! - Fix toTable failing on UUID columns and on BIGINT[] (or other converted type) list columns
+  
+  - `DuckValueConverter.toUUID` now returns a `DuckDBUUIDValue` instead of a bigint
+  - List items are converted according to the list value type (ie: numbers or strings to bigint for BIGINT[])
+
+- [#1402](https://github.com/belgattitude/flowblade/pull/1402) [`7957220`](https://github.com/belgattitude/flowblade/commit/79572209eb74f26a303db292918e2edef69b43e4) Thanks [@belgattitude](https://github.com/belgattitude)! - Faster DuckValueConverter: string dates/timestamps (~2x), uuid (~1.8x) and decimal from number (~7x)
+  
+  - Fix timestamps strings ending with a lowercase `z` throwing a RangeError
+  - Decimal conversion now throws a RangeError for NaN, Infinity or values not fitting in the DECIMAL(width, scale) instead of silently inserting 0
+
+- [#1402](https://github.com/belgattitude/flowblade/pull/1402) [`7957220`](https://github.com/belgattitude/flowblade/commit/79572209eb74f26a303db292918e2edef69b43e4) Thanks [@belgattitude](https://github.com/belgattitude)! - Faster toTable (~13% on node, ~6% on bun) with a specialized rowsToConvertedColumnsChunks
+
+## 0.38.2
+
+### Patch Changes
+
+- [#1398](https://github.com/belgattitude/flowblade/pull/1398) [`0cc76dd`](https://github.com/belgattitude/flowblade/commit/0cc76ddee5badda4432d0f2f16ab06a8e2a0456c) Thanks [@belgattitude](https://github.com/belgattitude)! - Optimize timestamp conversions
+
+## 0.38.1
+
+### Patch Changes
+
+- [#1395](https://github.com/belgattitude/flowblade/pull/1395) [`b4c728a`](https://github.com/belgattitude/flowblade/commit/b4c728ab8dccac395700a60da494957228817258) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to latest
+- Updated dependencies [[`b4c728a`](https://github.com/belgattitude/flowblade/commit/b4c728ab8dccac395700a60da494957228817258)]:
+  - @flowblade/core@0.4.2
+  - @flowblade/source-duckdb@0.30.1
+
+## 0.38.0
+
+### Minor Changes
+
+- [#1392](https://github.com/belgattitude/flowblade/pull/1392) [`69aa44a`](https://github.com/belgattitude/flowblade/commit/69aa44a23d963f725f81d44c2c48958ac85c8fdf) Thanks [@belgattitude](https://github.com/belgattitude)! - Support @duckdb/node-api 1.5.6-r.1
+
+### Patch Changes
+
+- Updated dependencies [[`69aa44a`](https://github.com/belgattitude/flowblade/commit/69aa44a23d963f725f81d44c2c48958ac85c8fdf)]:
+  - @flowblade/source-duckdb@0.30.0
+
+## 0.37.11
+
+### Patch Changes
+
+- [#1390](https://github.com/belgattitude/flowblade/pull/1390) [`d92d2a6`](https://github.com/belgattitude/flowblade/commit/d92d2a6b94028ef2571d9ef7b42055f1db8d5089) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to latest 2.3.9
+- Updated dependencies [[`d92d2a6`](https://github.com/belgattitude/flowblade/commit/d92d2a6b94028ef2571d9ef7b42055f1db8d5089)]:
+  - @flowblade/core@0.4.1
+  - @flowblade/source-duckdb@0.29.1
+
 ## 0.37.10
 
 ### Patch Changes

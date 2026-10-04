@@ -1,5 +1,5 @@
 import { sql } from "@flowblade/sql-tag";
-import { expectTypeOf } from "vitest";
+import { expectTypeOf, describe, it } from "vitest";
 
 import { DummyDatasource } from "../testing/dummy-datasource";
 import type { InferQResult } from "./infer-q-result";

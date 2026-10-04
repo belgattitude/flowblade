@@ -27,7 +27,7 @@ describe("rowsToColumnsChunk", () => {
       { id: number[]; name: (string | null)[] }[]
     >();
 
-    expect(out.length).toBe(3);
+    expect(out).toHaveLength(3);
     expect(out[0]).toStrictEqual({
       id: [1, 2],
       name: ["A", "B"],
@@ -88,7 +88,7 @@ describe("rowsToColumnsChunk", () => {
       chunkSize: 3,
     });
     const out = await Array.fromAsync(gen);
-    expect(out.length).toBe(0);
+    expect(out).toHaveLength(0);
   });
 
   it("throws an error if transformers contains keys not present in the row", async () => {
@@ -108,6 +108,7 @@ describe("rowsToColumnsChunk", () => {
       "transformers parameter contains unknown row ids: not_exists"
     );
   });
+
   it("properly infers the transformer function return type", async () => {
     const input: Row[] = [{ id: 1, name: "A" }];
 
@@ -127,6 +128,63 @@ describe("rowsToColumnsChunk", () => {
     expect(out[0]).toStrictEqual({
       id: ["1"],
       name: ["A"],
+    });
+  });
+
+  describe("signal", () => {
+    it("throws the abort reason and closes rows when aborted mid-stream", async () => {
+      const controller = new AbortController();
+      let closed = false;
+      async function* abortingRows(): AsyncGenerator<Row> {
+        try {
+          for (let id = 1; id <= 10; id++) {
+            if (id === 4) {
+              controller.abort(new Error("stop"));
+            }
+            yield { id, name: `n${id}` };
+          }
+        } finally {
+          closed = true;
+        }
+      }
+      const received: unknown[] = [];
+      await expect(async () => {
+        for await (const chunk of rowsToColumnsChunks({
+          rows: abortingRows(),
+          chunkSize: 3,
+          signal: controller.signal,
+        })) {
+          received.push(chunk);
+        }
+      }).rejects.toThrow("stop");
+      expect(received).toHaveLength(1);
+      expect(closed).toBe(true);
+    });
+
+    it("throws without reading rows when already aborted", async () => {
+      let pulled = false;
+      async function* rows(): AsyncGenerator<Row> {
+        pulled = true;
+        yield { id: 1, name: "A" };
+      }
+      const gen = rowsToColumnsChunks({
+        rows: rows(),
+        chunkSize: 3,
+        signal: AbortSignal.abort(),
+      });
+      await expect(Array.fromAsync(gen)).rejects.toThrow(
+        expect.objectContaining({ name: "AbortError" })
+      );
+      expect(pulled).toBe(false);
+    });
+
+    it("yields all chunks when not aborted", async () => {
+      const gen = rowsToColumnsChunks({
+        rows: makeRows([{ id: 1, name: "A" }]),
+        chunkSize: 3,
+        signal: new AbortController().signal,
+      });
+      await expect(Array.fromAsync(gen)).resolves.toHaveLength(1);
     });
   });
 });

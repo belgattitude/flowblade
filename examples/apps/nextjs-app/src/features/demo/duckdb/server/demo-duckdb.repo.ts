@@ -17,7 +17,7 @@ interface SearchResult {
 }
 
 export class DemoDuckdbRepo {
-  private ds: DuckdbDatasource;
+  private readonly ds: DuckdbDatasource;
   constructor(ds: DuckdbDatasource) {
     this.ds = ds;
   }

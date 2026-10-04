@@ -1,5 +1,23 @@
 # @flowblade/core
 
+## 0.4.3
+
+### Patch Changes
+
+- [#1411](https://github.com/belgattitude/flowblade/pull/1411) [`489125f`](https://github.com/belgattitude/flowblade/commit/489125fd0bf82e9869082f281675d43057327a26) Thanks [@belgattitude](https://github.com/belgattitude)! - Relint code for best practices
+
+## 0.4.2
+
+### Patch Changes
+
+- [#1395](https://github.com/belgattitude/flowblade/pull/1395) [`b4c728a`](https://github.com/belgattitude/flowblade/commit/b4c728ab8dccac395700a60da494957228817258) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to latest
+
+## 0.4.1
+
+### Patch Changes
+
+- [#1390](https://github.com/belgattitude/flowblade/pull/1390) [`d92d2a6`](https://github.com/belgattitude/flowblade/commit/d92d2a6b94028ef2571d9ef7b42055f1db8d5089) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to latest 2.3.9
+
 ## 0.4.0
 
 ### Minor Changes

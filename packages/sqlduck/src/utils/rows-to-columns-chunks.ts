@@ -1,10 +1,7 @@
 import type { ValueMapperFn } from "../converter/create-duck-column-converters.ts";
 
-// type SupportedRowTypes = string | number | boolean | Date | bigint | null;
-type SupportedRowTypes = unknown;
-
 type RowsToColumnsChunksParams<
-  TRow extends Record<string, SupportedRowTypes>,
+  TRow extends object,
   TTransformers extends Partial<Record<keyof TRow, ValueMapperFn>> = Partial<
     Record<keyof TRow, ValueMapperFn>
   >,
@@ -12,6 +9,12 @@ type RowsToColumnsChunksParams<
   rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>;
   chunkSize: number;
   transformers?: TTransformers;
+  /**
+   * Aborts the iteration: checked before each row, the generator then throws
+   * `signal.reason` and closes `rows`. An abort while waiting for the next row
+   * is only seen once that row arrives.
+   */
+  signal?: AbortSignal;
 };
 
 /**
@@ -28,7 +31,9 @@ type RowsToColumnsChunksParams<
  * @param params.rows - An async or sync iterable of rows.
  * @param params.chunkSize - The maximum number of rows per yielded chunk. Must be a positive integer.
  * @param params.transformers - Optional mappers for specific columns to transform values before chunking.
+ * @param params.signal - Optional AbortSignal to stop the iteration, throws `signal.reason`.
  *
+ * @yields {Record<keyof TRow, unknown[]>} Chunks of column-oriented data, each column holding up to `chunkSize` values.
  * @returns An async iterator yielding chunks of column-oriented data.
  *
  * @example
@@ -53,7 +58,7 @@ type RowsToColumnsChunksParams<
  * ```
  */
 export async function* rowsToColumnsChunks<
-  TRow extends Record<string, SupportedRowTypes>,
+  TRow extends object,
   TTransformers extends Partial<Record<keyof TRow, ValueMapperFn>> = Partial<
     Record<keyof TRow, ValueMapperFn>
   >,
@@ -75,14 +80,15 @@ export async function* rowsToColumnsChunks<
       ? TOut[]
       : TRow[K][];
   };
-  const { rows, chunkSize, transformers } = params;
+  const { rows, chunkSize, transformers, signal } = params;
   if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
     throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
   }
+  signal?.throwIfAborted();
 
   // Pull the first row to determine column order
   const first = await rows.next();
-  if (first.done) return; // empty input → yield nothing
+  if (first.done === true) return; // empty input → yield nothing
 
   const keys = Object.keys(first.value) as (keyof TRow)[];
   const numKeys = keys.length;
@@ -139,8 +145,7 @@ export async function* rowsToColumnsChunks<
 
   for (let i = 0; i < numKeys; i++) {
     const k = keys[i]!;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const val = (first.value as Record<keyof TRow, unknown>)[k];
+    const val = first.value[k];
     (columns[k] as unknown[]).push(val);
   }
   rowsInChunk++;
@@ -155,10 +160,11 @@ export async function* rowsToColumnsChunks<
 
   // consume the rest
   for await (const row of rows) {
+    // Throwing inside for-await closes rows
+    signal?.throwIfAborted();
     for (let i = 0; i < numKeys; i++) {
       const k = keys[i]!;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const val = (row as Record<keyof TRow, unknown>)[k];
+      const val = row[k];
       (columns[k] as unknown[]).push(val);
     }
     rowsInChunk++;

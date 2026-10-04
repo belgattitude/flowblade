@@ -2,7 +2,15 @@ import type { DuckDBConnection } from "@duckdb/node-api";
 import { reset } from "@logtape/logtape";
 import type { LogRecord } from "@logtape/logtape";
 import isInCi from "is-in-ci";
-import { afterEach, beforeAll, beforeEach } from "vitest";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  afterAll,
+  describe,
+  expect,
+  it,
+} from "vitest";
 import * as z from "zod";
 
 import { configureTestLogger } from "#/tests/utils/configure-test-logger.ts";
@@ -12,7 +20,7 @@ import { flowbladeLogtapeSqlduckConfig } from "../config/flowblade-logtape-sqldu
 import { Table } from "../objects/table.ts";
 import { createTableFromZod } from "./create-table-from-zod.ts";
 
-describe("createTableFromZod", () => {
+describe(createTableFromZod, () => {
   let conn: DuckDBConnection;
   beforeAll(async () => {
     conn = await createDuckdbTestMemoryDb({
@@ -21,6 +29,7 @@ describe("createTableFromZod", () => {
       threads: 1,
     });
   });
+
   afterAll(() => {
     conn.closeSync();
   });

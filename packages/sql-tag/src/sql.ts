@@ -107,7 +107,7 @@ export const sql = Object.assign(
      * ```
      */
     raw<T = unknown>(sql: string | number): SqlTag<T> {
-      const sqlString = typeof sql === "string" ? sql : String(sql);
+      const sqlString = String(sql);
       return raw(sqlString) as SqlTag<T>;
     },
     /**

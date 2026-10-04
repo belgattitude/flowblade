@@ -4,13 +4,23 @@ import { isParsableStrictIsoDateZ } from "@httpx/assert";
 import { reset } from "@logtape/logtape";
 import type { LogRecord } from "@logtape/logtape";
 import isInCi from "is-in-ci";
-import { beforeAll, describe } from "vitest";
+import {
+  beforeAll,
+  describe,
+  it,
+  vi,
+  afterEach,
+  expect,
+  afterAll,
+  beforeEach,
+} from "vitest";
 import * as z from "zod";
 
 import { configureTestLogger } from "#/tests/utils/configure-test-logger.ts";
 import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
 import { createFakeRowsAsyncIterator } from "#/tests/utils/create-fake-rows-iterator.ts";
 
+import type { OnChunkAppendedCb } from "./appender/data-appender-callback.ts";
 import { flowbladeLogtapeSqlduckConfig } from "./config/flowblade-logtape-sqlduck.config";
 import { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts";
 import { Table } from "./objects/table";
@@ -29,6 +39,7 @@ describe("Duckdb tests", async () => {
       threads: 1,
     });
   });
+
   afterAll(() => {
     conn.closeSync();
   });
@@ -113,7 +124,7 @@ describe("Duckdb tests", async () => {
           },
         });
 
-        const cb = vi.fn();
+        const cb = vi.fn<OnChunkAppendedCb>();
 
         const { timeMs, totalRows, createTableDDL } = await sqlDuck.toTable({
           table: testTable,
@@ -204,13 +215,13 @@ describe("Duckdb tests", async () => {
           list_of_float32s,
           list_of_int32s,
         } = data?.[0] ?? {};
-        expect(name).toStrictEqual("unique-record-for-tests");
-        expect(email).toStrictEqual("unique-record-for-tests@example.com");
+        expect(name).toBe("unique-record-for-tests");
+        expect(email).toBe("unique-record-for-tests@example.com");
         expect(bignumber).toStrictEqual(bignumberExample.toString(10));
         expect(isParsableStrictIsoDateZ(created_at)).toBe(true);
 
         expect(created_at).toBe(now.toISOString());
-        expect(gender).toStrictEqual("F");
+        expect(gender).toBe("F");
         expect(list_of_booleans).toStrictEqual(listColumns.list_of_booleans);
         expect(
           list_of_float32s!.map((val) => Math.round(val * 100) / 100)
@@ -249,7 +260,7 @@ describe("Duckdb tests", async () => {
           factory: ({ rowIdx }) => ({ id: rowIdx }),
         });
 
-        const cb = vi.fn();
+        const cb = vi.fn<OnChunkAppendedCb>();
 
         // Act
         await sqlDuck.toTable({
@@ -338,6 +349,245 @@ describe("Duckdb tests", async () => {
         expect(query.getRowObjects()).toStrictEqual([
           {
             count_star: BigInt(limit),
+          },
+        ]);
+      });
+
+      describe("signal", () => {
+        const schema = z.object({ id: z.number() });
+
+        it("Should reject with the abort reason and keep appended chunks", async () => {
+          const sqlDuck = new SqlDuck({ conn });
+          const testTable = new Table({ name: "test_abort" });
+          const controller = new AbortController();
+          let closed = false;
+          async function* rows() {
+            try {
+              for (let id = 0; id < 100; id++) {
+                if (id === 25) {
+                  controller.abort();
+                }
+                yield { id };
+              }
+            } finally {
+              closed = true;
+            }
+          }
+
+          const error = await sqlDuck
+            .toTable({
+              table: testTable,
+              schema,
+              rowStream: rows(),
+              chunkSize: 10,
+              autoCheckpoint: false,
+              signal: controller.signal,
+              createOptions: { create: "CREATE_OR_REPLACE" },
+            })
+            .catch((e: unknown) => e);
+          expect(error).toBe(controller.signal.reason);
+          expect(error).toMatchObject({ name: "AbortError" });
+          expect(closed).toBe(true);
+
+          // The 2 full chunks appended before the abort are kept
+          const query = await conn.runAndReadAll(
+            `SELECT count(*) as count_star from ${testTable.getFullName()}`
+          );
+          expect(query.getRowObjects()).toStrictEqual([{ count_star: 20n }]);
+        });
+
+        it("Should reject before creating the table when already aborted", async () => {
+          const sqlDuck = new SqlDuck({ conn });
+          const testTable = new Table({ name: "test_abort_before_start" });
+          const reason = new Error("cancelled");
+          await expect(
+            sqlDuck.toTable({
+              table: testTable,
+              schema,
+              rowStream: [{ id: 1 }][Symbol.iterator]() as Generator<{
+                id: number;
+              }>,
+              autoCheckpoint: false,
+              signal: AbortSignal.abort(reason),
+            })
+          ).rejects.toBe(reason);
+          const query = await conn.runAndReadAll(
+            `SELECT count(*) as count_star FROM duckdb_tables() WHERE table_name = 'test_abort_before_start'`
+          );
+          expect(query.getRowObjects()).toStrictEqual([{ count_star: 0n }]);
+        });
+      });
+
+      it("Should append uuid and bigint list columns", async () => {
+        const sqlDuck = new SqlDuck({ conn });
+        const testTable = new Table("test_uuid_and_lists");
+        const uuid = "019d2155-d292-71fa-87d7-9d1f1ed83569";
+        const highBitUuid = "ffffffff-ffff-ffff-ffff-ffffffffffff";
+
+        async function* rowStream() {
+          yield {
+            id: 1,
+            uuid_v7: uuid,
+            nullable_uuid: highBitUuid,
+            list_of_numbers: [1, 2],
+            list_of_bigints: ["9223372036854775807", "-1"],
+          };
+          yield {
+            id: 2,
+            uuid_v7: highBitUuid,
+            nullable_uuid: null,
+            list_of_numbers: [],
+            list_of_bigints: [],
+          };
+        }
+
+        const { totalRows } = await sqlDuck.toTable({
+          table: testTable,
+          schema: z.strictObject({
+            id: z.int32(),
+            uuid_v7: z.uuidv7(),
+            nullable_uuid: z.nullable(z.uuid()),
+            list_of_numbers: z.array(z.number()),
+            list_of_bigints: z.array(zodCodecs.bigintToString).meta({
+              duckdbType: "BIGINT[]",
+            }),
+          }),
+          rowStream: rowStream(),
+          autoCheckpoint: false,
+          createOptions: {
+            create: "CREATE_OR_REPLACE",
+          },
+        });
+
+        expect(totalRows).toBe(2);
+        const query = await conn.runAndReadAll(
+          `SELECT uuid_v7::VARCHAR as uuid_v7,
+                  nullable_uuid::VARCHAR as nullable_uuid,
+                  typeof(list_of_numbers) as list_of_numbers_type,
+                  list_of_numbers::VARCHAR as list_of_numbers,
+                  list_of_bigints::VARCHAR as list_of_bigints
+           FROM ${testTable.getFullName()} ORDER BY id`
+        );
+        expect(query.getRowObjects()).toStrictEqual([
+          {
+            uuid_v7: uuid,
+            nullable_uuid: highBitUuid,
+            list_of_numbers_type: "BIGINT[]",
+            list_of_numbers: "[1, 2]",
+            list_of_bigints: "[9223372036854775807, -1]",
+          },
+          {
+            uuid_v7: highBitUuid,
+            nullable_uuid: null,
+            list_of_numbers_type: "BIGINT[]",
+            list_of_numbers: "[]",
+            list_of_bigints: "[]",
+          },
+        ]);
+      });
+
+      it("Should append decimal columns with their declared width and scale", async () => {
+        const sqlDuck = new SqlDuck({ conn });
+        const testTable = new Table("test_decimals");
+
+        async function* rowStream() {
+          yield {
+            id: 1,
+            price: 1.235,
+            rate: 1.234_567_891_2,
+            default_dec: 1.2345,
+          };
+          yield { id: 2, price: -99_999_999.99, rate: null, default_dec: 0 };
+        }
+
+        const { totalRows } = await sqlDuck.toTable({
+          table: testTable,
+          schema: z.strictObject({
+            id: z.int32(),
+            price: z.number().meta({ duckdbType: "DECIMAL(10,2)" }),
+            rate: z.nullable(z.number().meta({ duckdbType: "DECIMAL(38,10)" })),
+            default_dec: z.number().meta({ duckdbType: "DECIMAL" }),
+          }),
+          rowStream: rowStream(),
+          autoCheckpoint: false,
+          createOptions: {
+            create: "CREATE_OR_REPLACE",
+          },
+        });
+
+        expect(totalRows).toBe(2);
+        const query = await conn.runAndReadAll(
+          `SELECT typeof(price) as price_type,
+                  price::VARCHAR as price,
+                  typeof(rate) as rate_type,
+                  rate::VARCHAR as rate,
+                  default_dec::VARCHAR as default_dec
+           FROM ${testTable.getFullName()} ORDER BY id`
+        );
+        expect(query.getRowObjects()).toStrictEqual([
+          {
+            price_type: "DECIMAL(10,2)",
+            price: "1.24",
+            rate_type: "DECIMAL(38,10)",
+            rate: "1.2345678912",
+            default_dec: "1.235",
+          },
+          {
+            price_type: "DECIMAL(10,2)",
+            price: "-99999999.99",
+            rate_type: "DECIMAL(38,10)",
+            rate: null,
+            default_dec: "0.000",
+          },
+        ]);
+      });
+
+      it("Should append decimal columns inferred from multipleOf", async () => {
+        const sqlDuck = new SqlDuck({ conn });
+        const testTable = new Table("test_decimals_multiple_of");
+
+        async function* rowStream() {
+          yield { id: 1, price: 999.99, tiny: 0.000_000_3, huge: 1.5e20 };
+          yield { id: 2, price: 0, tiny: -1.234_567_8, huge: 12.34 };
+        }
+
+        await sqlDuck.toTable({
+          table: testTable,
+          schema: z.strictObject({
+            id: z.int32(),
+            price: z.number().multipleOf(0.01).min(0).max(999.99),
+            tiny: z.number().multipleOf(1e-7),
+            huge: z.number().multipleOf(0.01).min(0).max(1e25),
+          }),
+          rowStream: rowStream(),
+          autoCheckpoint: false,
+          createOptions: {
+            create: "CREATE_OR_REPLACE",
+          },
+        });
+
+        const query = await conn.runAndReadAll(
+          `SELECT typeof(price) as price_type, price::VARCHAR as price,
+                  typeof(tiny) as tiny_type, tiny::VARCHAR as tiny,
+                  typeof(huge) as huge_type, huge::VARCHAR as huge
+           FROM ${testTable.getFullName()} ORDER BY id`
+        );
+        expect(query.getRowObjects()).toStrictEqual([
+          {
+            price_type: "DECIMAL(18,2)",
+            price: "999.99",
+            tiny_type: "DECIMAL(18,7)",
+            tiny: "0.0000003",
+            huge_type: "DECIMAL(28,2)",
+            huge: "150000000000000000000.00",
+          },
+          {
+            price_type: "DECIMAL(18,2)",
+            price: "0.00",
+            tiny_type: "DECIMAL(18,7)",
+            tiny: "-1.2345678",
+            huge_type: "DECIMAL(28,2)",
+            huge: "12.34",
           },
         ]);
       });

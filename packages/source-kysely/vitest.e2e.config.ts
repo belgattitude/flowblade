@@ -6,9 +6,12 @@ export default defineConfig({
   resolve: {
     conditions: ["flowblade-monorepo-source"],
   },
+  ssr: {
+    resolve: {
+      conditions: ["flowblade-monorepo-source", "import", "default"],
+    },
+  },
   test: {
-    // @link https://vitest.dev/config/#clearmocks
-    clearMocks: true,
     environment: "node",
     exclude: [
       "**/node_modules/**",
@@ -18,9 +21,5 @@ export default defineConfig({
     ],
     globals: true,
     include: testFiles,
-    // To mimic Jest behaviour regarding mocks.
-    mockReset: true,
-    passWithNoTests: false,
-    restoreMocks: true,
   },
 });

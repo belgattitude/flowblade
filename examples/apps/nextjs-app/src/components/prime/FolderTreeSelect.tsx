@@ -22,8 +22,10 @@ export const FolderTreeSelect: FC<Props> = (props) => {
 
   useEffect(() => {
     NodeService.getTreeNodes()
-      .then((data) => setNodes(data))
-      .catch((error) => {
+      .then((data) => {
+        setNodes(data);
+      })
+      .catch((error: unknown) => {
         console.error("Error fetching nodes:", error);
       });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -33,7 +35,9 @@ export const FolderTreeSelect: FC<Props> = (props) => {
       <TreeSelect
         value={selectedNodeKeys}
         options={nodes}
-        onChange={(e) => setSelectedNodeKeys(e.value)}
+        onChange={(e) => {
+          setSelectedNodeKeys(e.value);
+        }}
         metaKeySelection={false}
         selectionMode="checkbox"
         display="chip"

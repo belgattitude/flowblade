@@ -1,6 +1,7 @@
 "use client";
 
 export const CopyToClipboard = ({ code }: { code: string }) => {
+  // 1. Remove the Promise<void> type annotation here
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(code);
@@ -15,7 +16,12 @@ export const CopyToClipboard = ({ code }: { code: string }) => {
   };
 
   return (
-    <button onClick={copyToClipboard}>
+    // 2. Wrap the async call in a non-async arrow function that returns true void
+    <button
+      onClick={() => {
+        void copyToClipboard();
+      }}
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"

@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 
 export const DynamicCodeBlock = dynamic(
-  () => import("./CodeBlock").then((mod) => mod.CodeBlock),
+  async () => await import("./CodeBlock").then((mod) => mod.CodeBlock),
   {
     ssr: false,
   }

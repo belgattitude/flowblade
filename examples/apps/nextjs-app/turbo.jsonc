@@ -3,7 +3,7 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "env": ["NEXT_BUILD_*", "NEXT_PUBLIC_*", "SENTRY_*"],
+      "env": ["NEXT_BUILD_*", "NEXT_PUBLIC_*"],
       "passThroughEnv": [
         "BLOB_READ_WRITE_TOKEN",
         "BETTER_AUTH_SECRET",
@@ -24,6 +24,15 @@
       // We rely on tsconfig path aliases to ease starting
       // Only exception @flowblade/sqlduck that is used for env
       "dependsOn": ["@flowblade/sqlduck#build"],
+    },
+    // Docker images: never cached, we always want freshly built images.
+    // The build tasks don't depend on each other. The images comparison
+    // (`pnpm docker:compare`) is not a turbo task, it builds both images itself.
+    "docker:build-nodejs": {
+      "cache": false,
+    },
+    "docker:build-bun": {
+      "cache": false,
     },
     "dev": {
       "cache": false,

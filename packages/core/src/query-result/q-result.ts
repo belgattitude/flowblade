@@ -37,9 +37,9 @@ export class QResult<
    */
   declare $inferError: TError;
 
-  #meta: QMeta;
+  readonly #meta: QMeta;
 
-  #innerResult:
+  readonly #innerResult:
     | Result.Ok<{
         rows: TData;
         meta: QMeta;
@@ -229,7 +229,7 @@ export class QResult<
       } catch (e) {
         let message: string;
         if (e instanceof Error) {
-          message = e.message;
+          ({ message } = e);
         } else if (typeof e === "string") {
           message = e;
         } else {
@@ -317,10 +317,15 @@ export class QResult<
    * ```
    */
   toJsonifiable = (): QResultJsonifiable<TData, TError> => {
-    return {
-      ...(this.data === undefined ? {} : { data: this.data }),
-      ...(this.error === undefined ? {} : { error: this.error }),
+    const json: QResultJsonifiable<TData, TError> = {
       meta: this.meta.toJSON(),
     };
+    if (this.data !== undefined) {
+      json.data = this.data;
+    }
+    if (this.error !== undefined) {
+      json.error = this.error;
+    }
+    return json;
   };
 }

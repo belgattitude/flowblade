@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import * as z from "zod";
 
 import {
@@ -59,7 +60,7 @@ describe("Generate fake data", () => {
 
     const rows = await Array.fromAsync(iter());
     expect(rows).toBeInstanceOf(Array);
-    expect(rows.length).toBe(5);
+    expect(rows).toHaveLength(5);
   });
 
   it("should generate fake data with async generator", async () => {
@@ -107,7 +108,7 @@ describe("Generate fake data", () => {
 
     // should be AsyncIterableIterator
     const asyncIter = rowsGenAsync();
-    expect(typeof (asyncIter as any)[Symbol.asyncIterator]).toBe("function");
+    expect((asyncIter as any)[Symbol.asyncIterator]).toBeTypeOf("function");
 
     // for-await iteration should yield firstRow first
     const received: z.infer<typeof userSchema>[] = [];
@@ -115,13 +116,13 @@ describe("Generate fake data", () => {
       received.push(row);
       expect(() => userSchema.parse(row)).not.toThrow();
     }
-    expect(received.length).toBe(5);
+    expect(received).toHaveLength(5);
     expect(received[0]).toStrictEqual(firstRow);
 
     // Array.fromAsync should also work
     const rows = await Array.fromAsync(rowsGenAsync());
     expect(rows).toBeInstanceOf(Array);
-    expect(rows.length).toBe(5);
+    expect(rows).toHaveLength(5);
 
     expect(rows[0]).toStrictEqual(firstRow);
   });

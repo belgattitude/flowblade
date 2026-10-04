@@ -15,6 +15,7 @@ app.get(
   "/search",
   describeRoute({
     description: "Search for ethical products",
+    tags: ["products"],
     responses: {
       200: {
         content: {
@@ -51,7 +52,7 @@ app.get(
   ),
   async (c) => {
     const { slowdownApiMs, brands, minPrice } = c.req.valid("query");
-    if (slowdownApiMs) {
+    if (slowdownApiMs !== undefined && slowdownApiMs !== 0) {
       await wait(slowdownApiMs);
     }
     return c.json(

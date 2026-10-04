@@ -10,5 +10,21 @@
       "@/routes/*": ["./src/routes/*"],
       "@/plugins/*": ["./src/plugins/*"]
     }
-  }
+  },
+  "exclude": [
+    "**/node_modules",
+    "**/.*/*",
+    "dist",
+    "coverage",
+    "oxlint.config.ts"
+  ],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.cjs",
+    "**/*.mjs",
+    "**/*.json"
+  ]
 }

@@ -5,7 +5,14 @@ import {
   reset,
 } from "@logtape/logtape";
 import { prettyFormatter } from "@logtape/pretty";
-import { afterEach, beforeEach, expect, expectTypeOf } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  expect,
+  expectTypeOf,
+  describe,
+  it,
+} from "vitest";
 
 import {
   DuckdbDatasource,
@@ -59,7 +66,7 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       const { data, error } = result;
 
       expect(error).toBeUndefined();
-      expect(data!.length).toBe(90);
+      expect(data!).toHaveLength(90);
       expect(data).toMatchSnapshot();
       expectTypeOf(data!).toEqualTypeOf<Row[]>();
     });
@@ -67,7 +74,7 @@ describe("DuckDBAsyncDatasource e2e", async () => {
     it("should return expected meta", async () => {
       const result = await ds.query(rawSql);
       const { meta } = result;
-      expect(meta.getSpans().length).toBe(1);
+      expect(meta.getSpans()).toHaveLength(1);
       expect(
         meta.getSpans().map((span) => {
           return {
@@ -89,10 +96,10 @@ describe("DuckDBAsyncDatasource e2e", async () => {
     it("should throw when the query couldn't be executed", async () => {
       const rawSql = sql<{ ok: number }>`SELECT FRM 1`;
       await expect(async () => {
-        return ds.queryOrThrow(rawSql, {
+        return await ds.queryOrThrow(rawSql, {
           name: "nok query",
         });
-      }).rejects.toThrowError(
+      }).rejects.toThrow(
         'Query failed: Failed to extract statements: Parser Error: syntax error at or near "1"'
       );
     });
@@ -103,7 +110,9 @@ describe("DuckDBAsyncDatasource e2e", async () => {
     beforeEach(async () => {
       await configure({
         sinks: {
-          buffer: logBuffer.push.bind(logBuffer),
+          buffer: (record) => {
+            logBuffer.push(record);
+          },
           console: getConsoleSink({
             nonBlocking: {
               bufferSize: 1000, // Flush after 1000 records

@@ -1,5 +1,36 @@
 # @flowblade/source-duckdb
 
+## 0.30.2
+
+### Patch Changes
+
+- [#1411](https://github.com/belgattitude/flowblade/pull/1411) [`489125f`](https://github.com/belgattitude/flowblade/commit/489125fd0bf82e9869082f281675d43057327a26) Thanks [@belgattitude](https://github.com/belgattitude)! - Relint code for best practices
+- Updated dependencies [[`489125f`](https://github.com/belgattitude/flowblade/commit/489125fd0bf82e9869082f281675d43057327a26)]:
+  - @flowblade/core@0.4.3
+  - @flowblade/sql-tag@0.4.1
+
+## 0.30.1
+
+### Patch Changes
+
+- [#1395](https://github.com/belgattitude/flowblade/pull/1395) [`b4c728a`](https://github.com/belgattitude/flowblade/commit/b4c728ab8dccac395700a60da494957228817258) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to latest
+- Updated dependencies [[`b4c728a`](https://github.com/belgattitude/flowblade/commit/b4c728ab8dccac395700a60da494957228817258)]:
+  - @flowblade/core@0.4.2
+
+## 0.30.0
+
+### Minor Changes
+
+- [#1392](https://github.com/belgattitude/flowblade/pull/1392) [`69aa44a`](https://github.com/belgattitude/flowblade/commit/69aa44a23d963f725f81d44c2c48958ac85c8fdf) Thanks [@belgattitude](https://github.com/belgattitude)! - Support @duckdb/node-api 1.5.6-r.1
+
+## 0.29.1
+
+### Patch Changes
+
+- [#1390](https://github.com/belgattitude/flowblade/pull/1390) [`d92d2a6`](https://github.com/belgattitude/flowblade/commit/d92d2a6b94028ef2571d9ef7b42055f1db8d5089) Thanks [@belgattitude](https://github.com/belgattitude)! - Logtape to latest 2.3.9
+- Updated dependencies [[`d92d2a6`](https://github.com/belgattitude/flowblade/commit/d92d2a6b94028ef2571d9ef7b42055f1db8d5089)]:
+  - @flowblade/core@0.4.1
+
 ## 0.29.0
 
 ### Minor Changes

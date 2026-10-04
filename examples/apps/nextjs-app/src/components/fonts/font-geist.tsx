@@ -1,15 +1,4 @@
-import { Geist, Geist_Mono } from "next/font/google";
-
-export const fontGeistSans = Geist({
-  display: "swap",
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-  weight: "variable",
-});
-
-export const fontGeistMono = Geist_Mono({
-  display: "swap",
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
-  weight: "variable",
-});
+// The geist package calls next/font/local with its own bundled files, so it
+// works with any pnpm linker (no copy needed, see scripts/install-local-fonts.ts)
+export { GeistMono as fontGeistMono } from "geist/font/mono";
+export { GeistSans as fontGeistSans } from "geist/font/sans";

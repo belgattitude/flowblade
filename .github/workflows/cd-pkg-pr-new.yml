@@ -1,15 +1,16 @@
 name: CD-pkg-pr-new
 on: [push, pull_request]
 
-permissions: 
+permissions:
   contents: read
 
 jobs:
   deploy-preview:
     runs-on: ubuntu-latest
     env:
-      TURBO_API: 'http://127.0.0.1:9080'
-      TURBO_TEAM: 'flowblade'
+      TURBO_API: "http://127.0.0.1:9080"
+      TURBO_TEAM: "flowblade"
+      PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN: "false"
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -23,7 +24,8 @@ jobs:
         uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
         with:
           runtime: node@24
-          cache: true
+          cache: false
+          node-version-file: false
 
       - name: ⏩ TurboRepo local server
         uses: felixmosh/turborepo-gh-artifacts@118f869397261f74bc39cb8565f2d02c0ed4209f # v4.1.1

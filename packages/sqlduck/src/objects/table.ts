@@ -10,7 +10,7 @@ type FQTable = {
 };
 
 export class Table {
-  #fqTable: Readonly<FQTable>;
+  readonly #fqTable: Readonly<FQTable>;
 
   get tableName(): string {
     return this.#fqTable.name;

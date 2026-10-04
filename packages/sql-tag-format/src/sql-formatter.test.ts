@@ -1,4 +1,5 @@
 import { sql } from "@flowblade/sql-tag";
+import { describe, expect, it } from "vitest";
 
 import {
   SqlFormatter,
@@ -76,7 +77,7 @@ describe("Sql tag formatter", () => {
 
         expect(() => {
           sqlFormatter.formatOrThrow(invalidSql);
-        }).toThrow();
+        }).toThrow("Parse error: Unexpected");
       });
     });
   });

@@ -10,7 +10,10 @@ on:
       - '**'
 
 env:
-  IMAGE: flowblade/example-nextjs-app-bun
+  # Image built (and tagged) by the turbo task, see examples/apps/nextjs-app/docker/docker-compose*.yml
+  IMAGE: flowblade-nextjs-app-bun:latest
+  TURBO_TASK: docker:build-bun
+  APP_PACKAGE: "@examples/nextjs-app"
 
 permissions:
   contents: read
@@ -20,6 +23,10 @@ jobs:
     #if: ${{ github.repository == 'belgattitude/flowblade' && contains('refs/heads/main',github.ref)}}
     runs-on: ubuntu-latest
     name: nextjs-app bun example docker build
+    env:
+      TURBO_API: "http://127.0.0.1:9080"
+      TURBO_TEAM: "flowblade"
+      PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN: "false"
     defaults:
       run:
         shell: bash
@@ -29,19 +36,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # Fetch all git history so turbo can find the affected packages.
+          # @link https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          fetch-depth: 0
           persist-credentials: false
-          
-      - name: ⚙️ Setup Docker meta
-        id: meta
-        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+
+      - name: ⏩ TurboRepo local server
+        uses: felixmosh/turborepo-gh-artifacts@118f869397261f74bc39cb8565f2d02c0ed4209f # v4.1.1
         with:
-          images: ${{ env.IMAGE }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
 
-      - name: ⚙️ Setup QEMU
-        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+      - name: ⚙️Install pnpm and Node.js
+        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        with:
+          runtime: node@24
+          cache: false
+          node-version-file: false
 
-      - name: ⚙️ Setup Docker Buildx
-        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: 🔎 Check if the app is affected
+        id: affected
+        run: |
+          count=$(pnpm exec turbo query affected --packages "${APP_PACKAGE}" --tasks "${TURBO_TASK}" | jq '.data.affectedTasks.length')
+          echo "Affected tasks: ${count}"
+          if [ "${count}" -gt 0 ]; then
+            echo "affected=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "affected=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::${APP_PACKAGE} is not affected by the changes, docker build skipped"
+          fi
 
       - name: 🤫 Login to Docker Hub
         # Disabled for example
@@ -51,35 +74,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: 🏗 Build and export to Docker
-        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
-        with:
-          load: true
-          context: .
-          file: ./examples/apps/nextjs-app/docker/Dockerfile.bun
-          # Disabled for example
-          # push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          #build-args: |
-          #  "DATABASE_FILENAME=data/test.sqlite.db"
-          secrets: |
-            "github_token=${{ secrets.GITHUB_TOKEN }}"
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          outputs: 'type=image,compression=zstd,compression-level=8,oci-mediatypes=true'
+      - name: 🏗 Build docker image
+        if: steps.affected.outputs.affected == 'true'
+        run: pnpm turbo run "${TURBO_TASK}" --filter="${APP_PACKAGE}" --log-prefix=none --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🕵️ Docker image inspect
-        run: docker image inspect ${{ env.IMAGE }}:${STEPS_META_OUTPUTS_VERSION}
-        env:
-          STEPS_META_OUTPUTS_VERSION: ${{ steps.meta.outputs.version }}
+        if: steps.affected.outputs.affected == 'true'
+        run: docker image inspect "${IMAGE}"
 
       - name: 💾 Save docker image
-        run: docker save ${{ env.IMAGE }}:${STEPS_META_OUTPUTS_VERSION} -o ./docker-image.tar
-        env:
-          STEPS_META_OUTPUTS_VERSION: ${{ steps.meta.outputs.version }}
+        if: steps.affected.outputs.affected == 'true'
+        run: docker save "${IMAGE}" -o ./docker-image.tar
 
       - name: 📐 Compress saved image and show size
+        if: steps.affected.outputs.affected == 'true'
         env:
           MAX_SIZE_IN_MB: 200
           ZSTD_LEVEL: 8

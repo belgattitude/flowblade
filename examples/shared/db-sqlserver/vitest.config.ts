@@ -3,7 +3,12 @@ import { defineConfig } from "vitest/config";
 const testFiles = ["./src/**/*.test.{js,jsx,ts,tsx}"];
 export default defineConfig({
   resolve: {
-    tsconfigPaths: true,
+    conditions: ["flowblade-monorepo-source"],
+  },
+  ssr: {
+    resolve: {
+      conditions: ["flowblade-monorepo-source", "import", "default"],
+    },
   },
   test: {
     globals: true,

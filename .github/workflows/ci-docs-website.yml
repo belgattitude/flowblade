@@ -5,9 +5,9 @@ on:
     branches:
       - main
     paths:
-      - 'docs/**'
-      - '.github/actions/**'
-      - '.github/workflows/**'
+      - "docs/**"
+      - ".github/actions/**"
+      - ".github/workflows/**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -21,13 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pages: write
-      id-token: write
     env:
-      NEXTJS_IGNORE_ESLINT: true
-      NEXTJS_IGNORE_TYPECHECK: true
-      NEXT_DISABLE_SOURCEMAPS: true
-      NEXT_TELEMETRY_DISABLED: true
+      PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN: "false"
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@d07a454dad7609a92316b57b23c9ccfd4f59af66 # 0.13.1
@@ -41,7 +36,8 @@ jobs:
         uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
         with:
           runtime: node@24
-          cache: true
+          cache: false
+          node-version-file: false
 
       - name: ⏩ TurboRepo local server
         uses: felixmosh/turborepo-gh-artifacts@118f869397261f74bc39cb8565f2d02c0ed4209f # v4.1.1
@@ -56,25 +52,11 @@ jobs:
         run: pnpm turbo run lint --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🏗 Build docs
-        run: pnpm --filter @docs/website run build-static
-        env:
-          NEXT_BUILD_BASE_PATH: "/flowblade"
-          NEXT_TELEMETRY_DISABLED: true
+        run: pnpm --filter @docs/website run build
 
-      - name: 🚀 Upload doc website artifact
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
-        with:
-          path: ./docs/out
-
-      - name: 🚀 Deploy
+      - name: 🚀 Deploy to Cloudflare Pages
         if: github.repository == 'belgattitude/flowblade' && github.ref == 'refs/heads/main'
-        id: deployment
-        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
-
-      #- name: 🚀 Deploy
-      #  if: github.repository == 'belgattitude/flowblade' && github.ref == 'refs/heads/main'
-      #  run: |
-      #    git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-      #    pnpm website:deploy -u "github-actions-bot <support+actions@github.com>"
-      #  env:
-      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm dlx wrangler@4.147.0 pages deploy ./docs/dist --project-name=flowblade --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

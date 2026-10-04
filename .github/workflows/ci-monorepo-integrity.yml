@@ -7,7 +7,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
-      - '**'
+      - "**"
 
 permissions:
   contents: read
@@ -17,7 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        runtime: ['node@24']
+        runtime: ["node@24"]
+    env:
+      TURBO_API: "http://127.0.0.1:9080"
+      TURBO_TEAM: "flowblade"
+      PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN: "false"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -27,12 +31,15 @@ jobs:
         uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
         with:
           runtime: ${{ matrix.runtime }}
-          cache: true
+          cache: false
           node-version-file: false
 
-      - name: 🛟 Check monorepo duplicates
-        run: pnpm dedupe --check
+      - name: 🛟 Doctor
+        run: pnpm doctor
+
+      # Currently blocked by pnpm bug
+      #- name: 🛟 Check monorepo duplicates
+      #  run: pnpm dedupe --check
 
       - name: 🛡️ Check for security vulnerabilities
-        run: pnpm audit --audit-level high
-
+        run: pnpm audit --audit-level moderate

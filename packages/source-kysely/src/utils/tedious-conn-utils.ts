@@ -47,6 +47,21 @@ const tediousSchema = v.object({
   encrypt: v.optional(v.boolean(), true),
   connectTimeout: v.optional(v.number("Number in milliseconds.")),
   requestTimeout: v.optional(v.number("Request timeout in milliseconds")),
+  // "The size of TDS packets (subject to negotiation with the server). Should be a power of 2. (default: 4096)"
+  packetSize: v.optional(
+    v.pipe(
+      v.number(
+        "The size of TDS packets. Should be a power of 2. (default: 4096)"
+      ),
+      v.integer("packetSize must be an integer"),
+      v.minValue(512, "packetSize be a number greater than 512"),
+      v.maxValue(32768, "packetSize be a lower than 32768"),
+      v.check(
+        (input) => Number.isInteger(Math.log2(input)),
+        "The packetSize must be a valid power of 2."
+      )
+    )
+  ),
 });
 
 export const TediousConnUtils = {
@@ -76,6 +91,7 @@ export const TediousConnUtils = {
       user,
       password,
       requestTimeout,
+      packetSize,
     } = params;
     let authConnOptions: AuthConnectionOptions;
     switch (authentication) {
@@ -94,6 +110,24 @@ export const TediousConnUtils = {
       default:
         throw new Error(`Unsupported authentication type: ${authentication}`);
     }
+    const baseOptions = {
+      database: database,
+      packetSize: packetSize,
+      port: parsed.port,
+      useUTC: useUtc,
+      encrypt: encrypt,
+      trustServerCertificate,
+    };
+    const options: typeof baseOptions & {
+      requestTimeout?: number;
+      connectTimeout?: number;
+    } = baseOptions;
+    if (requestTimeout !== undefined && requestTimeout !== 0) {
+      options.requestTimeout = requestTimeout;
+    }
+    if (connectTimeout !== undefined && connectTimeout !== 0) {
+      options.connectTimeout = connectTimeout;
+    }
     return {
       server: parsed.host,
       authentication: {
@@ -101,15 +135,7 @@ export const TediousConnUtils = {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         options: authConnOptions,
       },
-      options: {
-        database: database,
-        port: parsed.port,
-        useUTC: useUtc,
-        encrypt: encrypt,
-        trustServerCertificate,
-        ...(requestTimeout ? { requestTimeout } : {}),
-        ...(connectTimeout ? { connectTimeout } : {}),
-      },
+      options,
     };
   },
 };

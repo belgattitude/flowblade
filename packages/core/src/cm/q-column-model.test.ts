@@ -1,3 +1,5 @@
+import { expect, describe, it } from "vitest";
+
 import { type QColumn, QColumnModel } from "./q-column-model";
 
 describe("QColumnModel tests", () => {

@@ -48,8 +48,8 @@ type DuckMemorySummary = {
 };
 
 export class DuckMemory {
-  #conn: DuckDBConnection;
-  #exec: DuckExec;
+  readonly #conn: DuckDBConnection;
+  readonly #exec: DuckExec;
   constructor(duckdbConn: DuckDBConnection) {
     this.#conn = duckdbConn;
     this.#exec = new DuckExec(duckdbConn);
@@ -82,10 +82,7 @@ export class DuckMemory {
 
   getSummary = async (): Promise<DuckMemorySummary> => {
     const rows = await this.getAll();
-    const summaryInBytes: {
-      total: bigint;
-      totalTemp: bigint;
-    } = {
+    const summaryInBytes = {
       total: 0n,
       totalTemp: 0n,
     };
@@ -99,7 +96,7 @@ export class DuckMemory {
     };
   };
 
-  #applyOrderBy = (query: string, orderBy?: OrderByParams): string => {
+  readonly #applyOrderBy = (query: string, orderBy?: OrderByParams): string => {
     if (orderBy === undefined) return query;
     const orderByClause = orderByParams[orderBy];
     if (orderByClause === undefined) {
