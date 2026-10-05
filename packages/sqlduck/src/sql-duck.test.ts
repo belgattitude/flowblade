@@ -16,9 +16,9 @@ import {
 } from "vitest";
 import * as z from "zod";
 
-import { configureTestLogger } from "#/tests/utils/configure-test-logger.ts";
-import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
-import { createFakeRowsAsyncIterator } from "#/tests/utils/create-fake-rows-iterator.ts";
+import { configureTestLogger } from "#tests/utils/configure-test-logger.ts";
+import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
+import { createFakeRowsAsyncIterator } from "#tests/utils/create-fake-rows-iterator.ts";
 
 import type { OnChunkAppendedCb } from "./appender/data-appender-callback.ts";
 import { flowbladeLogtapeSqlduckConfig } from "./config/flowblade-logtape-sqlduck.config";

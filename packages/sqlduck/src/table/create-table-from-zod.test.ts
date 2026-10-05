@@ -13,8 +13,8 @@ import {
 } from "vitest";
 import * as z from "zod";
 
-import { configureTestLogger } from "#/tests/utils/configure-test-logger.ts";
-import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
+import { configureTestLogger } from "#tests/utils/configure-test-logger.ts";
+import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 
 import { flowbladeLogtapeSqlduckConfig } from "../config/flowblade-logtape-sqlduck.config.ts";
 import { Table } from "../objects/table.ts";
