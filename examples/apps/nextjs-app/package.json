@@ -14,6 +14,10 @@
     "directory": "examples/apps/nextjs-app"
   },
   "type": "module",
+  "imports": {
+    "#cli/*.ts": "./scripts/cli/*.ts",
+    "#*.ts": "./src/*.ts"
+  },
   "scripts": {
     "dev": "tsx ./scripts/install-local-fonts.ts && next dev",
     "dev-bun": "tsx ./scripts/install-local-fonts.ts && bun --bun run next dev",
@@ -94,7 +98,7 @@
     "@standard-community/standard-openapi": "0.2.10",
     "@t3-oss/env-nextjs": "0.13.11",
     "@tanstack/react-form": "1.33.5",
-    "@tanstack/react-query": "5.104.0",
+    "@tanstack/react-query": "5.104.1",
     "@vercel/blob": "2.8.0",
     "@vercel/otel": "2.1.3",
     "ag-charts-community": "14.2.0",
@@ -111,7 +115,7 @@
     "json-schema-walker": "4.0.0",
     "ky": "2.1.0",
     "kysely": "0.29.6",
-    "lucide-react": "1.49.0",
+    "lucide-react": "1.50.0",
     "marked": "18.0.14",
     "next": "16.3.8",
     "pretty-bytes": "7.2.0",
@@ -135,7 +139,7 @@
     "@flowblade/devtools": "workspace:*",
     "@standard-schema/spec": "1.1.0",
     "@tailwindcss/postcss": "4.3.3",
-    "@tanstack/react-query-devtools": "5.104.0",
+    "@tanstack/react-query-devtools": "5.104.1",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.3",

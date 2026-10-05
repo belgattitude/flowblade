@@ -5,17 +5,19 @@ import { generateSpecs } from "hono-openapi";
 import { format } from "oxfmt";
 import c from "tinyrainbow";
 
-import { honoApiSchemaConfig } from "@/server/config/hono-api-schema.config";
-import { honoApiConfig } from "@/server/config/hono-api.config";
+import { CliFormat } from "#cli/format.ts";
+import { CliReport } from "#cli/report.ts";
+import { CliTable } from "#cli/table.ts";
+import { honoApiSchemaConfig } from "#server/config/hono-api-schema.config.ts";
+import { honoApiConfig } from "#server/config/hono-api.config.ts";
 
-import oxfmtConfig from "../oxfmt.config";
+import oxfmtConfig from "../oxfmt.config.ts";
 
 const totalStart = performance.now();
-const ms = (start: number) => `${Math.round(performance.now() - start)}ms`;
 
 const generateStart = performance.now();
 const content = await generateSpecs(honoApiConfig.app);
-const generateTime = ms(generateStart);
+const generateTime = CliFormat.ms(generateStart);
 
 const openApiJsonFile = honoApiSchemaConfig.file;
 const openApiJsonFileDir = path.dirname(openApiJsonFile);
@@ -37,25 +39,25 @@ if (formatted.errors.length > 0) {
   );
 }
 
-const formatTime = ms(formatStart);
+const formatTime = CliFormat.ms(formatStart);
 
 fs.writeFileSync(openApiJsonFile, formatted.code, "utf-8");
 
-const sizeKb = (Buffer.byteLength(formatted.code, "utf-8") / 1024).toFixed(1);
+const size = CliFormat.formatKb(Buffer.byteLength(formatted.code, "utf-8"));
+const totalTime = CliFormat.ms(totalStart);
 
-const timeWidth = Math.max(
-  generateTime.length,
-  formatTime.length,
-  ms(totalStart).length
-);
+const timeWidth = CliTable.columnWidth([generateTime, formatTime, totalTime]);
 const pad = (time: string) => time.padStart(timeWidth);
 
 console.log(
   [
-    `${c.green("✔")} ${c.bold("OpenAPI JSON schema generated")}`,
-    `  ${c.dim("file:    ")} ${c.cyan(path.relative(process.cwd(), openApiJsonFile))} ${c.dim(`(${sizeKb} KB)`)}`,
-    `  ${c.dim("generate:")} ${c.yellow(pad(generateTime))}`,
-    `  ${c.dim("format:  ")} ${c.yellow(pad(formatTime))}`,
-    `  ${c.dim("total:   ")} ${c.bold(c.yellow(pad(ms(totalStart))))}`,
+    CliReport.titleLine(true, "OpenAPI JSON schema generated"),
+    CliReport.labelLine(
+      "file",
+      `${c.cyan(CliReport.displayPath(openApiJsonFile))} ${c.dim(`(${size})`)}`
+    ),
+    CliReport.labelLine("generate", c.yellow(pad(generateTime))),
+    CliReport.labelLine("format", c.yellow(pad(formatTime))),
+    CliReport.labelLine("total", c.bold(c.yellow(pad(totalTime)))),
   ].join("\n")
 );

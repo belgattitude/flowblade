@@ -8,29 +8,31 @@
  *
  * Runs before `next dev` / `next build`, the copied files are git ignored.
  */
-import crypto from "node:crypto";
 import {
   copyFileSync,
   existsSync,
   mkdirSync,
   readFileSync,
   statSync,
-  writeFileSync,
 } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 
 import c from "tinyrainbow";
 
-import { nextjsLocalFontsConfig } from "../src/server/config/nextjs-local-fonts.config";
+import { CliFormat } from "#cli/format.ts";
+import { CliHash } from "#cli/hash.ts";
+import { CliManifest } from "#cli/manifest.ts";
+import { CliReport } from "#cli/report.ts";
+import { CliTable } from "#cli/table.ts";
+
+import { nextjsLocalFontsConfig } from "../src/server/config/nextjs-local-fonts.config.ts";
 
 const require = createRequire(import.meta.url);
 
 const { destDir, fonts, manifestFile } = nextjsLocalFontsConfig;
 
 mkdirSync(destDir, { recursive: true });
-
-const formatKb = (bytes: number) => `${(bytes / 1024).toFixed(1)} KB`;
 
 type Row = { file: string; pkg: string; size: string; copied: boolean };
 type ManifestEntry = {
@@ -59,7 +61,7 @@ for (const { pkg, file } of fonts) {
     copyFileSync(src, dest);
     copied++;
   }
-  rows.push({ copied: !upToDate, file, pkg, size: formatKb(size) });
+  rows.push({ copied: !upToDate, file, pkg, size: CliFormat.formatKb(size) });
 
   // fonts are stored as <package root>/files/<file>
   let version: string | null = null;
@@ -78,34 +80,22 @@ for (const { pkg, file } of fonts) {
     file,
     package: pkg,
     path: path.relative(path.join(import.meta.dirname, ".."), dest),
-    sha256: crypto.createHash("sha256").update(srcContent).digest("hex"),
+    sha256: CliHash.sha256(srcContent),
     sizeBytes: size,
     version,
   });
 }
 
-let manifestLine = `  ${c.dim("manifest:")} ${c.cyan(path.relative(process.cwd(), manifestFile))}`;
-try {
-  mkdirSync(path.dirname(manifestFile), { recursive: true });
-  writeFileSync(
-    manifestFile,
-    `${JSON.stringify(
-      {
-        fonts: manifestEntries,
-        generatedAt: new Date().toISOString(),
-      },
-      null,
-      2
-    )}\n`,
-    "utf-8"
-  );
-} catch (error) {
-  manifestLine = `  ${c.dim("manifest:")} ${c.red(`failed to write (${error instanceof Error ? error.message : "unknown error"})`)}`;
+const manifestError = CliManifest.write(manifestFile, {
+  fonts: manifestEntries,
+  generatedAt: new Date().toISOString(),
+});
+if (manifestError !== undefined) {
   process.exitCode = 1;
 }
 
-const fileWidth = Math.max(...rows.map((r) => r.file.length));
-const sizeWidth = Math.max(...rows.map((r) => r.size.length));
+const fileWidth = CliTable.columnWidth(rows.map((r) => r.file));
+const sizeWidth = CliTable.columnWidth(rows.map((r) => r.size));
 const statusWidth = "up to date".length;
 
 const lines = rows.map((row) => {
@@ -116,9 +106,13 @@ const lines = rows.map((row) => {
 
 console.log(
   [
-    `${c.green("✔")} ${c.bold("Local fonts ready for next/font/local")} ${c.dim(`(${copied} copied, ${fonts.length - copied} up to date, ${formatKb(totalBytes)} total)`)}`,
-    `  ${c.dim("dest:")}     ${c.cyan(path.relative(process.cwd(), destDir))}`,
-    manifestLine,
+    CliReport.titleLine(
+      true,
+      "Local fonts ready for next/font/local",
+      `${copied} copied, ${fonts.length - copied} up to date, ${CliFormat.formatKb(totalBytes)} total`
+    ),
+    CliReport.labelLine("dest", c.cyan(CliReport.displayPath(destDir))),
+    CliManifest.line(manifestFile, manifestError),
     ...lines,
   ].join("\n")
 );

@@ -4,10 +4,10 @@ packages:
   - integrations/*
   - packages/*
 
-# Use pnpm's symlinked node_modules layout rather than Yarn PnP.
 nodeLinker: isolated
 packageImportMethod: auto
 savePrefix: ''
+# @todo enable when https://github.com/pnpm/pnpm/issues/16583 is fixed
 #autoDedupe: true
 forceIgnoresPlatform: false
 ignoreCompatibilityDb: true
@@ -20,6 +20,7 @@ preferSymlinkedExecutables: true
 resolutionMode: highest
 optimisticRepeatInstall: true
 trustPolicy: no-downgrade
+trustPolicyExcludePrune: true
 trustPolicyExclude:
   - '@pierre/theme@2.0.0'
   - '@vercel/oidc@3.8.9'
@@ -30,9 +31,7 @@ trustPolicyExclude:
   - 'semver@6.3.1'
   - 'undici-types@6.21.0'
   - 'chokidar@4.0.3'
-  - 'why-is-node-running@3.2.2'
   - 'prisma@7.10.0'
-  - 'reselect@5.1.1'
 
 verifyDepsBeforeRun: install
 
@@ -94,8 +93,9 @@ overrides:
   lodash-es@>=4.0.0 <=4.17.23: 4.18.1
   mysql2@<=3.23.0: 3.24.5
   path-to-regexp@>=4.0.0 <6.3.0: 6.3.0
+  # disable eslint as it's not used but required by some dev-deps
+  eslint: "-"
 
-# Keep the existing supply-chain cooldown while allowing trusted packages immediately.
 minimumReleaseAge: 2880
 minimumReleaseAgeExclude:
   - '@azure/*'
