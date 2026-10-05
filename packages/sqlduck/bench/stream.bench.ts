@@ -3,7 +3,7 @@ import { test } from "vitest";
 import type { BenchCompareOptions } from "vitest";
 import * as z from "zod";
 
-import { testFullSupportedColumnsZodSchema } from "#/tests/data/test-full-supported-columns-zod-schema.ts";
+import { testFullSupportedColumnsZodSchema } from "#tests/data/test-full-supported-columns-zod-schema.ts";
 
 import { createDuckColumnConverters } from "../src/converter/create-duck-column-converters.ts";
 import { Table } from "../src/objects/table.ts";

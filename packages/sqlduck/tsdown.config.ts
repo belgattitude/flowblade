@@ -15,7 +15,8 @@ export default defineConfig({
   publint: {
     level: "error",
   },
-  dts: true,
+  // Declarations only for src (the package tsconfig also covers tests, config files...)
+  dts: { tsconfig: "./tsconfig.build.json" },
   clean: true,
   format: {
     esm: {

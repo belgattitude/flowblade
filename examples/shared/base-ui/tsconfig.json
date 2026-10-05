@@ -5,13 +5,7 @@
     "types": ["vitest/globals", "@testing-library/jest-dom/vitest"],
     "jsx": "react-jsx"
   },
-  "exclude": [
-    "**/node_modules",
-    "dist",
-    "coverage",
-    "storybook-static",
-    "oxlint.config.ts"
-  ],
+  "exclude": ["**/node_modules", "dist", "coverage", "storybook-static"],
   "include": [
     "**/*.ts",
     "**/*.tsx",

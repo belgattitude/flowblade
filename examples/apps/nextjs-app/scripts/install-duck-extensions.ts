@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -6,7 +5,12 @@ import { config } from "@dotenvx/dotenvx";
 import { DuckDBInstance } from "@duckdb/node-api";
 import c from "tinyrainbow";
 
-import { duckdbExtensionsConfig } from "@/server/config/duckdb-extensions.config.ts";
+import { CliFormat } from "#cli/format.ts";
+import { CliHash } from "#cli/hash.ts";
+import { CliManifest } from "#cli/manifest.ts";
+import { CliReport } from "#cli/report.ts";
+import { CliTable } from "#cli/table.ts";
+import { duckdbExtensionsConfig } from "#server/config/duckdb-extensions.config.ts";
 
 config({
   path: [".env.local", ".env.development", ".env"],
@@ -31,14 +35,6 @@ const relativeDir = path.relative(process.cwd(), extDir);
 const displayDir = relativeDir.startsWith("..") ? extDir : relativeDir;
 
 const totalStart = performance.now();
-const ms = (start: number) => `${Math.round(performance.now() - start)}ms`;
-const errorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : "unknown error";
-
-const formatSize = (bytes: number) =>
-  bytes >= 1024 * 1024
-    ? `${(bytes / 1024 / 1024).toFixed(1)} MB`
-    : `${(bytes / 1024).toFixed(1)} KB`;
 
 // extensions are stored as <dir>/<duckdb version>/<platform>/<name>.duckdb_extension
 const findInstalledExtensionFile = (
@@ -119,7 +115,9 @@ try {
   await conn.run(`SET extension_directory='${extDir}'`);
 } catch (error) {
   failed++;
-  errors.push(`cannot set extension directory (${errorMessage(error)})`);
+  errors.push(
+    `cannot set extension directory (${CliFormat.errorMessage(error)})`
+  );
 }
 
 for (const extension of extensions) {
@@ -135,10 +133,7 @@ for (const extension of extensions) {
         file: path.relative(extDir, installedFile.file),
         installedAt: installedFile.modified.toISOString(),
         name: extension,
-        sha256: crypto
-          .createHash("sha256")
-          .update(fs.readFileSync(installedFile.file))
-          .digest("hex"),
+        sha256: CliHash.sha256(fs.readFileSync(installedFile.file)),
         sizeBytes: installedFile.size,
         version: version ?? null,
       });
@@ -149,18 +144,21 @@ for (const extension of extensions) {
         installedFile === undefined
           ? "?"
           : installedFile.modified.toISOString().slice(0, 10),
-      size: installedFile === undefined ? "?" : formatSize(installedFile.size),
-      time: ms(start),
+      size:
+        installedFile === undefined
+          ? "?"
+          : CliFormat.formatBinarySize(installedFile.size),
+      time: CliFormat.ms(start),
       version: version ?? "?",
     });
   } catch (error) {
     failed++;
     rows.push({
-      error: errorMessage(error),
+      error: CliFormat.errorMessage(error),
       name: extension,
       modified: "-",
       size: "-",
-      time: ms(start),
+      time: CliFormat.ms(start),
       version: "-",
     });
   }
@@ -191,41 +189,24 @@ try {
 
 conn.closeSync();
 
-let manifestError: string | undefined;
-try {
-  fs.mkdirSync(manifestDir, { recursive: true });
-  fs.writeFileSync(
-    manifestFile,
-    `${JSON.stringify(
-      {
-        duckdbSourceId: runtimeInfo?.duckdbSourceId ?? null,
-        duckdbVersion: runtimeInfo?.duckdbVersion ?? null,
-        extensions: manifestEntries.toSorted((a, b) =>
-          a.name.localeCompare(b.name)
-        ),
-        generatedAt: new Date().toISOString(),
-        platform: runtimeInfo?.platform ?? null,
-      },
-      null,
-      2
-    )}\n`,
-    "utf-8"
-  );
-} catch (error) {
-  manifestError = errorMessage(error);
-}
+const manifestError = CliManifest.write(manifestFile, {
+  duckdbSourceId: runtimeInfo?.duckdbSourceId ?? null,
+  duckdbVersion: runtimeInfo?.duckdbVersion ?? null,
+  extensions: manifestEntries.toSorted((a, b) => a.name.localeCompare(b.name)),
+  generatedAt: new Date().toISOString(),
+  platform: runtimeInfo?.platform ?? null,
+});
 
-const icon = failed > 0 ? c.red("✖") : c.green("✔");
 const title =
   failed > 0
     ? "DuckDB extensions installed with errors"
     : "DuckDB extensions installed";
 
-const nameWidth = Math.max(...rows.map((r) => r.name.length));
-const versionWidth = Math.max(...rows.map((r) => r.version.length));
-const modifiedWidth = Math.max(...rows.map((r) => r.modified.length));
-const sizeWidth = Math.max(...rows.map((r) => r.size.length));
-const timeWidth = Math.max(...rows.map((r) => r.time.length));
+const nameWidth = CliTable.columnWidth(rows.map((r) => r.name));
+const versionWidth = CliTable.columnWidth(rows.map((r) => r.version));
+const modifiedWidth = CliTable.columnWidth(rows.map((r) => r.modified));
+const sizeWidth = CliTable.columnWidth(rows.map((r) => r.size));
+const timeWidth = CliTable.columnWidth(rows.map((r) => r.time));
 
 const lines = [
   ...errors.map((message) => `  ${c.red("✖")} ${c.red(message)}`),
@@ -238,12 +219,14 @@ const lines = [
 
 console.log(
   [
-    `${icon} ${c.bold(title)} ${c.dim(`(${installed}/${extensions.length} installed, ${failed} failed, ${formatSize(totalBytes)} total)`)}`,
-    `  ${c.dim("dir:")}      ${c.cyan(displayDir)}`,
-    manifestError === undefined
-      ? `  ${c.dim("manifest:")} ${c.cyan(path.relative(process.cwd(), manifestFile))}`
-      : `  ${c.dim("manifest:")} ${c.red(`failed to write (${manifestError})`)}`,
+    CliReport.titleLine(
+      failed === 0,
+      title,
+      `${installed}/${extensions.length} installed, ${failed} failed, ${CliFormat.formatBinarySize(totalBytes)} total`
+    ),
+    CliReport.labelLine("dir", c.cyan(displayDir)),
+    CliManifest.line(manifestFile, manifestError),
     ...lines,
-    `  ${c.dim("total:")}    ${c.bold(c.yellow(ms(totalStart)))}`,
+    CliReport.labelLine("total", c.bold(c.yellow(CliFormat.ms(totalStart)))),
   ].join("\n")
 );
