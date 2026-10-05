@@ -4,10 +4,10 @@ packages:
   - integrations/*
   - packages/*
 
-# Use pnpm's symlinked node_modules layout rather than Yarn PnP.
 nodeLinker: isolated
 packageImportMethod: auto
 savePrefix: ''
+# @todo enable when https://github.com/pnpm/pnpm/issues/16583 is fixed
 #autoDedupe: true
 forceIgnoresPlatform: false
 ignoreCompatibilityDb: true
@@ -20,6 +20,7 @@ preferSymlinkedExecutables: true
 resolutionMode: highest
 optimisticRepeatInstall: true
 trustPolicy: no-downgrade
+trustPolicyExcludePrune: true
 trustPolicyExclude:
   - '@pierre/theme@2.0.0'
   - '@vercel/oidc@3.8.9'
@@ -30,12 +31,13 @@ trustPolicyExclude:
   - 'semver@6.3.1'
   - 'undici-types@6.21.0'
   - 'chokidar@4.0.3'
-  - 'why-is-node-running@3.2.2'
   - 'prisma@7.10.0'
-  - 'reselect@5.1.1'
 
 verifyDepsBeforeRun: install
 
+# pnpm 12.9.1 has an issue still that makes every run command
+# running postinstall scripts, even id virtualStoreType is project
+enableGlobalVirtualStore: false
 #https://github.com/pnpm/pnpm/issues/14972
 virtualStoreType: project
 
@@ -95,7 +97,7 @@ overrides:
   mysql2@<=3.23.0: 3.24.5
   path-to-regexp@>=4.0.0 <6.3.0: 6.3.0
 
-# Keep the existing supply-chain cooldown while allowing trusted packages immediately.
+
 minimumReleaseAge: 2880
 minimumReleaseAgeExclude:
   - '@azure/*'
@@ -112,6 +114,7 @@ minimumReleaseAgeExclude:
   - '@oxlint/*'
   - '@shadcn/*'
   - '@turbo/*'
+  - '@vitejs/*'
   - better-auth
   - better-call
   - hono
@@ -126,3 +129,5 @@ minimumReleaseAgeExclude:
   - turbo
   - oxlint-tsgolint
   - http-cache-semantics@4.3.0
+  - ultracite@7.12.3
+

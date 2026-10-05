@@ -22,13 +22,7 @@
     "resolvePackageJsonImports": true,
     "types": ["@types/node", "vitest/globals"]
   },
-  "exclude": [
-    "**/node_modules",
-    "**/.*/*",
-    "dist",
-    "coverage",
-    "**/oxlint.config.ts"
-  ],
+  "exclude": ["**/node_modules", "**/.*/*", "dist", "coverage"],
   "include": [
     "**/*.ts",
     "**/*.tsx",

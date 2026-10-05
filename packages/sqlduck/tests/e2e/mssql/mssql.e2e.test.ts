@@ -9,7 +9,7 @@ import { sql } from "kysely";
 import { describe, beforeAll, expect, afterAll, it } from "vitest";
 import * as z from "zod";
 
-import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
+import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 
 import { SqlDuck, Table, zodCodecs } from "../../../src";
 import { createContainerMssql } from "../create-container-mssql";

@@ -11,13 +11,7 @@
       "@/plugins/*": ["./src/plugins/*"]
     }
   },
-  "exclude": [
-    "**/node_modules",
-    "**/.*/*",
-    "dist",
-    "coverage",
-    "oxlint.config.ts"
-  ],
+  "exclude": ["**/node_modules", "**/.*/*", "dist", "coverage"],
   "include": [
     "**/*.ts",
     "**/*.tsx",

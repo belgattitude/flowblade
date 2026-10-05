@@ -13,6 +13,11 @@ import path from "node:path";
 import { execa } from "execa";
 import c from "tinyrainbow";
 
+import { CliFormat } from "#cli/format.ts";
+import { CliManifest } from "#cli/manifest.ts";
+import { CliReport } from "#cli/report.ts";
+import { CliTable } from "#cli/table.ts";
+
 const dockerDir = path.join(import.meta.dirname, "../docker");
 const skipBuild = process.argv.includes("--skip-build");
 
@@ -31,15 +36,6 @@ const targets = [
     name: "bun",
   },
 ] as const;
-
-const seconds = (start: number) =>
-  `${((performance.now() - start) / 1000).toFixed(1)}s`;
-
-// decimal units, same as docker
-const formatSize = (bytes: number) =>
-  bytes >= 1e9
-    ? `${(bytes / 1e9).toFixed(2)} GB`
-    : `${(bytes / 1e6).toFixed(1)} MB`;
 
 // docker prints decimal sizes like "552MB", "1.2GB" or "980kB"
 const parseDockerSize = (size: string): number | undefined => {
@@ -128,13 +124,13 @@ if (!skipBuild) {
     );
     if (result.failed) {
       console.error(
-        `${c.red("✖")} ${c.bold(`Build of the ${target.name} image failed`)} ${c.dim(`(exit code ${result.exitCode ?? "unknown"}, ${seconds(start)})`)}`
+        `${c.red("✖")} ${c.bold(`Build of the ${target.name} image failed`)} ${c.dim(`(exit code ${result.exitCode ?? "unknown"}, ${CliFormat.seconds(start)})`)}`
       );
       process.exit(1);
     }
     buildDurations.set(target.name, Math.round(performance.now() - start));
     console.log(
-      `${c.green("✔")} ${target.name} image built ${c.yellow(seconds(start))}\n`
+      `${c.green("✔")} ${target.name} image built ${c.yellow(CliFormat.seconds(start))}\n`
     );
   }
 }
@@ -170,16 +166,18 @@ if (missing.length > 0) {
 }
 
 const infos = rows.flatMap((row) => row.info ?? []);
-const sizes = infos.map((info) => formatSize(info.bytes));
-const contents = infos.map((info) => formatSize(info.contentBytes));
-const nameWidth = Math.max(...rows.map((r) => r.name.length));
-const imageWidth = Math.max(...rows.map((r) => r.image.length));
-const sizeWidth = Math.max(...sizes.map((x) => x.length));
-const contentWidth = Math.max(...contents.map((x) => x.length));
+const sizes = infos.map((info) => CliFormat.formatDecimalSize(info.bytes));
+const contents = infos.map((info) =>
+  CliFormat.formatDecimalSize(info.contentBytes)
+);
+const nameWidth = CliTable.columnWidth(rows.map((r) => r.name));
+const imageWidth = CliTable.columnWidth(rows.map((r) => r.image));
+const sizeWidth = CliTable.columnWidth(sizes);
+const contentWidth = CliTable.columnWidth(contents);
 const formatBuild = (row: Row) =>
-  row.buildMs === undefined ? "n/a" : `${(row.buildMs / 1000).toFixed(1)}s`;
+  row.buildMs === undefined ? "n/a" : CliFormat.formatSeconds(row.buildMs);
 const builds = rows.map((row) => formatBuild(row));
-const buildWidth = Math.max(...builds.map((x) => x.length));
+const buildWidth = CliTable.columnWidth(builds);
 
 const lines = rows.map(
   (row, i) =>
@@ -197,7 +195,7 @@ if (first !== undefined && second !== undefined) {
   const diff = larger.bytes - smaller.bytes;
   const percent = larger.bytes > 0 ? (diff / larger.bytes) * 100 : 0;
   comparison.push(
-    `  ${c.dim("diff:")}     ${c.bold(c.green(smaller.name))} is ${c.bold(formatSize(diff))} smaller on disk than ${c.bold(larger.name)} ${c.dim(`(-${percent.toFixed(1)}%)`)}`
+    `  ${c.dim("diff:")}     ${c.bold(c.green(smaller.name))} is ${c.bold(CliFormat.formatDecimalSize(diff))} smaller on disk than ${c.bold(larger.name)} ${c.dim(`(-${percent.toFixed(1)}%)`)}`
   );
 }
 
@@ -215,7 +213,7 @@ if (
   const diffMs = (slower.buildMs ?? 0) - (faster.buildMs ?? 0);
   const percent = (diffMs / (slower.buildMs ?? 1)) * 100;
   comparison.push(
-    `  ${c.dim("build:")}    ${c.bold(c.green(faster.name))} built ${c.bold(`${(diffMs / 1000).toFixed(1)}s`)} faster than ${c.bold(slower.name)} ${c.dim(`(-${percent.toFixed(1)}%)`)}`
+    `  ${c.dim("build:")}    ${c.bold(c.green(faster.name))} built ${c.bold(CliFormat.formatSeconds(diffMs))} faster than ${c.bold(slower.name)} ${c.dim(`(-${percent.toFixed(1)}%)`)}`
   );
 } else {
   comparison.push(
@@ -226,7 +224,6 @@ if (
 // committed manifest, so image size changes can be reviewed in git history
 const manifestDir = path.join(import.meta.dirname, "../data/docker");
 const manifestFile = path.join(manifestDir, "docker-images-manifest.json");
-let manifestLine = `  ${c.dim("manifest:")} ${c.cyan(path.relative(process.cwd(), manifestFile))}`;
 // when the images are not built by this run, keep the build time previously
 // recorded for the very same image (same id)
 const previousBuildSeconds = new Map<string, number>();
@@ -243,51 +240,43 @@ try {
   // no previous manifest
 }
 
-try {
-  fs.mkdirSync(manifestDir, { recursive: true });
-  const [smallest] = rows.toSorted(
-    (a, b) => (a.info?.bytes ?? 0) - (b.info?.bytes ?? 0)
-  );
-  fs.writeFileSync(
-    manifestFile,
-    `${JSON.stringify(
-      {
-        generatedAt: new Date().toISOString(),
-        images: rows.map((row, i) => ({
-          architecture: infos[i]?.architecture,
-          buildSeconds:
-            row.buildMs === undefined
-              ? (previousBuildSeconds.get(infos[i]?.id ?? "") ?? null)
-              : Number((row.buildMs / 1000).toFixed(1)),
-          contentBytes: infos[i]?.contentBytes,
-          createdAt: infos[i]?.createdAt,
-          diskSize: infos[i]?.diskSize,
-          diskSizeBytes: infos[i]?.bytes,
-          id: infos[i]?.id,
-          image: row.image,
-          layers: infos[i]?.layers,
-          name: row.name,
-          os: infos[i]?.os,
-        })),
-        smallest: smallest?.name,
-      },
-      null,
-      2
-    )}\n`,
-    "utf-8"
-  );
-} catch (error) {
-  manifestLine = `  ${c.dim("manifest:")} ${c.red(`failed to write (${error instanceof Error ? error.message : "unknown error"})`)}`;
+const [smallest] = rows.toSorted(
+  (a, b) => (a.info?.bytes ?? 0) - (b.info?.bytes ?? 0)
+);
+const manifestError = CliManifest.write(manifestFile, {
+  generatedAt: new Date().toISOString(),
+  images: rows.map((row, i) => ({
+    architecture: infos[i]?.architecture,
+    buildSeconds:
+      row.buildMs === undefined
+        ? (previousBuildSeconds.get(infos[i]?.id ?? "") ?? null)
+        : Number((row.buildMs / 1000).toFixed(1)),
+    contentBytes: infos[i]?.contentBytes,
+    createdAt: infos[i]?.createdAt,
+    diskSize: infos[i]?.diskSize,
+    diskSizeBytes: infos[i]?.bytes,
+    id: infos[i]?.id,
+    image: row.image,
+    layers: infos[i]?.layers,
+    name: row.name,
+    os: infos[i]?.os,
+  })),
+  smallest: smallest?.name,
+});
+if (manifestError !== undefined) {
   process.exitCode = 1;
 }
 
 console.log(
   [
-    `${c.green("✔")} ${c.bold("Docker images compared")}`,
+    CliReport.titleLine(true, "Docker images compared"),
     `  ${c.dim("columns: image, disk size | content size (compressed with the containerd store) | build time | layers")}`,
     ...lines,
     ...comparison,
-    manifestLine,
-    `  ${c.dim("total:")}    ${c.bold(c.yellow(seconds(totalStart)))}`,
+    CliManifest.line(manifestFile, manifestError),
+    CliReport.labelLine(
+      "total",
+      c.bold(c.yellow(CliFormat.seconds(totalStart)))
+    ),
   ].join("\n")
 );
