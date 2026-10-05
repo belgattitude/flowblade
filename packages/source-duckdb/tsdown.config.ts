@@ -3,7 +3,8 @@ import { defineConfig } from "tsdown";
 
 export default defineConfig({
   entry: ["./src/index.ts"],
-  dts: true,
+  // Declarations only for src (the package tsconfig also covers tests, config files...)
+  dts: { tsconfig: "./tsconfig.build.json" },
   clean: true,
   attw: {
     profile: "esm-only",
