@@ -9,8 +9,8 @@ import { sql } from "kysely";
 import { describe, expect, afterAll, beforeAll, it } from "vitest";
 import * as z from "zod";
 
-import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
-import { createDummyKyselyDb } from "#/tests/utils/create-dummy-kysely-db.ts";
+import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
+import { createDummyKyselyDb } from "#tests/utils/create-dummy-kysely-db.ts";
 
 import { SqlDuck, Table, zodCodecs } from "../../../src";
 import { withMaterializedKyselyQuery } from "../../../src/integrations/kysely";

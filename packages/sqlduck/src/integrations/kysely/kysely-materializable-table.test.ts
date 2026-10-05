@@ -1,7 +1,7 @@
 import { expectTypeOf, describe, it } from "vitest";
 import * as z from "zod";
 
-import { createDummyKyselyDb } from "#/tests/utils/create-dummy-kysely-db.ts";
+import { createDummyKyselyDb } from "#tests/utils/create-dummy-kysely-db.ts";
 
 import { KyselyMaterializableTable } from "./kysely-materializable-table.ts";
 

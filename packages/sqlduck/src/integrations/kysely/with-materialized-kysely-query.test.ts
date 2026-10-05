@@ -3,8 +3,8 @@ import { sql } from "@flowblade/sql-tag";
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import * as z from "zod";
 
-import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
-import { createDummyKyselyDb } from "#/tests/utils/create-dummy-kysely-db.ts";
+import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
+import { createDummyKyselyDb } from "#tests/utils/create-dummy-kysely-db.ts";
 
 import { Table } from "../../objects/table.ts";
 import { KyselyMaterializableTable } from "./kysely-materializable-table.ts";

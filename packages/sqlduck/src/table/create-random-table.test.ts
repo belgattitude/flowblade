@@ -4,7 +4,7 @@ import type { LogRecord } from "@logtape/logtape";
 import isInCi from "is-in-ci";
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 
-import { createDuckdbTestMemoryDb } from "#/tests/utils/create-duckdb-test-memory-db.ts";
+import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 
 import { Table } from "../objects/table.ts";
 import { isDuckdbValidIdentifier } from "../validation/core/is-duckdb-valid-identifier.ts";
