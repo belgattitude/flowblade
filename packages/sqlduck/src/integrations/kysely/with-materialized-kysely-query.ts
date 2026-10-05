@@ -3,6 +3,7 @@ import type {
   QResult,
   QError,
   AsyncQResult,
+  QMetaMaterializationSpan,
   QMetaSqlSpan,
 } from "@flowblade/core";
 import {
@@ -31,14 +32,6 @@ type Params = {
     table: Table;
   }) => Promise<QResult<Record<string, unknown>[], QError>>;
 };
-
-export interface QMetaMaterializationSpan {
-  type: "materialization";
-  ddl: string;
-  timeMs: number;
-  affectedRows: number;
-  table: Table;
-}
 
 export const createMaterializationSpan = (
   params: Omit<QMetaMaterializationSpan, "type">
@@ -88,7 +81,7 @@ export const withMaterializedKyselyQuery = async (
     ddl: result.createTableDDL,
     timeMs: result.timeMs,
     affectedRows: result.totalRows,
-    table: materializedTable,
+    tableName: materializedTable.getFullName(),
   });
 
   const queryResult = await query({ dsDuck, table: materializedTable });
@@ -101,7 +94,7 @@ export const withMaterializedKyselyQuery = async (
   console.log("queryResult", queryResult);
   console.log("queryResult", queryResult.toJsonifiable());
 
-  queryResult.meta.addSpan(materializedSpan);
+  queryResult.meta.prependSpan(materializedSpan);
 
   return queryResult;
 };

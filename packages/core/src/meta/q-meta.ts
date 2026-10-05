@@ -11,7 +11,7 @@ export interface QMetaMapSpan {
 export interface QMetaSqlSpan {
   type: "sql";
   sql: string;
-  params: unknown[];
+  params: readonly unknown[];
   timeMs: number;
   affectedRows: number;
 }
@@ -23,9 +23,59 @@ export interface QMetaCustomSpan<T extends string> {
 }
 
 export type QMetaSpan<TCustom extends string = string> =
+  | QMetaKnownSpan
+  | QMetaCustomSpan<TCustom>;
+
+export interface QMetaMaterializationSpan {
+  type: "materialization";
+  /**
+   * DDL used to create the materialized table
+   */
+  ddl: string;
+  timeMs: number;
+  affectedRows: number;
+  /**
+   * Full name of the materialized table
+   */
+  tableName: string;
+}
+
+/**
+ * Spans with a dedicated shape, discriminated by their `type`.
+ */
+export type QMetaKnownSpan =
   | QMetaSqlSpan
   | QMetaMapSpan
-  | QMetaCustomSpan<TCustom>;
+  | QMetaMaterializationSpan;
+
+/**
+ * Span shape for a given span type: the known shape when there is one,
+ * otherwise a custom span (which always carries `affectedRows`).
+ */
+export type QMetaSpanOfType<TType extends string> =
+  TType extends QMetaKnownSpan["type"]
+    ? Extract<QMetaKnownSpan, { type: TType }>
+    : QMetaCustomSpan<TType>;
+
+/**
+ * Store an immutable snapshot of the span: the caller's object is left untouched
+ * and the stored span (and its `params`, if any) can't be modified afterwards.
+ * The freeze is shallow on purpose, spans may hold class instances or functions.
+ */
+const hasParams = (
+  span: QMetaSpan
+): span is QMetaSpan & { params: readonly unknown[] } =>
+  "params" in span && Array.isArray(span.params);
+
+const freezeSpan = <T extends QMetaSpan>(span: T): T => {
+  if (Object.isFrozen(span)) {
+    return span;
+  }
+  const copy = hasParams(span)
+    ? { ...span, params: Object.freeze([...span.params]) }
+    : { ...span };
+  return Object.freeze(copy);
+};
 
 type ConstructorParams = {
   cm?: QColumnModel;
@@ -67,9 +117,9 @@ export class QMeta {
   constructor(params: ConstructorParams) {
     const { spans, name } = params;
     if (Array.isArray(spans)) {
-      this.spans.push(...spans);
+      this.spans.push(...spans.map(freezeSpan));
     } else if (spans !== undefined) {
-      this.spans.push(spans);
+      this.spans.push(freezeSpan(spans));
     }
     this.#name = name;
   }
@@ -85,10 +135,15 @@ export class QMeta {
   };
 
   /**
-   * Return spans by type 'sql'...
+   * Return spans by type 'sql', 'map', or any custom type.
+   * The returned span type is narrowed by `type`; custom types expose `affectedRows`.
    */
-  getSpansByType = (type: string): Readonly<QMetaSpan>[] => {
-    return this.spans.filter((span) => span.type === type) ?? [];
+  getSpansByType = <TType extends string>(
+    type: TType
+  ): Readonly<QMetaSpanOfType<TType>>[] => {
+    return this.spans.filter((span) => span.type === type) as Readonly<
+      QMetaSpanOfType<TType>
+    >[];
   };
 
   /**
@@ -105,7 +160,27 @@ export class QMeta {
    * ```
    */
   addSpan = (span: QMetaSpan): void => {
-    this.spans.push(span);
+    this.spans.push(freezeSpan(span));
+  };
+
+  /**
+   * Insert a span at the beginning, before any existing span.
+   *
+   * @example
+   * ```typescript
+   * const meta = new QMeta({ spans: sqlSpan });
+   * meta.prependSpan({
+   *    type: 'materialization',
+   *    ddl: 'CREATE TABLE ...',
+   *    tableName: 'users',
+   *    timeMs: 13,
+   *    affectedRows: 10
+   * });
+   * meta.getSpans()[0]?.type; // 'materialization'
+   * ```
+   */
+  prependSpan = (span: QMetaSpan): void => {
+    this.spans.unshift(freezeSpan(span));
   };
 
   /**
@@ -132,7 +207,7 @@ export class QMeta {
    */
   withSpan = (span: QMetaSpan): QMeta => {
     const meta = new QMeta({
-      spans: structuredClone(this.spans),
+      spans: this.spans,
     });
     meta.addSpan(span);
     return meta;

@@ -111,8 +111,9 @@ describe("MSSQL materialized e2e tests", () => {
         }));
 
         expect(result.data).toStrictEqual(normalizedData);
-        expect(result.meta).toStrictEqual([]);
-        expect(result.meta.create.rows).toStrictEqual(testDataCount);
+        const [materializationSpan] =
+          result.meta.getSpansByType("materialization");
+        expect(materializationSpan?.affectedRows).toStrictEqual(testDataCount);
       },
       testTimeout
     );

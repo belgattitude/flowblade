@@ -61,8 +61,29 @@ describe("withMaterializedKyselyQuery", () => {
 
     const spans = meta.getSpans();
     expect(spans).toHaveLength(2);
-    expect(meta.getSpansByType("materialization")).toHaveLength(1);
-    // expect(meta.getLatestSpan()?.type).toBe("sql");
+    const [materializationSpan, ...otherSpans] =
+      meta.getSpansByType("materialization");
+    expect(otherSpans).toHaveLength(0);
+    expect(materializationSpan).toMatchObject({
+      type: "materialization",
+      ddl: expect.stringMatching(/^CREATE TABLE/),
+      tableName: expect.stringMatching(/^_materialized/),
+      affectedRows: expect.any(Number),
+      timeMs: expect.any(Number),
+    });
+    // spans must survive a map (QMeta.withSpan) and JSON serialization
+    const mapped = result.map((row) => row);
+    expect(mapped.meta.getSpans().map((span) => span.type)).toStrictEqual([
+      "materialization",
+      "sql",
+      "map",
+    ]);
+    expect(() => JSON.stringify(mapped.meta)).not.toThrow();
+    expect(spans.map((span) => span.type)).toStrictEqual([
+      "materialization",
+      "sql",
+    ]);
+    expect(meta.getLatestSpan()?.type).toBe("sql");
 
     expect(data).toStrictEqual([]);
 

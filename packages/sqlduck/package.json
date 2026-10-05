@@ -69,7 +69,7 @@
     "test-unit-bun": "bun --bun run vitest run",
     "test-unit-deno": "deno run test-unit",
     "test-unit-watch": "vitest --ui --api 4516 --coverage.enabled=true --coverage.reporter=html",
-    "test-e2e": "vitest -c vitest.e2e.config.ts run",
+    "test-e2e": "dotenvx run --ignore=MISSING_ENV_FILE -f .env.test.local -f env.test -- vitest -c vitest.e2e.config.ts run",
     "test-e2e-bun": "bun --bun run vitest -c vitest.e2e.config.ts run",
     "test-e2e-watch": "vitest -c vitest.e2e.config.ts --ui",
     "typecheck": "tsc --project tsconfig.json --noEmit",
