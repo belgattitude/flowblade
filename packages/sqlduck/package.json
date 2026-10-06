@@ -33,17 +33,17 @@
       "default": "./dist/filesystem/index.mjs"
     },
     "./zod": {
-      "flowblade-monorepo-source": "./src/zod/index.ts",
+      "flowblade-monorepo-source": "./src/validation/zod/index.ts",
       "types": "./dist/validation/zod/index.d.mts",
       "default": "./dist/validation/zod/index.mjs"
     },
     "./valibot": {
-      "flowblade-monorepo-source": "./src/valibot/index.ts",
+      "flowblade-monorepo-source": "./src/validation/valibot/index.ts",
       "types": "./dist/validation/valibot/index.d.mts",
       "default": "./dist/validation/valibot/index.mjs"
     },
     "./kysely": {
-      "flowblade-monorepo-source": "./src/kysely/index.ts",
+      "flowblade-monorepo-source": "./src/integrations/kysely/index.ts",
       "types": "./dist/integrations/kysely/index.d.mts",
       "default": "./dist/integrations/kysely/index.mjs"
     },
@@ -88,7 +88,7 @@
     "@httpx/assert": "^0.18.0",
     "@httpx/dsn-parser": "^1.10.0",
     "@httpx/plain-object": "^2.2.0",
-    "@logtape/logtape": "^2.3.11",
+    "@logtape/logtape": "^2.4.0",
     "@standard-schema/spec": "^1.1.0",
     "glob": "13.0.6",
     "is-safe-filename": "0.1.1",

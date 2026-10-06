@@ -124,6 +124,57 @@ const queryResult = await dbDuckDbMemoryConn.query<{
 `);
 ```
 
+### Query a materialized Kysely query
+
+`withMaterializedKyselyQuery` streams the rows of a Kysely query (e.g. from
+mssql or postgres) into a temporary DuckDB table, runs your query on it, then
+drops the table, whether the query succeeds, fails or throws.
+
+```typescript
+import {
+    KyselyMaterializableTable,
+    withMaterializedKyselyQuery,
+} from "@flowblade/sqlduck/kysely";
+import { sql } from "@flowblade/sql-tag";
+import * as z from "zod";
+
+import { conn } from "./db.config.ts"; // DuckDBConnection or DuckdbDatasource
+import { db } from "./kysely.config.ts"; // any Kysely instance
+
+const table = new KyselyMaterializableTable({
+    sourceQuery: db.selectFrom("user").select(["id", "name"]),
+    // used to create the temporary table, must match the selected columns
+    schema: z.strictObject({ id: z.int32(), name: z.string() }),
+});
+
+const result = await withMaterializedKyselyQuery({
+    duckConn: conn,
+    table,
+    // 👇Optional: where the temporary table is created.
+    // Defaults to the connection's current database and schema.
+    database: "scratch", // e.g. ATTACH 'scratch.duckdb' AS scratch
+    schema: "staging", // must already exist
+    query: ({ dsDuck, table }) =>
+        dsDuck.query(
+            sql<{ id: number; name: string }>`
+                SELECT id, name FROM ${sql.raw(table.getFullName())} WHERE id < 1000
+            `
+        ),
+});
+
+if (result.error) {
+    // materialization or query error
+} else {
+    console.log(result.data);
+    // the first span holds the materialization info (ddl, affectedRows, timeMs, tableName)
+    console.log(result.meta.getSpansByType("materialization"));
+}
+```
+
+`database` and `schema` must be valid, non-reserved DuckDB identifiers,
+otherwise an error result is returned and the query is not run. Targeting an
+attached file database keeps large materializations out of the in-memory one.
+
 ## Benchmarks
 
 ### Node 24.21
