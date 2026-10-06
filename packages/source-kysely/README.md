@@ -32,12 +32,12 @@ Kysely supports
 ## Quick start
 
 ```typescript
-// Your db configuration, see Utils section for more details
-import { db } from "@/config/db.config.ts";
+import { KyselyDatasource, isQueryResultError } from "@flowblade/source-kysely";
 import { KyselyDatasource, isQueryResultError } from "@flowblade/source-kysely";
 import { sql } from "kysely";
 
-import { KyselyDatasource, isQueryResultError } from "@flowblade/source-kysely";
+// Your db configuration, see Utils section for more details
+import { db } from "@/config/db.config.ts";
 
 const ds = new KyselyDatasource({ db });
 const query = ds.queryBuilder // This gives access to Kysely expression builder
@@ -105,11 +105,11 @@ for await (const brand of stream) {
 Create a Kysely dialect for Ms SqlServer or Azure Sql Edge.
 
 ```typescript
-import * as Tedious from "tedious";
 import {
     TediousConnUtils,
     createKyselyMssqlDialect,
 } from "@flowblade/source-kysely";
+import * as Tedious from "tedious";
 
 const jdbcDsn =
     "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
@@ -167,8 +167,8 @@ Parse and validate a JDBC connection string and return a Tedious connection
 configuration.
 
 ```typescript
-import * as Tedious from "tedious";
 import { TediousConnUtils } from "@flowblade/source-kysely";
+import * as Tedious from "tedious";
 
 // In your .env file
 // DB_JDBC_DSN="sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";

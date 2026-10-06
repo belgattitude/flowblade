@@ -117,7 +117,7 @@ export const oxlintDefaultConfig = defineConfig({
         "no-unsafe-type-assertion": "off",
         "no-unsafe-member-access": "off",
         "strict-boolean-expressions": "off",
-        "no-unsafe-assignonment": "off",
+        "no-unsafe-assignment": "off",
         "prefer-named-capture-group": "off",
         "vitest/expect-expect": "error",
         "vitest/max-expects": "off",

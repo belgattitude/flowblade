@@ -1,8 +1,8 @@
-const isBrowser = typeof window !== "undefined";
+const isBrowser = globalThis.window !== undefined;
 
 const getVercelUrl = (): string | undefined => {
   const vercelEnv = process.env.NEXT_PUBLIC_VERCEL_ENV;
-  if (vercelEnv === undefined || vercelEnv === "") {
+  if (vercelEnv === null || vercelEnv === "") {
     return undefined;
   }
   return process.env.NEXT_PUBLIC_VERCEL_ENV === "preview"
@@ -19,12 +19,12 @@ export const getNextjsHostInfo = (params?: {
   baseUrl: string;
 } => {
   const { defaultPort = 3000 } = params ?? {};
-  const port = process.env.PORT ?? defaultPort;
   if (isBrowser) {
     return {
-      baseUrl: `${window.location.protocol}://${window.location.hostname}:${window.location.port}`,
+      baseUrl: window.location.origin,
     };
   }
+  const port = process.env.PORT ?? defaultPort;
   return {
     baseUrl:
       process.env.BASE_URL ?? getVercelUrl() ?? `http://localhost:${port}`,

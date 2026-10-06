@@ -94,7 +94,6 @@ describe("MSSQL materialized e2e tests", () => {
           duckConn,
           table,
           query: async ({ dsDuck, table }) => {
-            console.log("AAAA", table.getFullName());
             return await dsDuck.query(
               sqlt<{
                 id: number;

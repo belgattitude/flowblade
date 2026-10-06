@@ -23,6 +23,7 @@ export const conn = await instance.connect();
 ```typescript
 import { SqlDuck, DuckDatabaseManager } from "@flowblade/sqlduck";
 import * as z from "zod";
+
 import { conn } from "./db.config.ts";
 
 const dbManager = new DuckDatabaseManager(conn);
@@ -78,6 +79,7 @@ const rows = reader.getRowObjectsJS();
 ```typescript
 import { SqlDuck } from "@flowblade/sqlduck";
 import * as z from "zod";
+
 import { dbDuckDbMemoryConn } from "./db.duckdb-memory.config";
 
 const sqlDuck = new SqlDuck({ conn: duckDbConnection });
