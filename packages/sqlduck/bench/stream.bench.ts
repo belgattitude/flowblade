@@ -142,6 +142,7 @@ test(`Bench rowsToColumnsChunks with full supported-columns schema`, async ({
       decimal_18_3: rowIdx + 0.123,
       list_of_strings_explicit: ["a", "b", "c"],
       list_of_strings: ["a", "b", "c"],
+      list_of_enums: ["a" as const, "b" as const],
       list_of_bigints: [BigInt(rowIdx), BigInt(rowIdx + 1)],
       list_of_bigints_explicit: [BigInt(rowIdx), BigInt(rowIdx + 1)],
       list_of_numbers: [1, 2, 3],

@@ -18,6 +18,8 @@ const getDuckTypeConverter = (
   switch (duckTypeId) {
     case DuckDBTypeId.TIMESTAMP_MS:
       return converter.toTimestampMs;
+    case DuckDBTypeId.TIMESTAMP:
+      return converter.toTimestamp;
     case DuckDBTypeId.INTEGER:
     case DuckDBTypeId.UINTEGER:
       return false;

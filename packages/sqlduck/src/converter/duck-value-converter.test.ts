@@ -3,6 +3,7 @@ import {
   DuckDBDecimalValue,
   DuckDBListValue,
   DuckDBTimestampMillisecondsValue,
+  DuckDBTimestampValue,
   DuckDBUUIDValue,
 } from "@duckdb/node-api";
 import { describe, expect, it } from "vitest";
@@ -33,6 +34,30 @@ describe(DuckValueConverter, () => {
     });
   });
   describe("toTimestamp", () => {
+    it.each([
+      ["a date", new Date("2023-12-28T23:37:31.653Z")],
+      ["an isoStringZ", "2023-12-28T23:37:31.653Z"],
+      ["an epoch number in ms", 1_703_806_651_653],
+      ["an epoch bigint in ms", 1_703_806_651_653n],
+    ])("should convert %s to a DuckDBTimestampValue", (_label, value) => {
+      expect(converter.toTimestamp(value)).toStrictEqual(
+        new DuckDBTimestampValue(1_703_806_651_653_000n)
+      );
+    });
+
+    it("should return null for null or undefined", () => {
+      expect(converter.toTimestamp(null)).toBeNull();
+      expect(converter.toTimestamp(undefined)).toBeNull();
+    });
+
+    it("should throw on invalid values", () => {
+      // @ts-expect-error testing invalid value
+      expect(() => converter.toTimestamp(true)).toThrow(
+        "[DuckValueConverter.toTimestamp]: Unsupported type boolean with value true"
+      );
+    });
+  });
+  describe("toTimestampMs", () => {
     it("should convert a date to a DuckDBTimestampValue", () => {
       const date = new Date();
       expect(converter.toTimestampMs(date)).toStrictEqual(
@@ -175,6 +200,23 @@ describe(DuckValueConverter, () => {
         "[DuckValueConverter.toUUID]: Unsupported type number with value 1"
       );
       expect(() => converter.toUUID("not-a-uuid")).toThrow(SyntaxError);
+    });
+  });
+  describe("toStringEnum", () => {
+    it("should return the string as is", () => {
+      expect(converter.toStringEnum("a")).toBe("a");
+    });
+
+    it("should return null for null or undefined", () => {
+      expect(converter.toStringEnum(null)).toBeNull();
+      expect(converter.toStringEnum(undefined)).toBeNull();
+    });
+
+    it("should throw on non string values", () => {
+      // @ts-expect-error testing invalid value
+      expect(() => converter.toStringEnum(1)).toThrow(
+        "[DuckValueConverter.toStringEnum]: Unsupported type number with value 1"
+      );
     });
   });
   describe("createListConverter", () => {

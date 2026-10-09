@@ -110,6 +110,39 @@ const getCustomDuckDbType = (duckdbType: string): DuckDBType | undefined => {
   return new DuckDBDecimalType(width, scale);
 };
 
+type StringFormat =
+  | "date"
+  | "date-time"
+  | "int64"
+  | "uuid"
+  | "cuid"
+  | "cuid2"
+  | undefined;
+
+/**
+ * DuckDB type of a json schema string, from its enum members or format.
+ */
+const getDuckdbStringColumnType = (def: {
+  format?: StringFormat;
+  enum?: string[];
+}): DuckDBType => {
+  if (Array.isArray(def.enum)) {
+    return ENUM(def.enum);
+  }
+  switch (def.format) {
+    case "date":
+      return DATE;
+    case "date-time":
+      return TIMESTAMP_MS;
+    case "int64":
+      return BIGINT;
+    case "uuid":
+      return UUID;
+    default:
+      return VARCHAR;
+  }
+};
+
 export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
   params: GetTableCreateFromZodParams<TSchema>
 ): TableCreateFromZodResult<TSchema> => {
@@ -133,14 +166,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
     def: {
       type: "number" | "integer" | "string" | "boolean" | "array";
       nullable: boolean | undefined;
-      format:
-        | "date"
-        | "date-time"
-        | "int64"
-        | "uuid"
-        | "cuid"
-        | "cuid2"
-        | undefined;
+      format: StringFormat;
       primaryKey: boolean | undefined;
       minimum?: number;
       maximum?: number;
@@ -150,6 +176,9 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       // only when type is array
       items?: {
         type: "string" | "boolean" | "number" | "integer";
+        // only for string
+        enum?: string[];
+        format?: StringFormat;
         // only for integer
         minimum?: number;
         maximum?: number;
@@ -185,7 +214,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
         case "array":
           switch (def?.items?.type) {
             case "string":
-              c.duckdbType = LIST(VARCHAR);
+              c.duckdbType = LIST(getDuckdbStringColumnType(def.items));
               break;
             case "integer":
               c.duckdbType = LIST(
@@ -214,26 +243,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
           }
           break;
         case "string":
-          if (Array.isArray(def.enum)) {
-            c.duckdbType = ENUM(def.enum);
-          } else {
-            switch (format) {
-              case "date":
-                c.duckdbType = DATE;
-                break;
-              case "date-time":
-                c.duckdbType = TIMESTAMP_MS;
-                break;
-              case "int64":
-                c.duckdbType = BIGINT;
-                break;
-              case "uuid":
-                c.duckdbType = UUID;
-                break;
-              default:
-                c.duckdbType = VARCHAR;
-            }
-          }
+          c.duckdbType = getDuckdbStringColumnType(def);
           break;
         case "number":
           c.duckdbType = getDuckdbNumberColumnType({
