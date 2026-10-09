@@ -486,6 +486,111 @@ describe("Duckdb tests", async () => {
         ]);
       });
 
+      it("Should infer list item types from string formats", async () => {
+        const sqlDuck = new SqlDuck({ conn });
+        const testTable = new Table("test_list_string_formats");
+        const uuid = "019d2155-d292-71fa-87d7-9d1f1ed83569";
+
+        async function* rowStream() {
+          yield {
+            uuids: [uuid],
+            dates: ["2025-01-02"],
+            timestamps: ["2025-01-02T03:04:05.678Z"],
+            bigints: ["9223372036854775807", "-1"],
+          };
+        }
+
+        const { createTableDDL } = await sqlDuck.toTable({
+          table: testTable,
+          schema: z.strictObject({
+            uuids: z.array(z.uuid()),
+            dates: z.array(z.iso.date()),
+            timestamps: z.array(z.iso.datetime()),
+            bigints: z.array(zodCodecs.bigintToString),
+          }),
+          rowStream: rowStream(),
+          autoCheckpoint: false,
+          createOptions: {
+            create: "CREATE_OR_REPLACE",
+          },
+        });
+
+        expect(createTableDDL).toContain("uuids UUID[] NOT NULL");
+        expect(createTableDDL).toContain("dates DATE[] NOT NULL");
+        expect(createTableDDL).toContain("timestamps TIMESTAMP_MS[] NOT NULL");
+        expect(createTableDDL).toContain("bigints BIGINT[] NOT NULL");
+        const query = await conn.runAndReadAll(
+          `SELECT uuids::VARCHAR as uuids,
+                  dates::VARCHAR as dates,
+                  timestamps::VARCHAR as timestamps,
+                  bigints::VARCHAR as bigints
+           FROM ${testTable.getFullName()}`
+        );
+        expect(query.getRowObjects()).toStrictEqual([
+          {
+            uuids: `[${uuid}]`,
+            dates: "[2025-01-02]",
+            timestamps: "['2025-01-02 03:04:05.678']",
+            bigints: "[9223372036854775807, -1]",
+          },
+        ]);
+      });
+
+      it("Should append TIMESTAMP columns", async () => {
+        const sqlDuck = new SqlDuck({ conn });
+        const testTable = new Table("test_timestamps");
+        const date = new Date("2025-01-02T03:04:05.678Z");
+
+        async function* rowStream() {
+          yield {
+            id: 1,
+            ts: "2025-01-02T03:04:05.678Z",
+            ts_list: ["2025-01-02T03:04:05.678Z"],
+          };
+          yield { id: 2, ts: date.getTime(), ts_list: [] };
+          yield { id: 3, ts: null, ts_list: null };
+        }
+
+        await sqlDuck.toTable({
+          table: testTable,
+          schema: z.strictObject({
+            id: z.int32(),
+            ts: z.nullable(
+              z
+                .union([z.string(), z.number()])
+                .meta({ duckdbType: "TIMESTAMP" })
+            ),
+            ts_list: z.nullable(
+              z.array(z.string()).meta({ duckdbType: "TIMESTAMP[]" })
+            ),
+          }),
+          rowStream: rowStream(),
+          autoCheckpoint: false,
+          createOptions: {
+            create: "CREATE_OR_REPLACE",
+          },
+        });
+
+        const query = await conn.runAndReadAll(
+          `SELECT typeof(ts) as ts_type, ts::VARCHAR as ts,
+                  ts_list::VARCHAR as ts_list
+           FROM ${testTable.getFullName()} ORDER BY id`
+        );
+        expect(query.getRowObjects()).toStrictEqual([
+          {
+            ts_type: "TIMESTAMP",
+            ts: "2025-01-02 03:04:05.678",
+            ts_list: "['2025-01-02 03:04:05.678']",
+          },
+          {
+            ts_type: "TIMESTAMP",
+            ts: "2025-01-02 03:04:05.678",
+            ts_list: "[]",
+          },
+          { ts_type: "TIMESTAMP", ts: null, ts_list: null },
+        ]);
+      });
+
       it("Should append decimal columns with their declared width and scale", async () => {
         const sqlDuck = new SqlDuck({ conn });
         const testTable = new Table("test_decimals");
@@ -590,6 +695,166 @@ describe("Duckdb tests", async () => {
             huge: "12.34",
           },
         ]);
+      });
+
+      describe("enum", () => {
+        const schema = z.strictObject({
+          id: z.int32(),
+          status: z.enum(["draft", "published", "archived"]),
+          nullable_status: z.nullable(z.enum(["a", "b"])),
+        });
+
+        it("Should append enum columns declared inline in the create table", async () => {
+          const sqlDuck = new SqlDuck({ conn });
+          const testTable = new Table("test_enums");
+
+          async function* rowStream() {
+            yield { id: 1, status: "draft", nullable_status: "b" } as const;
+            yield { id: 2, status: "archived", nullable_status: null } as const;
+          }
+
+          const { totalRows, createTableDDL } = await sqlDuck.toTable({
+            table: testTable,
+            schema,
+            rowStream: rowStream(),
+            autoCheckpoint: false,
+            createOptions: {
+              create: "CREATE_OR_REPLACE",
+            },
+          });
+
+          expect(totalRows).toBe(2);
+          expect(createTableDDL).toContain(
+            "status ENUM('draft', 'published', 'archived') NOT NULL"
+          );
+          const query = await conn.runAndReadAll(
+            `SELECT typeof(status) as status_type,
+                    status::VARCHAR as status,
+                    enum_code(status) as status_code,
+                    nullable_status::VARCHAR as nullable_status
+             FROM ${testTable.getFullName()} ORDER BY id`
+          );
+          expect(query.getRowObjects()).toStrictEqual([
+            {
+              status_type: "ENUM('draft', 'published', 'archived')",
+              status: "draft",
+              status_code: 0,
+              nullable_status: "b",
+            },
+            {
+              status_type: "ENUM('draft', 'published', 'archived')",
+              status: "archived",
+              status_code: 2,
+              nullable_status: null,
+            },
+          ]);
+
+          // No reusable type is created
+          const types = await conn.runAndReadAll(
+            `SELECT count(*) as count_star FROM duckdb_types() WHERE internal = false`
+          );
+          expect(types.getRowObjects()).toStrictEqual([{ count_star: 0n }]);
+        });
+
+        it("Should reject a value that is not a member of the enum", async () => {
+          const sqlDuck = new SqlDuck({ conn });
+          const testTable = new Table("test_enums_invalid");
+
+          async function* rowStream() {
+            yield { id: 1, status: "draft", nullable_status: null };
+            yield { id: 2, status: "deleted", nullable_status: null };
+          }
+
+          await expect(
+            sqlDuck.toTable({
+              table: testTable,
+              schema,
+              // @ts-expect-error testing a value outside the enum
+              rowStream: rowStream(),
+              autoCheckpoint: false,
+              createOptions: {
+                create: "CREATE_OR_REPLACE",
+              },
+            })
+          ).rejects.toThrow(
+            "Failed to append data into table 'test_enums_invalid' - 'deleted' is not a member of ENUM('draft', 'published', 'archived')"
+          );
+
+          // The chunk holding the invalid value isn't appended
+          const query = await conn.runAndReadAll(
+            `SELECT count(*) as count_star from ${testTable.getFullName()}`
+          );
+          expect(query.getRowObjects()).toStrictEqual([{ count_star: 0n }]);
+        });
+
+        describe("list of enums", () => {
+          const listSchema = z.strictObject({
+            id: z.int32(),
+            tags: z.nullable(z.array(z.enum(["red", "green", "blue"]))),
+          });
+
+          it("Should append list of enums columns", async () => {
+            const sqlDuck = new SqlDuck({ conn });
+            const testTable = new Table("test_enum_lists");
+
+            async function* rowStream(): AsyncGenerator<
+              z.input<typeof listSchema>
+            > {
+              yield { id: 1, tags: ["red", "blue"] };
+              yield { id: 2, tags: [] };
+              yield { id: 3, tags: null };
+            }
+
+            const { createTableDDL } = await sqlDuck.toTable({
+              table: testTable,
+              schema: listSchema,
+              rowStream: rowStream(),
+              autoCheckpoint: false,
+              createOptions: {
+                create: "CREATE_OR_REPLACE",
+              },
+            });
+
+            expect(createTableDDL).toContain(
+              "tags ENUM('red', 'green', 'blue')[]"
+            );
+            const query = await conn.runAndReadAll(
+              `SELECT typeof(tags) as tags_type, tags::VARCHAR as tags
+               FROM ${testTable.getFullName()} ORDER BY id`
+            );
+            expect(query.getRowObjects()).toStrictEqual([
+              {
+                tags_type: "ENUM('red', 'green', 'blue')[]",
+                tags: "[red, blue]",
+              },
+              { tags_type: "ENUM('red', 'green', 'blue')[]", tags: "[]" },
+              { tags_type: "ENUM('red', 'green', 'blue')[]", tags: null },
+            ]);
+          });
+
+          it("Should reject a list item that is not a member of the enum", async () => {
+            const sqlDuck = new SqlDuck({ conn });
+
+            async function* rowStream() {
+              yield { id: 1, tags: ["red", "purple"] };
+            }
+
+            await expect(
+              sqlDuck.toTable({
+                table: new Table("test_enum_lists_invalid"),
+                schema: listSchema,
+                // @ts-expect-error testing a value outside the enum
+                rowStream: rowStream(),
+                autoCheckpoint: false,
+                createOptions: {
+                  create: "CREATE_OR_REPLACE",
+                },
+              })
+            ).rejects.toThrow(
+              "'purple' is not a member of ENUM('red', 'green', 'blue')"
+            );
+          });
+        });
       });
     },
     testTimeout * 2

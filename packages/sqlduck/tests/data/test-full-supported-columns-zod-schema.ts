@@ -35,6 +35,7 @@ export const testFullSupportedColumnsZodSchema = z.strictObject({
     duckdbType: "VARCHAR[]",
   }),
   list_of_strings: z.array(z.string()),
+  list_of_enums: z.array(z.enum(["a", "b"])),
   list_of_bigints: z.array(zodCodecs.bigintToString),
   list_of_bigints_explicit: z.array(zodCodecs.bigintToString).meta({
     duckdbType: "BIGINT[]",
