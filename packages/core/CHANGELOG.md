@@ -1,5 +1,17 @@
 # @flowblade/core
 
+## 0.5.1
+
+### Patch Changes
+
+- [#1423](https://github.com/belgattitude/flowblade/pull/1423) [`ccef41f`](https://github.com/belgattitude/flowblade/commit/ccef41f2d7ecdef56f06cb9c025804f09c946b4d) Thanks [@belgattitude](https://github.com/belgattitude)! - Replace internal `typescript-result` dependency with `better-result@3.0.1` (no public API change).
+
+- [#1426](https://github.com/belgattitude/flowblade/pull/1426) [`f6feeff`](https://github.com/belgattitude/flowblade/commit/f6feeff1fb3cbb4db2cce8a9b6c1b03e74466984) Thanks [@belgattitude](https://github.com/belgattitude)! - Apply the new shared lint rules (no non-null assertions, no explicit any, exhaustive switches, unused vars...).
+  
+  - `QResult.map` on a success result without rows now returns the error `"mapper: no rows to map"` (was a `TypeError` message).
+  - `queryOrThrow` in `source-duckdb` and `source-kysely` now relies on `QResult.getOrThrow`, error message is unchanged.
+  - `sqlduck`: `rowsToColumnsChunks` iterates keys with `for...of`, measured ~7% faster on wide (26 columns) rows.
+
 ## 0.5.0
 
 ### Minor Changes
