@@ -1,5 +1,13 @@
 # @flowblade/source-duckdb
 
+## 0.30.3
+
+### Patch Changes
+
+- [#1350](https://github.com/belgattitude/flowblade/pull/1350) [`73ba5db`](https://github.com/belgattitude/flowblade/commit/73ba5dbac9b72d7700ceb14889b83513da7ba615) Thanks [@belgattitude](https://github.com/belgattitude)! - Update `@logtape/logtape` to `^2.4.0` (latest)
+- Updated dependencies [[`73ba5db`](https://github.com/belgattitude/flowblade/commit/73ba5dbac9b72d7700ceb14889b83513da7ba615)]:
+  - @flowblade/core@0.5.0
+
 ## 0.30.2
 
 ### Patch Changes
