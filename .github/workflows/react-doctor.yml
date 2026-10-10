@@ -34,7 +34,7 @@ jobs:
          - fetch-depth: 0
          - persist-credentials: false
 
-      - uses: millionco/react-doctor@041d1ab1cd36e6cbf5fab2c044509132d648c1f1 # v2.3.0
+      - uses: millionco/react-doctor@673ce802a375eeb4c3c5cb9a96d21eaeb7eafd93 # v2.3.1
         # Advisory by default: React Doctor reports findings on every PR — a
         # sticky summary comment, inline review comments, and a commit status
         # with the health score — but never fails the check, so it won't red-X
