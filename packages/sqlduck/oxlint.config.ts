@@ -6,6 +6,12 @@ export default defineConfig({
   plugins: [],
   overrides: [
     {
+      files: ["*.ts"],
+      rules: {
+        "typescript/require-await": "off",
+      },
+    },
+    {
       // These modules receive loosely typed values (DuckDB values, paths from
       // JS callers) and must branch on their runtime type.
       files: ["src/converter/**", "src/filesystem/**"],
