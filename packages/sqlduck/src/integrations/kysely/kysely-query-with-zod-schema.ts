@@ -2,14 +2,14 @@ import type { InferResult, SelectQueryBuilder } from "kysely";
 import type { ZodObject, ZodType } from "zod";
 
 type Params<TQuery extends SelectQueryBuilder<any, any, any>> = {
-  sourceQuery: TQuery;
+  query: TQuery;
   schema: ZodObject<{
     [K in keyof NoInfer<InferResult<TQuery>[number]>]-?: ZodType<
       NoInfer<InferResult<TQuery>[number]>[K]
     >;
   }>;
 };
-export class KyselyMaterializableTable<
+export class KyselyQueryWithZodSchema<
   TQuery extends SelectQueryBuilder<any, any, any> = SelectQueryBuilder<
     any,
     any,
@@ -31,7 +31,7 @@ export class KyselyMaterializableTable<
   /**
    * Return the underlying kysely query
    */
-  getSourceQuery = () => {
-    return this.#params.sourceQuery;
+  getQuery = () => {
+    return this.#params.query;
   };
 }

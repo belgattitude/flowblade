@@ -14,7 +14,7 @@ import { createDummyKyselyDb } from "#tests/utils/create-dummy-kysely-db.ts";
 
 import { SqlDuck, Table, zodCodecs } from "../../../src";
 import { withMaterializedKyselyQuery } from "../../../src/integrations/kysely";
-import { KyselyMaterializableTable } from "../../../src/integrations/kysely/kysely-materializable-table.ts";
+import { KyselyQueryWithZodSchema } from "../../../src/integrations/kysely/kysely-query-with-zod-schema.ts";
 import { createContainerMssql } from "../create-container-mssql";
 import {
   anIsoDate,
@@ -75,8 +75,8 @@ describe("MSSQL materialized e2e tests", () => {
 
         const sqlserverResult = await mssqlDs.queryOrThrow(query);
 
-        const table = new KyselyMaterializableTable({
-          sourceQuery: query,
+        const queryWithSchema = new KyselyQueryWithZodSchema({
+          query,
           schema: z.strictObject({
             id: z.int32().meta({ primaryKey: true }),
             name: z.string(),
@@ -92,7 +92,7 @@ describe("MSSQL materialized e2e tests", () => {
 
         const result = await withMaterializedKyselyQuery({
           duckConn,
-          table,
+          table: queryWithSchema,
           query: async ({ dsDuck, table }) => {
             return await dsDuck.query(
               sqlt<{

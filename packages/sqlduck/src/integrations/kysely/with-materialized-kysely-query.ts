@@ -7,13 +7,13 @@ import type { Table } from "../../objects/table.ts";
 import { SqlDuck, type ToTableResult } from "../../sql-duck.ts";
 import { createRandomTable } from "../../table/create-random-table.ts";
 import { isDuckdbValidIdentifier } from "../../validation/core/is-duckdb-valid-identifier.ts";
-import type { KyselyMaterializableTable } from "./kysely-materializable-table.ts";
+import type { KyselyQueryWithZodSchema } from "./kysely-query-with-zod-schema.ts";
 
 const chunkSize = 1024;
 
 type Params<TData extends unknown[]> = {
   duckConn: DuckdbDatasource | DuckDBConnection;
-  table: KyselyMaterializableTable;
+  table: KyselyQueryWithZodSchema;
   /**
    * Database where the temporary table is created (e.g. an attached file database).
    * Defaults to the connection's current database.
@@ -104,7 +104,7 @@ export const withMaterializedKyselyQuery = async <
         conn: dsDuck.getConnection(),
       }).toTable({
         chunkSize,
-        rowStream: table.getSourceQuery().stream({ chunkSize }),
+        rowStream: table.getQuery().stream({ chunkSize }),
         schema: table.getSchema(),
         table: materializedTable,
         autoCheckpoint: materializedTable.databaseName !== undefined,

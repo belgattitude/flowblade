@@ -8,7 +8,7 @@ import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory
 import { createDummyKyselyDb } from "#tests/utils/create-dummy-kysely-db.ts";
 
 import { Table } from "../../objects/table.ts";
-import { KyselyMaterializableTable } from "./kysely-materializable-table.ts";
+import { KyselyQueryWithZodSchema } from "./kysely-query-with-zod-schema.ts";
 import { withMaterializedKyselyQuery } from "./with-materialized-kysely-query.ts";
 
 describe("withMaterializedKyselyQuery", () => {
@@ -38,8 +38,8 @@ describe("withMaterializedKyselyQuery", () => {
       name: z.string(),
     });
 
-    const table = new KyselyMaterializableTable({
-      sourceQuery: query,
+    const table = new KyselyQueryWithZodSchema({
+      query,
       schema,
     });
 
@@ -88,28 +88,12 @@ describe("withMaterializedKyselyQuery", () => {
     expect(meta.getLatestSpan()?.type).toBe("sql");
 
     expect(data).toStrictEqual([]);
-
-    /*
-    expect(result).toMatchSnapshot();
-
-    expect(result).toStrictEqual({
-      data: [],
-      meta: {
-        create: {
-          ddl: expect.stringMatching(/^CREATE TABLE/),
-          rows: 0,
-          timeMs: expect.any(Number),
-          table: expect.any(Table)
-        },
-      },
-    });
-*/
   });
 
   describe("materialized table cleanup", () => {
     const createTable = () =>
-      new KyselyMaterializableTable({
-        sourceQuery: db.selectFrom("user").select(["id", "name"]),
+      new KyselyQueryWithZodSchema({
+        query: db.selectFrom("user").select(["id", "name"]),
         schema: z.strictObject({ id: z.int32(), name: z.string() }),
       });
 
@@ -141,12 +125,12 @@ describe("withMaterializedKyselyQuery", () => {
 
     it("should drop the table when the row stream throws midway", async () => {
       const failingTable = createTable();
-      failingTable.getSourceQuery = (() => ({
+      failingTable.getQuery = (() => ({
         stream: async function* streamRows() {
           yield { id: 1, name: "a" };
           throw new Error("stream boom");
         },
-      })) as unknown as typeof failingTable.getSourceQuery;
+      })) as unknown as typeof failingTable.getQuery;
 
       let queryCalled = false;
       const result = await withMaterializedKyselyQuery({
@@ -202,8 +186,8 @@ describe("withMaterializedKyselyQuery", () => {
 
   describe("database and schema options", () => {
     const createTable = () =>
-      new KyselyMaterializableTable({
-        sourceQuery: db.selectFrom("user").select(["id", "name"]),
+      new KyselyQueryWithZodSchema({
+        query: db.selectFrom("user").select(["id", "name"]),
         schema: z.strictObject({ id: z.int32(), name: z.string() }),
       });
 
