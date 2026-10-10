@@ -19,12 +19,13 @@ type Props = PropsWithChildren & {
 };
 
 export const ReactQueryClientProvider: FC<Props> = (props) => {
-  const {
-    children,
-    forceDisableDevTools = clientEnv.NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED ===
-      "false",
-  } = props;
-  const [client] = useState(new QueryClient(queryClientConfig));
+  const { children } = props;
+  const forceDisableDevTools =
+    props.forceDisableDevTools ??
+    clientEnv.NEXT_PUBLIC_REACT_QUERY_DEVTOOLS_ENABLED === "false";
+  // A stable client for the component lifetime, never updated (TanStack Query recommended pattern)
+  // oxlint-disable-next-line react/hook-use-state
+  const [client] = useState(() => new QueryClient(queryClientConfig));
   return (
     <QueryClientProvider client={client}>
       {children}

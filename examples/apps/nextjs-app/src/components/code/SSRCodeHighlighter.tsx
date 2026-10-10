@@ -18,7 +18,7 @@ interface Props {
   lang?: BundledLanguage;
   theme?: BundledTheme;
 }
-export async function SSRCodeHighlighter(props: Props) {
+export const SSRCodeHighlighter = async (props: Props) => {
   const {
     code,
     className,
@@ -51,9 +51,11 @@ export async function SSRCodeHighlighter(props: Props) {
         </div>
         <div
           className="border-t-2 border-neutral-700 text-sm [&_code]:block [&_code]:w-fit [&_code]:min-w-full [&>pre]:overflow-x-auto [&>pre]:bg-neutral-900! [&>pre]:py-3 [&>pre]:pr-5 [&>pre]:pl-4 [&>pre]:leading-snug"
+          // the html is generated server side by shiki from the `code` prop
+          // oxlint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>
     </div>
   );
-}
+};

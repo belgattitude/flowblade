@@ -120,7 +120,7 @@ export class QResult<
       params.error === undefined
         ? Result.ok({
             meta: this.#meta,
-            rows: params.data!,
+            rows: params.data as TData,
           })
         : Result.err(params.error);
   }
@@ -184,9 +184,7 @@ export class QResult<
   /**
    * Check whether the result is an error
    */
-  isError = (): boolean => {
-    return this.#innerResult.isErr();
-  };
+  isError = (): boolean => this.#innerResult.isErr();
 
   /**
    * Transforms the value of a successful result using the transform callback.
@@ -226,14 +224,18 @@ export class QResult<
     if (this.#innerResult.isOk()) {
       let returned: TMappedRow[] | undefined;
       let err: QError | undefined;
+      const { rows } = this.#innerResult.value;
       try {
-        returned = this.#innerResult.value.rows!.map((row) => transformFn(row));
-      } catch (e) {
+        if (rows === undefined) {
+          throw new TypeError("mapper: no rows to map");
+        }
+        returned = rows.map((row) => transformFn(row));
+      } catch (error) {
         let message: string;
-        if (e instanceof Error) {
-          ({ message } = e);
-        } else if (typeof e === "string") {
-          message = e;
+        if (error instanceof Error) {
+          ({ message } = error);
+        } else if (typeof error === "string") {
+          message = error;
         } else {
           message = "mapper: unknown error";
         }
@@ -294,7 +296,7 @@ export class QResult<
         ? new Error(this.error.message)
         : customErrorFn(this.error);
     }
-    return this.data!;
+    return this.data as TData;
   };
 
   /**

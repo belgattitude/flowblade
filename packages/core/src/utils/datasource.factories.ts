@@ -28,19 +28,17 @@ export const createSqlSpan = ({
 export const createQResultSuccess = <T extends unknown[]>(
   data: T,
   meta: QMeta
-): QResult<T, never> => {
-  return new QResult({
+): QResult<T, never> =>
+  new QResult({
     meta,
     data,
   });
-};
 
 export const createQResultError = (
   error: QError,
   meta: QMeta
-): QResult<never, QError> => {
-  return new QResult({
+): QResult<never, QError> =>
+  new QResult({
     meta,
     error,
   });
-};

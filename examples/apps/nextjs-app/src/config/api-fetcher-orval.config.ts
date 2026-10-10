@@ -1,6 +1,5 @@
 import {
   createHttpException,
-  type HttpException,
   type HttpExceptionParams,
 } from "@httpx/exception";
 import { HTTPError } from "ky";

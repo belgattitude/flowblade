@@ -72,6 +72,8 @@ export class EthicalProductRepo {
         brands.add(brand);
       }
     }
-    return [...brands].map((brand) => ({ name: brand }));
+    return [...brands].map((brand) => {
+      return { name: brand };
+    });
   };
 }

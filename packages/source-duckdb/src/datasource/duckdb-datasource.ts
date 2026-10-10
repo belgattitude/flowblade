@@ -119,13 +119,13 @@ export class DuckdbDatasource implements DatasourceInterface {
         rows.getRowObjectsJson() as TData,
         new QMeta({ name, spans: span })
       );
-    } catch (e) {
+    } catch (error) {
       span.timeMs = Math.round(Date.now() - start);
       let message: string;
-      if (e instanceof Error) {
-        ({ message } = e);
-      } else if (typeof e === "string") {
-        message = e;
+      if (error instanceof Error) {
+        ({ message } = error);
+      } else if (typeof error === "string") {
+        message = error;
       } else {
         message = "unknown error";
       }
@@ -164,13 +164,12 @@ export class DuckdbDatasource implements DatasourceInterface {
     data: TData;
     meta: QMeta;
   }> => {
-    const { data, meta, error } = await this.query<TData>(rawQuery, options);
-    if (error !== undefined) {
-      throw new Error(`Query failed: ${error.message}`);
-    }
+    const result = await this.query<TData>(rawQuery, options);
     return {
-      data: data!,
-      meta,
+      data: result.getOrThrow(
+        (qErr) => new Error(`Query failed: ${qErr.message}`)
+      ),
+      meta: result.meta,
     };
   };
 

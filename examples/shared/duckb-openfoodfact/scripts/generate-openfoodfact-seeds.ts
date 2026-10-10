@@ -56,8 +56,8 @@ const getQueryCreateEtlLoadProductTable = () => {
   `;
 };
 
-const getQueryCreateEtlBrands = () => {
-  return sql`
+const getQueryCreateEtlBrands = () =>
+  sql`
     CREATE OR REPLACE table etl_brands as (
     WITH
         brands AS MATERIALIZED (
@@ -95,7 +95,6 @@ const getQueryCreateEtlBrands = () => {
     ORDER BY len(similar_tags) DESC, len(similars) DESC
     )
   `;
-};
 
 try {
   const threads = `${os.availableParallelism() - 1}`;
@@ -143,17 +142,19 @@ try {
     const result = await ds.query(query);
     const { meta } = result;
 
-    if (!result.isOk()) {
-      throw new Error(result.error!.message);
+    if (result.error !== undefined) {
+      throw new Error(result.error.message);
     }
     console.log(
       boxen(
-        `${pc.green(`Query ${name} executed in ${formatTimeMsToSeconds(meta.getTotalTimeMs())} seconds`)}`
+        pc.green(
+          `Query ${name} executed in ${formatTimeMsToSeconds(meta.getTotalTimeMs())} seconds`
+        )
       )
     );
   }
-} catch (e) {
-  console.log(boxen(pc.red((e as Error).message)));
+} catch (error) {
+  console.log(boxen(pc.red((error as Error).message)));
   // eslint-disable-next-line unicorn/no-process-exit
   process.exit(1);
 }

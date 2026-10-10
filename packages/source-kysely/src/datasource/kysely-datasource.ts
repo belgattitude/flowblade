@@ -12,7 +12,6 @@ import {
 } from "@flowblade/core";
 import type { Logger } from "@logtape/logtape";
 import type { Compilable, InferResult, Kysely, RawBuilder } from "kysely";
-import type { Writable } from "type-fest";
 
 import { isKyselyStreamable } from "../internal/is-kysely-streamable";
 import { parseBigIntToSafeInt } from "../internal/parse-bigint-to-safeint";
@@ -167,18 +166,18 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         result.rows as TData,
         new QMeta({ name, spans: span })
       );
-    } catch (err) {
+    } catch (error) {
       span.timeMs = Date.now() - start;
 
       // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
       // This behaviour exists for example in Tedious/Mssql
       let message = "Unknown error";
-      if (Array.isArray(err)) {
-        message = err
+      if (Array.isArray(error)) {
+        message = error
           .map((e) => (e instanceof Error ? e.message : String(e)))
           .join("; ");
-      } else if (err instanceof Error) {
-        ({ message } = err);
+      } else if (error instanceof Error) {
+        ({ message } = error);
       }
 
       this.logger.error(
@@ -221,16 +220,12 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     data: TData;
     meta: QMeta;
   }> => {
-    const { data, meta, error } = await this.query<TQuery, TData>(
-      query,
-      options
-    );
-    if (error !== undefined) {
-      throw new Error(`Query failed: ${error.message}`);
-    }
+    const result = await this.query<TQuery, TData>(query, options);
     return {
-      data: data!,
-      meta,
+      data: result.getOrThrow(
+        (qErr) => new Error(`Query failed: ${qErr.message}`)
+      ),
+      meta: result.meta,
     };
   };
 
@@ -298,18 +293,18 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
 
     try {
       yield* query.stream(chunkSize) as AsyncIterableIterator<TData[0]>;
-    } catch (err) {
+    } catch (error) {
       span.timeMs = Date.now() - start;
 
       // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
       // This behaviour exists for example in Tedious/Mssql
       let message = "Unknown error";
-      if (Array.isArray(err)) {
-        message = err
+      if (Array.isArray(error)) {
+        message = error
           .map((e) => (e instanceof Error ? e.message : String(e)))
           .join("; ");
-      } else if (err instanceof Error) {
-        ({ message } = err);
+      } else if (error instanceof Error) {
+        ({ message } = error);
       }
 
       this.logger.error(
@@ -318,7 +313,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       );
 
       throw new Error(message, {
-        cause: err,
+        cause: error,
       });
     } finally {
       const timeMs = Date.now() - start;
@@ -339,7 +334,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     return {
       queryName,
       source: "kysely",
-      method: method,
+      method,
       type: span.type,
       sql: span.sql,
       params: span.params,

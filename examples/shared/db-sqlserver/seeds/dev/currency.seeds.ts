@@ -50,7 +50,12 @@ export class CurrencySeeds extends AbstractSeed {
 
     let affected = 0;
     for (const { translations, code: currencyCode } of currencyData) {
-      const currencyId = mapCurrencyi18n.get(currencyCode)!;
+      const currencyId = mapCurrencyi18n.get(currencyCode);
+      if (currencyId === undefined) {
+        throw new Error(
+          `Currency '${currencyCode}' not found, seed currencies first`
+        );
+      }
       for (const [localeCode, value] of Object.entries(translations)) {
         if (availableLocales.has(localeCode)) {
           const { singular: name, plural: namePlural } = value;

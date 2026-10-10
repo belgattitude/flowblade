@@ -28,14 +28,14 @@ describe("KyselyDatasource.stream logging", () => {
     };
 
     const ds = new KyselyDatasource({
-      connection: {} as any, // db is only used for compile which we mocked
-      logger: mockLogger as any,
+      connection: {} as never, // db is only used for compile which we mocked
+      logger: mockLogger as never,
     });
 
     // @ts-expect-error - access private to mock
     ds.db = { executeQuery: vi.fn<() => void>() };
 
-    const stream = ds.stream(mockQuery as any, {
+    const stream = ds.stream(mockQuery as never, {
       name: "test-stream",
     });
 

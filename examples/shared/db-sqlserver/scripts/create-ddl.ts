@@ -12,8 +12,8 @@ const ddl = new PrismaDdl(logger);
 
 try {
   ddl.createDdlFile(ddlOutputFile);
-} catch (e) {
-  logger.log("error", (e as Error).message);
+} catch (error) {
+  logger.log("error", (error as Error).message);
   // eslint-disable-next-line unicorn/no-process-exit
   process.exit(1);
 }

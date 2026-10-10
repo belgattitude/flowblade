@@ -38,8 +38,8 @@ if (fs.existsSync(localParquet)) {
   });
   try {
     await dl.start();
-  } catch (e) {
-    spinner.error(`Download failed: ${(e as Error).message}`);
+  } catch (error) {
+    spinner.error(`Download failed: ${(error as Error).message}`);
     // eslint-disable-next-line unicorn/no-process-exit
     process.exit(-1);
   }

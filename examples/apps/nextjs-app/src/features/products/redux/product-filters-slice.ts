@@ -38,22 +38,24 @@ export const createProductFiltersSlice = buildCreateSlice({
 export const productFiltersSlice = createProductFiltersSlice({
   initialState: productFiltersInitialState,
   name: "productFilters",
-  reducers: (create) => ({
-    brandsFilterChanged: create.reducer(
-      (state, action: PayloadAction<EthicalBrand[]>) => {
-        state.draftFilters.brands = action.payload;
-      }
-    ),
-    execute: create.reducer((state) => {
-      state.filters = state.draftFilters;
-    }),
-    slowdownApiMsFilterChanged: create.reducer(
-      (state, action: PayloadAction<number>) => {
-        state.draftFilters.slowdownApiMs = action.payload;
-      }
-    ),
-    startLoading: create.reducer((state) => {
-      state.loadingAt = Date.now();
-    }),
-  }),
+  reducers: (create) => {
+    return {
+      brandsFilterChanged: create.reducer(
+        (state, action: PayloadAction<EthicalBrand[]>) => {
+          state.draftFilters.brands = action.payload;
+        }
+      ),
+      execute: create.reducer((state) => {
+        state.filters = state.draftFilters;
+      }),
+      slowdownApiMsFilterChanged: create.reducer(
+        (state, action: PayloadAction<number>) => {
+          state.draftFilters.slowdownApiMs = action.payload;
+        }
+      ),
+      startLoading: create.reducer((state) => {
+        state.loadingAt = Date.now();
+      }),
+    };
+  },
 });

@@ -172,9 +172,9 @@ describe(QResult, () => {
     it("should throw custom error if a failure", () => {
       const errorResult = createErrorResult("qErrMsg");
       expect(() =>
-        errorResult.getOrThrow((qErr) => {
-          return new EvalError(`${qErr.message} & custom`);
-        })
+        errorResult.getOrThrow(
+          (qErr) => new EvalError(`${qErr.message} & custom`)
+        )
       ).toThrow(new EvalError(`qErrMsg & custom`));
     });
   });
@@ -198,7 +198,9 @@ describe(QResult, () => {
             ],
           }),
         });
-        const mapped = result.map((row) => ({ name: row.name }));
+        const mapped = result.map((row) => {
+          return { name: row.name };
+        });
         expect(mapped.meta.getSpans().map((span) => span.type)).toStrictEqual([
           "sql",
           "materialization",
@@ -283,6 +285,19 @@ describe(QResult, () => {
       expect(mappedResult.isError()).toBe(true);
       expect(mappedResult.error).toStrictEqual({
         message: "mapper: unknown error",
+      });
+      expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
+    });
+
+    it("should return an error when a success result has no rows to map", () => {
+      const mappedResult = new QResult<{ id: number }[] | undefined, QError>(
+        {}
+      ).map((row) => {
+        return { id: row.id };
+      });
+      expect(mappedResult.isError()).toBe(true);
+      expect(mappedResult.error).toStrictEqual({
+        message: "mapper: no rows to map",
       });
       expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
     });

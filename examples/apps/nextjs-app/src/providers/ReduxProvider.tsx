@@ -12,7 +12,11 @@ export const ReduxStoreProvider: FC<PropsWithChildren> = (props) => {
   const storeRef = useRef<AppStore>(null);
 
   // create the redux store instance in the client to avoid leaking in ssr context
-  storeRef.current ??= makeReduxStore();
+  // `??=` is not supported by the React Compiler yet (it would bail out on this component)
+  // oxlint-disable-next-line typescript/prefer-nullish-coalescing
+  if (storeRef.current === null) {
+    storeRef.current = makeReduxStore();
+  }
 
   // There's no other possibility afaik
   // eslint-disable-next-line react-hooks/refs

@@ -27,20 +27,18 @@ export default async function TreeRoute(fastify: FastifyInstance) {
         },
       },
     },
-    async (): Promise<Static<typeof categorySchema>> => {
-      return [
-        {
-          name: "category1",
-          id: "1",
-          children: [
-            {
-              id: "1_1",
-              name: "category1_1",
-              children: [],
-            },
-          ],
-        },
-      ];
-    }
+    async (): Promise<Static<typeof categorySchema>> => [
+      {
+        name: "category1",
+        id: "1",
+        children: [
+          {
+            id: "1_1",
+            name: "category1_1",
+            children: [],
+          },
+        ],
+      },
+    ]
   );
 }

@@ -123,16 +123,12 @@ export class QMeta {
     }
     this.#name = name;
   }
-  getSpans = (): Readonly<QMetaSpan>[] => {
-    return this.spans;
-  };
+  getSpans = (): Readonly<QMetaSpan>[] => this.spans;
 
   /**
    * Return the most recent span or undefined there isn't any
    */
-  getLatestSpan = (): Readonly<QMetaSpan> | undefined => {
-    return this.spans.at(-1)!;
-  };
+  getLatestSpan = (): Readonly<QMetaSpan> | undefined => this.spans.at(-1);
 
   /**
    * Return spans by type 'sql', 'map', or any custom type.
@@ -140,11 +136,10 @@ export class QMeta {
    */
   getSpansByType = <TType extends string>(
     type: TType
-  ): Readonly<QMetaSpanOfType<TType>>[] => {
-    return this.spans.filter((span) => span.type === type) as Readonly<
+  ): Readonly<QMetaSpanOfType<TType>>[] =>
+    this.spans.filter((span) => span.type === type) as Readonly<
       QMetaSpanOfType<TType>
     >[];
-  };
 
   /**
    * @example
@@ -227,9 +222,8 @@ export class QMeta {
    * console.log(meta.getTotalTimeMs()); // 3000
    * ```
    */
-  getTotalTimeMs = (): number => {
-    return Math.round(this.spans.reduce((acc, span) => acc + span.timeMs, 0));
-  };
+  getTotalTimeMs = (): number =>
+    Math.round(this.spans.reduce((acc, span) => acc + span.timeMs, 0));
 
   /**
    * Provide a JSON serializable representation of the QMeta instance.

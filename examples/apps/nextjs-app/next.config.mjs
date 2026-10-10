@@ -1,7 +1,6 @@
 // @ts-check
 
 import path from "node:path";
-import url from "node:url";
 
 import packageJson from "./package.json" with { type: "json" };
 import { buildEnv } from "./src/env/build.env.mjs";

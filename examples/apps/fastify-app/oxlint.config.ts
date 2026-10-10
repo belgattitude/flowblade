@@ -10,6 +10,14 @@ export default defineConfig({
   },
   overrides: [
     {
+      // framework entrypoints (fastify plugins/routes, next route handlers, pages, config)
+      // are expected to be async even without await
+      files: ["**/*.{ts,tsx,mjs}"],
+      rules: {
+        "typescript/require-await": "off",
+      },
+    },
+    {
       files: ["swagger.ts"],
       rules: {
         "typescript/no-unsafe-argument": "off",

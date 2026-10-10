@@ -16,7 +16,5 @@ export class CliLogger implements ILogger {
   log = (type: LogType, msg: string) => {
     console.log(`- ${termMap[type]} [${this.name}] ${msg}`);
   };
-  withName = (name: string) => {
-    return new CliLogger(name);
-  };
+  withName = (name: string) => new CliLogger(name);
 }

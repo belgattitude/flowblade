@@ -25,10 +25,10 @@ export const Banner: FC<Props> = (props) => {
           </div>
           <div className="order-3 mt-2 w-full shrink-0 sm:order-2 sm:mt-0 sm:w-auto">
             <a
-              href="@/components/banner/Banner#"
+              href="https://github.com/belgattitude/flowblade"
               className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-2 text-sm font-medium text-indigo-600 shadow-xs hover:bg-indigo-50"
             >
-              Learn more
+              Learn more about Flowblade
             </a>
           </div>
           <div className="order-2 shrink-0 sm:order-3 sm:ml-3">

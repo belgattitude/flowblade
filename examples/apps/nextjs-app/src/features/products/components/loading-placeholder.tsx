@@ -13,7 +13,7 @@ export const LoadingPlaceholder: FC = () => {
   */
 
   return (
-    <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl bg-black text-3xl md:min-h-min">
+    <div className="min-h-screen flex-1 rounded-xl bg-muted/50 text-3xl md:min-h-min">
       Loading...
     </div>
   );

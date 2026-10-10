@@ -14,16 +14,20 @@ interface Row {
   productName: string;
 }
 
-const initialTableData: Row[] = Array.from({ length: 1000 }, (_) => ({
-  countryId: faker.location.countryCode("alpha-2"),
-  productId: faker.commerce.isbn(13),
-  productName: faker.commerce.productName(),
-}));
+const initialTableData: Row[] = Array.from({ length: 1000 }, () => {
+  return {
+    countryId: faker.location.countryCode("alpha-2"),
+    productId: faker.commerce.isbn(13),
+    productName: faker.commerce.productName(),
+  };
+});
 
-const productToUpdate = initialTableData.slice(0, 10).map((row) => ({
-  ...row,
-  productName: `Updated ! ${row.productName}`,
-}));
+const productToUpdate = initialTableData.slice(0, 10).map((row) => {
+  return {
+    ...row,
+    productName: `Updated ! ${row.productName}`,
+  };
+});
 
 export async function GET(_req: NextRequest) {
   const qRaw = sql<Row[]>`

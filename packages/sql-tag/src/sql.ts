@@ -30,9 +30,7 @@ export const sql = Object.assign(
   <T = unknown>(
     sqlFragments: TemplateStringsArray,
     ...parameters: RawValue[]
-  ): SqlTag<T[]> => {
-    return sqlt(sqlFragments, ...parameters) as SqlTag<T[]>;
-  },
+  ): SqlTag<T[]> => sqlt(sqlFragments, ...parameters) as SqlTag<T[]>,
   {
     /**
      * Placeholder value for an empty SQL string. Useful for conditionals and

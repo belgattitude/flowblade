@@ -1,158 +1,162 @@
-# @flowblade/source-duckdb
+# @flowblade/devtools
 
-[![npm](https://img.shields.io/npm/v/@flowblade/source-duckdb?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/source-duckdb)
-[![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/source-duckdb/CHANGELOG.md)
-[![bundles](https://img.shields.io/static/v1?label=&message=cjs|esm&logo=webpack&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/source-duckdb/.size-limit.cjs)
-[![node](https://img.shields.io/static/v1?label=Node&message=20%2b&logo=node.js&style=for-the-badge&labelColor=444&color=informational)](#compatibility)
-[![downloads](https://img.shields.io/npm/dm/@flowblade/source-duckdb?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/source-duckdb)
-[![license](https://img.shields.io/npm/l/@flowblade/source-duckdb?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
+Shared lint, format and TypeScript configurations for the flowblade monorepo.
 
-Duckdb datasource adapter based on
-[@duckdb/node-api](https://github.com/duckdb/duckdb-node-neo)
+This package is private: it is only consumed inside the workspace.
 
 ## Install
 
-```bash
-pnpm add @flowblade/source-duckdb @duckdb/node-api
+Add it as a dev dependency of the workspace package:
+
+```json
+{
+  "devDependencies": {
+    "@flowblade/devtools": "workspace:*"
+  }
+}
 ```
 
-### Query the database
+Then install its peer dependencies, at the versions listed in this package's `package.json`.
 
-```typescript
-import { DuckdbDatasource, sql } from "@flowblade/source-duckdb";
+| Peer | Needed by |
+| --- | --- |
+| `oxlint`, `oxlint-tsgolint`, `oxfmt`, `ultracite` | every package |
+| `eslint-plugin-security`, `oxlint-plugin-import-zod` | every package (JS plugins loaded by `oxlintDefaultConfig`) |
+| `oxlint-tailwindcss`, `@tanstack/eslint-plugin-query`, `eslint`, `oxlint-plugin-react-doctor` | React and Next.js packages only (`createOxlintReactConfig`, `createOxlintNextjsConfig`) |
 
-// See setup below
-import { ds } from "./config.ts";
+Declare the peers explicitly, even when lint works without them: they can currently resolve through `@flowblade/devtools` own dependencies, which is not guaranteed.
 
-const params = {
-    min: 10,
-    max: 99,
-    name: "test",
-    createdAt: new Date().toISOString(),
-};
+## Exports
 
-type Row = { id: number; name: "test"; createdAt: Date };
+| Export | Description |
+| --- | --- |
+| `oxlintDefaultConfig` | oxlint base for every package |
+| `createOxlintReactConfig(options)` | oxlint base for React + Tailwind CSS packages |
+| `createOxlintNextjsConfig(options)` | oxlint base for Next.js apps |
+| `oxfmtDefaultConfig` | oxfmt configuration |
+| `@flowblade/devtools/typescript/tsconfig.base.json` | base `tsconfig.json` |
 
-const rawSql = sql<Row>`
+## oxlint
 
-      WITH products(productId, createdAt)
-          AS MATERIALIZED (
-               FROM RANGE(1,100) SELECT 
-               range::INT,
-               TIMESTAMPTZ '2025-01-01 12:30:00.123456789+01:00'
-          )
-      
-      SELECT productId, 
-             ${params.name} as name,
-             createdAt
-             
-      FROM products 
-      WHERE productId BETWEEN ${params.min}::INTEGER AND ${params.max}::INTEGER
-      AND createdAt < ${params.createdAt}::TIMESTAMPTZ
-    `;
+### Default base
 
-const result = await ds.query(rawSql);
+`oxlintDefaultConfig` extends the ultracite `core` and `vitest` presets and adds:
 
-const { data, meta, error } = result;
+- type-aware linting (`oxlint-tsgolint`)
+- the `eslint-plugin-security` and `oxlint-plugin-import-zod` JS plugins (zod must be imported as a namespace)
+- the monorepo ignore patterns
+- `pedantic` and `nursery` rules turned off, `typescript/require-await` enabled and `typescript/no-deprecated` as a warning
 
-if (data) {
-    // Typed as Row[]
-    console.log(data);
-}
-if (error) {
-    // Typed as QError
-    console.log(error);
-}
+```ts
+// oxlint.config.ts
+import { oxlintDefaultConfig } from "@flowblade/devtools";
+import { defineConfig } from "oxlint";
 
-// Optionally: map over the data to transform it
-const { data: mappedData } = result.map((row) => {
-    return {
-        id: row.productId,
-        key: `key-${row.productId}`,
-    };
+export default defineConfig({
+  extends: [oxlintDefaultConfig],
+  overrides: [],
 });
 ```
 
-### Create a duckdb instance
+`typescript/require-await` is re-enabled in the last `**/*` override of the base. To turn it off in a package, use an override too, a top level `rules` entry is not enough:
 
-```typescript
-import os from "node:os";
-
-import { type DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
-import { DuckdbDatasource } from "@flowblade/source-duckdb";
-
-// Create a connection to a DuckDB instance
-const createConnection = async (maxThreads = 4): Promise<DuckDBConnection> => {
-    const availableThreads = os.availableParallelism();
-    const maxParallelism = Math.min(maxThreads, availableThreads - 1);
-    const threads = availableThreads > 1 ? maxParallelism : undefined;
-
-    const instance = await DuckDBInstance.create(":memory:", {
-        // Choose between READ_ONLY or READ_WRITE
-        // Note that in READ_WRITE mode concurrency is limited to 1
-        // See: https://duckdb.org/docs/connect/concurrency.html
-        access_mode: "READ_WRITE",
-        max_memory: "64MB",
-        // Using more threads may require additional memory
-        ...(threads ? { threads: threads.toString(10) } : {}),
-    });
-    return await instance.connect();
-};
-
-const duckdb = await createConnection();
-
-// Create a duckdb datasource
-export const ds = new DuckdbDatasource({ connection: duckdb });
+```ts
+export default defineConfig({
+  extends: [oxlintDefaultConfig],
+  overrides: [
+    {
+      files: ["*.ts"],
+      rules: {
+        "typescript/require-await": "off",
+      },
+    },
+  ],
+});
 ```
 
-## Compatibility
+### React base
 
-| Level        | CI  | Description                                                                                                                                                                                                                                                                                                                                                            |
-| ------------ | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node         | ✅  | CI for 20.x, 22.x & 24.x                                                                                                                                                                                                                                                                                                                                               |
-| Cloudflare   | ✅  | Ensured with @cloudflare/vitest-pool-workers (see [wrangler.toml](https://github.com/belgattitude/flowblade/blob/main/devtools/vitest/wrangler.toml)                                                                                                                                                                                                                   |
-| Browserslist | ✅  | [> 95%](https://browserslist.dev/?q=ZGVmYXVsdHMsIGNocm9tZSA%2BPSA5NiwgZmlyZWZveCA%2BPSAxMDUsIGVkZ2UgPj0gMTEzLCBzYWZhcmkgPj0gMTUsIGlvcyA%2BPSAxNSwgb3BlcmEgPj0gMTAzLCBub3QgZGVhZA%3D%3D) on 01/2025. [Chrome 96+, Firefox 90+, Edge 19+, ios 15+, Safari 15+ and Opera 77+](https://github.com/belgattitude/flowblade/blob/main/packages/source-duckdb/.browserslistrc) |
-| Typescript   | ✅  | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI.                                                                                                                                                                                                                                                          |
-| ES2022       | ✅  | Dist files checked with [es-check](https://github.com/yowainwright/es-check)                                                                                                                                                                                                                                                                                           |
-| Performance  | ✅  | Monitored with [codspeed.io](https://codspeed.io/belgattitude/flowblade)                                                                                                                                                                                                                                                                                               |
+`createOxlintReactConfig` is the default base plus:
 
-## Contributors
+- the react, react-perf and jsx-a11y rules (ultracite `react` preset)
+- the TanStack rules (ultracite `tanstack` preset) and the React Query rules of `oxlint-plugin-react-doctor`
+- the `@tanstack/eslint-plugin-query` rules (recommended + `prefer-query-options`)
+- the `oxlint-tailwindcss` rules (Tailwind CSS v4)
 
-Contributions are welcome. Have a look to the
-[CONTRIBUTING](https://github.com/belgattitude/flowblade/blob/main/CONTRIBUTING.md)
-document.
+oxlint does not merge the `settings` of an extended config, so spread the returned config as the root one instead of putting it in `extends`. Merge its `rules` when adding your own:
 
-## Sponsors
+```ts
+// oxlint.config.ts
+import { createOxlintReactConfig } from "@flowblade/devtools";
+import { defineConfig } from "oxlint";
 
-[Sponsor](<[sponsorship](https://github.com/sponsors/belgattitude)>),
-[coffee](<(https://ko-fi.com/belgattitude)>), or star – All is spent for quality
-time with loved ones. Thanks ! 🙏❤️
+const reactConfig = createOxlintReactConfig({
+  // the css file containing `@import "tailwindcss"`
+  tailwindEntryPoint: "src/styles/globals.css",
+});
 
-### Special thanks to
+export default defineConfig({
+  ...reactConfig,
+  rules: {
+    ...reactConfig.rules,
+  },
+  overrides: [],
+});
+```
 
-<table>
-  <tr>
-    <td>
-      <a href="https://www.jetbrains.com/?ref=belgattitude" target="_blank">
-         <img width="65" src="https://asset.brandfetch.io/idarKiKkI-/id53SttZhi.jpeg" alt="Jetbrains logo" />
-      </a>
-    </td>
-    <td>
-      <a href="https://www.embie.be/?ref=belgattitude" target="_blank">
-        <img width="65" src="https://avatars.githubusercontent.com/u/98402122?s=200&v=4" alt="Jetbrains logo" />    
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <a href="https://www.jetbrains.com/?ref=belgattitude" target="_blank">JetBrains</a>
-    </td>
-    <td align="center">
-      <a href="https://www.embie.be/?ref=belgattitude" target="_blank">Embie.be</a>
-    </td>
-   </tr>
-</table>
+### Next.js base
 
-## License
+`createOxlintNextjsConfig` is the React base plus the oxlint `nextjs` plugin rules (ultracite `next` preset). On the Next.js route files (`page`, `layout`, `error`...), it turns off `react/function-component-definition` so they keep the `export default function Page()` convention.
 
-MIT © [Sébastien Vanvelthem](https://github.com/belgattitude) and contributors.
+It takes the same options as the React base and is used the same way. It also returns `overrides`, merge them when adding your own:
+
+```ts
+// oxlint.config.ts
+import { createOxlintNextjsConfig } from "@flowblade/devtools";
+import { defineConfig } from "oxlint";
+
+const nextjsConfig = createOxlintNextjsConfig({
+  tailwindEntryPoint: "src/styles/globals.css",
+});
+
+export default defineConfig({
+  ...nextjsConfig,
+  rules: {
+    ...nextjsConfig.rules,
+  },
+  overrides: [...nextjsConfig.overrides],
+});
+```
+
+## oxfmt
+
+```ts
+// oxfmt.config.ts
+export { oxfmtDefaultConfig as default } from "@flowblade/devtools";
+```
+
+In a Tailwind CSS package, give oxfmt the stylesheet. Otherwise it sorts the classes without the theme, in a different order than the `tailwindcss/enforce-sort-order` lint rule:
+
+```ts
+// oxfmt.config.ts
+import { oxfmtDefaultConfig } from "@flowblade/devtools";
+import { defineConfig } from "oxfmt";
+
+export default defineConfig({
+  ...oxfmtDefaultConfig,
+  sortTailwindcss: {
+    ...(typeof oxfmtDefaultConfig.sortTailwindcss === "object"
+      ? oxfmtDefaultConfig.sortTailwindcss
+      : {}),
+    stylesheet: "./src/styles/globals.css",
+  },
+});
+```
+
+## TypeScript
+
+```json
+{
+  "extends": "@flowblade/devtools/typescript/tsconfig.base.json"
+}
+```

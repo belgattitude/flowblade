@@ -20,9 +20,9 @@ config({
 });
 
 const getDuckDbExtensionDirFromEnv = async () => {
-  const serverEnv = await import("../src/env/server.env.mjs").then((mod) => {
-    return mod.serverEnv;
-  });
+  const serverEnv = await import("../src/env/server.env.mjs").then(
+    (mod) => mod.serverEnv
+  );
   return serverEnv.DUCKDB_EXTENSION_DIRECTORY!;
 };
 

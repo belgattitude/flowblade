@@ -19,9 +19,7 @@
     "bun-dev": "bun --bun blume dev --port 3008",
     "build": "blume build",
     "clean": "rimraf ./.blume ./coverage ./tsconfig.tsbuildinfo",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
-    "lint": "ultracite check",
-    "lint-fix": "ultracite fix"
+    "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
     "@astrojs/vercel": "11.0.12",
@@ -32,8 +30,10 @@
     "@flowblade/devtools": "workspace:*",
     "@total-typescript/ts-reset": "0.6.1",
     "@types/node": "26.6.4",
+    "eslint-plugin-security": "4.2.0",
     "oxfmt": "0.72.0",
     "oxlint": "1.87.0",
+    "oxlint-plugin-import-zod": "1.0.1",
     "oxlint-tsgolint": "7.0.2003",
     "rimraf": "6.1.3",
     "tailwindcss": "4.3.3",

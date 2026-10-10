@@ -12,7 +12,7 @@ describe(createKyselyMssqlDialect, () => {
     const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
 
     const dialect = createKyselyMssqlDialect({
-      tediousConfig: tediousConfig,
+      tediousConfig,
       poolOptions: {
         min: 0,
         max: 10,

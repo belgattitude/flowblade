@@ -89,9 +89,7 @@ export const createKyselyMssqlDialect = (
   } = dialectConfig ?? {};
   const tedious = {
     ...Tedious,
-    connectionFactory: () => {
-      return new Tedious.Connection(tediousConfig);
-    },
+    connectionFactory: () => new Tedious.Connection(tediousConfig),
   };
   if (tediousTypes !== undefined) {
     // See https://github.com/kysely-org/kysely/issues/1161#issuecomment-2384539764

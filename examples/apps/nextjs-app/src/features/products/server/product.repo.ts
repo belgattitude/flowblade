@@ -4,7 +4,7 @@ import type {
   QError,
   QResult,
 } from "@flowblade/source-kysely";
-import { z } from "zod";
+import * as z from "zod";
 
 const validators = {
   search: {

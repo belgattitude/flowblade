@@ -88,14 +88,14 @@ export class DummyDatasource implements DatasourceInterface {
         rows as TData,
         new QMeta({ name, spans: meta })
       );
-    } catch (err) {
+    } catch (error) {
       meta.timeMs = Date.now() - start;
       return createQResultError(
         {
-          message: (err as Error).message,
+          message: (error as Error).message,
         },
         new QMeta({
-          name: name,
+          name,
           spans: meta,
         })
       );
@@ -122,11 +122,12 @@ export class DummyDatasource implements DatasourceInterface {
     data: TData;
     meta: QMeta;
   }> => {
-    const { data, meta, error } = await this.query<TData>(rawQuery, options);
-    if (error) throw new Error(`Query failed: ${error.message}`);
+    const result = await this.query<TData>(rawQuery, options);
     return {
-      data: data!,
-      meta,
+      data: result.getOrThrow(
+        (qErr) => new Error(`Query failed: ${qErr.message}`)
+      ),
+      meta: result.meta,
     };
   };
 
