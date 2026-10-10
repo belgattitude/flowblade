@@ -10,6 +10,7 @@ import {
 
 import {
   QMeta,
+  type QMetaSpan,
   type QMetaJsonifiable,
   type QMetaSqlSpan,
 } from "../meta/q-meta";
@@ -181,6 +182,32 @@ describe(QResult, () => {
   describe("map", () => {
     describe("when a result is success", () => {
       const successResult = createSuccessResult();
+
+      it("should keep custom spans, even when they are not structured cloneable", () => {
+        const result = new QResult({
+          data: successData,
+          meta: new QMeta({
+            spans: [
+              initialSqlSpan,
+              {
+                type: "materialization",
+                timeMs: 5,
+                affectedRows: 1,
+                helper: () => "not cloneable",
+              } as QMetaSpan,
+            ],
+          }),
+        });
+        const mapped = result.map((row) => ({ name: row.name }));
+        expect(mapped.meta.getSpans().map((span) => span.type)).toStrictEqual([
+          "sql",
+          "materialization",
+          "map",
+        ]);
+        expect(
+          mapped.meta.getSpansByType("materialization")[0]?.affectedRows
+        ).toBe(1);
+      });
 
       it("should apply transformation with updated metadata", () => {
         const mappedResult = successResult.map((row) => {

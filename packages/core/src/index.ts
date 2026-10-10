@@ -7,6 +7,10 @@ export {
   QMeta,
   type QMetaMapSpan,
   type QMetaSpan,
+  type QMetaSpanOfType,
+  type QMetaKnownSpan,
+  type QMetaMaterializationSpan,
+  type QMetaCustomSpan,
   type QMetaSqlSpan,
 } from "./meta/q-meta";
 export type { InferQResult } from "./query-result/infer-q-result";

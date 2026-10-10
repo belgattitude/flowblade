@@ -50,7 +50,7 @@ describe("Sql tag formatter", () => {
       const formatted = sqlFormatter.formatOrThrow(
         sql`SELECT * FROM table WHERE id = 1`
       );
-      expect(formatted).toMatchSnapshot();
+      expect(formatted).toMatchSnapshot("formatOrNull");
     });
     describe("formatOrThrow", () => {
       it.each(dialects)("should format the query for %s", (dialect) => {
@@ -58,7 +58,7 @@ describe("Sql tag formatter", () => {
         const formatted = sqlFormatter.formatOrThrow(
           sql`SELECT * FROM table WHERE id = 1`
         );
-        expect(formatted).toMatchSnapshot();
+        expect(formatted).toMatchSnapshot("formatOrThrow");
       });
     });
   });

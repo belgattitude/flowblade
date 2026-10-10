@@ -23,6 +23,7 @@ export const conn = await instance.connect();
 ```typescript
 import { SqlDuck, DuckDatabaseManager } from "@flowblade/sqlduck";
 import * as z from "zod";
+
 import { conn } from "./db.config.ts";
 
 const dbManager = new DuckDatabaseManager(conn);
@@ -78,6 +79,7 @@ const rows = reader.getRowObjectsJS();
 ```typescript
 import { SqlDuck } from "@flowblade/sqlduck";
 import * as z from "zod";
+
 import { dbDuckDbMemoryConn } from "./db.duckdb-memory.config";
 
 const sqlDuck = new SqlDuck({ conn: duckDbConnection });
@@ -121,6 +123,78 @@ const queryResult = await dbDuckDbMemoryConn.query<{
   SELECT id, name FROM mydb.user WHERE id < 1000
 `);
 ```
+
+### Query a materialized Kysely query
+
+> ⚠️ **Experimental**: the API below may change in a minor release.
+
+`withMaterializedKyselyQuery` streams the rows of a Kysely query (e.g. from
+mssql or postgres) into a temporary DuckDB table, runs your query on it, then
+drops the table, whether the query succeeds, fails or throws.
+
+```typescript
+import { DuckDBInstance } from "@duckdb/node-api";
+import {
+    createKyselyMssqlDialect,
+    TediousConnUtils,
+} from "@flowblade/source-kysely";
+import { sql } from "@flowblade/sql-tag";
+import {
+    KyselyQueryWithZodSchema,
+    withMaterializedKyselyQuery,
+} from "@flowblade/sqlduck/kysely";
+import { Kysely } from "kysely";
+import * as z from "zod";
+
+// Source database: any Kysely instance (here mssql)
+type DB = {
+    user: { id: number; name: string };
+};
+const db = new Kysely<DB>({
+    dialect: createKyselyMssqlDialect({
+        tediousConfig: TediousConnUtils.fromJdbcDsn(
+            "sqlserver://localhost:1433;database=db;user=sa;password=pwd"
+        ),
+    }),
+});
+
+// Target duckdb connection (a DuckDBConnection or a DuckdbDatasource)
+const instance = await DuckDBInstance.create();
+const conn = await instance.connect();
+
+const table = new KyselyQueryWithZodSchema({
+    query: db.selectFrom("user").select(["id", "name"]),
+    // used to create the temporary table, must match the selected columns
+    schema: z.strictObject({ id: z.int32(), name: z.string() }),
+});
+
+const result = await withMaterializedKyselyQuery({
+    duckConn: conn,
+    table,
+    // 👇Optional: where the temporary table is created.
+    // Defaults to the connection's current database and schema.
+    database: "scratch", // e.g. ATTACH 'scratch.duckdb' AS scratch
+    schema: "staging", // must already exist
+    query: ({ dsDuck, table }) =>
+        dsDuck.query(
+            sql<{ id: number; name: string }>`
+                SELECT id, name FROM ${sql.raw(table.getFullName())} WHERE id < 1000
+            `
+        ),
+});
+
+if (result.error) {
+    // materialization or query error
+} else {
+    console.log(result.data);
+    // the first span holds the materialization info (ddl, affectedRows, timeMs, tableName)
+    console.log(result.meta.getSpansByType("materialization"));
+}
+```
+
+`database` and `schema` must be valid, non-reserved DuckDB identifiers,
+otherwise an error result is returned and the query is not run. Targeting an
+attached file database keeps large materializations out of the in-memory one.
 
 ## Benchmarks
 

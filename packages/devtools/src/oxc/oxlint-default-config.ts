@@ -105,23 +105,36 @@ export const oxlintDefaultConfig = defineConfig({
       files: ["*.test.ts", "*.spec.ts"],
       plugins: ["vitest"],
       rules: {
-        "func-name-matching": "off",
-        "unicorn/consistent-function-scoping": "off",
-        "require-unicode-regexp": "off",
         "no-deprecated": "off", // todo enable
+        "unicorn/no-useless-undefined": "off",
+        "unicorn/prefer-bigint-literals": "off",
+        "func-name-matching": "off",
+        // test helpers are declared next to the tests using them (inside describe/it), hoisting them hurts readability
+        "unicorn/consistent-function-scoping": "off",
+        // fixtures and mocks are asserted non-null (`rows[0]!`) all over the tests, a failure there is an assertion error anyway
+        "typescript/no-non-null-assertion": "off",
+        "require-unicode-regexp": "off",
         "no-unsafe-type-assertion": "off",
         "no-unsafe-member-access": "off",
         "strict-boolean-expressions": "off",
         "no-unsafe-assignment": "off",
         "prefer-named-capture-group": "off",
-        "unicorn/no-useless-undefined": "off",
-        "unicorn/prefer-bigint-literals": "off",
+        "vitest/expect-expect": "error",
         "vitest/max-expects": "off",
+        "vitest/no-mocks-import": "error",
+        "vitest/no-standalone-expect": "error",
+        "vitest/no-unneeded-async-expect-function": "error",
+        "vitest/prefer-called-exactly-once-with": "error",
         // a hint renames every snapshot key, forcing a full snapshot rewrite
-        "vitest/prefer-snapshot-hint": "off",
+        "vitest/prefer-snapshot-hint": "error",
+        "vitest/no-identical-title": "error",
+        "vitest/no-import-node-test": "error",
+        "vitest/prefer-to-be": "error",
+        "vitest/no-conditional-expect": "error",
         // `toBe(true)` is stricter than `toBeTruthy()`
         "vitest/prefer-to-be-truthy": "off",
         "vitest/prefer-to-be-falsy": "off",
+        "vitest/prefer-importing-vitest-globals": "off",
         // false positive when the described subject isn't a function
         "vitest/prefer-describe-function-title": "off",
         // typed `import()` mocks reject partial module mocks

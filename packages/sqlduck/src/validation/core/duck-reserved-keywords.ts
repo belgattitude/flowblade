@@ -99,7 +99,7 @@ export const duckReservedKeywords = [
   "WHERE",
   "WINDOW",
   "WITH",
-] as const;
+];
 
 export type DuckdbReservedKeywords = (typeof duckReservedKeywords)[number];
 

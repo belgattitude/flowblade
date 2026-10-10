@@ -8,7 +8,7 @@ type TObject = Record<
   | undefined
   | boolean
   | Date
-  | (string | number | null | boolean)[]
+  | (string | number | null | boolean | Date)[]
 >;
 
 declare const EXPLICIT_GENERIC_REQUIRED: unique symbol;

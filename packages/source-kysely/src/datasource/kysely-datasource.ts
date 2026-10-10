@@ -141,7 +141,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     const compiled = query.compile(this.db);
     const span = createSqlSpan({
       sql: compiled.sql,
-      params: compiled.parameters as Writable<QMetaSqlSpan["params"]>,
+      params: compiled.parameters,
     });
 
     const start = Date.now();
@@ -286,7 +286,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
 
     const span = createSqlSpan({
       sql: compiled.sql,
-      params: compiled.parameters as Writable<QMetaSqlSpan["params"]>,
+      params: compiled.parameters,
     });
 
     const start = Date.now();
