@@ -1,5 +1,17 @@
 # @flowblade/sql-tag-format
 
+## 1.3.2
+
+### Patch Changes
+
+- [#1426](https://github.com/belgattitude/flowblade/pull/1426) [`f6feeff`](https://github.com/belgattitude/flowblade/commit/f6feeff1fb3cbb4db2cce8a9b6c1b03e74466984) Thanks [@belgattitude](https://github.com/belgattitude)! - Apply the new shared lint rules (no non-null assertions, no explicit any, exhaustive switches, unused vars...).
+  
+  - `QResult.map` on a success result without rows now returns the error `"mapper: no rows to map"` (was a `TypeError` message).
+  - `queryOrThrow` in `source-duckdb` and `source-kysely` now relies on `QResult.getOrThrow`, error message is unchanged.
+  - `sqlduck`: `rowsToColumnsChunks` iterates keys with `for...of`, measured ~7% faster on wide (26 columns) rows.
+- Updated dependencies [[`f6feeff`](https://github.com/belgattitude/flowblade/commit/f6feeff1fb3cbb4db2cce8a9b6c1b03e74466984)]:
+  - @flowblade/sql-tag@0.4.2
+
 ## 1.3.1
 
 ### Patch Changes
