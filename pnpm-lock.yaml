@@ -1346,9 +1346,9 @@ importers:
       '@httpx/plain-object':
         specifier: ^2.2.0
         version: 2.2.0
-      typescript-result:
-        specifier: 3.5.2
-        version: 3.5.2
+      better-result:
+        specifier: 3.0.1
+        version: 3.0.1
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 0.18.5
@@ -1452,6 +1452,9 @@ importers:
       typescript:
         specifier: 7.0.2
         version: 7.0.2
+      typescript-result:
+        specifier: 3.5.2
+        version: 3.5.2
       ultracite:
         specifier: 7.12.4
         version: 7.12.4(eslint@10.12.0)(oxfmt@0.72.0)(oxlint@1.87.0)(prettier@3.9.9)
@@ -7684,6 +7687,9 @@ packages:
 
   better-result@2.10.0:
     resolution: {integrity: sha512-oQhh0y1qo2/ZKdAAEvHZAqKKiHOFU5k/bW96fE2ScgQOVkJRiHwB+nOS1SgFsYqRlxMDWvefXi9Q3px7QvgNDw==}
+
+  better-result@3.0.1:
+    resolution: {integrity: sha512-rnCeqEXkKPHmz5MO5ZroPRDyHe4YvlNPyy7qj8cVcWs/GnvSvC3086G74/220W+wWcIWlXgzvcjskFV0A4blUQ==}
 
   bindings@1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
@@ -18484,6 +18490,8 @@ snapshots:
       zod: 4.6.5
 
   better-result@2.10.0: {}
+
+  better-result@3.0.1: {}
 
   bindings@1.5.0:
     dependencies:
