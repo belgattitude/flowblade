@@ -1,7 +1,6 @@
 import type { KyselyDatasource } from "@flowblade/source-kysely";
 import isInCi from "is-in-ci";
 import { sql } from "kysely";
-import { describe } from "vitest";
 
 export type mssqlE2eDb = {
   TestTable: {

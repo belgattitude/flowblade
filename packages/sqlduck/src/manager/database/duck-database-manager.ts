@@ -206,8 +206,9 @@ export class DuckDatabaseManager {
               from duckdb_databases()
               where database_name = '${dbName}'`
     );
-    if (result.length === 1) {
-      return result[0]!;
+    const [first] = result;
+    if (result.length === 1 && first !== undefined) {
+      return first;
     }
     return null;
   };
@@ -228,8 +229,9 @@ export class DuckDatabaseManager {
               from duckdb_databases()
               where path = ${quoteValue(path)}`
     );
-    if (result.length === 1) {
-      return result[0]!;
+    const [first] = result;
+    if (result.length === 1 && first !== undefined) {
+      return first;
     }
     return null;
   };
@@ -342,7 +344,7 @@ export class DuckDatabaseManager {
    */
   use = async (dbAlias: string): Promise<true> => {
     const safeAlias = duckValidatorsZod.aliasName.parse(dbAlias);
-    const result = await this.#executor.getRowObjectsJS(
+    await this.#executor.getRowObjectsJS(
       `use(${safeAlias})`,
       `USE ${safeAlias}`
     );
@@ -386,7 +388,7 @@ export class DuckDatabaseManager {
       this.#logger.error(
         `DuckDatabaseManager.createDatabaseFile('${path}') failed - ${(error as Error)?.message ?? ""}`,
         {
-          path: path,
+          path,
         }
       );
       throw error;

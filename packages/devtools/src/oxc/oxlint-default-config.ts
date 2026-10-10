@@ -96,6 +96,8 @@ export const oxlintDefaultConfig = defineConfig({
     "unicorn/text-encoding-identifier-case": "off",
     // classes with only static members are used as namespaces for utility helpers, converting them to plain objects is not wanted
     "unicorn/no-static-only-class": "off",
+    // the autofix groups hex digits by bytes (`0x01_9d_21_..n`), which hurts the readability of 128-bit values (uuid as bigint) and is not wanted for now
+    "unicorn/numeric-separators-style": "off",
     // nursery (so not enabled by the preset) but part of eslint:recommended since ESLint 10
     "no-useless-assignment": "error",
     // not equivalent to Number.parseInt/parseFloat: Number() returns NaN on trailing garbage ("12px") and 0 on "" where parseInt keeps the leading digits / returns NaN

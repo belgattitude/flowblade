@@ -43,7 +43,7 @@ export class ManagerQueryExecutor {
       this.#logger.error(msg, {
         name: fnName,
         sql: rawSql,
-        timeMs: timeMs,
+        timeMs,
       });
       throw new Error(msg, {
         cause: error,

@@ -195,7 +195,6 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       type,
       duckdbType,
       nullable,
-      format,
       primaryKey,
       minimum,
       maximum,
@@ -218,10 +217,11 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       switch (type) {
         case "array": {
           switch (def?.items?.type) {
-            case "string":
+            case "string": {
               c.duckdbType = LIST(getDuckdbStringColumnType(def.items));
               break;
-            case "integer":
+            }
+            case "integer": {
               c.duckdbType = LIST(
                 getDuckdbNumberColumnType({
                   minimum: def?.items?.minimum,
@@ -229,7 +229,8 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
                 })
               );
               break;
-            case "number":
+            }
+            case "number": {
               c.duckdbType = LIST(
                 getDuckdbNumberColumnType({
                   minimum: def?.items?.minimum,
@@ -238,13 +239,16 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
                 })
               );
               break;
-            case "boolean":
+            }
+            case "boolean": {
               c.duckdbType = LIST(BOOLEAN);
               break;
-            default:
+            }
+            default: {
               throw new Error(
                 `The inferred duckdb array for '${columnName}' is not supported - ${JSON.stringify(def)}`
               );
+            }
           }
           break;
         }

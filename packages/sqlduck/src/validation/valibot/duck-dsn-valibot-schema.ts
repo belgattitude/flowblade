@@ -1,5 +1,4 @@
 import { parseDsn, parseDsnOrThrow } from "@httpx/dsn-parser";
-import type { ParsedDsn } from "@httpx/dsn-parser";
 import * as v from "valibot";
 
 import type { DuckAllConnectionOptions } from "../core/types.ts";

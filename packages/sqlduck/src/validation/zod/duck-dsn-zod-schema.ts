@@ -1,5 +1,4 @@
 import { parseDsn } from "@httpx/dsn-parser";
-import type { ParsedDsn } from "@httpx/dsn-parser";
 import * as z from "zod";
 
 import type {

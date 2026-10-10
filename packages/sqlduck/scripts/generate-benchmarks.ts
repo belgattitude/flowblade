@@ -89,14 +89,16 @@ const escapeMarkdown = (value: string): string => value.replaceAll("|", "\\|");
 const getBenchmarkResults = (
   report: VitestBenchmarkReport
 ): BenchmarkResult[] =>
-  report.testResults.flatMap((testResult) => {
-    return testResult.assertionResults.flatMap((assertionResult) => {
-      return assertionResult.benchmarks.map((benchmark) => ({
-        ...benchmark,
-        fileName: path.relative(packageRoot, testResult.name),
-      }));
-    });
-  });
+  report.testResults.flatMap((testResult) =>
+    testResult.assertionResults.flatMap((assertionResult) =>
+      assertionResult.benchmarks.map((benchmark) => {
+        return {
+          ...benchmark,
+          fileName: path.relative(packageRoot, testResult.name),
+        };
+      })
+    )
+  );
 
 const getBenchmarkKey = (benchmark: BenchmarkResult): string =>
   `${benchmark.fileName}\0${benchmark.name}`;

@@ -7,7 +7,6 @@ import * as z from "zod";
 import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 import { createDummyKyselyDb } from "#tests/utils/create-dummy-kysely-db.ts";
 
-import { Table } from "../../objects/table.ts";
 import { KyselyQueryWithZodSchema } from "./kysely-query-with-zod-schema.ts";
 import { withMaterializedKyselyQuery } from "./with-materialized-kysely-query.ts";
 
