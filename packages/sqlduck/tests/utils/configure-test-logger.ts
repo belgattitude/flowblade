@@ -3,8 +3,8 @@ import type { LogRecord } from "@logtape/logtape";
 
 import { flowbladeLogtapeSqlduckConfig } from "../../src/index.ts";
 
-export const configureTestLogger = async (logBuffer: LogRecord[]) => {
-  return await configure({
+export const configureTestLogger = async (logBuffer: LogRecord[]) =>
+  await configure({
     sinks: {
       buffer: (record) => {
         logBuffer.push(record);
@@ -23,4 +23,3 @@ export const configureTestLogger = async (logBuffer: LogRecord[]) => {
       },
     ],
   });
-};

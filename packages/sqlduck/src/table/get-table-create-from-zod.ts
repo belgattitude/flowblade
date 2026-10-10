@@ -130,16 +130,21 @@ const getDuckdbStringColumnType = (def: {
     return ENUM(def.enum);
   }
   switch (def.format) {
-    case "date":
+    case "date": {
       return DATE;
-    case "date-time":
+    }
+    case "date-time": {
       return TIMESTAMP_MS;
-    case "int64":
+    }
+    case "int64": {
       return BIGINT;
-    case "uuid":
+    }
+    case "uuid": {
       return UUID;
-    default:
+    }
+    default: {
       return VARCHAR;
+    }
   }
 };
 
@@ -211,7 +216,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
 
     if (customDuckDbType === undefined) {
       switch (type) {
-        case "array":
+        case "array": {
           switch (def?.items?.type) {
             case "string":
               c.duckdbType = LIST(getDuckdbStringColumnType(def.items));
@@ -242,27 +247,33 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
               );
           }
           break;
-        case "string":
+        }
+        case "string": {
           c.duckdbType = getDuckdbStringColumnType(def);
           break;
-        case "number":
+        }
+        case "number": {
           c.duckdbType = getDuckdbNumberColumnType({
             minimum,
             maximum,
             multipleOf,
           });
           break;
+        }
         // special case for z.int32()
-        case "integer":
+        case "integer": {
           c.duckdbType = getDuckdbNumberColumnType({ minimum, maximum });
           break;
-        case "boolean":
+        }
+        case "boolean": {
           c.duckdbType = BOOLEAN;
           break;
-        default:
+        }
+        default: {
           throw new Error(
             `Cannot guess '${columnName}' type - ${JSON.stringify(def)}`
           );
+        }
       }
     } else {
       c.duckdbType = customDuckDbType;

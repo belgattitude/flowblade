@@ -29,16 +29,16 @@ export class FileSystemUtils {
         path,
         recursive: true,
       });
-    } catch (err) {
-      if ((err as NodeJS.ErrnoException).code !== "EEXIST") {
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
         this.#logger.warning(
-          `Couldn't create directory '${path}': ${err as Error}.message`,
+          `Couldn't create directory '${path}': ${error as Error}.message`,
           {
             path,
             recursive: true,
           }
         );
-        throw err;
+        throw error;
       }
     }
   };
@@ -55,10 +55,10 @@ export class FileSystemUtils {
     if (!fs.existsSync(path)) {
       try {
         this.createDirectory(path);
-      } catch (e) {
+      } catch (error) {
         throw new Error(
-          `Failed to create ${label} '${path}' - ${(e as Error)?.message ?? ""}`,
-          { cause: e }
+          `Failed to create ${label} '${path}' - ${(error as Error)?.message ?? ""}`,
+          { cause: error }
         );
       }
     }

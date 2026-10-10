@@ -15,9 +15,15 @@ import {
 } from "@duckdb/node-api";
 
 const isFloatValue = (value: number): boolean => {
-  if (!Number.isFinite(value)) return true;
-  if (!value.toString(10).includes(".")) return false;
-  if (Math.abs(value) > Number.MAX_SAFE_INTEGER) return true;
+  if (!Number.isFinite(value)) {
+    return true;
+  }
+  if (!value.toString(10).includes(".")) {
+    return false;
+  }
+  if (Math.abs(value) > Number.MAX_SAFE_INTEGER) {
+    return true;
+  }
   return !Number.isInteger(value);
 };
 
@@ -69,7 +75,7 @@ const getDecimalWidth = (params: {
 
 const getFloatType = (minimum: number, maximum: number) => {
   // FLOAT (32-bit): ~3.4e38 range, ~7 decimal digits precision
-  if (minimum >= -3.402_823_5e38 && maximum <= 3.402_823_5e38) {
+  if (minimum >= -3.4028235e38 && maximum <= 3.4028235e38) {
     return FLOAT;
   }
   // DOUBLE (64-bit): ~1.8e308 range
@@ -105,26 +111,44 @@ export const getDuckdbNumberColumnType = (params: {
 
   // Unsigned types (when minimum >= 0)
   if (minimum >= 0) {
-    if (maximum <= 255) return UTINYINT;
-    if (maximum <= 65_535) return USMALLINT;
-    if (maximum <= 4_294_967_295) return UINTEGER;
-    if (maximum <= 18_446_744_073_709_551_615n) return UBIGINT;
-    if (maximum <= 2n ** 128n - 1n) return UHUGEINT;
+    if (maximum <= 255) {
+      return UTINYINT;
+    }
+    if (maximum <= 65_535) {
+      return USMALLINT;
+    }
+    if (maximum <= 4_294_967_295) {
+      return UINTEGER;
+    }
+    if (maximum <= 18_446_744_073_709_551_615n) {
+      return UBIGINT;
+    }
+    if (maximum <= 2n ** 128n - 1n) {
+      return UHUGEINT;
+    }
     // Too large for any integer type (ie: 1e300)
     return getFloatType(minimum, maximum);
   }
 
   // Signed types
-  if (minimum >= -128 && maximum <= 127) return TINYINT;
-  if (minimum >= -32_768 && maximum <= 32_767) return SMALLINT;
-  if (minimum >= -2_147_483_648 && maximum <= 2_147_483_647) return INTEGER;
+  if (minimum >= -128 && maximum <= 127) {
+    return TINYINT;
+  }
+  if (minimum >= -32_768 && maximum <= 32_767) {
+    return SMALLINT;
+  }
+  if (minimum >= -2_147_483_648 && maximum <= 2_147_483_647) {
+    return INTEGER;
+  }
   if (
     minimum >= -9_223_372_036_854_775_808n &&
     maximum <= 9_223_372_036_854_775_807n
   ) {
     return BIGINT;
   }
-  if (minimum >= -(2n ** 127n) && maximum <= 2n ** 127n - 1n) return HUGEINT;
+  if (minimum >= -(2n ** 127n) && maximum <= 2n ** 127n - 1n) {
+    return HUGEINT;
+  }
   // Too large for any integer type (ie: 1e300)
   return getFloatType(minimum, maximum);
 };

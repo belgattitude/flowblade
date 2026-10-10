@@ -109,7 +109,7 @@ describe(getDuckdbNumberColumnType, () => {
         getDecimal({ minimum: 0, maximum: 1e20, multipleOf: 0.01 })
       ).toStrictEqual(expectDecimal(23, 2));
       expect(
-        getDecimal({ minimum: -1e30, maximum: 10, multipleOf: 0.000_001 })
+        getDecimal({ minimum: -1e30, maximum: 10, multipleOf: 0.000001 })
       ).toStrictEqual(expectDecimal(37, 6));
     });
 
@@ -130,8 +130,8 @@ describe(getDuckdbNumberColumnType, () => {
       // ie: implicit bounds from z.float32() / z.float64()
       expect(
         getDecimal({
-          minimum: -3.402_823_466_385_288_6e38,
-          maximum: 3.402_823_466_385_288_6e38,
+          minimum: -3.4028234663852886e38,
+          maximum: 3.4028234663852886e38,
           multipleOf: 0.001,
         })
       ).toStrictEqual(expectDecimal(18, 3));

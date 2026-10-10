@@ -16,23 +16,29 @@ const getDuckTypeConverter = (
 ): ValueMapperFn | false => {
   const duckTypeId = duckType.typeId;
   switch (duckTypeId) {
-    case DuckDBTypeId.TIMESTAMP_MS:
+    case DuckDBTypeId.TIMESTAMP_MS: {
       return converter.toTimestampMs;
-    case DuckDBTypeId.TIMESTAMP:
+    }
+    case DuckDBTypeId.TIMESTAMP: {
       return converter.toTimestamp;
+    }
     case DuckDBTypeId.INTEGER:
-    case DuckDBTypeId.UINTEGER:
+    case DuckDBTypeId.UINTEGER: {
       return false;
+    }
     case DuckDBTypeId.BIGINT:
     case DuckDBTypeId.UBIGINT:
     case DuckDBTypeId.HUGEINT:
     case DuckDBTypeId.UHUGEINT:
-    case DuckDBTypeId.BIGNUM:
+    case DuckDBTypeId.BIGNUM: {
       return converter.toBigInt;
-    case DuckDBTypeId.ENUM:
+    }
+    case DuckDBTypeId.ENUM: {
       return converter.toStringEnum;
-    case DuckDBTypeId.UUID:
+    }
+    case DuckDBTypeId.UUID: {
       return converter.toUUID;
+    }
     // No conversion needed for these types
     case DuckDBTypeId.BIT:
     case DuckDBTypeId.BOOLEAN:
@@ -40,15 +46,19 @@ const getDuckTypeConverter = (
     case DuckDBTypeId.USMALLINT:
     case DuckDBTypeId.UTINYINT:
     case DuckDBTypeId.VARCHAR:
-    case DuckDBTypeId.SMALLINT:
+    case DuckDBTypeId.SMALLINT: {
       return false;
+    }
     case DuckDBTypeId.FLOAT:
-    case DuckDBTypeId.DOUBLE:
+    case DuckDBTypeId.DOUBLE: {
       return false;
-    case DuckDBTypeId.DECIMAL:
+    }
+    case DuckDBTypeId.DECIMAL: {
       return converter.createDecimalConverter(duckType.width, duckType.scale);
-    case DuckDBTypeId.DATE:
+    }
+    case DuckDBTypeId.DATE: {
       return converter.toDate;
+    }
     case DuckDBTypeId.LIST: {
       // Items are converted the same way a column of the list value type is
       const itemConv = getDuckTypeConverter(converter, duckType.valueType, key);
@@ -56,10 +66,11 @@ const getDuckTypeConverter = (
         ? converter.toList
         : converter.createListConverter(itemConv);
     }
-    default:
+    default: {
       throw new Error(
         `Unsupported duck type ${duckTypeId} / ${duckType.toString()} for column '${key}'`
       );
+    }
   }
 };
 

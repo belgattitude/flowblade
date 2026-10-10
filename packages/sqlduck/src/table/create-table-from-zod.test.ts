@@ -60,7 +60,7 @@ describe(createTableFromZod, () => {
         message: ["Generate DDL for table 'test'"],
         level: "debug",
         properties: {
-          ddl: ddl,
+          ddl,
         },
       });
       expect(logBuffer[1]!).toMatchObject({
@@ -68,7 +68,7 @@ describe(createTableFromZod, () => {
         message: ["Table 'test' successfully created"],
         level: "info",
         properties: {
-          ddl: ddl,
+          ddl,
         },
       });
     });

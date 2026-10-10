@@ -24,14 +24,10 @@ export class KyselyQueryWithZodSchema<
   /**
    * Return zod schema that can be used to create the duckdb table
    */
-  getSchema = () => {
-    return this.#params.schema;
-  };
+  getSchema = () => this.#params.schema;
 
   /**
    * Return the underlying kysely query
    */
-  getQuery = () => {
-    return this.#params.query;
-  };
+  getQuery = () => this.#params.query;
 }

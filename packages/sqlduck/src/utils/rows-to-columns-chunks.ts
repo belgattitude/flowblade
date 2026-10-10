@@ -88,7 +88,9 @@ export async function* rowsToColumnsChunks<
 
   // Pull the first row to determine column order
   const first = await rows.next();
-  if (first.done === true) return; // empty input → yield nothing
+  if (first.done === true) {
+    return;
+  } // empty input → yield nothing
 
   const keys = Object.keys(first.value) as (keyof TRow)[];
   const numKeys = keys.length;

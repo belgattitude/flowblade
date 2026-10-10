@@ -69,9 +69,7 @@ test(`Bench rowsToColumnsChunks`, async ({ bench }) => {
         rows: getFakeRowStream(),
         chunkSize,
         transformers: {
-          bignumber: (value: bigint) => {
-            return (value + 1n).toString(10);
-          },
+          bignumber: (value: bigint) => (value + 1n).toString(10),
         },
       });
       for await (const row of a) {
@@ -122,35 +120,37 @@ test(`Bench rowsToColumnsChunks with full supported-columns schema`, async ({
   const getFakeRowStream = createFakeRowsAsyncIterator({
     count: limit,
     schema: testFullSupportedColumnsZodSchema,
-    factory: ({ rowIdx }) => ({
-      id: rowIdx,
-      name: `name-${rowIdx}`,
-      email: `email-${rowIdx}@example.com`,
-      js_number: rowIdx,
-      js_number_tinyint: rowIdx % 127,
-      js_number_int32: rowIdx,
-      js_float_float64: rowIdx + 0.5,
-      js_float_float32: rowIdx + 0.25,
-      bignumber: BigInt(rowIdx),
-      created_at: now,
-      is_active: rowIdx % 2 === 0,
-      alt_uuid_v7: "0198f9b0-6f4a-7c33-8f7a-8f2a9b6f1a10",
-      custom_type: "0198f9b0-6f4a-7c33-8f7a-8f2a9b6f1a10",
-      custom_date_only_type: "2025-12-16",
-      iso_date: "2025-12-16",
-      js_enum: "a" as const,
-      decimal_18_3: rowIdx + 0.123,
-      list_of_strings_explicit: ["a", "b", "c"],
-      list_of_strings: ["a", "b", "c"],
-      list_of_enums: ["a" as const, "b" as const],
-      list_of_bigints: [BigInt(rowIdx), BigInt(rowIdx + 1)],
-      list_of_bigints_explicit: [BigInt(rowIdx), BigInt(rowIdx + 1)],
-      list_of_numbers: [1, 2, 3],
-      list_of_int32s: [1, 2, 3],
-      list_of_booleans: [true, false, true],
-      list_of_float32s: [1.1, 2.2, 3.3],
-      list_of_float64s: [1.1, 2.2, 3.3],
-    }),
+    factory: ({ rowIdx }) => {
+      return {
+        id: rowIdx,
+        name: `name-${rowIdx}`,
+        email: `email-${rowIdx}@example.com`,
+        js_number: rowIdx,
+        js_number_tinyint: rowIdx % 127,
+        js_number_int32: rowIdx,
+        js_float_float64: rowIdx + 0.5,
+        js_float_float32: rowIdx + 0.25,
+        bignumber: BigInt(rowIdx),
+        created_at: now,
+        is_active: rowIdx % 2 === 0,
+        alt_uuid_v7: "0198f9b0-6f4a-7c33-8f7a-8f2a9b6f1a10",
+        custom_type: "0198f9b0-6f4a-7c33-8f7a-8f2a9b6f1a10",
+        custom_date_only_type: "2025-12-16",
+        iso_date: "2025-12-16",
+        js_enum: "a" as const,
+        decimal_18_3: rowIdx + 0.123,
+        list_of_strings_explicit: ["a", "b", "c"],
+        list_of_strings: ["a", "b", "c"],
+        list_of_enums: ["a" as const, "b" as const],
+        list_of_bigints: [BigInt(rowIdx), BigInt(rowIdx + 1)],
+        list_of_bigints_explicit: [BigInt(rowIdx), BigInt(rowIdx + 1)],
+        list_of_numbers: [1, 2, 3],
+        list_of_int32s: [1, 2, 3],
+        list_of_booleans: [true, false, true],
+        list_of_float32s: [1.1, 2.2, 3.3],
+        list_of_float64s: [1.1, 2.2, 3.3],
+      };
+    },
   });
 
   await bench.compare(

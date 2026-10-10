@@ -93,21 +93,22 @@ describe("MSSQL materialized e2e tests", () => {
         const result = await withMaterializedKyselyQuery({
           duckConn,
           table: queryWithSchema,
-          query: async ({ dsDuck, table }) => {
-            return await dsDuck.query(
+          query: async ({ dsDuck, table }) =>
+            await dsDuck.query(
               sqlt<{
                 id: number;
               }>`SELECT * FROM ${sqlt.raw(table.getFullName())}`
-            );
-          },
+            ),
         });
 
         expect(result.isError()).toBe(false);
 
-        const normalizedData = sqlserverResult.data.map((row) => ({
-          ...row,
-          decimal_18_3: row.decimal_18_3?.toFixed(3),
-        }));
+        const normalizedData = sqlserverResult.data.map((row) => {
+          return {
+            ...row,
+            decimal_18_3: row.decimal_18_3?.toFixed(3),
+          };
+        });
 
         expect(result.data).toStrictEqual(normalizedData);
         const [materializationSpan] =

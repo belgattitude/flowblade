@@ -169,7 +169,7 @@ test("appender benches", async ({ bench }) => {
       `duckdb appender, count: ${limit}, chunk size 1024`,
       benchConfig,
       async () => {
-        const { totalRows: totalRows } = await sqlDuck.toTable({
+        const { totalRows } = await sqlDuck.toTable({
           table: memoryTable,
           schema: userSchema,
           rowStream: getFakeRowStream(),

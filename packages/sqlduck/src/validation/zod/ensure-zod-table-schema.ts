@@ -49,6 +49,4 @@ export const ensureZodTableSchema = <
   T extends TObject = RequireExplicitGeneric,
 >(
   schema: z.ZodObject<{ [K in keyof NoInfer<T>]-?: z.ZodType<NoInfer<T>[K]> }>
-) => {
-  return schema;
-};
+) => schema;

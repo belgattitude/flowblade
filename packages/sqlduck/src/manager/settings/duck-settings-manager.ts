@@ -27,9 +27,7 @@ export class DuckSettingsManager {
   ): Promise<Record<T, string>> => {
     const fnName = `${this.className}.getCurrentSettings`;
     const columns = settings
-      .map((s) => {
-        return `current_setting('${s}') as '${s}'`;
-      })
+      .map((s) => `current_setting('${s}') as '${s}'`)
       .join(",\n");
 
     const query = `SELECT ${columns}`;

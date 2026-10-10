@@ -35,9 +35,7 @@ describe("createDuckColumnConverter", () => {
     );
     expect(map.uuids!(["019d2155-d292-71fa-87d7-9d1f1ed83569"])).toStrictEqual(
       new DuckDBListValue([
-        DuckDBUUIDValue.fromUint128(
-          BigInt("0x019d2155d29271fa87d79d1f1ed83569")
-        ),
+        DuckDBUUIDValue.fromUint128(0x019d2155d29271fa87d79d1f1ed83569n),
       ])
     );
   });

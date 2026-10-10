@@ -4,17 +4,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FileSystemUtils } from "./file-system-utils.ts";
 
-vi.mock("node:fs", () => ({
-  default: {
-    mkdirSync: vi.fn<() => void>(),
-    existsSync: vi.fn<() => boolean>(),
-    statSync: vi.fn<() => unknown>(),
-    accessSync: vi.fn<() => void>(),
-    constants: {
-      W_OK: 2,
+vi.mock("node:fs", () => {
+  return {
+    default: {
+      mkdirSync: vi.fn<() => void>(),
+      existsSync: vi.fn<() => boolean>(),
+      statSync: vi.fn<() => unknown>(),
+      accessSync: vi.fn<() => void>(),
+      constants: {
+        W_OK: 2,
+      },
     },
-  },
-}));
+  };
+});
 
 describe("FileSystemUtils", () => {
   beforeEach(() => {

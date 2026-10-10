@@ -27,7 +27,7 @@ function* getFakeRowsGenerator<T extends ZodObject>(
     const row = {} as FakerFactory<z.infer<T>>;
     const generatedFakeRow = factory({
       rowIdx: i,
-      faker: faker,
+      faker,
       remaining: count - i,
       total: count,
     });

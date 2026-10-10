@@ -45,11 +45,10 @@ export const createMaterializationSpan = (
 
 const toDuckdbDatasource = (
   duckConn: DuckdbDatasource | DuckDBConnection
-): DuckdbDatasource => {
-  return duckConn instanceof DuckDBConnection
+): DuckdbDatasource =>
+  duckConn instanceof DuckDBConnection
     ? new DuckdbDatasource({ connection: duckConn })
     : duckConn;
-};
 
 /**
  * Best effort drop: a failure must not hide the query result (or its error).

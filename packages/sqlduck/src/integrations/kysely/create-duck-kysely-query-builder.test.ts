@@ -33,16 +33,16 @@ describe(createDuckKysekyQueryBuilder, () => {
         // 'custom_type',
         // 'js_enum',
       ])
-      .where((eb) => {
-        return eb.or([
+      .where((eb) =>
+        eb.or([
           eb("id", "=", 1),
           eb("name", "ilike", "%cool%"),
           eb("name", "in", ["Alice", "Bob"]),
           eb("is_active", "=", true),
           eb("js_enum", "=", "a"),
           eb("created_at", ">", createdAt.toISOString()),
-        ]);
-      })
+        ])
+      )
       .limit(3);
 
     const { sql, parameters } = query.compile();

@@ -6,7 +6,9 @@ describe("rowsToColumnsChunk", () => {
   type Row = { id: number; name: string | null };
 
   async function* makeRows(rows: Row[]): AsyncGenerator<Row> {
-    for (const r of rows) yield r;
+    for (const r of rows) {
+      yield r;
+    }
   }
 
   it("yields column chunks according to chunkSize", async () => {
