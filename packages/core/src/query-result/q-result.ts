@@ -1,4 +1,4 @@
-import { Result } from "typescript-result";
+import { type Err, type Ok, Result } from "better-result";
 
 import { QMeta, type QMetaJsonifiable } from "../meta/q-meta";
 import type { QError } from "./types";
@@ -11,6 +11,11 @@ interface ConstructorParams<
   data?: TData;
   error?: TError;
 }
+
+type InnerOkPayload<TData extends unknown[] | undefined> = {
+  rows: TData;
+  meta: QMeta;
+};
 
 export type QResultJsonifiable<
   TData extends unknown[] | undefined,
@@ -40,11 +45,8 @@ export class QResult<
   readonly #meta: QMeta;
 
   readonly #innerResult:
-    | Result.Ok<{
-        rows: TData;
-        meta: QMeta;
-      }>
-    | Result.Error<TError>;
+    | Ok<InnerOkPayload<TData>, TError>
+    | Err<InnerOkPayload<TData>, TError>;
 
   /**
    * Create a new QResult object.
@@ -120,7 +122,7 @@ export class QResult<
             meta: this.#meta,
             rows: params.data!,
           })
-        : Result.error(params.error);
+        : Result.err(params.error);
   }
 
   /**
@@ -183,7 +185,7 @@ export class QResult<
    * Check whether the result is an error
    */
   isError = (): boolean => {
-    return this.#innerResult.isError();
+    return this.#innerResult.isErr();
   };
 
   /**

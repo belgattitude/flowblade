@@ -5,7 +5,7 @@ import { QMeta } from "../src/meta/q-meta";
 
 const GENERATED_ROWS = 100_000;
 
-test("QResult map benchmarks", ({ bench }) => {
+test("QResult map benchmarks", async ({ bench }) => {
   const fakeMeta = new QMeta({
     spans: {
       type: "sql",
@@ -32,37 +32,36 @@ test("QResult map benchmarks", ({ bench }) => {
     };
   };
 
-  bench("baseline 1: map with native for const iteration", () => {
-    const result = [];
-    for (const row of generatedRows) {
-      result.push(mapToFinalPayload(row));
-    }
-  });
-
-  bench("baseline 2: map with native Array.map", () => {
-    const _result = generatedRows.map((row) => mapToFinalPayload(row));
-  });
-
-  bench("with externally hoisted mapper function", () => {
-    const _result = new QResult({
-      meta: fakeMeta,
-      data: generatedRows,
-      // eslint-disable-next-line unicorn/no-array-callback-reference
-    }).map(mapToFinalPayload);
-  });
-
-  bench("with inlined mapper", () => {
-    const _result = new QResult({
-      meta: fakeMeta,
-      data: generatedRows,
-      // eslint-disable-next-line unicorn/no-array-callback-reference
-    }).map((row) => {
-      return {
-        productName: row.productName.toUpperCase(),
-        productDesc: row.productDesc,
-        airline: row.airline,
-        id: Math.trunc(Number(row.id)),
-      };
-    });
-  });
+  await bench.compare(
+    bench("baseline 1: map with native for const iteration", () => {
+      const result = [];
+      for (const row of generatedRows) {
+        result.push(mapToFinalPayload(row));
+      }
+    }),
+    bench("baseline 2: map with native Array.map", () => {
+      const _result = generatedRows.map((row) => mapToFinalPayload(row));
+    }),
+    bench("with externally hoisted mapper function", () => {
+      const _result = new QResult({
+        meta: fakeMeta,
+        data: generatedRows,
+        // eslint-disable-next-line unicorn/no-array-callback-reference
+      }).map(mapToFinalPayload);
+    }),
+    bench("with inlined mapper", () => {
+      const _result = new QResult({
+        meta: fakeMeta,
+        data: generatedRows,
+        // eslint-disable-next-line unicorn/no-array-callback-reference
+      }).map((row) => {
+        return {
+          productName: row.productName.toUpperCase(),
+          productDesc: row.productDesc,
+          airline: row.airline,
+          id: Math.trunc(Number(row.id)),
+        };
+      });
+    })
+  );
 });

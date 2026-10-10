@@ -1346,9 +1346,9 @@ importers:
       '@httpx/plain-object':
         specifier: ^2.2.0
         version: 2.2.0
-      typescript-result:
-        specifier: 3.5.2
-        version: 3.5.2
+      better-result:
+        specifier: 3.0.1
+        version: 3.0.1
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 0.18.5
@@ -7685,6 +7685,9 @@ packages:
   better-result@2.10.0:
     resolution: {integrity: sha512-oQhh0y1qo2/ZKdAAEvHZAqKKiHOFU5k/bW96fE2ScgQOVkJRiHwB+nOS1SgFsYqRlxMDWvefXi9Q3px7QvgNDw==}
 
+  better-result@3.0.1:
+    resolution: {integrity: sha512-rnCeqEXkKPHmz5MO5ZroPRDyHe4YvlNPyy7qj8cVcWs/GnvSvC3086G74/220W+wWcIWlXgzvcjskFV0A4blUQ==}
+
   bindings@1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
 
@@ -12511,10 +12514,6 @@ packages:
 
   typescript-auto-import-cache@0.3.6:
     resolution: {integrity: sha512-RpuHXrknHdVdK7wv/8ug3Fr0WNsNi5l5aB8MYYuXhq2UH5lnEB1htJ1smhtD5VeCsGr2p8mUDtd83LCQDFVgjQ==}
-
-  typescript-result@3.5.2:
-    resolution: {integrity: sha512-kYBOXx/WOdwnfRfkOgEy+Or0VKxR9No1znb+5jPBYplksjx/koluC/OwIgBgYCCPgukxMuwXqMcv1qSDlvrlFA==}
-    engines: {node: '>=18'}
 
   typescript@5.6.1-rc:
     resolution: {integrity: sha512-E3b2+1zEFu84jB0YQi9BORDjz9+jGbwwy1Zi3G0LUNw7a7cePUrHMRNy8aPh53nXpkFGVHSxIZo5vKTfYaFiBQ==}
@@ -18485,6 +18484,8 @@ snapshots:
 
   better-result@2.10.0: {}
 
+  better-result@3.0.1: {}
+
   bindings@1.5.0:
     dependencies:
       file-uri-to-path: 1.0.0
@@ -24156,8 +24157,6 @@ snapshots:
   typescript-auto-import-cache@0.3.6:
     dependencies:
       semver: 7.8.5
-
-  typescript-result@3.5.2: {}
 
   typescript@5.6.1-rc: {}
 
