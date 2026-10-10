@@ -131,11 +131,11 @@ mssql or postgres) into a temporary DuckDB table, runs your query on it, then
 drops the table, whether the query succeeds, fails or throws.
 
 ```typescript
+import { sql } from "@flowblade/sql-tag";
 import {
     KyselyMaterializableTable,
     withMaterializedKyselyQuery,
 } from "@flowblade/sqlduck/kysely";
-import { sql } from "@flowblade/sql-tag";
 import * as z from "zod";
 
 import { conn } from "./db.config.ts"; // DuckDBConnection or DuckdbDatasource
