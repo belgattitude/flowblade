@@ -10,7 +10,7 @@ export default defineConfig({
       // JS callers) and must branch on their runtime type.
       files: ["src/converter/**", "src/filesystem/**"],
       rules: {
-        "anti-slop/no-runtime-typeof": "off",
+        // "anti-slop/no-runtime-typeof": "off",
       },
     },
     {
@@ -24,8 +24,8 @@ export default defineConfig({
         "src/manager/database/utils/get-already-attached-database-from-error.ts",
       ],
       rules: {
-        "anti-slop/no-runtime-typeof": "off",
-        "anti-slop/no-unknown-parameters": "off",
+        // "anti-slop/no-runtime-typeof": "off",
+        // "anti-slop/no-unknown-parameters": "off",
       },
     },
   ],
