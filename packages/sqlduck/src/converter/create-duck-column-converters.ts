@@ -15,6 +15,10 @@ const getDuckTypeConverter = (
   key: string
 ): ValueMapperFn | false => {
   const duckTypeId = duckType.typeId;
+  const unsupportedError = () =>
+    new Error(
+      `Unsupported duck type ${duckTypeId} / ${duckType.toString()} for column '${key}'`
+    );
   switch (duckTypeId) {
     case DuckDBTypeId.TIMESTAMP_MS: {
       return converter.toTimestampMs;
@@ -66,10 +70,31 @@ const getDuckTypeConverter = (
         ? converter.toList
         : converter.createListConverter(itemConv);
     }
+    // Not supported yet, listed explicitly so a new DuckDB type id is caught by
+    // the switch-exhaustiveness-check lint rule
+    case DuckDBTypeId.TIME:
+    case DuckDBTypeId.TIME_TZ:
+    case DuckDBTypeId.TIME_NS:
+    case DuckDBTypeId.TIMESTAMP_S:
+    case DuckDBTypeId.TIMESTAMP_NS:
+    case DuckDBTypeId.TIMESTAMP_TZ:
+    case DuckDBTypeId.INTERVAL:
+    case DuckDBTypeId.BLOB:
+    case DuckDBTypeId.STRUCT:
+    case DuckDBTypeId.MAP:
+    case DuckDBTypeId.ARRAY:
+    case DuckDBTypeId.UNION:
+    case DuckDBTypeId.ANY:
+    case DuckDBTypeId.SQLNULL:
+    case DuckDBTypeId.STRING_LITERAL:
+    case DuckDBTypeId.INTEGER_LITERAL:
+    case DuckDBTypeId.GEOMETRY:
+    case DuckDBTypeId.VARIANT: {
+      throw unsupportedError();
+    }
+    // Runtime safety for type ids unknown to the installed typings
     default: {
-      throw new Error(
-        `Unsupported duck type ${duckTypeId} / ${duckType.toString()} for column '${key}'`
-      );
+      throw unsupportedError();
     }
   }
 };

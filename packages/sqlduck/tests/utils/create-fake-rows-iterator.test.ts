@@ -108,7 +108,7 @@ describe("Generate fake data", () => {
 
     // should be AsyncIterableIterator
     const asyncIter = rowsGenAsync();
-    expect((asyncIter as any)[Symbol.asyncIterator]).toBeTypeOf("function");
+    expect(asyncIter[Symbol.asyncIterator]).toBeTypeOf("function");
 
     // for-await iteration should yield firstRow first
     const received: z.infer<typeof userSchema>[] = [];
