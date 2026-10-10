@@ -15,6 +15,8 @@ export type ZodSchemaSupportedTypes =
   | z.ZodEmail
   | z.ZodURL
   | z.ZodUUID
+  // CUID v1 is deprecated by zod, kept to support existing z.cuid() columns (mapped to VARCHAR)
+  // oxlint-disable-next-line typescript/no-deprecated
   | z.ZodCUID
   | z.ZodCUID2
   | z.ZodULID
