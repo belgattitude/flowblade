@@ -67,6 +67,15 @@ const getDecimalWidth = (params: {
   return Math.max(DECIMAL_DEFAULT_WIDTH, requiredWidth);
 };
 
+const getFloatType = (minimum: number, maximum: number) => {
+  // FLOAT (32-bit): ~3.4e38 range, ~7 decimal digits precision
+  if (minimum >= -3.402_823_5e38 && maximum <= 3.402_823_5e38) {
+    return FLOAT;
+  }
+  // DOUBLE (64-bit): ~1.8e308 range
+  return DOUBLE;
+};
+
 export const getDuckdbNumberColumnType = (params: {
   minimum: number | undefined;
   maximum: number | undefined;
@@ -91,12 +100,7 @@ export const getDuckdbNumberColumnType = (params: {
   const isFloat = isFloatValue(minimum) || isFloatValue(maximum);
 
   if (isFloat) {
-    // FLOAT (32-bit): ~3.4e38 range, ~7 decimal digits precision
-    if (minimum >= -3.402_823_5e38 && maximum <= 3.402_823_5e38) {
-      return FLOAT;
-    }
-    // DOUBLE (64-bit): ~1.8e308 range
-    return DOUBLE;
+    return getFloatType(minimum, maximum);
   }
 
   // Unsigned types (when minimum >= 0)
@@ -105,7 +109,9 @@ export const getDuckdbNumberColumnType = (params: {
     if (maximum <= 65_535) return USMALLINT;
     if (maximum <= 4_294_967_295) return UINTEGER;
     if (maximum <= 18_446_744_073_709_551_615n) return UBIGINT;
-    return UHUGEINT;
+    if (maximum <= 2n ** 128n - 1n) return UHUGEINT;
+    // Too large for any integer type (ie: 1e300)
+    return getFloatType(minimum, maximum);
   }
 
   // Signed types
@@ -118,5 +124,7 @@ export const getDuckdbNumberColumnType = (params: {
   ) {
     return BIGINT;
   }
-  return HUGEINT;
+  if (minimum >= -(2n ** 127n) && maximum <= 2n ** 127n - 1n) return HUGEINT;
+  // Too large for any integer type (ie: 1e300)
+  return getFloatType(minimum, maximum);
 };

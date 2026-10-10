@@ -2,6 +2,7 @@ import {
   DuckDBDateValue,
   DuckDBDecimalValue,
   DuckDBTimestampMillisecondsValue,
+  DuckDBTimestampValue,
   DuckDBUUIDValue,
   listValue,
 } from "@duckdb/node-api";
@@ -312,5 +313,22 @@ export class DuckValueConverter {
       return new DuckDBTimestampMillisecondsValue(BigInt(value));
     }
     throw createDuckValueConverterTypeError({ method: "toTimestampMs", value });
+  };
+  /**
+   * Same inputs as toTimestampMs (numbers and bigints are epoch milliseconds),
+   * sub-millisecond digits of strings are dropped.
+   */
+  toTimestamp = (
+    value: bigint | number | Date | null | string | undefined
+  ): DuckDBTimestampValue | null => {
+    let timestampMs: DuckDBTimestampMillisecondsValue | null;
+    try {
+      timestampMs = this.toTimestampMs(value);
+    } catch {
+      throw createDuckValueConverterTypeError({ method: "toTimestamp", value });
+    }
+    return timestampMs === null
+      ? null
+      : new DuckDBTimestampValue(timestampMs.millis * 1000n);
   };
 }

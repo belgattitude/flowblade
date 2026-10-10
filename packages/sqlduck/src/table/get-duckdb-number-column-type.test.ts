@@ -1,6 +1,7 @@
 import {
   BIGINT,
   DECIMAL,
+  DOUBLE,
   FLOAT,
   HUGEINT,
   INTEGER,
@@ -198,6 +199,18 @@ describe(getDuckdbNumberColumnType, () => {
       expect(getDuckdbNumberColumnType({ minimum: 0, maximum: 2e20 })).toBe(
         UHUGEINT
       );
+      expect(getDuckdbNumberColumnType({ minimum: 0, maximum: 3e38 })).toBe(
+        UHUGEINT
+      );
+    });
+
+    it("should fall back to a float type beyond UHUGEINT", () => {
+      expect(getDuckdbNumberColumnType({ minimum: 0, maximum: 3.5e38 })).toBe(
+        DOUBLE
+      );
+      expect(getDuckdbNumberColumnType({ minimum: 0, maximum: 1e300 })).toBe(
+        DOUBLE
+      );
     });
   });
 
@@ -242,6 +255,25 @@ describe(getDuckdbNumberColumnType, () => {
       expect(getDuckdbNumberColumnType({ minimum: -2e20, maximum: 2e20 })).toBe(
         HUGEINT
       );
+      expect(getDuckdbNumberColumnType({ minimum: -1e38, maximum: 1e38 })).toBe(
+        HUGEINT
+      );
+    });
+
+    it("should fall back to a float type beyond HUGEINT", () => {
+      // HUGEINT holds ~1.7e38, FLOAT up to ~3.4e38
+      expect(getDuckdbNumberColumnType({ minimum: -2e38, maximum: 2e38 })).toBe(
+        FLOAT
+      );
+      expect(
+        getDuckdbNumberColumnType({ minimum: -1e300, maximum: 1e300 })
+      ).toBe(DOUBLE);
+      expect(
+        getDuckdbNumberColumnType({
+          minimum: Number.MIN_SAFE_INTEGER,
+          maximum: Number.MAX_VALUE,
+        })
+      ).toBe(DOUBLE);
     });
   });
 });
