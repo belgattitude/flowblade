@@ -184,10 +184,12 @@ const lines = rows.map(
     `  ${c.green("+")} ${row.name.padEnd(nameWidth)}  ${c.cyan(row.image.padEnd(imageWidth))}  ${c.bold((sizes[i] ?? "").padStart(sizeWidth))}  ${c.dim((contents[i] ?? "").padStart(contentWidth))}  ${c.yellow((builds[i] ?? "").padStart(buildWidth))}  ${c.dim(`${infos[i]?.layers} layers`)}`
 );
 
-const [first, second] = infos.map((info, i) => ({
-  bytes: info.bytes,
-  name: rows[i]?.name ?? "",
-}));
+const [first, second] = infos.map((info, i) => {
+  return {
+    bytes: info.bytes,
+    name: rows[i]?.name ?? "",
+  };
+});
 const comparison: string[] = [];
 if (first !== undefined && second !== undefined) {
   const [smaller, larger] =
@@ -245,22 +247,24 @@ const [smallest] = rows.toSorted(
 );
 const manifestError = CliManifest.write(manifestFile, {
   generatedAt: new Date().toISOString(),
-  images: rows.map((row, i) => ({
-    architecture: infos[i]?.architecture,
-    buildSeconds:
-      row.buildMs === undefined
-        ? (previousBuildSeconds.get(infos[i]?.id ?? "") ?? null)
-        : Number((row.buildMs / 1000).toFixed(1)),
-    contentBytes: infos[i]?.contentBytes,
-    createdAt: infos[i]?.createdAt,
-    diskSize: infos[i]?.diskSize,
-    diskSizeBytes: infos[i]?.bytes,
-    id: infos[i]?.id,
-    image: row.image,
-    layers: infos[i]?.layers,
-    name: row.name,
-    os: infos[i]?.os,
-  })),
+  images: rows.map((row, i) => {
+    return {
+      architecture: infos[i]?.architecture,
+      buildSeconds:
+        row.buildMs === undefined
+          ? (previousBuildSeconds.get(infos[i]?.id ?? "") ?? null)
+          : Number((row.buildMs / 1000).toFixed(1)),
+      contentBytes: infos[i]?.contentBytes,
+      createdAt: infos[i]?.createdAt,
+      diskSize: infos[i]?.diskSize,
+      diskSizeBytes: infos[i]?.bytes,
+      id: infos[i]?.id,
+      image: row.image,
+      layers: infos[i]?.layers,
+      name: row.name,
+      os: infos[i]?.os,
+    };
+  }),
   smallest: smallest?.name,
 });
 if (manifestError !== undefined) {

@@ -1,27 +1,30 @@
-import { oxlintDefaultConfig } from "@flowblade/devtools";
+import {
+  createOxlintNextjsConfig,
+  oxlintDefaultConfig,
+} from "@flowblade/devtools";
 import { defineConfig } from "oxlint";
 
+const nextjsConfig = createOxlintNextjsConfig({
+  tailwindEntryPoint: "src/styles/globals.css",
+});
+
+// spread as the root config: oxlint does not merge the `settings` of an extended config
 export default defineConfig({
-  extends: [oxlintDefaultConfig],
-  plugins: [],
+  ...nextjsConfig,
   ignorePatterns: [
     ...(oxlintDefaultConfig.ignorePatterns ?? []),
     "**/types.d/env.d.ts",
     "**/generated/**",
   ],
-  settings: {
-    tailwindcss: {
-      entryPoint: "src/globals.css",
-    },
-  },
   rules: {
+    ...nextjsConfig.rules,
     // example/doc code is illustrative, boundary-parsing rules add noise here
-    "anti-slop/no-runtime-typeof": "off",
-    "anti-slop/no-conditional-empty-object-spread": "off",
-    "anti-slop/no-chained-type-assertions": "off",
-    "anti-slop/no-unsafe-dictionary-type": "off",
-    "anti-slop/no-unknown-parameters": "off",
-    "anti-slop/no-known-value-widening": "off",
+    // "anti-slop/no-runtime-typeof": "off",
+    // "anti-slop/no-conditional-empty-object-spread": "off",
+    // "anti-slop/no-chained-type-assertions": "off",
+    // "anti-slop/no-unsafe-dictionary-type": "off",
+    // "anti-slop/no-unknown-parameters": "off",
+    // "anti-slop/no-known-value-widening": "off",
     "typescript/no-unsafe-type-assertion": "off",
     "typescript/no-misused-spread": "off",
     "unicorn/filename-case": "off",
@@ -39,4 +42,15 @@ export default defineConfig({
     "require-await": "off",
     "sort-keys": "off",
   },
+  overrides: [
+    ...nextjsConfig.overrides,
+    {
+      // framework entrypoints (fastify plugins/routes, next route handlers, pages, config)
+      // are expected to be async even without await
+      files: ["**/*.{ts,tsx,mjs}"],
+      rules: {
+        "typescript/require-await": "off",
+      },
+    },
+  ],
 });

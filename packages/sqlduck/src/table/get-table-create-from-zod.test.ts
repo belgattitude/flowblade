@@ -145,7 +145,7 @@ describe(getTableCreateFromZod, () => {
         getTableCreateFromZod({
           table: new Table("test_case"),
           // @ts-expect-error schema cannot contain a nested object
-          schema: schema,
+          schema,
         })
       ).toThrow("Cannot guess 'nestedObject' type");
     });

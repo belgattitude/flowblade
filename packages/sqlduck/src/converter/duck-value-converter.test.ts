@@ -18,7 +18,7 @@ describe(DuckValueConverter, () => {
       [undefined, null],
       [222, 222n],
       [333n, 333n],
-      [BigInt(555), 555n],
+      [555n, 555n],
       ["777", 777n],
     ] as const;
 
@@ -169,9 +169,7 @@ describe(DuckValueConverter, () => {
       const value = converter.toUUID(uuid);
       expect(value).toBeInstanceOf(DuckDBUUIDValue);
       expect(value?.toString()).toBe("019d2155-d292-71fa-87d7-9d1f1ed83569");
-      expect(value?.toUint128()).toBe(
-        BigInt("0x019d2155d29271fa87d79d1f1ed83569")
-      );
+      expect(value?.toUint128()).toBe(0x019d2155d29271fa87d79d1f1ed83569n);
     });
 
     it.each([
@@ -183,7 +181,7 @@ describe(DuckValueConverter, () => {
     });
 
     it("should convert an unsigned 128-bit bigint", () => {
-      const uint128 = BigInt("0x019d2155d29271fa87d79d1f1ed83569");
+      const uint128 = 0x019d2155d29271fa87d79d1f1ed83569n;
       expect(converter.toUUID(uint128)).toStrictEqual(
         DuckDBUUIDValue.fromUint128(uint128)
       );

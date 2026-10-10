@@ -16,8 +16,6 @@ export const swaggerUiConfig: FastifySwaggerUiOptions = {
   },
   staticCSP: true,
   transformStaticCSP: (header) => header,
-  transformSpecification: (swaggerObject, _request, _reply) => {
-    return swaggerObject;
-  },
+  transformSpecification: (swaggerObject, _request, _reply) => swaggerObject,
   transformSpecificationClone: true,
 };

@@ -39,7 +39,7 @@ describe("DuckDataBaseManagerAttachCommand", () => {
         const params: DuckConnectionParams = {
           type: "memory",
           alias: "my_db",
-          options: options,
+          options,
         };
         const cmd = new DuckDatabaseAttachCommand(params, {
           behaviour,
@@ -69,7 +69,7 @@ describe("DuckDataBaseManagerAttachCommand", () => {
           type: "filesystem",
           alias: "my_db",
           path: "/tmp/duckdb.db",
-          options: options,
+          options,
         };
         const cmd = new DuckDatabaseAttachCommand(params, {
           behaviour,

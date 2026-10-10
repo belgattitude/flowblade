@@ -7,7 +7,6 @@ import * as z from "zod";
 import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 import { createDummyKyselyDb } from "#tests/utils/create-dummy-kysely-db.ts";
 
-import { Table } from "../../objects/table.ts";
 import { KyselyQueryWithZodSchema } from "./kysely-query-with-zod-schema.ts";
 import { withMaterializedKyselyQuery } from "./with-materialized-kysely-query.ts";
 
@@ -46,14 +45,13 @@ describe("withMaterializedKyselyQuery", () => {
     const result = await withMaterializedKyselyQuery({
       duckConn,
       table,
-      query: async ({ dsDuck, table }) => {
-        return await dsDuck.query(
+      query: async ({ dsDuck, table }) =>
+        await dsDuck.query(
           sql<{
             id: number;
             name: string;
           }>`SELECT * FROM ${sql.raw(table.getFullName())}`
-        );
-      },
+        ),
     });
 
     expect(result.isError()).toBe(false);
@@ -125,12 +123,14 @@ describe("withMaterializedKyselyQuery", () => {
 
     it("should drop the table when the row stream throws midway", async () => {
       const failingTable = createTable();
-      failingTable.getQuery = (() => ({
-        stream: async function* streamRows() {
-          yield { id: 1, name: "a" };
-          throw new Error("stream boom");
-        },
-      })) as unknown as typeof failingTable.getQuery;
+      failingTable.getQuery = (() => {
+        return {
+          stream: async function* streamRows() {
+            yield { id: 1, name: "a" };
+            throw new Error("stream boom");
+          },
+        };
+      }) as unknown as typeof failingTable.getQuery;
 
       let queryCalled = false;
       const result = await withMaterializedKyselyQuery({

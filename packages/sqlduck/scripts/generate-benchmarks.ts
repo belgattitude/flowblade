@@ -74,36 +74,34 @@ const formatPercentage = new Intl.NumberFormat("en-US", {
 
 const formatDuration = (milliseconds: number): string => {
   if (milliseconds < 1) {
-    return `${formatNumber.format(milliseconds * 1_000)} us`;
+    return `${formatNumber.format(milliseconds * 1000)} us`;
   }
 
-  if (milliseconds < 1_000) {
+  if (milliseconds < 1000) {
     return `${formatNumber.format(milliseconds)} ms`;
   }
 
-  return `${formatNumber.format(milliseconds / 1_000)} s`;
+  return `${formatNumber.format(milliseconds / 1000)} s`;
 };
 
-const escapeMarkdown = (value: string): string => {
-  return value.replaceAll("|", "\\|");
-};
+const escapeMarkdown = (value: string): string => value.replaceAll("|", "\\|");
 
 const getBenchmarkResults = (
   report: VitestBenchmarkReport
-): BenchmarkResult[] => {
-  return report.testResults.flatMap((testResult) => {
-    return testResult.assertionResults.flatMap((assertionResult) => {
-      return assertionResult.benchmarks.map((benchmark) => ({
-        ...benchmark,
-        fileName: path.relative(packageRoot, testResult.name),
-      }));
-    });
-  });
-};
+): BenchmarkResult[] =>
+  report.testResults.flatMap((testResult) =>
+    testResult.assertionResults.flatMap((assertionResult) =>
+      assertionResult.benchmarks.map((benchmark) => {
+        return {
+          ...benchmark,
+          fileName: path.relative(packageRoot, testResult.name),
+        };
+      })
+    )
+  );
 
-const getBenchmarkKey = (benchmark: BenchmarkResult): string => {
-  return `${benchmark.fileName}\0${benchmark.name}`;
-};
+const getBenchmarkKey = (benchmark: BenchmarkResult): string =>
+  `${benchmark.fileName}\0${benchmark.name}`;
 
 const formatImprovement = (
   nodeValue: number | undefined,
@@ -133,18 +131,22 @@ const getBenchmarkMarkdown = (
   );
   const nodeBenchmarkKeys = new Set(nodeBenchmarks.map(getBenchmarkKey));
   const benchmarkResults = [
-    ...nodeBenchmarks.map((nodeBenchmark) => ({
-      bunBenchmark: bunBenchmarksByKey.get(getBenchmarkKey(nodeBenchmark)),
-      nodeBenchmark,
-    })),
+    ...nodeBenchmarks.map((nodeBenchmark) => {
+      return {
+        bunBenchmark: bunBenchmarksByKey.get(getBenchmarkKey(nodeBenchmark)),
+        nodeBenchmark,
+      };
+    }),
     ...bunBenchmarks
       .filter(
         (bunBenchmark) => !nodeBenchmarkKeys.has(getBenchmarkKey(bunBenchmark))
       )
-      .map((bunBenchmark) => ({
-        bunBenchmark,
-        nodeBenchmark: undefined,
-      })),
+      .map((bunBenchmark) => {
+        return {
+          bunBenchmark,
+          nodeBenchmark: undefined,
+        };
+      }),
   ];
 
   const sections = benchmarkResults.map((benchmark) => {
@@ -153,16 +155,20 @@ const getBenchmarkMarkdown = (
     const bunTasksByName = new Map(bunTasks.map((task) => [task.name, task]));
     const nodeTaskNames = new Set(nodeTasks.map((task) => task.name));
     const tasks = [
-      ...nodeTasks.map((nodeTask) => ({
-        bunTask: bunTasksByName.get(nodeTask.name),
-        nodeTask,
-      })),
+      ...nodeTasks.map((nodeTask) => {
+        return {
+          bunTask: bunTasksByName.get(nodeTask.name),
+          nodeTask,
+        };
+      }),
       ...bunTasks
         .filter((bunTask) => !nodeTaskNames.has(bunTask.name))
-        .map((bunTask) => ({
-          bunTask,
-          nodeTask: undefined,
-        })),
+        .map((bunTask) => {
+          return {
+            bunTask,
+            nodeTask: undefined,
+          };
+        }),
     ];
     const rows = tasks
       .toSorted(

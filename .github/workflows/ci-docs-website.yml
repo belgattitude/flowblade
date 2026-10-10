@@ -48,9 +48,6 @@ jobs:
       - name: 🕵️ Typecheck
         run: pnpm turbo run typecheck --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
-      - name: 🔬 ESLint checks
-        run: pnpm turbo run lint --filter='@docs/website' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
-
       - name: 🏗 Build docs
         run: pnpm --filter @docs/website run build
 

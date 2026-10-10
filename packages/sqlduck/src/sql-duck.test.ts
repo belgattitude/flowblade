@@ -94,7 +94,7 @@ describe("Duckdb tests", async () => {
         const getFakeRowStream = createFakeRowsAsyncIterator({
           count: limit,
           schema: userSchema,
-          factory: ({ faker: faker, rowIdx }) => {
+          factory: ({ faker, rowIdx }) => {
             if (rowIdx === 0) {
               return {
                 id: z.int32().parse(rowIdx),
@@ -148,7 +148,7 @@ describe("Duckdb tests", async () => {
         });
 
         expect(cb).toHaveBeenLastCalledWith({
-          totalRows: totalRows,
+          totalRows,
           timeMs: expect.any(Number),
           rowsPerSecond: expect.any(Number),
         });
@@ -256,8 +256,10 @@ describe("Duckdb tests", async () => {
 
         const getFakeRowStream = createFakeRowsAsyncIterator({
           count: limit,
-          schema: schema,
-          factory: ({ rowIdx }) => ({ id: rowIdx }),
+          schema,
+          factory: ({ rowIdx }) => {
+            return { id: rowIdx };
+          },
         });
 
         const cb = vi.fn<OnChunkAppendedCb>();
@@ -265,9 +267,9 @@ describe("Duckdb tests", async () => {
         // Act
         await sqlDuck.toTable({
           table: testTable,
-          schema: schema,
+          schema,
           rowStream: getFakeRowStream(),
-          chunkSize: chunkSize,
+          chunkSize,
           onChunkAppended: cb,
           onChunkAppendedFrequency: frequency,
           createOptions: {
@@ -320,8 +322,10 @@ describe("Duckdb tests", async () => {
 
         const getFakeRowStream = createFakeRowsAsyncIterator({
           count: limit,
-          schema: schema,
-          factory: ({ rowIdx }) => ({ id: rowIdx }),
+          schema,
+          factory: ({ rowIdx }) => {
+            return { id: rowIdx };
+          },
         });
 
         // Since we can't easily spy on the appender created internally,
@@ -331,9 +335,9 @@ describe("Duckdb tests", async () => {
         // Act
         const result = await sqlDuck.toTable({
           table: testTable,
-          schema: schema,
+          schema,
           rowStream: getFakeRowStream(),
-          chunkSize: chunkSize,
+          chunkSize,
           flushSyncFrequency: flushFrequency,
           createOptions: {
             create: "CREATE_OR_REPLACE",
@@ -384,7 +388,7 @@ describe("Duckdb tests", async () => {
               signal: controller.signal,
               createOptions: { create: "CREATE_OR_REPLACE" },
             })
-            .catch((e: unknown) => e);
+            .catch((error: unknown) => error);
           expect(error).toBe(controller.signal.reason);
           expect(error).toMatchObject({ name: "AbortError" });
           expect(closed).toBe(true);
@@ -599,7 +603,7 @@ describe("Duckdb tests", async () => {
           yield {
             id: 1,
             price: 1.235,
-            rate: 1.234_567_891_2,
+            rate: 1.2345678912,
             default_dec: 1.2345,
           };
           yield { id: 2, price: -99_999_999.99, rate: null, default_dec: 0 };
@@ -652,8 +656,8 @@ describe("Duckdb tests", async () => {
         const testTable = new Table("test_decimals_multiple_of");
 
         async function* rowStream() {
-          yield { id: 1, price: 999.99, tiny: 0.000_000_3, huge: 1.5e20 };
-          yield { id: 2, price: 0, tiny: -1.234_567_8, huge: 12.34 };
+          yield { id: 1, price: 999.99, tiny: 0.0000003, huge: 1.5e20 };
+          yield { id: 2, price: 0, tiny: -1.2345678, huge: 12.34 };
         }
 
         await sqlDuck.toTable({

@@ -28,13 +28,9 @@ export class QColumnModel {
     this.#cm = cm;
   }
 
-  hasColumn = (col: QColumn): boolean => {
-    return this.#cm.has(col.id);
-  };
+  hasColumn = (col: QColumn): boolean => this.#cm.has(col.id);
 
-  getColumn = (colId: string): QColumn | null => {
-    return this.#cm.get(colId) ?? null;
-  };
+  getColumn = (colId: string): QColumn | null => this.#cm.get(colId) ?? null;
 
   *[Symbol.iterator](): IterableIterator<QColumn> {
     for (const col of this.#cm) {

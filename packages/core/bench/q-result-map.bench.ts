@@ -16,12 +16,14 @@ test("QResult map benchmarks", async ({ bench }) => {
     },
   });
 
-  const generatedRows = Array.from({ length: GENERATED_ROWS }, (_, i) => ({
-    id: `${i}`,
-    airline: faker.airline.airline().name,
-    productDesc: faker.commerce.productDescription(),
-    productName: faker.commerce.productName(),
-  }));
+  const generatedRows = Array.from({ length: GENERATED_ROWS }, (_, i) => {
+    return {
+      id: `${i}`,
+      airline: faker.airline.airline().name,
+      productDesc: faker.commerce.productDescription(),
+      productName: faker.commerce.productName(),
+    };
+  });
 
   const mapToFinalPayload = (row: (typeof generatedRows)[0]) => {
     return {

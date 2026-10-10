@@ -7,17 +7,15 @@ export const parseJsonl = async <T>(file: string): Promise<T[]> => {
     crlfDelay: Infinity,
   });
 
-  return await new Promise((resolve, reject) => {
-    const jsonArray: T[] = [];
-    rl.on("line", (line) => {
+  const jsonArray: T[] = [];
+  try {
+    for await (const line of rl) {
       jsonArray.push(JSON.parse(line) as T);
+    }
+  } catch (error) {
+    throw new Error(`Error reading json file: ${file}: ${String(error)}`, {
+      cause: error,
     });
-    rl.on("error", (err) => {
-      const error = new Error(`Error reading json file: ${file}: ${err}`);
-      reject(error);
-    });
-    rl.on("close", () => {
-      resolve(jsonArray);
-    });
-  });
+  }
+  return jsonArray;
 };

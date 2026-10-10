@@ -48,9 +48,7 @@ export const createContainerMssql = <TDatabase = unknown>(
     connection: new Kysely<TDatabase>({
       dialect: {
         createAdapter: () => new MssqlAdapter(),
-        createDriver: () => {
-          return new MssqlExtendedDriver(dialectConfig);
-        },
+        createDriver: () => new MssqlExtendedDriver(dialectConfig),
         createIntrospector: (db) => new MssqlIntrospector(db),
         createQueryCompiler: () => new MssqlQueryCompiler(),
       },

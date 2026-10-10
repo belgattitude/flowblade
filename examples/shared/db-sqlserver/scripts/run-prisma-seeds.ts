@@ -42,21 +42,21 @@ async function runPrismaSeeds() {
   }
 
   logger.log("success", `Seeding finished, here's the summary:`);
-  summary.forEach((s) => {
+  for (const s of summary) {
     const inSeconds = Math.round(s.timeMs / 100) / 10;
     logger.log(
       "success",
       `[x] ${s.name.padEnd(12, ".")} - affected: ${String(s.totalAffected).padStart(7, ".")} - took ${inSeconds} s`
     );
-  });
+  }
 }
 
 let errorCode = 0;
 
 try {
   await runPrismaSeeds();
-} catch (e) {
-  console.error(e);
+} catch (error) {
+  console.error(error);
   errorCode = 1;
 } finally {
   await prisma.$disconnect();

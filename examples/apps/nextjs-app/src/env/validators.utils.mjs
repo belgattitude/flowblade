@@ -8,11 +8,9 @@ export const zDsn = z
   .refine((dsn) => isParsableDsn(dsn), "Invalid DSN format.");
 
 export const zJdbcUrlDsnCompatible = z.string().refine((jdbcUrl) => {
-  let dsn = "";
   try {
-    dsn = convertJdbcToDsn(jdbcUrl);
+    return isParsableDsn(convertJdbcToDsn(jdbcUrl));
   } catch {
     return false;
   }
-  return isParsableDsn(dsn);
 }, "Invalid JDBCUrl format.");

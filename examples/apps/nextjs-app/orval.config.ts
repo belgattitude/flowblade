@@ -47,7 +47,9 @@ export default defineConfig({
       afterAllFilesWrite: async (...args: unknown[]) => {
         // orval passes the list of all written file paths as a single argument
         const writtenPaths = args[0] as string[] | undefined;
-        if (!writtenPaths || writtenPaths.length === 0) return;
+        if (!writtenPaths || writtenPaths.length === 0) {
+          return;
+        }
 
         // the list contains both files and directories (e.g. the models folder)
         const expanded = await Promise.all(

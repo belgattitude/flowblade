@@ -17,7 +17,7 @@ export abstract class AbstractSeed {
   protected statsCollector: [name: string, stats: Stats][] = [];
   constructor(params: Params) {
     this.prisma = params.prisma;
-    this.logger = params.logger ?? new CliLogger(`${this.constructor.name}`);
+    this.logger = params.logger ?? new CliLogger(this.constructor.name);
   }
 
   abstract execute(): Promise<void>;
@@ -26,9 +26,7 @@ export abstract class AbstractSeed {
     this.statsCollector.push([entityName, stats]);
   };
 
-  public getStats = (): [name: string, stats: Stats][] => {
-    return this.statsCollector;
-  };
+  public getStats = (): [name: string, stats: Stats][] => this.statsCollector;
 
   protected log = (operation: "UPSERT" | "CREATE" | "UPDATE", msg: string) => {
     this.logger.log("info", `${operation}: ${msg}`);

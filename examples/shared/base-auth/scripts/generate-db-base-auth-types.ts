@@ -47,9 +47,9 @@ try {
     includePattern: `${dbBaseAuthConfig.schema}.*`,
     outFile,
   });
-} catch (e) {
-  console.error(`- ${pc.red("error")} ${(e as Error).message}`);
-  console.error(e);
+} catch (error) {
+  console.error(`- ${pc.red("error")} ${(error as Error).message}`);
+  console.error(error);
   await closeDbAndExit(1, conn);
 } finally {
   await conn.destroy();

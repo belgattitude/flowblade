@@ -1,24 +1,25 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import type { FC } from "react";
 
 import { QueryResultDebugger } from "@/components/devtools/QueryResultDebugger";
 import type { SerializedQResult } from "@/components/devtools/QueryResultDebugger";
 import { apiFetcher } from "@/config/api-fetcher.config.ts";
 
-const useSearch = () =>
-  useQuery({
-    queryFn: async (): Promise<SerializedQResult> =>
-      await apiFetcher
-        .get("demo/duckdb/search", {
-          searchParams: {
-            limit: 10_000,
-          },
-        })
-        .json<SerializedQResult>(),
-    queryKey: ["demo/duckdb/search"],
-  });
+const searchQueryOptions = queryOptions({
+  queryFn: async (): Promise<SerializedQResult> =>
+    await apiFetcher
+      .get("demo/duckdb/search", {
+        searchParams: {
+          limit: 10_000,
+        },
+      })
+      .json<SerializedQResult>(),
+  queryKey: ["demo/duckdb/search"],
+});
+
+const useSearch = () => useQuery(searchQueryOptions);
 
 export const DuckdbDemoPage: FC = () => {
   const { data, isLoading, error } = useSearch();

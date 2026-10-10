@@ -2,7 +2,7 @@
 
 import { MIntl } from "@httpx/memo-intl";
 import type { ColDef, GetRowIdParams, GridOptions } from "ag-grid-community";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import type { FC } from "react";
 
 import { ReportAgGrid } from "@/components/grid/ag-grid/report-ag-grid";
@@ -82,7 +82,7 @@ export const ProductGrid: FC<Props> = (props) => {
     slowdownApiMs: filter.slowdownApiMs,
   });
 
-  const [colDefs, _setColDefs] = useState<ColDef[]>(productColDefs);
+  const colDefs: ColDef[] = productColDefs;
 
   const getRowId = useCallback(
     (params: GetRowIdParams<EthicalProduct>): string =>
@@ -91,7 +91,7 @@ export const ProductGrid: FC<Props> = (props) => {
   );
 
   return (
-    <div className={cn("flex h-full w-full", className)}>
+    <div className={cn("flex size-full", className)}>
       <ReportAgGrid<EthicalProduct>
         className="flex-1"
         rowData={data}

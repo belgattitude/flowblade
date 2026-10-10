@@ -130,16 +130,27 @@ const getDuckdbStringColumnType = (def: {
     return ENUM(def.enum);
   }
   switch (def.format) {
-    case "date":
+    case "date": {
       return DATE;
-    case "date-time":
+    }
+    case "date-time": {
       return TIMESTAMP_MS;
-    case "int64":
+    }
+    case "int64": {
       return BIGINT;
-    case "uuid":
+    }
+    case "uuid": {
       return UUID;
-    default:
+    }
+    case "cuid":
+    case "cuid2":
+    case undefined: {
       return VARCHAR;
+    }
+    // Runtime safety: zod emits other string formats (ie: email, uri...) not listed in StringFormat
+    default: {
+      return VARCHAR;
+    }
   }
 };
 
@@ -190,7 +201,6 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       type,
       duckdbType,
       nullable,
-      format,
       primaryKey,
       minimum,
       maximum,
@@ -211,12 +221,13 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
 
     if (customDuckDbType === undefined) {
       switch (type) {
-        case "array":
+        case "array": {
           switch (def?.items?.type) {
-            case "string":
+            case "string": {
               c.duckdbType = LIST(getDuckdbStringColumnType(def.items));
               break;
-            case "integer":
+            }
+            case "integer": {
               c.duckdbType = LIST(
                 getDuckdbNumberColumnType({
                   minimum: def?.items?.minimum,
@@ -224,7 +235,8 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
                 })
               );
               break;
-            case "number":
+            }
+            case "number": {
               c.duckdbType = LIST(
                 getDuckdbNumberColumnType({
                   minimum: def?.items?.minimum,
@@ -233,36 +245,51 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
                 })
               );
               break;
-            case "boolean":
+            }
+            case "boolean": {
               c.duckdbType = LIST(BOOLEAN);
               break;
-            default:
+            }
+            case undefined: {
               throw new Error(
                 `The inferred duckdb array for '${columnName}' is not supported - ${JSON.stringify(def)}`
               );
+            }
+            // Runtime safety for items types not listed in the json schema typings
+            default: {
+              throw new Error(
+                `The inferred duckdb array for '${columnName}' is not supported - ${JSON.stringify(def)}`
+              );
+            }
           }
           break;
-        case "string":
+        }
+        case "string": {
           c.duckdbType = getDuckdbStringColumnType(def);
           break;
-        case "number":
+        }
+        case "number": {
           c.duckdbType = getDuckdbNumberColumnType({
             minimum,
             maximum,
             multipleOf,
           });
           break;
+        }
         // special case for z.int32()
-        case "integer":
+        case "integer": {
           c.duckdbType = getDuckdbNumberColumnType({ minimum, maximum });
           break;
-        case "boolean":
+        }
+        case "boolean": {
           c.duckdbType = BOOLEAN;
           break;
-        default:
+        }
+        default: {
           throw new Error(
             `Cannot guess '${columnName}' type - ${JSON.stringify(def)}`
           );
+        }
       }
     } else {
       c.duckdbType = customDuckDbType;

@@ -45,7 +45,7 @@ function createMockStream({
  * A wrapper that lets each story re-start the stream on click.
  * Since a ReadableStream can only be consumed once, we create a new one on each run.
  */
-function StreamDemo({
+const StreamDemo = ({
   makeStream,
   tableName,
   description,
@@ -53,7 +53,7 @@ function StreamDemo({
   makeStream: () => ReadableStream<Uint8Array>;
   tableName: string;
   description?: string;
-}) {
+}) => {
   // Lazy initializer – creates the stream once on mount without needing an effect.
   const [stream, setStream] = useState<ReadableStream<Uint8Array> | null>(() =>
     makeStream()
@@ -76,13 +76,13 @@ function StreamDemo({
         onClick={() => {
           setStream(makeStream());
         }}
-        className="border-border bg-background text-foreground hover:bg-muted rounded-md border px-3 py-1.5 text-xs"
+        className="rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:bg-muted"
       >
         ↺ Restart
       </button>
     </div>
   );
-}
+};
 // ─── Fetch-based demo ─────────────────────────────────────────────────────────
 /**
  * Why not nock?
@@ -136,13 +136,13 @@ function createFetchStub(
  * `response.body` into `<DuckTableLoader>`.
  * Resets to idle on each restart so the card re-initialises cleanly.
  */
-function FetchStreamDemo({
+const FetchStreamDemo = ({
   tableName,
   description,
 }: {
   tableName: string;
   description?: string;
-}) {
+}) => {
   const [stream, setStream] = useState<ReadableStream<Uint8Array> | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const start = useCallback(async () => {
@@ -151,7 +151,8 @@ function FetchStreamDemo({
     try {
       const response = await fetch(MOCK_FETCH_URL, { method: "POST" });
       if (!response.ok || !response.body) {
-        throw new Error(`HTTP ${response.status}`);
+        setFetchError(`HTTP ${response.status}`);
+        return;
       }
       setStream(response.body);
     } catch (error) {
@@ -172,18 +173,18 @@ function FetchStreamDemo({
         }}
       />
       {fetchError && (
-        <p className="text-destructive text-xs">Fetch error: {fetchError}</p>
+        <p className="text-xs text-destructive">Fetch error: {fetchError}</p>
       )}
       <button
         type="button"
         onClick={start}
-        className="border-border bg-background text-foreground hover:bg-muted rounded-md border px-3 py-1.5 text-xs"
+        className="rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:bg-muted"
       >
         {stream === null ? "▶ Start fetch" : "↺ Restart"}
       </button>
     </div>
   );
-}
+};
 // ─── Meta ─────────────────────────────────────────────────────────────────────
 const meta = {
   title: "duck-ui/DuckTableLoader",

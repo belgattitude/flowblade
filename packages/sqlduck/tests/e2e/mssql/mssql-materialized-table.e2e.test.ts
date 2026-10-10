@@ -1,28 +1,21 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
-import { DuckdbDatasource } from "@flowblade/source-duckdb";
 import type { KyselyDatasource } from "@flowblade/source-kysely";
 import { sql as sqlt } from "@flowblade/sql-tag";
 import { MSSQLServerContainer } from "@testcontainers/mssqlserver";
 import type { StartedMSSQLServerContainer } from "@testcontainers/mssqlserver/build/mssqlserver-container";
 import isInCi from "is-in-ci";
-import { sql } from "kysely";
 import { describe, expect, afterAll, beforeAll, it } from "vitest";
 import * as z from "zod";
 
 import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
-import { createDummyKyselyDb } from "#tests/utils/create-dummy-kysely-db.ts";
 
-import { SqlDuck, Table, zodCodecs } from "../../../src";
+import { zodCodecs } from "../../../src";
 import { withMaterializedKyselyQuery } from "../../../src/integrations/kysely";
 import { KyselyQueryWithZodSchema } from "../../../src/integrations/kysely/kysely-query-with-zod-schema.ts";
 import { createContainerMssql } from "../create-container-mssql";
 import {
-  anIsoDate,
   getMssqlE2eMigrations,
-  mssqlE2eData,
   type mssqlE2eDb,
-  negativeBigint,
-  positiveBigint,
   testDataCount,
 } from "./get-mssql-e2e-migrations.ts";
 
@@ -93,21 +86,22 @@ describe("MSSQL materialized e2e tests", () => {
         const result = await withMaterializedKyselyQuery({
           duckConn,
           table: queryWithSchema,
-          query: async ({ dsDuck, table }) => {
-            return await dsDuck.query(
+          query: async ({ dsDuck, table }) =>
+            await dsDuck.query(
               sqlt<{
                 id: number;
               }>`SELECT * FROM ${sqlt.raw(table.getFullName())}`
-            );
-          },
+            ),
         });
 
         expect(result.isError()).toBe(false);
 
-        const normalizedData = sqlserverResult.data.map((row) => ({
-          ...row,
-          decimal_18_3: row.decimal_18_3?.toFixed(3),
-        }));
+        const normalizedData = sqlserverResult.data.map((row) => {
+          return {
+            ...row,
+            decimal_18_3: row.decimal_18_3?.toFixed(3),
+          };
+        });
 
         expect(result.data).toStrictEqual(normalizedData);
         const [materializationSpan] =

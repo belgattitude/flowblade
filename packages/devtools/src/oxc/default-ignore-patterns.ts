@@ -52,4 +52,5 @@ export const defaultIgnorePatterns = [
   "**/next-env.d.ts",
   "**/worker-configuration.d.ts",
   "**/types.d/env.d.ts",
+  "**/.eslintrc.cjs",
 ];

@@ -12,8 +12,8 @@
 ```typescript
 import { DuckDBInstance } from "@duckdb/node-api";
 DuckDBInstance.create(undefined, {
-    access_mode: "READ_WRITE",
-    max_memory: "512M",
+  access_mode: "READ_WRITE",
+  max_memory: "512M",
 });
 export const conn = await instance.connect();
 ```
@@ -28,42 +28,42 @@ import { conn } from "./db.config.ts";
 
 const dbManager = new DuckDatabaseManager(conn);
 const database = await dbManager.attach({
-    type: "memory", // can be 'filesystem', ...
-    alias: "mydb",
-    options: { COMPRESS: "false" },
+  type: "memory", // can be 'filesystem', ...
+  alias: "mydb",
+  options: { COMPRESS: "false" },
 });
 
 const sqlDuck = new SqlDuck({ conn });
 
 // Define a zod schema, it will be used to create the table
 const userSchema = z.object({
-    id: z.int32().min(1).meta({ primaryKey: true }),
-    name: z.string(),
+  id: z.int32().min(1).meta({ primaryKey: true }),
+  name: z.string(),
 });
 
 // Example of a datasource (can be generator, async generator, async iterable)
 async function* getUsers(): AsyncIterableIterator<z.infer<typeof userSchema>> {
-    // database or api call
-    yield { id: 1, name: "John" };
-    yield { id: 2, name: "Jane" };
+  // database or api call
+  yield { id: 1, name: "John" };
+  yield { id: 2, name: "Jane" };
 }
 
 // Create a table from the schema and the datasource
 const result = await sqlDuck.toTable({
-    table: new Table({ name: "user", database: database.alias }),
-    schema: userSchema, // The schema to use to create the table
-    rowStream: getUsers(), // The async iterable that yields rows
-    // 👇Optional:
-    chunkSize: 2048, // Number of rows to append when using duckdb appender. Default is 2048
-    onChunkAppended: ({ timeMs, totalRows, rowsPerSecond }) => {
-        console.log(
-            `Appended ${totalRows} in time ${timeMs}ms, est: ${rowsPerSecond} rows/s`
-        );
-    },
-    // Optional table creation options
-    createOptions: {
-        create: "CREATE_OR_REPLACE",
-    },
+  table: new Table({ name: "user", database: database.alias }),
+  schema: userSchema, // The schema to use to create the table
+  rowStream: getUsers(), // The async iterable that yields rows
+  // 👇Optional:
+  chunkSize: 2048, // Number of rows to append when using duckdb appender. Default is 2048
+  onChunkAppended: ({ timeMs, totalRows, rowsPerSecond }) => {
+    console.log(
+      `Appended ${totalRows} in time ${timeMs}ms, est: ${rowsPerSecond} rows/s`
+    );
+  },
+  // Optional table creation options
+  createOptions: {
+    create: "CREATE_OR_REPLACE",
+  },
 });
 
 console.log(`Inserted ${result.totalRows} rows in ${result.timeMs}ms`);
@@ -86,30 +86,30 @@ const sqlDuck = new SqlDuck({ conn: duckDbConnection });
 
 // Schema of the table, not that you can use meta to add information
 const userSchema = z.object({
-    id: z.number().int().meta({ primaryKey: true }),
-    name: z.string(),
+  id: z.number().int().meta({ primaryKey: true }),
+  name: z.string(),
 });
 
 // Async generator function that yields rows to insert
 async function* getUserRows(): AsyncIterableIterator<
-    z.infer<typeof userSchema>
+  z.infer<typeof userSchema>
 > {
-    // database or api call
+  // database or api call
 }
 
 const result = sqlDuck.toTable({
-    table: new Table({ name: "user", database: "mydb" }), // Table definition
-    schema: userSchema, // The schema to use to create the table
-    rowStream: getUserRows(), // The async iterable that yields rows
-    // 👇Optional:
-    chunkSize: 2048, // Number of rows to append when using duckdb appender. Default is 2048
-    onChunkAppended: ({ totalRows }) => {
-        console.log(`Appended ${totalRows} rows so far`);
-    },
-    // Optional table creation options
-    createOptions: {
-        create: "CREATE_OR_REPLACE",
-    },
+  table: new Table({ name: "user", database: "mydb" }), // Table definition
+  schema: userSchema, // The schema to use to create the table
+  rowStream: getUserRows(), // The async iterable that yields rows
+  // 👇Optional:
+  chunkSize: 2048, // Number of rows to append when using duckdb appender. Default is 2048
+  onChunkAppended: ({ totalRows }) => {
+    console.log(`Appended ${totalRows} rows so far`);
+  },
+  // Optional table creation options
+  createOptions: {
+    create: "CREATE_OR_REPLACE",
+  },
 });
 
 console.log(`Inserted ${result.totalRows} rows in ${result.timeMs}ms`);
@@ -117,8 +117,8 @@ console.log(`Table created with DDL: ${result.createTableDDL}`);
 
 // You can now use the table in your queries
 const queryResult = await dbDuckDbMemoryConn.query<{
-    id: number;
-    name: string;
+  id: number;
+  name: string;
 }>(`
   SELECT id, name FROM mydb.user WHERE id < 1000
 `);
@@ -128,34 +128,32 @@ const queryResult = await dbDuckDbMemoryConn.query<{
 
 > ⚠️ **Experimental**: the API below may change in a minor release.
 
-`withMaterializedKyselyQuery` streams the rows of a Kysely query (e.g. from
-mssql or postgres) into a temporary DuckDB table, runs your query on it, then
-drops the table, whether the query succeeds, fails or throws.
+`withMaterializedKyselyQuery` streams the rows of a Kysely query (e.g. from mssql or postgres) into a temporary DuckDB table, runs your query on it, then drops the table, whether the query succeeds, fails or throws.
 
 ```typescript
 import { DuckDBInstance } from "@duckdb/node-api";
 import {
-    createKyselyMssqlDialect,
-    TediousConnUtils,
+  createKyselyMssqlDialect,
+  TediousConnUtils,
 } from "@flowblade/source-kysely";
 import { sql } from "@flowblade/sql-tag";
 import {
-    KyselyQueryWithZodSchema,
-    withMaterializedKyselyQuery,
+  KyselyQueryWithZodSchema,
+  withMaterializedKyselyQuery,
 } from "@flowblade/sqlduck/kysely";
 import { Kysely } from "kysely";
 import * as z from "zod";
 
 // Source database: any Kysely instance (here mssql)
 type DB = {
-    user: { id: number; name: string };
+  user: { id: number; name: string };
 };
 const db = new Kysely<DB>({
-    dialect: createKyselyMssqlDialect({
-        tediousConfig: TediousConnUtils.fromJdbcDsn(
-            "sqlserver://localhost:1433;database=db;user=sa;password=pwd"
-        ),
-    }),
+  dialect: createKyselyMssqlDialect({
+    tediousConfig: TediousConnUtils.fromJdbcDsn(
+      "sqlserver://localhost:1433;database=db;user=sa;password=pwd"
+    ),
+  }),
 });
 
 // Target duckdb connection (a DuckDBConnection or a DuckdbDatasource)
@@ -163,38 +161,36 @@ const instance = await DuckDBInstance.create();
 const conn = await instance.connect();
 
 const table = new KyselyQueryWithZodSchema({
-    query: db.selectFrom("user").select(["id", "name"]),
-    // used to create the temporary table, must match the selected columns
-    schema: z.strictObject({ id: z.int32(), name: z.string() }),
+  query: db.selectFrom("user").select(["id", "name"]),
+  // used to create the temporary table, must match the selected columns
+  schema: z.strictObject({ id: z.int32(), name: z.string() }),
 });
 
 const result = await withMaterializedKyselyQuery({
-    duckConn: conn,
-    table,
-    // 👇Optional: where the temporary table is created.
-    // Defaults to the connection's current database and schema.
-    database: "scratch", // e.g. ATTACH 'scratch.duckdb' AS scratch
-    schema: "staging", // must already exist
-    query: ({ dsDuck, table }) =>
-        dsDuck.query(
-            sql<{ id: number; name: string }>`
+  duckConn: conn,
+  table,
+  // 👇Optional: where the temporary table is created.
+  // Defaults to the connection's current database and schema.
+  database: "scratch", // e.g. ATTACH 'scratch.duckdb' AS scratch
+  schema: "staging", // must already exist
+  query: ({ dsDuck, table }) =>
+    dsDuck.query(
+      sql<{ id: number; name: string }>`
                 SELECT id, name FROM ${sql.raw(table.getFullName())} WHERE id < 1000
             `
-        ),
+    ),
 });
 
 if (result.error) {
-    // materialization or query error
+  // materialization or query error
 } else {
-    console.log(result.data);
-    // the first span holds the materialization info (ddl, affectedRows, timeMs, tableName)
-    console.log(result.meta.getSpansByType("materialization"));
+  console.log(result.data);
+  // the first span holds the materialization info (ddl, affectedRows, timeMs, tableName)
+  console.log(result.meta.getSpansByType("materialization"));
 }
 ```
 
-`database` and `schema` must be valid, non-reserved DuckDB identifiers,
-otherwise an error result is returned and the query is not run. Targeting an
-attached file database keeps large materializations out of the in-memory one.
+`database` and `schema` must be valid, non-reserved DuckDB identifiers, otherwise an error result is returned and the query is not run. Targeting an attached file database keeps large materializations out of the in-memory one.
 
 ## Benchmarks
 

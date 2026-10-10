@@ -24,7 +24,7 @@ export const createDummyKyselyDb = <
 ): Kysely<TDatabase> => {
   let dialect: KyselyConfig["dialect"];
   switch (type) {
-    case "sqlite":
+    case "sqlite": {
       dialect = {
         createAdapter: () => new SqliteAdapter(),
         createDriver: () => new DummyDriver(),
@@ -32,7 +32,8 @@ export const createDummyKyselyDb = <
         createQueryCompiler: () => new SqliteQueryCompiler(),
       };
       break;
-    case "mssql":
+    }
+    case "mssql": {
       dialect = {
         createAdapter: () => new MssqlAdapter(),
         createDriver: () => new DummyDriver(),
@@ -40,7 +41,8 @@ export const createDummyKyselyDb = <
         createQueryCompiler: () => new MssqlQueryCompiler(),
       };
       break;
-    case "postgresql":
+    }
+    case "postgresql": {
       dialect = {
         createAdapter: () => new PostgresAdapter(),
         createDriver: () => new DummyDriver(),
@@ -48,8 +50,10 @@ export const createDummyKyselyDb = <
         createQueryCompiler: () => new PostgresQueryCompiler(),
       };
       break;
-    default:
+    }
+    default: {
       assertNever(type);
+    }
   }
 
   return new Kysely<TDatabase>({

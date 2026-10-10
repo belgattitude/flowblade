@@ -8,17 +8,19 @@ import {
 } from "./filesystem.utils";
 
 // @ts-expect-error something to change
-vi.mock(import("node:fs"), () => ({
-  default: {
-    accessSync: vi.fn<() => void>(),
-    constants: {
-      W_OK: 2,
+vi.mock(import("node:fs"), () => {
+  return {
+    default: {
+      accessSync: vi.fn<() => void>(),
+      constants: {
+        W_OK: 2,
+      },
+      existsSync: vi.fn<() => boolean>(),
+      mkdirSync: vi.fn<() => void>(),
+      statSync: vi.fn<() => void>(),
     },
-    existsSync: vi.fn<() => boolean>(),
-    mkdirSync: vi.fn<() => void>(),
-    statSync: vi.fn<() => void>(),
-  },
-}));
+  };
+});
 
 describe("filesystem.utils", () => {
   beforeEach(() => {

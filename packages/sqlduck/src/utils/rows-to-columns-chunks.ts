@@ -88,7 +88,9 @@ export async function* rowsToColumnsChunks<
 
   // Pull the first row to determine column order
   const first = await rows.next();
-  if (first.done === true) return; // empty input → yield nothing
+  if (first.done === true) {
+    return;
+  } // empty input → yield nothing
 
   const keys = Object.keys(first.value) as (keyof TRow)[];
   const numKeys = keys.length;
@@ -126,14 +128,17 @@ export async function* rowsToColumnsChunks<
   // invokes that column's own mapper — instead of a single shared call site
   // that cycles through every column's differently-typed mapper on every
   // row, which V8 can degrade to a slower polymorphic/megamorphic dispatch.
+  const keyMappers: { key: keyof TRow; fn: ValueMapperFn }[] = [];
+  for (const [i, key] of keys.entries()) {
+    const fn = mappers[i];
+    if (fn !== undefined) {
+      keyMappers.push({ key, fn });
+    }
+  }
+
   function applyMappers(cols: TReturn) {
-    for (let i = 0; i < numKeys; i++) {
-      const fn = mappers[i];
-      if (fn === undefined) {
-        continue;
-      }
-      const k = keys[i]!;
-      const target = cols[k] as unknown[];
+    for (const { key, fn } of keyMappers) {
+      const target = cols[key] as unknown[];
       for (let r = 0; r < target.length; r++) {
         target[r] = fn(target[r]);
       }
@@ -143,10 +148,8 @@ export async function* rowsToColumnsChunks<
   let columns = createColumns();
   let rowsInChunk = 0;
 
-  for (let i = 0; i < numKeys; i++) {
-    const k = keys[i]!;
-    const val = first.value[k];
-    (columns[k] as unknown[]).push(val);
+  for (const k of keys) {
+    (columns[k] as unknown[]).push(first.value[k]);
   }
   rowsInChunk++;
   // In case chunkSize === 1 (or generally if the threshold already reached),
@@ -162,10 +165,8 @@ export async function* rowsToColumnsChunks<
   for await (const row of rows) {
     // Throwing inside for-await closes rows
     signal?.throwIfAborted();
-    for (let i = 0; i < numKeys; i++) {
-      const k = keys[i]!;
-      const val = row[k];
-      (columns[k] as unknown[]).push(val);
+    for (const k of keys) {
+      (columns[k] as unknown[]).push(row[k]);
     }
     rowsInChunk++;
     if (rowsInChunk >= chunkSize) {

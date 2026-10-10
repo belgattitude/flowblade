@@ -5,9 +5,8 @@ import { expectTypeOf, expect, describe, it } from "vitest";
 import { sql } from "./sql";
 import type { SqlTag } from "./types";
 
-const formatPostresql = (sql: string) => {
-  return format(sql, { language: "postgresql" });
-};
+const formatPostresql = (sql: string) =>
+  format(sql, { language: "postgresql" });
 
 describe("sql tests", () => {
   it("should return sql and params", () => {

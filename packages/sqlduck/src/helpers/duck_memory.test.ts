@@ -58,7 +58,7 @@ describe("DuckMemory tests", async () => {
         const duckMem = new DuckMemory(conn);
         const mem = await duckMem.getByTag(tag);
         expect(mem).toMatchObject({
-          tag: tag,
+          tag,
           memory_usage_bytes: 0n,
           temporary_storage_bytes: 0n,
         });

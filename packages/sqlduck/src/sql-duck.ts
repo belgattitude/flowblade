@@ -312,7 +312,7 @@ export class SqlDuck {
       InferZodRelaxedDataSchema<TSchema>
     >({
       rows: rowStream,
-      chunkSize: chunkSize,
+      chunkSize,
       columns: columnKeys as (keyof TSchema["shape"])[],
       converters: transformers,
       signal,
@@ -368,9 +368,9 @@ export class SqlDuck {
         ) {
           try {
             await dbManager.checkpoint(table.databaseName);
-          } catch (e) {
+          } catch (error) {
             this.#logger.warning(
-              `Failed to checkpoint database '${table.databaseName}' after appending chunk into table '${tableName}' - ${(e as Error)?.message ?? ""}`,
+              `Failed to checkpoint database '${table.databaseName}' after appending chunk into table '${tableName}' - ${(error as Error)?.message ?? ""}`,
               {
                 table: tableFullName,
               }
@@ -385,9 +385,9 @@ export class SqlDuck {
       if (autoCheckpoint && table.databaseName !== undefined) {
         try {
           await dbManager.checkpoint(table.databaseName);
-        } catch (e) {
+        } catch (error) {
           this.#logger.warning(
-            `Failed to checkpoint database '${table.databaseName}' after appending data into table '${tableName}' - ${(e as Error)?.message ?? ""}`,
+            `Failed to checkpoint database '${table.databaseName}' after appending data into table '${tableName}' - ${(error as Error)?.message ?? ""}`,
             {
               table: tableFullName,
             }
@@ -400,19 +400,19 @@ export class SqlDuck {
         `Successfully appended ${totalRows} rows into '${table.getFullName()}' in ${timeMs}ms`,
         {
           table: tableFullName,
-          timeMs: timeMs,
-          totalRows: totalRows,
+          timeMs,
+          totalRows,
         }
       );
 
       return {
         timeMs,
-        totalRows: totalRows,
+        totalRows,
         createTableDDL: ddl,
       };
-    } catch (e) {
+    } catch (error) {
       appender.closeSync();
-      if (signal?.aborted === true && e === signal.reason) {
+      if (signal?.aborted === true && error === signal.reason) {
         this.#logger.warning(
           `Aborted appending data into table '${tableFullName}' after ${totalRows} rows`,
           {
@@ -421,14 +421,14 @@ export class SqlDuck {
           }
         );
         // Not wrapped so callers can check for an AbortError
-        throw e;
+        throw error;
       }
-      const msg = `Failed to append data into table '${table.getFullName()}' - ${(e as Error)?.message ?? ""}`;
+      const msg = `Failed to append data into table '${table.getFullName()}' - ${(error as Error)?.message ?? ""}`;
       this.#logger.error(msg, {
         table: table.getFullName(),
       });
       throw new Error(msg, {
-        cause: e,
+        cause: error,
       });
     } finally {
       if (preserveInsertionOrder !== undefined) {
@@ -436,9 +436,9 @@ export class SqlDuck {
           await this.#conn.run(
             `SET preserve_insertion_order = ${originalPreserveInsertionOrder};`
           );
-        } catch (e) {
+        } catch (error) {
           this.#logger.warning(
-            `Failed to restore preserve_insertion_order to ${originalPreserveInsertionOrder} after appending data into table '${tableName}' - ${(e as Error)?.message ?? ""}`,
+            `Failed to restore preserve_insertion_order to ${originalPreserveInsertionOrder} after appending data into table '${tableName}' - ${(error as Error)?.message ?? ""}`,
             {
               table: tableFullName,
             }

@@ -267,7 +267,7 @@ export function DuckTableLoader({
         </div>
 
         <CardTitle className="flex items-center gap-2 truncate">
-          <TableIcon className="text-muted-foreground size-4 shrink-0" />
+          <TableIcon className="size-4 shrink-0 text-muted-foreground" />
           <span className="truncate font-mono text-sm">{tableName}</span>
         </CardTitle>
 
@@ -280,11 +280,11 @@ export function DuckTableLoader({
         {isLoading && (
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-xs">
+              <span className="text-xs text-muted-foreground">
                 {progress === undefined ? "Processing…" : "Progress"}
               </span>
               {progress !== undefined && (
-                <span className="text-muted-foreground ml-auto text-xs tabular-nums">
+                <span className="ml-auto text-xs text-muted-foreground tabular-nums">
                   {Math.round(progress)}%
                 </span>
               )}
@@ -324,7 +324,7 @@ export function DuckTableLoader({
         {isError && errorMessage && (
           <p
             role="alert"
-            className="bg-destructive/10 text-destructive flex items-start gap-2 rounded-md px-3 py-2 text-xs"
+            className="flex items-start gap-2 rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive"
           >
             <AlertCircleIcon className="mt-0.5 size-3.5 shrink-0" />
             {errorMessage}
@@ -333,7 +333,7 @@ export function DuckTableLoader({
 
         {/* Idle prompt */}
         {status === "idle" && (
-          <p className="text-muted-foreground text-center text-xs">
+          <p className="text-center text-xs text-muted-foreground">
             Waiting for stream…
           </p>
         )}
@@ -361,8 +361,8 @@ function StatCell({
   highlight?: boolean;
 }) {
   return (
-    <div className="bg-muted/40 flex flex-col gap-0.5 rounded-lg px-3 py-2">
-      <dt className="text-muted-foreground text-xs">{label}</dt>
+    <div className="flex flex-col gap-0.5 rounded-lg bg-muted/40 px-3 py-2">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
       <dd
         className={cn(
           "font-mono text-sm font-medium tabular-nums transition-colors",
@@ -377,7 +377,7 @@ function StatCell({
 
 function SkeletonStat() {
   return (
-    <div className="bg-muted/40 flex flex-col gap-1.5 rounded-lg px-3 py-2">
+    <div className="flex flex-col gap-1.5 rounded-lg bg-muted/40 px-3 py-2">
       <Skeleton className="h-3 w-20" />
       <Skeleton className="h-4 w-16" />
     </div>
@@ -388,10 +388,10 @@ function IndeterminateBar() {
   return (
     <div
       aria-hidden="true"
-      className="bg-muted h-1 w-full overflow-hidden rounded-full"
+      className="h-1 w-full overflow-hidden rounded-full bg-muted"
     >
       <div
-        className="bg-primary h-full w-1/3 rounded-full"
+        className="h-full w-1/3 rounded-full bg-primary"
         style={{ animation: "duck-slide 1.4s ease-in-out infinite" }}
       />
       <style>{`

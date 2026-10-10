@@ -1,6 +1,4 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
-import { reset } from "@logtape/logtape";
-import type { LogRecord } from "@logtape/logtape";
 import isInCi from "is-in-ci";
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 

@@ -95,27 +95,43 @@ export const TediousConnUtils = {
     } = params;
     let authConnOptions: AuthConnectionOptions;
     switch (authentication) {
-      case "default":
+      case "default": {
         authConnOptions = {
           userName: user,
-          password: password,
+          password,
         };
         break;
+      }
       case "azure-active-directory-default":
-      case "azure-active-directory-msi-app-service":
+      case "azure-active-directory-msi-app-service": {
         authConnOptions = {
-          clientId: clientId,
+          clientId,
         };
         break;
-      default:
+      }
+      // Not supported yet, listed explicitly so a new tedious authentication type
+      // is caught by the switch-exhaustiveness-check lint rule
+      case "azure-active-directory-access-token":
+      case "azure-active-directory-msi-vm":
+      case "azure-active-directory-password":
+      case "azure-active-directory-service-principal-secret":
+      case "ntlm":
+      case "token-credential": {
         throw new Error(`Unsupported authentication type: ${authentication}`);
+      }
+      // Runtime safety for values coming from an untyped dsn
+      default: {
+        throw new Error(
+          `Unsupported authentication type: ${String(authentication)}`
+        );
+      }
     }
     const baseOptions = {
-      database: database,
-      packetSize: packetSize,
+      database,
+      packetSize,
       port: parsed.port,
       useUTC: useUtc,
-      encrypt: encrypt,
+      encrypt,
       trustServerCertificate,
     };
     const options: typeof baseOptions & {

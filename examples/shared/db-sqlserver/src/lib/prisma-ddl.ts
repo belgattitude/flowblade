@@ -28,9 +28,7 @@ export class PrismaDdl {
         const sanitized = line.trim();
         return sanitized === "" ? null : sanitized;
       })
-      .filter((v) => {
-        return v?.toUpperCase().match(/^(ALTER|CREATE) /);
-      })
+      .filter((v) => v?.toUpperCase().match(/^(ALTER|CREATE) /))
       .filter((v) => v !== null);
 
     const hackedDdls = fixSqlServerNullUniqueIndexes(creationDdls);

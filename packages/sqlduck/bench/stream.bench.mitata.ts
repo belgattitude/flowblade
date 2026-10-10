@@ -22,7 +22,7 @@ const getFakeRowStream = createFakeRowsAsyncIterator({
     return {
       id: rowIdx,
       name: `name-${rowIdx}`,
-      email: email,
+      email,
       bignumber: BigInt(rowIdx),
     };
   },
@@ -32,7 +32,7 @@ async function* mapFakeRowStream(
   stream: ReturnType<typeof getFakeRowStream>
 ): AsyncIterableIterator<z.output<typeof userSchema>> {
   for await (const row of stream) {
-    row.bignumber = row.bignumber + 1n;
+    row.bignumber += 1n;
     yield row;
   }
 }
@@ -48,10 +48,11 @@ boxplot(() => {
       for await (const row of a) {
         count += row.id.length;
       }
-      if (count !== limit)
+      if (count !== limit) {
         throw new Error(
           `Expected ${limit} rows, got ${count} rows from stream`
         );
+      }
       return do_not_optimize(count);
     }).gc("inner");
     bench("stream with mapper 2048", async () => {
@@ -64,10 +65,11 @@ boxplot(() => {
       for await (const row of a) {
         count += row.id.length;
       }
-      if (count !== limit)
+      if (count !== limit) {
         throw new Error(
           `Expected ${limit} rows, got ${count} rows from stream`
         );
+      }
       return do_not_optimize(count);
     }).gc("inner");
 
@@ -83,10 +85,11 @@ boxplot(() => {
       for await (const row of a) {
         count += row.id.length;
       }
-      if (count !== limit)
+      if (count !== limit) {
         throw new Error(
           `Expected ${limit} rows, got ${count} rows from stream`
         );
+      }
       return do_not_optimize(count);
     }).gc("inner");
   });

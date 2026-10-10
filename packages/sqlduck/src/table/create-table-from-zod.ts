@@ -37,18 +37,18 @@ export const createTableFromZod = async <TSchema extends TableSchemaZod>(
     logger.info(`Table '${table.getFullName()}' successfully created`, {
       ddl,
     });
-  } catch (e) {
+  } catch (error) {
     logger.error(
-      `Failed to create table '${table.getFullName()}': ${(e as Error).message}`,
+      `Failed to create table '${table.getFullName()}': ${(error as Error).message}`,
       {
         ddl,
       }
     );
 
     throw new Error(
-      `Failed to create table '${table.getFullName()}': ${(e as Error).message}`,
+      `Failed to create table '${table.getFullName()}': ${(error as Error).message}`,
       {
-        cause: e,
+        cause: error,
       }
     );
   }

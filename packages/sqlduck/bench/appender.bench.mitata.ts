@@ -29,7 +29,7 @@ const getFakeRowStream = createFakeRowsAsyncIterator({
     return {
       id: rowIdx,
       name: `name-${rowIdx}`,
-      email: email,
+      email,
       bignumber: BigInt(rowIdx),
     };
   },

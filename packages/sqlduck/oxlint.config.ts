@@ -6,11 +6,17 @@ export default defineConfig({
   plugins: [],
   overrides: [
     {
+      files: ["*.ts"],
+      rules: {
+        "typescript/require-await": "off",
+      },
+    },
+    {
       // These modules receive loosely typed values (DuckDB values, paths from
       // JS callers) and must branch on their runtime type.
       files: ["src/converter/**", "src/filesystem/**"],
       rules: {
-        "anti-slop/no-runtime-typeof": "off",
+        // "anti-slop/no-runtime-typeof": "off",
       },
     },
     {
@@ -24,8 +30,8 @@ export default defineConfig({
         "src/manager/database/utils/get-already-attached-database-from-error.ts",
       ],
       rules: {
-        "anti-slop/no-runtime-typeof": "off",
-        "anti-slop/no-unknown-parameters": "off",
+        // "anti-slop/no-runtime-typeof": "off",
+        // "anti-slop/no-unknown-parameters": "off",
       },
     },
   ],

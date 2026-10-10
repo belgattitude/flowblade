@@ -21,7 +21,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
         <ReduxStoreProvider>
           <ReactQueryClientProvider>
             <TooltipProvider>
-              <MainLayout className="font-[family-name:var(--font-plus-jakarta-sans)] antialiased">
+              <MainLayout className="font-(family-name:--font-plus-jakarta-sans) antialiased">
                 {children}
               </MainLayout>
             </TooltipProvider>

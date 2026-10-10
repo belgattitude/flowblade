@@ -92,14 +92,14 @@ export class DuckDatabaseManager {
           .join(",") + ")",
         rawSql
       );
-    } catch (e) {
+    } catch (error) {
       // in duckdb > 1.5.5, the attach or replace of a file database now complains
       // Binder Error: Unique file handle conflict: Cannot attach "duckdb_second_attached_file" - the database file "/home/sebastien/github/flowblade/packages/sqlduck/tests/tmp/duckdb_test_reattachable_file.db" is already attached by database "duckdb_first_attached_file"
       if (
         options?.behaviour === "OR REPLACE" &&
         options?.runDetachIfAttachOrReplaceFailWithAlreadyAttached === true
       ) {
-        const alreadyAttached = getAlreadyAttachedDatabaseFromError(e);
+        const alreadyAttached = getAlreadyAttachedDatabaseFromError(error);
         if (alreadyAttached.isAlreadyAttached === true) {
           if (alreadyAttached.dbAlias === restoreCurrentDb) {
             await this.attachIfNotExists({
@@ -112,10 +112,10 @@ export class DuckDatabaseManager {
           await this.detachOrIgnore(alreadyAttached.dbAlias);
           await this.attach(dbParams);
         } else {
-          throw e;
+          throw error;
         }
       } else {
-        throw e;
+        throw error;
       }
     } finally {
       if (restoreCurrentDb !== null && isTempDbNameHackCreated) {
@@ -160,19 +160,17 @@ export class DuckDatabaseManager {
        */
       runDetachIfAttachOrReplaceFailWithAlreadyAttached?: boolean;
     }
-  ) => {
-    return await this.attach(dbParams, {
+  ) =>
+    await this.attach(dbParams, {
       behaviour: "OR REPLACE",
       runDetachIfAttachOrReplaceFailWithAlreadyAttached:
         options?.runDetachIfAttachOrReplaceFailWithAlreadyAttached,
     });
-  };
 
-  attachIfNotExists = async (dbParams: DuckConnectionParams) => {
-    return await this.attach(dbParams, {
+  attachIfNotExists = async (dbParams: DuckConnectionParams) =>
+    await this.attach(dbParams, {
       behaviour: "IF NOT EXISTS",
     });
-  };
 
   /**
    * Check whether a specific database name / alias is currently attached
@@ -208,8 +206,9 @@ export class DuckDatabaseManager {
               from duckdb_databases()
               where database_name = '${dbName}'`
     );
-    if (result.length === 1) {
-      return result[0]!;
+    const [first] = result;
+    if (result.length === 1 && first !== undefined) {
+      return first;
     }
     return null;
   };
@@ -230,8 +229,9 @@ export class DuckDatabaseManager {
               from duckdb_databases()
               where path = ${quoteValue(path)}`
     );
-    if (result.length === 1) {
-      return result[0]!;
+    const [first] = result;
+    if (result.length === 1 && first !== undefined) {
+      return first;
     }
     return null;
   };
@@ -262,12 +262,8 @@ export class DuckDatabaseManager {
   /**
    * Get the currently attached database names
    */
-  showDatabases = async () => {
-    return await this.#executor.getRowObjectsJS(
-      "showDatabases()",
-      `SHOW DATABASES`
-    );
-  };
+  showDatabases = async () =>
+    await this.#executor.getRowObjectsJS("showDatabases()", `SHOW DATABASES`);
 
   /**
    * @throws Error if the database isn't attached
@@ -348,7 +344,7 @@ export class DuckDatabaseManager {
    */
   use = async (dbAlias: string): Promise<true> => {
     const safeAlias = duckValidatorsZod.aliasName.parse(dbAlias);
-    const result = await this.#executor.getRowObjectsJS(
+    await this.#executor.getRowObjectsJS(
       `use(${safeAlias})`,
       `USE ${safeAlias}`
     );
@@ -384,18 +380,18 @@ export class DuckDatabaseManager {
       this.#logger.info(
         `DuckDatabaseManager.createDatabaseFile('${path}') in ${timeMs}ms`,
         {
-          timeMs: timeMs,
-          path: path,
+          timeMs,
+          path,
         }
       );
-    } catch (e) {
+    } catch (error) {
       this.#logger.error(
-        `DuckDatabaseManager.createDatabaseFile('${path}') failed - ${(e as Error)?.message ?? ""}`,
+        `DuckDatabaseManager.createDatabaseFile('${path}') failed - ${(error as Error)?.message ?? ""}`,
         {
-          path: path,
+          path,
         }
       );
-      throw e;
+      throw error;
     }
     return {
       status: "created",

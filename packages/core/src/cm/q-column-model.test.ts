@@ -20,7 +20,7 @@ describe("QColumnModel tests", () => {
     ];
 
     it("should be iterable", () => {
-      const cm = new QColumnModel({ cols: cols });
+      const cm = new QColumnModel({ cols });
       expect([...cm]).toStrictEqual(cols);
     });
   });

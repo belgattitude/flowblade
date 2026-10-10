@@ -8,16 +8,14 @@ export const CopyToClipboard = ({ code }: { code: string }) => {
       console.log("Copied to clipboard");
     } catch (error) {
       console.error("Error copying to clipboard", error);
-    } finally {
-      setTimeout(() => {
-        // do something
-      }, 2000);
     }
   };
 
   return (
     // 2. Wrap the async call in a non-async arrow function that returns true void
     <button
+      type="button"
+      aria-label="Copy to clipboard"
       onClick={() => {
         void copyToClipboard();
       }}

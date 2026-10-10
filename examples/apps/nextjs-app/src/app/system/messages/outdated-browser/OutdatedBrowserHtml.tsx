@@ -277,6 +277,8 @@ export const OutdatedBrowserHtml: FC<Props> = (props) => {
               </svg>
               Download Chrome
             </a>
+            {/* standalone page for outdated browsers: a full page load, next/link needs the client router */}
+            {/* oxlint-disable-next-line nextjs/no-html-link-for-pages */}
             <a href="/" className="btn btn-outline">
               <svg
                 className="icon"

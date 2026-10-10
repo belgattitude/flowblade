@@ -97,7 +97,9 @@ export class DuckMemory {
   };
 
   readonly #applyOrderBy = (query: string, orderBy?: OrderByParams): string => {
-    if (orderBy === undefined) return query;
+    if (orderBy === undefined) {
+      return query;
+    }
     const orderByClause = orderByParams[orderBy];
     if (orderByClause === undefined) {
       throw new Error(`Invalid orderBy parameter: ${orderBy}`);

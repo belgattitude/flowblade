@@ -15,6 +15,6 @@ try {
     console.log(`# Executing ${file}`);
     await executeFile(file);
   }
-} catch (e) {
-  console.error(e);
+} catch (error) {
+  console.error(error);
 }

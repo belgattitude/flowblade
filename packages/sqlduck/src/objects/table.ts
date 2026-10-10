@@ -1,5 +1,3 @@
-import { isDuckdbValidIdentifier } from "../validation/core/is-duckdb-valid-identifier.ts";
-
 /**
  * Fully qualified table information
  */
@@ -45,16 +43,14 @@ export class Table {
     } = this.#fqTable;
     return [database, schema, name].filter(Boolean).join(".");
   };
-  withDatabase = (database: string) => {
-    return new Table({
+  withDatabase = (database: string) =>
+    new Table({
       ...this.#fqTable,
-      database: database,
+      database,
     });
-  };
-  withSchema = (schema: string) => {
-    return new Table({
+  withSchema = (schema: string) =>
+    new Table({
       ...this.#fqTable,
-      schema: schema,
+      schema,
     });
-  };
 }

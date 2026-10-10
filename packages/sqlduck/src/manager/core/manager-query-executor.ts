@@ -34,19 +34,19 @@ export class ManagerQueryExecutor {
       const timeMs = Math.round(Date.now() - startTime);
       const data = result.getRowObjectsJS();
       this.#logger.debug(`${fnName} in ${timeMs}ms`, {
-        timeMs: timeMs,
+        timeMs,
       });
       return data as TRow[];
-    } catch (e) {
-      const msg = `Failed to run "${fnName}" - ${(e as Error)?.message ?? ""}`;
+    } catch (error) {
+      const msg = `Failed to run "${fnName}" - ${(error as Error)?.message ?? ""}`;
       const timeMs = Math.round(Date.now() - startTime);
       this.#logger.error(msg, {
         name: fnName,
         sql: rawSql,
-        timeMs: timeMs,
+        timeMs,
       });
       throw new Error(msg, {
-        cause: e,
+        cause: error,
       });
     }
   };

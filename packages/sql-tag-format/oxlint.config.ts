@@ -6,10 +6,16 @@ export default defineConfig({
   plugins: [],
   overrides: [
     {
+      files: ["*.ts"],
+      rules: {
+        "typescript/require-await": "off",
+      },
+    },
+    {
       // `format` accepts `SqlTag | string`, discriminated at runtime
       files: ["src/sql-formatter.ts"],
       rules: {
-        "anti-slop/no-runtime-typeof": "off",
+        // "anti-slop/no-runtime-typeof": "off",
       },
     },
   ],

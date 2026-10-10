@@ -6,7 +6,9 @@ describe("rowsToColumnsChunk", () => {
   type Row = { id: number; name: string | null };
 
   async function* makeRows(rows: Row[]): AsyncGenerator<Row> {
-    for (const r of rows) yield r;
+    for (const r of rows) {
+      yield r;
+    }
   }
 
   it("yields column chunks according to chunkSize", async () => {
@@ -99,9 +101,9 @@ describe("rowsToColumnsChunk", () => {
       chunkSize: 1,
       transformers: {
         id: (v: number) => v.toString(),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        not_exists: (v: any) => v,
-      } as any,
+        not_exists: (v: unknown) => v,
+        // cast: intentionally passes a key that is not part of the row type
+      } as never,
     });
 
     await expect(Array.fromAsync(gen)).rejects.toThrow(

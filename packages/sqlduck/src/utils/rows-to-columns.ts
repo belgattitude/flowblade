@@ -11,20 +11,25 @@ export async function* rowsToColumns<TRow extends Record<string, unknown>>(
 ): AsyncIterableIterator<TRow[keyof TRow][][]> {
   // Pull the first row to determine column order
   const first = await rows.next();
-  if (first.done === true) return; // empty input → yield nothing
+  if (first.done === true) {
+    return;
+  } // empty input → yield nothing
 
   const keys = Object.keys(first.value) as (keyof TRow)[]; // column order comes from the first row
-  const columns: TRow[keyof TRow][][] = keys.map(() => []);
+  const entries = keys.map((key) => {
+    return { key, values: [] as TRow[keyof TRow][] };
+  });
+  const columns = entries.map((entry) => entry.values);
 
   // push first row values
-  for (const [i, k] of keys.entries()) {
-    columns[i]!.push(first.value[k]);
+  for (const { key, values } of entries) {
+    values.push(first.value[key]);
   }
 
   // consume the rest
   for await (const row of rows) {
-    for (const [i, k] of keys.entries()) {
-      columns[i]!.push(row[k]);
+    for (const { key, values } of entries) {
+      values.push(row[key]);
     }
   }
 

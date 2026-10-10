@@ -1,7 +1,7 @@
 import type * as z from "zod";
 
 // 2. Recursive checker analyzing schema elements according to Zod v4 internal types
-type MapRelaxedZodSchemaField<T extends z.ZodTypeAny> =
+type MapRelaxedZodSchemaField<T extends z.ZodType> =
   // Identify ZodDate
   T extends z.ZodDate
     ? string | Date

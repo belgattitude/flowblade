@@ -86,7 +86,7 @@ export function SystemInfo({
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <CardHeader className="border-b">
         <CardTitle className="flex items-center gap-2">
-          <CpuIcon className="text-muted-foreground size-4 shrink-0" />
+          <CpuIcon className="size-4 shrink-0 text-muted-foreground" />
           <span className="text-sm font-semibold">{title}</span>
         </CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
@@ -96,13 +96,13 @@ export function SystemInfo({
         {/* Memory section */}
         <section className="flex flex-col gap-2">
           <div className="flex items-center gap-1.5">
-            <MemoryStickIcon className="text-muted-foreground size-3.5 shrink-0" />
-            <span className="text-foreground text-xs font-medium">Memory</span>
+            <MemoryStickIcon className="size-3.5 shrink-0 text-muted-foreground" />
+            <span className="text-xs font-medium text-foreground">Memory</span>
           </div>
           {/* Progress bar */}
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-xs">
+              <span className="text-xs text-muted-foreground">
                 {formatBytes(usedMemory)} used of {formatBytes(totalMemory)}
               </span>
               <span
@@ -128,12 +128,12 @@ export function SystemInfo({
           </dl>
         </section>
         {/* Divider */}
-        <div className="bg-border h-px" />
+        <div className="h-px bg-border" />
         {/* CPU / parallelism section */}
         <section className="flex flex-col gap-2">
           <div className="flex items-center gap-1.5">
-            <CpuIcon className="text-muted-foreground size-3.5 shrink-0" />
-            <span className="text-foreground text-xs font-medium">CPU</span>
+            <CpuIcon className="size-3.5 shrink-0 text-muted-foreground" />
+            <span className="text-xs font-medium text-foreground">CPU</span>
           </div>
           <dl className="grid grid-cols-2 gap-2">
             <StatCell
@@ -157,11 +157,11 @@ export function SystemInfo({
         {/* Disk section */}
         {disks && disks.length > 0 && (
           <>
-            <div className="bg-border h-px" />
+            <div className="h-px bg-border" />
             <section className="flex flex-col gap-3">
               <div className="flex items-center gap-1.5">
-                <HardDriveIcon className="text-muted-foreground size-3.5 shrink-0" />
-                <span className="text-foreground text-xs font-medium">
+                <HardDriveIcon className="size-3.5 shrink-0 text-muted-foreground" />
+                <span className="text-xs font-medium text-foreground">
                   Disk
                 </span>
               </div>
@@ -175,7 +175,7 @@ export function SystemInfo({
                   <div key={disk.path} className="flex flex-col gap-1.5">
                     {/* Path label + percentage */}
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted-foreground truncate font-mono text-xs">
+                      <span className="truncate font-mono text-xs text-muted-foreground">
                         {disk.path}
                       </span>
                       <span
@@ -226,8 +226,8 @@ function StatCell({
   valueClassName?: string;
 }) {
   return (
-    <div className="bg-muted/40 flex flex-col gap-0.5 rounded-lg px-3 py-2">
-      <dt className="text-muted-foreground text-xs">{label}</dt>
+    <div className="flex flex-col gap-0.5 rounded-lg bg-muted/40 px-3 py-2">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
       <dd
         className={cn(
           "font-mono text-sm font-medium tabular-nums",
@@ -249,8 +249,8 @@ function MemoryStat({
   highlight?: boolean;
 }) {
   return (
-    <div className="bg-muted/40 flex flex-col gap-0.5 rounded-lg px-3 py-2">
-      <dt className="text-muted-foreground text-xs">{label}</dt>
+    <div className="flex flex-col gap-0.5 rounded-lg bg-muted/40 px-3 py-2">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
       <dd
         className={cn(
           "font-mono text-sm font-medium tabular-nums transition-colors",
