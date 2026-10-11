@@ -37,9 +37,8 @@ jobs:
       - name: 🛟 Doctor
         run: pnpm doctor
 
-      # Currently blocked by pnpm bug
-      #- name: 🛟 Check monorepo duplicates
-      #  run: pnpm dedupe --check
+      - name: 🛟 Check monorepo duplicates
+        run: pnpm dedupe --check
 
       - name: 🛡️ Check for security vulnerabilities
         run: pnpm audit --audit-level moderate
