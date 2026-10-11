@@ -7,8 +7,7 @@ packages:
 nodeLinker: isolated
 packageImportMethod: auto
 savePrefix: ''
-# @todo enable when https://github.com/pnpm/pnpm/issues/16583 is fixed
-#autoDedupe: true
+autoDedupe: true
 forceIgnoresPlatform: false
 ignoreCompatibilityDb: true
 autoInstallPeers: false
@@ -80,7 +79,7 @@ strictDepBuilds: false
 audit:
   ignore:
     - GHSA-vfj7-8cjw-p6xm
-    - GHSA-86w9-cpqp-85rv
+    - GHSA-hp3w-g68c-fv3c
 
 overrides:
   '@opentelemetry/core@<2.8.0': 2.8.0
