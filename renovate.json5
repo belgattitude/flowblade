@@ -4,8 +4,8 @@
   enabled: true,
   // disabled npm deps, cause renovate fails with pnpm
   // https://github.com/renovatebot/renovate/discussions/40942
-  enabledManagers: ["docker-compose", "dockerfile", "github-actions"],
-  // enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
+  // enabledManagers: ["docker-compose", "dockerfile", "github-actions"],
+  enabledManagers: ["npm", "docker-compose", "dockerfile", "github-actions"],
   // postUpdateOptions: ["pnpmDedupe"],
   minimumReleaseAge: "2 days",
 }
