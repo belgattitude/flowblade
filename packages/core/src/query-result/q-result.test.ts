@@ -289,7 +289,7 @@ describe(QResult, () => {
       expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
     });
 
-    it("should return an error when a success result has no rows to map", () => {
+    it("should return an error when a success result has undefined data", () => {
       const mappedResult = new QResult<{ id: number }[] | undefined, QError>(
         {}
       ).map((row) => {
@@ -297,9 +297,34 @@ describe(QResult, () => {
       });
       expect(mappedResult.isError()).toBe(true);
       expect(mappedResult.error).toStrictEqual({
-        message: "mapper: no rows to map",
+        message:
+          "QResult.map(): expected data to be an array of rows, received undefined",
       });
       expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
+    });
+
+    it("should return an error when a success result has null data (untyped runtime)", () => {
+      const mappedResult = new QResult<{ id: number }[], QError>({
+        data: null as unknown as { id: number }[],
+      }).map((row) => {
+        return { id: row.id };
+      });
+      expect(mappedResult.isError()).toBe(true);
+      expect(mappedResult.error).toStrictEqual({
+        message:
+          "QResult.map(): expected data to be an array of rows, received null",
+      });
+      expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
+    });
+
+    it("should map an empty result to an empty array", () => {
+      const mappedResult = new QResult<{ id: number }[], QError>({
+        data: [],
+      }).map((row) => {
+        return { id: row.id };
+      });
+      expect(mappedResult.isOk()).toBe(true);
+      expect(mappedResult.data).toStrictEqual([]);
     });
 
     it("should be chainable", () => {
