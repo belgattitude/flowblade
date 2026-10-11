@@ -1,19 +1,27 @@
 packages:
   - docs
   - examples/*/*
-  - integrations/*
   - packages/*
 
 nodeLinker: isolated
 packageImportMethod: auto
 savePrefix: ''
-autoDedupe: true
-forceIgnoresPlatform: false
-ignoreCompatibilityDb: true
+
+# uncomment the autodedupe and lockfile.includeResolutionSettings
+# when turbo repo prune supports the settings entry in pnpm lock
+#autoDedupe: true
+#lockfile:
+#  includeResolutionSettings: true
 autoInstallPeers: false
 strictPeerDependencies: false
 resolvePeersFromWorkspaceRoot: true
 dedupePeers: true
+# This fixes most typescript errors because of missing peer @types/*
+addMissingPeerTypes: true
+
+forceIgnoresPlatform: false
+ignoreCompatibilityDb: true
+
 # Set it to true for deno
 preferSymlinkedExecutables: true
 resolutionMode: highest
