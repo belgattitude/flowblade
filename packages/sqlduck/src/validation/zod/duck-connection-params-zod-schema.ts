@@ -1,25 +1,33 @@
-import isSafeFilename from "is-safe-filename";
 import * as z from "zod";
 
-import { duckStorageVersionRegexp } from "../core/base-validators.ts";
-import { duckConnectionsOptions } from "../core/duck-connections-options.ts";
+import {
+  duckDbPathMessages,
+  isSafeDbFilename,
+  isSafeDbPathname,
+} from "../core/db-path-validators.ts";
+import { duckConnectionOptionsConstraints as constraints } from "../core/duck-connection-options-constraints.ts";
 import { duckValidatorsZod } from "./duck-validators-zod.ts";
 
 export const duckAllConnectionOptionsZodSchema = z.strictObject({
-  accessMode: z.optional(z.enum(duckConnectionsOptions.accessModes)),
+  accessMode: z.optional(z.enum(constraints.accessMode.values)),
   compress: z.optional(z.boolean()),
-  type: z.optional(z.enum(duckConnectionsOptions.types)),
-  blockSize: z.optional(z.int32().min(16_384).max(262_144)),
-  rowGroupSize: z.optional(z.int32().positive()),
+  type: z.optional(z.enum(constraints.type.values)),
+  blockSize: z.optional(
+    z.int32().min(constraints.blockSize.min).max(constraints.blockSize.max)
+  ),
+  rowGroupSize: z.optional(z.int32().min(constraints.rowGroupSize.min)),
   storageVersion: z.optional(
-    z.string().startsWith("v").regex(duckStorageVersionRegexp)
+    z
+      .string()
+      .startsWith(constraints.storageVersion.prefix)
+      .regex(constraints.storageVersion.pattern)
   ),
-  encryptionKey: z.optional(z.string().min(8)),
-  encryptionCipher: z.optional(
-    z.enum(duckConnectionsOptions.encryptionCiphers)
+  encryptionKey: z.optional(
+    z.string().min(constraints.encryptionKey.minLength)
   ),
+  encryptionCipher: z.optional(z.enum(constraints.encryptionCipher.values)),
   // Attach the database file.db with WAL writes disabled for improved performance:
-  recoveryMode: z.optional(z.enum(duckConnectionsOptions.recoveryMode)),
+  recoveryMode: z.optional(z.enum(constraints.recoveryMode.values)),
 });
 
 export type DuckAllConnectionOptionsZodSchema = z.infer<
@@ -36,37 +44,8 @@ export const duckConnectionParamsZodSchema = z.discriminatedUnion("type", [
     type: z.literal("filesystem"),
     path: z
       .string()
-      .refine(
-        (path) => {
-          const filename = path.replace("\\", "/").split("/").at(-1);
-          return filename !== undefined && isSafeFilename(filename);
-        },
-        {
-          message:
-            "Invalid database filename - it must be a safe filename (no path traversal, no absolute paths, no reserved names, etc.)",
-        }
-      )
-      .refine(
-        (path) => {
-          const pathname =
-            "/" +
-            path
-              .replace("\\", "/")
-              .split("/")
-              .slice(0, -1)
-              .filter(Boolean)
-              .join("/");
-          return (
-            pathname.length > 0 &&
-            pathname.startsWith("/") &&
-            !pathname.includes("..")
-          );
-        },
-        {
-          message:
-            "Invalid database pathname - it must be an absolute path with no traversal",
-        }
-      ),
+      .refine(isSafeDbFilename, { message: duckDbPathMessages.filename })
+      .refine(isSafeDbPathname, { message: duckDbPathMessages.pathname }),
     alias: duckValidatorsZod.aliasName,
     options: z.optional(duckAllConnectionOptionsZodSchema),
   }),

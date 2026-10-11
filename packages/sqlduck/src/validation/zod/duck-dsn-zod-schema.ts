@@ -1,10 +1,7 @@
 import { parseDsn } from "@httpx/dsn-parser";
 import * as z from "zod";
 
-import type {
-  DuckAllConnectionOptions,
-  DuckConnectionParams,
-} from "../core/types.ts";
+import { dsnToConnectionParams } from "../core/dsn-to-connection-params.ts";
 import { duckConnectionParamsZodSchema } from "./duck-connection-params-zod-schema.ts";
 
 export const duckDsnZodSchema = z
@@ -18,20 +15,6 @@ export const duckDsnZodSchema = z
       });
       return z.NEVER;
     }
-
-    const parsed = result.value;
-    const { path, ...options } = (parsed.params ??
-      {}) as DuckAllConnectionOptions & {
-      path?: string;
-    };
-
-    const base = {
-      type: parsed.host,
-      alias: parsed.db,
-      options: { ...options },
-    };
-    return (
-      path === undefined ? base : { ...base, path }
-    ) as DuckConnectionParams;
+    return dsnToConnectionParams(result.value);
   })
   .pipe(duckConnectionParamsZodSchema);
