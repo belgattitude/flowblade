@@ -7,15 +7,17 @@ nodeLinker: isolated
 packageImportMethod: auto
 savePrefix: ''
 
-# put both to true when turbo repo supports it
-autoDedupe: false
-lockfile:
-  includeResolutionSettings: false
-
+# uncomment the autodedupe and lockfile.includeResolutionSettings
+# when turbo repo prune supports the settings entry in pnpm lock
+#autoDedupe: true
+#lockfile:
+#  includeResolutionSettings: true
 autoInstallPeers: false
 strictPeerDependencies: false
 resolvePeersFromWorkspaceRoot: true
 dedupePeers: true
+# This fixes most typescript errors because of missing peer @types/*
+addMissingPeerTypes: true
 
 forceIgnoresPlatform: false
 ignoreCompatibilityDb: true
