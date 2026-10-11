@@ -1,19 +1,25 @@
 packages:
   - docs
   - examples/*/*
-  - integrations/*
   - packages/*
 
 nodeLinker: isolated
 packageImportMethod: auto
 savePrefix: ''
-autoDedupe: true
-forceIgnoresPlatform: false
-ignoreCompatibilityDb: true
+
+# put both to true when turbo repo supports it
+autoDedupe: false
+lockfile:
+  includeResolutionSettings: false
+
 autoInstallPeers: false
 strictPeerDependencies: false
 resolvePeersFromWorkspaceRoot: true
 dedupePeers: true
+
+forceIgnoresPlatform: false
+ignoreCompatibilityDb: true
+
 # Set it to true for deno
 preferSymlinkedExecutables: true
 resolutionMode: highest
