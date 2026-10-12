@@ -1,5 +1,15 @@
 # @flowblade/core
 
+## 0.5.2
+
+### Patch Changes
+
+- [#1430](https://github.com/belgattitude/flowblade/pull/1430) [`73463f0`](https://github.com/belgattitude/flowblade/commit/73463f0740a839db2c7a1e9d80fe6e6737544d89) Thanks [@belgattitude](https://github.com/belgattitude)! - Clearer `QResult.map()` error when a success result has no array of rows to map.
+  
+  - The error message is now `"QResult.map(): expected data to be an array of rows, received <undefined|null|type>"` (was `"mapper: no rows to map"`).
+  - `null` (or any non-array) data now also returns this error instead of a raw `TypeError` (`Cannot read properties of null`).
+  - Empty results (`[]`) are not affected and still map to `[]`.
+
 ## 0.5.1
 
 ### Patch Changes
