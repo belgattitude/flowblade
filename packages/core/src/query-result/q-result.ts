@@ -226,8 +226,10 @@ export class QResult<
       let err: QError | undefined;
       const { rows } = this.#innerResult.value;
       try {
-        if (rows === undefined) {
-          throw new TypeError("mapper: no rows to map");
+        if (!Array.isArray(rows)) {
+          throw new TypeError(
+            `QResult.map(): expected data to be an array of rows, received ${rows === null ? "null" : typeof rows}`
+          );
         }
         returned = rows.map((row) => transformFn(row));
       } catch (error) {
