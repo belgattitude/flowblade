@@ -4,6 +4,8 @@ import type {
 } from "@duckdb/node-api";
 import type { Logger } from "@logtape/logtape";
 
+import { getErrorMessage } from "../../utils/get-error-message.ts";
+
 type DefaultRow = Awaited<
   ReturnType<DuckDBMaterializedResult["getRowObjectsJS"]>
 >[number];
@@ -31,21 +33,23 @@ export class ManagerQueryExecutor {
     const startTime = Date.now();
     try {
       const result = await this.#conn.runAndReadAll(rawSql);
-      const timeMs = Math.round(Date.now() - startTime);
+      const timeMs = Date.now() - startTime;
       const data = result.getRowObjectsJS();
-      this.#logger.debug(`${fnName} in ${timeMs}ms`, {
+      this.#logger.debug("{name} in {timeMs}ms", {
+        name: fnName,
         timeMs,
       });
       return data as TRow[];
     } catch (error) {
-      const msg = `Failed to run "${fnName}" - ${(error as Error)?.message ?? ""}`;
-      const timeMs = Math.round(Date.now() - startTime);
-      this.#logger.error(msg, {
+      const errorMessage = getErrorMessage(error);
+      const timeMs = Date.now() - startTime;
+      this.#logger.error('Failed to run "{name}" - {errorMessage}', {
         name: fnName,
         sql: rawSql,
         timeMs,
+        errorMessage,
       });
-      throw new Error(msg, {
+      throw new Error(`Failed to run "${fnName}" - ${errorMessage}`, {
         cause: error,
       });
     }

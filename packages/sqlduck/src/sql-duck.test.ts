@@ -1,3 +1,6 @@
+import { setTimeout as sleep } from "node:timers/promises";
+
+import type { DuckDBConnection } from "@duckdb/node-api";
 import { DuckdbDatasource, sql } from "@flowblade/source-duckdb";
 import { isParsableStrictIsoDateZ } from "@httpx/assert";
 import { reset } from "@logtape/logtape";
@@ -338,6 +341,114 @@ describe("Duckdb tests", () => {
           count_star: BigInt(limit),
         },
       ]);
+    });
+
+    describe("robustness", () => {
+      const schema = z.object({ id: z.number() });
+      const rows = function* rows() {
+        for (let id = 0; id < 30; id++) {
+          yield { id };
+        }
+      };
+      const getPreserveInsertionOrder = async (conn: DuckDBConnection) => {
+        const reader = await conn.runAndReadAll(
+          "SELECT current_setting('preserve_insertion_order') as value"
+        );
+        return reader.getRowObjects()[0]?.value;
+      };
+
+      it("should restore preserve_insertion_order when the appender can't be created", async ({
+        conn,
+        onTestFinished,
+      }) => {
+        await expect(getPreserveInsertionOrder(conn)).resolves.toBe(true);
+        const spy = vi
+          .spyOn(conn, "createAppender")
+          .mockRejectedValueOnce(new Error("appender failure"));
+        onTestFinished(() => spy.mockRestore());
+
+        await expect(
+          new SqlDuck({ conn }).toTable({
+            table: new Table("test_restore_setting"),
+            schema,
+            rowStream: rows(),
+            autoCheckpoint: false,
+            preserveInsertionOrder: false,
+            createOptions: { create: "CREATE_OR_REPLACE" },
+          })
+        ).rejects.toThrow("appender failure");
+        await expect(getPreserveInsertionOrder(conn)).resolves.toBe(true);
+      });
+
+      it("should await an onChunkAppended callback returning a promise", async ({
+        conn,
+      }) => {
+        let settled = 0;
+        // A regular function (not async) returning a promise
+        const onChunkAppended = () =>
+          sleep(5).then(() => {
+            settled++;
+          });
+        await new SqlDuck({ conn }).toTable({
+          table: new Table("test_cb_promise"),
+          schema,
+          rowStream: rows(),
+          chunkSize: 10,
+          autoCheckpoint: false,
+          onChunkAppended,
+          createOptions: { create: "CREATE_OR_REPLACE" },
+        });
+        expect(settled).toBe(3);
+      });
+
+      it("should reject when an onChunkAppended promise rejects", async ({
+        conn,
+      }) => {
+        await expect(
+          new SqlDuck({ conn }).toTable({
+            table: new Table("test_cb_reject"),
+            schema,
+            rowStream: rows(),
+            chunkSize: 10,
+            autoCheckpoint: false,
+            onChunkAppended: () =>
+              Promise.reject(new Error("callback failure")),
+            createOptions: { create: "CREATE_OR_REPLACE" },
+          })
+        ).rejects.toThrow("callback failure");
+      });
+
+      it("should not hide the original error when the appender can't be closed", async ({
+        conn,
+        onTestFinished,
+      }) => {
+        const createAppender = conn.createAppender.bind(conn);
+        const spy = vi
+          .spyOn(conn, "createAppender")
+          .mockImplementationOnce(async (...args) => {
+            const appender = await createAppender(...args);
+            const closeSync = appender.closeSync.bind(appender);
+            onTestFinished(() => closeSync());
+            appender.appendDataChunk = () => {
+              throw new Error("append failure");
+            };
+            appender.closeSync = () => {
+              throw new Error("close failure");
+            };
+            return appender;
+          });
+        onTestFinished(() => spy.mockRestore());
+
+        await expect(
+          new SqlDuck({ conn }).toTable({
+            table: new Table("test_close_failure"),
+            schema,
+            rowStream: rows(),
+            autoCheckpoint: false,
+            createOptions: { create: "CREATE_OR_REPLACE" },
+          })
+        ).rejects.toThrow("append failure");
+      });
     });
 
     describe("signal", () => {
@@ -894,13 +1005,11 @@ describe("Duckdb tests", () => {
       });
       expect(logBuffer.at(-1)).toMatchObject({
         category: flowbladeLogtapeSqlduckConfig.categories,
-        message: [
-          expect.stringMatching(
-            /Successfully appended 2 rows into 'sql_duck_test.test' in \d+ms/
-          ),
-        ],
+        rawMessage:
+          "Successfully appended {totalRows} rows into '{table}' in {timeMs}ms",
         level: "info",
         properties: {
+          table: "sql_duck_test.test",
           timeMs: expect.any(Number),
           totalRows: 2,
         },
@@ -941,8 +1050,13 @@ describe("Duckdb tests", () => {
 
       expect(logBuffer.at(-1)).toMatchObject({
         category: flowbladeLogtapeSqlduckConfig.categories,
-        message: [expect.stringMatching(regexpError)],
+        rawMessage:
+          "Failed to append data into table '{table}' - {errorMessage}",
         level: "error",
+        properties: {
+          table: "sql_duck_test.test",
+          errorMessage: expect.stringMatching(/bigint/i),
+        },
       });
     });
   });

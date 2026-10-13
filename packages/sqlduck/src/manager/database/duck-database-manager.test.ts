@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import path from "node:path";
 
@@ -232,6 +233,28 @@ describe("DuckDatabaseManagerTest", () => {
         status: "created",
       });
     });
+
+    // The check opens the file from another node process (DuckDB file lock)
+    it.skipIf("Bun" in globalThis || "Deno" in globalThis)(
+      "should release the database file once created",
+      async ({ conn }) => {
+        const dbManager = new DuckDatabaseManager(conn);
+        const dbFile = getFreshDbFile("test-createDatabaseFile-release.db");
+        await dbManager.createDatabaseFile({ path: dbFile });
+
+        // Throws "IO Error: Could not set lock on file" if still held
+        expect(() =>
+          execFileSync(
+            process.execPath,
+            [
+              "-e",
+              `require("@duckdb/node-api").DuckDBInstance.create(${JSON.stringify(dbFile)}, { access_mode: "READ_WRITE" }).then(() => process.exit(0), (e) => { console.error(e.message); process.exit(1); });`,
+            ],
+            { stdio: "pipe" }
+          )
+        ).not.toThrow();
+      }
+    );
   });
 
   describe("getCurrentCatalog", () => {

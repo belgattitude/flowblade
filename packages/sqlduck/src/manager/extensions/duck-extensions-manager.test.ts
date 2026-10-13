@@ -27,6 +27,24 @@ describe("DuckExtensionsManagerTest", () => {
     });
   });
 
+  describe("sql injection", () => {
+    it("should reject an invalid extension name before running it", async ({
+      conn,
+    }) => {
+      const extManager = new DuckExtensionsManager(conn);
+      await expect(extManager.install("fts; DROP TABLE users")).rejects.toThrow(
+        "Invalid extension name 'fts; DROP TABLE users'"
+      );
+    });
+
+    it("should escape the searched name", async ({ conn }) => {
+      const extManager = new DuckExtensionsManager(conn);
+      await expect(
+        extManager.search({ name: "x' OR '1'='1" })
+      ).resolves.toStrictEqual([]);
+    });
+  });
+
   // Installing extensions downloads them from the duckdb extensions repository
   describe("install", { tags: ["network"], timeout: 15_000 }, () => {
     it("should force install an extension", async ({ conn }) => {

@@ -6,6 +6,7 @@ import type * as z from "zod";
 import { FileSystemUtils } from "../../filesystem/file-system-utils.ts";
 import { sqlduckDefaultLogtapeLogger } from "../../logger/sqlduck-default-logtape-logger.ts";
 import { Database } from "../../objects/database.ts";
+import { getErrorMessage } from "../../utils/get-error-message.ts";
 import { quoteValue } from "../../utils/quote-value.ts";
 import type { DuckConnectionParams } from "../../validation/core/types.ts";
 import { duckConnectionParamsZodSchema } from "../../validation/zod/duck-connection-params-zod-schema.ts";
@@ -374,11 +375,16 @@ export class DuckDatabaseManager {
     const instanceCache = new DuckDBInstanceCache();
     try {
       const instance = await instanceCache.getOrCreateInstance(path);
-      const conn = await instance.connect();
-      conn.closeSync();
-      const timeMs = Math.round(Date.now() - startTime);
+      try {
+        const conn = await instance.connect();
+        conn.closeSync();
+      } finally {
+        // Release the database file (handle and lock) once created
+        instance.closeSync();
+      }
+      const timeMs = Date.now() - startTime;
       this.#logger.info(
-        `DuckDatabaseManager.createDatabaseFile('${path}') in ${timeMs}ms`,
+        "DuckDatabaseManager.createDatabaseFile('{path}') in {timeMs}ms",
         {
           timeMs,
           path,
@@ -386,9 +392,10 @@ export class DuckDatabaseManager {
       );
     } catch (error) {
       this.#logger.error(
-        `DuckDatabaseManager.createDatabaseFile('${path}') failed - ${(error as Error)?.message ?? ""}`,
+        "DuckDatabaseManager.createDatabaseFile('{path}') failed - {errorMessage}",
         {
           path,
+          errorMessage: getErrorMessage(error),
         }
       );
       throw error;

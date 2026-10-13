@@ -77,5 +77,20 @@ describe("DuckDataBaseManagerAttachCommand", () => {
         expect(cmd.getRawSql()).toStrictEqual(expectedSql);
       }
     );
+
+    it("should escape the quotes of the path and string options", () => {
+      const cmd = new DuckDatabaseAttachCommand(
+        {
+          type: "filesystem",
+          alias: "my_db",
+          path: "/tmp/it's/duckdb.db",
+          options: { encryptionKey: "key'); DROP TABLE x; --" },
+        },
+        {}
+      );
+      expect(cmd.getRawSql()).toBe(
+        "ATTACH '/tmp/it''s/duckdb.db' AS my_db (ENCRYPTION_KEY 'key''); DROP TABLE x; --')"
+      );
+    });
   });
 });

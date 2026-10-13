@@ -42,17 +42,21 @@ describe(createTableFromZod, () => {
       });
       expect(logBuffer[0]).toMatchObject({
         category: flowbladeLogtapeSqlduckConfig.categories,
-        message: ["Generate DDL for table 'test'"],
+        rawMessage: "Generate DDL for table '{table}'",
+        message: ["Generate DDL for table '", "test", "'"],
         level: "debug",
         properties: {
+          table: "test",
           ddl,
         },
       });
       expect(logBuffer[1]).toMatchObject({
         category: flowbladeLogtapeSqlduckConfig.categories,
-        message: ["Table 'test' successfully created"],
+        rawMessage: "Table '{table}' successfully created",
+        message: ["Table '", "test", "' successfully created"],
         level: "info",
         properties: {
+          table: "test",
           ddl,
         },
       });
@@ -77,9 +81,11 @@ describe(createTableFromZod, () => {
 
       expect(logBuffer[1]).toMatchObject({
         category: flowbladeLogtapeSqlduckConfig.categories,
-        message: [errMessage],
+        rawMessage: "Failed to create table '{table}': {errorMessage}",
         level: "error",
         properties: {
+          table: "test",
+          errorMessage: 'Catalog Error: Table with name "test" already exists!',
           ddl: expect.stringContaining("CREATE TABLE"),
         },
       });

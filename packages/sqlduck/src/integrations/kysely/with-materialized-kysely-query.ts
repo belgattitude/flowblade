@@ -6,6 +6,7 @@ import { DuckdbDatasource } from "@flowblade/source-duckdb";
 import type { Table } from "../../objects/table.ts";
 import { SqlDuck, type ToTableResult } from "../../sql-duck.ts";
 import { createRandomTable } from "../../table/create-random-table.ts";
+import { getErrorMessage } from "../../utils/get-error-message.ts";
 import { isDuckdbValidIdentifier } from "../../validation/core/is-duckdb-valid-identifier.ts";
 import type { KyselyQueryWithZodSchema } from "./kysely-query-with-zod-schema.ts";
 
@@ -25,12 +26,18 @@ type Params<TData extends unknown[]> = {
    */
   schema?: string;
   /**
+   * Abort the materialization: stops the kysely query stream and `toTable`.
+   * Also given to `query`, to abort the duckdb query (ie: `dsDuck.query(sql, { signal })`).
+   */
+  signal?: AbortSignal;
+  /**
    * Query to run in duckdb on the materialized table.
    * Its rows type is the one returned by `withMaterializedKyselyQuery`.
    */
   query: (options: {
     dsDuck: DuckdbDatasource;
     table: Table;
+    signal?: AbortSignal;
   }) => AsyncQResult<TData>;
 };
 
@@ -76,7 +83,7 @@ export const withMaterializedKyselyQuery = async <
 >(
   params: Params<TData>
 ): AsyncQResult<TData> => {
-  const { duckConn, table, query, database, schema } = params;
+  const { duckConn, table, query, database, schema, signal } = params;
   // names are interpolated as-is in the DDL and in the final DROP statement
   for (const [kind, name] of [
     ["database", database],
@@ -103,22 +110,27 @@ export const withMaterializedKyselyQuery = async <
         conn: dsDuck.getConnection(),
       }).toTable({
         chunkSize,
-        rowStream: table.getQuery().stream({ chunkSize }),
+        rowStream: table.getQuery().stream({ chunkSize, signal }),
         schema: table.getSchema(),
         table: materializedTable,
         autoCheckpoint: materializedTable.databaseName !== undefined,
+        signal,
       });
     } catch (error) {
-      const reason = error instanceof Error ? error.message : String(error);
       return createQResultError(
         {
-          message: `Can't materialize table ${materializedTable.getFullName()} - ${reason}`,
+          message: `Can't materialize table ${materializedTable.getFullName()} - ${getErrorMessage(error)}`,
+          cause: error,
         },
         new QMeta({})
       );
     }
 
-    const queryResult = await query({ dsDuck, table: materializedTable });
+    const queryResult = await query({
+      dsDuck,
+      table: materializedTable,
+      signal,
+    });
     if (!queryResult.error) {
       queryResult.meta.prependSpan(
         createMaterializationSpan({

@@ -22,5 +22,13 @@ describe("DuckSettingsManagerTest", () => {
         temp_directory: expect.stringMatching(/.+/),
       });
     });
+
+    it("should not run sql injected in a setting name", async ({ conn }) => {
+      const settingsManager = new DuckSettingsManager(conn);
+      // Escaped: read as an (unknown) setting name, not as sql
+      await expect(
+        settingsManager.getCurrentSettings(["threads') as x; SELECT ('1"])
+      ).rejects.toThrow(/unrecognized configuration parameter/i);
+    });
   });
 });

@@ -1,6 +1,7 @@
 import { assertNever } from "@httpx/assert";
 import { isPlainObject } from "@httpx/plain-object";
 
+import { quoteValue } from "../../../utils/quote-value.ts";
 import type {
   DuckAllConnectionOptions,
   DuckConnectionParams,
@@ -35,7 +36,7 @@ export class DuckDatabaseAttachCommand implements IGetRawSql {
         break;
       }
       case "filesystem": {
-        parts.push(`'${dbParams.path}'`);
+        parts.push(quoteValue(dbParams.path));
         break;
       }
       default: {
@@ -74,19 +75,19 @@ export class DuckDatabaseAttachCommand implements IGetRawSql {
             break;
           }
           case "storageVersion": {
-            options.push(`STORAGE_VERSION '${value}'`);
+            options.push(`STORAGE_VERSION ${quoteValue(String(value))}`);
             break;
           }
           case "encryptionCipher": {
-            options.push(`ENCRYPTION_CIPHER '${value}'`);
+            options.push(`ENCRYPTION_CIPHER ${quoteValue(String(value))}`);
             break;
           }
           case "encryptionKey": {
-            options.push(`ENCRYPTION_KEY '${value}'`);
+            options.push(`ENCRYPTION_KEY ${quoteValue(String(value))}`);
             break;
           }
           case "recoveryMode": {
-            options.push(`RECOVERY_MODE '${value}'`);
+            options.push(`RECOVERY_MODE ${quoteValue(String(value))}`);
             break;
           }
           default:
