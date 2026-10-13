@@ -13,4 +13,7 @@ export const oxfmtDefaultConfig = defineConfig({
     // because changesets generates it on release
     "CHANGELOG.md",
   ],
+  sortPackageJson: {
+    sortScripts: true,
+  },
 });

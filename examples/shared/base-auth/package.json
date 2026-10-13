@@ -9,15 +9,15 @@
   },
   "scripts": {
     "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "codegen-db": "tsx scripts/generate-db-base-auth-types.ts",
+    "format": "oxfmt --write",
+    "generate-better-auth-migrations": "better-auth generate",
+    "lint": "ultracite check",
+    "lint-fix": "ultracite fix",
     "test": "vitest run",
     "test-unit": "vitest run",
     "test-unit-watch": "vitest --ui",
-    "generate-better-auth-migrations": "better-auth generate",
-    "codegen-db": "tsx scripts/generate-db-base-auth-types.ts",
-    "lint": "ultracite check",
-    "lint-fix": "ultracite fix",
-    "format": "oxfmt --write"
+    "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
     "@better-auth/sso": "1.7.7",

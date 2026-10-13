@@ -32,9 +32,9 @@
   },
   "scripts": {
     "clean": "rimraf --glob ./dist ./build ./coverage './tsconfig*.tsbuildinfo'",
+    "format": "oxfmt --write",
     "lint": "ultracite check",
     "lint-fix": "ultracite fix",
-    "format": "oxfmt --write",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {},

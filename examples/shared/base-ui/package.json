@@ -14,21 +14,21 @@
     "./hooks/*": "./src/hooks/*.ts"
   },
   "scripts": {
+    "build-storybook": "storybook build",
+    "bump-ui": "shadcn add --all --overwrite -c . && pnpm lint-fix",
+    "bump-ux": "shadcn add sidebar-07 -o && pnpm lint-fix",
+    "check": "ultracite check",
     "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "doctor": "react-doctor",
+    "fix": "ultracite fix",
+    "format": "oxfmt --write",
+    "lint": "ultracite check",
+    "lint-fix": "ultracite fix",
+    "storybook": "storybook dev -p 6006",
     "test": "vitest run",
     "test-unit": "vitest run",
     "test-unit-watch": "vitest --ui",
-    "bump-ui": "shadcn add --all --overwrite -c . && pnpm lint-fix",
-    "bump-ux": "shadcn add sidebar-07 -o && pnpm lint-fix",
-    "lint": "ultracite check",
-    "lint-fix": "ultracite fix",
-    "format": "oxfmt --write",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "doctor": "react-doctor",
-    "check": "ultracite check",
-    "fix": "ultracite fix"
+    "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",

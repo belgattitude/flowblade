@@ -24,13 +24,13 @@
   },
   "scripts": {
     "clean": "rimraf ./.next ./coverage ./tsconfig.tsbuildinfo",
+    "format": "oxfmt --write",
+    "lint": "ultracite check",
+    "lint-fix": "ultracite fix",
     "test": "vitest run",
     "test-unit": "vitest run",
     "test-unit-watch": "vitest --ui",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
-    "lint": "ultracite check",
-    "lint-fix": "ultracite fix",
-    "format": "oxfmt --write"
+    "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "2.34.2",
