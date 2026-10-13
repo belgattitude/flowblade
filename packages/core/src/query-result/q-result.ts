@@ -243,6 +243,7 @@ export class QResult<
         }
         err = {
           message,
+          cause: error,
         };
       }
       const meta = this.#meta.withSpan({

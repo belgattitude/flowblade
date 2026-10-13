@@ -277,13 +277,15 @@ describe(QResult, () => {
 
     it("should return an error when the transform function throws", () => {
       const successResult = createSuccessResult();
+      const thrown = new Error("Hello");
       const mappedResult = successResult.map((_data) => {
         vi.advanceTimersByTime(10);
-        throw new Error("Hello");
+        throw thrown;
       });
       expect(mappedResult.isError()).toBe(true);
       expect(mappedResult.error).toStrictEqual({
         message: "Hello",
+        cause: thrown,
       });
       const span = mappedResult.meta.getLatestSpan();
       expect(span?.type).toBe("map");
@@ -298,6 +300,7 @@ describe(QResult, () => {
       expect(mappedResult.isError()).toBe(true);
       expect(mappedResult.error).toStrictEqual({
         message: "Hello string",
+        cause: "Hello string",
       });
     });
 
@@ -310,6 +313,7 @@ describe(QResult, () => {
       expect(mappedResult.isError()).toBe(true);
       expect(mappedResult.error).toStrictEqual({
         message: "mapper: unknown error",
+        cause: [new Error("first"), new Error("second")],
       });
       expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
     });
@@ -324,6 +328,7 @@ describe(QResult, () => {
       expect(mappedResult.error).toStrictEqual({
         message:
           "QResult.map(): expected data to be an array of rows, received undefined",
+        cause: expect.any(TypeError),
       });
       expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
     });
@@ -338,6 +343,7 @@ describe(QResult, () => {
       expect(mappedResult.error).toStrictEqual({
         message:
           "QResult.map(): expected data to be an array of rows, received null",
+        cause: expect.any(TypeError),
       });
       expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
     });
