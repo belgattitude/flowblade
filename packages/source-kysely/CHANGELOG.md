@@ -1,5 +1,33 @@
 # @flowblade/source-kysely
 
+## 1.10.0
+
+### Minor Changes
+
+- [#1433](https://github.com/belgattitude/flowblade/pull/1433) [`8e2dee7`](https://github.com/belgattitude/flowblade/commit/8e2dee7b71b6bdbf8368a8099abf7c0b36bd0b24) Thanks [@belgattitude](https://github.com/belgattitude)! - Keep the driver error as cause and support aborting queries.
+  
+  - `query()` failures keep the original driver error as `error.cause` (ie: the SQL Server error `number`), `queryOrThrow()` rethrows with it as error `cause`.
+  - `query()` and `stream()` accept an abort `signal`, passed to Kysely. An aborted `query()` returns an error result, an aborted `stream()` throws.
+  - New `inflightQueryAbortStrategy` datasource option (overridable per query) to choose what happens to an in-flight query when aborted: `'ignore query'` (Kysely default, keeps running on the database), `'cancel query'` (cancelled on the database, ie: SQL Server) or `'kill session'`.
+  - New `logParams` datasource option (default `true`): set it to `false` to leave the query params out of the logs when they might contain sensitive data. Params stay available in the result meta.
+
+- [#1433](https://github.com/belgattitude/flowblade/pull/1433) [`8e2dee7`](https://github.com/belgattitude/flowblade/commit/8e2dee7b71b6bdbf8368a8099abf7c0b36bd0b24) Thanks [@belgattitude](https://github.com/belgattitude)! - Require Node.js `>=22.18.0` (was `>=20.9.0`), aligned with `@flowblade/core`. Node.js 20 is end of life.
+
+### Patch Changes
+
+- [#1433](https://github.com/belgattitude/flowblade/pull/1433) [`8e2dee7`](https://github.com/belgattitude/flowblade/commit/8e2dee7b71b6bdbf8368a8099abf7c0b36bd0b24) Thanks [@belgattitude](https://github.com/belgattitude)! - Fix `KyselyDatasource.stream()` logging.
+  
+  - A failed stream now only logs the error, it no longer also logs an info `Streaming query "..." executed` message.
+  - `affectedRows` in the stream logs is now the number of rows streamed (was always `0`).
+
+- [#1433](https://github.com/belgattitude/flowblade/pull/1433) [`8e2dee7`](https://github.com/belgattitude/flowblade/commit/8e2dee7b71b6bdbf8368a8099abf7c0b36bd0b24) Thanks [@belgattitude](https://github.com/belgattitude)! - Use logtape placeholders in all log messages, the rendered messages are unchanged except the stream success one.
+  
+  - Error messages are passed as an `errorMessage` property (`Query "{queryName}" failed: {errorMessage}`), a driver message containing `{...}` is no longer read as a placeholder.
+  - `stream()` messages use `{queryName}`, the success message now reports the streamed rows: `Streaming query "{queryName}" executed in {timeMs}ms, streamed {affectedRows} row(s)`.
+- Updated dependencies [[`8e2dee7`](https://github.com/belgattitude/flowblade/commit/8e2dee7b71b6bdbf8368a8099abf7c0b36bd0b24), [`8e2dee7`](https://github.com/belgattitude/flowblade/commit/8e2dee7b71b6bdbf8368a8099abf7c0b36bd0b24)]:
+  - @flowblade/core@0.6.0
+  - @flowblade/sql-tag@0.5.0
+
 ## 1.9.5
 
 ### Patch Changes

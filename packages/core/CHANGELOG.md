@@ -1,5 +1,17 @@
 # @flowblade/core
 
+## 0.6.0
+
+### Minor Changes
+
+- [#1433](https://github.com/belgattitude/flowblade/pull/1433) [`8e2dee7`](https://github.com/belgattitude/flowblade/commit/8e2dee7b71b6bdbf8368a8099abf7c0b36bd0b24) Thanks [@belgattitude](https://github.com/belgattitude)! - Add an optional error `cause` to `QError` and an optional abort `signal` to `QueryOptions`.
+  
+  - `QError.cause` holds the original error (ie: the driver error) so driver specific details, like error codes, can be inspected.
+  - `QResult.getOrThrow()` now throws with the `QError` cause as error `cause`.
+  - `QResult.map()` errors now keep the thrown value as `cause`.
+  - `QResult.toJsonifiable()` leaves the `cause` out, so driver internals aren't sent to clients.
+  - `QueryOptions.signal` (and so `QueryStreamOptions.signal`) lets datasources abort a query, support depends on the datasource.
+
 ## 0.5.2
 
 ### Patch Changes
