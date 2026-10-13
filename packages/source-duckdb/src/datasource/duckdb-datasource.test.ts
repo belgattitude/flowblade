@@ -11,29 +11,17 @@ import {
   expect,
   expectTypeOf,
   describe,
-  it,
   vi,
 } from "vitest";
 
+import { duckTest as it } from "../../tests/utils/duck-test.ts";
 import {
   DuckdbDatasource,
   flowbladeLogtapeDuckdbConfig,
   sql,
-} from "../../../src";
-import { createDuckDBE2EMemoryDb } from "../utils/create-duckdb-e2e-memory-db";
+} from "../index.ts";
 
-describe("DuckDBAsyncDatasource e2e", async () => {
-  let ds: DuckdbDatasource;
-
-  beforeEach(async () => {
-    const duckdb = await createDuckDBE2EMemoryDb();
-    ds = new DuckdbDatasource({ connection: duckdb });
-  });
-
-  afterEach(() => {
-    ds.getConnection().closeSync();
-  });
-
+describe(DuckdbDatasource, () => {
   describe("query", () => {
     const params = {
       min: 10,
@@ -61,18 +49,18 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       AND createdAt < ${params.createdAt}::TIMESTAMPTZ
     `;
 
-    it("should return expected data", async () => {
+    it("should return expected data", async ({ ds }) => {
       const result = await ds.query(rawSql);
-      // throw new Error('cool');
       const { data, error } = result;
 
       expect(error).toBeUndefined();
-      expect(data!).toHaveLength(90);
+      expect.assert(data);
+      expect(data).toHaveLength(90);
       expect(data).toMatchSnapshot();
-      expectTypeOf(data!).toEqualTypeOf<Row[]>();
+      expectTypeOf(data).toEqualTypeOf<Row[]>();
     });
 
-    it("should return expected meta", async () => {
+    it("should return expected meta", async ({ ds }) => {
       const result = await ds.query(rawSql);
       const { meta } = result;
       expect(meta.getSpans()).toHaveLength(1);
@@ -88,13 +76,13 @@ describe("DuckDBAsyncDatasource e2e", async () => {
   });
 
   describe("queryOrThrow", () => {
-    it("should not throw when the query is ok", async () => {
+    it("should not throw when the query is ok", async ({ ds }) => {
       const rawSql = sql<{ ok: number }>`SELECT 1 as ok`;
       const { data } = await ds.queryOrThrow(rawSql);
       expect(data).toStrictEqual([{ ok: 1 }]);
     });
 
-    it("should throw when the query couldn't be executed", async () => {
+    it("should throw when the query couldn't be executed", async ({ ds }) => {
       const rawSql = sql<{ ok: number }>`SELECT FRM 1`;
       await expect(
         ds.queryOrThrow(rawSql, {
@@ -107,7 +95,7 @@ describe("DuckDBAsyncDatasource e2e", async () => {
   });
 
   describe("Error cause", () => {
-    it("should keep the duckdb error as the error cause", async () => {
+    it("should keep the duckdb error as the error cause", async ({ ds }) => {
       const result = await ds.query(sql`SELECT FRM 1`);
       expect(result.error).toStrictEqual({
         message: expect.stringContaining("Parser Error"),
@@ -119,7 +107,9 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       });
     });
 
-    it("should throw with the duckdb error as cause in queryOrThrow", async () => {
+    it("should throw with the duckdb error as cause in queryOrThrow", async ({
+      ds,
+    }) => {
       const result = await ds.query(sql`SELECT FRM 1`);
       await expect(ds.queryOrThrow(sql`SELECT FRM 1`)).rejects.toThrow(
         expect.objectContaining({ cause: result.error?.cause })
@@ -128,7 +118,7 @@ describe("DuckDBAsyncDatasource e2e", async () => {
   });
 
   describe("Abort signal", () => {
-    it("should interrupt an in-flight query", async () => {
+    it("should interrupt an in-flight query", async ({ ds }) => {
       const start = Date.now();
       const result = await ds.query(
         sql`SELECT count(*) FROM range(100000000000) t1`,
@@ -144,7 +134,9 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       expect(data).toStrictEqual([{ ok: 1 }]);
     });
 
-    it("should not run the query when the signal is already aborted", async () => {
+    it("should not run the query when the signal is already aborted", async ({
+      ds,
+    }) => {
       const result = await ds.query(
         sql`CREATE TABLE aborted AS SELECT 1 as a`,
         {
@@ -166,7 +158,7 @@ describe("DuckDBAsyncDatasource e2e", async () => {
     // More rows than a DuckDB chunk (2048)
     const rowsSql = sql<Row>`SELECT range::INTEGER as id, 'name-' || range as name FROM range(5000)`;
 
-    const createLoggedDatasource = () => {
+    const createLoggedDatasource = (ds: DuckdbDatasource) => {
       const logger = {
         debug: vi.fn<() => void>(),
         info: vi.fn<() => void>(),
@@ -182,7 +174,7 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       };
     };
 
-    it("should stream the same rows as query", async () => {
+    it("should stream the same rows as query", async ({ ds }) => {
       const streamed = await Array.fromAsync(ds.stream(rowsSql));
       const { data } = await ds.queryOrThrow(rowsSql);
       expect(streamed).toHaveLength(5000);
@@ -190,8 +182,10 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       expectTypeOf(streamed).toEqualTypeOf<Row[]>();
     });
 
-    it("should log the execution once the stream is fully consumed", async () => {
-      const { logger, loggedDs } = createLoggedDatasource();
+    it("should log the execution once the stream is fully consumed", async ({
+      ds,
+    }) => {
+      const { logger, loggedDs } = createLoggedDatasource(ds);
       await Array.fromAsync(loggedDs.stream(rowsSql, { name: "rows" }));
       expect(logger.info).toHaveBeenCalledExactlyOnceWith(
         'Streaming query "{queryName}" executed in {timeMs}ms, streamed {affectedRows} row(s)',
@@ -204,8 +198,8 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       expect(logger.error).not.toHaveBeenCalled();
     });
 
-    it("should support leaving the stream early", async () => {
-      const { logger, loggedDs } = createLoggedDatasource();
+    it("should support leaving the stream early", async ({ ds }) => {
+      const { logger, loggedDs } = createLoggedDatasource(ds);
       for await (const row of loggedDs.stream(rowsSql)) {
         expect(row).toStrictEqual({ id: 0, name: "name-0" });
         break;
@@ -221,8 +215,10 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       expect(data).toStrictEqual([{ ok: 1 }]);
     });
 
-    it("should only log the error and throw with the duckdb error as cause when the query fails", async () => {
-      const { logger, loggedDs } = createLoggedDatasource();
+    it("should only log the error and throw with the duckdb error as cause when the query fails", async ({
+      ds,
+    }) => {
+      const { logger, loggedDs } = createLoggedDatasource(ds);
       await expect(
         Array.fromAsync(loggedDs.stream(sql`SELECT FRM 1`, { name: "nok" }))
       ).rejects.toThrow(
@@ -241,7 +237,9 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       expect(logger.info).not.toHaveBeenCalled();
     });
 
-    it("should not run the query when the signal is already aborted", async () => {
+    it("should not run the query when the signal is already aborted", async ({
+      ds,
+    }) => {
       await expect(
         Array.fromAsync(
           ds.stream(sql`CREATE TABLE aborted_stream AS SELECT 1 as a`, {
@@ -257,7 +255,7 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       expect(data).toStrictEqual([{ count: 0 }]);
     });
 
-    it("should stop between chunks when aborted", async () => {
+    it("should stop between chunks when aborted", async ({ ds }) => {
       const controller = new AbortController();
       let received = 0;
       await expect(async () => {
@@ -276,7 +274,9 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       expect(data).toStrictEqual([{ ok: 1 }]);
     });
 
-    it("should interrupt a chunk being fetched when aborted", async () => {
+    it("should interrupt a chunk being fetched when aborted", async ({
+      ds,
+    }) => {
       const start = Date.now();
       await expect(
         Array.fromAsync(
@@ -286,6 +286,41 @@ describe("DuckDBAsyncDatasource e2e", async () => {
         )
       ).rejects.toThrow(/Interrupted/);
       expect(Date.now() - start).toBeLessThan(5000);
+    });
+  });
+
+  describe("logParams", () => {
+    it("should leave the params out of the logs when disabled", async ({
+      ds,
+    }) => {
+      const logger = {
+        debug: vi.fn<() => void>(),
+        info: vi.fn<() => void>(),
+        error: vi.fn<() => void>(),
+        warn: vi.fn<() => void>(),
+      };
+      const secretDs = new DuckdbDatasource({
+        connection: ds.getConnection(),
+        logger: logger as never,
+        logParams: false,
+      });
+      const secret = "secret-value";
+      const query = sql<{ v: string }>`SELECT ${secret} as v`;
+
+      const { meta } = await secretDs.queryOrThrow(query);
+      await Array.fromAsync(secretDs.stream(query));
+
+      const logged = [
+        ...logger.debug.mock.calls,
+        ...logger.info.mock.calls,
+      ] as unknown[][];
+      expect(logged).toHaveLength(4);
+      for (const [, properties] of logged) {
+        expect(properties).not.toHaveProperty("params");
+      }
+      expect(JSON.stringify(logged)).not.toContain(secret);
+      // Still available in the result meta
+      expect(meta.getSpans()[0]).toMatchObject({ params: [secret] });
     });
   });
 
@@ -325,11 +360,11 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       logBuffer = [];
     });
 
-    it("should log success", async () => {
+    it("should log success", async ({ ds }) => {
       const { meta } = await ds.query(sql`SELECT 'test'`, {
         name: "TEST",
       });
-      expect(logBuffer[0]!).toMatchObject({
+      expect(logBuffer[0]).toMatchObject({
         category: flowbladeLogtapeDuckdbConfig.categories,
         level: "debug",
         rawMessage: 'Executing query "{queryName}"',
@@ -340,7 +375,7 @@ describe("DuckDBAsyncDatasource e2e", async () => {
           params: [],
         },
       });
-      expect(logBuffer[1]!).toMatchObject({
+      expect(logBuffer[1]).toMatchObject({
         category: flowbladeLogtapeDuckdbConfig.categories,
         level: "info",
         rawMessage:
@@ -364,11 +399,11 @@ describe("DuckDBAsyncDatasource e2e", async () => {
       });
     });
 
-    it("should log error", async () => {
+    it("should log error", async ({ ds }) => {
       const { meta } = await ds.query(sql`SELECT err`, {
         name: "ERROR",
       });
-      expect(logBuffer[0]!).toMatchObject({
+      expect(logBuffer[0]).toMatchObject({
         category: flowbladeLogtapeDuckdbConfig.categories,
         level: "debug",
         rawMessage: 'Executing query "{queryName}"',
@@ -379,7 +414,7 @@ describe("DuckDBAsyncDatasource e2e", async () => {
           params: [],
         },
       });
-      expect(logBuffer[1]!).toMatchObject({
+      expect(logBuffer[1]).toMatchObject({
         category: flowbladeLogtapeDuckdbConfig.categories,
         level: "error",
         message: [
