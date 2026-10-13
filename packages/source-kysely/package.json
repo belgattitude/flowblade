@@ -32,6 +32,7 @@
   "scripts": {
     "bench": "vitest bench --run",
     "bench-codspeed": "cross-env CODSPEED=1 vitest bench --run",
+    "bench-e2e": "dotenvx run --ignore=MISSING_ENV_FILE -f .env.test.local -f env.test -- vitest bench --config=vitest.e2e.config.ts --run",
     "bench-watch": "vitest bench",
     "build": "tsdown",
     "build-release": "tsdown",
@@ -83,7 +84,6 @@
     "@vitest/ui": "5.0.4",
     "browserslist": "4.29.3",
     "browserslist-to-esbuild": "2.1.1",
-    "core-js": "3.50.0",
     "cross-env": "10.1.0",
     "es-check": "9.8.1",
     "esbuild": "0.28.2",

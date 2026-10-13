@@ -27,14 +27,7 @@ export default defineConfig({
     ],
     // Exclude specific packages or skills
     exclude: [
-        // Exclude all skills from a package
-        // '@some/package',
-        // Exclude all skills from packages matching a wildcard pattern
-        // '@some/*',
-        // Exclude specific skills from packages matching a wildcard pattern
-        // { package: '@some/*', skills: ['integration'] },
+        { package: '@reduxjs/toolkit', skills: ['*'] },
         { package: 'react-doctor', skills: ['improve-threejs'] },
-        // Exclude specific skills from a package
-        // { package: '@slidev/cli', skills: ['presenter-mode'] },
     ],
 })

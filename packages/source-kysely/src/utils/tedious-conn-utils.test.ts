@@ -28,20 +28,25 @@ describe("TediousConnUtils", () => {
       });
     });
 
-    it("should error when packetSize isn't a power of 2", () => {
-      const jdbcDsn =
-        "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false;packetSize=4097";
-      expect(() => TediousConnUtils.fromJdbcDsn(jdbcDsn)).toThrow(
-        "The packetSize must be a valid power of 2"
-      );
-    });
-
-    it("should error when packetSize is lower than 512", () => {
-      const jdbcDsn =
-        "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false;packetSize=256";
-      expect(() => TediousConnUtils.fromJdbcDsn(jdbcDsn)).toThrow(
-        "packetSize be a number greater than 51"
-      );
+    it.for([
+      {
+        reason: "isn't a power of 2",
+        packetSize: 4097,
+        error: "The packetSize must be a valid power of 2",
+      },
+      {
+        reason: "is lower than 512",
+        packetSize: 256,
+        error: "packetSize be a number greater than 512",
+      },
+      {
+        reason: "is greater than 32768",
+        packetSize: 65_536,
+        error: "packetSize be a lower than 32768",
+      },
+    ])("should error when packetSize $reason", ({ packetSize, error }) => {
+      const jdbcDsn = `sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false;packetSize=${packetSize}`;
+      expect(() => TediousConnUtils.fromJdbcDsn(jdbcDsn)).toThrow(error);
     });
   });
 });
