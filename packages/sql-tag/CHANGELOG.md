@@ -1,5 +1,11 @@
 # @flowblade/sql-tag
 
+## 0.5.0
+
+### Minor Changes
+
+- [#1433](https://github.com/belgattitude/flowblade/pull/1433) [`8e2dee7`](https://github.com/belgattitude/flowblade/commit/8e2dee7b71b6bdbf8368a8099abf7c0b36bd0b24) Thanks [@belgattitude](https://github.com/belgattitude)! - Require Node.js `>=22.18.0` (was `>=20.9.0`), aligned with `@flowblade/core`. Node.js 20 is end of life.
+
 ## 0.4.2
 
 ### Patch Changes

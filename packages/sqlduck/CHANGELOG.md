@@ -1,5 +1,38 @@
 # @flowblade/sqlduck
 
+## 0.42.0
+
+### Minor Changes
+
+- [#1435](https://github.com/belgattitude/flowblade/pull/1435) [`7d7c53b`](https://github.com/belgattitude/flowblade/commit/7d7c53b062e262bc36f4d243af010f818cfb04cf) Thanks [@belgattitude](https://github.com/belgattitude)! - Abort signal and error cause for `withMaterializedKyselyQuery()`, LogTape placeholders in all logs.
+  
+  - `withMaterializedKyselyQuery()` accepts an abort `signal`: it stops the kysely query stream and `toTable()`, and is given to the `query` callback (ie: `dsDuck.query(sql, { signal })`). A materialization failure keeps the original error as `error.cause`.
+  - Log messages use LogTape placeholders, values (table, database, rows, time, error message...) are passed as properties. An error message containing `{...}` (ie: DuckDB struct literals) is no longer read as a placeholder. The rendered messages are unchanged, except they now always show the full table name. Thrown error messages are unchanged.
+  - Fix the "Couldn't create directory" warning that logged a literal `.message`.
+
+- [#1433](https://github.com/belgattitude/flowblade/pull/1433) [`8e2dee7`](https://github.com/belgattitude/flowblade/commit/8e2dee7b71b6bdbf8368a8099abf7c0b36bd0b24) Thanks [@belgattitude](https://github.com/belgattitude)! - Declare the required Node.js version: `>=22.18.0`, aligned with the other `@flowblade` packages.
+
+### Patch Changes
+
+- [#1435](https://github.com/belgattitude/flowblade/pull/1435) [`7d7c53b`](https://github.com/belgattitude/flowblade/commit/7d7c53b062e262bc36f4d243af010f818cfb04cf) Thanks [@belgattitude](https://github.com/belgattitude)! - Faster `TIMESTAMP` column conversion (~45-80% on the converter benchmark): the microseconds value is computed directly, without an intermediate milliseconds value and `try/catch`.
+
+- [#1435](https://github.com/belgattitude/flowblade/pull/1435) [`7d7c53b`](https://github.com/belgattitude/flowblade/commit/7d7c53b062e262bc36f4d243af010f818cfb04cf) Thanks [@belgattitude](https://github.com/belgattitude)! - Escape values interpolated in SQL and make `toTable()` more robust.
+  
+  - `DuckExtensionsManager.install()` rejects invalid extension names, `search({ name })`, `DuckSettingsManager.getCurrentSettings()` and the database attach (`path`, `encryptionKey` and other string options) now escape their values, a value containing a quote can't break or inject SQL anymore.
+  - `toTable()` restores `preserve_insertion_order` even when the appender can't be created.
+  - `toTable()` awaits an `onChunkAppended` callback returning a promise even when it isn't an `async` function (backpressure, rejections fail the insertion instead of being unhandled).
+  - `toTable()` no longer hides the original error when the appender also fails to close.
+  - `DuckDatabaseManager.createDatabaseFile()` closes the DuckDB instance it opens, the file lock was kept until the process exit (another process couldn't open the file).
+
+- [#1435](https://github.com/belgattitude/flowblade/pull/1435) [`7d7c53b`](https://github.com/belgattitude/flowblade/commit/7d7c53b062e262bc36f4d243af010f818cfb04cf) Thanks [@belgattitude](https://github.com/belgattitude)! - Faster `toTable()` with sync row sources, path validation fix.
+  
+  - `toTable()` reads synchronous row sources (generators, arrays) with `for...of` instead of `for await`, which wrapped every row in a promise: ~11% faster on a 200k rows / 9 columns insertion. Async sources are unchanged.
+  - The database `path` validation (zod and valibot) normalizes every backslash, not only the first one (ie: `/data\sub\db.duckdb` was rejected).
+- Updated dependencies [[`8e2dee7`](https://github.com/belgattitude/flowblade/commit/8e2dee7b71b6bdbf8368a8099abf7c0b36bd0b24), [`8e2dee7`](https://github.com/belgattitude/flowblade/commit/8e2dee7b71b6bdbf8368a8099abf7c0b36bd0b24), [`8e2dee7`](https://github.com/belgattitude/flowblade/commit/8e2dee7b71b6bdbf8368a8099abf7c0b36bd0b24)]:
+  - @flowblade/core@0.6.0
+  - @flowblade/source-duckdb@0.31.0
+  - @flowblade/sql-tag@0.5.0
+
 ## 0.41.1
 
 ### Patch Changes
