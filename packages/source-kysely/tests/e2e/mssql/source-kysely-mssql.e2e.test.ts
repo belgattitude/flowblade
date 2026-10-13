@@ -67,6 +67,8 @@ describe("MSSQL e2e tests", () => {
         expect(result.data).toBeUndefined();
         expect(result.error).toStrictEqual({
           message: "Incorrect syntax near the keyword 'FROM'.",
+          // 156: incorrect syntax near a keyword
+          cause: expect.objectContaining({ number: 156 }),
         });
         const [firstSpan] = result.meta.getSpans();
         expect.assert(firstSpan);
@@ -121,6 +123,8 @@ describe("MSSQL e2e tests", () => {
         const { error } = result;
         expect(error).toStrictEqual({
           message: "Incorrect syntax near 'qsqdfqsldkjf'.",
+          // 102: incorrect syntax
+          cause: expect.objectContaining({ number: 102 }),
         });
       });
 
@@ -214,6 +218,38 @@ describe("MSSQL e2e tests", () => {
           sql<{ ok: number }>`SELECT 1 as ok`
         );
         expect(data).toStrictEqual([{ ok: 1 }]);
+      });
+    });
+
+    describe("Error cause", () => {
+      it("should keep the sql server error as the error cause", async () => {
+        const result = await ds.query(sql`SELECT FROM 1 as invalid_query`);
+        expect(result.error?.message).toBe(
+          "Incorrect syntax near the keyword 'FROM'."
+        );
+        // 156: incorrect syntax near a keyword
+        expect(result.error?.cause).toMatchObject({ number: 156 });
+      });
+    });
+
+    describe("Abort signal", () => {
+      it("should abort an in-flight query", async () => {
+        const start = Date.now();
+        const result = await ds.query(
+          sql`WAITFOR DELAY '00:00:03'; SELECT 1 as one`,
+          { signal: AbortSignal.timeout(200) }
+        );
+        expect(result.isError()).toBe(true);
+        expect(Date.now() - start).toBeLessThan(2000);
+      });
+
+      it("should not start a stream when the signal is already aborted", async () => {
+        const query = ds.queryBuilder
+          .selectFrom("TestTable as t")
+          .select(["t.id"]);
+        await expect(
+          Array.fromAsync(ds.stream(query, { signal: AbortSignal.abort() }))
+        ).rejects.toThrow();
       });
     });
 

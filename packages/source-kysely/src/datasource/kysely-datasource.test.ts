@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import { KyselyDatasource } from "./kysely-datasource";
 
 const createStreamDatasource = (
-  stream: () => AsyncGenerator<{ id: number }>
+  stream: () => AsyncGenerator<{ id: number }>,
+  signal?: AbortSignal
 ) => {
   const logger = {
     debug: vi.fn<() => void>(),
@@ -34,12 +35,102 @@ const createStreamDatasource = (
 
   return {
     logger,
-    stream: ds.stream(query as never, { name: "test-stream" }),
+    query,
+    stream: ds.stream(query as never, { name: "test-stream", signal }),
   };
 };
 
+const createQueryDatasource = (
+  executeQuery: () => Promise<{ rows: unknown[] }>
+) => {
+  const query = {
+    compile: vi
+      .fn<() => { sql: string; parameters: unknown[] }>()
+      .mockReturnValue({ sql: "SELECT 1", parameters: [] }),
+  };
+
+  const ds = new KyselyDatasource({
+    connection: {} as never,
+    logger: {
+      debug: vi.fn<() => void>(),
+      info: vi.fn<() => void>(),
+      error: vi.fn<() => void>(),
+      warn: vi.fn<() => void>(),
+    } as never,
+  });
+
+  const executeQueryMock = vi
+    .fn<() => Promise<{ rows: unknown[] }>>()
+    .mockImplementation(executeQuery);
+  // @ts-expect-error - access private to mock
+  ds.db = { executeQuery: executeQueryMock };
+
+  return { ds, query: query as never, executeQuery: executeQueryMock };
+};
+
 describe(KyselyDatasource, () => {
+  describe("query", () => {
+    it("should keep the driver error as the error cause", async () => {
+      const driverError = new Error("Incorrect syntax near 'FROM'.");
+      const { ds, query } = createQueryDatasource(() =>
+        Promise.reject(driverError)
+      );
+
+      const result = await ds.query(query);
+
+      expect(result.error).toStrictEqual({
+        message: "Incorrect syntax near 'FROM'.",
+        cause: driverError,
+      });
+      // Never serialized
+      expect(result.toJsonifiable().error).toStrictEqual({
+        message: "Incorrect syntax near 'FROM'.",
+      });
+    });
+
+    it("should throw with the driver error as cause in queryOrThrow", async () => {
+      const driverError = new Error("Incorrect syntax near 'FROM'.");
+      const { ds, query } = createQueryDatasource(() =>
+        Promise.reject(driverError)
+      );
+
+      await expect(ds.queryOrThrow(query)).rejects.toThrow(
+        expect.objectContaining({
+          message: "Query failed: Incorrect syntax near 'FROM'.",
+          cause: driverError,
+        })
+      );
+    });
+
+    it("should pass the signal to kysely", async () => {
+      const { ds, query, executeQuery } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [] })
+      );
+      const { signal } = new AbortController();
+
+      await ds.query(query, { signal });
+
+      expect(executeQuery).toHaveBeenCalledExactlyOnceWith(expect.anything(), {
+        signal,
+      });
+    });
+  });
+
   describe("stream", () => {
+    it("should pass the chunkSize and signal to kysely", async () => {
+      const { signal } = new AbortController();
+      const { query, stream } = createStreamDatasource(async function* rows() {
+        yield { id: 1 };
+      }, signal);
+
+      await Array.fromAsync(stream);
+
+      expect(query.stream).toHaveBeenCalledExactlyOnceWith({
+        chunkSize: undefined,
+        signal,
+      });
+    });
+
     it("should log the execution once the stream is fully consumed", async () => {
       const { logger, stream } = createStreamDatasource(async function* rows() {
         yield { id: 1 };

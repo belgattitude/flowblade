@@ -152,7 +152,9 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         params: compiled.parameters,
       });
 
-      const r = await this.db.executeQuery(compiled);
+      const r = await this.db.executeQuery(compiled, {
+        signal: options?.signal,
+      });
       const { numAffectedRows, ...result } = r;
       span.timeMs = Date.now() - start;
       span.affectedRows = parseBigIntToSafeInt(numAffectedRows) ?? 0;
@@ -188,6 +190,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       return createQResultError(
         {
           message,
+          cause: error,
         },
         new QMeta({
           name,
@@ -223,7 +226,8 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     const result = await this.query<TQuery, TData>(query, options);
     return {
       data: result.getOrThrow(
-        (qErr) => new Error(`Query failed: ${qErr.message}`)
+        (qErr) =>
+          new Error(`Query failed: ${qErr.message}`, { cause: qErr.cause })
       ),
       meta: result.meta,
     };
@@ -274,7 +278,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     if (!isKyselyStreamable(query)) {
       throw new Error("Query is not streamable, be sure to check usage");
     }
-    const { chunkSize } = options ?? {};
+    const { chunkSize, signal } = options ?? {};
     const name = options?.name ?? "anonymous";
 
     const compiled = query.compile(this.db);
@@ -295,9 +299,10 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     let failed = false;
 
     try {
-      for await (const row of query.stream(chunkSize) as AsyncIterableIterator<
-        TData[0]
-      >) {
+      for await (const row of query.stream({
+        chunkSize,
+        signal,
+      }) as AsyncIterableIterator<TData[0]>) {
         rowCount++;
         yield row;
       }
