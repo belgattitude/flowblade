@@ -14,9 +14,8 @@
       "outputs": ["src/generated/**"]
     },
     "build": {
+      "description": "Compiles TypeScript and bundles the application",
       "outputs": ["dist/**"]
-      // This repo example relies on tsconfig paths to ease starting
-      // "dependsOn": ["^build"]
     },
     "build-force": {
       "outputs": ["dist/**"]
@@ -26,14 +25,29 @@
       "cache": false
     },
     "test": {},
-    "test-unit": {},
-    "test-e2e": {},
-    "test-e2e-bun": {},
-    "test-unit-bun": {},
-    "test-unit-deno": {},
-    "test-unit-edge": {},
-    "test-unit-browser": {},
-    "test-unit-coverage": {},
+    "test-unit": {
+      "description": "Runs the unit test suite without coverage"
+    },
+    "test-e2e": {
+      "description": "Runs the E2E test suite"
+    },
+    "test-e2e-bun": {
+      "description": "Runs the E2E test suite with bun"
+    },
+    "test-unit-bun": {
+      "description": "Runs the unit test suite with bun"
+    },
+    "test-unit-deno": {
+      "description": "Runs the unit test suite with deno"
+    },
+    "test-unit-edge": {
+    },
+    "test-unit-browser": {
+      "description": "Runs the unit test with vitest playwright"
+    },
+    "test-unit-coverage": {
+      "description": "Runs the unit test suite wit coverage"
+    },
     "lint": {
       "cache": true,
       "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.jsonc"]

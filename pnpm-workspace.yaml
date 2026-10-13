@@ -7,11 +7,10 @@ nodeLinker: isolated
 packageImportMethod: auto
 savePrefix: ''
 
-# uncomment the autodedupe and lockfile.includeResolutionSettings
-# when turbo repo prune supports the settings entry in pnpm lock
-#autoDedupe: true
-#lockfile:
-#  includeResolutionSettings: true
+autoDedupe: true
+lockfile:
+  includeResolutionSettings: true
+
 autoInstallPeers: false
 strictPeerDependencies: false
 resolvePeersFromWorkspaceRoot: true
