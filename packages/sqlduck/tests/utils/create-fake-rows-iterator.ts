@@ -9,6 +9,11 @@ type FakerFactory<T> = {
 
 type Params<T extends ZodObject> = {
   count: number;
+  /**
+   * Faker seed, the same seed always generates the same rows.
+   * @default 42
+   */
+  seed?: number;
   schema: T;
   factory: (params: {
     faker: Faker;
@@ -21,7 +26,8 @@ type Params<T extends ZodObject> = {
 function* getFakeRowsGenerator<T extends ZodObject>(
   params: Params<T>
 ): Generator<FakerFactory<z.infer<T>>> {
-  const { schema, factory, count } = params;
+  const { schema, factory, count, seed = 42 } = params;
+  faker.seed(seed);
   let i = 0;
   while (i < count) {
     const row = {} as FakerFactory<z.infer<T>>;

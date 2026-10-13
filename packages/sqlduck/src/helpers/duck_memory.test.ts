@@ -1,31 +1,24 @@
-import type { DuckDBConnection } from "@duckdb/node-api";
 import isInCi from "is-in-ci";
-import { beforeAll, describe, expect, afterAll, it } from "vitest";
+import { describe, expect } from "vitest";
 
-import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
+import { createDuckTest } from "#tests/utils/duck-test.ts";
 
 import { DuckMemory, duckMemoryTags } from "./duck-memory";
 
 const testTimeout = 10_000;
 
-describe("DuckMemory tests", async () => {
-  let conn: DuckDBConnection;
-  beforeAll(async () => {
-    conn = await createDuckdbTestMemoryDb({
-      // Keep it high to prevent going to .tmp directory
-      max_memory: isInCi ? "128M" : "256M",
-      threads: 1,
-    });
-  });
+// Keep max_memory high to prevent going to .tmp directory
+const it = createDuckTest({
+  max_memory: isInCi ? "128M" : "256M",
+  threads: 1,
+});
 
-  afterAll(() => {
-    conn.closeSync();
-  });
-
+describe("DuckMemory tests", () => {
   describe("getAll", () => {
     it(
       "Should return info for all tags",
-      async () => {
+      { timeout: testTimeout },
+      async ({ conn }) => {
         const duckMem = new DuckMemory(conn);
         const rows = await duckMem.getAll();
         expect(rows).toHaveLength(duckMemoryTags.length);
@@ -34,27 +27,27 @@ describe("DuckMemory tests", async () => {
           memory_usage_bytes: 0n,
           temporary_storage_bytes: 0n,
         });
-      },
-      testTimeout
+      }
     );
 
     it(
       "Should respect order by",
-      async () => {
+      { timeout: testTimeout },
+      async ({ conn }) => {
         const duckMem = new DuckMemory(conn);
         const rows = await duckMem.getAll({
           orderBy: "tag_desc",
         });
         expect(rows?.[0]?.tag).toBe("WINDOW");
-      },
-      testTimeout
+      }
     );
   });
 
   describe("getByTag", () => {
-    it.each(duckMemoryTags)(
+    it.for(duckMemoryTags)(
       "Should return infos for tag %s",
-      async (tag) => {
+      { timeout: testTimeout },
+      async (tag, { conn }) => {
         const duckMem = new DuckMemory(conn);
         const mem = await duckMem.getByTag(tag);
         expect(mem).toMatchObject({
@@ -62,23 +55,22 @@ describe("DuckMemory tests", async () => {
           memory_usage_bytes: 0n,
           temporary_storage_bytes: 0n,
         });
-      },
-      testTimeout
+      }
     );
   });
 
   describe("getSummary", () => {
     it(
       "Should return summary info",
-      async () => {
+      { timeout: testTimeout },
+      async ({ conn }) => {
         const duckMem = new DuckMemory(conn);
         const summary = await duckMem.getSummary();
         expect(summary).toStrictEqual({
           totalMB: 0,
           totalTempMB: 0,
         });
-      },
-      testTimeout
+      }
     );
   });
 });

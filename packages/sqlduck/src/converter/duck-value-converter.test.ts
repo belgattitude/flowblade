@@ -22,7 +22,7 @@ describe(DuckValueConverter, () => {
       ["777", 777n],
     ] as const;
 
-    it.each(expectations)("should convert %s to %s", (value, expected) => {
+    it.for(expectations)("should convert %s to %s", ([value, expected]) => {
       expect(converter.toBigInt(value)).toBe(expected);
     });
 
@@ -34,16 +34,19 @@ describe(DuckValueConverter, () => {
     });
   });
   describe("toTimestamp", () => {
-    it.each([
+    it.for([
       ["a date", new Date("2023-12-28T23:37:31.653Z")],
       ["an isoStringZ", "2023-12-28T23:37:31.653Z"],
       ["an epoch number in ms", 1_703_806_651_653],
       ["an epoch bigint in ms", 1_703_806_651_653n],
-    ])("should convert %s to a DuckDBTimestampValue", (_label, value) => {
-      expect(converter.toTimestamp(value)).toStrictEqual(
-        new DuckDBTimestampValue(1_703_806_651_653_000n)
-      );
-    });
+    ] as const)(
+      "should convert %s to a DuckDBTimestampValue",
+      ([_label, value]) => {
+        expect(converter.toTimestamp(value)).toStrictEqual(
+          new DuckDBTimestampValue(1_703_806_651_653_000n)
+        );
+      }
+    );
 
     it("should return null for null or undefined", () => {
       expect(converter.toTimestamp(null)).toBeNull();
@@ -161,7 +164,7 @@ describe(DuckValueConverter, () => {
     });
   });
   describe("toUUID", () => {
-    it.each([
+    it.for([
       "019d2155-d292-71fa-87d7-9d1f1ed83569",
       "019d2155d29271fa87d79d1f1ed83569",
       "019D2155-D292-71FA-87D7-9D1F1ED83569",
@@ -172,7 +175,7 @@ describe(DuckValueConverter, () => {
       expect(value?.toUint128()).toBe(0x019d2155d29271fa87d79d1f1ed83569n);
     });
 
-    it.each([
+    it.for([
       "00000000-0000-0000-0000-000000000000",
       "80000000-0000-0000-0000-000000000000",
       "ffffffff-ffff-ffff-ffff-ffffffffffff",
@@ -245,14 +248,14 @@ describe(DuckValueConverter, () => {
       "2025-01-01T24:00:00z",
     ];
 
-    it.each(timestamps)("toTimestampMs(%s)", (value) => {
+    it.for(timestamps)("toTimestampMs(%s)", (value) => {
       const expected = new Date(/z$/i.test(value) ? value : `${value}Z`);
       expect(converter.toTimestampMs(value)).toStrictEqual(
         new DuckDBTimestampMillisecondsValue(BigInt(expected.getTime()))
       );
     });
 
-    it.each(["2025-02-30", "0050-01-01", "2025-01-31T23:59:59Z"])(
+    it.for(["2025-02-30", "0050-01-01", "2025-01-31T23:59:59Z"])(
       "toDate(%s)",
       (value) => {
         const expected = new Date(`${value.slice(0, 10)}T00:00:00Z`);
@@ -262,17 +265,17 @@ describe(DuckValueConverter, () => {
       }
     );
 
-    it.each([
+    it.for([
       ["2023-12-28T23:37:31.653z", 1_703_806_651_653n],
       ["2023-12-28 23:37:31z", 1_703_806_651_000n],
       ["2023-12-28T23:37:31.653999z", 1_703_806_651_653n],
-    ] as const)("should accept a lowercase z in %s", (value, expected) => {
+    ] as const)("should accept a lowercase z in %s", ([value, expected]) => {
       expect(converter.toTimestampMs(value)).toStrictEqual(
         new DuckDBTimestampMillisecondsValue(expected)
       );
     });
 
-    it.each(["2025-13-01T00:00:00Z", "2025-01-01T23:60:00Z", "2025-00-01"])(
+    it.for(["2025-13-01T00:00:00Z", "2025-01-01T23:60:00Z", "2025-00-01"])(
       "should throw on invalid timestamp %s",
       (value) => {
         expect(() => converter.toTimestampMs(value)).toThrow(
@@ -283,14 +286,14 @@ describe(DuckValueConverter, () => {
     );
   });
   describe("createDecimalConverter", () => {
-    it.each([
+    it.for([
       [1.2345, 1235n],
       [-1.2345, -1235n],
       [0.0005, 1n],
       [-0.0005, -1n],
       [-0, 0n],
       [123_456_789_012.345, 123_456_789_012_345n],
-    ] as const)("should round %s half away from zero", (value, expected) => {
+    ] as const)("should round %s half away from zero", ([value, expected]) => {
       const toDecimal = converter.createDecimalConverter(18, 3);
       expect(toDecimal(value)).toStrictEqual(
         DuckDBDecimalValue.fromDouble(value, 18, 3)
@@ -298,7 +301,7 @@ describe(DuckValueConverter, () => {
       expect(toDecimal(value)?.value).toBe(expected);
     });
 
-    it.each([
+    it.for([
       1e15,
       -1e15,
       2 ** 53,

@@ -7,7 +7,7 @@ import type { testFullSupportedColumnsZodSchema } from "#tests/data/test-full-su
 import { createDuckKysekyQueryBuilder } from "./create-duck-kysely-query-builder.ts";
 
 describe(createDuckKysekyQueryBuilder, () => {
-  it("should work", async () => {
+  it("should compile and type a query with the read only schema", async () => {
     type Database = {
       full_schema: z.output<typeof testFullSupportedColumnsZodSchema>;
     };

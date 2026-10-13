@@ -1,26 +1,18 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
 import { createQResultSuccess, QMeta } from "@flowblade/core";
 import { sql } from "@flowblade/sql-tag";
-import { beforeAll, afterAll, describe, expect, it } from "vitest";
+import { describe, expect } from "vitest";
 import * as z from "zod";
 
-import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 import { createDummyKyselyDb } from "#tests/utils/create-dummy-kysely-db.ts";
+import { createDuckTest } from "#tests/utils/duck-test.ts";
 
 import { KyselyQueryWithZodSchema } from "./kysely-query-with-zod-schema.ts";
 import { withMaterializedKyselyQuery } from "./with-materialized-kysely-query.ts";
 
+const it = createDuckTest();
+
 describe("withMaterializedKyselyQuery", () => {
-  let duckConn: DuckDBConnection;
-
-  beforeAll(async () => {
-    duckConn = await createDuckdbTestMemoryDb();
-  });
-
-  afterAll(() => {
-    duckConn.closeSync();
-  });
-
   type DB = {
     user: {
       id: number;
@@ -29,7 +21,7 @@ describe("withMaterializedKyselyQuery", () => {
   };
   const db = createDummyKyselyDb<DB>("postgresql");
 
-  it("should materialize the query as table", async () => {
+  it("should materialize the query as table", async ({ conn: duckConn }) => {
     const query = db.selectFrom("user").select(["id", "name"]);
 
     const schema = z.strictObject({
@@ -95,14 +87,16 @@ describe("withMaterializedKyselyQuery", () => {
         schema: z.strictObject({ id: z.int32(), name: z.string() }),
       });
 
-    const tableExists = async (name: string) => {
+    const tableExists = async (duckConn: DuckDBConnection, name: string) => {
       const reader = await duckConn.runAndReadAll(
         `SELECT count(*) AS count FROM duckdb_tables() WHERE table_name = '${name}'`
       );
       return Number(reader.getRowObjectsJS()[0]?.count) > 0;
     };
 
-    it("should drop the table once the query is done", async () => {
+    it("should drop the table once the query is done", async ({
+      conn: duckConn,
+    }) => {
       let tableName = "";
       let existedDuringQuery = false;
       const result = await withMaterializedKyselyQuery({
@@ -110,7 +104,7 @@ describe("withMaterializedKyselyQuery", () => {
         table: createTable(),
         query: async ({ dsDuck, table }) => {
           tableName = table.getFullName();
-          existedDuringQuery = await tableExists(tableName);
+          existedDuringQuery = await tableExists(duckConn, tableName);
           return await dsDuck.query(
             sql<{ id: number }>`SELECT id FROM ${sql.raw(tableName)}`
           );
@@ -118,10 +112,12 @@ describe("withMaterializedKyselyQuery", () => {
       });
       expect(result.isError()).toBe(false);
       expect(existedDuringQuery).toBe(true);
-      await expect(tableExists(tableName)).resolves.toBe(false);
+      await expect(tableExists(duckConn, tableName)).resolves.toBe(false);
     });
 
-    it("should drop the table when the row stream throws midway", async () => {
+    it("should drop the table when the row stream throws midway", async ({
+      conn: duckConn,
+    }) => {
       const failingTable = createTable();
       failingTable.getQuery = (() => {
         return {
@@ -153,7 +149,9 @@ describe("withMaterializedKyselyQuery", () => {
       expect(Number(leftovers.getRowObjectsJS()[0]?.count)).toBe(0);
     });
 
-    it("should drop the table when the query fails", async () => {
+    it("should drop the table when the query fails", async ({
+      conn: duckConn,
+    }) => {
       let tableName = "";
       const result = await withMaterializedKyselyQuery({
         duckConn,
@@ -164,10 +162,12 @@ describe("withMaterializedKyselyQuery", () => {
         },
       });
       expect(result.isError()).toBe(true);
-      await expect(tableExists(tableName)).resolves.toBe(false);
+      await expect(tableExists(duckConn, tableName)).resolves.toBe(false);
     });
 
-    it("should drop the table when the query throws", async () => {
+    it("should drop the table when the query throws", async ({
+      conn: duckConn,
+    }) => {
       let tableName = "";
       await expect(
         withMaterializedKyselyQuery({
@@ -180,7 +180,7 @@ describe("withMaterializedKyselyQuery", () => {
         })
       ).rejects.toThrow("boom");
       expect(tableName).not.toBe("");
-      await expect(tableExists(tableName)).resolves.toBe(false);
+      await expect(tableExists(duckConn, tableName)).resolves.toBe(false);
     });
   });
 
@@ -191,19 +191,21 @@ describe("withMaterializedKyselyQuery", () => {
         schema: z.strictObject({ id: z.int32(), name: z.string() }),
       });
 
-    const countTables = async (where: string) => {
+    const countTables = async (duckConn: DuckDBConnection, where: string) => {
       const reader = await duckConn.runAndReadAll(
         `SELECT count(*) AS count FROM duckdb_tables() WHERE ${where}`
       );
       return Number(reader.getRowObjectsJS()[0]?.count);
     };
 
-    beforeAll(async () => {
+    it.beforeAll(async ({ conn: duckConn }) => {
       await duckConn.run(`ATTACH ':memory:' AS scratch`);
       await duckConn.run(`CREATE SCHEMA scratch.staging`);
     });
 
-    it("should create the table in the given database and schema", async () => {
+    it("should create the table in the given database and schema", async ({
+      conn: duckConn,
+    }) => {
       let fullName = "";
       let tablesDuringQuery = 0;
       const result = await withMaterializedKyselyQuery({
@@ -214,6 +216,7 @@ describe("withMaterializedKyselyQuery", () => {
         query: async ({ dsDuck, table }) => {
           fullName = table.getFullName();
           tablesDuringQuery = await countTables(
+            duckConn,
             `database_name = 'scratch' AND schema_name = 'staging' AND table_name = '${table.tableName}'`
           );
           return await dsDuck.query(
@@ -229,28 +232,34 @@ describe("withMaterializedKyselyQuery", () => {
         fullName
       );
       await expect(
-        countTables(`database_name = 'scratch' AND schema_name = 'staging'`)
+        countTables(
+          duckConn,
+          `database_name = 'scratch' AND schema_name = 'staging'`
+        )
       ).resolves.toBe(0);
     });
 
-    it.each([
+    it.for([
       ["database", { database: "scratch; DROP TABLE x" }],
       ["schema", { schema: "staging--" }],
-    ] as const)("should reject an invalid %s name", async (kind, options) => {
-      let queryCalled = false;
-      const result = await withMaterializedKyselyQuery({
-        duckConn,
-        table: createTable(),
-        ...options,
-        query: async () => {
-          queryCalled = true;
-          return createQResultSuccess([], new QMeta({}));
-        },
-      });
-      expect(queryCalled).toBe(false);
-      expect(result.error?.message).toMatch(
-        new RegExp(`^Invalid ${kind} name`)
-      );
-    });
+    ] as const)(
+      "should reject an invalid %s name",
+      async ([kind, options], { conn: duckConn }) => {
+        let queryCalled = false;
+        const result = await withMaterializedKyselyQuery({
+          duckConn,
+          table: createTable(),
+          ...options,
+          query: async () => {
+            queryCalled = true;
+            return createQResultSuccess([], new QMeta({}));
+          },
+        });
+        expect(queryCalled).toBe(false);
+        expect(result.error?.message).toMatch(
+          new RegExp(`^Invalid ${kind} name`)
+        );
+      }
+    );
   });
 });

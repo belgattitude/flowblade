@@ -33,9 +33,9 @@ describe("DuckDataBaseManagerAttachCommand", () => {
       sql: string,
     ][];
 
-    it.each(valid)(
+    it.for(valid)(
       "should produce expected sql %s with behaviour %s",
-      (options, behaviour, expectedSql) => {
+      ([options, behaviour, expectedSql]) => {
         const params: DuckConnectionParams = {
           type: "memory",
           alias: "my_db",
@@ -62,9 +62,9 @@ describe("DuckDataBaseManagerAttachCommand", () => {
       sql: string,
     ][];
 
-    it.each(valid)(
+    it.for(valid)(
       "should produce expected sql %s with behaviour %s",
-      (options, behaviour, expectedSql) => {
+      ([options, behaviour, expectedSql]) => {
         const params: DuckConnectionParams = {
           type: "filesystem",
           alias: "my_db",

@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from "vitest";
+import { describe, expectTypeOf, it } from "vitest";
 import * as z from "zod";
 
 import { ensureZodTableSchema } from "./ensure-zod-table-schema.ts";
@@ -54,7 +54,6 @@ describe("createZodTableSchema", () => {
         aString: z.string(),
       })
     );
-    expect(_noGeneric).toBeDefined();
   });
 
   it("should reject schema with missing keys", () => {
@@ -65,7 +64,6 @@ describe("createZodTableSchema", () => {
         aString: z.string(),
       })
     );
-    expect(_missingKeys).toBeDefined();
   });
 
   it("should reject schema with wrong value types", () => {
@@ -82,6 +80,5 @@ describe("createZodTableSchema", () => {
         aNullableDate: z.nullable(z.date()),
       })
     );
-    expect(_wrongType).toBeDefined();
   });
 });

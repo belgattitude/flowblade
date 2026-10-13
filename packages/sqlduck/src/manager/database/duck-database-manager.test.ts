@@ -1,11 +1,10 @@
 import * as fs from "node:fs";
 import path from "node:path";
 
-import type { DuckDBConnection } from "@duckdb/node-api";
 import { sortBy } from "es-toolkit";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect } from "vitest";
 
-import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
+import { createDuckTestIsolated } from "#tests/utils/duck-test.ts";
 import { testTempDir } from "#tests/utils/get-test-temp-dir.ts";
 
 import { FileSystemUtils } from "../../filesystem/file-system-utils.ts";
@@ -13,19 +12,26 @@ import { Database } from "../../objects/database.ts";
 import { duckDatabaseManagerZodSchemas } from "../../validation/zod/manager/duck-database-manager-zod-schemas.ts";
 import { DuckDatabaseManager } from "./duck-database-manager.ts";
 
-describe("DuckDatabaseManagerTest", async () => {
-  let conn: DuckDBConnection;
-  beforeEach(async () => {
-    conn = await createDuckdbTestMemoryDb({
-      max_memory: "5M",
-      threads: 1,
-    });
-  });
-  afterEach(() => {
-    conn.closeSync();
-  });
+const it = createDuckTestIsolated({
+  max_memory: "5M",
+  threads: 1,
+});
+
+/**
+ * Return a path in the test temp directory, removing any database file
+ * left over by a previous run.
+ */
+const getFreshDbFile = (filename: string) => {
+  const fsUtils = new FileSystemUtils();
+  const dbFile = path.join(testTempDir, filename);
+  fsUtils.removeFileIfExists(dbFile);
+  fsUtils.removeFileIfExists(`${dbFile}.wal`);
+  return dbFile;
+};
+
+describe("DuckDatabaseManagerTest", () => {
   describe("attach", () => {
-    it("should attach a memory database", async () => {
+    it("should attach a memory database", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
       const database = await dbManager.attach({
         type: "memory",
@@ -39,9 +45,9 @@ describe("DuckDatabaseManagerTest", async () => {
       expect(database.alias).toBe("memory_db");
     });
 
-    it("should attach a file database", async () => {
+    it("should attach a file database", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
-      const dbFile = path.join(testTempDir, "duckdb_test_file.db");
+      const dbFile = getFreshDbFile("duckdb_test_file.db");
       const database = await dbManager.attach({
         type: "filesystem",
         alias: "duckdb_test_file",
@@ -56,9 +62,9 @@ describe("DuckDatabaseManagerTest", async () => {
       await dbManager.detach(database.alias);
     });
 
-    it("should attach or re-attach a file database", async () => {
+    it("should attach or re-attach a file database", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
-      const dbFile = path.join(testTempDir, "duckdb_test_reattachable_file.db");
+      const dbFile = getFreshDbFile("duckdb_test_reattachable_file.db");
       const database = await dbManager.attachOrReplace({
         type: "filesystem",
         alias: "duckdb_first_attached_file",
@@ -94,7 +100,7 @@ describe("DuckDatabaseManagerTest", async () => {
     });
   });
   describe("showDatabases", () => {
-    it("should list all databases", async () => {
+    it("should list all databases", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
       await dbManager.attach({
         type: "memory",
@@ -110,7 +116,7 @@ describe("DuckDatabaseManagerTest", async () => {
     });
   });
   describe("isAttached", () => {
-    it("should return true when attached", async () => {
+    it("should return true when attached", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
       await dbManager.attach({ type: "memory", alias: "test_is_attached" });
       await expect(dbManager.isAttached("test_is_attached")).resolves.toBe(
@@ -118,7 +124,7 @@ describe("DuckDatabaseManagerTest", async () => {
       );
     });
 
-    it("should return false when not attached", async () => {
+    it("should return false when not attached", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
       await expect(dbManager.isAttached("test_is_not_attached")).resolves.toBe(
         false
@@ -126,7 +132,9 @@ describe("DuckDatabaseManagerTest", async () => {
     });
   });
   describe("getDuckdbDatabases", () => {
-    it("should return information about attached databases", async () => {
+    it("should return information about attached databases", async ({
+      conn,
+    }) => {
       const dbManager = new DuckDatabaseManager(conn);
       const databases = await dbManager.getDatabases();
       expect(databases?.[0]).toStrictEqual(
@@ -135,7 +143,9 @@ describe("DuckDatabaseManagerTest", async () => {
     });
   });
   describe("getDuckdbDatabaseByName", () => {
-    it("should return information about attached databases", async () => {
+    it("should return information about attached databases", async ({
+      conn,
+    }) => {
       const dbManager = new DuckDatabaseManager(conn);
       const database = await dbManager.getDatabaseByName("memory");
       expect(database?.database_name).toBe("memory");
@@ -145,9 +155,11 @@ describe("DuckDatabaseManagerTest", async () => {
     });
   });
   describe("getDuckdbDatabaseByPath", () => {
-    it("should return information about attached databases", async () => {
+    it("should return information about attached databases", async ({
+      conn,
+    }) => {
       const dbManager = new DuckDatabaseManager(conn);
-      const dbFile = path.join(testTempDir, "test-getDuckdbDatabaseByPath.db");
+      const dbFile = getFreshDbFile("test-getDuckdbDatabaseByPath.db");
       await dbManager.attachIfNotExists({
         type: "filesystem",
         path: dbFile,
@@ -167,7 +179,7 @@ describe("DuckDatabaseManagerTest", async () => {
   });
 
   describe("detach", () => {
-    it("should detach a valid database", async () => {
+    it("should detach a valid database", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
       await dbManager.attach({ type: "memory", alias: "db1" });
       await dbManager.attach({ type: "memory", alias: "db2" });
@@ -179,7 +191,7 @@ describe("DuckDatabaseManagerTest", async () => {
       ]);
     });
 
-    it("should throw when a database is not attached", async () => {
+    it("should throw when a database is not attached", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
       await expect(dbManager.detach("unattached_db")).rejects.toThrow(
         /Failed to detach database with name "unattached_db"/
@@ -187,7 +199,7 @@ describe("DuckDatabaseManagerTest", async () => {
     });
   });
   describe("detachOrIgnore", () => {
-    it("should detach a valid database", async () => {
+    it("should detach a valid database", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
       await dbManager.attach({ type: "memory", alias: "db2" });
       const result = await dbManager.detachOrIgnore("db2");
@@ -198,7 +210,7 @@ describe("DuckDatabaseManagerTest", async () => {
       ]);
     });
 
-    it("should not throw when a database is not attached", async () => {
+    it("should not throw when a database is not attached", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
       const result = await dbManager.detachOrIgnore("unattached_db");
       expect(result).toBe(false);
@@ -206,11 +218,10 @@ describe("DuckDatabaseManagerTest", async () => {
   });
 
   describe("createDatabaseFile", () => {
-    it("should create a database file", async () => {
+    it("should create a database file", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
-      const dbFile = path.join(testTempDir, "test-createDatabaseFile.db");
+      const dbFile = getFreshDbFile("test-createDatabaseFile.db");
       const fsUtils = new FileSystemUtils();
-      fsUtils.removeFileIfExists(dbFile);
 
       const result = await dbManager.createDatabaseFile({
         path: dbFile,
@@ -223,8 +234,10 @@ describe("DuckDatabaseManagerTest", async () => {
     });
   });
 
-  describe("getCurrentCatalog", async () => {
-    it("should return the current catalog when currently in use", async () => {
+  describe("getCurrentCatalog", () => {
+    it("should return the current catalog when currently in use", async ({
+      conn,
+    }) => {
       const dbManager = new DuckDatabaseManager(conn);
       await dbManager.attachOrReplace({
         type: "memory",
@@ -235,8 +248,10 @@ describe("DuckDatabaseManagerTest", async () => {
       expect(currCatalog).toBe("test222");
     });
   });
-  describe("getCurrentDatabase", async () => {
-    it("should return the current database when currently in use", async () => {
+  describe("getCurrentDatabase", () => {
+    it("should return the current database when currently in use", async ({
+      conn,
+    }) => {
       const dbManager = new DuckDatabaseManager(conn);
       await dbManager.attachOrReplace({
         type: "memory",
@@ -247,8 +262,8 @@ describe("DuckDatabaseManagerTest", async () => {
       expect(currDb).toBe("test444");
     });
   });
-  describe("getCurrentSchema", async () => {
-    it("should return the schema", async () => {
+  describe("getCurrentSchema", () => {
+    it("should return the schema", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
       await dbManager.attachOrReplace({
         type: "memory",
@@ -260,8 +275,8 @@ describe("DuckDatabaseManagerTest", async () => {
     });
   });
 
-  describe("use", async () => {
-    it("should return true if it succeed", async () => {
+  describe("use", () => {
+    it("should return true if it succeed", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
       await dbManager.attachOrReplace({
         type: "memory",
@@ -273,7 +288,7 @@ describe("DuckDatabaseManagerTest", async () => {
       expect(currDb).toBe("test777");
     });
 
-    it("should throw on non exitant alias", async () => {
+    it("should throw on non exitant alias", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);
       await expect(dbManager.use("not_existant_db_alias")).rejects.toThrow(
         'Failed to run "DuckDatabaseManager.use(not_existant_db_alias)" - Catalog Error: SET schema: No catalog + schema named "not_existant_db_alias" found'

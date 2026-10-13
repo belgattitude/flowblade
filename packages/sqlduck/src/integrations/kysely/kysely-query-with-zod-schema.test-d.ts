@@ -13,7 +13,7 @@ type DB = {
 };
 
 describe("KyselyQueryWithZodSchema", () => {
-  it("should work", () => {
+  it("should preserve the kysely query type", () => {
     const db = createDummyKyselyDb<DB>("postgresql");
 
     const query = db.selectFrom("user").select(["id", "name"]);

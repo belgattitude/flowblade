@@ -1,23 +1,17 @@
-import type { DuckDBConnection } from "@duckdb/node-api";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect } from "vitest";
 
-import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
+import { createDuckTestIsolated } from "#tests/utils/duck-test.ts";
 
 import { DuckSettingsManager } from "./duck-settings-manager.ts";
 
-describe("DuckSettingsManagerTest", async () => {
-  let conn: DuckDBConnection;
-  beforeEach(async () => {
-    conn = await createDuckdbTestMemoryDb({
-      max_memory: "5M",
-      threads: 1,
-    });
-  });
-  afterEach(() => {
-    conn.closeSync();
-  });
+const it = createDuckTestIsolated({
+  max_memory: "5M",
+  threads: 1,
+});
+
+describe("DuckSettingsManagerTest", () => {
   describe("getCurrentSettings", () => {
-    it("should attach a memory database", async () => {
+    it("should return the requested settings", async ({ conn }) => {
       const settingsManager = new DuckSettingsManager(conn);
       const currentSettings = await settingsManager.getCurrentSettings([
         "threads",

@@ -2,19 +2,16 @@ import type { DuckDBConnection } from "@duckdb/node-api";
 import { DuckdbDatasource } from "@flowblade/source-duckdb";
 import type { KyselyDatasource } from "@flowblade/source-kysely";
 import { sql as sqlt } from "@flowblade/sql-tag";
-import { MSSQLServerContainer } from "@testcontainers/mssqlserver";
-import type { StartedMSSQLServerContainer } from "@testcontainers/mssqlserver/build/mssqlserver-container";
 import isInCi from "is-in-ci";
-import { describe, afterAll, expect, beforeAll, it } from "vitest";
+import { beforeAll, describe, expect, inject, it } from "vitest";
 import * as z from "zod";
 
-import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
+import { openDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 
 import { SqlDuck, Table, zodCodecs } from "../../../src";
-import { createContainerMssql } from "../create-container-mssql";
+import { createMssqlDatasource } from "./create-mssql-datasource.ts";
 import {
   anIsoDate,
-  getMssqlE2eMigrations,
   mssqlE2eData,
   type mssqlE2eDb,
   negativeBigint,
@@ -22,73 +19,57 @@ import {
   testDataCount,
 } from "./get-mssql-e2e-migrations.ts";
 
-const mssqlImage = "mcr.microsoft.com/mssql/server:2025-latest";
-const startupTimeout = isInCi ? 300_000 : 60_000;
-
-const testTimeout = 10_000;
-
 describe("MSSQL e2e tests", () => {
-  let container: StartedMSSQLServerContainer;
   let mssqlDs: KyselyDatasource<mssqlE2eDb>;
   let duckConn: DuckDBConnection;
 
   beforeAll(async () => {
-    container = await new MSSQLServerContainer(mssqlImage)
-      .acceptLicense()
-      .start();
-    mssqlDs = createContainerMssql(container);
-    await getMssqlE2eMigrations(mssqlDs).up();
-
-    duckConn = await createDuckdbTestMemoryDb({
+    // The container is started and seeded once in ./global-setup.ts
+    mssqlDs = createMssqlDatasource<mssqlE2eDb>(inject("mssql"));
+    const duckDb = await openDuckdbTestMemoryDb({
       // Keep it high to prevent going to .tmp directory
       max_memory: isInCi ? "128M" : "256M",
       threads: 1,
     });
-  }, startupTimeout);
+    ({ conn: duckConn } = duckDb);
 
-  afterAll(async () => {
-    await getMssqlE2eMigrations(mssqlDs).down();
-    await mssqlDs.getConnection().destroy();
-    await container.stop();
-    if (duckConn) {
-      duckConn.closeSync();
-    }
+    // Returned cleanup only runs for what was set up above
+    return async () => {
+      duckDb.close();
+      await mssqlDs.getConnection().destroy();
+    };
   });
 
   describe("DB test", () => {
-    it(
-      "should retrieve dataset from source",
-      async () => {
-        const query = mssqlDs.queryBuilder
-          .selectFrom("TestTable as t")
-          .select([
-            "t.id",
-            "t.name",
-            "t.positive_bigint",
-            "t.negative_bigint",
-            "t.null_column",
-            "t.decimal_18_3",
-            "t.iso_date",
-          ]);
+    it("should retrieve dataset from source", async () => {
+      const query = mssqlDs.queryBuilder
+        .selectFrom("TestTable as t")
+        .select([
+          "t.id",
+          "t.name",
+          "t.positive_bigint",
+          "t.negative_bigint",
+          "t.null_column",
+          "t.decimal_18_3",
+          "t.iso_date",
+        ]);
 
-        const { data, error } = await mssqlDs.query(query);
-        expect(error).toBeUndefined();
-        expect(data?.[0]).toStrictEqual({
-          id: 0,
-          name: "name-0",
-          // Cause mssql / tedious sends bigint as strings
-          positive_bigint: positiveBigint.toString(10),
-          negative_bigint: negativeBigint.toString(10),
-          null_column: null,
-          decimal_18_3: 1.001,
-          // sqlserver will return the date as js date with T00:00:00.000Z
-          iso_date: new Date(
-            `${anIsoDate.toISOString().split("T")[0]}T00:00:00.000Z`
-          ),
-        });
-      },
-      testTimeout
-    );
+      const { data, error } = await mssqlDs.query(query);
+      expect(error).toBeUndefined();
+      expect(data?.[0]).toStrictEqual({
+        id: 0,
+        name: "name-0",
+        // Cause mssql / tedious sends bigint as strings
+        positive_bigint: positiveBigint.toString(10),
+        negative_bigint: negativeBigint.toString(10),
+        null_column: null,
+        decimal_18_3: 1.001,
+        // sqlserver will return the date as js date with T00:00:00.000Z
+        iso_date: new Date(
+          `${anIsoDate.toISOString().split("T")[0]}T00:00:00.000Z`
+        ),
+      });
+    });
   });
   describe("ToTable", () => {
     it("should append the mssql query results into duckdb", async () => {

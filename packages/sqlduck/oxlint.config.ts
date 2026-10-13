@@ -12,6 +12,18 @@ export default defineConfig({
       },
     },
     {
+      // Tests using the duckdb fixtures (tests/utils/duck-test.ts) are
+      // declared with a local `it` that isn't imported from vitest.
+      files: ["*.test.ts"],
+      plugins: ["vitest"],
+      rules: {
+        "vitest/no-standalone-expect": [
+          "error",
+          { additionalTestBlockFunctions: ["it", "it.for", "it.each"] },
+        ],
+      },
+    },
+    {
       // These modules receive loosely typed values (DuckDB values, paths from
       // JS callers) and must branch on their runtime type.
       files: ["src/converter/**", "src/filesystem/**"],

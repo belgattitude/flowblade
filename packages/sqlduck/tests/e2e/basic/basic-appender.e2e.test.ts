@@ -2,19 +2,22 @@ import type { DuckDBConnection } from "@duckdb/node-api";
 import { expect, afterAll, describe, beforeAll, it } from "vitest";
 import * as z from "zod";
 
-import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
+import { openDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
+import type { DuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 
 import { DuckDatabaseManager, SqlDuck, Table } from "../../../src";
 
 describe("basic appender", () => {
   let conn: DuckDBConnection;
+  let duckDb: DuckdbTestMemoryDb | undefined;
 
   beforeAll(async () => {
-    conn = await createDuckdbTestMemoryDb();
+    duckDb = await openDuckdbTestMemoryDb();
+    ({ conn } = duckDb);
   });
 
   afterAll(async () => {
-    conn.closeSync();
+    duckDb?.close();
   });
 
   describe("toTable", () => {

@@ -137,7 +137,7 @@ describe(rowsToConvertedColumnsChunks, () => {
     );
   });
 
-  describe.each([true, false])("with compile: %s", (compile) => {
+  describe.for([true, false])("with compile: %s", (compile) => {
     it("yields the same converted chunks", async () => {
       const gen = rowsToConvertedColumnsChunks({
         rows: makeRows(input),
@@ -199,18 +199,15 @@ describe(rowsToConvertedColumnsChunks, () => {
       expect(compileFillRow([Symbol("a")], [undefined])).toBeNull();
     });
 
-    it("returns null when new Function is not allowed", () => {
-      const original = globalThis.Function;
+    it("returns null when new Function is not allowed", ({
+      onTestFinished,
+    }) => {
       // Simulates a CSP forbidding eval
-      vi.spyOn(globalThis, "Function").mockImplementation(() => {
+      const spy = vi.spyOn(globalThis, "Function").mockImplementation(() => {
         throw new EvalError("Code generation from strings disallowed");
       });
-      try {
-        expect(compileFillRow(["a"], [undefined])).toBeNull();
-      } finally {
-        vi.restoreAllMocks();
-      }
-      expect(globalThis.Function).toBe(original);
+      onTestFinished(() => spy.mockRestore());
+      expect(compileFillRow(["a"], [undefined])).toBeNull();
     });
   });
 

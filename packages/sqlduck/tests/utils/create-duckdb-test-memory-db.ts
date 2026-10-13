@@ -4,7 +4,7 @@ import path from "node:path";
 import { DuckDBInstance } from "@duckdb/node-api";
 import type { DuckDBConnection } from "@duckdb/node-api";
 
-export const createDuckdbTestMemoryDb = async (options?: {
+export type DuckdbTestMemoryDbOptions = {
   access_mode?: "READ_WRITE";
   max_memory?: `${number}M`;
   threads?: number;
@@ -13,7 +13,20 @@ export const createDuckdbTestMemoryDb = async (options?: {
    */
   temp_directory?: string;
   extension_directory?: string;
-}): Promise<DuckDBConnection> => {
+};
+
+export type DuckdbTestMemoryDb = {
+  instance: DuckDBInstance;
+  conn: DuckDBConnection;
+  /**
+   * Close both the connection and the underlying instance
+   */
+  close: () => void;
+};
+
+export const openDuckdbTestMemoryDb = async (
+  options?: DuckdbTestMemoryDbOptions
+): Promise<DuckdbTestMemoryDb> => {
   const {
     access_mode = "READ_WRITE",
     max_memory = "256M",
@@ -29,5 +42,24 @@ export const createDuckdbTestMemoryDb = async (options?: {
     temp_directory,
     extension_directory,
   });
-  return await instance.connect();
+  const conn = await instance.connect();
+  return {
+    instance,
+    conn,
+    close: () => {
+      conn.closeSync();
+      instance.closeSync();
+    },
+  };
+};
+
+/**
+ * Return only the connection, the caller won't be able to close the instance.
+ * Prefer `openDuckdbTestMemoryDb` or the `createDuckTest` fixture.
+ */
+export const createDuckdbTestMemoryDb = async (
+  options?: DuckdbTestMemoryDbOptions
+): Promise<DuckDBConnection> => {
+  const { conn } = await openDuckdbTestMemoryDb(options);
+  return conn;
 };
