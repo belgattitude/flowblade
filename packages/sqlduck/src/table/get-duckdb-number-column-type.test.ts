@@ -41,16 +41,15 @@ describe(getDuckdbNumberColumnType, () => {
       );
     });
 
-    it("should return DECIMAL(18, scale) if multipleOf is provided and it is a float", () => {
-      const cases = [
-        { multipleOf: 0.1, expectedScale: 1 },
-        { multipleOf: 0.01, expectedScale: 2 },
-        { multipleOf: 0.001, expectedScale: 3 },
-        { multipleOf: 0.0001, expectedScale: 4 },
-        { multipleOf: 1.2345, expectedScale: 4 },
-      ];
-
-      for (const { multipleOf, expectedScale } of cases) {
+    it.for([
+      { multipleOf: 0.1, expectedScale: 1 },
+      { multipleOf: 0.01, expectedScale: 2 },
+      { multipleOf: 0.001, expectedScale: 3 },
+      { multipleOf: 0.0001, expectedScale: 4 },
+      { multipleOf: 1.2345, expectedScale: 4 },
+    ])(
+      "should return DECIMAL(18, $expectedScale) for float multipleOf $multipleOf",
+      ({ multipleOf, expectedScale }) => {
         const colType = getDuckdbNumberColumnType({
           minimum: 0,
           maximum: 10,
@@ -66,7 +65,7 @@ describe(getDuckdbNumberColumnType, () => {
           decimal.width
         );
       }
-    });
+    );
   });
 
   describe("DECIMAL from multipleOf", () => {
@@ -191,11 +190,7 @@ describe(getDuckdbNumberColumnType, () => {
     });
 
     it("should return UHUGEINT for extremely large unsigned ranges", () => {
-      // maximum > 18_446_744_073_709_551_615n
-      // Note: number in JS cannot represent this exactly, but let's use a very large number or infinity
-      // Actually the code uses BIGINT literals for comparison but params are 'number'
-      // Wait, the code has: if (maximum <= 18_446_744_073_709_551_615n)
-      // This comparison between number and bigint might be tricky or use bigint if maximum was bigint, but it is defined as number.
+      // maximum > 18_446_744_073_709_551_615n (UBIGINT max)
       expect(getDuckdbNumberColumnType({ minimum: 0, maximum: 2e20 })).toBe(
         UHUGEINT
       );

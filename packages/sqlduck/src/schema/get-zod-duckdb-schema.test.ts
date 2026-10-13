@@ -4,7 +4,7 @@ import * as z from "zod";
 
 import { getZodDuckDBSchema } from "./get-zod-duckdb-schema";
 
-describe("test idea", () => {
+describe(getZodDuckDBSchema, () => {
   describe("zod to table", () => {
     const duckRegistry = z.registry<{
       duckdb: { type: keyof typeof DuckDBTypeId };

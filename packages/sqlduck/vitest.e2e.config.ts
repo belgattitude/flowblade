@@ -1,37 +1,39 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, mergeConfig } from "vitest/config";
 
-const testFiles = ["./tests/e2e/**/*.test.{js,jsx,ts,tsx}"];
-export default defineConfig({
-  resolve: {
-    conditions: ["flowblade-monorepo-source"],
-  },
-  ssr: {
-    resolve: {
-      conditions: ["flowblade-monorepo-source", "import", "default"],
+import { sharedConfig } from "./vitest.shared.ts";
+
+export default mergeConfig(
+  sharedConfig,
+  defineConfig({
+    test: {
+      typecheck: {
+        enabled: false,
+      },
+      passWithNoTests: true,
+      coverage: {
+        provider: "v8",
+        reporter: ["text", "clover"],
+        include: ["src/**/*.{js,jsx,ts,tsx}"],
+      },
+      // Inline projects inherit the options above
+      projects: [
+        {
+          test: {
+            name: "e2e",
+            include: ["./tests/e2e/**/*.test.{js,jsx,ts,tsx}"],
+            exclude: ["./tests/e2e/mssql/**"],
+          },
+        },
+        {
+          test: {
+            name: "e2e-mssql",
+            include: ["./tests/e2e/mssql/**/*.test.{js,jsx,ts,tsx}"],
+            // Starts one container shared by all mssql test files
+            globalSetup: ["./tests/e2e/mssql/global-setup.ts"],
+            testTimeout: 10_000,
+          },
+        },
+      ],
     },
-  },
-  test: {
-    globals: true,
-    typecheck: {
-      enabled: false,
-    },
-    environment: "node",
-    passWithNoTests: true,
-    setupFiles: "./tests/vitest.setup.ts",
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "clover"],
-      include: ["src/**/*.{js,jsx,ts,tsx}"],
-    },
-    include: testFiles,
-    // you might want to disable it, if you don't have tests that rely on CSS
-    // since parsing CSS is slow
-    // css: true,
-    exclude: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/.next/**",
-      "**/.{idea,git,cache,output,temp}/**",
-    ],
-  },
-});
+  })
+);

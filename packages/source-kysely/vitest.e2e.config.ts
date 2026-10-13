@@ -1,25 +1,26 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, mergeConfig } from "vitest/config";
 
-const testFiles = ["./tests/e2e/**/*.test.ts"];
+import { sharedConfig } from "./vitest.shared.ts";
 
-export default defineConfig({
-  resolve: {
-    conditions: ["flowblade-monorepo-source"],
-  },
-  ssr: {
-    resolve: {
-      conditions: ["flowblade-monorepo-source", "import", "default"],
+export default mergeConfig(
+  sharedConfig,
+  defineConfig({
+    test: {
+      // Inline projects inherit the options above
+      projects: [
+        {
+          test: {
+            name: "e2e-mssql",
+            include: ["./tests/e2e/mssql/**/*.test.ts"],
+            // Starts one container shared by all mssql test files
+            globalSetup: ["./tests/e2e/mssql/global-setup.ts"],
+            testTimeout: 10_000,
+            benchmark: {
+              include: ["./bench/e2e/**/*.bench.ts"],
+            },
+          },
+        },
+      ],
     },
-  },
-  test: {
-    environment: "node",
-    exclude: [
-      "**/node_modules/**",
-      "dist/**",
-      "**/coverage/**",
-      "**/.{idea,git,cache,output,temp}/**",
-    ],
-    globals: true,
-    include: testFiles,
-  },
-});
+  })
+);

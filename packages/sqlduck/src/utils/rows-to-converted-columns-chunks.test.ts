@@ -137,7 +137,7 @@ describe(rowsToConvertedColumnsChunks, () => {
     );
   });
 
-  describe.each([true, false])("with compile: %s", (compile) => {
+  describe.for([true, false])("with compile: %s", (compile) => {
     it("yields the same converted chunks", async () => {
       const gen = rowsToConvertedColumnsChunks({
         rows: makeRows(input),
@@ -199,18 +199,19 @@ describe(rowsToConvertedColumnsChunks, () => {
       expect(compileFillRow([Symbol("a")], [undefined])).toBeNull();
     });
 
-    it("returns null when new Function is not allowed", () => {
-      const original = globalThis.Function;
-      // Simulates a CSP forbidding eval
-      vi.spyOn(globalThis, "Function").mockImplementation(() => {
-        throw new EvalError("Code generation from strings disallowed");
-      });
-      try {
-        expect(compileFillRow(["a"], [undefined])).toBeNull();
-      } finally {
-        vi.restoreAllMocks();
-      }
-      expect(globalThis.Function).toBe(original);
+    it("returns null when new Function is not allowed", ({
+      onTestFinished,
+    }) => {
+      // Simulates a CSP forbidding eval. `Function` is called with `new`,
+      // so the mock must be a function (not an arrow) to be constructable
+      const spy = vi
+        .spyOn(globalThis, "Function")
+        // oxlint-disable-next-line prefer-arrow-callback -- arrows can't be called with `new`
+        .mockImplementation(function throwOnCodeGeneration() {
+          throw new EvalError("Code generation from strings disallowed");
+        });
+      onTestFinished(() => spy.mockRestore());
+      expect(compileFillRow(["a"], [undefined])).toBeNull();
     });
   });
 

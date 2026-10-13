@@ -167,12 +167,9 @@ describe(getTableCreateFromZod, () => {
       expect(ddl).toContain("rate DECIMAL(38,10) NOT NULL");
     });
 
-    it("should fail when width or scale are out of range", () => {
-      for (const duckdbType of [
-        "DECIMAL(39,2)",
-        "DECIMAL(0,0)",
-        "DECIMAL(4,5)",
-      ]) {
+    it.for(["DECIMAL(39,2)", "DECIMAL(0,0)", "DECIMAL(4,5)"])(
+      "should fail when width or scale are out of range: %s",
+      (duckdbType) => {
         expect(() =>
           getTableCreateFromZod({
             table: new Table("test"),
@@ -180,7 +177,7 @@ describe(getTableCreateFromZod, () => {
           })
         ).toThrow(/Invalid duckdbType/);
       }
-    });
+    );
   });
   describe("When the zod schema uses multipleOf", () => {
     it("should infer the DECIMAL width and scale", () => {

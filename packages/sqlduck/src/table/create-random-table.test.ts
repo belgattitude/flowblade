@@ -1,27 +1,10 @@
-import type { DuckDBConnection } from "@duckdb/node-api";
-import isInCi from "is-in-ci";
-import { beforeAll, afterAll, describe, expect, it } from "vitest";
-
-import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
+import { describe, expect, it } from "vitest";
 
 import { Table } from "../objects/table.ts";
 import { isDuckdbValidIdentifier } from "../validation/core/is-duckdb-valid-identifier.ts";
 import { createRandomTable } from "./create-random-table.ts";
 
 describe("createRandomTable", () => {
-  let conn: DuckDBConnection;
-  beforeAll(async () => {
-    conn = await createDuckdbTestMemoryDb({
-      // Keep it high to prevent going to .tmp directory
-      max_memory: isInCi ? "128M" : "256M",
-      threads: 1,
-    });
-  });
-
-  afterAll(() => {
-    conn.closeSync();
-  });
-
   it("should create a table with a random name", () => {
     const createdTable = createRandomTable({
       prefix: "tmp_",

@@ -54,6 +54,10 @@ ENV TZ=Etc/UTC \
     PNPM_CONFIG_STORE_DIR=/opt/pnpm-store \
     PRISMA_SKIP_POSTINSTALL_GENERATE=true
 
+# Skip the skills-npm sync run by the root "prepare" script during install:
+# agent skills (symlinks for coding agents) aren't needed in images.
+ENV SKIP_SKILLS_NPM_PREPARE=1
+
 # First install the dependencies (as they change less often)
 COPY --link --from=prepare /app/.turbo-pruned/nextjs-app/json/ .
 

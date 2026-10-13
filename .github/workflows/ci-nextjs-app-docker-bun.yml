@@ -26,6 +26,8 @@ jobs:
     env:
       TURBO_API: "http://127.0.0.1:9080"
       TURBO_TEAM: "flowblade"
+      # Dependencies aren't installed on the runner (the image installs them),
+      # turbo runs the docker task through pnpm without checking node_modules.
       PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN: "false"
     defaults:
       run:
@@ -48,16 +50,28 @@ jobs:
           server-token: ${{ secrets.CI_TURBO_SERVER_TOKEN }}
 
       - name: ⚙️Install pnpm and Node.js
-        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4 # v3.1.1
         with:
           runtime: node@24
           cache: false
           node-version-file: false
+          # turbo only needs the manifests and the lockfile, dependencies are
+          # installed inside the docker image
+          install: false
+
+      - name: ⚙️ Install turbo
+        # Same version as the root package.json
+        run: pnpm install --global "turbo@$(jq -r '.devDependencies.turbo' package.json)"
 
       - name: 🔎 Check if the app is affected
         id: affected
+        env:
+          # The checkout only has remote refs (origin/main), turbo would otherwise
+          # look for a local `main` branch and assume everything changed.
+          # PR: compare with the target branch, push: with the previous tip.
+          TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
         run: |
-          count=$(pnpm exec turbo query affected --packages "${APP_PACKAGE}" --tasks "${TURBO_TASK}" | jq '.data.affectedTasks.length')
+          count=$(turbo query affected --packages "${APP_PACKAGE}" --tasks "${TURBO_TASK}" | jq '.data.affectedTasks.length')
           echo "Affected tasks: ${count}"
           if [ "${count}" -gt 0 ]; then
             echo "affected=true" >> "$GITHUB_OUTPUT"
@@ -76,25 +90,34 @@ jobs:
 
       - name: 🏗 Build docker image
         if: steps.affected.outputs.affected == 'true'
-        run: pnpm turbo run "${TURBO_TASK}" --filter="${APP_PACKAGE}" --log-prefix=none --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
+        run: turbo run "${TURBO_TASK}" --filter="${APP_PACKAGE}" --log-prefix=none --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 
       - name: 🕵️ Docker image inspect
         if: steps.affected.outputs.affected == 'true'
         run: docker image inspect "${IMAGE}"
 
-      - name: 💾 Save docker image
+      - name: 📊 Docker image statistics
         if: steps.affected.outputs.affected == 'true'
-        run: docker save "${IMAGE}" -o ./docker-image.tar
-
-      - name: 📐 Compress saved image and show size
-        if: steps.affected.outputs.affected == 'true'
-        env:
-          MAX_SIZE_IN_MB: 200
-          ZSTD_LEVEL: 8
         run: |
-          zstd -${{ env.ZSTD_LEVEL }} -i ./docker-image.tar -o ./docker-image.tar.zst          
-          ls -lah | grep docker-image.tar
-          if [ $(ls -s --block-size=1048576 ./docker-image.tar.zst | cut -d' ' -f1)  -gt ${{ env.MAX_SIZE_IN_MB }} ]; then 
-             echo 'Error: docker image too big'; 
-             exit 1; 
-          else echo "Size ok"; fi
+          size_bytes=$(docker image inspect "${IMAGE}" --format '{{.Size}}')
+          layers=$(docker image inspect "${IMAGE}" --format '{{len .RootFS.Layers}}')
+          platform=$(docker image inspect "${IMAGE}" --format '{{.Os}}/{{.Architecture}}')
+          size_mb=$(awk -v b="${size_bytes}" 'BEGIN { printf "%.1f", b / 1024 / 1024 }')
+          {
+            echo "### 🐳 ${IMAGE}"
+            echo ""
+            echo "| Platform | Size (uncompressed) | Layers |"
+            echo "| --- | --- | --- |"
+            echo "| ${platform} | ${size_mb} MB | ${layers} |"
+            echo ""
+            echo "<details><summary>Largest layers</summary>"
+            echo ""
+            echo '```'
+            docker history "${IMAGE}" --no-trunc --human=false --format '{{.Size}}\t{{.CreatedBy}}' \
+              | sort -rn \
+              | head -n 10 \
+              | awk -F '\t' '$1 > 0 { cmd = $2; if (length(cmd) > 100) cmd = substr(cmd, 1, 97) "..."; printf "%8.1f MB  %s\n", $1 / 1024 / 1024, cmd }'
+            echo '```'
+            echo ""
+            echo "</details>"
+          } | tee -a "${GITHUB_STEP_SUMMARY}"

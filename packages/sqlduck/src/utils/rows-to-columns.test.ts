@@ -41,8 +41,9 @@ describe(rowsToColumns, () => {
     ];
     const gen = rowsToColumns<Row>(makeRows(input));
     const [cols] = await Array.fromAsync(gen);
+    expect.assert(cols);
     // Expect first column corresponds to "id" values, second to "name" values
-    expect(cols![0]).toStrictEqual(["10", "11"]);
-    expect(cols![1]).toStrictEqual(["Zoe", "Max"]);
+    expect(cols[0]).toStrictEqual(["10", "11"]);
+    expect(cols[1]).toStrictEqual(["Zoe", "Max"]);
   });
 });

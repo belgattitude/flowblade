@@ -4,7 +4,7 @@ import isInCi from "is-in-ci";
 import { type BenchCompareOptions, test } from "vitest";
 import * as z from "zod";
 
-import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
+import { openDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 import { testTempDir } from "#tests/utils/get-test-temp-dir.ts";
 
 import { DuckDatabaseManager, zodCodecs } from "../src";
@@ -13,12 +13,12 @@ import { SqlDuck } from "../src/sql-duck.ts";
 import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator.ts";
 
 const benchConfig: BenchCompareOptions = {
-  iterations: isInCi ? 1 : 1,
-  warmupIterations: isInCi ? 1 : 1,
+  iterations: 1,
+  warmupIterations: 1,
   throws: true,
 };
 
-test("appender benches", async ({ bench }) => {
+test("appender benches", async ({ bench, onTestFinished }) => {
   const userSchema = z.object({
     id: z.int32().meta({ description: "cool" }),
     name: z.string(),
@@ -46,11 +46,13 @@ test("appender benches", async ({ bench }) => {
     },
   });
 
-  const conn = await createDuckdbTestMemoryDb({
+  const duckDb = await openDuckdbTestMemoryDb({
     // Keep it high to prevent going to .tmp directory
     max_memory: isInCi ? "256M" : "2048M",
     threads: isInCi ? 1 : 4,
   });
+  onTestFinished(() => duckDb.close());
+  const { conn } = duckDb;
 
   const dbManager = new DuckDatabaseManager(conn);
   const memoryDb = await dbManager.attachIfNotExists({

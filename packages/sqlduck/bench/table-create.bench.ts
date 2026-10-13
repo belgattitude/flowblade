@@ -1,5 +1,5 @@
 import isInCi from "is-in-ci";
-import { type BenchCompareOptions, test } from "vitest";
+import { type BenchCompareOptions, expect, test } from "vitest";
 import * as z from "zod";
 
 import { getTableCreateFromZod, Table, zodCodecs } from "../src";
@@ -25,10 +25,14 @@ test(`Bench getTableCreateFromZod`, async ({ bench }) => {
     alt_uuid_v7: z.uuidv7(),
   });
 
+  let ddlLength = 0;
   await bench(`getTableCreateFromZod`, benchConfig, () => {
-    const _result = getTableCreateFromZod({
+    const { ddl } = getTableCreateFromZod({
       table: new Table("test_table"),
       schema: userSchema,
     });
+    // Consume the result, the engine might eliminate unused code
+    ddlLength += ddl.length;
   }).run();
+  expect(ddlLength).toBeGreaterThan(0);
 });

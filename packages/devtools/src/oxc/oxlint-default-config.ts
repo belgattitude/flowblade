@@ -181,7 +181,7 @@ export const oxlintDefaultConfig = defineConfig({
     },
     {
       // Test files
-      files: ["*.test.{ts,tsx}", "*.spec.{ts,tsx}"],
+      files: ["*.test.{ts,tsx}", "*.test-d.{ts,tsx}", "*.spec.{ts,tsx}"],
       plugins: ["vitest"],
       rules: {
         "func-name-matching": "off",
@@ -218,10 +218,19 @@ export const oxlintDefaultConfig = defineConfig({
       },
     },
     {
+      // Type tests (vitest typecheck) may assert with `@ts-expect-error` only
+      files: ["*.test-d.{ts,tsx}"],
+      plugins: ["vitest"],
+      rules: {
+        "vitest/expect-expect": "off",
+      },
+    },
+    {
       // Test, bench and script code builds fixtures and mocks, so anti-slop's
       // boundary-parsing rules add noise rather than safety there.
       files: [
         "*.test.ts",
+        "*.test-d.ts",
         "*.spec.ts",
         "**/tests/**",
         "**/bench/**",

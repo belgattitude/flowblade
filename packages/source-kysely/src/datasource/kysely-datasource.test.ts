@@ -2,55 +2,56 @@ import { describe, expect, it, vi } from "vitest";
 
 import { KyselyDatasource } from "./kysely-datasource";
 
-describe("KyselyDatasource.stream logging", () => {
-  it("should call logger.info even if stream is partially consumed", async () => {
-    const mockLogger = {
-      debug: vi.fn<() => void>(),
-      info: vi.fn<() => void>(),
-      error: vi.fn<() => void>(),
-      warn: vi.fn<() => void>(),
-    };
+describe(KyselyDatasource, () => {
+  describe("stream", () => {
+    it("should log the execution even if the stream is partially consumed", async () => {
+      const mockLogger = {
+        debug: vi.fn<() => void>(),
+        info: vi.fn<() => void>(),
+        error: vi.fn<() => void>(),
+        warn: vi.fn<() => void>(),
+      };
 
-    const mockQuery = {
-      compile: vi
-        .fn<() => { sql: string; parameters: unknown[] }>()
-        .mockReturnValue({
-          sql: "SELECT * FROM test",
-          parameters: [],
-        }),
-      stream: vi
-        .fn<() => AsyncGenerator<{ id: number }>>()
-        .mockImplementation(async function* stream() {
-          yield { id: 1 };
-          yield { id: 2 };
-          yield { id: 3 };
-        }),
-    };
+      const mockQuery = {
+        compile: vi
+          .fn<() => { sql: string; parameters: unknown[] }>()
+          .mockReturnValue({
+            sql: "SELECT * FROM test",
+            parameters: [],
+          }),
+        stream: vi
+          .fn<() => AsyncGenerator<{ id: number }>>()
+          .mockImplementation(async function* stream() {
+            yield { id: 1 };
+            yield { id: 2 };
+            yield { id: 3 };
+          }),
+      };
 
-    const ds = new KyselyDatasource({
-      connection: {} as never, // db is only used for compile which we mocked
-      logger: mockLogger as never,
+      const ds = new KyselyDatasource({
+        connection: {} as never, // db is only used for compile which we mocked
+        logger: mockLogger as never,
+      });
+
+      // @ts-expect-error - access private to mock
+      ds.db = { executeQuery: vi.fn<() => void>() };
+
+      const stream = ds.stream(mockQuery as never, {
+        name: "test-stream",
+      });
+
+      // Partially consume the stream
+      const first = await stream.next();
+      expect(first.value).toStrictEqual({ id: 1 });
+
+      // Stop here and trigger generator return
+      expect.assert(typeof stream.return === "function");
+      await stream.return();
+
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        expect.stringContaining('Streaming query "test-stream" executed in'),
+        expect.anything()
+      );
     });
-
-    // @ts-expect-error - access private to mock
-    ds.db = { executeQuery: vi.fn<() => void>() };
-
-    const stream = ds.stream(mockQuery as never, {
-      name: "test-stream",
-    });
-
-    // Partially consume the stream
-    const first = await stream.next();
-    expect(first.value).toStrictEqual({ id: 1 });
-
-    // Stop here and trigger generator return
-    await stream.return!();
-
-    // Check if logger.info was called
-    // In the CURRENT implementation, this will FAIL
-    expect(mockLogger.info).toHaveBeenCalledWith(
-      expect.stringContaining('Streaming query "test-stream" executed in'),
-      expect.anything()
-    );
   });
 });

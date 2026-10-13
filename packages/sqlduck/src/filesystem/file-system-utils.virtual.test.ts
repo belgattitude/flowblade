@@ -20,7 +20,8 @@ vi.mock("node:fs", () => {
 
 describe("FileSystemUtils", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    // Reset implementations too (ie: mockReturnValue), not only call history
+    vi.resetAllMocks();
   });
 
   describe("createDirectory", () => {

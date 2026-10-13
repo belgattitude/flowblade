@@ -1,23 +1,17 @@
-import type { DuckDBConnection } from "@duckdb/node-api";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect } from "vitest";
 
-import { createDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
+import { createDuckTestIsolated } from "#tests/utils/duck-test.ts";
 
 import { DuckExtensionsManager } from "./duck-extensions-manager.ts";
 
-describe("DuckExtensionsManagerTest", async () => {
-  let conn: DuckDBConnection;
-  beforeEach(async () => {
-    conn = await createDuckdbTestMemoryDb({
-      max_memory: "5M",
-      threads: 1,
-    });
-  });
-  afterEach(() => {
-    conn.closeSync();
-  });
+const it = createDuckTestIsolated({
+  max_memory: "5M",
+  threads: 1,
+});
+
+describe("DuckExtensionsManagerTest", () => {
   describe("search", () => {
-    it("should return installed extension", async () => {
+    it("should return installed extension", async ({ conn }) => {
       const extManager = new DuckExtensionsManager(conn);
       const extensions = await extManager.search({
         installed: true,
@@ -33,24 +27,24 @@ describe("DuckExtensionsManagerTest", async () => {
     });
   });
 
-  describe("install", { concurrent: false }, () => {
-    it("should force install an extension", async () => {
+  // Installing extensions downloads them from the duckdb extensions repository
+  describe("install", { tags: ["network"], timeout: 15_000 }, () => {
+    it("should force install an extension", async ({ conn }) => {
       const extManager = new DuckExtensionsManager(conn);
       const installed = await extManager.install("fts", {
         force: true,
       });
       expect(installed).toBe(true);
-    }, 15_000);
+    });
 
-    it("should install an extension", async () => {
+    it("should install an extension", async ({ conn }) => {
       const extManager = new DuckExtensionsManager(conn);
       const installed = await extManager.install("fts");
       expect(installed).toBe(true);
-    }, 15_000);
+    });
 
-    it("should fail on invalid extension", async () => {
+    it("should fail on invalid extension", async ({ conn }) => {
       const extManager = new DuckExtensionsManager(conn);
-      // const installed = await extManager.install('not_existsing_extension');
       await expect(
         extManager.install("not_existing_extension")
       ).rejects.toThrow('Failed to run "DuckExtensionsManager.install"');
