@@ -13,9 +13,10 @@ import {
 import type { Logger } from "@logtape/logtape";
 import type { Compilable, InferResult, Kysely, RawBuilder } from "kysely";
 
-import { isKyselyStreamable } from "../internal/is-kysely-streamable";
-import { parseBigIntToSafeInt } from "../internal/parse-bigint-to-safeint";
-import { kyselyDefaultLogtapeLogger } from "../logger/kysely-default-logtape-logger";
+import { getKyselyErrorMessage } from "../internal/get-kysely-error-message.ts";
+import { isKyselyStreamable } from "../internal/is-kysely-streamable.ts";
+import { parseBigIntToSafeInt } from "../internal/parse-bigint-to-safeint.ts";
+import { kyselyDefaultLogtapeLogger } from "../logger/kysely-default-logtape-logger.ts";
 
 type Params<TDatabase> = {
   connection: Kysely<TDatabase>;
@@ -171,21 +172,12 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     } catch (error) {
       span.timeMs = Date.now() - start;
 
-      // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
-      // This behaviour exists for example in Tedious/Mssql
-      let message = "Unknown error";
-      if (Array.isArray(error)) {
-        message = error
-          .map((e) => (e instanceof Error ? e.message : String(e)))
-          .join("; ");
-      } else if (error instanceof Error) {
-        ({ message } = error);
-      }
+      const message = getKyselyErrorMessage(error);
 
-      this.logger.error(
-        `Query "{queryName}" failed: ${message}`,
-        this.getLogFromSpan(name, span, "query")
-      );
+      this.logger.error('Query "{queryName}" failed: {errorMessage}', {
+        ...this.getLogFromSpan(name, span, "query"),
+        errorMessage: message,
+      });
 
       return createQResultError(
         {
@@ -291,7 +283,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     const start = Date.now();
 
     this.logger.debug(
-      `Streaming query "${name}"`,
+      'Streaming query "{queryName}"',
       this.getLogFromSpan(name, span, "stream")
     );
 
@@ -311,20 +303,14 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       span.timeMs = Date.now() - start;
       span.affectedRows = rowCount;
 
-      // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
-      // This behaviour exists for example in Tedious/Mssql
-      let message = "Unknown error";
-      if (Array.isArray(error)) {
-        message = error
-          .map((e) => (e instanceof Error ? e.message : String(e)))
-          .join("; ");
-      } else if (error instanceof Error) {
-        ({ message } = error);
-      }
+      const message = getKyselyErrorMessage(error);
 
       this.logger.error(
-        `Streaming query "${name}" failed: ${message}`,
-        this.getLogFromSpan(name, span, "stream")
+        'Streaming query "{queryName}" failed: {errorMessage}',
+        {
+          ...this.getLogFromSpan(name, span, "stream"),
+          errorMessage: message,
+        }
       );
 
       throw new Error(message, {
@@ -334,12 +320,11 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       // Runs on completion, on early exit (break / return) and on failure,
       // the failure being already logged as an error above.
       if (!failed) {
-        const timeMs = Date.now() - start;
-        span.timeMs = timeMs;
+        span.timeMs = Date.now() - start;
         span.affectedRows = rowCount;
 
         this.logger.info(
-          `Streaming query "${name}" executed in ${timeMs}ms.`,
+          'Streaming query "{queryName}" executed in {timeMs}ms, streamed {affectedRows} row(s)',
           this.getLogFromSpan(name, span, "stream")
         );
       }

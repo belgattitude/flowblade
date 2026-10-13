@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { KyselyDatasource } from "./kysely-datasource";
+import { KyselyDatasource } from "./kysely-datasource.ts";
 
 const createStreamDatasource = (
   stream: () => AsyncGenerator<{ id: number }>,
@@ -145,7 +145,7 @@ describe(KyselyDatasource, () => {
       ]);
 
       expect(logger.info).toHaveBeenCalledExactlyOnceWith(
-        expect.stringContaining('Streaming query "test-stream" executed in'),
+        'Streaming query "{queryName}" executed in {timeMs}ms, streamed {affectedRows} row(s)',
         expect.objectContaining({ affectedRows: 3 })
       );
       expect(logger.error).not.toHaveBeenCalled();
@@ -167,7 +167,7 @@ describe(KyselyDatasource, () => {
       await stream.return();
 
       expect(logger.info).toHaveBeenCalledExactlyOnceWith(
-        expect.stringContaining('Streaming query "test-stream" executed in'),
+        'Streaming query "{queryName}" executed in {timeMs}ms, streamed {affectedRows} row(s)',
         expect.objectContaining({ affectedRows: 1 })
       );
     });
@@ -184,8 +184,12 @@ describe(KyselyDatasource, () => {
       );
 
       expect(logger.error).toHaveBeenCalledExactlyOnceWith(
-        'Streaming query "test-stream" failed: Connection lost',
-        expect.objectContaining({ affectedRows: 1 })
+        'Streaming query "{queryName}" failed: {errorMessage}',
+        expect.objectContaining({
+          queryName: "test-stream",
+          errorMessage: "Connection lost",
+          affectedRows: 1,
+        })
       );
       expect(logger.info).not.toHaveBeenCalled();
     });

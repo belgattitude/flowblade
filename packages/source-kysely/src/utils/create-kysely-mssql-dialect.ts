@@ -5,7 +5,7 @@ import * as Tedious from "tedious";
 import {
   createTarnPoolOptions,
   type TarnPoolOptions,
-} from "./create-tarn-pool-options";
+} from "./create-tarn-pool-options.ts";
 
 export type KyselyMssqlPoolOptions = {
   /**

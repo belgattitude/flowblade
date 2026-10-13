@@ -2,8 +2,8 @@ import { MssqlDialect } from "kysely";
 import * as Tedious from "tedious";
 import { expect, describe, it } from "vitest";
 
-import { createKyselyMssqlDialect } from "./create-kysely-mssql-dialect";
-import { TediousConnUtils } from "./tedious-conn-utils";
+import { createKyselyMssqlDialect } from "./create-kysely-mssql-dialect.ts";
+import { TediousConnUtils } from "./tedious-conn-utils.ts";
 
 describe(createKyselyMssqlDialect, () => {
   it("should allow to redefine tedious types", () => {

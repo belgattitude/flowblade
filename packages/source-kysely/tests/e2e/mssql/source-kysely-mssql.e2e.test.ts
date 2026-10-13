@@ -249,7 +249,7 @@ describe("MSSQL e2e tests", () => {
           .select(["t.id"]);
         await expect(
           Array.fromAsync(ds.stream(query, { signal: AbortSignal.abort() }))
-        ).rejects.toThrow();
+        ).rejects.toThrow("This operation was aborted");
       });
     });
 
@@ -364,10 +364,17 @@ describe("MSSQL e2e tests", () => {
       expect(logBuffer[1]).toMatchObject({
         category: flowbladeLogtapeKyselyConfig.categories,
         level: "error",
-        message: ['Query "', "ERROR", "\" failed: Invalid column name 'err'."],
-        rawMessage: "Query \"{queryName}\" failed: Invalid column name 'err'.",
+        message: [
+          'Query "',
+          "ERROR",
+          '" failed: ',
+          "Invalid column name 'err'.",
+          "",
+        ],
+        rawMessage: 'Query "{queryName}" failed: {errorMessage}',
         properties: {
           queryName: "ERROR",
+          errorMessage: "Invalid column name 'err'.",
           sql: "SELECT err",
           params: [],
           affectedRows: 0,
