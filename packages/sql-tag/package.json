@@ -51,8 +51,8 @@
     "test-e2e-watch": "vitest --config=vitest.e2e.config.ts  --ui --api 4516 --coverage.enabled=true --coverage.reporter=html",
     "test-unit": "vitest run",
     "test-unit-bun": "bun --bun run vitest run",
-    "test-unit-deno": "deno run test-unit --pool=forks",
     "test-unit-coverage": "vitest run --coverage",
+    "test-unit-deno": "deno run test-unit --pool=forks",
     "test-unit-watch": "vitest --ui --api 4519 --coverage.enabled=true --coverage.reporter=html",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-build": "tsc --project tsconfig.build.json --noEmit"
