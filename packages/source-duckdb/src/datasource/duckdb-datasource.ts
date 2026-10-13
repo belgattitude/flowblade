@@ -15,7 +15,7 @@ import {
 import type { SqlTag } from "@flowblade/sql-tag";
 import type { Logger } from "@logtape/logtape";
 
-import { duckdbDefaultLogtapeLogger } from "../logger/duckdb-default-logtape-logger";
+import { duckdbDefaultLogtapeLogger } from "../logger/duckdb-default-logtape-logger.ts";
 
 export type DuckdbDatasourceParams = {
   connection: DuckDBConnection;
@@ -97,15 +97,22 @@ export class DuckdbDatasource implements DatasourceInterface {
     options?: QueryOptions
   ): AsyncQResult<TData> => {
     const name = options?.name ?? "anonymous";
+    const signal = options?.signal;
     const { text: sql, values: params } = rawQuery;
     const span = createSqlSpan({ sql, params });
     const start = Date.now();
+    // Interrupts the query running on the connection when aborted
+    const onAbort = () => {
+      this.db.interrupt();
+    };
     try {
-      this.logger.debug(`Executing query "{queryName}"`, {
+      this.logger.debug('Executing query "{queryName}"', {
         queryName: name,
         sql,
         params,
       });
+      signal?.throwIfAborted();
+      signal?.addEventListener("abort", onAbort, { once: true });
       const rows = await this.db.runAndReadAll(sql, params as DuckDBValue[]);
       span.affectedRows = rows.currentRowCount;
       span.timeMs = Date.now() - start;
@@ -120,27 +127,29 @@ export class DuckdbDatasource implements DatasourceInterface {
         new QMeta({ name, spans: span })
       );
     } catch (error) {
-      span.timeMs = Math.round(Date.now() - start);
+      span.timeMs = Date.now() - start;
       let message: string;
       if (error instanceof Error) {
         ({ message } = error);
       } else if (typeof error === "string") {
         message = error;
       } else {
-        message = "unknown error";
+        message = "Unknown error";
       }
-      this.logger.error(
-        `Query "{queryName}" failed: ${message}`,
-        this.getLogFromSpan(name, span)
-      );
+      this.logger.error('Query "{queryName}" failed: {errorMessage}', {
+        ...this.getLogFromSpan(name, span),
+        errorMessage: message,
+      });
 
       return createQResultError(
-        { message },
+        { message, cause: error },
         new QMeta({
           name,
           spans: span,
         })
       );
+    } finally {
+      signal?.removeEventListener("abort", onAbort);
     }
   };
 
@@ -149,9 +158,9 @@ export class DuckdbDatasource implements DatasourceInterface {
    *
    * @example
    * ```typescript
-   * const ds = new DuckDbDatasource();
+   * const ds = new DuckdbDatasource({ connection: duckdb });
    * try {
-   *  const { data, meta } = await ds.query(sql`select 1`);
+   *  const { data, meta } = await ds.queryOrThrow(sql`select 1`);
    * } catch (e) {
    *   //
    * }
@@ -167,7 +176,8 @@ export class DuckdbDatasource implements DatasourceInterface {
     const result = await this.query<TData>(rawQuery, options);
     return {
       data: result.getOrThrow(
-        (qErr) => new Error(`Query failed: ${qErr.message}`)
+        (qErr) =>
+          new Error(`Query failed: ${qErr.message}`, { cause: qErr.cause })
       ),
       meta: result.meta,
     };

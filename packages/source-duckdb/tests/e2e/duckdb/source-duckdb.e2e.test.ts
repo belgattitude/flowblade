@@ -105,6 +105,61 @@ describe("DuckDBAsyncDatasource e2e", async () => {
     });
   });
 
+  describe("Error cause", () => {
+    it("should keep the duckdb error as the error cause", async () => {
+      const result = await ds.query(sql`SELECT FRM 1`);
+      expect(result.error).toStrictEqual({
+        message: expect.stringContaining("Parser Error"),
+        cause: expect.any(Error),
+      });
+      // Never serialized
+      expect(result.toJsonifiable().error).toStrictEqual({
+        message: result.error?.message,
+      });
+    });
+
+    it("should throw with the duckdb error as cause in queryOrThrow", async () => {
+      const result = await ds.query(sql`SELECT FRM 1`);
+      await expect(ds.queryOrThrow(sql`SELECT FRM 1`)).rejects.toThrow(
+        expect.objectContaining({ cause: result.error?.cause })
+      );
+    });
+  });
+
+  describe("Abort signal", () => {
+    it("should interrupt an in-flight query", async () => {
+      const start = Date.now();
+      const result = await ds.query(
+        sql`SELECT count(*) FROM range(100000000000) t1`,
+        { signal: AbortSignal.timeout(100) }
+      );
+      expect(result.error?.message).toMatch(/Interrupted/);
+      expect(Date.now() - start).toBeLessThan(5000);
+
+      // The connection is still usable
+      const { data } = await ds.queryOrThrow(
+        sql<{ ok: number }>`SELECT 1 as ok`
+      );
+      expect(data).toStrictEqual([{ ok: 1 }]);
+    });
+
+    it("should not run the query when the signal is already aborted", async () => {
+      const result = await ds.query(
+        sql`CREATE TABLE aborted AS SELECT 1 as a`,
+        {
+          signal: AbortSignal.abort(),
+        }
+      );
+      expect(result.error?.message).toBe("This operation was aborted");
+      const { data } = await ds.queryOrThrow(
+        sql<{
+          count: number;
+        }>`SELECT count(*)::INTEGER as count FROM duckdb_tables() WHERE table_name = 'aborted'`
+      );
+      expect(data).toStrictEqual([{ count: 0 }]);
+    });
+  });
+
   describe("Logger", () => {
     let logBuffer: LogRecord[] = [];
     beforeEach(async () => {
@@ -201,13 +256,16 @@ describe("DuckDBAsyncDatasource e2e", async () => {
         message: [
           'Query "',
           "ERROR",
-          expect.stringMatching(/" failed: Binder/),
+          '" failed: ',
+          expect.stringMatching(/^Binder(.*)FROM clause is missing/),
+          "",
         ],
-        rawMessage: expect.stringMatching(
-          /Query "\{queryName\}" failed: Binder(.*)FROM clause is missing/
-        ),
+        rawMessage: 'Query "{queryName}" failed: {errorMessage}',
         properties: {
           queryName: "ERROR",
+          errorMessage: expect.stringMatching(
+            /^Binder(.*)FROM clause is missing/
+          ),
           sql: "SELECT err",
           params: [],
           affectedRows: 0,
