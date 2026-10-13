@@ -1,14 +1,15 @@
-export { flowbladeLogtapeKyselyConfig } from "./config/flowblade-logtape-kysely.config";
-export { KyselyDatasource } from "./datasource/kysely-datasource";
-export { DatasourceHelpers } from "./helpers/datasource-helpers";
-export type { JsonifiedDataSourceResponse } from "./helpers/datasource-helpers";
-export { kyselyDefaultLogtapeLogger } from "./logger/kysely-default-logtape-logger";
+export { flowbladeLogtapeKyselyConfig } from "./config/flowblade-logtape-kysely.config.ts";
+export { KyselyDatasource } from "./datasource/kysely-datasource.ts";
+export type { KyselyQueryOptions } from "./datasource/kysely-datasource.ts";
+export { DatasourceHelpers } from "./helpers/datasource-helpers.ts";
+export type { JsonifiedDataSourceResponse } from "./helpers/datasource-helpers.ts";
+export { kyselyDefaultLogtapeLogger } from "./logger/kysely-default-logtape-logger.ts";
 export type {
   KyselyMssqlDialectParams,
   KyselyMssqlPoolOptions,
-} from "./utils/create-kysely-mssql-dialect";
-export { createKyselyMssqlDialect } from "./utils/create-kysely-mssql-dialect";
-export { TediousConnUtils } from "./utils/tedious-conn-utils";
+} from "./utils/create-kysely-mssql-dialect.ts";
+export { createKyselyMssqlDialect } from "./utils/create-kysely-mssql-dialect.ts";
+export { TediousConnUtils } from "./utils/tedious-conn-utils.ts";
 
 // Export from @flowblade/core
 export type { QError } from "@flowblade/core";

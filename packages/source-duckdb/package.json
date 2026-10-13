@@ -31,9 +31,9 @@
   },
   "scripts": {
     "?build-release": "When https://github.com/atlassian/changesets/issues/432 has a solution we can remove this trick",
-    "bench-codspeed-disabled": "cross-env CODSPEED=1 vitest bench --run",
-    "bench-disabled": "vitest bench --run",
-    "bench-watch-disabled": "vitest bench",
+    "bench": "vitest bench --run --reporter=verbose",
+    "bench-codspeed": "cross-env CODSPEED=1 vitest bench --run",
+    "bench-watch": "vitest bench --reporter=verbose",
     "build": "tsdown",
     "build-release": "tsdown",
     "check-dist": "es-check es2022 './dist/**/*.mjs' --not './dist/*.map.js' --module",
@@ -47,11 +47,10 @@
     "lint": "ultracite check",
     "lint-fix": "ultracite fix",
     "test": "vitest run",
-    "test-e2e": "vitest --config=vitest.e2e.config.ts run",
-    "test-e2e-watch": "vitest --config=vitest.e2e.config.ts --ui --api 4517  --coverage.enabled=true --coverage.reporter=html",
     "test-unit": "vitest run",
     "test-unit-bun": "bun --bun run vitest run",
     "test-unit-coverage": "vitest run --coverage",
+    "test-unit-deno": "deno run test-unit",
     "test-unit-watch": "vitest --ui --api 4516 --coverage.enabled=true --coverage.reporter=html",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-build": "tsc --project tsconfig.build.json --noEmit"
@@ -77,7 +76,6 @@
     "@vitest/ui": "5.0.4",
     "browserslist": "4.29.3",
     "browserslist-to-esbuild": "2.1.1",
-    "core-js": "3.50.0",
     "cross-env": "10.1.0",
     "es-check": "9.8.1",
     "esbuild": "0.28.2",
@@ -106,6 +104,6 @@
     "@duckdb/node-api": "^1.5.3-r.2"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=22.18.0"
   }
 }

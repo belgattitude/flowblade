@@ -1,6 +1,6 @@
 import { expect, describe, it } from "vitest";
 
-import { TediousConnUtils } from "./tedious-conn-utils";
+import { TediousConnUtils } from "./tedious-conn-utils.ts";
 
 describe("TediousConnUtils", () => {
   describe("fromJdbcDsn", () => {

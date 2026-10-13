@@ -2,7 +2,7 @@
 
 Sql formatter utilities for [@flowblade/sql-tag](https://github.com/belgattitude/flowblade/tree/main/packages/sql-tag#readme)
 
-[![npm](https://img.shields.io/npm/v/@flowblade/sql-tag-format?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/sql-tag-format) [![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag-format/CHANGELOG.md) [![codecov](https://img.shields.io/codecov/c/github/belgattitude/flowblade?logo=codecov&label=Unit&flag=flowblade-sql-tag-format-unit&style=for-the-badge&labelColor=444)](https://app.codecov.io/gh/belgattitude/flowblade/tree/main/packages%2Fsql-tag-format) [![bundles](https://img.shields.io/static/v1?label=&message=cjs|esm@treeshake&logo=webpack&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag-format/.size-limit.cjs) [![node](https://img.shields.io/static/v1?label=Node&message=18%2b&logo=node.js&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![browserslist](https://img.shields.io/static/v1?label=Browser&message=%3E96%25&logo=googlechrome&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![size](https://img.shields.io/bundlephobia/minzip/@flowblade/sql-tag-format@latest?label=Max&style=for-the-badge&labelColor=444&color=informational)](https://bundlephobia.com/package/@flowblade/sql-tag-format@latest) [![downloads](https://img.shields.io/npm/dm/@flowblade/sql-tag-format?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/sql-tag-format) [![license](https://img.shields.io/npm/l/@flowblade/sql-tag-format?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
+[![npm](https://img.shields.io/npm/v/@flowblade/sql-tag-format?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/sql-tag-format) [![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag-format/CHANGELOG.md) [![codecov](https://img.shields.io/codecov/c/github/belgattitude/flowblade?logo=codecov&label=Unit&flag=flowblade-sql-tag-format-unit&style=for-the-badge&labelColor=444)](https://app.codecov.io/gh/belgattitude/flowblade/tree/main/packages%2Fsql-tag-format) [![bundles](https://img.shields.io/static/v1?label=&message=cjs|esm@treeshake&logo=webpack&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag-format/.size-limit.cjs) [![node](https://img.shields.io/static/v1?label=Node&message=22.18%2b&logo=node.js&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![browserslist](https://img.shields.io/static/v1?label=Browser&message=%3E96%25&logo=googlechrome&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![size](https://img.shields.io/bundlephobia/minzip/@flowblade/sql-tag-format@latest?label=Max&style=for-the-badge&labelColor=444&color=informational)](https://bundlephobia.com/package/@flowblade/sql-tag-format@latest) [![downloads](https://img.shields.io/npm/dm/@flowblade/sql-tag-format?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/sql-tag-format) [![license](https://img.shields.io/npm/l/@flowblade/sql-tag-format?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
 
 ## Features
 
@@ -84,13 +84,12 @@ Bundle size is tracked by a [size-limit configuration](https://github.com/belgat
 
 | Level | CI | Description |
 | --- | --- | --- |
-| Node | ✅ | CI for 18.x, 20.x & 22.x. |
-| Browser | ✅ | Tested with latest chrome (vitest/playwright) |
+| Node | ✅ | Requires 22.18+, CI for 22.x, 24.x & 26.x |
+| Bun | ✅ | Bun 1.4+, unit tests run on CI with the latest Bun |
+| Deno | ✅ | Deno LTS, unit tests run on CI with Deno 2 |
 | Browserslist | ✅ | [> 95%](https://browserslist.dev/?q=ZGVmYXVsdHMsIGNocm9tZSA%2BPSA5NiwgZmlyZWZveCA%2BPSAxMDUsIGVkZ2UgPj0gMTEzLCBzYWZhcmkgPj0gMTUsIGlvcyA%2BPSAxNSwgb3BlcmEgPj0gMTAzLCBub3QgZGVhZA%3D%3D) on 01/2025. [Chrome 96+, Firefox 90+, Edge 19+, ios 15+, Safari 15+ and Opera 77+](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag-format/.browserslistrc) |
-| Cloudflare | ✅ | Ensured with @cloudflare/vitest-pool-workers (see [wrangler.toml](https://github.com/belgattitude/flowblade/blob/main/devtools/vitest/wrangler.toml) |
 | Typescript | ✅ | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI. |
 | ES2022 | ✅ | Dist files checked with [es-check](https://github.com/yowainwright/es-check) |
-| Performance | ✅ | Monitored with [codspeed.io](https://codspeed.io/belgattitude/flowblade) |
 
 ## Contributors
 
@@ -109,18 +108,10 @@ Contributions are welcome. Have a look to the [CONTRIBUTING](https://github.com/
          <img width="65" src="https://asset.brandfetch.io/idarKiKkI-/id53SttZhi.jpeg" alt="Jetbrains logo" />
       </a>
     </td>
-    <td>
-      <a href="https://www.embie.be/?ref=belgattitude" target="_blank">
-        <img width="65" src="https://avatars.githubusercontent.com/u/98402122?s=200&v=4" alt="Jetbrains logo" />    
-      </a>
-    </td>
   </tr>
   <tr>
     <td align="center">
       <a href="https://www.jetbrains.com/?ref=belgattitude" target="_blank">JetBrains</a>
-    </td>
-    <td align="center">
-      <a href="https://www.embie.be/?ref=belgattitude" target="_blank">Embie.be</a>
     </td>
    </tr>
 </table>

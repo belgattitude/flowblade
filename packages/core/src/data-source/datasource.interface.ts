@@ -5,6 +5,10 @@ type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-a
 
 export interface QueryOptions {
   name?: string;
+  /**
+   * Abort the query, support depends on the datasource.
+   */
+  signal?: AbortSignal;
 }
 
 export type QueryStreamOptions = QueryOptions & {

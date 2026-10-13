@@ -5,17 +5,15 @@ import {
   createQResultSuccess,
   createSqlSpan,
   type DatasourceInterface,
-  type QError,
   QMeta,
   type QMetaSqlSpan,
-  type QResult,
   type QueryOptions,
   type QueryStreamOptions,
 } from "@flowblade/core";
 import type { SqlTag } from "@flowblade/sql-tag";
 import type { Logger } from "@logtape/logtape";
 
-import { duckdbDefaultLogtapeLogger } from "../logger/duckdb-default-logtape-logger";
+import { duckdbDefaultLogtapeLogger } from "../logger/duckdb-default-logtape-logger.ts";
 
 export type DuckdbDatasourceParams = {
   connection: DuckDBConnection;
@@ -25,6 +23,15 @@ export type DuckdbDatasourceParams = {
    * @see {@link https://github.com/logtape/logtape}
    */
   logger?: Logger;
+  /**
+   * Whether to include the query params in the logs, set to `false`
+   * when they might contain sensitive data.
+   *
+   * Params are still available in the result meta (QMeta spans).
+   *
+   * @default true
+   */
+  logParams?: boolean;
 };
 
 type SqlTagInformation = {
@@ -35,10 +42,12 @@ type SqlTagInformation = {
 export class DuckdbDatasource implements DatasourceInterface {
   private readonly db: DuckDBConnection;
   private readonly logger: Logger;
+  private readonly logParams: boolean;
 
   constructor(params: DuckdbDatasourceParams) {
     this.db = params.connection;
     this.logger = params.logger ?? duckdbDefaultLogtapeLogger;
+    this.logParams = params.logParams ?? true;
   }
 
   /**
@@ -97,22 +106,30 @@ export class DuckdbDatasource implements DatasourceInterface {
     options?: QueryOptions
   ): AsyncQResult<TData> => {
     const name = options?.name ?? "anonymous";
+    const signal = options?.signal;
     const { text: sql, values: params } = rawQuery;
     const span = createSqlSpan({ sql, params });
     const start = Date.now();
+    // Interrupts the query running on the connection when aborted
+    const onAbort = () => {
+      this.db.interrupt();
+    };
     try {
-      this.logger.debug(`Executing query "{queryName}"`, {
-        queryName: name,
-        sql,
-        params,
-      });
+      this.logger.debug(
+        'Executing query "{queryName}"',
+        this.getLogFromSpan(name, span, "query")
+      );
+      signal?.throwIfAborted();
+      signal?.addEventListener("abort", onAbort, { once: true });
       const rows = await this.db.runAndReadAll(sql, params as DuckDBValue[]);
+      // Never return the results of an aborted query as complete
+      signal?.throwIfAborted();
       span.affectedRows = rows.currentRowCount;
       span.timeMs = Date.now() - start;
 
       this.logger.info(
         'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
-        this.getLogFromSpan(name, span)
+        this.getLogFromSpan(name, span, "query")
       );
 
       return createQResultSuccess(
@@ -120,27 +137,29 @@ export class DuckdbDatasource implements DatasourceInterface {
         new QMeta({ name, spans: span })
       );
     } catch (error) {
-      span.timeMs = Math.round(Date.now() - start);
+      span.timeMs = Date.now() - start;
       let message: string;
       if (error instanceof Error) {
         ({ message } = error);
       } else if (typeof error === "string") {
         message = error;
       } else {
-        message = "unknown error";
+        message = "Unknown error";
       }
-      this.logger.error(
-        `Query "{queryName}" failed: ${message}`,
-        this.getLogFromSpan(name, span)
-      );
+      this.logger.error('Query "{queryName}" failed: {errorMessage}', {
+        ...this.getLogFromSpan(name, span, "query"),
+        errorMessage: message,
+      });
 
       return createQResultError(
-        { message },
+        { message, cause: error },
         new QMeta({
           name,
           spans: span,
         })
       );
+    } finally {
+      signal?.removeEventListener("abort", onAbort);
     }
   };
 
@@ -149,9 +168,9 @@ export class DuckdbDatasource implements DatasourceInterface {
    *
    * @example
    * ```typescript
-   * const ds = new DuckDbDatasource();
+   * const ds = new DuckdbDatasource({ connection: duckdb });
    * try {
-   *  const { data, meta } = await ds.query(sql`select 1`);
+   *  const { data, meta } = await ds.queryOrThrow(sql`select 1`);
    * } catch (e) {
    *   //
    * }
@@ -167,27 +186,115 @@ export class DuckdbDatasource implements DatasourceInterface {
     const result = await this.query<TData>(rawQuery, options);
     return {
       data: result.getOrThrow(
-        (qErr) => new Error(`Query failed: ${qErr.message}`)
+        (qErr) =>
+          new Error(`Query failed: ${qErr.message}`, { cause: qErr.cause })
       ),
       meta: result.meta,
     };
   };
 
-  // eslint-disable-next-line require-yield,sonarjs/generator-without-yield
-  async *stream(
-    _query: Parameters<DatasourceInterface["stream"]>[0],
-    _options?: QueryStreamOptions
-  ): AsyncIterableIterator<QResult<unknown[], QError>> {
-    throw new Error("Not implemented yet");
+  /**
+   * Stream the rows of a query, chunk by chunk from DuckDB.
+   *
+   * Rows are converted like `query()` results (JSON compatible values).
+   *
+   * @example
+   * ```typescript
+   * const ds = new DuckdbDatasource({ connection: duckdb });
+   *
+   * for await (const row of ds.stream(sql<{ id: number }>`SELECT range::INTEGER as id FROM range(10)`)) {
+   *   console.log(row.id);
+   *   if (row.id === 5) {
+   *     // Breaking or returning before the stream has ended is supported
+   *     break;
+   *   }
+   * }
+   * ```
+   *
+   * Note: the `chunkSize` option is ignored, DuckDB uses its own chunk size.
+   *
+   * @yields Each row of the query result as it is streamed.
+   * @throws Error with the DuckDB error as cause when the query fails or is aborted.
+   */
+  async *stream<TData extends unknown[]>(
+    rawQuery: SqlTag<TData> | SqlTagInformation,
+    options?: QueryStreamOptions
+  ): AsyncIterableIterator<TData[number]> {
+    const name = options?.name ?? "anonymous";
+    const signal = options?.signal;
+    const { text: sql, values: params } = rawQuery;
+    const span = createSqlSpan({ sql, params });
+    const start = Date.now();
+    // Interrupts the chunk being fetched when aborted
+    const onAbort = () => {
+      this.db.interrupt();
+    };
+
+    this.logger.debug(
+      'Streaming query "{queryName}"',
+      this.getLogFromSpan(name, span, "stream")
+    );
+
+    let rowCount = 0;
+    let failed = false;
+
+    try {
+      signal?.throwIfAborted();
+      signal?.addEventListener("abort", onAbort, { once: true });
+      const result = await this.db.stream(sql, params as DuckDBValue[]);
+      for await (const rows of result.yieldRowObjectJson()) {
+        // Also stops between chunks, when the interrupt didn't hit a fetch
+        signal?.throwIfAborted();
+        for (const row of rows) {
+          rowCount++;
+          yield row as TData[number];
+        }
+      }
+      // An interrupted stream can end without error, never report it as complete
+      signal?.throwIfAborted();
+    } catch (error) {
+      failed = true;
+      span.timeMs = Date.now() - start;
+      span.affectedRows = rowCount;
+      const message = error instanceof Error ? error.message : "Unknown error";
+
+      this.logger.error(
+        'Streaming query "{queryName}" failed: {errorMessage}',
+        {
+          ...this.getLogFromSpan(name, span, "stream"),
+          errorMessage: message,
+        }
+      );
+
+      throw new Error(message, { cause: error });
+    } finally {
+      signal?.removeEventListener("abort", onAbort);
+      // Runs on completion, on early exit (break / return) and on failure,
+      // the failure being already logged as an error above.
+      if (!failed) {
+        span.timeMs = Date.now() - start;
+        span.affectedRows = rowCount;
+
+        this.logger.info(
+          'Streaming query "{queryName}" executed in {timeMs}ms, streamed {affectedRows} row(s)',
+          this.getLogFromSpan(name, span, "stream")
+        );
+      }
+    }
   }
 
-  private readonly getLogFromSpan = (queryName: string, span: QMetaSqlSpan) => {
+  private readonly getLogFromSpan = (
+    queryName: string,
+    span: QMetaSqlSpan,
+    method: "query" | "stream"
+  ) => {
     return {
       queryName,
       source: "duckdb",
+      method,
       type: span.type,
       sql: span.sql,
-      params: span.params,
+      ...(this.logParams ? { params: span.params } : {}),
       affectedRows: span.affectedRows,
       timeMs: span.timeMs,
     };

@@ -52,6 +52,7 @@
     "test-unit": "vitest run",
     "test-unit-bun": "bun --bun run vitest run",
     "test-unit-coverage": "vitest run --coverage",
+    "test-unit-deno": "deno run test-unit --pool=forks",
     "test-unit-watch": "vitest --ui --api 4519 --coverage.enabled=true --coverage.reporter=html",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-build": "tsc --project tsconfig.build.json --noEmit"
@@ -96,6 +97,6 @@
     "vitest": "5.0.4"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=22.18.0"
   }
 }

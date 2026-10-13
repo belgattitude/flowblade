@@ -11,11 +11,18 @@ import {
   type QueryStreamOptions,
 } from "@flowblade/core";
 import type { Logger } from "@logtape/logtape";
-import type { Compilable, InferResult, Kysely, RawBuilder } from "kysely";
+import type {
+  Compilable,
+  InferResult,
+  InflightQueryAbortStrategy,
+  Kysely,
+  RawBuilder,
+} from "kysely";
 
-import { isKyselyStreamable } from "../internal/is-kysely-streamable";
-import { parseBigIntToSafeInt } from "../internal/parse-bigint-to-safeint";
-import { kyselyDefaultLogtapeLogger } from "../logger/kysely-default-logtape-logger";
+import { getKyselyErrorMessage } from "../internal/get-kysely-error-message.ts";
+import { isKyselyStreamable } from "../internal/is-kysely-streamable.ts";
+import { parseBigIntToSafeInt } from "../internal/parse-bigint-to-safeint.ts";
+import { kyselyDefaultLogtapeLogger } from "../logger/kysely-default-logtape-logger.ts";
 
 type Params<TDatabase> = {
   connection: Kysely<TDatabase>;
@@ -25,6 +32,34 @@ type Params<TDatabase> = {
    * @see {@link https://github.com/logtape/logtape}
    */
   logger?: Logger;
+  /**
+   * What happens to an in-flight query when its `signal` is aborted.
+   *
+   * - `'ignore query'` (Kysely default): stop waiting for the results, the query
+   *   keeps running on the database and the connection is released once it settles.
+   * - `'cancel query'`: cancel the query on the database (ie: mssql, postgres, mysql).
+   *   Falls back to `'ignore query'` with a warning when the dialect can't.
+   * - `'kill session'`: kill the database session running the query.
+   *
+   * Can be overridden per query.
+   */
+  inflightQueryAbortStrategy?: InflightQueryAbortStrategy;
+  /**
+   * Whether to include the query params in the logs, set to `false`
+   * when they might contain sensitive data.
+   *
+   * Params are still available in the result meta (QMeta spans).
+   *
+   * @default true
+   */
+  logParams?: boolean;
+};
+
+export type KyselyQueryOptions = QueryOptions & {
+  /**
+   * Override the datasource `inflightQueryAbortStrategy` for this query.
+   */
+  inflightQueryAbortStrategy?: InflightQueryAbortStrategy;
 };
 
 type KyselyQueryOrRawQuery<T = unknown> = Compilable<T> | RawBuilder<T>;
@@ -38,6 +73,10 @@ type KyselyInferQueryOrRawQuery<T extends KyselyQueryOrRawQuery> =
 export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   private readonly db: Kysely<TDatabase>;
   private readonly logger: Logger;
+  private readonly logParams: boolean;
+  private readonly inflightQueryAbortStrategy:
+    | InflightQueryAbortStrategy
+    | undefined;
 
   /**
    * Return a new Kysely expression builder.
@@ -78,6 +117,8 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   constructor(params: Params<TDatabase>) {
     this.db = params.connection;
     this.logger = params.logger ?? kyselyDefaultLogtapeLogger;
+    this.inflightQueryAbortStrategy = params.inflightQueryAbortStrategy;
+    this.logParams = params.logParams ?? true;
   }
 
   /**
@@ -133,7 +174,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
   >(
     query: TQuery,
-    options?: QueryOptions
+    options?: KyselyQueryOptions
   ): Promise<QResult<TData, QError>> => {
     const name = options?.name ?? "anonymous";
 
@@ -146,13 +187,17 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     const start = Date.now();
 
     try {
-      this.logger.debug(`Executing query "{queryName}"`, {
-        queryName: name,
-        sql: compiled.sql,
-        params: compiled.parameters,
-      });
+      this.logger.debug(
+        'Executing query "{queryName}"',
+        this.getLogFromSpan(name, span, "query")
+      );
 
-      const r = await this.db.executeQuery(compiled);
+      const r = await this.db.executeQuery(compiled, {
+        signal: options?.signal,
+        inflightQueryAbortStrategy:
+          options?.inflightQueryAbortStrategy ??
+          this.inflightQueryAbortStrategy,
+      });
       const { numAffectedRows, ...result } = r;
       span.timeMs = Date.now() - start;
       span.affectedRows = parseBigIntToSafeInt(numAffectedRows) ?? 0;
@@ -169,25 +214,17 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     } catch (error) {
       span.timeMs = Date.now() - start;
 
-      // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
-      // This behaviour exists for example in Tedious/Mssql
-      let message = "Unknown error";
-      if (Array.isArray(error)) {
-        message = error
-          .map((e) => (e instanceof Error ? e.message : String(e)))
-          .join("; ");
-      } else if (error instanceof Error) {
-        ({ message } = error);
-      }
+      const message = getKyselyErrorMessage(error);
 
-      this.logger.error(
-        `Query "{queryName}" failed: ${message}`,
-        this.getLogFromSpan(name, span, "query")
-      );
+      this.logger.error('Query "{queryName}" failed: {errorMessage}', {
+        ...this.getLogFromSpan(name, span, "query"),
+        errorMessage: message,
+      });
 
       return createQResultError(
         {
           message,
+          cause: error,
         },
         new QMeta({
           name,
@@ -215,7 +252,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
   >(
     query: TQuery,
-    options?: QueryOptions
+    options?: KyselyQueryOptions
   ): Promise<{
     data: TData;
     meta: QMeta;
@@ -223,7 +260,8 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     const result = await this.query<TQuery, TData>(query, options);
     return {
       data: result.getOrThrow(
-        (qErr) => new Error(`Query failed: ${qErr.message}`)
+        (qErr) =>
+          new Error(`Query failed: ${qErr.message}`, { cause: qErr.cause })
       ),
       meta: result.meta,
     };
@@ -274,7 +312,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     if (!isKyselyStreamable(query)) {
       throw new Error("Query is not streamable, be sure to check usage");
     }
-    const { chunkSize } = options ?? {};
+    const { chunkSize, signal } = options ?? {};
     const name = options?.name ?? "anonymous";
 
     const compiled = query.compile(this.db);
@@ -287,42 +325,51 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     const start = Date.now();
 
     this.logger.debug(
-      `Streaming query "${name}"`,
+      'Streaming query "{queryName}"',
       this.getLogFromSpan(name, span, "stream")
     );
 
-    try {
-      yield* query.stream(chunkSize) as AsyncIterableIterator<TData[0]>;
-    } catch (error) {
-      span.timeMs = Date.now() - start;
+    let rowCount = 0;
+    let failed = false;
 
-      // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
-      // This behaviour exists for example in Tedious/Mssql
-      let message = "Unknown error";
-      if (Array.isArray(error)) {
-        message = error
-          .map((e) => (e instanceof Error ? e.message : String(e)))
-          .join("; ");
-      } else if (error instanceof Error) {
-        ({ message } = error);
+    try {
+      for await (const row of query.stream({
+        chunkSize,
+        signal,
+      }) as AsyncIterableIterator<TData[0]>) {
+        rowCount++;
+        yield row;
       }
+    } catch (error) {
+      failed = true;
+      span.timeMs = Date.now() - start;
+      span.affectedRows = rowCount;
+
+      const message = getKyselyErrorMessage(error);
 
       this.logger.error(
-        `Streaming query "${name}" failed: ${message}`,
-        this.getLogFromSpan(name, span, "stream")
+        'Streaming query "{queryName}" failed: {errorMessage}',
+        {
+          ...this.getLogFromSpan(name, span, "stream"),
+          errorMessage: message,
+        }
       );
 
       throw new Error(message, {
         cause: error,
       });
     } finally {
-      const timeMs = Date.now() - start;
-      span.timeMs = timeMs;
+      // Runs on completion, on early exit (break / return) and on failure,
+      // the failure being already logged as an error above.
+      if (!failed) {
+        span.timeMs = Date.now() - start;
+        span.affectedRows = rowCount;
 
-      this.logger.info(
-        `Streaming query "${name}" executed in ${timeMs}ms.`,
-        this.getLogFromSpan(name, span, "stream")
-      );
+        this.logger.info(
+          'Streaming query "{queryName}" executed in {timeMs}ms, streamed {affectedRows} row(s)',
+          this.getLogFromSpan(name, span, "stream")
+        );
+      }
     }
   }
 
@@ -337,7 +384,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       method,
       type: span.type,
       sql: span.sql,
-      params: span.params,
+      ...(this.logParams ? { params: span.params } : {}),
       affectedRows: span.affectedRows,
       timeMs: span.timeMs,
     };

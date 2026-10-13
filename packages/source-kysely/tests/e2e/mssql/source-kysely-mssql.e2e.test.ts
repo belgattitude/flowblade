@@ -1,3 +1,5 @@
+import { setTimeout as sleep } from "node:timers/promises";
+
 import {
   configure,
   getConsoleSink,
@@ -67,6 +69,8 @@ describe("MSSQL e2e tests", () => {
         expect(result.data).toBeUndefined();
         expect(result.error).toStrictEqual({
           message: "Incorrect syntax near the keyword 'FROM'.",
+          // 156: incorrect syntax near a keyword
+          cause: expect.objectContaining({ number: 156 }),
         });
         const [firstSpan] = result.meta.getSpans();
         expect.assert(firstSpan);
@@ -121,6 +125,8 @@ describe("MSSQL e2e tests", () => {
         const { error } = result;
         expect(error).toStrictEqual({
           message: "Incorrect syntax near 'qsqdfqsldkjf'.",
+          // 102: incorrect syntax
+          cause: expect.objectContaining({ number: 102 }),
         });
       });
 
@@ -195,6 +201,84 @@ describe("MSSQL e2e tests", () => {
         expect(data[0]).toMatchObject({
           id: expect.any(Number),
         });
+      });
+
+      it("should release the connection when the stream is left early", async () => {
+        const query = ds.queryBuilder
+          .selectFrom("TestTable as t")
+          .select(["t.id"]);
+
+        // More early exits than connections in the pool (max: 4), a leaked
+        // connection would make the following query wait until the test times out
+        for (let i = 0; i < 6; i++) {
+          for await (const _row of ds.stream(query)) {
+            break;
+          }
+        }
+
+        const { data } = await ds.queryOrThrow(
+          sql<{ ok: number }>`SELECT 1 as ok`
+        );
+        expect(data).toStrictEqual([{ ok: 1 }]);
+      });
+    });
+
+    describe("Error cause", () => {
+      it("should keep the sql server error as the error cause", async () => {
+        const result = await ds.query(sql`SELECT FROM 1 as invalid_query`);
+        expect(result.error?.message).toBe(
+          "Incorrect syntax near the keyword 'FROM'."
+        );
+        // 156: incorrect syntax near a keyword
+        expect(result.error?.cause).toMatchObject({ number: 156 });
+      });
+    });
+
+    describe("Abort signal", () => {
+      it("should abort an in-flight query", async () => {
+        const start = Date.now();
+        const result = await ds.query(
+          sql`WAITFOR DELAY '00:00:03'; SELECT 1 as one`,
+          { signal: AbortSignal.timeout(200) }
+        );
+        expect(result.isError()).toBe(true);
+        expect(Date.now() - start).toBeLessThan(2000);
+      });
+
+      it.for([
+        { strategy: "cancel query", id: 20_000_001, insertedRows: 0 },
+        { strategy: "ignore query", id: 20_000_002, insertedRows: 1 },
+      ] as const)(
+        "should apply the '$strategy' inflight abort strategy on the server",
+        async ({ strategy, id, insertedRows }) => {
+          // The insert only runs if the server didn't cancel the query
+          const result = await ds.query(
+            sql`WAITFOR DELAY '00:00:02'; INSERT INTO TestTableLinked (id, name) VALUES (${id}, 'abort-test')`,
+            {
+              signal: AbortSignal.timeout(200),
+              inflightQueryAbortStrategy: strategy,
+            }
+          );
+          expect(result.isError()).toBe(true);
+
+          // Let an ignored query complete on the server
+          await sleep(3000);
+          const { data } = await ds.queryOrThrow(
+            sql<{
+              count: number;
+            }>`SELECT count(*) as count FROM TestTableLinked WHERE id = ${id}`
+          );
+          expect(data).toStrictEqual([{ count: insertedRows }]);
+        }
+      );
+
+      it("should not start a stream when the signal is already aborted", async () => {
+        const query = ds.queryBuilder
+          .selectFrom("TestTable as t")
+          .select(["t.id"]);
+        await expect(
+          Array.fromAsync(ds.stream(query, { signal: AbortSignal.abort() }))
+        ).rejects.toThrow("This operation was aborted");
       });
     });
 
@@ -309,10 +393,17 @@ describe("MSSQL e2e tests", () => {
       expect(logBuffer[1]).toMatchObject({
         category: flowbladeLogtapeKyselyConfig.categories,
         level: "error",
-        message: ['Query "', "ERROR", "\" failed: Invalid column name 'err'."],
-        rawMessage: "Query \"{queryName}\" failed: Invalid column name 'err'.",
+        message: [
+          'Query "',
+          "ERROR",
+          '" failed: ',
+          "Invalid column name 'err'.",
+          "",
+        ],
+        rawMessage: 'Query "{queryName}" failed: {errorMessage}',
         properties: {
           queryName: "ERROR",
+          errorMessage: "Invalid column name 'err'.",
           sql: "SELECT err",
           params: [],
           affectedRows: 0,

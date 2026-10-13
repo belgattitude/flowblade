@@ -74,7 +74,8 @@ export const TediousConnUtils = {
    * const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
    * const tediousConnection = new Tedious.Connection(tediousConfig);
    * ```
-   * @throws TypeError if dsn isn't valid
+   * @throws Error if the dsn can't be parsed or the authentication type isn't supported
+   * @throws ValiError (valibot) if the dsn options are invalid
    */
   fromJdbcDsn: (jdbcUrl: string): TediousConnectionConfig => {
     const dsn = convertJdbcToDsn(jdbcUrl);

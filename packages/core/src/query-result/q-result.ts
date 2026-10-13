@@ -243,6 +243,7 @@ export class QResult<
         }
         err = {
           message,
+          cause: error,
         };
       }
       const meta = this.#meta.withSpan({
@@ -270,7 +271,8 @@ export class QResult<
   };
 
   /**
-   * Get (unwrap) the success value or throw an error with the QError message.
+   * Get (unwrap) the success value or throw an error with the QError message
+   * (and the QError cause as error cause).
    *
    * @example
    * ```typescript
@@ -295,7 +297,7 @@ export class QResult<
   getOrThrow = (customErrorFn?: (qError: QError) => Error): TData => {
     if (this.error !== undefined) {
       throw customErrorFn === undefined
-        ? new Error(this.error.message)
+        ? new Error(this.error.message, { cause: this.error.cause })
         : customErrorFn(this.error);
     }
     return this.data as TData;
@@ -330,7 +332,9 @@ export class QResult<
       json.data = this.data;
     }
     if (this.error !== undefined) {
-      json.error = this.error;
+      // The cause (ie: driver error) isn't serializable and might leak internals
+      const { cause: _cause, ...error } = this.error;
+      json.error = error as TError;
     }
     return json;
   };
