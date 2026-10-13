@@ -44,6 +44,15 @@ type Params<TDatabase> = {
    * Can be overridden per query.
    */
   inflightQueryAbortStrategy?: InflightQueryAbortStrategy;
+  /**
+   * Whether to include the query params in the logs, set to `false`
+   * when they might contain sensitive data.
+   *
+   * Params are still available in the result meta (QMeta spans).
+   *
+   * @default true
+   */
+  logParams?: boolean;
 };
 
 export type KyselyQueryOptions = QueryOptions & {
@@ -64,6 +73,7 @@ type KyselyInferQueryOrRawQuery<T extends KyselyQueryOrRawQuery> =
 export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   private readonly db: Kysely<TDatabase>;
   private readonly logger: Logger;
+  private readonly logParams: boolean;
   private readonly inflightQueryAbortStrategy:
     | InflightQueryAbortStrategy
     | undefined;
@@ -108,6 +118,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     this.db = params.connection;
     this.logger = params.logger ?? kyselyDefaultLogtapeLogger;
     this.inflightQueryAbortStrategy = params.inflightQueryAbortStrategy;
+    this.logParams = params.logParams ?? true;
   }
 
   /**
@@ -176,11 +187,10 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     const start = Date.now();
 
     try {
-      this.logger.debug(`Executing query "{queryName}"`, {
-        queryName: name,
-        sql: compiled.sql,
-        params: compiled.parameters,
-      });
+      this.logger.debug(
+        'Executing query "{queryName}"',
+        this.getLogFromSpan(name, span, "query")
+      );
 
       const r = await this.db.executeQuery(compiled, {
         signal: options?.signal,
@@ -374,7 +384,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       method,
       type: span.type,
       sql: span.sql,
-      params: span.params,
+      ...(this.logParams ? { params: span.params } : {}),
       affectedRows: span.affectedRows,
       timeMs: span.timeMs,
     };

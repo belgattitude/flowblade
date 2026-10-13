@@ -153,6 +153,54 @@ describe(KyselyDatasource, () => {
     });
   });
 
+  describe("logParams", () => {
+    it("should leave the params out of the logs when disabled", async () => {
+      const secret = "secret-value";
+      const logger = {
+        debug: vi.fn<() => void>(),
+        info: vi.fn<() => void>(),
+        error: vi.fn<() => void>(),
+        warn: vi.fn<() => void>(),
+      };
+      const query = {
+        compile: vi
+          .fn<() => { sql: string; parameters: unknown[] }>()
+          .mockReturnValue({ sql: "SELECT @1 as v", parameters: [secret] }),
+        stream: vi
+          .fn<() => AsyncGenerator<{ v: string }>>()
+          .mockImplementation(async function* rows() {
+            yield { v: secret };
+          }),
+      };
+      const ds = new KyselyDatasource({
+        connection: {} as never,
+        logger: logger as never,
+        logParams: false,
+      });
+      // @ts-expect-error - access private to mock
+      ds.db = {
+        executeQuery: vi
+          .fn<() => Promise<{ rows: unknown[] }>>()
+          .mockResolvedValue({ rows: [{ v: secret }] }),
+      };
+
+      const { meta } = await ds.queryOrThrow(query as never);
+      await Array.fromAsync(ds.stream(query as never));
+
+      const logged = [
+        ...logger.debug.mock.calls,
+        ...logger.info.mock.calls,
+      ] as unknown[][];
+      expect(logged).toHaveLength(4);
+      for (const [, properties] of logged) {
+        expect(properties).not.toHaveProperty("params");
+      }
+      expect(JSON.stringify(logged)).not.toContain(secret);
+      // Still available in the result meta
+      expect(meta.getSpans()[0]).toMatchObject({ params: [secret] });
+    });
+  });
+
   describe("stream", () => {
     it("should pass the chunkSize and signal to kysely", async () => {
       const { signal } = new AbortController();
