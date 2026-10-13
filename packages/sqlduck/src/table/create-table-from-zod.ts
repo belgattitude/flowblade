@@ -3,7 +3,7 @@ import type { Logger } from "@logtape/logtape";
 
 import { sqlduckDefaultLogtapeLogger } from "../logger/sqlduck-default-logtape-logger.ts";
 import { getErrorMessage } from "../utils/get-error-message.ts";
-import type { TableSchemaZod } from "../validation/zod";
+import type { TableSchemaZod } from "../validation/zod/index.ts";
 import { getTableCreateFromZod } from "./get-table-create-from-zod.ts";
 import type {
   GetTableCreateFromZodParams,

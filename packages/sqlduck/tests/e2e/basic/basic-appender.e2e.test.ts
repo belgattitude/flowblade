@@ -5,7 +5,7 @@ import * as z from "zod";
 import { openDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 import type { DuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 
-import { DuckDatabaseManager, SqlDuck, Table } from "../../../src";
+import { DuckDatabaseManager, SqlDuck, Table } from "../../../src/index.ts";
 
 describe("basic appender", () => {
   let conn: DuckDBConnection;

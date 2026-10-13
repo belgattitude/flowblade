@@ -14,11 +14,11 @@ import { createFakeRowsAsyncIterator } from "#tests/utils/create-fake-rows-itera
 import { createDuckTest } from "#tests/utils/duck-test.ts";
 
 import type { OnChunkAppendedCb } from "./appender/data-appender-callback.ts";
-import { flowbladeLogtapeSqlduckConfig } from "./config/flowblade-logtape-sqlduck.config";
+import { flowbladeLogtapeSqlduckConfig } from "./config/flowblade-logtape-sqlduck.config.ts";
 import { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts";
-import { Table } from "./objects/table";
-import { SqlDuck } from "./sql-duck";
-import { getTableCreateFromZod } from "./table/get-table-create-from-zod";
+import { Table } from "./objects/table.ts";
+import { SqlDuck } from "./sql-duck.ts";
+import { getTableCreateFromZod } from "./table/get-table-create-from-zod.ts";
 import { zodCodecs } from "./utils/zod-codecs.ts";
 
 const testTimeout = 15_000;

@@ -1,4 +1,4 @@
-import type { TableSchemaZod } from "../validation/zod";
+import type { TableSchemaZod } from "../validation/zod/index.ts";
 
 export const getZodDuckDBSchema = <T extends TableSchemaZod>(schema: T) => {
   const meta = [];

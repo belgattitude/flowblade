@@ -8,9 +8,9 @@ import { testFullSupportedColumnsZodSchema } from "#tests/data/test-full-support
 import { createDuckColumnConverters } from "../src/converter/create-duck-column-converters.ts";
 import { Table } from "../src/objects/table.ts";
 import { getTableCreateFromZod } from "../src/table/get-table-create-from-zod.ts";
-import { rowsToColumnsChunks } from "../src/utils/rows-to-columns-chunks";
-import { rowsToConvertedColumnsChunks } from "../src/utils/rows-to-converted-columns-chunks";
-import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator";
+import { rowsToColumnsChunks } from "../src/utils/rows-to-columns-chunks.ts";
+import { rowsToConvertedColumnsChunks } from "../src/utils/rows-to-converted-columns-chunks.ts";
+import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator.ts";
 
 const benchConfig: BenchCompareOptions = {
   iterations: isInCi ? 1 : 10,

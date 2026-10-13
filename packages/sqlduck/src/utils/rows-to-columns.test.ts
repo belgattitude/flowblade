@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { rowsToColumns } from "./rows-to-columns";
+import { rowsToColumns } from "./rows-to-columns.ts";
 
 type Row = { id: string; name: string };
 

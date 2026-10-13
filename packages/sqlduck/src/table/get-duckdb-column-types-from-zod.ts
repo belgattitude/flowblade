@@ -1,5 +1,5 @@
 import { Table } from "../objects/table.ts";
-import type { TableSchemaZod } from "../validation/zod";
+import type { TableSchemaZod } from "../validation/zod/index.ts";
 import { getTableCreateFromZod } from "./get-table-create-from-zod.ts";
 import type { TableCreateFromZodResult } from "./get-table-create-from-zod.ts";
 

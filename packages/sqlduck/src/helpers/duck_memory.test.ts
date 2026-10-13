@@ -3,7 +3,7 @@ import { describe, expect } from "vitest";
 
 import { createDuckTest } from "#tests/utils/duck-test.ts";
 
-import { DuckMemory, duckMemoryTags } from "./duck-memory";
+import { DuckMemory, duckMemoryTags } from "./duck-memory.ts";
 
 const testTimeout = 10_000;
 

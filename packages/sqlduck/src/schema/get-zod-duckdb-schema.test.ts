@@ -2,7 +2,7 @@ import type { DuckDBTypeId } from "@duckdb/node-api";
 import { describe, expect, it } from "vitest";
 import * as z from "zod";
 
-import { getZodDuckDBSchema } from "./get-zod-duckdb-schema";
+import { getZodDuckDBSchema } from "./get-zod-duckdb-schema.ts";
 
 describe(getZodDuckDBSchema, () => {
   describe("zod to table", () => {

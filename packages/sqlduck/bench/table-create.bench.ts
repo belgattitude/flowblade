@@ -2,7 +2,7 @@ import isInCi from "is-in-ci";
 import { type BenchCompareOptions, expect, test } from "vitest";
 import * as z from "zod";
 
-import { getTableCreateFromZod, Table, zodCodecs } from "../src";
+import { getTableCreateFromZod, Table, zodCodecs } from "../src/index.ts";
 
 const benchConfig: BenchCompareOptions = {
   iterations: isInCi ? 1 : 2,
