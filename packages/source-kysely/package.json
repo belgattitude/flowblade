@@ -30,10 +30,10 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "bench": "vitest bench --run",
+    "bench": "vitest bench --run --reporter=verbose",
     "bench-codspeed": "cross-env CODSPEED=1 vitest bench --run",
-    "bench-e2e": "dotenvx run --ignore=MISSING_ENV_FILE -f .env.test.local -f env.test -- vitest bench --config=vitest.e2e.config.ts --run",
-    "bench-watch": "vitest bench",
+    "bench-e2e": "dotenvx run --ignore=MISSING_ENV_FILE -f .env.test.local -f env.test -- vitest bench --config=vitest.e2e.config.ts --run --reporter=verbose",
+    "bench-watch": "vitest bench --reporter=verbose",
     "build": "tsdown",
     "build-release": "tsdown",
     "check-dist": "es-check es2022 './dist/**/*.js' --not './dist/*.map.js' --module",
