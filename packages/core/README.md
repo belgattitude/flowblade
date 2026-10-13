@@ -86,15 +86,12 @@ Bundle size is tracked by a [size-limit configuration](https://github.com/belgat
 
 | Level | CI | Description |
 | --- | --- | --- |
-| Node | ✅ | CI for v20.x -> v25.x. |
+| Node | ✅ | Requires 22.18+, CI for 22.x, 24.x & 26.x |
 | Bun | ✅ | Bun 1.4+, unit tests run on CI with the latest Bun |
 | Deno | ➖ | Deno LTS, not tested on CI |
-| Browser | ✅ | Tested with latest chrome (vitest/playwright) |
 | Browserslist | ✅ | [> 95%](https://browserslist.dev/?q=ZGVmYXVsdHMsIGNocm9tZSA%2BPSA5NiwgZmlyZWZveCA%2BPSAxMDUsIGVkZ2UgPj0gMTEzLCBzYWZhcmkgPj0gMTUsIGlvcyA%2BPSAxNSwgb3BlcmEgPj0gMTAzLCBub3QgZGVhZA%3D%3D) on 01/2025. [Chrome 96+, Firefox 90+, Edge 19+, ios 15+, Safari 15+ and Opera 77+](https://github.com/belgattitude/flowblade/blob/main/packages/core/.browserslistrc) |
-| Cloudflare | ✅ | Ensured with @cloudflare/vitest-pool-workers (see [wrangler.toml](https://github.com/belgattitude/flowblade/blob/main/devtools/vitest/wrangler.toml) |
 | Typescript | ✅ | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI. |
 | ES2022 | ✅ | Dist files checked with [es-check](https://github.com/yowainwright/es-check) |
-| Performance | ✅ | Monitored with [codspeed.io](https://codspeed.io/belgattitude/flowblade) |
 
 ## Contributors
 
