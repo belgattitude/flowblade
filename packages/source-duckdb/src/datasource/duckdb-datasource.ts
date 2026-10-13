@@ -23,6 +23,15 @@ export type DuckdbDatasourceParams = {
    * @see {@link https://github.com/logtape/logtape}
    */
   logger?: Logger;
+  /**
+   * Whether to include the query params in the logs, set to `false`
+   * when they might contain sensitive data.
+   *
+   * Params are still available in the result meta (QMeta spans).
+   *
+   * @default true
+   */
+  logParams?: boolean;
 };
 
 type SqlTagInformation = {
@@ -33,10 +42,12 @@ type SqlTagInformation = {
 export class DuckdbDatasource implements DatasourceInterface {
   private readonly db: DuckDBConnection;
   private readonly logger: Logger;
+  private readonly logParams: boolean;
 
   constructor(params: DuckdbDatasourceParams) {
     this.db = params.connection;
     this.logger = params.logger ?? duckdbDefaultLogtapeLogger;
+    this.logParams = params.logParams ?? true;
   }
 
   /**
@@ -104,11 +115,10 @@ export class DuckdbDatasource implements DatasourceInterface {
       this.db.interrupt();
     };
     try {
-      this.logger.debug('Executing query "{queryName}"', {
-        queryName: name,
-        sql,
-        params,
-      });
+      this.logger.debug(
+        'Executing query "{queryName}"',
+        this.getLogFromSpan(name, span, "query")
+      );
       signal?.throwIfAborted();
       signal?.addEventListener("abort", onAbort, { once: true });
       const rows = await this.db.runAndReadAll(sql, params as DuckDBValue[]);
@@ -284,7 +294,7 @@ export class DuckdbDatasource implements DatasourceInterface {
       method,
       type: span.type,
       sql: span.sql,
-      params: span.params,
+      ...(this.logParams ? { params: span.params } : {}),
       affectedRows: span.affectedRows,
       timeMs: span.timeMs,
     };
