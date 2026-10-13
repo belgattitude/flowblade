@@ -255,6 +255,8 @@ const tediousConnection = new Tedious.Connection(tediousConfig);
 | Level | CI | Description |
 | --- | --- | --- |
 | Node | ✅ | Requires 22.18+, CI for 22.x, 24.x & 26.x |
+| Bun | ✅ | Bun 1.4+, unit tests run on CI with the latest Bun |
+| Deno | ➖ | Deno LTS, not tested on CI |
 | Browserslist | ✅ | [> 95%](https://browserslist.dev/?q=ZGVmYXVsdHMsIGNocm9tZSA%2BPSA5NiwgZmlyZWZveCA%2BPSAxMDUsIGVkZ2UgPj0gMTEzLCBzYWZhcmkgPj0gMTUsIGlvcyA%2BPSAxNSwgb3BlcmEgPj0gMTAzLCBub3QgZGVhZA%3D%3D) on 01/2025. [Chrome 96+, Firefox 90+, Edge 19+, ios 15+, Safari 15+ and Opera 77+](https://github.com/belgattitude/flowblade/blob/main/packages/source-kysely/.browserslistrc) |
 | Typescript | ✅ | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI. |
 | ES2022 | ✅ | Dist files checked with [es-check](https://github.com/yowainwright/es-check) |
@@ -276,18 +278,10 @@ Contributions are welcome. Have a look to the [CONTRIBUTING](https://github.com/
          <img width="65" src="https://asset.brandfetch.io/idarKiKkI-/id53SttZhi.jpeg" alt="Jetbrains logo" />
       </a>
     </td>
-    <td>
-      <a href="https://www.embie.be/?ref=belgattitude" target="_blank">
-        <img width="65" src="https://avatars.githubusercontent.com/u/98402122?s=200&v=4" alt="Jetbrains logo" />    
-      </a>
-    </td>
   </tr>
   <tr>
     <td align="center">
       <a href="https://www.jetbrains.com/?ref=belgattitude" target="_blank">JetBrains</a>
-    </td>
-    <td align="center">
-      <a href="https://www.embie.be/?ref=belgattitude" target="_blank">Embie.be</a>
     </td>
    </tr>
 </table>
