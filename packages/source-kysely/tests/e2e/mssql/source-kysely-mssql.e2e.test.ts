@@ -26,7 +26,7 @@ import {
 } from "../../../src";
 import { createContainerMssql } from "../create-container-mssql";
 
-const mssqlImage = "mcr.microsoft.com/mssql/server:2025-latest";
+const mssqlImage = "mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-24.04";
 
 const startupTimeout = isInCi ? 200_000 : 60_000;
 

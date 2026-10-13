@@ -47,7 +47,7 @@
     "format": "oxfmt --write",
     "test": "vitest run",
     "test-unit": "vitest run",
-    "test-e2e": "vitest --config=vitest.e2e.config.ts run",
+    "test-e2e": "dotenvx run --ignore=MISSING_ENV_FILE -f .env.test.local -f env.test -- vitest --config=vitest.e2e.config.ts run",
     "test-e2e-watch": "vitest --config=vitest.e2e.config.ts --ui",
     "test-unit-coverage": "vitest run --coverage",
     "test-unit-bun": "bun --bun run vitest run",
@@ -70,6 +70,7 @@
   "devDependencies": {
     "@arethetypeswrong/core": "0.18.5",
     "@codspeed/vitest-plugin": "5.7.1",
+    "@dotenvx/dotenvx": "2.34.2",
     "@edge-runtime/vm": "5.0.0",
     "@faker-js/faker": "10.6.0",
     "@flowblade/devtools": "workspace:*",

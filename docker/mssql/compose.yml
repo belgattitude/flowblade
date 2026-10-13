@@ -5,7 +5,7 @@ name: flowblade-mssql
 
 services:
   mssql:
-    image: mcr.microsoft.com/mssql/server:2025-latest
+    image: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-24.04
     # Only when docker is running as "root".
     cap_add: ['SYS_PTRACE']
     env_file:
