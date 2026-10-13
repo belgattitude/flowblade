@@ -72,7 +72,8 @@ describe("QResult internal inference test", () => {
                 spans: initialSqlSpan,
               }),
             });
-            expectTypeOf(errorResult.$inferError).toEqualTypeOf<QError>();
+            // Inferred from the given error ({ message: string }), a valid QError
+            expectTypeOf(errorResult.$inferError).toExtend<QError>();
           });
         });
       });

@@ -153,6 +153,21 @@ describe(QResult, () => {
           meta: QMetaJsonifiable;
         }>();
       });
+
+      it("should leave the error cause out", () => {
+        const result = new QResult<undefined, QError>({
+          error: {
+            message: "An error occurred",
+            cause: new Error("Driver error"),
+          },
+        });
+        const jsonifiable = result.toJsonifiable();
+        expect(jsonifiable.error).toStrictEqual({
+          message: "An error occurred",
+        });
+        // The original error isn't altered
+        expect(result.error?.cause).toBeInstanceOf(Error);
+      });
     });
   });
 
@@ -167,6 +182,16 @@ describe(QResult, () => {
     it("should throw the error if a failure", () => {
       const errorResult = createErrorResult("errorMessage");
       expect(() => errorResult.getOrThrow()).toThrow(new Error("errorMessage"));
+    });
+
+    it("should throw with the error cause if a failure", () => {
+      const cause = new Error("Driver error");
+      const errorResult = new QResult<undefined, QError>({
+        error: { message: "errorMessage", cause },
+      });
+      expect(() => errorResult.getOrThrow()).toThrow(
+        expect.objectContaining({ message: "errorMessage", cause })
+      );
     });
 
     it("should throw custom error if a failure", () => {
