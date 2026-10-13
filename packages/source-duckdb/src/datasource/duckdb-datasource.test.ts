@@ -143,7 +143,8 @@ describe(DuckdbDatasource, () => {
           signal: AbortSignal.abort(),
         }
       );
-      expect(result.error?.message).toBe("This operation was aborted");
+      // The abort reason, its message differs between runtimes
+      expect(result.error?.cause).toMatchObject({ name: "AbortError" });
       const { data } = await ds.queryOrThrow(
         sql<{
           count: number;
@@ -246,7 +247,11 @@ describe(DuckdbDatasource, () => {
             signal: AbortSignal.abort(),
           })
         )
-      ).rejects.toThrow("This operation was aborted");
+      ).rejects.toThrow(
+        expect.objectContaining({
+          cause: expect.objectContaining({ name: "AbortError" }),
+        })
+      );
       const { data } = await ds.queryOrThrow(
         sql<{
           count: number;
@@ -265,7 +270,11 @@ describe(DuckdbDatasource, () => {
           received++;
           controller.abort();
         }
-      }).rejects.toThrow("This operation was aborted");
+      }).rejects.toThrow(
+        expect.objectContaining({
+          cause: expect.objectContaining({ name: "AbortError" }),
+        })
+      );
       // The rest of the first chunk is still yielded, not the next chunks
       expect(received).toBeLessThanOrEqual(2048);
       const { data } = await ds.queryOrThrow(
