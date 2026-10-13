@@ -72,10 +72,6 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: 🧪 Unit tests (edge-runtime)
-        if: matrix.runtime == env.PRIMARY_RUNTIME
-        run: pnpm turbo run test-unit-edge --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
-
       - name: 🏗 Build packages
         run: pnpm turbo run build --filter='!@examples/*' --filter='!@docs/*' --token="${{ secrets.CI_TURBO_SERVER_TOKEN }}"
 

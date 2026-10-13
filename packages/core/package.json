@@ -52,7 +52,6 @@
     "test-unit": "vitest run",
     "test-unit-bun": "bun --bun run vitest run",
     "test-unit-coverage": "vitest run --coverage",
-    "test-unit-edge": "vitest run --environment edge-runtime",
     "test-unit-watch": "vitest --ui --api 4515 --coverage.enabled=true --coverage.reporter=html",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-build": "tsc --project tsconfig.build.json --noEmit"
@@ -64,7 +63,6 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
     "@codspeed/vitest-plugin": "5.7.1",
-    "@edge-runtime/vm": "5.0.0",
     "@faker-js/faker": "10.6.0",
     "@flowblade/devtools": "workspace:*",
     "@flowblade/sql-tag": "workspace:^",

@@ -28,7 +28,6 @@
     "g:test-unit-coverage": "turbo run test-unit-coverage --concurrency 1 --filter='!@examples/**' --filter='!docs/**'",
     "g:test-unit-bun": "turbo run test-unit-bun --concurrency 1 --filter='!examples/**' --filter='!docs/**'",
     "g:test-unit-deno": "turbo run test-unit-deno --concurrency 1 --filter='!examples/**' --filter='!docs/**'",
-    "g:test-unit-edge": "turbo run test-unit-edge --concurrency 1 --filter='!examples/**' --filter='!docs/**'",
     "g:test-unit-browser": "turbo run test-unit-browser --concurrency 1 --filter='!examples/**' --filter='!docs/**'",
     "g:lint": "turbo run lint --continue --concurrency 1",
     "g:lint-fix": "turbo run lint-fix --concurrency 1",

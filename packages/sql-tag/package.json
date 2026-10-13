@@ -52,7 +52,6 @@
     "test-unit": "vitest run",
     "test-unit-bun": "bun --bun run vitest run",
     "test-unit-coverage": "vitest run --coverage",
-    "test-unit-edge": "vitest run --environment edge-runtime",
     "test-unit-watch": "vitest --ui --api 4519 --coverage.enabled=true --coverage.reporter=html",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "typecheck-build": "tsc --project tsconfig.build.json --noEmit"
@@ -63,7 +62,6 @@
   "devDependencies": {
     "@arethetypeswrong/core": "0.18.5",
     "@codspeed/vitest-plugin": "5.7.1",
-    "@edge-runtime/vm": "5.0.0",
     "@electric-sql/pglite": "0.5.8",
     "@flowblade/devtools": "workspace:*",
     "@size-limit/esbuild": "14.2.0",

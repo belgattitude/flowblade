@@ -65,6 +65,11 @@ jobs:
 
       - name: 🔎 Check if the app is affected
         id: affected
+        env:
+          # The checkout only has remote refs (origin/main), turbo would otherwise
+          # look for a local `main` branch and assume everything changed.
+          # PR: compare with the target branch, push: with the previous tip.
+          TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
         run: |
           count=$(turbo query affected --packages "${APP_PACKAGE}" --tasks "${TURBO_TASK}" | jq '.data.affectedTasks.length')
           echo "Affected tasks: ${count}"
