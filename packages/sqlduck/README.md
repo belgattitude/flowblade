@@ -192,6 +192,16 @@ if (result.error) {
 
 `database` and `schema` must be valid, non-reserved DuckDB identifiers, otherwise an error result is returned and the query is not run. Targeting an attached file database keeps large materializations out of the in-memory one.
 
+## Compatibility
+
+| Level | CI | Description |
+| --- | --- | --- |
+| Node | ✅ | Requires 22.18+, CI for 22.x, 24.x & 26.x |
+| Bun | ✅ | Bun 1.4+, unit tests run on CI with the latest Bun |
+| Deno | ✅ | Deno LTS, unit tests run on CI with Deno 2 |
+| Typescript | ✅ | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI. |
+| ES2022 | ✅ | Dist files checked with [es-check](https://github.com/yowainwright/es-check) |
+
 ## Benchmarks
 
 ### Node 24.21
