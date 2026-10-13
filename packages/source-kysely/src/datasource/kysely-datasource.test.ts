@@ -41,7 +41,8 @@ const createStreamDatasource = (
 };
 
 const createQueryDatasource = (
-  executeQuery: () => Promise<{ rows: unknown[] }>
+  executeQuery: () => Promise<{ rows: unknown[] }>,
+  inflightQueryAbortStrategy?: "ignore query" | "cancel query" | "kill session"
 ) => {
   const query = {
     compile: vi
@@ -51,6 +52,7 @@ const createQueryDatasource = (
 
   const ds = new KyselyDatasource({
     connection: {} as never,
+    inflightQueryAbortStrategy,
     logger: {
       debug: vi.fn<() => void>(),
       info: vi.fn<() => void>(),
@@ -112,6 +114,41 @@ describe(KyselyDatasource, () => {
 
       expect(executeQuery).toHaveBeenCalledExactlyOnceWith(expect.anything(), {
         signal,
+      });
+    });
+  });
+
+  describe("inflightQueryAbortStrategy", () => {
+    it("should use the datasource strategy", async () => {
+      const { ds, query, executeQuery } = createQueryDatasource(
+        () => Promise.resolve({ rows: [] }),
+        "cancel query"
+      );
+      const { signal } = new AbortController();
+
+      await ds.query(query, { signal });
+
+      expect(executeQuery).toHaveBeenCalledExactlyOnceWith(expect.anything(), {
+        signal,
+        inflightQueryAbortStrategy: "cancel query",
+      });
+    });
+
+    it("should let a query override the datasource strategy", async () => {
+      const { ds, query, executeQuery } = createQueryDatasource(
+        () => Promise.resolve({ rows: [] }),
+        "cancel query"
+      );
+      const { signal } = new AbortController();
+
+      await ds.query(query, {
+        signal,
+        inflightQueryAbortStrategy: "ignore query",
+      });
+
+      expect(executeQuery).toHaveBeenCalledExactlyOnceWith(expect.anything(), {
+        signal,
+        inflightQueryAbortStrategy: "ignore query",
       });
     });
   });

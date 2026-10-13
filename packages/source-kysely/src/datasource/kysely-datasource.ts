@@ -11,7 +11,13 @@ import {
   type QueryStreamOptions,
 } from "@flowblade/core";
 import type { Logger } from "@logtape/logtape";
-import type { Compilable, InferResult, Kysely, RawBuilder } from "kysely";
+import type {
+  Compilable,
+  InferResult,
+  InflightQueryAbortStrategy,
+  Kysely,
+  RawBuilder,
+} from "kysely";
 
 import { getKyselyErrorMessage } from "../internal/get-kysely-error-message.ts";
 import { isKyselyStreamable } from "../internal/is-kysely-streamable.ts";
@@ -26,6 +32,25 @@ type Params<TDatabase> = {
    * @see {@link https://github.com/logtape/logtape}
    */
   logger?: Logger;
+  /**
+   * What happens to an in-flight query when its `signal` is aborted.
+   *
+   * - `'ignore query'` (Kysely default): stop waiting for the results, the query
+   *   keeps running on the database and the connection is released once it settles.
+   * - `'cancel query'`: cancel the query on the database (ie: mssql, postgres, mysql).
+   *   Falls back to `'ignore query'` with a warning when the dialect can't.
+   * - `'kill session'`: kill the database session running the query.
+   *
+   * Can be overridden per query.
+   */
+  inflightQueryAbortStrategy?: InflightQueryAbortStrategy;
+};
+
+export type KyselyQueryOptions = QueryOptions & {
+  /**
+   * Override the datasource `inflightQueryAbortStrategy` for this query.
+   */
+  inflightQueryAbortStrategy?: InflightQueryAbortStrategy;
 };
 
 type KyselyQueryOrRawQuery<T = unknown> = Compilable<T> | RawBuilder<T>;
@@ -39,6 +64,9 @@ type KyselyInferQueryOrRawQuery<T extends KyselyQueryOrRawQuery> =
 export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   private readonly db: Kysely<TDatabase>;
   private readonly logger: Logger;
+  private readonly inflightQueryAbortStrategy:
+    | InflightQueryAbortStrategy
+    | undefined;
 
   /**
    * Return a new Kysely expression builder.
@@ -79,6 +107,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   constructor(params: Params<TDatabase>) {
     this.db = params.connection;
     this.logger = params.logger ?? kyselyDefaultLogtapeLogger;
+    this.inflightQueryAbortStrategy = params.inflightQueryAbortStrategy;
   }
 
   /**
@@ -134,7 +163,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
   >(
     query: TQuery,
-    options?: QueryOptions
+    options?: KyselyQueryOptions
   ): Promise<QResult<TData, QError>> => {
     const name = options?.name ?? "anonymous";
 
@@ -155,6 +184,9 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
 
       const r = await this.db.executeQuery(compiled, {
         signal: options?.signal,
+        inflightQueryAbortStrategy:
+          options?.inflightQueryAbortStrategy ??
+          this.inflightQueryAbortStrategy,
       });
       const { numAffectedRows, ...result } = r;
       span.timeMs = Date.now() - start;
@@ -210,7 +242,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
   >(
     query: TQuery,
-    options?: QueryOptions
+    options?: KyselyQueryOptions
   ): Promise<{
     data: TData;
     meta: QMeta;

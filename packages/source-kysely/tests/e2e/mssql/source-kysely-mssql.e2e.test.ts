@@ -1,3 +1,5 @@
+import { setTimeout as sleep } from "node:timers/promises";
+
 import {
   configure,
   getConsoleSink,
@@ -242,6 +244,33 @@ describe("MSSQL e2e tests", () => {
         expect(result.isError()).toBe(true);
         expect(Date.now() - start).toBeLessThan(2000);
       });
+
+      it.for([
+        { strategy: "cancel query", id: 20_000_001, insertedRows: 0 },
+        { strategy: "ignore query", id: 20_000_002, insertedRows: 1 },
+      ] as const)(
+        "should apply the '$strategy' inflight abort strategy on the server",
+        async ({ strategy, id, insertedRows }) => {
+          // The insert only runs if the server didn't cancel the query
+          const result = await ds.query(
+            sql`WAITFOR DELAY '00:00:02'; INSERT INTO TestTableLinked (id, name) VALUES (${id}, 'abort-test')`,
+            {
+              signal: AbortSignal.timeout(200),
+              inflightQueryAbortStrategy: strategy,
+            }
+          );
+          expect(result.isError()).toBe(true);
+
+          // Let an ignored query complete on the server
+          await sleep(3000);
+          const { data } = await ds.queryOrThrow(
+            sql<{
+              count: number;
+            }>`SELECT count(*) as count FROM TestTableLinked WHERE id = ${id}`
+          );
+          expect(data).toStrictEqual([{ count: insertedRows }]);
+        }
+      );
 
       it("should not start a stream when the signal is already aborted", async () => {
         const query = ds.queryBuilder

@@ -1,5 +1,6 @@
 export { flowbladeLogtapeKyselyConfig } from "./config/flowblade-logtape-kysely.config.ts";
 export { KyselyDatasource } from "./datasource/kysely-datasource.ts";
+export type { KyselyQueryOptions } from "./datasource/kysely-datasource.ts";
 export { DatasourceHelpers } from "./helpers/datasource-helpers.ts";
 export type { JsonifiedDataSourceResponse } from "./helpers/datasource-helpers.ts";
 export { kyselyDefaultLogtapeLogger } from "./logger/kysely-default-logtape-logger.ts";
