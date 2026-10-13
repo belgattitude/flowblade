@@ -202,10 +202,14 @@ describe(rowsToConvertedColumnsChunks, () => {
     it("returns null when new Function is not allowed", ({
       onTestFinished,
     }) => {
-      // Simulates a CSP forbidding eval
-      const spy = vi.spyOn(globalThis, "Function").mockImplementation(() => {
-        throw new EvalError("Code generation from strings disallowed");
-      });
+      // Simulates a CSP forbidding eval. `Function` is called with `new`,
+      // so the mock must be a function (not an arrow) to be constructable
+      const spy = vi
+        .spyOn(globalThis, "Function")
+        // oxlint-disable-next-line prefer-arrow-callback -- arrows can't be called with `new`
+        .mockImplementation(function throwOnCodeGeneration() {
+          throw new EvalError("Code generation from strings disallowed");
+        });
       onTestFinished(() => spy.mockRestore());
       expect(compileFillRow(["a"], [undefined])).toBeNull();
     });
