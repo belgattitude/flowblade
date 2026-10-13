@@ -83,13 +83,13 @@ allowBuilds:
 
 strictDepBuilds: false
 
-#permissions:
-#  '@logtape/logtape':
-#    skills: true
-#  blume:
-#    skills: true
-#  ultracite:
-#    skills: false
+permissions:
+  '@logtape/logtape':
+    skills: false
+  blume:
+    skills: false
+  ultracite:
+    skills: false
 #skills:
 #  dirs:
 #    - .claude/skills
@@ -120,6 +120,7 @@ overrides:
 
 
 minimumReleaseAge: 2880
+minimumReleaseAgeExcludePrune: true
 minimumReleaseAgeExclude:
   - '@azure/*'
   - '@better-auth/*'
@@ -150,9 +151,9 @@ minimumReleaseAgeExclude:
   - turbo
   - oxlint-tsgolint
   - http-cache-semantics@4.3.0
-  - ultracite@7.12.3 || 7.12.4 || 8.0.0
-  - '@dotenvx/dotenvx@2.33.0 || 2.34.2'
-  - '@dotenvx/primitives@3.1.0 || 3.3.0'
+  - ultracite@8.0.0
+  - '@dotenvx/dotenvx@2.34.2'
+  - '@dotenvx/primitives@3.3.0'
   - '@dotenvx/providers@0.3.5'
   - '@dotenvx/tooling@1.0.5'
   - '@yuku-core/binding-android-arm64@0.18.1'
@@ -175,4 +176,18 @@ minimumReleaseAgeExclude:
   - yuku-codegen@0.18.1
   - yuku-core@0.18.1
   - yuku-parser@0.18.1
+  - '@storybook/addon-docs@10.6.2'
+  - '@storybook/addon-vitest@10.6.2'
+  - '@storybook/builder-vite@10.6.2'
+  - '@storybook/react-dom-shim@10.6.2'
+  - '@storybook/react-vite@10.6.2'
+  - '@storybook/react@10.6.2'
+  - '@vitest/browser@5.0.4'
+  - '@vitest/coverage-v8@5.0.4'
+  - '@vitest/mocker@5.0.4'
+  - '@vitest/pretty-format@5.0.4'
+  - '@vitest/spy@5.0.4'
+  - '@vitest/ui@5.0.4'
+  - '@vitest/utils@5.0.4'
+  - storybook@10.6.2
 
