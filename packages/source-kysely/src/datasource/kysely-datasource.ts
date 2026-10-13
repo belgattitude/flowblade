@@ -291,10 +291,20 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       this.getLogFromSpan(name, span, "stream")
     );
 
+    let rowCount = 0;
+    let failed = false;
+
     try {
-      yield* query.stream(chunkSize) as AsyncIterableIterator<TData[0]>;
+      for await (const row of query.stream(chunkSize) as AsyncIterableIterator<
+        TData[0]
+      >) {
+        rowCount++;
+        yield row;
+      }
     } catch (error) {
+      failed = true;
       span.timeMs = Date.now() - start;
+      span.affectedRows = rowCount;
 
       // Kysely can throw either an Error or an array of Errors, depending on the driver and error type
       // This behaviour exists for example in Tedious/Mssql
@@ -316,13 +326,18 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         cause: error,
       });
     } finally {
-      const timeMs = Date.now() - start;
-      span.timeMs = timeMs;
+      // Runs on completion, on early exit (break / return) and on failure,
+      // the failure being already logged as an error above.
+      if (!failed) {
+        const timeMs = Date.now() - start;
+        span.timeMs = timeMs;
+        span.affectedRows = rowCount;
 
-      this.logger.info(
-        `Streaming query "${name}" executed in ${timeMs}ms.`,
-        this.getLogFromSpan(name, span, "stream")
-      );
+        this.logger.info(
+          `Streaming query "${name}" executed in ${timeMs}ms.`,
+          this.getLogFromSpan(name, span, "stream")
+        );
+      }
     }
   }
 

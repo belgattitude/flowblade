@@ -196,6 +196,25 @@ describe("MSSQL e2e tests", () => {
           id: expect.any(Number),
         });
       });
+
+      it("should release the connection when the stream is left early", async () => {
+        const query = ds.queryBuilder
+          .selectFrom("TestTable as t")
+          .select(["t.id"]);
+
+        // More early exits than connections in the pool (max: 4), a leaked
+        // connection would make the following query wait until the test times out
+        for (let i = 0; i < 6; i++) {
+          for await (const _row of ds.stream(query)) {
+            break;
+          }
+        }
+
+        const { data } = await ds.queryOrThrow(
+          sql<{ ok: number }>`SELECT 1 as ok`
+        );
+        expect(data).toStrictEqual([{ ok: 1 }]);
+      });
     });
 
     describe("queryOrThrow", () => {
