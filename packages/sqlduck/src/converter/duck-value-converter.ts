@@ -114,6 +114,8 @@ const isDashedUUID = (value: string): boolean =>
   value.codePointAt(18) === charDash &&
   value.codePointAt(23) === charDash;
 
+type TimestampInput = bigint | number | Date | null | string | undefined;
+
 const createDuckValueConverterTypeError = (params: {
   method: keyof typeof DuckValueConverter.prototype;
   value: unknown;
@@ -127,6 +129,49 @@ const createDuckValueConverterTypeError = (params: {
   return new TypeError(
     `[DuckValueConverter.${params.method}]: Unsupported type ${typeof params.value} with value ${serializableValue}`
   );
+};
+
+/**
+ * Epoch in milliseconds (bigint) of a timestamp input, null for null/undefined.
+ * Numbers and bigints are epoch milliseconds, strings are ISO / SQL timestamps
+ * or YYYY-MM-DD dates.
+ */
+const toEpochMs = (
+  value: TimestampInput,
+  method: "toTimestampMs" | "toTimestamp"
+): bigint | null => {
+  if (value instanceof Date) {
+    return BigInt(value.getTime());
+  }
+  if (value === undefined || value === null) {
+    return null;
+  }
+  if (typeof value === "string") {
+    const len = value.length;
+    let fastMs = Number.NaN;
+    if (len === 10) {
+      fastMs = parseIsoDateToMs(value);
+    } else if (len > 18 && len < 31) {
+      fastMs = parseIsoTimestampToMs(value);
+    }
+    if (!Number.isNaN(fastMs)) {
+      return BigInt(fastMs);
+    }
+    if (len > 18 && len < 31 && stringTimestampRegexp.test(value)) {
+      const hasZ = value.endsWith("Z") || value.endsWith("z");
+      return BigInt(new Date(hasZ ? value : value + "Z").getTime());
+    }
+    if (len === 10 && dateRegexp.test(value)) {
+      return BigInt(new Date(value + "T00:00:00Z").getTime());
+    }
+  }
+  if (typeof value === "bigint") {
+    return value;
+  }
+  if (typeof value === "number") {
+    return BigInt(value);
+  }
+  throw createDuckValueConverterTypeError({ method, value });
 };
 
 export class DuckValueConverter {
@@ -276,59 +321,18 @@ export class DuckValueConverter {
       return listValue(items);
     };
   toTimestampMs = (
-    value: bigint | number | Date | null | string | undefined
+    value: TimestampInput
   ): DuckDBTimestampMillisecondsValue | null => {
-    if (value instanceof Date) {
-      return new DuckDBTimestampMillisecondsValue(BigInt(value.getTime()));
-    }
-    if (value === undefined || value === null) {
-      return null;
-    }
-
-    if (typeof value === "string") {
-      const len = value.length;
-      let fastMs = Number.NaN;
-      if (len === 10) {
-        fastMs = parseIsoDateToMs(value);
-      } else if (len > 18 && len < 31) {
-        fastMs = parseIsoTimestampToMs(value);
-      }
-      if (!Number.isNaN(fastMs)) {
-        return new DuckDBTimestampMillisecondsValue(BigInt(fastMs));
-      }
-      if (len > 18 && len < 31 && stringTimestampRegexp.test(value)) {
-        const hasZ = value.endsWith("Z") || value.endsWith("z");
-        const date = new Date(hasZ ? value : value + "Z");
-        return new DuckDBTimestampMillisecondsValue(BigInt(date.getTime()));
-      }
-      if (len === 10 && dateRegexp.test(value)) {
-        const date = new Date(value + "T00:00:00Z");
-        return new DuckDBTimestampMillisecondsValue(BigInt(date.getTime()));
-      }
-    }
-    if (typeof value === "bigint") {
-      return new DuckDBTimestampMillisecondsValue(value);
-    }
-    if (typeof value === "number") {
-      return new DuckDBTimestampMillisecondsValue(BigInt(value));
-    }
-    throw createDuckValueConverterTypeError({ method: "toTimestampMs", value });
+    const ms = toEpochMs(value, "toTimestampMs");
+    return ms === null ? null : new DuckDBTimestampMillisecondsValue(ms);
   };
   /**
    * Same inputs as toTimestampMs (numbers and bigints are epoch milliseconds),
    * sub-millisecond digits of strings are dropped.
    */
-  toTimestamp = (
-    value: bigint | number | Date | null | string | undefined
-  ): DuckDBTimestampValue | null => {
-    let timestampMs: DuckDBTimestampMillisecondsValue | null;
-    try {
-      timestampMs = this.toTimestampMs(value);
-    } catch {
-      throw createDuckValueConverterTypeError({ method: "toTimestamp", value });
-    }
-    return timestampMs === null
-      ? null
-      : new DuckDBTimestampValue(timestampMs.millis * 1000n);
+  toTimestamp = (value: TimestampInput): DuckDBTimestampValue | null => {
+    // Microseconds computed directly, without an intermediate millis value
+    const ms = toEpochMs(value, "toTimestamp");
+    return ms === null ? null : new DuckDBTimestampValue(ms * 1000n);
   };
 }

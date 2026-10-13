@@ -56,6 +56,15 @@ test(`DuckValueConverter.toTimestampMs, count: ${count}`, async ({ bench }) => {
   );
 });
 
+test(`DuckValueConverter.toTimestamp, count: ${count}`, async ({ bench }) => {
+  await bench.compare(
+    bench("from Date", run(dates, converter.toTimestamp)),
+    bench("from ISO string", run(isoTimestamps, converter.toTimestamp)),
+    bench("from number", run(epochNumbers, converter.toTimestamp)),
+    benchConfig
+  );
+});
+
 test(`DuckValueConverter.toDate, count: ${count}`, async ({ bench }) => {
   await bench.compare(
     bench("from Date", run(dates, converter.toDate)),
