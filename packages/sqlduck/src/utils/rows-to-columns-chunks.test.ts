@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 
-import { rowsToColumnsChunks } from "./rows-to-columns-chunks";
+import { rowsToColumnsChunks } from "./rows-to-columns-chunks.ts";
 
 describe("rowsToColumnsChunk", () => {
   type Row = { id: number; name: string | null };

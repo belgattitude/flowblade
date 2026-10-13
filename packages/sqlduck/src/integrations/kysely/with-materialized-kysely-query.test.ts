@@ -143,6 +143,10 @@ describe("withMaterializedKyselyQuery", () => {
       expect(result.error?.message).toMatch(
         /Can't materialize table _materialized.*stream boom/
       );
+      // The original error is kept (toTable error, caused by the stream one)
+      expect(result.error?.cause).toMatchObject({
+        cause: expect.objectContaining({ message: "stream boom" }),
+      });
       const leftovers = await duckConn.runAndReadAll(
         `SELECT count(*) AS count FROM duckdb_tables() WHERE table_name LIKE '_materialized%'`
       );
@@ -181,6 +185,66 @@ describe("withMaterializedKyselyQuery", () => {
       ).rejects.toThrow("boom");
       expect(tableName).not.toBe("");
       await expect(tableExists(duckConn, tableName)).resolves.toBe(false);
+    });
+  });
+
+  describe("signal", () => {
+    it("should not run the query when the signal is already aborted", async ({
+      conn: duckConn,
+    }) => {
+      let queryCalled = false;
+      const result = await withMaterializedKyselyQuery({
+        duckConn,
+        table: new KyselyQueryWithZodSchema({
+          query: db.selectFrom("user").select(["id", "name"]),
+          schema: z.strictObject({ id: z.int32(), name: z.string() }),
+        }),
+        signal: AbortSignal.abort(),
+        query: async () => {
+          queryCalled = true;
+          return createQResultSuccess([], new QMeta({}));
+        },
+      });
+      expect(queryCalled).toBe(false);
+      expect(result.isError()).toBe(true);
+      expect(result.error?.cause).toMatchObject({ name: "AbortError" });
+      const leftovers = await duckConn.runAndReadAll(
+        `SELECT count(*) AS count FROM duckdb_tables() WHERE table_name LIKE '_materialized%'`
+      );
+      expect(Number(leftovers.getRowObjectsJS()[0]?.count)).toBe(0);
+    });
+
+    it("should give the signal to the kysely stream and to the query", async ({
+      conn: duckConn,
+    }) => {
+      const table = new KyselyQueryWithZodSchema({
+        query: db.selectFrom("user").select(["id", "name"]),
+        schema: z.strictObject({ id: z.int32(), name: z.string() }),
+      });
+      let streamOptions: unknown;
+      table.getQuery = (() => {
+        return {
+          stream: async function* streamRows(options: unknown) {
+            streamOptions = options;
+            yield { id: 1, name: "a" };
+          },
+        };
+      }) as unknown as typeof table.getQuery;
+
+      const { signal } = new AbortController();
+      let querySignal: AbortSignal | undefined;
+      const result = await withMaterializedKyselyQuery({
+        duckConn,
+        table,
+        signal,
+        query: async ({ signal: received }) => {
+          querySignal = received;
+          return createQResultSuccess([], new QMeta({}));
+        },
+      });
+      expect(result.isError()).toBe(false);
+      expect(streamOptions).toStrictEqual({ chunkSize: 1024, signal });
+      expect(querySignal).toBe(signal);
     });
   });
 

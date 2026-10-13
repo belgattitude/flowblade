@@ -8,7 +8,7 @@ import * as z from "zod";
 
 import { openDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 
-import { SqlDuck, Table, zodCodecs } from "../../../src";
+import { SqlDuck, Table, zodCodecs } from "../../../src/index.ts";
 import { createMssqlDatasource } from "./create-mssql-datasource.ts";
 import {
   anIsoDate,

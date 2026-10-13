@@ -1,8 +1,8 @@
 export type {
   OnChunkAppendedCb,
   OnChunkAppendedStats,
-} from "./appender/data-appender-callback";
-export * from "./helpers";
+} from "./appender/data-appender-callback.ts";
+export * from "./helpers/index.ts";
 export type { SqlDuckParams, ToTableParams } from "./sql-duck.ts";
 export { SqlDuck } from "./sql-duck.ts";
 export {
@@ -28,5 +28,5 @@ export { DuckExtensionsManager } from "./manager/extensions/duck-extensions-mana
 export { DuckSettingsManager } from "./manager/settings/duck-settings-manager.ts";
 
 // Logtape
-export { flowbladeLogtapeSqlduckConfig } from "./config/flowblade-logtape-sqlduck.config";
+export { flowbladeLogtapeSqlduckConfig } from "./config/flowblade-logtape-sqlduck.config.ts";
 export { sqlduckDefaultLogtapeLogger } from "./logger/sqlduck-default-logtape-logger.ts";

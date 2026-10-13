@@ -2,6 +2,7 @@ import type { DuckDBConnection } from "@duckdb/node-api";
 import type { Logger } from "@logtape/logtape";
 
 import { sqlduckDefaultLogtapeLogger } from "../../logger/sqlduck-default-logtape-logger.ts";
+import { quoteIdentifier, quoteValue } from "../../utils/quote-value.ts";
 import { ManagerQueryExecutor } from "../core/manager-query-executor.ts";
 
 export class DuckSettingsManager {
@@ -27,7 +28,7 @@ export class DuckSettingsManager {
   ): Promise<Record<T, string>> => {
     const fnName = `${this.className}.getCurrentSettings`;
     const columns = settings
-      .map((s) => `current_setting('${s}') as '${s}'`)
+      .map((s) => `current_setting(${quoteValue(s)}) as ${quoteIdentifier(s)}`)
       .join(",\n");
 
     const query = `SELECT ${columns}`;

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   compileFillRow,
   rowsToConvertedColumnsChunks,
-} from "./rows-to-converted-columns-chunks";
+} from "./rows-to-converted-columns-chunks.ts";
 
 describe(rowsToConvertedColumnsChunks, () => {
   type Row = { id: number; name: string | null };
@@ -264,6 +264,63 @@ describe(rowsToConvertedColumnsChunks, () => {
         expect.objectContaining({ name: "AbortError" })
       );
       expect(pulled).toBe(false);
+    });
+
+    it("throws the abort reason and closes sync rows when aborted mid-stream", async () => {
+      const controller = new AbortController();
+      let closed = false;
+      function* abortingRows(): Generator<Row> {
+        try {
+          for (let id = 1; id <= 10; id++) {
+            if (id === 4) {
+              controller.abort(new Error("stop"));
+            }
+            yield { id, name: `n${id}` };
+          }
+        } finally {
+          closed = true;
+        }
+      }
+      const received: unknown[] = [];
+      await expect(async () => {
+        for await (const chunk of rowsToConvertedColumnsChunks({
+          rows: abortingRows(),
+          chunkSize: 3,
+          columns: ["id", "name"],
+          converters: {},
+          signal: controller.signal,
+        })) {
+          received.push(chunk);
+        }
+      }).rejects.toThrow("stop");
+      expect(received).toHaveLength(1);
+      expect(closed).toBe(true);
+    });
+
+    it("closes sync rows when the consumer leaves early", async () => {
+      let closed = false;
+      function* rows(): Generator<Row> {
+        try {
+          for (let id = 1; id <= 10; id++) {
+            yield { id, name: `n${id}` };
+          }
+        } finally {
+          closed = true;
+        }
+      }
+      for await (const chunk of rowsToConvertedColumnsChunks({
+        rows: rows(),
+        chunkSize: 3,
+        columns: ["id", "name"],
+        converters: {},
+      })) {
+        expect(chunk).toStrictEqual([
+          [1, 2, 3],
+          ["n1", "n2", "n3"],
+        ]);
+        break;
+      }
+      expect(closed).toBe(true);
     });
 
     it("yields all chunks when not aborted", async () => {

@@ -18,16 +18,6 @@ type OnChunkAppendedAsyncCb = (stats: OnChunkAppendedStats) => Promise<void>;
 
 export type OnChunkAppendedCb = OnChunkAppendedSyncCb | OnChunkAppendedAsyncCb;
 
-export const isOnChunkAppendedAsyncCb = (
-  v: OnChunkAppendedCb
-): v is OnChunkAppendedAsyncCb =>
-  v.constructor.name === "AsyncFunction" ||
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  v.constructor ===
-    (async () => {
-      await Promise.resolve();
-    }).constructor;
-
 export const createOnChunkAppendedCollector = () => {
   let lastCallbackTimeStart: number = Date.now();
   let appendedTotalRows = 0;

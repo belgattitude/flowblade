@@ -7,7 +7,7 @@ import * as z from "zod";
 import { openDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 import { testTempDir } from "#tests/utils/get-test-temp-dir.ts";
 
-import { DuckDatabaseManager, zodCodecs } from "../src";
+import { DuckDatabaseManager, zodCodecs } from "../src/index.ts";
 import { Table } from "../src/objects/table.ts";
 import { SqlDuck } from "../src/sql-duck.ts";
 import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator.ts";

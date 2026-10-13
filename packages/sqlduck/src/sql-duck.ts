@@ -1,5 +1,6 @@
 import { DuckDBDataChunk } from "@duckdb/node-api";
 import type {
+  DuckDBAppender,
   DuckDBConnection,
   DuckDBType,
   DuckDBValue,
@@ -8,10 +9,7 @@ import type { Logger } from "@logtape/logtape";
 import type * as z from "zod";
 import type { ZodObject } from "zod";
 
-import {
-  createOnChunkAppendedCollector,
-  isOnChunkAppendedAsyncCb,
-} from "./appender/data-appender-callback.ts";
+import { createOnChunkAppendedCollector } from "./appender/data-appender-callback.ts";
 import type { OnChunkAppendedCb } from "./appender/data-appender-callback.ts";
 import { createDuckColumnConverters } from "./converter/create-duck-column-converters.ts";
 import { sqlduckDefaultLogtapeLogger } from "./logger/sqlduck-default-logtape-logger.ts";
@@ -19,6 +17,7 @@ import { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts
 import type { Table } from "./objects/table.ts";
 import { createTableFromZod } from "./table/create-table-from-zod.ts";
 import type { TableCreateOptions } from "./table/get-table-create-from-zod.ts";
+import { getErrorMessage } from "./utils/get-error-message.ts";
 import { rowsToConvertedColumnsChunks } from "./utils/rows-to-converted-columns-chunks.ts";
 import type {
   InferZodRelaxedDataSchema,
@@ -274,25 +273,6 @@ export class SqlDuck {
       options: createOptions,
     });
 
-    let originalPreserveInsertionOrder: boolean | undefined;
-    if (preserveInsertionOrder !== undefined) {
-      const settingQuery = await this.#conn.runAndReadAll(
-        "SELECT current_setting('preserve_insertion_order') as value"
-      );
-      originalPreserveInsertionOrder = settingQuery.getRowObjects()[0]
-        ?.value as boolean;
-
-      await this.#conn.run(
-        `SET preserve_insertion_order = ${preserveInsertionOrder};`
-      );
-    }
-
-    const appender = await this.#conn.createAppender(
-      table.tableName,
-      table.schemaName,
-      table.databaseName
-    );
-
     const chunkTypes = [...columnTypes.values()];
 
     const columnTypeIds = {} as Record<keyof z.output<TSchema>, DuckDBType>;
@@ -321,11 +301,30 @@ export class SqlDuck {
     let appendedChunkCount = 0;
 
     const tableFullName = table.getFullName();
-    const { tableName } = table;
+
+    // Set once the session setting has been changed, to restore it in finally
+    let originalPreserveInsertionOrder: boolean | undefined;
+    let appender: DuckDBAppender | undefined;
     try {
-      const isAsyncCb =
-        onChunkAppended !== undefined &&
-        isOnChunkAppendedAsyncCb(onChunkAppended);
+      if (preserveInsertionOrder !== undefined) {
+        const settingQuery = await this.#conn.runAndReadAll(
+          "SELECT current_setting('preserve_insertion_order') as value"
+        );
+        const currentValue = settingQuery.getRowObjects()[0]?.value as
+          | boolean
+          | undefined;
+
+        await this.#conn.run(
+          `SET preserve_insertion_order = ${preserveInsertionOrder};`
+        );
+        originalPreserveInsertionOrder = currentValue;
+      }
+
+      appender = await this.#conn.createAppender(
+        table.tableName,
+        table.schemaName,
+        table.databaseName
+      );
 
       for await (const dataChunk of columnStream) {
         const chunk = DuckDBDataChunk.create(chunkTypes);
@@ -344,11 +343,13 @@ export class SqlDuck {
           (onChunkAppendedFrequency === undefined ||
             appendedChunkCount % onChunkAppendedFrequency === 0)
         ) {
-          const payload = chunkAppendedCollector(totalRows);
-          if (isAsyncCb) {
-            await onChunkAppended(payload);
-          } else {
-            onChunkAppended(payload);
+          // Await any returned promise (async functions, but also regular
+          // functions returning a promise) for backpressure and errors
+          const returned = onChunkAppended(
+            chunkAppendedCollector(totalRows)
+          ) as unknown;
+          if (returned instanceof Promise) {
+            await returned;
           }
         }
 
@@ -370,9 +371,11 @@ export class SqlDuck {
             await dbManager.checkpoint(table.databaseName);
           } catch (error) {
             this.#logger.warning(
-              `Failed to checkpoint database '${table.databaseName}' after appending chunk into table '${tableName}' - ${(error as Error)?.message ?? ""}`,
+              "Failed to checkpoint database '{database}' after appending chunk into table '{table}' - {errorMessage}",
               {
+                database: table.databaseName,
                 table: tableFullName,
+                errorMessage: getErrorMessage(error),
               }
             );
           }
@@ -381,23 +384,26 @@ export class SqlDuck {
 
       appender.flushSync();
       appender.closeSync();
+      appender = undefined;
 
       if (autoCheckpoint && table.databaseName !== undefined) {
         try {
           await dbManager.checkpoint(table.databaseName);
         } catch (error) {
           this.#logger.warning(
-            `Failed to checkpoint database '${table.databaseName}' after appending data into table '${tableName}' - ${(error as Error)?.message ?? ""}`,
+            "Failed to checkpoint database '{database}' after appending data into table '{table}' - {errorMessage}",
             {
+              database: table.databaseName,
               table: tableFullName,
+              errorMessage: getErrorMessage(error),
             }
           );
         }
       }
 
-      const timeMs = Math.round(Date.now() - timeStart);
+      const timeMs = Date.now() - timeStart;
       this.#logger.info(
-        `Successfully appended ${totalRows} rows into '${table.getFullName()}' in ${timeMs}ms`,
+        "Successfully appended {totalRows} rows into '{table}' in {timeMs}ms",
         {
           table: tableFullName,
           timeMs,
@@ -411,10 +417,21 @@ export class SqlDuck {
         createTableDDL: ddl,
       };
     } catch (error) {
-      appender.closeSync();
+      // A failing close must not hide the original error
+      try {
+        appender?.closeSync();
+      } catch (closeError) {
+        this.#logger.warning(
+          "Failed to close the appender of table '{table}' - {errorMessage}",
+          {
+            table: tableFullName,
+            errorMessage: getErrorMessage(closeError),
+          }
+        );
+      }
       if (signal?.aborted === true && error === signal.reason) {
         this.#logger.warning(
-          `Aborted appending data into table '${tableFullName}' after ${totalRows} rows`,
+          "Aborted appending data into table '{table}' after {totalRows} rows",
           {
             table: tableFullName,
             totalRows,
@@ -423,24 +440,33 @@ export class SqlDuck {
         // Not wrapped so callers can check for an AbortError
         throw error;
       }
-      const msg = `Failed to append data into table '${table.getFullName()}' - ${(error as Error)?.message ?? ""}`;
-      this.#logger.error(msg, {
-        table: table.getFullName(),
-      });
-      throw new Error(msg, {
-        cause: error,
-      });
+      const errorMessage = getErrorMessage(error);
+      this.#logger.error(
+        "Failed to append data into table '{table}' - {errorMessage}",
+        {
+          table: tableFullName,
+          errorMessage,
+        }
+      );
+      throw new Error(
+        `Failed to append data into table '${tableFullName}' - ${errorMessage}`,
+        {
+          cause: error,
+        }
+      );
     } finally {
-      if (preserveInsertionOrder !== undefined) {
+      if (originalPreserveInsertionOrder !== undefined) {
         try {
           await this.#conn.run(
             `SET preserve_insertion_order = ${originalPreserveInsertionOrder};`
           );
         } catch (error) {
           this.#logger.warning(
-            `Failed to restore preserve_insertion_order to ${originalPreserveInsertionOrder} after appending data into table '${tableName}' - ${(error as Error)?.message ?? ""}`,
+            "Failed to restore preserve_insertion_order to {value} after appending data into table '{table}' - {errorMessage}",
             {
+              value: originalPreserveInsertionOrder,
               table: tableFullName,
+              errorMessage: getErrorMessage(error),
             }
           );
         }

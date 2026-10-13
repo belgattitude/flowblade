@@ -5,6 +5,7 @@ import path, { basename, dirname } from "node:path";
 import type { Logger } from "@logtape/logtape";
 
 import { sqlduckDefaultLogtapeLogger } from "../logger/sqlduck-default-logtape-logger.ts";
+import { getErrorMessage } from "../utils/get-error-message.ts";
 
 type ParsedPath = { directory: string; filename: string };
 
@@ -25,16 +26,17 @@ export class FileSystemUtils {
   createDirectory = (path: string, recursive = true) => {
     try {
       fs.mkdirSync(path, { recursive });
-      this.#logger.debug(`Successfully created directory '${path}'`, {
+      this.#logger.debug("Successfully created directory '{path}'", {
         path,
         recursive: true,
       });
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
         this.#logger.warning(
-          `Couldn't create directory '${path}': ${error as Error}.message`,
+          "Couldn't create directory '{path}': {errorMessage}",
           {
             path,
+            errorMessage: getErrorMessage(error),
             recursive: true,
           }
         );

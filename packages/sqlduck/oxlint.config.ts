@@ -19,7 +19,14 @@ export default defineConfig({
       rules: {
         "vitest/no-standalone-expect": [
           "error",
-          { additionalTestBlockFunctions: ["it", "it.for", "it.each"] },
+          {
+            additionalTestBlockFunctions: [
+              "it",
+              "it.for",
+              "it.each",
+              "it.skipIf",
+            ],
+          },
         ],
       },
     },

@@ -38,7 +38,7 @@ export const duckConnectionParamsZodSchema = z.discriminatedUnion("type", [
       .string()
       .refine(
         (path) => {
-          const filename = path.replace("\\", "/").split("/").at(-1);
+          const filename = path.replaceAll("\\", "/").split("/").at(-1);
           return filename !== undefined && isSafeFilename(filename);
         },
         {
@@ -51,7 +51,7 @@ export const duckConnectionParamsZodSchema = z.discriminatedUnion("type", [
           const pathname =
             "/" +
             path
-              .replace("\\", "/")
+              .replaceAll("\\", "/")
               .split("/")
               .slice(0, -1)
               .filter(Boolean)
@@ -64,7 +64,7 @@ export const duckConnectionParamsZodSchema = z.discriminatedUnion("type", [
         },
         {
           message:
-            "Invalid database pathname - it must be an absolute path with no traversal",
+            "Invalid database pathname - it must not contain path traversal (..)",
         }
       ),
     alias: duckValidatorsZod.aliasName,

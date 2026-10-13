@@ -4,7 +4,7 @@ import * as z from "zod";
 import {
   createFakeRowsAsyncIterator,
   createFakeRowsIterator,
-} from "./create-fake-rows-iterator";
+} from "./create-fake-rows-iterator.ts";
 
 describe("Generate fake data", () => {
   it("should generate fake data", async () => {

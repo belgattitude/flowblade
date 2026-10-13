@@ -18,8 +18,8 @@ import {
 } from "@duckdb/node-api";
 import type { DuckDBType } from "@duckdb/node-api";
 
-import type { Table } from "../objects/table";
-import type { TableSchemaZod } from "../validation/zod";
+import type { Table } from "../objects/table.ts";
+import type { TableSchemaZod } from "../validation/zod/index.ts";
 import { getDuckdbNumberColumnType } from "./get-duckdb-number-column-type.ts";
 
 type ColumnDDL = {

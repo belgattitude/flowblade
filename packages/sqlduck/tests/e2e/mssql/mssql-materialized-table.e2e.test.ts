@@ -7,8 +7,8 @@ import * as z from "zod";
 
 import { openDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 
-import { zodCodecs } from "../../../src";
-import { withMaterializedKyselyQuery } from "../../../src/integrations/kysely";
+import { zodCodecs } from "../../../src/index.ts";
+import { withMaterializedKyselyQuery } from "../../../src/integrations/kysely/index.ts";
 import { KyselyQueryWithZodSchema } from "../../../src/integrations/kysely/kysely-query-with-zod-schema.ts";
 import { createMssqlDatasource } from "./create-mssql-datasource.ts";
 import { type mssqlE2eDb, testDataCount } from "./get-mssql-e2e-migrations.ts";

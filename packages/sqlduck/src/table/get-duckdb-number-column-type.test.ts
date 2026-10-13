@@ -16,7 +16,7 @@ import {
 import type { DuckDBDecimalType } from "@duckdb/node-api";
 import { describe, expect, it } from "vitest";
 
-import { getDuckdbNumberColumnType } from "./get-duckdb-number-column-type";
+import { getDuckdbNumberColumnType } from "./get-duckdb-number-column-type.ts";
 
 describe(getDuckdbNumberColumnType, () => {
   it("should return BIGINT if minimum or maximum is undefined", () => {

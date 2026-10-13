@@ -11,6 +11,12 @@ export const quoteValue = (
   return `'${escapedString}'`;
 };
 
+/**
+ * Quote an identifier (ie: a column alias) so it can be safely used in a query.
+ */
+export const quoteIdentifier = (identifier: string): string =>
+  `"${identifier.replaceAll('"', '""')}"`;
+
 /*
 const getSqlSafeAsciiString = (name: string) => {
   const ascii = transliterate(name);

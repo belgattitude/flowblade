@@ -39,14 +39,14 @@ export const duckConnectionParamsValibotSchema = v.variant("type", [
     path: v.pipe(
       v.string(),
       v.check((path) => {
-        const filename = path.replace("\\", "/").split("/").at(-1);
+        const filename = path.replaceAll("\\", "/").split("/").at(-1);
         return filename !== undefined && isSafeFilename(filename);
       }, "Invalid database filename - it must be a safe filename (no path traversal, no absolute paths, no reserved names, etc.)"),
       v.check((path) => {
         const pathname =
           "/" +
           path
-            .replace("\\", "/")
+            .replaceAll("\\", "/")
             .split("/")
             .slice(0, -1)
             .filter(Boolean)
@@ -56,7 +56,7 @@ export const duckConnectionParamsValibotSchema = v.variant("type", [
           pathname.startsWith("/") &&
           !pathname.includes("..")
         );
-      }, "Invalid database pathname - it must be an absolute path with no traversal")
+      }, "Invalid database pathname - it must not contain path traversal (..)")
     ),
     alias: duckValidatorsValibot.aliasName,
     options: v.optional(duckAllConnectionOptionsValibotSchema),

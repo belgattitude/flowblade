@@ -2,7 +2,11 @@ import type { DuckDBConnection } from "@duckdb/node-api";
 import type { Logger } from "@logtape/logtape";
 
 import { sqlduckDefaultLogtapeLogger } from "../../logger/sqlduck-default-logtape-logger.ts";
+import { quoteValue } from "../../utils/quote-value.ts";
 import { ManagerQueryExecutor } from "../core/manager-query-executor.ts";
+
+// Extension names are identifiers (ie: fts, httpfs, spatial)
+const extensionNameRegexp = /^[a-z_][a-z0-9_]*$/i;
 
 export class DuckExtensionsManager {
   readonly #conn: DuckDBConnection;
@@ -29,6 +33,9 @@ export class DuckExtensionsManager {
     }
   ): Promise<true> => {
     const { force } = params ?? {};
+    if (!extensionNameRegexp.test(name)) {
+      throw new Error(`Invalid extension name '${name}'`);
+    }
     await this.#executor.getRowObjectsJS(
       "install",
       `${force === true ? "FORCE " : ""} INSTALL ${name}`
@@ -43,7 +50,7 @@ export class DuckExtensionsManager {
       installed === undefined
         ? ""
         : `installed = ${installed ? "true" : "false"}`,
-      name === undefined ? "" : `extension_name = '${name}'`,
+      name === undefined ? "" : `extension_name = ${quoteValue(name)}`,
     ].filter(Boolean);
 
     const where =

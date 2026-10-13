@@ -81,6 +81,15 @@ export const compileFillRow = (
 };
 
 /**
+ * Whether rows can be read synchronously (sync generators, arrays...), async
+ * iterables are read with for-await.
+ */
+const isSyncIterable = <T>(
+  rows: Iterable<T> | AsyncIterable<T>
+): rows is Iterable<T> =>
+  !(Symbol.asyncIterator in rows) && Symbol.iterator in rows;
+
+/**
  * Specialized version of `rowsToColumnsChunks` for when the columns and their
  * converters are known upfront (ie: `SqlDuck.toTable`).
  *
@@ -190,26 +199,50 @@ export async function* rowsToConvertedColumnsChunks<
   let cols = createColumns();
   let rowsInChunk = 0;
 
-  for await (const row of rows) {
-    // Throwing inside for-await closes rows
-    signal?.throwIfAborted();
-    if (fillRow === null) {
-      for (let i = 0; i < numColumns; i++) {
-        // Hot path (runs once per cell): a plain index loop writing straight into the
-        // preallocated arrays measured ~8% faster on `compile: false` than iterating
-        // {key, values} slot objects (no per-cell property loads, no per-chunk slots).
-        // `i < numColumns` guarantees both indexes exist, so the assertions are safe.
-        // eslint-disable-next-line typescript/no-non-null-assertion
-        cols[i]![rowsInChunk] = row[columns[i]!];
-      }
-    } else {
-      fillRow(cols, row, rowsInChunk);
+  // Hot path (runs once per cell): a plain index loop writing straight into the
+  // preallocated arrays measured ~8% faster on `compile: false` than iterating
+  // {key, values} slot objects (no per-cell property loads, no per-chunk slots).
+  const fillRowGeneric = (row: TRow, r: number): void => {
+    for (let i = 0; i < numColumns; i++) {
+      // `i < numColumns` guarantees both indexes exist, so the assertions are safe.
+      // eslint-disable-next-line typescript/no-non-null-assertion
+      cols[i]![r] = row[columns[i]!];
     }
-    rowsInChunk++;
-    if (rowsInChunk >= chunkSize) {
-      yield toChunk(cols, rowsInChunk);
-      cols = createColumns();
-      rowsInChunk = 0;
+  };
+
+  if (isSyncIterable(rows)) {
+    // Sync sources (generators, arrays) are read with for-of: for-await would
+    // wrap every row in a promise (~60ns per row). Only the yields are async.
+    for (const row of rows) {
+      // Throwing inside for-of closes rows
+      signal?.throwIfAborted();
+      if (fillRow === null) {
+        fillRowGeneric(row, rowsInChunk);
+      } else {
+        fillRow(cols, row, rowsInChunk);
+      }
+      rowsInChunk++;
+      if (rowsInChunk >= chunkSize) {
+        yield toChunk(cols, rowsInChunk);
+        cols = createColumns();
+        rowsInChunk = 0;
+      }
+    }
+  } else {
+    for await (const row of rows) {
+      // Throwing inside for-await closes rows
+      signal?.throwIfAborted();
+      if (fillRow === null) {
+        fillRowGeneric(row, rowsInChunk);
+      } else {
+        fillRow(cols, row, rowsInChunk);
+      }
+      rowsInChunk++;
+      if (rowsInChunk >= chunkSize) {
+        yield toChunk(cols, rowsInChunk);
+        cols = createColumns();
+        rowsInChunk = 0;
+      }
     }
   }
 

@@ -2,7 +2,8 @@ import type { DuckDBConnection } from "@duckdb/node-api";
 import type { Logger } from "@logtape/logtape";
 
 import { sqlduckDefaultLogtapeLogger } from "../logger/sqlduck-default-logtape-logger.ts";
-import type { TableSchemaZod } from "../validation/zod";
+import { getErrorMessage } from "../utils/get-error-message.ts";
+import type { TableSchemaZod } from "../validation/zod/index.ts";
 import { getTableCreateFromZod } from "./get-table-create-from-zod.ts";
 import type {
   GetTableCreateFromZodParams,
@@ -28,25 +29,28 @@ export const createTableFromZod = async <TSchema extends TableSchemaZod>(
     options,
   });
 
-  logger.debug(`Generate DDL for table '${table.getFullName()}'`, {
+  const tableFullName = table.getFullName();
+  logger.debug("Generate DDL for table '{table}'", {
+    table: tableFullName,
     ddl,
   });
 
   try {
     await conn.run(ddl);
-    logger.info(`Table '${table.getFullName()}' successfully created`, {
+    logger.info("Table '{table}' successfully created", {
+      table: tableFullName,
       ddl,
     });
   } catch (error) {
-    logger.error(
-      `Failed to create table '${table.getFullName()}': ${(error as Error).message}`,
-      {
-        ddl,
-      }
-    );
+    const errorMessage = getErrorMessage(error);
+    logger.error("Failed to create table '{table}': {errorMessage}", {
+      table: tableFullName,
+      ddl,
+      errorMessage,
+    });
 
     throw new Error(
-      `Failed to create table '${table.getFullName()}': ${(error as Error).message}`,
+      `Failed to create table '${tableFullName}': ${errorMessage}`,
       {
         cause: error,
       }
