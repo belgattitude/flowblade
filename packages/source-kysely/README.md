@@ -2,7 +2,7 @@
 
 A source adapter for [Kysely](https://github.com/kysely-org/kysely).
 
-[![npm](https://img.shields.io/npm/v/@flowblade/source-kysely?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/source-kysely) [![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/source-kysely/CHANGELOG.md) [![codecov](https://img.shields.io/codecov/c/github/belgattitude/flowblade?logo=codecov&label=Unit&flag=flowblade-source-kysely-unit&style=for-the-badge&labelColor=444)](https://app.codecov.io/gh/belgattitude/flowblade/tree/main/packages%2Fsource-kysely) [![bundles](https://img.shields.io/static/v1?label=&message=cjs|esm@treeshake&logo=webpack&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/source-kysely/.size-limit.cjs) [![node](https://img.shields.io/static/v1?label=Node&message=20%2b&logo=node.js&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![browserslist](https://img.shields.io/static/v1?label=Browser&message=%3E96%25&logo=googlechrome&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![size](https://img.shields.io/bundlephobia/minzip/@flowblade/source-kysely@latest?label=Max&style=for-the-badge&labelColor=444&color=informational)](https://bundlephobia.com/package/@flowblade/source-kysely@latest) [![downloads](https://img.shields.io/npm/dm/@flowblade/source-kysely?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/source-kysely) [![license](https://img.shields.io/npm/l/@flowblade/source-kysely?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
+[![npm](https://img.shields.io/npm/v/@flowblade/source-kysely?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/source-kysely) [![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/source-kysely/CHANGELOG.md) [![codecov](https://img.shields.io/codecov/c/github/belgattitude/flowblade?logo=codecov&label=Unit&flag=flowblade-source-kysely-unit&style=for-the-badge&labelColor=444)](https://app.codecov.io/gh/belgattitude/flowblade/tree/main/packages%2Fsource-kysely) [![bundles](https://img.shields.io/static/v1?label=&message=esm@treeshake&logo=webpack&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/source-kysely/.size-limit.ts) [![node](https://img.shields.io/static/v1?label=Node&message=22.18%2b&logo=node.js&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![browserslist](https://img.shields.io/static/v1?label=Browser&message=%3E96%25&logo=googlechrome&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![size](https://img.shields.io/bundlephobia/minzip/@flowblade/source-kysely@latest?label=Max&style=for-the-badge&labelColor=444&color=informational)](https://bundlephobia.com/package/@flowblade/source-kysely@latest) [![downloads](https://img.shields.io/npm/dm/@flowblade/source-kysely?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/source-kysely) [![license](https://img.shields.io/npm/l/@flowblade/source-kysely?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
 
 ## Install
 
@@ -21,14 +21,12 @@ Kysely supports
 ## Quick start
 
 ```typescript
-import { KyselyDatasource, isQueryResultError } from "@flowblade/source-kysely";
-import { KyselyDatasource, isQueryResultError } from "@flowblade/source-kysely";
-import { sql } from "kysely";
+import { KyselyDatasource } from "@flowblade/source-kysely";
 
-// Your db configuration, see Utils section for more details
+// Your Kysely instance, see the Utils section for Ms SqlServer
 import { db } from "@/config/db.config.ts";
 
-const ds = new KyselyDatasource({ db });
+const ds = new KyselyDatasource({ connection: db });
 const query = ds.queryBuilder // This gives access to Kysely expression builder
   .selectFrom("brand as b")
   .select(["b.id", "b.name"])
@@ -55,10 +53,13 @@ const { data, meta, error } = result;
 
 const { data: data2 } = result.map((row) => {
   return {
-    ...data,
-    key: `key-${row.productId}`,
+    ...row,
+    key: `key-${row.product_id}`,
   };
 });
+
+// Or get the rows, throws on error (the driver error as cause)
+const { data: rows } = await ds.queryOrThrow(query);
 ```
 
 ### Streaming
@@ -66,15 +67,18 @@ const { data: data2 } = result.map((row) => {
 ```typescript
 import { KyselyDatasource } from "@flowblade/source-kysely";
 
-const ds = new KyselyDatasource({ db });
+const ds = new KyselyDatasource({ connection: db });
 const query = ds.queryBuilder // This gives access to Kysely expression builder
   .selectFrom("brand as b")
   .select(["b.id", "b.name"]);
 
 const stream = ds.stream(query, {
-  // Chunksize used when reading the database
+  name: "getBrands",
+  // Chunksize used when reading the database (only some dialects, ie: postgres)
   // @default undefined
   chunkSize: undefined,
+  // Optional abort signal, see "Aborting queries"
+  signal: AbortSignal.timeout(30_000),
 });
 
 for await (const brand of stream) {
@@ -86,6 +90,87 @@ for await (const brand of stream) {
   }
 }
 ```
+
+A failed stream throws an `Error` with the driver error as `cause`.
+
+## Error handling
+
+`query()` never throws, failures are returned in `result.error` with the original driver error as `cause`:
+
+```typescript
+const result = await ds.query(query);
+
+if (result.error) {
+  console.log(result.error.message);
+  // The original driver error, ie: a tedious RequestError for Ms SqlServer
+  const cause = result.error.cause as { number?: number } | undefined;
+  if (cause?.number === 1205) {
+    // SQL Server deadlock, the query can be retried
+  }
+}
+
+// The cause is never serialized, safe to send to clients
+const json = result.toJsonifiable();
+```
+
+`queryOrThrow()` throws an `Error` with the driver error as `cause`.
+
+## Aborting queries
+
+Both `query()` and `stream()` accept an [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal):
+
+```typescript
+const result = await ds.query(query, {
+  signal: AbortSignal.timeout(5_000),
+});
+// An aborted query returns an error result, an aborted stream throws
+```
+
+By default the query keeps running on the database once aborted, only the result is ignored. Use `inflightQueryAbortStrategy` to cancel it on the database (ie: Ms SqlServer, Postgres, MySQL):
+
+```typescript
+const ds = new KyselyDatasource({
+  connection: db,
+  // 'ignore query' (default) | 'cancel query' | 'kill session'
+  inflightQueryAbortStrategy: "cancel query",
+});
+
+// Or per query
+await ds.query(query, {
+  signal,
+  inflightQueryAbortStrategy: "cancel query",
+});
+```
+
+> **Note**: Dialects that can't cancel fall back to `'ignore query'` with a warning. Postgres and MySQL cancel through an extra connection, Ms SqlServer through the same one.
+
+## Logging
+
+Queries are logged with [LogTape](https://logtape.org) under the `["flowblade", "kysely"]` category: debug when starting, info on success (time and affected rows), error on failure. Nothing is logged until LogTape is configured by your application:
+
+```typescript
+import { flowbladeLogtapeKyselyConfig } from "@flowblade/source-kysely";
+import { configure, getConsoleSink } from "@logtape/logtape";
+
+await configure({
+  sinks: { console: getConsoleSink() },
+  loggers: [
+    {
+      category: flowbladeLogtapeKyselyConfig.categories,
+      lowestLevel: "info",
+      sinks: ["console"],
+    },
+  ],
+});
+```
+
+Logs include the sql and its params. When params might contain sensitive data, leave them out of the logs (they stay available in the result meta):
+
+```typescript
+const ds = new KyselyDatasource({ connection: db, logParams: false });
+```
+
+A custom LogTape logger can also be given with the `logger` option.
 
 ## Utils
 
@@ -169,12 +254,10 @@ const tediousConnection = new Tedious.Connection(tediousConfig);
 
 | Level | CI | Description |
 | --- | --- | --- |
-| Node | ✅ | CI for 20.x, 22.x. & 24.x |
-| Cloudflare | ✅ | Ensured with @cloudflare/vitest-pool-workers (see [wrangler.toml](https://github.com/belgattitude/flowblade/blob/main/devtools/vitest/wrangler.toml) |
+| Node | ✅ | Requires 22.18+, CI for 22.x, 24.x & 26.x |
 | Browserslist | ✅ | [> 95%](https://browserslist.dev/?q=ZGVmYXVsdHMsIGNocm9tZSA%2BPSA5NiwgZmlyZWZveCA%2BPSAxMDUsIGVkZ2UgPj0gMTEzLCBzYWZhcmkgPj0gMTUsIGlvcyA%2BPSAxNSwgb3BlcmEgPj0gMTAzLCBub3QgZGVhZA%3D%3D) on 01/2025. [Chrome 96+, Firefox 90+, Edge 19+, ios 15+, Safari 15+ and Opera 77+](https://github.com/belgattitude/flowblade/blob/main/packages/source-kysely/.browserslistrc) |
 | Typescript | ✅ | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI. |
 | ES2022 | ✅ | Dist files checked with [es-check](https://github.com/yowainwright/es-check) |
-| Performance | ✅ | Monitored with [codspeed.io](https://codspeed.io/belgattitude/flowblade) |
 
 ## Contributors
 
