@@ -357,6 +357,36 @@ describe("Duckdb tests", () => {
         return reader.getRowObjects()[0]?.value;
       };
 
+      it("should not leak values between chunks", async ({ conn }) => {
+        // chunkSize 2: the same positions alternate between null and values,
+        // lists change length, the last chunk is smaller
+        const data = [
+          { id: 1, name: "a", tags: ["x", "y"] },
+          { id: 2, name: null, tags: null },
+          { id: 3, name: null, tags: [] },
+          { id: 4, name: "d", tags: ["z"] },
+          { id: 5, name: "e", tags: null },
+        ];
+        await new SqlDuck({ conn }).toTable({
+          table: new Table("test_chunk_reuse"),
+          schema: z.object({
+            id: z.int32(),
+            name: z.string().nullable(),
+            tags: z.array(z.string()).nullable(),
+          }),
+          rowStream: (function* rowsOf() {
+            yield* data;
+          })(),
+          chunkSize: 2,
+          autoCheckpoint: false,
+          createOptions: { create: "CREATE_OR_REPLACE" },
+        });
+        const reader = await conn.runAndReadAll(
+          "SELECT id, name, tags FROM test_chunk_reuse ORDER BY id"
+        );
+        expect(reader.getRowObjectsJson()).toStrictEqual(data);
+      });
+
       it("should restore preserve_insertion_order when the appender can't be created", async ({
         conn,
         onTestFinished,
