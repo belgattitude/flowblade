@@ -7,9 +7,11 @@ nodeLinker: isolated
 packageImportMethod: auto
 savePrefix: ''
 
-autoDedupe: true
-lockfile:
-  includeResolutionSettings: true
+# uncomment the autodedupe and lockfile.includeResolutionSettings
+# when turbo repo prune supports the settings entry in pnpm lock
+#autoDedupe: true
+#lockfile:
+#  includeResolutionSettings: true
 
 autoInstallPeers: false
 strictPeerDependencies: false
@@ -19,7 +21,7 @@ dedupePeers: true
 addMissingPeerTypes: true
 
 forceIgnoresPlatform: false
-ignoreCompatibilityDb: true
+ignoreCompatibilityDb:
 
 # Set it to true for deno
 preferSymlinkedExecutables: true
