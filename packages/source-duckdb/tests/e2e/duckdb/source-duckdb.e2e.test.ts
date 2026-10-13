@@ -12,6 +12,7 @@ import {
   expectTypeOf,
   describe,
   it,
+  vi,
 } from "vitest";
 
 import {
@@ -157,6 +158,134 @@ describe("DuckDBAsyncDatasource e2e", async () => {
         }>`SELECT count(*)::INTEGER as count FROM duckdb_tables() WHERE table_name = 'aborted'`
       );
       expect(data).toStrictEqual([{ count: 0 }]);
+    });
+  });
+
+  describe("stream", () => {
+    type Row = { id: number; name: string };
+    // More rows than a DuckDB chunk (2048)
+    const rowsSql = sql<Row>`SELECT range::INTEGER as id, 'name-' || range as name FROM range(5000)`;
+
+    const createLoggedDatasource = () => {
+      const logger = {
+        debug: vi.fn<() => void>(),
+        info: vi.fn<() => void>(),
+        error: vi.fn<() => void>(),
+        warn: vi.fn<() => void>(),
+      };
+      return {
+        logger,
+        loggedDs: new DuckdbDatasource({
+          connection: ds.getConnection(),
+          logger: logger as never,
+        }),
+      };
+    };
+
+    it("should stream the same rows as query", async () => {
+      const streamed = await Array.fromAsync(ds.stream(rowsSql));
+      const { data } = await ds.queryOrThrow(rowsSql);
+      expect(streamed).toHaveLength(5000);
+      expect(streamed).toStrictEqual(data);
+      expectTypeOf(streamed).toEqualTypeOf<Row[]>();
+    });
+
+    it("should log the execution once the stream is fully consumed", async () => {
+      const { logger, loggedDs } = createLoggedDatasource();
+      await Array.fromAsync(loggedDs.stream(rowsSql, { name: "rows" }));
+      expect(logger.info).toHaveBeenCalledExactlyOnceWith(
+        'Streaming query "{queryName}" executed in {timeMs}ms, streamed {affectedRows} row(s)',
+        expect.objectContaining({
+          queryName: "rows",
+          method: "stream",
+          affectedRows: 5000,
+        })
+      );
+      expect(logger.error).not.toHaveBeenCalled();
+    });
+
+    it("should support leaving the stream early", async () => {
+      const { logger, loggedDs } = createLoggedDatasource();
+      for await (const row of loggedDs.stream(rowsSql)) {
+        expect(row).toStrictEqual({ id: 0, name: "name-0" });
+        break;
+      }
+      expect(logger.info).toHaveBeenCalledExactlyOnceWith(
+        expect.any(String),
+        expect.objectContaining({ affectedRows: 1 })
+      );
+      // The connection is still usable
+      const { data } = await ds.queryOrThrow(
+        sql<{ ok: number }>`SELECT 1 as ok`
+      );
+      expect(data).toStrictEqual([{ ok: 1 }]);
+    });
+
+    it("should only log the error and throw with the duckdb error as cause when the query fails", async () => {
+      const { logger, loggedDs } = createLoggedDatasource();
+      await expect(
+        Array.fromAsync(loggedDs.stream(sql`SELECT FRM 1`, { name: "nok" }))
+      ).rejects.toThrow(
+        expect.objectContaining({
+          message: expect.stringContaining("Parser Error"),
+          cause: expect.any(Error),
+        })
+      );
+      expect(logger.error).toHaveBeenCalledExactlyOnceWith(
+        'Streaming query "{queryName}" failed: {errorMessage}',
+        expect.objectContaining({
+          queryName: "nok",
+          errorMessage: expect.stringContaining("Parser Error"),
+        })
+      );
+      expect(logger.info).not.toHaveBeenCalled();
+    });
+
+    it("should not run the query when the signal is already aborted", async () => {
+      await expect(
+        Array.fromAsync(
+          ds.stream(sql`CREATE TABLE aborted_stream AS SELECT 1 as a`, {
+            signal: AbortSignal.abort(),
+          })
+        )
+      ).rejects.toThrow("This operation was aborted");
+      const { data } = await ds.queryOrThrow(
+        sql<{
+          count: number;
+        }>`SELECT count(*)::INTEGER as count FROM duckdb_tables() WHERE table_name = 'aborted_stream'`
+      );
+      expect(data).toStrictEqual([{ count: 0 }]);
+    });
+
+    it("should stop between chunks when aborted", async () => {
+      const controller = new AbortController();
+      let received = 0;
+      await expect(async () => {
+        for await (const _row of ds.stream(rowsSql, {
+          signal: controller.signal,
+        })) {
+          received++;
+          controller.abort();
+        }
+      }).rejects.toThrow("This operation was aborted");
+      // The rest of the first chunk is still yielded, not the next chunks
+      expect(received).toBeLessThanOrEqual(2048);
+      const { data } = await ds.queryOrThrow(
+        sql<{ ok: number }>`SELECT 1 as ok`
+      );
+      expect(data).toStrictEqual([{ ok: 1 }]);
+    });
+
+    it("should interrupt a chunk being fetched when aborted", async () => {
+      const start = Date.now();
+      await expect(
+        Array.fromAsync(
+          ds.stream(sql`SELECT count(*) FROM range(100000000000) t1`, {
+            signal: AbortSignal.timeout(100),
+          })
+        )
+      ).rejects.toThrow(/Interrupted/);
+      expect(Date.now() - start).toBeLessThan(5000);
     });
   });
 
