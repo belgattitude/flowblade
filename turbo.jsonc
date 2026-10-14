@@ -137,7 +137,7 @@
       "cache": false,
     },
     "check-dist": {
-      "description": "Checks the built files only use ES2022 syntax (es-check)",
+      "description": "Checks the built files ES syntax: es2022 or the browserslist one (es-check)",
       "dependsOn": ["build"],
     },
     "check-size": {
