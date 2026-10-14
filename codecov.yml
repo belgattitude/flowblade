@@ -16,15 +16,15 @@ flag_management:
           threshold: 1%
 
 ignore:
-  - '.husky/**/*'
-  - 'docs/**/*'
-  - 'examples/**/*'
-  - '**/dist/**/*'
+  - ".husky/**/*"
+  - "docs/**/*"
+  - "examples/**/*"
+  - "**/dist/**/*"
 
 github_checks: true
 
 comment:
-  layout: 'reach, diff, flags, files'
+  layout: "reach, diff, flags, files"
   behavior: default
   require_changes: false
   require_base: yes

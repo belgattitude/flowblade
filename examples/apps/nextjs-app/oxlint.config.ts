@@ -1,8 +1,5 @@
-import {
-  createOxlintNextjsConfig,
-  oxlintDefaultConfig,
-} from "@flowblade/devtools";
-import { defineConfig } from "oxlint";
+import { createOxlintNextjsConfig, oxlintDefaultConfig } from "@flowblade/dx";
+import { defineConfig } from "@flowblade/dx/oxlint";
 
 const nextjsConfig = createOxlintNextjsConfig({
   tailwindEntryPoint: "src/styles/globals.css",

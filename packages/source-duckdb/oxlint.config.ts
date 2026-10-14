@@ -1,5 +1,5 @@
-import { oxlintDefaultConfig } from "@flowblade/devtools";
-import { defineConfig } from "oxlint";
+import { oxlintDefaultConfig } from "@flowblade/dx";
+import { defineConfig } from "@flowblade/dx/oxlint";
 
 export default defineConfig({
   extends: [oxlintDefaultConfig],

@@ -4,22 +4,22 @@ Data store and transformation library for data-driven applications.
 
 ### Datasources
 
-| Datasource                                                                                                    | Description              |
-| ------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| Datasource | Description |
+| --- | --- |
 | [@flowblade/source-kysely](https://github.com/belgattitude/flowblade/tree/main/packages/source-kysely#readme) | Kysely datasource reader |
 | [@flowblade/source-duckdb](https://github.com/belgattitude/flowblade/tree/main/packages/source-duckdb#readme) | Duckdb nodejs datasource |
 
 ### Utilities
 
-| Utilities                                                                                                       | Description                                     |
-| --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| [@flowblade/sql-tag](https://github.com/belgattitude/flowblade/tree/main/packages/sql-tag#readme)               | Tagged SQL template literal                     |
+| Utilities | Description |
+| --- | --- |
+| [@flowblade/sql-tag](https://github.com/belgattitude/flowblade/tree/main/packages/sql-tag#readme) | Tagged SQL template literal |
 | [@flowblade/sql-tag-format](https://github.com/belgattitude/flowblade/tree/main/packages/sql-tag-format#readme) | Tagged SQL template literal formatter utilities |
 
 ### Core (mostly internal)
 
-| Datasource                                                                                  | Description                             |
-| ------------------------------------------------------------------------------------------- | --------------------------------------- |
+| Datasource | Description |
+| --- | --- |
 | [@flowblade/core](https://github.com/belgattitude/flowblade/tree/main/packages/core#readme) | Shared contracts, interfaces and utils. |
 
 ### Examples

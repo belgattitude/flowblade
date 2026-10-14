@@ -7,11 +7,11 @@ services:
   mssql:
     image: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-24.04
     # Only when docker is running as "root".
-    cap_add: ['SYS_PTRACE']
+    cap_add: ["SYS_PTRACE"]
     env_file:
       - .env.mssql.development
     ports:
-      - '10433:1433'
+      - "10433:1433"
     networks:
       - flowblade-net
     volumes:

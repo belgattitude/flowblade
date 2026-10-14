@@ -1,4 +1,4 @@
-# @flowblade/devtools
+# @flowblade/dx
 
 Shared lint, format and TypeScript configurations for the flowblade monorepo.
 
@@ -11,20 +11,20 @@ Add it as a dev dependency of the workspace package:
 ```json
 {
   "devDependencies": {
-    "@flowblade/devtools": "workspace:*"
+    "@flowblade/dx": "workspace:*"
   }
 }
 ```
 
-Then install its peer dependencies, at the versions listed in this package's `package.json`.
+The lint and format tooling is shipped as regular dependencies of this package, so the versions are pinned in a single place:
 
-| Peer | Needed by |
+| Dependency | Used by |
 | --- | --- |
 | `oxlint`, `oxlint-tsgolint`, `oxfmt`, `ultracite` | every package |
 | `eslint-plugin-security`, `oxlint-plugin-import-zod` | every package (JS plugins loaded by `oxlintDefaultConfig`) |
 | `oxlint-tailwindcss`, `@tanstack/eslint-plugin-query`, `eslint`, `oxlint-plugin-react-doctor` | React and Next.js packages only (`createOxlintReactConfig`, `createOxlintNextjsConfig`) |
 
-Declare the peers explicitly, even when lint works without them: they can currently resolve through `@flowblade/devtools` own dependencies, which is not guaranteed.
+Use the `dx-oxlint` and `dx-oxfmt` bins to run the pinned oxlint and oxfmt versions.
 
 ## Exports
 
@@ -34,7 +34,26 @@ Declare the peers explicitly, even when lint works without them: they can curren
 | `createOxlintReactConfig(options)` | oxlint base for React + Tailwind CSS packages |
 | `createOxlintNextjsConfig(options)` | oxlint base for Next.js apps |
 | `oxfmtDefaultConfig` | oxfmt configuration |
-| `@flowblade/devtools/typescript/tsconfig.base.json` | base `tsconfig.json` |
+| `@flowblade/dx/typescript/tsconfig.base.json` | base `tsconfig.json` |
+| `@flowblade/dx/oxlint` | re-export of `oxlint` (`defineConfig`…) |
+| `@flowblade/dx/oxfmt` | re-export of `oxfmt` (`defineConfig`, `format`…) |
+
+## Bins
+
+| Bin | Description |
+| --- | --- |
+| `dx-oxlint` | runs the pinned oxlint, with `OXLINT_TSGOLINT_PATH` pointing to the pinned tsgolint (unless already set) |
+| `dx-oxfmt` | runs the pinned oxfmt |
+
+```json
+{
+  "scripts": {
+    "format": "dx-oxfmt --write",
+    "lint": "dx-oxfmt --check --no-error-on-unmatched-pattern && dx-oxlint",
+    "lint-fix": "dx-oxlint --fix && dx-oxfmt --write"
+  }
+}
+```
 
 ## oxlint
 
@@ -49,7 +68,7 @@ Declare the peers explicitly, even when lint works without them: they can curren
 
 ```ts
 // oxlint.config.ts
-import { oxlintDefaultConfig } from "@flowblade/devtools";
+import { oxlintDefaultConfig } from "@flowblade/dx";
 import { defineConfig } from "oxlint";
 
 export default defineConfig({
@@ -87,7 +106,7 @@ oxlint does not merge the `settings` of an extended config, so spread the return
 
 ```ts
 // oxlint.config.ts
-import { createOxlintReactConfig } from "@flowblade/devtools";
+import { createOxlintReactConfig } from "@flowblade/dx";
 import { defineConfig } from "oxlint";
 
 const reactConfig = createOxlintReactConfig({
@@ -112,7 +131,7 @@ It takes the same options as the React base and is used the same way. It also re
 
 ```ts
 // oxlint.config.ts
-import { createOxlintNextjsConfig } from "@flowblade/devtools";
+import { createOxlintNextjsConfig } from "@flowblade/dx";
 import { defineConfig } from "oxlint";
 
 const nextjsConfig = createOxlintNextjsConfig({
@@ -132,14 +151,14 @@ export default defineConfig({
 
 ```ts
 // oxfmt.config.ts
-export { oxfmtDefaultConfig as default } from "@flowblade/devtools";
+export { oxfmtDefaultConfig as default } from "@flowblade/dx";
 ```
 
 In a Tailwind CSS package, give oxfmt the stylesheet. Otherwise it sorts the classes without the theme, in a different order than the `tailwindcss/enforce-sort-order` lint rule:
 
 ```ts
 // oxfmt.config.ts
-import { oxfmtDefaultConfig } from "@flowblade/devtools";
+import { oxfmtDefaultConfig } from "@flowblade/dx";
 import { defineConfig } from "oxfmt";
 
 export default defineConfig({
@@ -157,6 +176,6 @@ export default defineConfig({
 
 ```json
 {
-  "extends": "@flowblade/devtools/typescript/tsconfig.base.json"
+  "extends": "@flowblade/dx/typescript/tsconfig.base.json"
 }
 ```

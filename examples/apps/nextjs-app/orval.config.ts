@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import { format } from "@flowblade/dx/oxfmt";
 import { defineConfig } from "orval";
-import { format } from "oxfmt";
 import c from "tinyrainbow";
 
 import oxfmtConfig from "./oxfmt.config";

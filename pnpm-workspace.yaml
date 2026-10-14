@@ -2,10 +2,11 @@ packages:
   - docs
   - examples/*/*
   - packages/*
+  - tools/*
 
 nodeLinker: isolated
 packageImportMethod: auto
-savePrefix: ''
+savePrefix: ""
 
 # uncomment the autodedupe and lockfile.includeResolutionSettings
 # when turbo repo prune supports the settings entry in pnpm lock
@@ -30,16 +31,16 @@ optimisticRepeatInstall: true
 trustPolicy: no-downgrade
 trustPolicyExcludePrune: true
 trustPolicyExclude:
-  - '@pierre/theme@2.0.0'
-  - '@vercel/oidc@3.8.9'
-  - '@vercel/cli-config@0.3.0'
-  - '@vercel/cli-exec@1.0.1'
-  - '@vercel/functions@3.9.9'
-  - '@vercel/routing-utils@6.6.0'
-  - 'semver@6.3.1'
-  - 'undici-types@6.21.0'
-  - 'chokidar@4.0.3'
-  - 'prisma@7.10.0'
+  - "@pierre/theme@2.0.0"
+  - "@vercel/oidc@3.8.9"
+  - "@vercel/cli-config@0.3.0"
+  - "@vercel/cli-exec@1.0.1"
+  - "@vercel/functions@3.9.9"
+  - "@vercel/routing-utils@6.6.0"
+  - "semver@6.3.1"
+  - "undici-types@6.21.0"
+  - "chokidar@4.0.3"
+  - "prisma@7.10.0"
 
 verifyDepsBeforeRun: install
 
@@ -51,16 +52,16 @@ virtualStoreType: project
 
 # nextjs standalone build requires this to be hoisted without symlinks
 # publicHoistPattern:
-  # Next.js Image Optimization Binaries (Sharp & libvips engines)
+# Next.js Image Optimization Binaries (Sharp & libvips engines)
 #  - "sharp"
 #  - "@img/*"
 
-  # Database Engines & Native Clients
+# Database Engines & Native Clients
 #  - "prisma"
 #  - "@prisma/client"
 #  - ".prisma/*"
 
-  # Duckdb
+# Duckdb
 # - "@duckdb/*"
 
 supportedArchitectures:
@@ -72,8 +73,8 @@ supportedArchitectures:
     - current
 
 allowBuilds:
-  '@prisma/client': false
-  '@prisma/engines': false
+  "@prisma/client": false
+  "@prisma/engines": false
   core-js: false
   cpu-features: false
   es5-ext: false
@@ -86,7 +87,7 @@ allowBuilds:
 strictDepBuilds: false
 
 permissions:
-  '@logtape/logtape':
+  "@logtape/logtape":
     skills: false
   blume:
     skills: false
@@ -103,12 +104,12 @@ audit:
     - GHSA-hp3w-g68c-fv3c
 
 overrides:
-  '@opentelemetry/core@<2.8.0': 2.8.0
-  '@xmldom/xmldom@>=0.9.0 <=0.9.10': 0.9.12
-  '@xmldom/xmldom@>=0.9.0 <=0.9.11': 0.9.12
-  '@xmldom/xmldom@>=0.9.0-beta.1 <=0.9.11': 0.9.12
-  '@xmldom/xmldom@>=0.9.0-beta.9 <=0.9.10': 0.9.12
-  '@xmldom/xmldom@>=0.9.10 <=0.9.11': 0.9.12
+  "@opentelemetry/core@<2.8.0": 2.8.0
+  "@xmldom/xmldom@>=0.9.0 <=0.9.10": 0.9.12
+  "@xmldom/xmldom@>=0.9.0 <=0.9.11": 0.9.12
+  "@xmldom/xmldom@>=0.9.0-beta.1 <=0.9.11": 0.9.12
+  "@xmldom/xmldom@>=0.9.0-beta.9 <=0.9.10": 0.9.12
+  "@xmldom/xmldom@>=0.9.10 <=0.9.11": 0.9.12
   deepmerge-ts@<8.0.0: 8.0.0
   esbuild: ^0.28.2
   http-cache-semantics@<=4.2.0: 4.3.0
@@ -120,25 +121,24 @@ overrides:
   postcss-selector-parser@<7.1.6: 7.1.6
   seroval@<=1.6.2: 1.6.3
 
-
 minimumReleaseAge: 2880
 minimumReleaseAgeExcludePrune: true
 minimumReleaseAgeExclude:
-  - '@azure/*'
-  - '@better-auth/*'
-  - '@duckdb/*'
-  - '@hono/*'
-  - '@httpx/*'
-  - '@logtape/*'
-  - '@napi-rs/*'
-  - '@next/*'
-  - '@oxc-project/*'
-  - '@oxfmt/*'
-  - '@oxlint-tsgolint/*'
-  - '@oxlint/*'
-  - '@shadcn/*'
-  - '@turbo/*'
-  - '@vitejs/*'
+  - "@azure/*"
+  - "@better-auth/*"
+  - "@duckdb/*"
+  - "@hono/*"
+  - "@httpx/*"
+  - "@logtape/*"
+  - "@napi-rs/*"
+  - "@next/*"
+  - "@oxc-project/*"
+  - "@oxfmt/*"
+  - "@oxlint-tsgolint/*"
+  - "@oxlint/*"
+  - "@shadcn/*"
+  - "@turbo/*"
+  - "@vitejs/*"
   - better-auth
   - better-call
   - hono
@@ -153,25 +153,24 @@ minimumReleaseAgeExclude:
   - turbo
   - oxlint-tsgolint
   - http-cache-semantics@4.3.0
-  - ultracite@8.0.0
-  - '@dotenvx/dotenvx@2.34.2'
-  - '@dotenvx/primitives@3.3.0'
-  - '@dotenvx/providers@0.3.5'
-  - '@dotenvx/tooling@1.0.5'
+  - ultracite@8.0.1
+  - "@dotenvx/dotenvx@2.35.0"
+  - "@dotenvx/primitives@3.3.0"
+  - "@dotenvx/providers@0.3.5"
+  - "@dotenvx/tooling@1.0.5"
   - npm-check-updates@23.1.1
   - tsdown@0.23.1
-  - '@storybook/addon-docs@10.6.2'
-  - '@storybook/addon-vitest@10.6.2'
-  - '@storybook/builder-vite@10.6.2'
-  - '@storybook/react-dom-shim@10.6.2'
-  - '@storybook/react-vite@10.6.2'
-  - '@storybook/react@10.6.2'
-  - '@vitest/browser@5.0.4'
-  - '@vitest/coverage-v8@5.0.4'
-  - '@vitest/mocker@5.0.4'
-  - '@vitest/pretty-format@5.0.4'
-  - '@vitest/spy@5.0.4'
-  - '@vitest/ui@5.0.4'
-  - '@vitest/utils@5.0.4'
+  - "@storybook/addon-docs@10.6.2"
+  - "@storybook/addon-vitest@10.6.2"
+  - "@storybook/builder-vite@10.6.2"
+  - "@storybook/react-dom-shim@10.6.2"
+  - "@storybook/react-vite@10.6.2"
+  - "@storybook/react@10.6.2"
+  - "@vitest/browser@5.0.4"
+  - "@vitest/coverage-v8@5.0.4"
+  - "@vitest/mocker@5.0.4"
+  - "@vitest/pretty-format@5.0.4"
+  - "@vitest/spy@5.0.4"
+  - "@vitest/ui@5.0.4"
+  - "@vitest/utils@5.0.4"
   - storybook@10.6.2
-

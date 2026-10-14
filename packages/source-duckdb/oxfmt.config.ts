@@ -1,1 +1,1 @@
-export { oxfmtDefaultConfig as default } from "@flowblade/devtools";
+export { oxfmtDefaultConfig as default } from "@flowblade/dx";
