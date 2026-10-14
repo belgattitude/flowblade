@@ -27,6 +27,7 @@ export default defineConfig({
   ],
   // Exclude specific packages or skills
   exclude: [
+    "ultracite",
     "@reduxjs/toolkit",
     { package: "react-doctor", skills: ["improve-threejs"] },
   ],
