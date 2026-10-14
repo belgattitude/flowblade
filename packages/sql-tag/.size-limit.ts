@@ -1,18 +1,21 @@
-import type { SizeLimitConfig } from "size-limit";
+import { createSizeLimitConfig } from "@flowblade/dx";
 
-const config = [
-  {
-    name: "Import * (ESM)",
-    path: ["dist/index.js"],
-    import: "*",
-    limit: "1000B",
-  },
-  {
-    name: "Only { sql } (ESM)",
-    path: ["dist/index.js"],
-    import: "{ sql }",
-    limit: "700B",
-  },
-] satisfies SizeLimitConfig;
+const config = createSizeLimitConfig(
+  [
+    {
+      name: "Import * (ESM)",
+      path: ["dist/index.js"],
+      import: "*",
+      limit: "1000B",
+    },
+    {
+      name: "Only { sql } (ESM)",
+      path: ["dist/index.js"],
+      import: "{ sql }",
+      limit: "700B",
+    },
+  ],
+  { browserslist: true }
+);
 
 export default config;
