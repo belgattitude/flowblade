@@ -1,8 +1,5 @@
-import {
-  createOxlintReactConfig,
-  oxlintDefaultConfig,
-} from "@flowblade/devtools";
-import { defineConfig } from "oxlint";
+import { createOxlintReactConfig, oxlintDefaultConfig } from "@flowblade/dx";
+import { defineConfig } from "@flowblade/dx/oxlint";
 
 const reactConfig = createOxlintReactConfig({
   tailwindEntryPoint: "src/styles/globals.css",

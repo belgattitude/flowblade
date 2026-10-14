@@ -26,19 +26,18 @@ docker buildx bake -f docker-compose-nodejs.yml -f docker-compose-bun.yml
 
 ### Ignore files
 
-With BuildKit, `<Dockerfile name>.dockerignore` next to the Dockerfile is used first, otherwise the `.dockerignore` at the monorepo root:
+With BuildKit, `<Dockerfile name>.dockerignore` next to the Dockerfile is used (the monorepo has no root `.dockerignore`):
 
 | Build | Ignore file |
 | --- | --- |
 | `docker/Dockerfile.nodejs` | [`docker/Dockerfile.nodejs.dockerignore`](./Dockerfile.nodejs.dockerignore) |
 | `docker/Dockerfile.bun` | [`docker/Dockerfile.bun.dockerignore`](./Dockerfile.bun.dockerignore) (symlink to the one above) |
-| any other Dockerfile | `.dockerignore` at the monorepo root |
 
 > [!IMPORTANT]
 >
-> - Files **replace** each other, they are not merged: keep them in sync with the root `.dockerignore`. The two Dockerfiles share the same rules (symlink).
+> - The two Dockerfiles share the same rules (symlink).
 > - `docker/.dockerignore` is **never read** (wrong name for this context).
-> - The legacy builder (`DOCKER_BUILDKIT=0`) only reads the root file.
+> - The legacy builder (`DOCKER_BUILDKIT=0`) ignores these files and only reads a root `.dockerignore`, which doesn't exist: the whole monorepo would be sent as build context.
 
 The app `data` folder is ignored (see below, only `data/docker` is committed), along with `node_modules`, caches, tests, docs and `.git`.
 

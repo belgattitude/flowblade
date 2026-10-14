@@ -7,7 +7,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
-      - '**'
+      - "**"
 
 env:
   # Image built (and tagged) by the turbo task, see examples/apps/nextjs-app/docker/docker-compose*.yml

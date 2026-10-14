@@ -1,6 +1,7 @@
 export const defaultIgnorePatterns = [
   "**/node_modules",
   "**/.git",
+  "**/.agents",
   "**/dist",
   "**/build",
   "**/out",

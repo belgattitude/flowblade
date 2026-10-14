@@ -4,8 +4,7 @@ The base branch is **`main`**.
 
 ## Workflow
 
-> **Note**
-> Please feature/fix/update... into individual PRs (not one changing everything)
+> **Note** Please feature/fix/update... into individual PRs (not one changing everything)
 
 - Create a [github fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
 - On your fork, create a branch make the changes, commit and push.
@@ -46,23 +45,23 @@ pnpm g:typecheck
 
 ## Local scripts
 
-| Name                         | Description                                                                                                                               |
-|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| `pnpm g:changeset`           | Add a changeset to declare a new version                                                                                                  |
-| `pnpm g:typecheck`           | Run typechecks in all workspaces                                                                                                          |
-| `pnpm g:lint`                | Display linter issues in all workspaces                                                                                                   |
-| `pnpm g:lint --fix`          | Attempt to run linter auto-fix in all workspaces                                                                                          |
-| `pnpm g:test-unit`           | Run unit tests in all workspaces                                                                                                          |
-| `pnpm g:build`               | Run build in all workspaces                                                                                                               |
-| `pnpm g:clean`               | Clean builds in all workspaces                                                                                                            |
-| `pnpm g:check-dist`          | Ensure build dist files passes es2017 (run `g:build` first).                                                                              |
-| `pnpm g:check-size`          | Ensure build files are within size limit (run `g:build` first).                                                                           |
-| `pnpm g:docgen`              | Build documentation (generally api doc)                                                                                                   |
-| `pnpm g:bench`               | Run benchmarks for all workspaces.                                                                                                        |
-| `pnpm clean:global-cache`    | Clean tooling caches (eslint, jest...)                                                                                                    |
-| `pnpm deps:check --dep dev`  | Will print what packages can be upgraded globally (see also [.ncurc.cjs](https://github.com/belgattitude/flowblade/blob/main/.ncurc.cjs)) |
-| `pnpm deps:update --dep dev` | Apply possible updates, then run `pnpm install && pnpm dedupe`.                                                                          |
-| `pnpm check:install`         | Verify the lockfile and installation are in sync                                                                                          |
+| Name | Description |
+| --- | --- |
+| `pnpm g:changeset` | Add a changeset to declare a new version |
+| `pnpm g:typecheck` | Run typechecks in all workspaces |
+| `pnpm g:lint` | Display linter issues in all workspaces |
+| `pnpm g:lint --fix` | Attempt to run linter auto-fix in all workspaces |
+| `pnpm g:test-unit` | Run unit tests in all workspaces |
+| `pnpm g:build` | Run build in all workspaces |
+| `pnpm g:clean` | Clean builds in all workspaces |
+| `pnpm g:check-dist` | Ensure build dist files passes es2017 (run `g:build` first). |
+| `pnpm g:check-size` | Ensure build files are within size limit (run `g:build` first). |
+| `pnpm g:docgen` | Build documentation (generally api doc) |
+| `pnpm g:bench` | Run benchmarks for all workspaces. |
+| `pnpm clean:global-cache` | Clean tooling caches (eslint, jest...) |
+| `pnpm deps:check --dep dev` | Will print what packages can be upgraded globally (see also [.ncurc.mjs](https://github.com/belgattitude/flowblade/blob/main/.ncurc.mjs)) |
+| `pnpm deps:update --dep dev` | Apply possible updates, then run `pnpm install && pnpm dedupe`. |
+| `pnpm check:install` | Verify the lockfile and installation are in sync |
 
 ## Git message format
 
@@ -86,5 +85,4 @@ Commit messages are enforced through [commitlint](https://github.com/conventiona
 - **style**: A change that affects the scss, less, css styles
 - **release**: All related to changeset (pre exit...)
 
-> **Note**
-> Up-to-date configuration can be found in [commitlint.config.jt](https://github.com/belgattitude/flowblade/blob/main/commitlint.config.ts).
+> **Note** Up-to-date configuration can be found in [commitlint.config.jt](https://github.com/belgattitude/flowblade/blob/main/commitlint.config.ts).

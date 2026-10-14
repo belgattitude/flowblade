@@ -13,7 +13,7 @@ services:
     env_file:
       - .env.postgres.development
     healthcheck:
-      test: ['CMD-SHELL', "sh -c 'pg_isready -U postgres -d flowblade'"]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U postgres -d flowblade'"]
       interval: 2s
       timeout: 5s
       retries: 5

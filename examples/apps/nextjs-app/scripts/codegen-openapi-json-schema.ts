@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { format } from "@flowblade/dx/oxfmt";
 import { generateSpecs } from "hono-openapi";
-import { format } from "oxfmt";
 import c from "tinyrainbow";
 
 import { CliFormat } from "#cli/format.ts";

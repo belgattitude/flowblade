@@ -1,7 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local", "**/tsconfig*.json"],
-  "globalPassThroughEnv": ["AWS_SECRET_KEY", "GITHUB_TOKEN", "CODSPEED_TOKEN", "PNPM_CONFIG_*"],
+  "globalPassThroughEnv": [
+    "AWS_SECRET_KEY",
+    "GITHUB_TOKEN",
+    "CODSPEED_TOKEN",
+    "PNPM_CONFIG_*",
+  ],
   "cacheDir": ".turbo",
   "cacheMaxSize": "7GB",
   "cacheMaxAge": "10d",
@@ -12,88 +17,135 @@
       // Codegen caching might also be disabled and enabled by workspace (see packages/db-main-prisma/turbo.json)
       // as generated code location might vary between toolings
       "cache": true,
-      "outputs": ["src/generated/**"]
+      "outputs": ["src/generated/**"],
     },
     "build": {
       "description": "Compiles TypeScript and bundles the application",
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
     },
     "build-force": {
       "description": "Builds the package distribution (dist), not implemented by any package yet",
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
     },
     "bench": {
-      "description": "Runs the vitest benchmarks"
+      "description": "Runs the vitest benchmarks",
     },
     "bench-codspeed": {
       "description": "Runs the vitest benchmarks with CodSpeed instrumentation",
-      "cache": false
+      "cache": false,
     },
     "test": {
-      "description": "Runs the test suite once with vitest"
+      "description": "Runs the test suite once with vitest",
     },
     "test-unit": {
-      "description": "Runs the unit test suite without coverage"
+      "description": "Runs the unit test suite without coverage",
     },
     "test-e2e": {
-      "description": "Runs the E2E test suite"
+      "description": "Runs the E2E test suite",
     },
     "test-e2e-bun": {
-      "description": "Runs the E2E test suite with bun"
+      "description": "Runs the E2E test suite with bun",
     },
     "test-unit-bun": {
-      "description": "Runs the unit test suite with bun"
+      "description": "Runs the unit test suite with bun",
     },
     "test-unit-deno": {
-      "description": "Runs the unit test suite with deno"
+      "description": "Runs the unit test suite with deno",
     },
     "test-unit-browser": {
-      "description": "Runs the unit test with vitest playwright"
+      "description": "Runs the unit test with vitest playwright",
     },
     "test-unit-coverage": {
-      "description": "Runs the unit test suite with coverage"
+      "description": "Runs the unit test suite with coverage",
     },
     "lint": {
-      "description": "Checks lint and formatting with ultracite (oxlint + oxfmt)",
+      "description": "Checks lint and formatting with dx-oxlint and dx-oxfmt",
       "cache": true,
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.jsonc", "**/*.md"]
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.js",
+        "**/*.cjs",
+        "**/*.mjs",
+        "**/*.jsx",
+        "**/*.json",
+        "**/*.jsonc",
+        "**/*.md",
+      ],
     },
     "lint-fix": {
-      "description": "Fixes lint and formatting issues with ultracite (oxlint + oxfmt)",
+      "description": "Fixes lint and formatting issues with dx-oxlint and dx-oxfmt",
       "cache": false,
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.jsonc", "**/*.md"]
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.js",
+        "**/*.cjs",
+        "**/*.mjs",
+        "**/*.jsx",
+        "**/*.json",
+        "**/*.jsonc",
+        "**/*.md",
+      ],
     },
     "format": {
-      "description": "Formats files with oxfmt",
-      "inputs": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs", "**/*.jsx", "**/*.json", "**/*.jsonc", "**/*.md", "**/*.yml", "**/*.css", "**/*.scss", "**/*.jsonc"]
+      "description": "Formats files with dx-oxfmt",
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.js",
+        "**/*.cjs",
+        "**/*.mjs",
+        "**/*.jsx",
+        "**/*.json",
+        "**/*.jsonc",
+        "**/*.md",
+        "**/*.yml",
+        "**/*.css",
+        "**/*.scss",
+        "**/*.jsonc",
+      ],
+    },
+    // Root tasks: lint and format the files of the monorepo root (workspaces are ignored
+    // in the root oxlint/oxfmt configs). No inputs, so every root file is hashed (yml, md...).
+    "//#lint": {
+      "description": "Checks lint and formatting of the monorepo root files with dx-oxlint and dx-oxfmt",
+      "cache": true,
+    },
+    "//#lint-fix": {
+      "description": "Fixes lint and formatting issues of the monorepo root files with dx-oxlint and dx-oxfmt",
+      "cache": false,
+    },
+    "//#format": {
+      "description": "Formats the monorepo root files with dx-oxfmt",
     },
     "lint-styles": {
-      "description": "Lints stylesheets, not implemented by any package yet"
+      "description": "Lints stylesheets, not implemented by any package yet",
     },
     "typecheck": {
-      "description": "Type checks the sources with tsc (no emit)"
+      "description": "Type checks the sources with tsc (no emit)",
     },
     "build-storybook": {
-      "description": "Builds the static Storybook site"
+      "description": "Builds the static Storybook site",
     },
     "docgen": {
       "description": "Generates the API documentation with typedoc into docs/api",
-      "outputs": ["docs/api/**"]
+      "outputs": ["docs/api/**"],
     },
     "clean": {
       "description": "Removes build outputs, coverage and TypeScript build info",
-      "cache": false
+      "cache": false,
     },
     "check-dist": {
       "description": "Checks the built files only use ES2022 syntax (es-check)",
-      "dependsOn": ["build"]
+      "dependsOn": ["build"],
     },
     "check-size": {
       "description": "Checks the built bundle sizes against their limits (size-limit)",
-      "dependsOn": ["build"]
+      "dependsOn": ["build"],
     },
     "prisma-generate": {
-      "description": "Generates the Prisma client"
-    }
-  }
+      "description": "Generates the Prisma client",
+    },
+  },
 }

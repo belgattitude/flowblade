@@ -5,6 +5,7 @@ This repository is a TypeScript monorepo managed by **pnpm 12** and **Turborepo*
 ## Repository Structure
 
 - `packages/*`: Core library packages.
+- `tools/*`: Internal monorepo tooling (e.g. `@flowblade/dx`: shared oxlint, oxfmt and tsconfig presets).
 - `examples/*`: Example applications and shared demo code.
 - `integrations/*`: Integration tests and adapters.
 - `docs/`: Documentation.

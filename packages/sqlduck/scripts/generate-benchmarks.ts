@@ -2,8 +2,8 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { cpus, totalmem } from "node:os";
 import path from "node:path";
 
+import { format } from "@flowblade/dx/oxfmt";
 import { execa } from "execa";
-import { format } from "oxfmt";
 
 import oxfmtConfig from "../oxfmt.config.ts";
 
