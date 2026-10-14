@@ -179,3 +179,5 @@ export default defineConfig({
   "extends": "@flowblade/dx/typescript/tsconfig.base.json"
 }
 ```
+
+`include` and `exclude` use `${configDir}`, so they resolve relative to the extending `tsconfig.json`: no need to repeat them. Overriding one of them replaces the base value (not merged).

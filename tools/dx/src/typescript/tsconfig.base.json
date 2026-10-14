@@ -22,14 +22,19 @@
     "resolvePackageJsonImports": true,
     "types": ["@types/node", "vitest/globals"]
   },
-  "exclude": ["**/node_modules", "**/.*/*", "dist", "coverage"],
+  "exclude": [
+    "${configDir}/**/node_modules",
+    "${configDir}/**/.*/*",
+    "${configDir}/dist",
+    "${configDir}/coverage"
+  ],
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
-    "**/*.cjs",
-    "**/*.mjs",
-    "**/*.json"
+    "${configDir}/**/*.ts",
+    "${configDir}/**/*.tsx",
+    "${configDir}/**/*.js",
+    "${configDir}/**/*.jsx",
+    "${configDir}/**/*.cjs",
+    "${configDir}/**/*.mjs",
+    "${configDir}/**/*.json"
   ]
 }
