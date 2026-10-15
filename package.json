@@ -18,7 +18,7 @@
     "deps:update": "npm-check-updates --configFileName .ncurc.mjs -u",
     "format": "dx-oxfmt --disable-nested-config --write",
     "g:bench": "turbo run bench --concurrency 1",
-    "g:bench-codspeed": "turbo run bench --concurrency 1",
+    "g:bench-codspeed": "turbo run bench-codspeed --concurrency 1",
     "g:build": "turbo run build --filter='!@examples/*' --filter='!@docs/*'",
     "g:build-examples": "turbo run build --filter='@examples/*'",
     "g:build-packages": "pnpm --filter './packages/*' -r --stream run build",

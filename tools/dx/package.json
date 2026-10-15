@@ -16,6 +16,8 @@
     "directory": "tools/dx"
   },
   "bin": {
+    "dx-bench": "./bin/dx-bench.mjs",
+    "dx-bench-codspeed": "./bin/dx-bench-codspeed.mjs",
     "dx-build": "./bin/dx-build.mjs",
     "dx-cache": "./bin/dx-cache.mjs",
     "dx-escheck": "./bin/dx-escheck.mjs",
@@ -28,7 +30,8 @@
   },
   "files": [
     "bin",
-    "dist"
+    "dist",
+    "skills"
   ],
   "type": "module",
   "sideEffects": false,
@@ -118,5 +121,13 @@
     "@types/node": "26.6.5",
     "cross-env": "10.1.0",
     "rimraf": "6.1.3"
+  },
+  "agents": {
+    "skills": [
+      {
+        "name": "flowblade-dx",
+        "path": "./skills/flowblade-dx"
+      }
+    ]
   }
 }
