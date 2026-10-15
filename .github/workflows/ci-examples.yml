@@ -41,6 +41,8 @@ jobs:
 
       - name: 🛣️ Prisma generate
         run: pnpm --filter @examples/db-sqlserver prisma-generate
+        env:
+          PRISMA_DISABLE_AI_AGENT_CHECK: "true"
 
       - name: 🛣️ Pre build sqlduck
         run: pnpm --filter @flowblade/sqlduck build

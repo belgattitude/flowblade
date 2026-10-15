@@ -47,13 +47,15 @@ WORKDIR /app
 # native deps like duckdb will be duplicated otherwise
 # https://pnpm.io/docker#minimizing-docker-image-size-and-build-time
 # PRISMA_SKIP_POSTINSTALL_GENERATE: disabling some well-known postinstall scripts
+# PRISMA_DISABLE_AI_AGENT_CHECK: disables the prisma cli AI agent detection
 ENV TZ=Etc/UTC \
     PNPM_CONFIG_NODE_LINKER=hoisted \
     PNPM_CONFIG_PACKAGE_IMPORT_METHOD=hardlinks \
     PNPM_CONFIG_TRUST_LOCKFILE=true \
     PNPM_CONFIG_IGNORE_MANIFEST_CHECK=true \
     PNPM_CONFIG_STORE_DIR=/opt/pnpm-store \
-    PRISMA_SKIP_POSTINSTALL_GENERATE=true
+    PRISMA_SKIP_POSTINSTALL_GENERATE=true \
+    PRISMA_DISABLE_AI_AGENT_CHECK=true
 
 # Skip the skills-npm sync run by the root "prepare" script during install:
 # agent skills (symlinks for coding agents) aren't needed in images.

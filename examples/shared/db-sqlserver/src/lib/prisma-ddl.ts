@@ -76,6 +76,7 @@ export class PrismaDdl {
       shell: true,
       reject: false,
       encoding: "utf8",
+      env: { PRISMA_DISABLE_AI_AGENT_CHECK: "true" },
     });
     if (result.exitCode !== 0) {
       throw new Error(`${errorMsg} (${result.command})\n${result.stderr}`);
