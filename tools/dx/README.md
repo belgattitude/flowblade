@@ -234,7 +234,7 @@ export default defineConfig({
 
 - `include` and `exclude` use `${configDir}`, so they resolve relative to the extending `tsconfig.json`: no need to repeat them. Overriding one of them replaces the base value (not merged).
 - `customConditions` resolves the workspace packages to their sources (see [Monorepo settings](#monorepo-settings)).
-- the incremental build info is written in `node_modules/.cache/typescript` (see [TypeScript build info](#typescript-build-info)).
+- the incremental build info is written in `<root>/.cache/typescript` by `dx-typecheck`, in `node_modules/.cache/typescript` otherwise (see [TypeScript build info](#typescript-build-info)).
 
 ### React tsconfig
 
@@ -278,7 +278,7 @@ export default defineConfig({
 
 ### Type checking
 
-`dx-typecheck` runs the tsc pinned by @flowblade/dx with the given arguments. tsc prints nothing when there's no error, so `dx-typecheck` adds a summary with the duration (not with `--help`, `--version`, `--showConfig`, `--listFilesOnly`, `--init` or `--watch`):
+`dx-typecheck` runs the tsc pinned by @flowblade/dx with the given arguments. It stores the incremental build info in `<root>/.cache/typescript/<package path>/<tsconfig name>.tsbuildinfo` (see [TypeScript build info](#typescript-build-info)). tsc prints nothing when there's no error, so `dx-typecheck` adds a summary with the duration (not with `--help`, `--version`, `--showConfig`, `--listFilesOnly`, `--init` or `--watch`):
 
 ```text
 $ dx-typecheck --project tsconfig.json --noEmit
@@ -485,7 +485,7 @@ The caches are written out of the package sources:
 | Tool | Cache |
 | --- | --- |
 | vitest | `<root>/.cache/vitest/<package path>/vite` (vite `cacheDir`) and `<root>/.cache/vitest/<package path>/modules` (vitest `fsModuleCachePath`), set by `createVitestConfig` (`cache` option) |
-| typescript | `<package>/node_modules/.cache/typescript/tsconfig.tsbuildinfo`, set by the `tsBuildInfoFile` of `tsconfig.base.json` |
+| typescript | `<root>/.cache/typescript/<package path>/<tsconfig name>.tsbuildinfo`, set by `dx-typecheck` (`--tsBuildInfoFile`). Fallback for the other tools (plain `tsc`, tsdown declarations): `<package>/node_modules/.cache/typescript/tsconfig.tsbuildinfo`, the `tsBuildInfoFile` of `tsconfig.base.json` |
 | oxlint | none, oxlint and tsgolint don't cache |
 
 `getMonorepoCacheDir(tool)` returns `<root>/.cache/<tool>/<package path>`, the root being the closest parent directory of the current working directory containing a `pnpm-workspace.yaml`. Outside the monorepo, vitest keeps its defaults.
@@ -518,7 +518,14 @@ By default, the vitest module cache (`fsModuleCache`) is shared by the whole wor
 
 ### TypeScript build info
 
-A tsconfig can't point the `.tsbuildinfo` of each package to `<root>/.cache` (`${configDir}` resolves to the package directory), hence `node_modules/.cache`. Every tsconfig extending the base shares the same `tsBuildInfoFile`: give the other ones their own to keep their incremental info, e.g. in `tsconfig.build.json`:
+A tsconfig can't point the `.tsbuildinfo` of each package to `<root>/.cache` (`${configDir}` resolves to the package directory). `dx-typecheck` passes `--tsBuildInfoFile <root>/.cache/typescript/<package path>/<tsconfig name>.tsbuildinfo` instead (overriding the tsconfig, unless `--tsBuildInfoFile` is given), so `typecheck` and `typecheck-build` get their own file:
+
+```text
+.cache/typescript/packages/core/tsconfig.tsbuildinfo
+.cache/typescript/packages/core/tsconfig.build.tsbuildinfo
+```
+
+The tools reading the tsconfig directly (plain `tsc`, the tsdown declarations) use the `tsBuildInfoFile` of `tsconfig.base.json`: `${configDir}/node_modules/.cache/typescript/tsconfig.tsbuildinfo`. Every tsconfig extending the base shares it: give the other ones their own, e.g. in `tsconfig.build.json`:
 
 ```json
 {

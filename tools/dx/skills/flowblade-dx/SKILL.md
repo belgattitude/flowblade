@@ -84,7 +84,7 @@ Use `tsconfig.react.json` (jsx, `.storybook` files) or `tsconfig.nextjs.json` (R
 
 - `include` and `exclude` use `${configDir}`: don't repeat them. An override replaces the base value, it's not merged.
 - `types` replaces the base value: repeat `@types/node` and `vitest/globals` when adding one (e.g. `@testing-library/jest-dom/vitest`). Same for `compilerOptions.plugins` in Next.js (keep `{ "name": "next" }`).
-- The base sets `customConditions: ["flowblade-monorepo-source"]` (workspace packages resolved to their `src`) and writes the build info to `node_modules/.cache/typescript/tsconfig.tsbuildinfo`. A second tsconfig (e.g. `tsconfig.build.json` extending `./tsconfig.json`) must set its own `tsBuildInfoFile`, e.g. `${configDir}/node_modules/.cache/typescript/tsconfig.build.tsbuildinfo`.
+- The base sets `customConditions: ["flowblade-monorepo-source"]` (workspace packages resolved to their `src`) and writes the build info to `node_modules/.cache/typescript/tsconfig.tsbuildinfo` (fallback: `dx-typecheck` overrides it with `<root>/.cache/typescript/<package path>/<tsconfig name>.tsbuildinfo`). A second tsconfig (e.g. `tsconfig.build.json` extending `./tsconfig.json`) must set its own `tsBuildInfoFile`, e.g. `${configDir}/node_modules/.cache/typescript/tsconfig.build.tsbuildinfo`.
 - Don't call `bun check` directly in a package having a `check` script: bun runs that script instead of type checking. `dx-typecheck --bun` / `dx-typecheck-bun` handle it.
 
 ## vitest
@@ -137,10 +137,10 @@ Mistakes to avoid:
 
 ## Caches
 
-| Tool       | Location                                                 |
-| ---------- | -------------------------------------------------------- |
-| vitest     | `<root>/.cache/vitest/<package path>/{vite,modules}`     |
-| typescript | `<package>/node_modules/.cache/typescript/*.tsbuildinfo` |
+| Tool | Location |
+| --- | --- |
+| vitest | `<root>/.cache/vitest/<package path>/{vite,modules}` |
+| typescript | `<root>/.cache/typescript/<package path>/*.tsbuildinfo` (`dx-typecheck`), `<package>/node_modules/.cache/typescript/*.tsbuildinfo` (plain tsc, tsdown) |
 
 `dx-cache stats` shows them, `dx-cache clean` (root `pnpm clean:global-cache`) removes them.
 

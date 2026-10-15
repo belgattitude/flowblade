@@ -83,7 +83,7 @@
     "lint": "ultracite check",
     "lint-fix": "ultracite fix",
     "test-unit": "vitest run",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "typecheck": "node ./bin/dx-typecheck.mjs --project tsconfig.json --noEmit",
     "typecheck-bun": "node ./bin/dx-typecheck-bun.mjs --project tsconfig.json --noEmit"
   },
   "dependencies": {
