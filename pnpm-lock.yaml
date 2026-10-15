@@ -1591,8 +1591,8 @@ importers:
         specifier: 0.18.5
         version: 0.18.5
       '@codspeed/vitest-plugin':
-        specifier: 5.7.1
-        version: 5.7.1(debug@4.4.3)(supports-color@7.2.0)(tinybench@6.2.2)(vite@8.3.4)(vitest@5.0.4)
+        specifier: 6.0.1
+        version: 6.0.1(debug@4.4.3)(supports-color@7.2.0)(tinybench@6.2.2)(vite@8.3.4)(vitest@5.0.4)
       '@size-limit/esbuild':
         specifier: 14.2.0
         version: 14.2.0(size-limit@14.2.0)
@@ -2556,18 +2556,18 @@ packages:
     resolution: {integrity: sha512-dlT1m5e/0yUL0kRNcQn7yGLVThkgbB0Ga/1AmfDDC/8ik6AIiSf2QLQO2zPYvefsHP0aFgxO93cVLCCfDp7kzQ==}
     engines: {node: '>= 20.12.0'}
 
-  '@codspeed/core@5.7.1':
-    resolution: {integrity: sha512-7mrFkqaY14rXu3XHv3o7bK3btLK0LFRxfeK3bQC8dLduI/Ty9eq8Hv8rx04FAY/onQbRTx3rUUQg5xprYHpATQ==}
+  '@codspeed/core@6.0.1':
+    resolution: {integrity: sha512-p6yrZIoz/Bf5vW/QfGhiPOCKccGPES3jQ8NA+03qGcUYR3/U0tZ9h6ZkxVg2zLN10YaHrABEY4GtmTEEE5xF5Q==}
 
-  '@codspeed/vitest-plugin@5.7.1':
-    resolution: {integrity: sha512-yKNqaYVxZZPJYkhVHpz30Oem4TUgcI+/IRDD9YHvcAgi0P42CL6TB/+qYjuFOWghFzTPrm3TUbNFoBsevSTbUA==}
+  '@codspeed/vitest-plugin@6.0.1':
+    resolution: {integrity: sha512-QEIkp3UtXwbT3eB7NZ49+Jz5xpzHopSFMscASF4lpbjTgbOt/Xax6vIPShDSPKB5JErexyJBze7AwCOPgkoNqQ==}
     peerDependencies:
       '@types/tinybench': '*'
       '@types/vite': '*'
       '@types/vitest': '*'
       tinybench: '>=2.9.0'
-      vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
-      vitest: ^3.2 || ^4
+      vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
+      vitest: ^3.2 || ^4 || ^5
     peerDependenciesMeta:
       '@types/tinybench':
         optional: true
@@ -15260,10 +15260,9 @@ snapshots:
       fast-wrap-ansi: 0.2.2
       sisteransi: 1.0.5
 
-  '@codspeed/core@5.7.1(debug@4.4.3)(supports-color@7.2.0)':
+  '@codspeed/core@6.0.1(debug@4.4.3)(supports-color@7.2.0)':
     dependencies:
       axios: 1.20.0(debug@4.4.3)(supports-color@7.2.0)
-      find-up: 6.3.0
       form-data: 4.0.6
       node-gyp-build: 4.8.4
       stack-trace: 1.0.0-pre2
@@ -15271,9 +15270,9 @@ snapshots:
       - debug
       - supports-color
 
-  '@codspeed/vitest-plugin@5.7.1(debug@4.4.3)(supports-color@7.2.0)(tinybench@6.2.2)(vite@8.3.4)(vitest@5.0.4)':
+  '@codspeed/vitest-plugin@6.0.1(debug@4.4.3)(supports-color@7.2.0)(tinybench@6.2.2)(vite@8.3.4)(vitest@5.0.4)':
     dependencies:
-      '@codspeed/core': 5.7.1(debug@4.4.3)(supports-color@7.2.0)
+      '@codspeed/core': 6.0.1(debug@4.4.3)(supports-color@7.2.0)
       tinybench: 6.2.2
       vite: 8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
       vitest: 5.0.4(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.4)(@vitest/ui@5.0.4)(happy-dom@21.0.1)(vite@8.3.4)

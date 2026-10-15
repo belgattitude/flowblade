@@ -12,7 +12,7 @@ export const dxConfig = {
   cacheDir: ".cache",
   /**
    * Cache directory of each package, relative to the package (tsconfig
-   * `tsBuildInfoFile`).
+   * `tsBuildInfoFile`, used when tsc doesn't run through dx-typecheck).
    */
   packageCacheDir: "node_modules/.cache",
   /**

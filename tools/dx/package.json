@@ -83,12 +83,12 @@
     "lint": "ultracite check",
     "lint-fix": "ultracite fix",
     "test-unit": "vitest run",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "typecheck": "node ./bin/dx-typecheck.mjs --project tsconfig.json --noEmit",
     "typecheck-bun": "node ./bin/dx-typecheck-bun.mjs --project tsconfig.json --noEmit"
   },
   "dependencies": {
     "@arethetypeswrong/core": "0.18.5",
-    "@codspeed/vitest-plugin": "5.7.1",
+    "@codspeed/vitest-plugin": "6.0.1",
     "@size-limit/esbuild": "14.2.0",
     "@size-limit/file": "14.2.0",
     "@tanstack/eslint-plugin-query": "5.104.2",
