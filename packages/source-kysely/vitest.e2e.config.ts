@@ -1,4 +1,4 @@
-import { defineConfig, mergeConfig } from "vitest/config";
+import { defineConfig, mergeConfig } from "@flowblade/dx/vitest";
 
 import { sharedConfig } from "./vitest.shared.ts";
 

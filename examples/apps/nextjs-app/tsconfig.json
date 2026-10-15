@@ -1,18 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "@flowblade/dx/typescript/tsconfig.base.json",
+  "extends": "@flowblade/dx/typescript/tsconfig.nextjs.json",
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "verbatimModuleSyntax": true,
-    "customConditions": ["flowblade-monorepo-source"],
-    "strict": true,
-    "strictNullChecks": true,
-    "noUncheckedIndexedAccess": true,
-    "incremental": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "jsx": "react-jsx",
     "paths": {
       "@examples/base-auth": ["../../shared/base-auth/src/index"],
       "@examples/db-sqlserver/kysely-types": [
@@ -45,33 +34,6 @@
       "@/server/*": ["./src/server/*"],
       "@/lib/*": ["./src/lib/*"]
     },
-    "allowJs": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "types": ["vitest/globals", "@testing-library/jest-dom/vitest"],
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
-  },
-  "exclude": ["**/node_modules", "dist", "coverage"],
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
-    "**/*.cjs",
-    "**/*.mjs",
-    "**/*.json",
-    ".next/types/**/*.ts",
-    ".storybook/**/*.ts",
-    ".storybook/**/*.tsx",
-    ".next/dev/types/**/*.ts"
-  ]
+    "types": ["vitest/globals", "@testing-library/jest-dom/vitest"]
+  }
 }

@@ -1,9 +1,11 @@
-import { defineConfig, mergeConfig } from "vitest/config";
-
-import { sharedConfig } from "./vitest.shared.ts";
+import {
+  defineConfig,
+  mergeConfig,
+  vitestDefaultConfig,
+} from "@flowblade/dx/vitest";
 
 export default mergeConfig(
-  sharedConfig,
+  vitestDefaultConfig,
   defineConfig({
     test: {
       include: [
@@ -22,9 +24,6 @@ export default mergeConfig(
         },
       ],
       coverage: {
-        include: ["src/**/*.{js,jsx,ts,tsx}"],
-        provider: "v8",
-        reporter: ["text"],
         // Fails if total coverage is under the thresholds
         thresholds: {
           lines: 80,

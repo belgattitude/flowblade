@@ -1,3 +1,4 @@
+export { dxConfig } from "./dx-config.ts";
 export { oxlintDefaultConfig } from "./oxc/oxlint-default-config.ts";
 export { oxfmtDefaultConfig } from "./oxc/oxfmt-default-config.ts";
 export { createOxlintReactConfig } from "./oxc/oxlint-react-config.ts";
@@ -19,3 +20,7 @@ export {
   createSizeLimitConfig,
   type CreateSizeLimitConfigOptions,
 } from "./size-limit/create-size-limit-config.ts";
+export {
+  findMonorepoRoot,
+  getMonorepoCacheDir,
+} from "./cache/monorepo-cache-dir.ts";

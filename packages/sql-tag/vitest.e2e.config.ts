@@ -1,20 +1,15 @@
-import { defineConfig } from "vitest/config";
+import {
+  defineConfig,
+  mergeConfig,
+  vitestDefaultConfig,
+} from "@flowblade/dx/vitest";
 
-const testFiles = ["./e2e/**/*.test.ts"];
-
-export default defineConfig({
-  resolve: {
-    conditions: ["flowblade-monorepo-source"],
-  },
-  test: {
-    environment: "node",
-    exclude: [
-      "**/node_modules/**",
-      "dist/**",
-      "**/coverage/**",
-      "**/.{idea,git,cache,output,temp}/**",
-    ],
-    globals: true,
-    include: testFiles,
-  },
-});
+export default mergeConfig(
+  vitestDefaultConfig,
+  defineConfig({
+    test: {
+      include: ["./e2e/**/*.test.ts"],
+      globals: true,
+    },
+  })
+);

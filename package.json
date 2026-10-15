@@ -12,7 +12,7 @@
   "scripts": {
     "actions:update": "npx actions-up",
     "check:security": "pnpm audit",
-    "clean:global-cache": "PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false rimraf ./.cache",
+    "clean:global-cache": "PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false dx-cache clean",
     "clean:turbo": "PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false rimraf .turbo",
     "deps:check": "npm-check-updates --configFileName .ncurc.mjs",
     "deps:update": "npm-check-updates --configFileName .ncurc.mjs -u",
@@ -44,6 +44,7 @@
     "g:test-unit-deno": "turbo run test-unit-deno --concurrency 1 --filter='!examples/**' --filter='!docs/**'",
     "g:test-unit-examples": "turbo run test-unit --concurrency 1 --filter='@examples/*'",
     "g:typecheck": "turbo run typecheck",
+    "g:typecheck-bun": "turbo run typecheck-bun",
     "lint": "dx-oxfmt --check --disable-nested-config --no-error-on-unmatched-pattern && dx-oxlint --disable-nested-config",
     "lint-fix": "dx-oxlint --disable-nested-config --fix && dx-oxfmt --disable-nested-config --write",
     "nuke:node_modules": "PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false rimraf --glob '**/node_modules'",

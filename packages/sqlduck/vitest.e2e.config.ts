@@ -1,9 +1,11 @@
-import { defineConfig, mergeConfig } from "vitest/config";
-
-import { sharedConfig } from "./vitest.shared.ts";
+import {
+  defineConfig,
+  mergeConfig,
+  vitestDefaultConfig,
+} from "@flowblade/dx/vitest";
 
 export default mergeConfig(
-  sharedConfig,
+  vitestDefaultConfig,
   defineConfig({
     test: {
       typecheck: {
@@ -11,9 +13,7 @@ export default mergeConfig(
       },
       passWithNoTests: true,
       coverage: {
-        provider: "v8",
-        reporter: ["text", "clover"],
-        include: ["src/**/*.{js,jsx,ts,tsx}"],
+        reporter: ["clover"],
       },
       // Inline projects inherit the options above
       projects: [

@@ -29,24 +29,25 @@ export const resolvePackageJson = (pkgName) => {
 };
 
 /**
- * Resolves the `<pkg>` bin declared in the package.json of a @flowblade/dx
- * dependency.
+ * Resolves a bin (`<pkg>` by default) declared in the package.json of
+ * a @flowblade/dx dependency.
  *
  * @param {string} pkgName
+ * @param {string} [binName]
  * @returns {string}
  */
-const resolvePackageBin = (pkgName) => {
+const resolvePackageBin = (pkgName, binName = pkgName) => {
   const pkgJsonPath = resolvePackageJson(pkgName);
   /** @type {unknown} */
   const pkgJson = JSON.parse(readFileSync(pkgJsonPath, "utf8"));
   const bin = isRecord(pkgJson) ? pkgJson.bin : undefined;
-  const binEntry = isRecord(bin) ? bin[pkgName] : bin;
+  const binEntry = isRecord(bin) ? bin[binName] : bin;
   if (typeof binEntry !== "string") {
-    throw new TypeError(`no ${pkgName} bin declared in ${pkgJsonPath}`);
+    throw new TypeError(`no ${binName} bin declared in ${pkgJsonPath}`);
   }
   const binPath = path.join(path.dirname(pkgJsonPath), binEntry);
   if (!existsSync(binPath)) {
-    throw new Error(`unable to locate the ${pkgName} bin (${binPath})`);
+    throw new Error(`unable to locate the ${binName} bin (${binPath})`);
   }
   return binPath;
 };
@@ -68,22 +69,19 @@ export const resolveTsgolintExecutable = () => {
 };
 
 /**
- * Runs the package bin pinned by @flowblade/dx, forwarding all cli
- * arguments (after `options.args`), signals and the exit code.
+ * Runs a command, forwarding the signals and the exit code (`options.onExit`
+ * is called before exiting).
  *
- * @param {string} pkgName
- * @param {{ env?: Record<string, string>, args?: string[] }} [options]
+ * @param {string} command
+ * @param {string[]} args
+ * @param {{ env?: Record<string, string>, cwd?: string, onExit?: (code: number) => void }} [options]
  */
-export const runPackageBin = (pkgName, options = {}) => {
-  const child = spawn(
-    process.execPath,
-    [
-      resolvePackageBin(pkgName),
-      ...(options.args ?? []),
-      ...process.argv.slice(2),
-    ],
-    { stdio: "inherit", env: { ...process.env, ...options.env } }
-  );
+export const runCommand = (command, args, options = {}) => {
+  const child = spawn(command, args, {
+    stdio: "inherit",
+    cwd: options.cwd,
+    env: { ...process.env, ...options.env },
+  });
 
   for (const signal of ["SIGINT", "SIGTERM"]) {
     process.on(signal, () => {
@@ -92,7 +90,7 @@ export const runPackageBin = (pkgName, options = {}) => {
   }
 
   child.on("error", (error) => {
-    console.error(`dx: failed to run ${pkgName}: ${error.message}`);
+    console.error(`dx: failed to run ${command}: ${error.message}`);
     process.exit(1);
   });
 
@@ -101,6 +99,27 @@ export const runPackageBin = (pkgName, options = {}) => {
       process.kill(process.pid, signal);
       return;
     }
+    options.onExit?.(code ?? 1);
     process.exit(code ?? 1);
   });
+};
+
+/**
+ * Runs the package bin (`options.bin`, `<pkg>` by default) pinned by this
+ * package (@flowblade/dx), forwarding the cli arguments (`options.argv`, all of
+ * them by default, after `options.args`), signals and the exit code.
+ *
+ * @param {string} pkgName
+ * @param {{ env?: Record<string, string>, args?: string[], argv?: string[], bin?: string, onExit?: (code: number) => void }} [options]
+ */
+export const runPackageBin = (pkgName, options = {}) => {
+  runCommand(
+    process.execPath,
+    [
+      resolvePackageBin(pkgName, options.bin),
+      ...(options.args ?? []),
+      ...(options.argv ?? process.argv.slice(2)),
+    ],
+    { env: options.env, onExit: options.onExit }
+  );
 };

@@ -20,6 +20,11 @@
       // Only exception @flowblade/sqlduck that is used for env
       "dependsOn": ["@flowblade/sqlduck#build"],
     },
+    "typecheck-bun": {
+      // We rely on tsconfig path aliases to ease starting
+      // Only exception @flowblade/sqlduck that is used for env
+      "dependsOn": ["@flowblade/sqlduck#build"],
+    },
     "lint": {
       // We rely on tsconfig path aliases to ease starting
       // Only exception @flowblade/sqlduck that is used for env

@@ -55,21 +55,19 @@
     "test-unit-coverage": "vitest run --coverage",
     "test-unit-deno": "deno run test-unit",
     "test-unit-watch": "vitest --ui --api 4515 --coverage.enabled=true --coverage.reporter=html",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
-    "typecheck-build": "tsc --project tsconfig.build.json --noEmit"
+    "typecheck": "dx-typecheck --project tsconfig.json --noEmit",
+    "typecheck-build": "dx-typecheck --project tsconfig.build.json --noEmit",
+    "typecheck-bun": "dx-typecheck-bun --project tsconfig.json --noEmit"
   },
   "dependencies": {
     "@httpx/plain-object": "^2.2.0",
     "better-result": "3.0.1"
   },
   "devDependencies": {
-    "@codspeed/vitest-plugin": "5.7.1",
     "@faker-js/faker": "10.6.0",
     "@flowblade/dx": "workspace:*",
     "@flowblade/sql-tag": "workspace:^",
     "@types/node": "26.6.5",
-    "@vitest/coverage-v8": "5.0.4",
-    "@vitest/ui": "5.0.4",
     "cross-env": "10.1.0",
     "esbuild": "0.28.2",
     "eslint-plugin-sonarjs": "^4.2.2",
@@ -82,7 +80,6 @@
     "typedoc": "0.28.20",
     "typedoc-plugin-markdown": "4.13.1",
     "typescript": "7.0.2",
-    "vite": "8.3.4",
     "vitest": "5.0.4"
   },
   "engines": {

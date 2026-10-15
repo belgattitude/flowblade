@@ -1,34 +1,28 @@
-import react from "@vitejs/plugin-react";
-import { loadEnv } from "vite";
-import { defineConfig } from "vitest/config";
+import { loadEnv } from "@flowblade/dx/vite";
+import {
+  createVitestConfig,
+  defineConfig,
+  mergeConfig,
+} from "@flowblade/dx/vitest";
 
-const testFiles = ["./src/**/*.test.{js,jsx,ts,tsx}"];
-export default defineConfig({
-  cacheDir: "../../../.cache/vitest/nextjs-app",
-  plugins: [react()],
-  resolve: {
-    tsconfigPaths: true,
-  },
-  test: {
-    globals: true,
-    typecheck: {
-      enabled: false,
+export default mergeConfig(
+  createVitestConfig({ react: true, testingLibrary: true }),
+  defineConfig({
+    resolve: {
+      tsconfigPaths: true,
     },
-    environment: "happy-dom",
-    passWithNoTests: true,
-    env: loadEnv("test", process.cwd(), ""),
-    // setupFiles: './setup/tests/setupVitest.ts',
-    coverage: {
-      include: ["src/**/*.{js,jsx,ts,tsx}"],
-      provider: "v8",
-      reporter: ["text", "clover"],
+    test: {
+      include: ["./src/**/*.test.{js,jsx,ts,tsx}"],
+      globals: true,
+      typecheck: {
+        enabled: false,
+      },
+      passWithNoTests: true,
+      env: loadEnv("test", process.cwd(), ""),
+      coverage: {
+        reporter: ["clover"],
+      },
+      exclude: ["**/.next/**"],
     },
-    include: testFiles,
-    exclude: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/.next/**",
-      "**/.{idea,git,cache,output,temp}/**",
-    ],
-  },
-});
+  })
+);
