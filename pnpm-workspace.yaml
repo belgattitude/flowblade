@@ -32,15 +32,12 @@ trustPolicy: no-downgrade
 trustPolicyExcludePrune: true
 trustPolicyExclude:
   - "@pierre/theme@2.0.0"
-  - "@vercel/oidc@3.8.9"
-  - "@vercel/cli-config@0.3.0"
-  - "@vercel/cli-exec@1.0.1"
-  - "@vercel/functions@3.9.9"
-  - "@vercel/routing-utils@6.6.0"
+  - "@vercel/*"
   - "semver@6.3.1"
   - "undici-types@6.21.0"
   - "chokidar@4.0.3"
-  - "prisma@7.10.0"
+  - "prisma"
+  - "lefthook@2.2.2"
 
 verifyDepsBeforeRun: install
 
@@ -154,5 +151,3 @@ minimumReleaseAgeExclude:
   - oxlint-tsgolint
   - http-cache-semantics@4.3.0
   - storybook@10.6.2
-  - "@codspeed/core@6.0.1"
-  - "@codspeed/vitest-plugin@6.0.1"
