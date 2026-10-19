@@ -81,6 +81,7 @@ The bins run the tool versions pinned by @flowblade/dx, forwarding the arguments
 | `dx-vitest` | runs vitest |
 | `dx-bench` | runs the vitest benchmarks, on node or bun (`--runtime`), see [Benchmarks](#benchmarks) |
 | `dx-bench-codspeed` | runs the vitest benchmarks with the CodSpeed instrumentation |
+| `dx-doctor` | prints the monorepo root, the global cache directory (`DX_BASE_CACHE_DIR`), the typescript and vitest caches (with their number of files and size) and the turbo cache when turbo is installed, `--json` for a JSON output, `--show-cache=<base\|typescript\|vitest\|turbo>` to only print the directory of a cache (root `dx:doctor` script) |
 | `dx-cache` | shows the number and size of the cached files (`stats`) or removes the caches (`clean`), see [dx-cache](#dx-cache) |
 
 ```json
@@ -488,11 +489,52 @@ The caches are written out of the package sources:
 | typescript | `<root>/.cache/typescript/<package path>/<tsconfig name>.tsbuildinfo`, set by `dx-typecheck` (`--tsBuildInfoFile`). Fallback for the other tools (plain `tsc`, tsdown declarations): `<package>/node_modules/.cache/typescript/tsconfig.tsbuildinfo`, the `tsBuildInfoFile` of `tsconfig.base.json` |
 | oxlint | none, oxlint and tsgolint don't cache |
 
-`getMonorepoCacheDir(tool)` returns `<root>/.cache/<tool>/<package path>`, the root being the closest parent directory of the current working directory containing a `pnpm-workspace.yaml`. Outside the monorepo, vitest keeps its defaults.
+`getMonorepoCacheDir(tool)` returns `<root>/.cache/<tool>/<package path>`, the root being the closest parent directory of the current working directory containing a `pnpm-workspace.yaml`. It creates the directory when missing: `.cache` is gitignored, so a fresh checkout (CI) doesn't have it. Outside the monorepo, vitest keeps its defaults.
+
+Set `DX_BASE_CACHE_DIR` to an existing directory to move the global cache out of the monorepo root: the caches are then written in its `.cache` subdirectory (`DX_BASE_CACHE_DIR=/tmp` gives `/tmp/.cache/<tool>/<package path>`), so the existing content of the directory is never touched. When the directory doesn't exist, the root `.cache` is used, with a warning. `DX_BASE_CACHE_DIR` is in the turbo `globalPassThroughEnv`. `dx-doctor` (root `pnpm dx:doctor`) prints the resolved directory.
+
+```text
+$ dx-doctor
+Monorepo
+  root               /home/me/flowblade
+
+Runtime
+  package manager    pnpm 12.13.0 (devEngines)
+  js runtime         node 24.21.0
+  platform           linux x64
+  libc               glibc 2.36
+
+Caches
+  base               /home/me/flowblade/.cache                28 files  1.03 MB
+  typescript         /home/me/flowblade/.cache/typescript      2 files   846 kB
+  vitest             /home/me/flowblade/.cache/vitest         26 files   185 kB
+  turbo              /home/me/flowblade/.turbo             1,835 files  2.23 MB
+
+Turbo
+  version            2.11.8
+  config             turbo.jsonc
+
+Env
+  DX_BASE_CACHE_DIR  (not set)
+  DX_DISABLE_CACHE   (not set)
+  TURBO_CACHE_DIR    (not set)
+```
+
+Set `DX_DISABLE_CACHE=1` (or `true`) to disable the caches: `createVitestConfig` turns off the vitest module (`fsModuleCache`) and results (`cache`) caches, and `dx-typecheck` runs tsc with `--incremental false` (unless `--incremental` is given). It's in the turbo `globalPassThroughEnv`: it doesn't change the turbo cache keys, use `turbo run --force` (or `TURBO_FORCE=true`) to bypass the turbo cache too.
+
+The runtime section shows the package manager (the `devEngines.packageManager` of the root package.json, then its `packageManager`, then the one running the script, then the lockfile; `running <version>` when the running one differs), the JavaScript runtime (node, bun or deno, `dx-doctor` runs with all of them), the platform and the C library on Linux (glibc or musl, from `detect-libc`).
+
+`--show-cache=<cache>` only prints the directory of a cache, `base` (the global cache), `typescript`, `vitest` or `turbo`, for the scripts:
+
+```bash
+du -sh "$(dx-doctor --show-cache=vitest)"
+```
+
+The turbo cache is `TURBO_CACHE_DIR`, else the `cacheDir` of `turbo.json(c)`, else `.turbo/cache` (turbo default).
 
 ### dx-cache
 
-`dx-cache` manages the global cache (`<root>/.cache`, one directory per tool) and the cache of the root and of every package (`node_modules/.cache`), from any directory of the monorepo:
+`dx-cache` manages the global cache (`<root>/.cache` or `<DX_BASE_CACHE_DIR>/.cache`, one directory per tool) and the cache of the root and of every package (`node_modules/.cache`), from any directory of the monorepo:
 
 | Command | Description |
 | --- | --- |
@@ -584,6 +626,6 @@ Subpaths:
 
 ## Agent skill
 
-`skills/flowblade-dx/SKILL.md` teaches coding agents how to use @flowblade/dx: the configs, the bins, adding a package and the common mistakes. It's declared in the `agents.skills` field of the package.json, so [skills-npm](https://github.com/antfu/skills-npm) (the root `prepare` script) links it in the agent directories (`.claude/skills`, `.agents/skills`...).
+`skills/flowblade-dx/SKILL.md` teaches coding agents how to use @flowblade/dx: the configs, the bins, adding a package and the common mistakes. It's declared in the `agents.skills` field of the package.json and locked in the root `skills-lock.json`: [skills](https://github.com/vercel-labs/skills) links it in the agent directories (`.claude/skills`, `.agents/skills`...) with `pnpm exec skills experimental_sync`.
 
-Update it with this README. skills-npm caches its scan: run `pnpm exec skills-npm --force` to pick up a new or renamed skill.
+Update it with this README.

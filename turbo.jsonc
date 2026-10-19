@@ -5,6 +5,10 @@
     "AWS_SECRET_KEY",
     "GITHUB_TOKEN",
     "CODSPEED_TOKEN",
+    // Moves the global cache out of the monorepo root (see @flowblade/dx)
+    "DX_BASE_CACHE_DIR",
+    // Disables the vitest and typescript caches (see @flowblade/dx)
+    "DX_DISABLE_CACHE",
     "PNPM_CONFIG_*",
     "PRISMA_DISABLE_AI_AGENT_CHECK",
   ],

@@ -49,6 +49,7 @@ Full reference: `tools/dx/README.md`.
 | `dx-vitest` | vitest |
 | `dx-bench` | `vitest bench --run`, `--runtime=node` (default) or `--runtime=bun`, `--watch` |
 | `dx-bench-codspeed` | `vitest bench --run` on node with `CODSPEED=1` (CodSpeed plugin) |
+| `dx-doctor` | prints the monorepo root, the runtime (package manager, node/bun/deno, platform, libc), the global cache (`DX_BASE_CACHE_DIR`), the typescript/vitest/turbo caches (files, size), `DX_DISABLE_CACHE`, `--json`, `--show-cache=<base\|typescript\|vitest\|turbo>` (directory only) |
 | `dx-cache` | `stats` (files and size of the caches), `clean` (`--dry-run`), `--help` |
 
 The test scripts keep calling `vitest` (the packages depend on it, and `dx-vitest` doesn't run under deno).

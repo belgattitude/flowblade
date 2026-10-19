@@ -63,6 +63,57 @@ pnpm g:typecheck
 | `pnpm deps:update --dep dev` | Apply possible updates, then run `pnpm install && pnpm dedupe`. |
 | `pnpm check:install` | Verify the lockfile and installation are in sync |
 
+## Agent skills
+
+The agent skills (`.agents/skills`, linked in `.claude/skills`) are managed by [skills](https://github.com/vercel-labs/skills) and locked in `skills-lock.json`.
+
+### Declared skills
+
+Two places declare skills, both read by `skills experimental_sync`:
+
+- the `skills` field of the root `package.json`: remote git sources (`shadcn/ui`, `vercel/turborepo`, `ag-grid/skills`, `antfu/skills`, `mcollina/skills`, `reduxjs/redux-toolkit`), optionally limited to some skills.
+- the `agents.skills` field of the installed packages: `@flowblade/dx` (`flowblade-dx`) and `react-doctor` (`react-doctor`, `improve-react`, `performance`).
+
+`pnpm skills:sync` links them, skipping `react-doctor#improve-threejs` (`--exclude` takes a package `<pkg>` or a skill `<pkg>#<skill>`):
+
+```bash
+# preview
+pnpm exec skills experimental_sync --dry-run --exclude 'react-doctor#improve-threejs'
+# link the declared skills
+pnpm skills:sync
+```
+
+### Installed skills
+
+The commands reproducing `skills-lock.json`:
+
+```bash
+# remote (github) sources
+pnpm exec skills add shadcn/ui --skill shadcn -y
+pnpm exec skills add vercel/turborepo --skill turborepo -y
+pnpm exec skills add ag-grid/skills --skill ag-dev ag-update -y
+pnpm exec skills add antfu/skills --skill vitest -y
+pnpm exec skills add mcollina/skills --skill node -y
+pnpm exec skills add reduxjs/redux-toolkit -y --skill \
+  build-modern-redux-apps/modern-redux \
+  build-modern-redux-apps/redux-dataflow \
+  evolve-and-diagnose-redux-apps/debug-redux-toolkit-apps \
+  evolve-and-diagnose-redux-apps/migrate-to-modern-redux \
+  model-redux-state/build-slices-and-selectors \
+  model-redux-state/design-state-ownership \
+  orchestrate-side-effects/handle-side-effects
+
+# node_modules sources (@flowblade/dx, react-doctor)
+pnpm skills:sync
+```
+
+| Command | Description |
+| --- | --- |
+| `pnpm exec skills experimental_install` | Restore the skills from `skills-lock.json` (fresh clone) |
+| `pnpm exec skills list` | List the installed skills |
+| `pnpm exec skills update -p` | Update the project skills |
+| `pnpm exec skills remove <name>` | Remove a skill |
+
 ## Git message format
 
 This repo adheres to the [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) convention.

@@ -3,7 +3,10 @@ import os from "node:os";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 
-import { getMonorepoCacheDir } from "../../src/cache/monorepo-cache-dir.ts";
+import {
+  getMonorepoCacheDir,
+  isCacheDisabled,
+} from "../../src/cache/monorepo-cache-dir.ts";
 import { runCommand, runPackageBin } from "./run-package-bin.mjs";
 
 /**
@@ -26,12 +29,18 @@ const getProject = (tscArgs) => {
  * Stores the incremental build info of the tsconfig in
  * `<root>/.cache/typescript/<package path>/<tsconfig name>.tsbuildinfo`
  * (overriding the tsconfig `tsBuildInfoFile`), unless `--tsBuildInfoFile` is
- * given or outside the monorepo.
+ * given or outside the monorepo. With `DX_DISABLE_CACHE`, runs tsc with
+ * `--incremental false` instead (unless `--incremental` is given).
  *
  * @param {string[]} tscArgs
  * @returns {string[]}
  */
 const withMonorepoBuildInfo = (tscArgs) => {
+  if (isCacheDisabled()) {
+    return tscArgs.some((arg) => arg.startsWith("--incremental"))
+      ? tscArgs
+      : [...tscArgs, "--incremental", "false"];
+  }
   const cacheDir = getMonorepoCacheDir("typescript");
   if (
     cacheDir === undefined ||

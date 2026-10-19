@@ -21,6 +21,10 @@ export {
   type CreateSizeLimitConfigOptions,
 } from "./size-limit/create-size-limit-config.ts";
 export {
+  dxBaseCacheDirEnv,
+  dxDisableCacheEnv,
   findMonorepoRoot,
+  getGlobalCacheDir,
   getMonorepoCacheDir,
+  isCacheDisabled,
 } from "./cache/monorepo-cache-dir.ts";

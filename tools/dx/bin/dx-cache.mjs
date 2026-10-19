@@ -9,16 +9,23 @@
  * @example dx-cache clean --dry-run
  */
 
-import { existsSync, readdirSync, rmSync, statSync } from "node:fs";
+import { existsSync, readdirSync, rmSync } from "node:fs";
 import path from "node:path";
 
-import { findMonorepoRoot } from "../src/cache/monorepo-cache-dir.ts";
+import {
+  dxBaseCacheDirEnv,
+  findMonorepoRoot,
+  getGlobalCacheDir,
+} from "../src/cache/monorepo-cache-dir.ts";
 import { dxConfig } from "../src/dx-config.ts";
+import { measure } from "./lib/measure.mjs";
 
 const help = `Usage: dx-cache <command> [options]
 
 Manages the tool caches of the monorepo:
-  - the global cache: <root>/${dxConfig.cacheDir}/<tool>
+  - the global cache: <root>/${dxConfig.cacheDir}/<tool>, or
+    <${dxBaseCacheDirEnv}>/${dxConfig.cacheDir}/<tool> when ${dxBaseCacheDirEnv} is set
+    to an existing directory
   - the package caches: <package>/${dxConfig.packageCacheDir}
 
 Commands:
@@ -61,7 +68,7 @@ const findPackageCaches = (dir) => {
  * existing cache directories (one per tool for the global cache)
  */
 const findCaches = (root) => {
-  const global = path.join(root, dxConfig.cacheDir);
+  const global = getGlobalCacheDir(root);
   const toolCaches = existsSync(global)
     ? readdirSync(global, { withFileTypes: true }).map((entry) =>
         path.join(global, entry.name)
@@ -71,30 +78,18 @@ const findCaches = (root) => {
 };
 
 /**
- * Counts the files (symlinks are not followed) under `entryPath`.
+ * Paths under the root are shown relative to it, the others (global cache in
+ * DX_BASE_CACHE_DIR) as absolute paths.
  *
+ * @param {string} root
  * @param {string} entryPath
- * @returns {{ files: number, bytes: number }}
+ * @returns {string}
  */
-const measure = (entryPath) => {
-  const stats = statSync(entryPath, { throwIfNoEntry: false });
-  if (stats === undefined) {
-    return { files: 0, bytes: 0 };
-  }
-  if (!stats.isDirectory()) {
-    return { files: 1, bytes: stats.size };
-  }
-  let files = 0;
-  let bytes = 0;
-  for (const entry of readdirSync(entryPath, { withFileTypes: true })) {
-    if (entry.isSymbolicLink()) {
-      continue;
-    }
-    const child = measure(path.join(entryPath, entry.name));
-    files += child.files;
-    bytes += child.bytes;
-  }
-  return { files, bytes };
+const displayPath = (root, entryPath) => {
+  const relative = path.relative(root, entryPath);
+  return relative.startsWith("..") || path.isAbsolute(relative)
+    ? entryPath
+    : relative;
 };
 
 /**
@@ -128,7 +123,7 @@ const stats = (root) => {
     const { files, bytes } = measure(cache);
     total.files += files;
     total.bytes += bytes;
-    rows.push([path.relative(root, cache), String(files), formatBytes(bytes)]);
+    rows.push([displayPath(root, cache), String(files), formatBytes(bytes)]);
   }
   const header = ["Cache", "Files", "Size"];
   const footer = ["Total", String(total.files), formatBytes(total.bytes)];
@@ -178,7 +173,7 @@ const clean = (root, dryRun) => {
       rmSync(cache, { recursive: true, force: true });
     }
     console.log(
-      `${dryRun ? "Would remove" : "Removed"} ${path.relative(root, cache)}`
+      `${dryRun ? "Would remove" : "Removed"} ${displayPath(root, cache)}`
     );
   }
 };

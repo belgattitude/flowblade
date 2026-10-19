@@ -5,7 +5,10 @@ import codspeedPlugin from "@codspeed/vitest-plugin";
 import react from "@vitejs/plugin-react";
 import type { ViteUserConfig } from "vitest/config";
 
-import { getMonorepoCacheDir } from "../cache/monorepo-cache-dir.ts";
+import {
+  getMonorepoCacheDir,
+  isCacheDisabled,
+} from "../cache/monorepo-cache-dir.ts";
 import { dxConfig } from "../dx-config.ts";
 
 const sourceConditions = [...dxConfig.customConditions, "import", "default"];
@@ -38,6 +41,11 @@ export type CreateVitestConfigOptions = {
    * @default `<monorepo root>/.cache/vitest/<package path>` (from the current working directory)
    */
   cache?: string | false;
+  /**
+   * Disable the vitest module (`fsModuleCache`) and results (`cache`) caches.
+   * @default process.env.DX_DISABLE_CACHE is `1` or `true`
+   */
+  disableCache?: boolean;
 };
 
 /**
@@ -52,8 +60,10 @@ export const createVitestConfig = (
     react: withReact = false,
     testingLibrary = false,
     codspeed = process.env.CODSPEED === "1",
-    cache = getMonorepoCacheDir("vitest"),
+    disableCache = isCacheDisabled(),
   } = options;
+  const { cache = disableCache ? false : getMonorepoCacheDir("vitest") } =
+    options;
   const cacheDir = cache === false ? undefined : cache;
   return {
     ...(cacheDir === undefined
@@ -88,6 +98,7 @@ export const createVitestConfig = (
       ...(cacheDir === undefined
         ? {}
         : { fsModuleCachePath: path.join(cacheDir, "modules") }),
+      ...(disableCache ? { cache: false, fsModuleCache: false } : {}),
       exclude: [
         "**/node_modules/**",
         "**/dist/**",
