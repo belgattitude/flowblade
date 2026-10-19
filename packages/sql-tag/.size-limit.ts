@@ -6,13 +6,13 @@ const config = createSizeLimitConfig(
       name: "Import * (ESM)",
       path: ["dist/index.js"],
       import: "*",
-      limit: "1000B",
+      limit: "730 B",
     },
     {
       name: "Only { sql } (ESM)",
       path: ["dist/index.js"],
       import: "{ sql }",
-      limit: "700B",
+      limit: "640 B",
     },
   ],
   { browserslist: true }

@@ -2,7 +2,7 @@
 
 Fast and lightweight ([~700B](#bundle-size)) sql template tag based on [sql-template-tag](https://github.com/blakeembrey/sql-template-tag).
 
-[![npm](https://img.shields.io/npm/v/@flowblade/sql-tag?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/sql-tag) [![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/CHANGELOG.md) [![codecov](https://img.shields.io/codecov/c/github/belgattitude/flowblade?logo=codecov&label=Unit&flag=flowblade-sql-tag-unit&style=for-the-badge&labelColor=444)](https://app.codecov.io/gh/belgattitude/flowblade/tree/main/packages%2Fsql-tag) [![bundles](https://img.shields.io/static/v1?label=&message=cjs|esm@treeshake&logo=webpack&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/.size-limit.cjs) [![node](https://img.shields.io/static/v1?label=Node&message=22.18%2b&logo=node.js&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![browserslist](https://img.shields.io/static/v1?label=Browser&message=%3E96%25&logo=googlechrome&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![size](https://img.shields.io/bundlephobia/minzip/@flowblade/sql-tag@latest?label=Max&style=for-the-badge&labelColor=444&color=informational)](https://bundlephobia.com/package/@flowblade/sql-tag@latest) [![downloads](https://img.shields.io/npm/dm/@flowblade/sql-tag?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/sql-tag) [![license](https://img.shields.io/npm/l/@flowblade/sql-tag?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
+[![npm](https://img.shields.io/npm/v/@flowblade/sql-tag?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/sql-tag) [![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/CHANGELOG.md) [![codecov](https://img.shields.io/codecov/c/github/belgattitude/flowblade?logo=codecov&label=Unit&flag=flowblade-sql-tag-unit&style=for-the-badge&labelColor=444)](https://app.codecov.io/gh/belgattitude/flowblade/tree/main/packages%2Fsql-tag) [![bundles](https://img.shields.io/static/v1?label=&message=esm@treeshake&logo=rolldown&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/.size-limit.ts) [![node](https://img.shields.io/static/v1?label=Node&message=22.18%2b&logo=node.js&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![browserslist](https://img.shields.io/static/v1?label=Browser&message=%3E96%25&logo=googlechrome&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![size](https://img.shields.io/bundlephobia/minzip/@flowblade/sql-tag@latest?label=Max&style=for-the-badge&labelColor=444&color=informational)](https://bundlephobia.com/package/@flowblade/sql-tag@latest) [![downloads](https://img.shields.io/npm/dm/@flowblade/sql-tag?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/sql-tag) [![license](https://img.shields.io/npm/l/@flowblade/sql-tag?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
 
 ## Features
 
@@ -196,11 +196,12 @@ Some notable differences:
 
 ## Bundle size
 
-Bundle size is tracked by a [size-limit configuration](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/.size-limit.ts)
+Bundle size is tracked by a [size-limit configuration](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/.size-limit.ts) (minified and brotli compressed, bundled with rolldown).
 
-| Scenario (esm)                            | Size (compressed) |
-| ----------------------------------------- | ----------------: |
-| `import { sql } from '@flowblade/sql-tag` |            ~ 700B |
+| Scenario (esm)                             | Size (compressed) |
+| ------------------------------------------ | ----------------: |
+| `import * from '@flowblade/sql-tag'`       |           ~ 714 B |
+| `import { sql } from '@flowblade/sql-tag'` |           ~ 626 B |
 
 ## Compatibility
 

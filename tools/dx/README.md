@@ -60,10 +60,10 @@ The tools are shipped as regular dependencies of this package, so their versions
 | `typescript` | every package (`dx-typecheck`) |
 | `tsdown`, `@arethetypeswrong/core`, `publint`, `browserslist`, `browserslist-to-esbuild` | publishable packages (`tsdownDefaultConfig`, `tsdownBrowserConfig`) |
 | `es-check` | publishable packages (`escheckDefaultConfig`, `escheckBrowserConfig`) |
-| `size-limit`, `@size-limit/file`, `@size-limit/esbuild` | publishable packages (`createSizeLimitConfig`) |
+| `size-limit`, `@size-limit/file`, `@size-limit/rolldown` | publishable packages (`createSizeLimitConfig`) |
 | `vitest`, `vite`, `@vitest/coverage-v8`, `@vitest/ui`, `@codspeed/vitest-plugin` | tested packages (`@flowblade/dx/vitest`) |
-| `@vitejs/plugin-react`, `happy-dom` | React packages only (`createVitestConfig({ react: true })`) |
-| `@testing-library/jest-dom`, `@testing-library/dom` | packages using Testing Library (`createVitestConfig({ testingLibrary: true })`) |
+| `@vitejs/plugin-react`, `happy-dom` | React packages only (`createVitestConfig(config, { react: true })`) |
+| `@testing-library/jest-dom`, `@testing-library/dom` | packages using Testing Library (`createVitestConfig(config, { testingLibrary: true })`) |
 
 ## Bins
 
@@ -77,7 +77,7 @@ The bins run the tool versions pinned by @flowblade/dx, forwarding the arguments
 | `dx-typecheck-bun` | runs `bun check`, same as `dx-typecheck --bun` |
 | `dx-build` | runs tsdown |
 | `dx-escheck` | runs es-check with the package `escheck.config.ts` |
-| `dx-size-limit` | runs size-limit with the `@size-limit/file` and `@size-limit/esbuild` plugins of @flowblade/dx |
+| `dx-size-limit` | runs size-limit with the `@size-limit/file` and `@size-limit/rolldown` plugins of @flowblade/dx |
 | `dx-vitest` | runs vitest |
 | `dx-bench` | runs the vitest benchmarks, on node or bun (`--runtime`), see [Benchmarks](#benchmarks) |
 | `dx-bench-codspeed` | runs the vitest benchmarks with the CodSpeed instrumentation |
@@ -347,7 +347,7 @@ es-check only reads json configs: `dx-escheck` loads the `escheck.config.{ts,mts
 
 ## size-limit
 
-The limits are specific to each package, so there's no default config: `createSizeLimitConfig(checks, { browserslist })` returns the checks as is, or with `browserslist: true`, bundles them for the browsers of the package `.browserslistrc` (esbuild `target`) instead of the esbuild default (esnext). The resolved target is logged on stderr (to keep `--json` parsable):
+The limits are specific to each package, so there's no default config: `createSizeLimitConfig(checks, { browserslist })` returns the checks as is, or with `browserslist: true`, bundles them for the browsers of the package `.browserslistrc` (rolldown `transform.target`) instead of the rolldown default (esnext). The resolved target is logged on stderr (to keep `--json` parsable):
 
 ```text
 [@flowblade/dx] size-limit browserslist enabled, target: chrome109, edge119, ...
@@ -376,9 +376,9 @@ size-limit loads its plugins from the dependencies of the checked package. `dx-s
 
 <a id="default-vitest-config"></a>
 
-### Default config
+### createVitestConfig
 
-`vitestDefaultConfig` (`@flowblade/dx/vitest`) is the base of the unit and e2e configs:
+`createVitestConfig(config?, options?)` (`@flowblade/dx/vitest`) creates the unit and e2e configs: the package `config` is merged (vitest `mergeConfig`) over the dx base:
 
 - workspace packages resolved from their sources (`dxConfig.customConditions`), also in the global setup files
 - `node` environment and the usual excludes (`node_modules`, `dist`, `coverage`...)
@@ -386,32 +386,27 @@ size-limit loads its plugins from the dependencies of the checked package. `dx-s
 - the `@codspeed/vitest-plugin` when `CODSPEED=1`
 - the vite and vitest caches in `<root>/.cache/vitest/<package path>` (see [Caches](#caches))
 
-The test files, coverage thresholds... are specific to each package: merge them with `mergeConfig` (arrays like `exclude` or `coverage.reporter` are concatenated, so only add what differs).
+The test files, coverage thresholds... are specific to each package. Arrays like `exclude` or `coverage.reporter` are concatenated, so only add what differs.
 
 ```ts
 // vitest.config.ts
-import {
-  defineConfig,
-  mergeConfig,
-  vitestDefaultConfig,
-} from "@flowblade/dx/vitest";
+import { createVitestConfig } from "@flowblade/dx/vitest";
 
-export default mergeConfig(
-  vitestDefaultConfig,
-  defineConfig({
-    test: {
-      include: ["./src/**/*.test.ts"],
-      coverage: {
-        thresholds: { lines: 80, statements: 80, functions: 80, branches: 70 },
-      },
+export default createVitestConfig({
+  test: {
+    include: ["./src/**/*.test.ts"],
+    coverage: {
+      thresholds: { lines: 80, statements: 80, functions: 80, branches: 70 },
     },
-  })
-);
+  },
+});
 ```
+
+A config shared by several configs (unit and e2e) can be created once and merged again with `mergeConfig` (re-exported, like `defineConfig`).
 
 ### Options
 
-`createVitestConfig(options)` creates the default config with:
+The second argument changes the dx base:
 
 | Option | Default | Description |
 | --- | --- | --- |
@@ -419,24 +414,21 @@ export default mergeConfig(
 | `testingLibrary` | `false` | adds a setup file extending `expect` with the `@testing-library/jest-dom` matchers (`toBeInTheDocument`...) |
 | `codspeed` | `process.env.CODSPEED === "1"` | adds the `@codspeed/vitest-plugin` (set by `dx-bench-codspeed`) |
 | `cache` | `<root>/.cache/vitest/<package path>` | directory of the vite (`vite`) and vitest (`modules`) caches, `false` for the vite and vitest defaults |
+| `disableCache` | `DX_DISABLE_CACHE` is `1` or `true` | disables the vitest module (`fsModuleCache`) and results (`cache`) caches |
 
 ### React and Testing Library
 
 ```ts
 // vitest.config.ts of a React package
-import {
-  createVitestConfig,
-  defineConfig,
-  mergeConfig,
-} from "@flowblade/dx/vitest";
+import { createVitestConfig } from "@flowblade/dx/vitest";
 
-export default mergeConfig(
-  createVitestConfig({ react: true, testingLibrary: true }),
-  defineConfig({
+export default createVitestConfig(
+  {
     test: {
       include: ["./src/**/*.test.{ts,tsx}"],
     },
-  })
+  },
+  { react: true, testingLibrary: true }
 );
 ```
 
@@ -615,7 +607,7 @@ Subpaths:
 
 | Export | Description |
 | --- | --- |
-| `@flowblade/dx/vitest` | [`vitestDefaultConfig`](#default-vitest-config), [`createVitestConfig(options)`](#options) and re-export of `vitest/config` (`defineConfig`, `mergeConfig`…) |
+| `@flowblade/dx/vitest` | [`createVitestConfig(config, options)`](#default-vitest-config) and re-export of `vitest/config` (`defineConfig`, `mergeConfig`…) |
 | `@flowblade/dx/vite` | re-export of `vite` (`loadEnv`…) |
 | `@flowblade/dx/oxlint` | re-export of `oxlint` (`defineConfig`…) |
 | `@flowblade/dx/oxfmt` | re-export of `oxfmt` (`defineConfig`, `format`…) |

@@ -2,7 +2,7 @@
 
 /**
  * Runs the size-limit version pinned by @flowblade/dx with its `@size-limit/file`
- * and `@size-limit/esbuild` plugins, forwarding all arguments.
+ * and `@size-limit/rolldown` plugins, forwarding all arguments.
  *
  * size-limit loads its plugins from the dependencies of the package being
  * checked: this runs the size-limit cli steps (config, calc, report) with the
@@ -18,8 +18,8 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import esbuildPlugin from "@size-limit/esbuild";
 import filePlugin from "@size-limit/file";
+import rolldownPlugin from "@size-limit/rolldown";
 
 const require = createRequire(import.meta.url);
 const sizeLimitDir = path.dirname(require.resolve("size-limit/package.json"));
@@ -63,7 +63,7 @@ const [
 const isJsonOutput = process.argv.includes("--json");
 const isSilentMode = process.argv.includes("--silent");
 const reporter = createReporter(process, isJsonOutput, isSilentMode);
-const plugins = new Plugins([filePlugin, esbuildPlugin].flat());
+const plugins = new Plugins([filePlugin, rolldownPlugin].flat());
 
 let args;
 let config;

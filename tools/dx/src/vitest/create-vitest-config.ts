@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import codspeedPlugin from "@codspeed/vitest-plugin";
 import react from "@vitejs/plugin-react";
-import type { ViteUserConfig } from "vitest/config";
+import { mergeConfig, type ViteUserConfig } from "vitest/config";
 
 import {
   getMonorepoCacheDir,
@@ -53,8 +53,8 @@ export type CreateVitestConfigOptions = {
  * (`dxConfig.customConditions`), node (or happy-dom for react)
  * environment and v8 coverage of `src`.
  */
-export const createVitestConfig = (
-  options: CreateVitestConfigOptions = {}
+const createVitestBaseConfig = (
+  options: CreateVitestConfigOptions
 ): ViteUserConfig => {
   const {
     react: withReact = false,
@@ -113,3 +113,19 @@ export const createVitestConfig = (
     },
   };
 };
+
+/**
+ * vitest config of a package: the dx base (see `createVitestBaseConfig`) with
+ * the package `config` merged over it (vitest `mergeConfig`: the arrays are
+ * concatenated, don't repeat the base values).
+ *
+ * @example
+ * export default createVitestConfig({
+ *   test: { include: ["./src/**\/*.test.ts"] },
+ * });
+ */
+export const createVitestConfig = (
+  config: ViteUserConfig = {},
+  options: CreateVitestConfigOptions = {}
+): ViteUserConfig =>
+  mergeConfig(createVitestBaseConfig(options), config) as ViteUserConfig;

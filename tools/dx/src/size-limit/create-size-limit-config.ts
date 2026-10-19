@@ -4,7 +4,7 @@ import type { Check, SizeLimitConfig } from "size-limit";
 export type CreateSizeLimitConfigOptions = {
   /**
    * Bundle the checks for the browsers of the package `.browserslistrc` (resolved
-   * from the current working directory) instead of the esbuild default (esnext).
+   * from the current working directory) instead of the rolldown default (esnext).
    * @default false
    */
   browserslist?: boolean;
@@ -15,7 +15,8 @@ let browserslistLogged = false;
 const withBrowserslistTarget = (check: Check): Check => {
   return {
     ...check,
-    modifyEsbuildConfig: (config) => {
+    modifyRolldownConfig: (config: { transform?: object }) => {
+      // rolldown (oxc) accepts the esbuild targets syntax
       const target = browserslistToEsbuild();
       // Logged when measuring (not when the config is imported), on stderr to
       // keep the `--json` output parsable
@@ -25,9 +26,12 @@ const withBrowserslistTarget = (check: Check): Check => {
           `[@flowblade/dx] size-limit browserslist enabled, target: ${target.join(", ")}`
         );
       }
-      const modified = { ...config, target };
-      return check.modifyEsbuildConfig
-        ? check.modifyEsbuildConfig(modified)
+      const modified = {
+        ...config,
+        transform: { ...config.transform, target },
+      };
+      return check.modifyRolldownConfig
+        ? check.modifyRolldownConfig(modified)
         : modified;
     },
   };

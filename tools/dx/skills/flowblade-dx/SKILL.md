@@ -45,7 +45,7 @@ Full reference: `tools/dx/README.md`.
 | `dx-typecheck` | tsc, prints `✓ No type errors [Xms]` on success; `--bun` runs `bun check` |
 | `dx-typecheck-bun` | `bun check` (bun >= 1.4.3 from the PATH) |
 | `dx-build` | tsdown |
-| `dx-escheck`, `dx-size-limit` | es-check, size-limit with the dx plugins |
+| `dx-escheck`, `dx-size-limit` | es-check, size-limit with the dx plugins (`@size-limit/rolldown`) |
 | `dx-vitest` | vitest |
 | `dx-bench` | `vitest bench --run`, `--runtime=node` (default) or `--runtime=bun`, `--watch` |
 | `dx-bench-codspeed` | `vitest bench --run` on node with `CODSPEED=1` (CodSpeed plugin) |
@@ -92,28 +92,21 @@ Use `tsconfig.react.json` (jsx, `.storybook` files) or `tsconfig.nextjs.json` (R
 
 ```ts
 // vitest.config.ts
-import {
-  defineConfig,
-  mergeConfig,
-  vitestDefaultConfig,
-} from "@flowblade/dx/vitest";
+import { createVitestConfig } from "@flowblade/dx/vitest";
 
-export default mergeConfig(
-  vitestDefaultConfig,
-  defineConfig({
-    test: {
-      include: ["./src/**/*.test.ts"],
-      coverage: {
-        thresholds: { lines: 80, statements: 80, functions: 80, branches: 70 },
-      },
+export default createVitestConfig({
+  test: {
+    include: ["./src/**/*.test.ts"],
+    coverage: {
+      thresholds: { lines: 80, statements: 80, functions: 80, branches: 70 },
     },
-  })
-);
+  },
+});
 ```
 
-`vitestDefaultConfig` sets the source condition (also for the global setup files), the `node` environment, the usual excludes, v8 coverage of `src` (`text` reporter), the codspeed plugin when `CODSPEED=1` and the caches in `<root>/.cache/vitest/<package path>`.
+`createVitestConfig(config?, options?)` merges the package `config` (vitest `mergeConfig`) over the dx base: the source condition (also for the global setup files), the `node` environment, the usual excludes, v8 coverage of `src` (`text` reporter), the codspeed plugin when `CODSPEED=1` and the caches in `<root>/.cache/vitest/<package path>`. React: `createVitestConfig(config, { react: true, testingLibrary: true })`.
 
-`createVitestConfig(options)`:
+`options`:
 
 | Option | Default | Effect |
 | --- | --- | --- |
@@ -121,10 +114,11 @@ export default mergeConfig(
 | `testingLibrary` | `false` | setup file adding the `@testing-library/jest-dom` matchers |
 | `codspeed` | `CODSPEED === "1"` | `@codspeed/vitest-plugin` |
 | `cache` | `<root>/.cache/vitest/<package path>` | vite and vitest cache directory, `false` for their defaults |
+| `disableCache` | `DX_DISABLE_CACHE` | disables the vitest module and results caches |
 
 Mistakes to avoid:
 
-- `mergeConfig` concatenates arrays: don't repeat the base values. Add `coverage.reporter: ["clover"]` (gives `["text", "clover"]`), not `["text", "clover"]`. Don't repeat `coverage.provider`, `coverage.include` or the base excludes.
+- The merge concatenates arrays: don't repeat the base values. Add `coverage.reporter: ["clover"]` (gives `["text", "clover"]`), not `["text", "clover"]`. Don't repeat `coverage.provider`, `coverage.include` or the base excludes.
 - Don't set `cacheDir` or `fsModuleCachePath`: the shared default `node_modules/.vitest-cache` is cleared when the lockfile changes and parallel runs fail with `ENOTEMPTY`. Use the `cache` option.
 - Test files import from `"vitest"` (the `vi.mock` hoisting needs it), so a package keeps `vitest` in its dev dependencies, at the dx version. Same for `@testing-library/react`, `@testing-library/user-event` and `@testing-library/jest-dom` when its tests or tsconfig use them. `vite`, `@vitest/coverage-v8`, `@vitest/ui`, `happy-dom` and the plugins come from dx: don't add them to the package.
 - Benchmarks: use `dx-bench` / `dx-bench-codspeed` in the `bench` / `bench-codspeed` scripts, don't set `CODSPEED=1` (or add `cross-env`) in a package script nor the codspeed plugin in a vitest config.

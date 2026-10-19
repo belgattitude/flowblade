@@ -1165,9 +1165,6 @@ importers:
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5
-      esbuild:
-        specifier: ^0.28.2
-        version: 0.28.2
       eslint-plugin-sonarjs:
         specifier: ^4.2.2
         version: 4.2.2(eslint@10.12.0)
@@ -1229,9 +1226,6 @@ importers:
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5
-      esbuild:
-        specifier: ^0.28.2
-        version: 0.28.2
       execa:
         specifier: 10.1.0
         version: 10.1.0
@@ -1308,9 +1302,6 @@ importers:
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5
-      esbuild:
-        specifier: ^0.28.2
-        version: 0.28.2
       execa:
         specifier: 10.1.0
         version: 10.1.0
@@ -1366,9 +1357,6 @@ importers:
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5
-      esbuild:
-        specifier: ^0.28.2
-        version: 0.28.2
       execa:
         specifier: 10.1.0
         version: 10.1.0
@@ -1415,9 +1403,6 @@ importers:
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5
-      esbuild:
-        specifier: ^0.28.2
-        version: 0.28.2
       execa:
         specifier: 10.1.0
         version: 10.1.0
@@ -1524,9 +1509,6 @@ importers:
       es-toolkit:
         specifier: 1.52.0
         version: 1.52.0
-      esbuild:
-        specifier: ^0.28.2
-        version: 0.28.2
       eslint-plugin-sonarjs:
         specifier: ^4.2.2
         version: 4.2.2(eslint@10.12.0)
@@ -1590,10 +1572,10 @@ importers:
       '@codspeed/vitest-plugin':
         specifier: 6.0.1
         version: 6.0.1(debug@4.4.3)(supports-color@7.2.0)(tinybench@6.2.2)(vite@8.3.4)(vitest@5.0.4)
-      '@size-limit/esbuild':
+      '@size-limit/file':
         specifier: 14.2.0
         version: 14.2.0(size-limit@14.2.0)
-      '@size-limit/file':
+      '@size-limit/rolldown':
         specifier: 14.2.0
         version: 14.2.0(size-limit@14.2.0)
       '@tanstack/eslint-plugin-query':
@@ -5846,8 +5828,8 @@ packages:
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
 
-  '@size-limit/esbuild@14.2.0':
-    resolution: {integrity: sha512-SS43kffTeuiQLsfvXP0Y4yuNQN9RkvDzwtFrPRbB5YXiIvbageAYkGXuZk+ivzqs5on+ub/OkgvbPoooh18SJw==}
+  '@size-limit/file@14.2.0':
+    resolution: {integrity: sha512-ROqMjC8Pi/ogIIm79Y4u8YieXJb++MaZWbdv/am16l4cS9CxSUXmqP3igIXyv3gK3LMG6DkZdWSM5KVND2ug7g==}
     engines: {node: ^22.19.0 || ^24.5.0 || >=26.0.0}
     peerDependencies:
       '@types/size-limit': '*'
@@ -5856,8 +5838,8 @@ packages:
       '@types/size-limit':
         optional: true
 
-  '@size-limit/file@14.2.0':
-    resolution: {integrity: sha512-ROqMjC8Pi/ogIIm79Y4u8YieXJb++MaZWbdv/am16l4cS9CxSUXmqP3igIXyv3gK3LMG6DkZdWSM5KVND2ug7g==}
+  '@size-limit/rolldown@14.2.0':
+    resolution: {integrity: sha512-FA4DMpy/q8BE/gtGvV0hV2MVR03hPF/PwKxJoB1LUjyj6FnksVGpxuxyh0ZU1eSdrtj6tgFR67NDIcZ9fCGV/A==}
     engines: {node: ^22.19.0 || ^24.5.0 || >=26.0.0}
     peerDependencies:
       '@types/size-limit': '*'
@@ -17824,13 +17806,13 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
-  '@size-limit/esbuild@14.2.0(size-limit@14.2.0)':
-    dependencies:
-      esbuild: 0.28.2
-      size-limit: 14.2.0
-
   '@size-limit/file@14.2.0(size-limit@14.2.0)':
     dependencies:
+      size-limit: 14.2.0
+
+  '@size-limit/rolldown@14.2.0(size-limit@14.2.0)':
+    dependencies:
+      rolldown: 1.2.13
       size-limit: 14.2.0
 
   '@solid-primitives/event-listener@2.4.6(solid-js@1.9.17)':
