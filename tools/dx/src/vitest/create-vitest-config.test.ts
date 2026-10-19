@@ -35,6 +35,20 @@ describe("createVitestConfig", () => {
     });
   });
 
+  it("disables the isolation outside the benchmarks and codspeed", () => {
+    expect(createVitestConfig({}, { cache: false }).test?.isolate).toBe(false);
+    expect(
+      createVitestConfig({}, { cache: false, codspeed: true }).test?.isolate
+    ).toBe(true);
+    expect(
+      createVitestConfig({}, { cache: false, isolate: true }).test?.isolate
+    ).toBe(true);
+    expect(
+      createVitestConfig({ test: { isolate: true } }, { cache: false }).test
+        ?.isolate
+    ).toBe(true);
+  });
+
   it("applies the options to the dx base", () => {
     const config = createVitestConfig({}, { react: true, cache: false });
     expect(config.test?.environment).toBe("happy-dom");

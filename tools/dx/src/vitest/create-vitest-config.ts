@@ -13,6 +13,12 @@ import { dxConfig } from "../dx-config.ts";
 
 const sourceConditions = [...dxConfig.customConditions, "import", "default"];
 
+/**
+ * `vitest bench` (dx-bench, dx-bench-codspeed): the config is loaded by the
+ * vitest cli process, vitest doesn't expose its mode otherwise.
+ */
+const isBenchmarkRun = (): boolean => process.argv.slice(2).includes("bench");
+
 const testingLibrarySetupFile = fileURLToPath(
   new URL("setup/testing-library.ts", import.meta.url)
 );
@@ -36,6 +42,14 @@ export type CreateVitestConfigOptions = {
    */
   codspeed?: boolean;
   /**
+   * Run each test file in an isolated environment (vitest `isolate`). Disabled
+   * for the tests (faster, the modules are evaluated once per worker), kept for
+   * the benchmarks and CodSpeed so their measurements don't depend on the
+   * other files.
+   * @default true for `vitest bench` or with `codspeed`, false otherwise
+   */
+  isolate?: boolean;
+  /**
    * Directory of the vite (`cacheDir`) and vitest (`fsModuleCachePath`) caches,
    * `false` to keep the vite and vitest defaults.
    * @default `<monorepo root>/.cache/vitest/<package path>` (from the current working directory)
@@ -51,7 +65,7 @@ export type CreateVitestConfigOptions = {
 /**
  * vitest base: workspace packages resolved from their sources
  * (`dxConfig.customConditions`), node (or happy-dom for react)
- * environment and v8 coverage of `src`.
+ * environment, no isolation outside the benchmarks and v8 coverage of `src`.
  */
 const createVitestBaseConfig = (
   options: CreateVitestConfigOptions
@@ -62,6 +76,7 @@ const createVitestBaseConfig = (
     codspeed = process.env.CODSPEED === "1",
     disableCache = isCacheDisabled(),
   } = options;
+  const { isolate = codspeed || isBenchmarkRun() } = options;
   const { cache = disableCache ? false : getMonorepoCacheDir("vitest") } =
     options;
   const cacheDir = cache === false ? undefined : cache;
@@ -91,6 +106,7 @@ const createVitestBaseConfig = (
     },
     test: {
       environment: withReact ? "happy-dom" : "node",
+      isolate,
       ...(testingLibrary ? { setupFiles: [testingLibrarySetupFile] } : {}),
       // Not the shared `node_modules/.vitest-cache` of the workspace root: it is
       // cleared when the lockfile changes, which fails when the packages run

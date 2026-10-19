@@ -104,7 +104,7 @@ export default createVitestConfig({
 });
 ```
 
-`createVitestConfig(config?, options?)` merges the package `config` (vitest `mergeConfig`) over the dx base: the source condition (also for the global setup files), the `node` environment, the usual excludes, v8 coverage of `src` (`text` reporter), the codspeed plugin when `CODSPEED=1` and the caches in `<root>/.cache/vitest/<package path>`. React: `createVitestConfig(config, { react: true, testingLibrary: true })`.
+`createVitestConfig(config?, options?)` merges the package `config` (vitest `mergeConfig`) over the dx base: the source condition (also for the global setup files), the `node` environment, `isolate: false` (except for `vitest bench` and CodSpeed), the usual excludes, v8 coverage of `src` (`text` reporter), the codspeed plugin when `CODSPEED=1` and the caches in `<root>/.cache/vitest/<package path>`. React: `createVitestConfig(config, { react: true, testingLibrary: true })`.
 
 `options`:
 
@@ -113,6 +113,7 @@ export default createVitestConfig({
 | `react` | `false` | `@vitejs/plugin-react` + `happy-dom` environment |
 | `testingLibrary` | `false` | setup file adding the `@testing-library/jest-dom` matchers |
 | `codspeed` | `CODSPEED === "1"` | `@codspeed/vitest-plugin` |
+| `isolate` | `true` for `vitest bench` or `codspeed`, else `false` | vitest `isolate`, set `true` for tests relying on a fresh module state |
 | `cache` | `<root>/.cache/vitest/<package path>` | vite and vitest cache directory, `false` for their defaults |
 | `disableCache` | `DX_DISABLE_CACHE` | disables the vitest module and results caches |
 

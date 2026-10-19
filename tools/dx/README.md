@@ -382,6 +382,7 @@ size-limit loads its plugins from the dependencies of the checked package. `dx-s
 
 - workspace packages resolved from their sources (`dxConfig.customConditions`), also in the global setup files
 - `node` environment and the usual excludes (`node_modules`, `dist`, `coverage`...)
+- no isolation between the test files (`isolate: false`, the modules are evaluated once per worker), except for the benchmarks (`vitest bench`, `dx-bench`) and CodSpeed
 - v8 coverage of `src` with the `text` reporter
 - the `@codspeed/vitest-plugin` when `CODSPEED=1`
 - the vite and vitest caches in `<root>/.cache/vitest/<package path>` (see [Caches](#caches))
@@ -413,6 +414,7 @@ The second argument changes the dx base:
 | `react` | `false` | adds the `@vitejs/plugin-react` plugin and uses the `happy-dom` environment |
 | `testingLibrary` | `false` | adds a setup file extending `expect` with the `@testing-library/jest-dom` matchers (`toBeInTheDocument`...) |
 | `codspeed` | `process.env.CODSPEED === "1"` | adds the `@codspeed/vitest-plugin` (set by `dx-bench-codspeed`) |
+| `isolate` | `true` for `vitest bench` or with `codspeed`, `false` otherwise | vitest `isolate`: set it to `true` (or `test.isolate`) for tests relying on a fresh module state (module level mocks or state shared between files) |
 | `cache` | `<root>/.cache/vitest/<package path>` | directory of the vite (`vite`) and vitest (`modules`) caches, `false` for the vite and vitest defaults |
 | `disableCache` | `DX_DISABLE_CACHE` is `1` or `true` | disables the vitest module (`fsModuleCache`) and results (`cache`) caches |
 
