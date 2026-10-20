@@ -1,8 +1,16 @@
 import fs from "node:fs";
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 
-import { FileSystemUtils } from "./file-system-utils.ts";
+import type { FileSystemUtils as FileSystemUtilsType } from "./file-system-utils.ts";
 
 vi.mock("node:fs", () => {
   return {
@@ -19,9 +27,25 @@ vi.mock("node:fs", () => {
 });
 
 describe("FileSystemUtils", () => {
+  // Tests share the worker modules (isolate: false): another file might have
+  // already loaded file-system-utils.ts with the real node:fs, load it again
+  // once the mock is registered and don't leak the mocked version to the
+  // next files.
+  let FileSystemUtils: typeof FileSystemUtilsType;
+
+  beforeAll(async () => {
+    vi.resetModules();
+    ({ FileSystemUtils } = await import("./file-system-utils.ts"));
+  });
+
   beforeEach(() => {
     // Reset implementations too (ie: mockReturnValue), not only call history
     vi.resetAllMocks();
+  });
+
+  afterAll(() => {
+    vi.doUnmock("node:fs");
+    vi.resetModules();
   });
 
   describe("createDirectory", () => {
