@@ -119,6 +119,7 @@ const result = await ds.query(rawSql, {
   signal: AbortSignal.timeout(5_000),
 });
 // An aborted query returns an error result, an aborted stream throws
+// In both cases the error cause is the abort reason (ie: AbortError, TimeoutError)
 ```
 
 > **Note**: the interrupt applies to the connection, so it stops whatever runs on the datasource connection at that time.

@@ -152,7 +152,9 @@ export class DuckdbDatasource implements DatasourceInterface {
       });
 
       return createQResultError(
-        { message, cause: error },
+        // The interrupt can make DuckDB fail before the abort check,
+        // always report an aborted query with the abort reason as cause
+        { message, cause: signal?.aborted ? signal.reason : error },
         new QMeta({
           name,
           spans: span,
@@ -214,7 +216,7 @@ export class DuckdbDatasource implements DatasourceInterface {
    * Note: the `chunkSize` option is ignored, DuckDB uses its own chunk size.
    *
    * @yields Each row of the query result as it is streamed.
-   * @throws Error with the DuckDB error as cause when the query fails or is aborted.
+   * @throws Error with the DuckDB error as cause when the query fails, or the abort reason when aborted.
    */
   async *stream<TData extends unknown[]>(
     rawQuery: SqlTag<TData> | SqlTagInformation,
@@ -266,7 +268,11 @@ export class DuckdbDatasource implements DatasourceInterface {
         }
       );
 
-      throw new Error(message, { cause: error });
+      // The interrupt can hit the next chunk fetch before the between-chunks check,
+      // always report an aborted stream with the abort reason as cause
+      throw new Error(message, {
+        cause: signal?.aborted ? signal.reason : error,
+      });
     } finally {
       signal?.removeEventListener("abort", onAbort);
       // Runs on completion, on early exit (break / return) and on failure,

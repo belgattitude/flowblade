@@ -125,6 +125,7 @@ describe(DuckdbDatasource, () => {
         { signal: AbortSignal.timeout(100) }
       );
       expect(result.error?.message).toMatch(/Interrupted/);
+      expect(result.error?.cause).toMatchObject({ name: "TimeoutError" });
       expect(Date.now() - start).toBeLessThan(5000);
 
       // The connection is still usable
@@ -293,7 +294,12 @@ describe(DuckdbDatasource, () => {
             signal: AbortSignal.timeout(100),
           })
         )
-      ).rejects.toThrow(/Interrupted/);
+      ).rejects.toThrow(
+        expect.objectContaining({
+          message: expect.stringMatching(/Interrupted/),
+          cause: expect.objectContaining({ name: "TimeoutError" }),
+        })
+      );
       expect(Date.now() - start).toBeLessThan(5000);
     });
   });
