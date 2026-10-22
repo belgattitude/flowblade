@@ -64,6 +64,7 @@ The tools are shipped as regular dependencies of this package, so their versions
 | `vitest`, `vite`, `@vitest/coverage-v8`, `@vitest/ui`, `@codspeed/vitest-plugin` | tested packages (`@flowblade/dx/vitest`) |
 | `@vitejs/plugin-react`, `happy-dom` | React packages only (`createVitestConfig(config, { react: true })`) |
 | `@testing-library/jest-dom`, `@testing-library/dom` | packages using Testing Library (`createVitestConfig(config, { testingLibrary: true })`) |
+| `std-env` | `dx-unless-ci` |
 
 ## Bins
 
@@ -83,6 +84,7 @@ The bins run the tool versions pinned by @flowblade/dx, forwarding the arguments
 | `dx-bench-codspeed` | runs the vitest benchmarks with the CodSpeed instrumentation |
 | `dx-doctor` | prints the monorepo root, the global cache directory (`DX_BASE_CACHE_DIR`), the typescript and vitest caches (with their number of files and size) and the turbo cache when turbo is installed, `--json` for a JSON output, `--show-cache=<base\|typescript\|vitest\|turbo>` to only print the directory of a cache (root `dx:doctor` script) |
 | `dx-cache` | shows the number and size of the cached files (`stats`) or removes the caches (`clean`), see [dx-cache](#dx-cache) |
+| `dx-unless-ci` | runs the given command (`dx-unless-ci <command> [args...]`) unless a CI environment is detected by [std-env](https://github.com/unjs/std-env) (`isCI`), exits with 0 in CI (root `prepare` script) |
 
 ```json
 {
