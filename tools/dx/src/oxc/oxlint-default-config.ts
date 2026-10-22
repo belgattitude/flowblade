@@ -5,6 +5,7 @@ import { jsPluginSettings, selectJsPlugins } from "ultracite/oxlint/js-plugins";
 import vitest from "ultracite/oxlint/vitest";
 
 import { defaultIgnorePatterns } from "./default-ignore-patterns.ts";
+import { resolveJsPlugin } from "./resolve-js-plugin.ts";
 
 /**
  * Rules from oxlint's `pedantic` and `nursery` categories. The ultracite preset
@@ -81,7 +82,10 @@ export const oxlintDefaultConfig = defineConfig({
     // antiSlop,
     selectJsPlugins([]),
   ],
-  jsPlugins: ["eslint-plugin-security", "oxlint-plugin-import-zod"],
+  jsPlugins: [
+    resolveJsPlugin("security", "eslint-plugin-security"),
+    resolveJsPlugin("import-zod", "oxlint-plugin-import-zod"),
+  ],
   options: {
     typeAware: true,
     typeCheck: false,
