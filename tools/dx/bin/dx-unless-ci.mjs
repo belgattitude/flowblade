@@ -14,7 +14,9 @@ import { runCommand } from "./lib/run-package-bin.mjs";
 const [command, ...args] = process.argv.slice(2);
 
 if (command === undefined) {
-  console.error("dx-unless-ci: missing command, usage: dx-unless-ci <command> [args...]");
+  console.error(
+    "dx-unless-ci: missing command, usage: dx-unless-ci <command> [args...]"
+  );
   process.exit(1);
 }
 

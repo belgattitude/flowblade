@@ -50,7 +50,6 @@
     "lint-fix": "dx-oxlint --disable-nested-config --fix && dx-oxfmt --disable-nested-config --write",
     "nuke:node_modules": "PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false rimraf --glob '**/node_modules'",
     "pnpm:reinstall": "pnpm pm clean --lockfile --config.verifyDepsBeforeRun=false && pnpm install",
-    "prepare": "dx-unless-ci skills experimental_install",
     "skills:sync": "skills experimental_sync -y --exclude 'react-doctor#improve-threejs'"
   },
   "devDependencies": {
