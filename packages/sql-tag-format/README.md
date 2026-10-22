@@ -2,7 +2,7 @@
 
 Sql formatter utilities for [@flowblade/sql-tag](https://github.com/belgattitude/flowblade/tree/main/packages/sql-tag#readme)
 
-[![npm](https://img.shields.io/npm/v/@flowblade/sql-tag-format?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/sql-tag-format) [![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag-format/CHANGELOG.md) [![codecov](https://img.shields.io/codecov/c/github/belgattitude/flowblade?logo=codecov&label=Unit&flag=flowblade-sql-tag-format-unit&style=for-the-badge&labelColor=444)](https://app.codecov.io/gh/belgattitude/flowblade/tree/main/packages%2Fsql-tag-format) [![bundles](https://img.shields.io/static/v1?label=&message=cjs|esm@treeshake&logo=webpack&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag-format/.size-limit.cjs) [![node](https://img.shields.io/static/v1?label=Node&message=22.18%2b&logo=node.js&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![browserslist](https://img.shields.io/static/v1?label=Browser&message=%3E96%25&logo=googlechrome&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![size](https://img.shields.io/bundlephobia/minzip/@flowblade/sql-tag-format@latest?label=Max&style=for-the-badge&labelColor=444&color=informational)](https://bundlephobia.com/package/@flowblade/sql-tag-format@latest) [![downloads](https://img.shields.io/npm/dm/@flowblade/sql-tag-format?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/sql-tag-format) [![license](https://img.shields.io/npm/l/@flowblade/sql-tag-format?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
+[![npm](https://img.shields.io/npm/v/@flowblade/sql-tag-format?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/sql-tag-format) [![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag-format/CHANGELOG.md) [![codecov](https://img.shields.io/codecov/c/github/belgattitude/flowblade?logo=codecov&label=Unit&flag=flowblade-sql-tag-format-unit&style=for-the-badge&labelColor=444)](https://app.codecov.io/gh/belgattitude/flowblade/tree/main/packages%2Fsql-tag-format) [![bundles](https://img.shields.io/static/v1?label=&message=esm@treeshake&logo=rolldown&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag-format/.size-limit.ts) [![node](https://img.shields.io/static/v1?label=Node&message=22.18%2b&logo=node.js&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![browserslist](https://img.shields.io/static/v1?label=Browser&message=%3E96%25&logo=googlechrome&style=for-the-badge&labelColor=444&color=informational)](#compatibility) [![size](https://img.shields.io/bundlephobia/minzip/@flowblade/sql-tag-format@latest?label=Max&style=for-the-badge&labelColor=444&color=informational)](https://bundlephobia.com/package/@flowblade/sql-tag-format@latest) [![downloads](https://img.shields.io/npm/dm/@flowblade/sql-tag-format?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/sql-tag-format) [![license](https://img.shields.io/npm/l/@flowblade/sql-tag-format?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
 
 ## Features
 
@@ -74,11 +74,12 @@ try {
 
 ## Bundle size
 
-Bundle size is tracked by a [size-limit configuration](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag/.size-limit.ts)
+Bundle size is tracked by a [size-limit configuration](https://github.com/belgattitude/flowblade/blob/main/packages/sql-tag-format/.size-limit.ts) (minified and brotli compressed, bundled with rolldown).
 
 | Scenario (esm) | Size (compressed) |
 | --- | --: |
-| `import { SqlFormatter } from '@flowblade/sql-tag-format` | ~ 47Kb |
+| `import * from '@flowblade/sql-tag-format'` | ~ 60.91 kB |
+| `import { SqlFormatter } from '@flowblade/sql-tag-format'` | ~ 60.94 kB |
 
 ## Compatibility
 

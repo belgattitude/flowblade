@@ -74,12 +74,13 @@ export const resolveTsgolintExecutable = () => {
  *
  * @param {string} command
  * @param {string[]} args
- * @param {{ env?: Record<string, string>, cwd?: string, onExit?: (code: number) => void }} [options]
+ * @param {{ env?: Record<string, string>, cwd?: string, shell?: boolean, onExit?: (code: number) => void }} [options]
  */
 export const runCommand = (command, args, options = {}) => {
   const child = spawn(command, args, {
     stdio: "inherit",
     cwd: options.cwd,
+    shell: options.shell,
     env: { ...process.env, ...options.env },
   });
 

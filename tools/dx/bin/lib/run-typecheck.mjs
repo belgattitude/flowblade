@@ -3,7 +3,58 @@ import os from "node:os";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 
+import {
+  getMonorepoCacheDir,
+  isCacheDisabled,
+} from "../../src/cache/monorepo-cache-dir.ts";
 import { runCommand, runPackageBin } from "./run-package-bin.mjs";
+
+/**
+ * @param {string[]} tscArgs
+ * @returns {string} the `--project` / `-p` tsconfig, `tsconfig.json` by default
+ */
+const getProject = (tscArgs) => {
+  const index = tscArgs.findIndex((arg) => arg === "--project" || arg === "-p");
+  const inline = tscArgs.find((arg) => arg.startsWith("--project="));
+  const project =
+    (index === -1 ? undefined : tscArgs[index + 1]) ??
+    inline?.slice("--project=".length) ??
+    "tsconfig.json";
+  return project.endsWith(".json")
+    ? project
+    : path.join(project, "tsconfig.json");
+};
+
+/**
+ * Stores the incremental build info of the tsconfig in
+ * `<root>/.cache/typescript/<package path>/<tsconfig name>.tsbuildinfo`
+ * (overriding the tsconfig `tsBuildInfoFile`), unless `--tsBuildInfoFile` is
+ * given or outside the monorepo. With `DX_DISABLE_CACHE`, runs tsc with
+ * `--incremental false` instead (unless `--incremental` is given).
+ *
+ * @param {string[]} tscArgs
+ * @returns {string[]}
+ */
+const withMonorepoBuildInfo = (tscArgs) => {
+  if (isCacheDisabled()) {
+    return tscArgs.some((arg) => arg.startsWith("--incremental"))
+      ? tscArgs
+      : [...tscArgs, "--incremental", "false"];
+  }
+  const cacheDir = getMonorepoCacheDir("typescript");
+  if (
+    cacheDir === undefined ||
+    tscArgs.some((arg) => arg.startsWith("--tsBuildInfoFile"))
+  ) {
+    return tscArgs;
+  }
+  const name = path.basename(getProject(tscArgs), ".json");
+  return [
+    ...tscArgs,
+    "--tsBuildInfoFile",
+    path.join(cacheDir, `${name}.tsbuildinfo`),
+  ];
+};
 
 /**
  * `bun check` runs the `check` script of the package.json in the working
@@ -61,7 +112,7 @@ const noSummaryArgs = new Set([
  * `bun check` (bun >= 1.4.3, the bun of the PATH), forwarding the tsc
  * arguments, signals and the exit code. tsc prints nothing when there's no
  * error: a `✓ No type errors [duration]` summary is added (`bun check` has its
- * own).
+ * own). The tsc build info is stored in the monorepo cache.
  *
  * @param {{ bun: boolean, args: string[] }} options
  */
@@ -75,7 +126,7 @@ export const runTypecheck = ({ bun, args }) => {
     const summary = !args.some((arg) => noSummaryArgs.has(arg));
     runPackageBin("typescript", {
       bin: "tsc",
-      argv: args,
+      argv: summary ? withMonorepoBuildInfo(args) : args,
       onExit: (code) => {
         if (summary && code === 0) {
           console.log(

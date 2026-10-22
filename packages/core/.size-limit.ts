@@ -6,13 +6,13 @@ const config = createSizeLimitConfig(
       name: "Import * (ESM)",
       path: ["dist/index.js"],
       import: "*",
-      limit: "4kb",
+      limit: "3.69 kB",
     },
     {
       name: "Import { QResult } (ESM)",
       path: ["dist/index.js"],
       import: "{ QResult }",
-      limit: "4kb",
+      limit: "3.5 kB",
     },
   ],
   { browserslist: true }

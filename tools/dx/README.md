@@ -60,10 +60,11 @@ The tools are shipped as regular dependencies of this package, so their versions
 | `typescript` | every package (`dx-typecheck`) |
 | `tsdown`, `@arethetypeswrong/core`, `publint`, `browserslist`, `browserslist-to-esbuild` | publishable packages (`tsdownDefaultConfig`, `tsdownBrowserConfig`) |
 | `es-check` | publishable packages (`escheckDefaultConfig`, `escheckBrowserConfig`) |
-| `size-limit`, `@size-limit/file`, `@size-limit/esbuild` | publishable packages (`createSizeLimitConfig`) |
+| `size-limit`, `@size-limit/file`, `@size-limit/rolldown` | publishable packages (`createSizeLimitConfig`) |
 | `vitest`, `vite`, `@vitest/coverage-v8`, `@vitest/ui`, `@codspeed/vitest-plugin` | tested packages (`@flowblade/dx/vitest`) |
-| `@vitejs/plugin-react`, `happy-dom` | React packages only (`createVitestConfig({ react: true })`) |
-| `@testing-library/jest-dom`, `@testing-library/dom` | packages using Testing Library (`createVitestConfig({ testingLibrary: true })`) |
+| `@vitejs/plugin-react`, `happy-dom` | React packages only (`createVitestConfig(config, { react: true })`) |
+| `@testing-library/jest-dom`, `@testing-library/dom` | packages using Testing Library (`createVitestConfig(config, { testingLibrary: true })`) |
+| `std-env` | `dx-unless-ci` |
 
 ## Bins
 
@@ -77,11 +78,13 @@ The bins run the tool versions pinned by @flowblade/dx, forwarding the arguments
 | `dx-typecheck-bun` | runs `bun check`, same as `dx-typecheck --bun` |
 | `dx-build` | runs tsdown |
 | `dx-escheck` | runs es-check with the package `escheck.config.ts` |
-| `dx-size-limit` | runs size-limit with the `@size-limit/file` and `@size-limit/esbuild` plugins of @flowblade/dx |
+| `dx-size-limit` | runs size-limit with the `@size-limit/file` and `@size-limit/rolldown` plugins of @flowblade/dx |
 | `dx-vitest` | runs vitest |
 | `dx-bench` | runs the vitest benchmarks, on node or bun (`--runtime`), see [Benchmarks](#benchmarks) |
 | `dx-bench-codspeed` | runs the vitest benchmarks with the CodSpeed instrumentation |
+| `dx-doctor` | prints the monorepo root, the global cache directory (`DX_BASE_CACHE_DIR`), the typescript and vitest caches (with their number of files and size) and the turbo cache when turbo is installed, `--json` for a JSON output, `--show-cache=<base\|typescript\|vitest\|turbo>` to only print the directory of a cache (root `dx:doctor` script) |
 | `dx-cache` | shows the number and size of the cached files (`stats`) or removes the caches (`clean`), see [dx-cache](#dx-cache) |
+| `dx-unless-ci` | runs the given command (`dx-unless-ci <command> [args...]`) unless a CI environment is detected by [std-env](https://github.com/unjs/std-env) (`isCI`), exits with 0 in CI (root `prepare` script) |
 
 ```json
 {
@@ -234,7 +237,7 @@ export default defineConfig({
 
 - `include` and `exclude` use `${configDir}`, so they resolve relative to the extending `tsconfig.json`: no need to repeat them. Overriding one of them replaces the base value (not merged).
 - `customConditions` resolves the workspace packages to their sources (see [Monorepo settings](#monorepo-settings)).
-- the incremental build info is written in `node_modules/.cache/typescript` (see [TypeScript build info](#typescript-build-info)).
+- the incremental build info is written in `<root>/.cache/typescript` by `dx-typecheck`, in `node_modules/.cache/typescript` otherwise (see [TypeScript build info](#typescript-build-info)).
 
 ### React tsconfig
 
@@ -278,7 +281,7 @@ export default defineConfig({
 
 ### Type checking
 
-`dx-typecheck` runs the tsc pinned by @flowblade/dx with the given arguments. tsc prints nothing when there's no error, so `dx-typecheck` adds a summary with the duration (not with `--help`, `--version`, `--showConfig`, `--listFilesOnly`, `--init` or `--watch`):
+`dx-typecheck` runs the tsc pinned by @flowblade/dx with the given arguments. It stores the incremental build info in `<root>/.cache/typescript/<package path>/<tsconfig name>.tsbuildinfo` (see [TypeScript build info](#typescript-build-info)). tsc prints nothing when there's no error, so `dx-typecheck` adds a summary with the duration (not with `--help`, `--version`, `--showConfig`, `--listFilesOnly`, `--init` or `--watch`):
 
 ```text
 $ dx-typecheck --project tsconfig.json --noEmit
@@ -346,7 +349,7 @@ es-check only reads json configs: `dx-escheck` loads the `escheck.config.{ts,mts
 
 ## size-limit
 
-The limits are specific to each package, so there's no default config: `createSizeLimitConfig(checks, { browserslist })` returns the checks as is, or with `browserslist: true`, bundles them for the browsers of the package `.browserslistrc` (esbuild `target`) instead of the esbuild default (esnext). The resolved target is logged on stderr (to keep `--json` parsable):
+The limits are specific to each package, so there's no default config: `createSizeLimitConfig(checks, { browserslist })` returns the checks as is, or with `browserslist: true`, bundles them for the browsers of the package `.browserslistrc` (rolldown `transform.target`) instead of the rolldown default (esnext). The resolved target is logged on stderr (to keep `--json` parsable):
 
 ```text
 [@flowblade/dx] size-limit browserslist enabled, target: chrome109, edge119, ...
@@ -375,67 +378,61 @@ size-limit loads its plugins from the dependencies of the checked package. `dx-s
 
 <a id="default-vitest-config"></a>
 
-### Default config
+### createVitestConfig
 
-`vitestDefaultConfig` (`@flowblade/dx/vitest`) is the base of the unit and e2e configs:
+`createVitestConfig(config?, options?)` (`@flowblade/dx/vitest`) creates the unit and e2e configs: the package `config` is merged (vitest `mergeConfig`) over the dx base:
 
 - workspace packages resolved from their sources (`dxConfig.customConditions`), also in the global setup files
 - `node` environment and the usual excludes (`node_modules`, `dist`, `coverage`...)
+- no isolation between the test files (`isolate: false`, the modules are evaluated once per worker), except for the benchmarks (`vitest bench`, `dx-bench`) and CodSpeed
 - v8 coverage of `src` with the `text` reporter
 - the `@codspeed/vitest-plugin` when `CODSPEED=1`
 - the vite and vitest caches in `<root>/.cache/vitest/<package path>` (see [Caches](#caches))
 
-The test files, coverage thresholds... are specific to each package: merge them with `mergeConfig` (arrays like `exclude` or `coverage.reporter` are concatenated, so only add what differs).
+The test files, coverage thresholds... are specific to each package. Arrays like `exclude` or `coverage.reporter` are concatenated, so only add what differs.
 
 ```ts
 // vitest.config.ts
-import {
-  defineConfig,
-  mergeConfig,
-  vitestDefaultConfig,
-} from "@flowblade/dx/vitest";
+import { createVitestConfig } from "@flowblade/dx/vitest";
 
-export default mergeConfig(
-  vitestDefaultConfig,
-  defineConfig({
-    test: {
-      include: ["./src/**/*.test.ts"],
-      coverage: {
-        thresholds: { lines: 80, statements: 80, functions: 80, branches: 70 },
-      },
+export default createVitestConfig({
+  test: {
+    include: ["./src/**/*.test.ts"],
+    coverage: {
+      thresholds: { lines: 80, statements: 80, functions: 80, branches: 70 },
     },
-  })
-);
+  },
+});
 ```
+
+A config shared by several configs (unit and e2e) can be created once and merged again with `mergeConfig` (re-exported, like `defineConfig`).
 
 ### Options
 
-`createVitestConfig(options)` creates the default config with:
+The second argument changes the dx base:
 
 | Option | Default | Description |
 | --- | --- | --- |
 | `react` | `false` | adds the `@vitejs/plugin-react` plugin and uses the `happy-dom` environment |
 | `testingLibrary` | `false` | adds a setup file extending `expect` with the `@testing-library/jest-dom` matchers (`toBeInTheDocument`...) |
 | `codspeed` | `process.env.CODSPEED === "1"` | adds the `@codspeed/vitest-plugin` (set by `dx-bench-codspeed`) |
+| `isolate` | `true` for `vitest bench` or with `codspeed`, `false` otherwise | vitest `isolate`: set it to `true` (or `test.isolate`) for tests relying on a fresh module state (module level mocks or state shared between files) |
 | `cache` | `<root>/.cache/vitest/<package path>` | directory of the vite (`vite`) and vitest (`modules`) caches, `false` for the vite and vitest defaults |
+| `disableCache` | `DX_DISABLE_CACHE` is `1` or `true` | disables the vitest module (`fsModuleCache`) and results (`cache`) caches |
 
 ### React and Testing Library
 
 ```ts
 // vitest.config.ts of a React package
-import {
-  createVitestConfig,
-  defineConfig,
-  mergeConfig,
-} from "@flowblade/dx/vitest";
+import { createVitestConfig } from "@flowblade/dx/vitest";
 
-export default mergeConfig(
-  createVitestConfig({ react: true, testingLibrary: true }),
-  defineConfig({
+export default createVitestConfig(
+  {
     test: {
       include: ["./src/**/*.test.{ts,tsx}"],
     },
-  })
+  },
+  { react: true, testingLibrary: true }
 );
 ```
 
@@ -485,14 +482,55 @@ The caches are written out of the package sources:
 | Tool | Cache |
 | --- | --- |
 | vitest | `<root>/.cache/vitest/<package path>/vite` (vite `cacheDir`) and `<root>/.cache/vitest/<package path>/modules` (vitest `fsModuleCachePath`), set by `createVitestConfig` (`cache` option) |
-| typescript | `<package>/node_modules/.cache/typescript/tsconfig.tsbuildinfo`, set by the `tsBuildInfoFile` of `tsconfig.base.json` |
+| typescript | `<root>/.cache/typescript/<package path>/<tsconfig name>.tsbuildinfo`, set by `dx-typecheck` (`--tsBuildInfoFile`). Fallback for the other tools (plain `tsc`, tsdown declarations): `<package>/node_modules/.cache/typescript/tsconfig.tsbuildinfo`, the `tsBuildInfoFile` of `tsconfig.base.json` |
 | oxlint | none, oxlint and tsgolint don't cache |
 
-`getMonorepoCacheDir(tool)` returns `<root>/.cache/<tool>/<package path>`, the root being the closest parent directory of the current working directory containing a `pnpm-workspace.yaml`. Outside the monorepo, vitest keeps its defaults.
+`getMonorepoCacheDir(tool)` returns `<root>/.cache/<tool>/<package path>`, the root being the closest parent directory of the current working directory containing a `pnpm-workspace.yaml`. It creates the directory when missing: `.cache` is gitignored, so a fresh checkout (CI) doesn't have it. Outside the monorepo, vitest keeps its defaults.
+
+Set `DX_BASE_CACHE_DIR` to an existing directory to move the global cache out of the monorepo root: the caches are then written in its `.cache` subdirectory (`DX_BASE_CACHE_DIR=/tmp` gives `/tmp/.cache/<tool>/<package path>`), so the existing content of the directory is never touched. When the directory doesn't exist, the root `.cache` is used, with a warning. `DX_BASE_CACHE_DIR` is in the turbo `globalPassThroughEnv`. `dx-doctor` (root `pnpm dx:doctor`) prints the resolved directory.
+
+```text
+$ dx-doctor
+Monorepo
+  root               /home/me/flowblade
+
+Runtime
+  package manager    pnpm 12.13.0 (devEngines)
+  js runtime         node 24.21.0
+  platform           linux x64
+  libc               glibc 2.36
+
+Caches
+  base               /home/me/flowblade/.cache                28 files  1.03 MB
+  typescript         /home/me/flowblade/.cache/typescript      2 files   846 kB
+  vitest             /home/me/flowblade/.cache/vitest         26 files   185 kB
+  turbo              /home/me/flowblade/.turbo             1,835 files  2.23 MB
+
+Turbo
+  version            2.11.8
+  config             turbo.jsonc
+
+Env
+  DX_BASE_CACHE_DIR  (not set)
+  DX_DISABLE_CACHE   (not set)
+  TURBO_CACHE_DIR    (not set)
+```
+
+Set `DX_DISABLE_CACHE=1` (or `true`) to disable the caches: `createVitestConfig` turns off the vitest module (`fsModuleCache`) and results (`cache`) caches, and `dx-typecheck` runs tsc with `--incremental false` (unless `--incremental` is given). It's in the turbo `globalPassThroughEnv`: it doesn't change the turbo cache keys, use `turbo run --force` (or `TURBO_FORCE=true`) to bypass the turbo cache too.
+
+The runtime section shows the package manager (the `devEngines.packageManager` of the root package.json, then its `packageManager`, then the one running the script, then the lockfile; `running <version>` when the running one differs), the JavaScript runtime (node, bun or deno, `dx-doctor` runs with all of them), the platform and the C library on Linux (glibc or musl, from `detect-libc`).
+
+`--show-cache=<cache>` only prints the directory of a cache, `base` (the global cache), `typescript`, `vitest` or `turbo`, for the scripts:
+
+```bash
+du -sh "$(dx-doctor --show-cache=vitest)"
+```
+
+The turbo cache is `TURBO_CACHE_DIR`, else the `cacheDir` of `turbo.json(c)`, else `.turbo/cache` (turbo default).
 
 ### dx-cache
 
-`dx-cache` manages the global cache (`<root>/.cache`, one directory per tool) and the cache of the root and of every package (`node_modules/.cache`), from any directory of the monorepo:
+`dx-cache` manages the global cache (`<root>/.cache` or `<DX_BASE_CACHE_DIR>/.cache`, one directory per tool) and the cache of the root and of every package (`node_modules/.cache`), from any directory of the monorepo:
 
 | Command | Description |
 | --- | --- |
@@ -518,7 +556,14 @@ By default, the vitest module cache (`fsModuleCache`) is shared by the whole wor
 
 ### TypeScript build info
 
-A tsconfig can't point the `.tsbuildinfo` of each package to `<root>/.cache` (`${configDir}` resolves to the package directory), hence `node_modules/.cache`. Every tsconfig extending the base shares the same `tsBuildInfoFile`: give the other ones their own to keep their incremental info, e.g. in `tsconfig.build.json`:
+A tsconfig can't point the `.tsbuildinfo` of each package to `<root>/.cache` (`${configDir}` resolves to the package directory). `dx-typecheck` passes `--tsBuildInfoFile <root>/.cache/typescript/<package path>/<tsconfig name>.tsbuildinfo` instead (overriding the tsconfig, unless `--tsBuildInfoFile` is given), so `typecheck` and `typecheck-build` get their own file:
+
+```text
+.cache/typescript/packages/core/tsconfig.tsbuildinfo
+.cache/typescript/packages/core/tsconfig.build.tsbuildinfo
+```
+
+The tools reading the tsconfig directly (plain `tsc`, the tsdown declarations) use the `tsBuildInfoFile` of `tsconfig.base.json`: `${configDir}/node_modules/.cache/typescript/tsconfig.tsbuildinfo`. Every tsconfig extending the base shares it: give the other ones their own, e.g. in `tsconfig.build.json`:
 
 ```json
 {
@@ -566,7 +611,7 @@ Subpaths:
 
 | Export | Description |
 | --- | --- |
-| `@flowblade/dx/vitest` | [`vitestDefaultConfig`](#default-vitest-config), [`createVitestConfig(options)`](#options) and re-export of `vitest/config` (`defineConfig`, `mergeConfig`…) |
+| `@flowblade/dx/vitest` | [`createVitestConfig(config, options)`](#default-vitest-config) and re-export of `vitest/config` (`defineConfig`, `mergeConfig`…) |
 | `@flowblade/dx/vite` | re-export of `vite` (`loadEnv`…) |
 | `@flowblade/dx/oxlint` | re-export of `oxlint` (`defineConfig`…) |
 | `@flowblade/dx/oxfmt` | re-export of `oxfmt` (`defineConfig`, `format`…) |
@@ -577,6 +622,6 @@ Subpaths:
 
 ## Agent skill
 
-`skills/flowblade-dx/SKILL.md` teaches coding agents how to use @flowblade/dx: the configs, the bins, adding a package and the common mistakes. It's declared in the `agents.skills` field of the package.json, so [skills-npm](https://github.com/antfu/skills-npm) (the root `prepare` script) links it in the agent directories (`.claude/skills`, `.agents/skills`...).
+`skills/flowblade-dx/SKILL.md` teaches coding agents how to use @flowblade/dx: the configs, the bins, adding a package and the common mistakes. It's declared in the `agents.skills` field of the package.json and locked in the root `skills-lock.json`: [skills](https://github.com/vercel-labs/skills) links it in the agent directories (`.claude/skills`, `.agents/skills`...) with `pnpm exec skills experimental_sync`.
 
-Update it with this README. skills-npm caches its scan: run `pnpm exec skills-npm --force` to pick up a new or renamed skill.
+Update it with this README.

@@ -75,12 +75,12 @@ result.getOrThrow((qErr) => {
 
 ## Bundle size
 
-Bundle size is tracked by a [size-limit configuration](https://github.com/belgattitude/flowblade/blob/main/packages/core/.size-limit.ts)
+Bundle size is tracked by a [size-limit configuration](https://github.com/belgattitude/flowblade/blob/main/packages/core/.size-limit.ts) (minified and brotli compressed, bundled with rolldown).
 
-| Scenario (esm)                             | Size (compressed) |
-| ------------------------------------------ | ----------------: |
-| `import * from '@flowblade/core`           |          ~ 2.04kB |
-| `import { QResult } from '@flowblade/core` |          ~ 1.63kB |
+| Scenario (esm)                              | Size (compressed) |
+| ------------------------------------------- | ----------------: |
+| `import * from '@flowblade/core'`           |         ~ 3.61 kB |
+| `import { QResult } from '@flowblade/core'` |         ~ 3.43 kB |
 
 ## Compatibility
 
