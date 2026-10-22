@@ -1,4 +1,8 @@
-import type { DuckDBConnection, DuckDBValue } from "@duckdb/node-api";
+import type {
+  DuckDBConnection,
+  DuckDBResult,
+  DuckDBValue,
+} from "@duckdb/node-api";
 import {
   type AsyncQResult,
   createQResultError,
@@ -239,11 +243,12 @@ export class DuckdbDatasource implements DatasourceInterface {
 
     let rowCount = 0;
     let failed = false;
+    let result: DuckDBResult | undefined;
 
     try {
       signal?.throwIfAborted();
       signal?.addEventListener("abort", onAbort, { once: true });
-      const result = await this.db.stream(sql, params as DuckDBValue[]);
+      result = await this.db.stream(sql, params as DuckDBValue[]);
       for await (const rows of result.yieldRowObjectJson()) {
         // Also stops between chunks, when the interrupt didn't hit a fetch
         signal?.throwIfAborted();
@@ -270,11 +275,17 @@ export class DuckdbDatasource implements DatasourceInterface {
 
       // The interrupt can hit the next chunk fetch before the between-chunks check,
       // always report an aborted stream with the abort reason as cause
+      // oxlint-disable-next-line preserve-caught-error -- the abort reason is the intended cause
       throw new Error(message, {
-        cause: error,
+        cause: signal?.aborted === true ? signal.reason : error,
       });
     } finally {
       signal?.removeEventListener("abort", onAbort);
+      // Since DuckDB 2.0, a stream not read to the end (break / return / failure)
+      // blocks the connection until closed. closeSync() is not available before 1.5.6-r.2.
+      if (result !== undefined && "closeSync" in result) {
+        result.closeSync();
+      }
       // Runs on completion, on early exit (break / return) and on failure,
       // the failure being already logged as an error above.
       if (!failed) {

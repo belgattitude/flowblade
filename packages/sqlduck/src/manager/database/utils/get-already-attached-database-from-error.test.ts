@@ -13,6 +13,16 @@ describe(getAlreadyAttachedDatabaseFromError, () => {
     expect(result).toStrictEqual({ isAlreadyAttached: true, dbAlias: "db1" });
   });
 
+  it("should extract the database alias from a duckdb 2.0 resource in use error", () => {
+    const errorMessage =
+      'Resource In Use Error: Unique file handle conflict: Cannot attach "db2" - the database file "/path/to/file.db" is already attached by database "db1"';
+    const error = new Error(errorMessage);
+
+    const result = getAlreadyAttachedDatabaseFromError(error);
+
+    expect(result).toStrictEqual({ isAlreadyAttached: true, dbAlias: "db1" });
+  });
+
   it("should extract the database alias with single quotes", () => {
     const errorMessage =
       "Binder Error: Unique file handle conflict: Cannot attach 'db2' - the database file '/path/to/file.db' is already attached by database 'db1'";

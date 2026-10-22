@@ -78,6 +78,7 @@ const getDuckTypeConverter = (
     case DuckDBTypeId.TIMESTAMP_S:
     case DuckDBTypeId.TIMESTAMP_NS:
     case DuckDBTypeId.TIMESTAMP_TZ:
+    case DuckDBTypeId.TIMESTAMP_TZ_NS:
     case DuckDBTypeId.INTERVAL:
     case DuckDBTypeId.BLOB:
     case DuckDBTypeId.STRUCT:
