@@ -1170,8 +1170,8 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2(eslint@10.13.0)
       execa:
-        specifier: 10.2.0
-        version: 10.2.0
+        specifier: 10.2.1
+        version: 10.2.1
       npm-run-all2:
         specifier: 9.0.3
         version: 9.0.3
@@ -1228,8 +1228,8 @@ importers:
         specifier: 26.6.5
         version: 26.6.5
       execa:
-        specifier: 10.2.0
-        version: 10.2.0
+        specifier: 10.2.1
+        version: 10.2.1
       npm-run-all2:
         specifier: 9.0.3
         version: 9.0.3
@@ -1304,8 +1304,8 @@ importers:
         specifier: 26.6.5
         version: 26.6.5
       execa:
-        specifier: 10.2.0
-        version: 10.2.0
+        specifier: 10.2.1
+        version: 10.2.1
       is-in-ci:
         specifier: 2.0.0
         version: 2.0.0
@@ -1359,8 +1359,8 @@ importers:
         specifier: 26.6.5
         version: 26.6.5
       execa:
-        specifier: 10.2.0
-        version: 10.2.0
+        specifier: 10.2.1
+        version: 10.2.1
       npm-run-all2:
         specifier: 9.0.3
         version: 9.0.3
@@ -1405,8 +1405,8 @@ importers:
         specifier: 26.6.5
         version: 26.6.5
       execa:
-        specifier: 10.2.0
-        version: 10.2.0
+        specifier: 10.2.1
+        version: 10.2.1
       npm-run-all2:
         specifier: 9.0.3
         version: 9.0.3
@@ -1514,8 +1514,8 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2(eslint@10.13.0)
       execa:
-        specifier: 10.2.0
-        version: 10.2.0
+        specifier: 10.2.1
+        version: 10.2.1
       is-in-ci:
         specifier: 2.0.0
         version: 2.0.0
@@ -9475,6 +9475,10 @@ packages:
 
   execa@10.2.0:
     resolution: {integrity: sha512-gEImLcoI9AOzvUL8/NYwyT7riZhIGthkrlgRhWi0wX5atM7DjGgrmx6/XTz08uEz42hzothhBpF3o/tK3aeGAg==}
+    engines: {node: '>=22'}
+
+  execa@10.2.1:
+    resolution: {integrity: sha512-pW3tTtSZOc/jvyHo9pMdNLcpf2yx+hpiSERKi048pcq1UDDpfhwJHB5Ti8jydgaFIfKvoc43THmJFDLuHccOCg==}
     engines: {node: '>=22'}
 
   execa@5.1.1:
@@ -21351,6 +21355,21 @@ snapshots:
       which-command: 0.1.0
       yoctocolors: 2.2.0
 
+  execa@10.2.1:
+    dependencies:
+      '@sindresorhus/merge-streams': 4.0.0
+      figures: 6.1.0
+      get-stream: 9.0.1
+      human-signals: 8.0.1
+      is-plain-obj: 4.1.0
+      is-stream: 4.0.1
+      npm-run-path: 6.0.0
+      pretty-ms: 9.3.1
+      signal-exit: 4.1.0
+      strip-final-newline: 4.0.0
+      which-command: 0.1.0
+      yoctocolors: 2.2.0
+
   execa@5.1.1:
     dependencies:
       cross-spawn: 7.0.6
@@ -25723,7 +25742,7 @@ snapshots:
       commander: 15.0.0
       deepmerge: 4.3.1
       empathic: 2.1.0
-      execa: 10.2.0
+      execa: 10.2.1
       fast-glob: 3.3.3
       find-workspaces: 0.3.1
       jsonc-parser: 3.3.1
