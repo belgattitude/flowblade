@@ -240,8 +240,8 @@ importers:
         version: 2.2.4(@azure/identity@4.14.0)(@emnapi/runtime@1.11.3)(@shikijs/themes@4.5.0)(@types/d3-selection@3.0.12)(@types/react-dom@19.3.0)(@types/react@19.3.0)(@types/ws@8.18.2)(@vercel/blob@2.8.2)(@vercel/functions@3.10.1)(csstype@3.2.3)(esbuild@0.28.2)(next@16.4.2)(prettier@3.9.10)(supports-color@7.2.0)(tsx@4.23.15)(vite@8.3.5)(ws@8.22.0)(yaml@2.9.1)
     devDependencies:
       '@dotenvx/dotenvx':
-        specifier: 2.38.1
-        version: 2.38.1
+        specifier: 2.38.2
+        version: 2.38.2
       '@flowblade/dx':
         specifier: workspace:*
         version: link:../tools/dx
@@ -1286,8 +1286,8 @@ importers:
         version: 1.5.0(typescript@7.0.2)
     devDependencies:
       '@dotenvx/dotenvx':
-        specifier: 2.38.1
-        version: 2.38.1
+        specifier: 2.38.2
+        version: 2.38.2
       '@faker-js/faker':
         specifier: 10.6.0
         version: 10.6.0
@@ -1475,8 +1475,8 @@ importers:
         version: 4.6.7
     devDependencies:
       '@dotenvx/dotenvx':
-        specifier: 2.38.1
-        version: 2.38.1
+        specifier: 2.38.2
+        version: 2.38.2
       '@duckdb/node-api':
         specifier: 2.0.0-r.1
         version: 2.0.0-r.1
@@ -2592,6 +2592,10 @@ packages:
     resolution: {integrity: sha512-yxcMpOr7kptjGglGoRTY/FSe3jE/EPibPobRol8AcqmpHMjT5vmAOjCN+URqwghS+UxInoxA2cck/XIFU4O5ow==}
     hasBin: true
 
+  '@dotenvx/dotenvx@2.38.2':
+    resolution: {integrity: sha512-hYQcpKrjPcO9Z1wSmXNjkM+ahj8LarPSnHe59SNEqmeIMqrfbgSKGy+1tmeDaF4hCpsfzKMpohuDfzHTCiHNCw==}
+    hasBin: true
+
   '@dotenvx/primitives@0.8.0':
     resolution: {integrity: sha512-AyQBk2J4vW6c3WsFd7iom5EuFwrPVoFdaVYJpVNcxD4NVQtPZ9BUB7c+0AeTShL9i69V6hCuUQ7YmVJEuxeZQQ==}
 
@@ -2603,6 +2607,9 @@ packages:
 
   '@dotenvx/tooling@1.0.5':
     resolution: {integrity: sha512-VUHZCYEc+uf99PpdFlout8NaJkRRvS5A6S7U7XQEWtJQx5FPmssDXVPoz0knXys4BJ2c3Lnnc856CnSjpckSXQ==}
+
+  '@dotenvx/tooling@1.0.6':
+    resolution: {integrity: sha512-zd6O3x8SY63XCsK1oIRbAiQXbgKlFDmKjLCFZ+cR/AH41WDNxyV6xBT6UYBjg8NwQuXDrdQSsxA8HPwlIyS7WQ==}
 
   '@duckdb/duckdb-wasm@1.33.1-dev57.0':
     resolution: {integrity: sha512-dmv4MLIDKAW6ismXdFz7sY1PFVQdBY/i6oosKXzBU6GW0tdzlQySmRo6btKjMBKXh9bvAd85uKt12YRg6mTOgQ==}
@@ -15302,6 +15309,15 @@ snapshots:
       write-file-atomic: 5.0.1
       yocto-spinner: 1.2.2
 
+  '@dotenvx/dotenvx@2.38.2':
+    dependencies:
+      '@dotenvx/primitives': 3.3.1
+      '@dotenvx/providers': 0.3.11
+      '@dotenvx/tooling': 1.0.6
+      undici: 6.29.1
+      write-file-atomic: 5.0.1
+      yocto-spinner: 1.2.2
+
   '@dotenvx/primitives@0.8.0': {}
 
   '@dotenvx/primitives@3.3.1': {}
@@ -15309,9 +15325,11 @@ snapshots:
   '@dotenvx/providers@0.3.11':
     dependencies:
       '@dotenvx/primitives': 3.3.1
-      '@dotenvx/tooling': 1.0.5
+      '@dotenvx/tooling': 1.0.6
 
   '@dotenvx/tooling@1.0.5': {}
+
+  '@dotenvx/tooling@1.0.6': {}
 
   '@duckdb/duckdb-wasm@1.33.1-dev57.0':
     dependencies:
