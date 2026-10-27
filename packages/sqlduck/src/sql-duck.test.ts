@@ -418,6 +418,7 @@ describe("Duckdb tests", () => {
         const onChunkAppended = () =>
           sleep(5).then(() => {
             settled++;
+            return undefined;
           });
         await new SqlDuck({ conn }).toTable({
           table: new Table("test_cb_promise"),

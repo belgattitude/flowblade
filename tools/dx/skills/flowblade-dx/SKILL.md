@@ -111,7 +111,7 @@ export default createVitestConfig({
 | Option | Default | Effect |
 | --- | --- | --- |
 | `react` | `false` | `@vitejs/plugin-react` + `happy-dom` environment |
-| `testingLibrary` | `false` | setup file adding the `@testing-library/jest-dom` matchers |
+| `testingLibrary` | `false` | setup file adding the `@testing-library/jest-dom` matchers and the `@testing-library/react` `cleanup` after each test |
 | `codspeed` | `CODSPEED === "1"` | `@codspeed/vitest-plugin` |
 | `isolate` | `true` for `vitest bench` or `codspeed`, else `false` | vitest `isolate`, set `true` for tests relying on a fresh module state |
 | `cache` | `<root>/.cache/vitest/<package path>` | vite and vitest cache directory, `false` for their defaults |
@@ -123,7 +123,8 @@ Mistakes to avoid:
 - Don't set `cacheDir` or `fsModuleCachePath`: the shared default `node_modules/.vitest-cache` is cleared when the lockfile changes and parallel runs fail with `ENOTEMPTY`. Use the `cache` option.
 - Test files import from `"vitest"` (the `vi.mock` hoisting needs it), so a package keeps `vitest` in its dev dependencies, at the dx version. Same for `@testing-library/react`, `@testing-library/user-event` and `@testing-library/jest-dom` when its tests or tsconfig use them. `vite`, `@vitest/coverage-v8`, `@vitest/ui`, `happy-dom` and the plugins come from dx: don't add them to the package.
 - Benchmarks: use `dx-bench` / `dx-bench-codspeed` in the `bench` / `bench-codspeed` scripts, don't set `CODSPEED=1` (or add `cross-env`) in a package script nor the codspeed plugin in a vitest config.
-- `testingLibrary` doesn't register the `cleanup`: `@testing-library/react` only does it with `globals: true`, otherwise call it in an `afterEach`.
+- `testingLibrary` registers the `@testing-library/react` `cleanup` after each test (its own one needs `globals: true` and only covers the first file of a worker without isolation): don't add one in a package. The package must depend on `@testing-library/react` (resolved from the package with `resolve.dedupe`).
+- Without isolation, a module mocked with `vi.mock` is not mocked for a module under test that another file already loaded in the worker (flaky, order dependent): a package mocking its own modules calls `vi.resetModules()` in its setup file (re-evaluates the package modules for each file, node_modules stay cached). Check with `vitest run --sequence.shuffle.files`.
 
 ## Publishable packages
 

@@ -32,7 +32,8 @@ export type CreateVitestConfigOptions = {
   react?: boolean;
   /**
    * Add the `@testing-library/jest-dom` matchers (`toBeInTheDocument`...) to
-   * `expect` with a setup file.
+   * `expect` and the `@testing-library/react` cleanup after each test with a
+   * setup file. The package must depend on `@testing-library/react`.
    * @default false
    */
   testingLibrary?: boolean;
@@ -90,6 +91,9 @@ const createVitestBaseConfig = (
     ],
     resolve: {
       conditions: [...dxConfig.customConditions],
+      // The setup file imports the package's @testing-library/react (not
+      // resolvable from @flowblade/dx): the same instance as the tests
+      ...(testingLibrary ? { dedupe: ["@testing-library/react"] } : {}),
     },
     ssr: {
       resolve: {

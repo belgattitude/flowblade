@@ -22,4 +22,14 @@ describe("InferQResult", () => {
     expectTypeOf(result.data!).toEqualTypeOf<Row[]>();
     expectTypeOf(result.data!).toEqualTypeOf<InferredData>();
   });
+
+  it("should infer the row or null of a queryOne() result", async () => {
+    type Row = {
+      id: string;
+    };
+    const ds = new DummyDatasource({ connection: null });
+    const result = ds.queryOne(sql<Row>`SELECT id FROM users`);
+    expectTypeOf<InferQResult<typeof result>>().toEqualTypeOf<Row | null>();
+    await result;
+  });
 });

@@ -1,7 +1,17 @@
 import type { QResult } from "./q-result";
 
+/**
+ * Error codes set by flowblade itself (driver error codes are kept in the cause).
+ */
+export type QErrorCode = "TOO_MANY_RESULTS";
+
 export type QError = {
   message: string;
+  /**
+   * Set when the error originates from flowblade rather than the driver,
+   * ie: `queryOne()` returning more than one row ("TOO_MANY_RESULTS").
+   */
+  code?: QErrorCode;
   /**
    * The original error (ie: the driver error), useful to inspect
    * driver specific details like error codes.
@@ -13,6 +23,6 @@ export type QError = {
 };
 
 export type AsyncQResult<
-  TData extends unknown[],
+  TData,
   TError extends QError | undefined = QError,
 > = Promise<QResult<TData, TError>>;

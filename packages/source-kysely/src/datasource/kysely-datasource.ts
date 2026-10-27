@@ -4,11 +4,15 @@ import {
   createSqlSpan,
   type DatasourceInterface,
   type QError,
+  getOneRowOrThrow,
   QMeta,
   type QMetaSqlSpan,
+  type QOneRowErrorFactories,
   type QResult,
+  type QueryOneOrThrowOptions,
   type QueryOptions,
   type QueryStreamOptions,
+  toOneRowQResult,
 } from "@flowblade/core";
 import type { Logger } from "@logtape/logtape";
 import type {
@@ -53,6 +57,26 @@ type Params<TDatabase> = {
    * @default true
    */
   logParams?: boolean;
+  /**
+   * Default errors thrown by `queryOneOrThrow()`
+   * when the query doesn't return exactly one row, overridable per query.
+   *
+   * @example
+   * ```typescript
+   * import { HttpInternalServerError, HttpNotFound } from "@httpx/exception";
+   *
+   * errors: {
+   *   onNoResult: ({ error }) =>
+   *     new HttpNotFound({ message: "Resource not found", cause: error }),
+   *   onTooManyResults: ({ error, rowCount }) =>
+   *     new HttpInternalServerError({
+   *       message: `Expected one row, got ${rowCount}`,
+   *       cause: error,
+   *     }),
+   * }
+   * ```
+   */
+  errors?: QOneRowErrorFactories;
 };
 
 export type KyselyQueryOptions = QueryOptions & {
@@ -74,6 +98,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   private readonly db: Kysely<TDatabase>;
   private readonly logger: Logger;
   private readonly logParams: boolean;
+  private readonly errors: QOneRowErrorFactories | undefined;
   private readonly inflightQueryAbortStrategy:
     | InflightQueryAbortStrategy
     | undefined;
@@ -85,7 +110,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    * ```typescript
    * import { KyselyDatasource } from '@flowblade/source-kysely';
    *
-   * const ds = new KyselyDatasource({ db });
+   * const ds = new KyselyDatasource({ connection: db });
    *
    * // Kysely Expression builder (query, update, delete, merge...)
    * const eb = ds.queryBuilder;
@@ -119,54 +144,62 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     this.logger = params.logger ?? kyselyDefaultLogtapeLogger;
     this.inflightQueryAbortStrategy = params.inflightQueryAbortStrategy;
     this.logParams = params.logParams ?? true;
+    this.errors = params.errors;
   }
 
   /**
-   * Return the underlying kysely connection.
+   * Return the underlying Kysely instance.
    *
-   * Warning: this isn't covered by api stability. Use at your own risks.
+   * Warning: using the underlying driver connection isn't recommended
+   *          and not covered by api stability. Use at your own risks.
    */
   getConnection = (): Kysely<TDatabase> => this.db;
 
   /**
-   * Run a query on the datasource and return the result.
+   * Run a query and return a QResult object.
+   *
+   * It never throws: when the query fails, `error` holds a QError (message and
+   * the driver error as `cause`) and `data` is undefined. `meta` is always
+   * present (sql, params, timing, affected rows...).
+   *
+   * The result is a discriminated union: checking `error` narrows `data`,
+   * even after destructuring.
+   *
+   * Accepts a Kysely query builder or a raw `sql` query from kysely. When
+   * aborted with `signal`, the `inflightQueryAbortStrategy` decides what
+   * happens to the running query.
+   *
+   * Use `queryOrThrow()` to get the rows directly and throw on error instead.
    *
    * @example
    * ```typescript
-   * import { KyselyDatasource, isQueryResultError } from '@flowblade/source-kysely';
+   * import { KyselyDatasource } from '@flowblade/source-kysely';
    *
-   * const ds = new KyselyDatasource({ db });
-   * const query = ds.queryBuilder // This gives access to Kysely expression builder
-   *         .selectFrom('brand as b')
-   *         .select(['b.id', 'b.name'])
-   *         .leftJoin('product as p', 'p.brand_id', 'b.id')
-   *         .select(['p.id as product_id', 'p.name as product_name'])
-   *         .where('b.created_at', '<', new Date())
-   *         .orderBy('b.name', 'desc');
+   * const ds = new KyselyDatasource({ connection: db });
+   * const query = ds.queryBuilder
+   *   .selectFrom('brand as b')
+   *   .select(['b.id', 'b.name'])
+   *   .where('b.created_at', '<', new Date())
+   *   .orderBy('b.name', 'desc');
    *
-   * const result = await ds.query(query);
+   * const result = await ds.query(query, { name: 'getBrands' });
+   * const { data, error, meta } = result;
    *
-   * // Or with query information (will be sent in the metadata)
-   * // const result = await ds.query(query, {
-   * //  name: 'getBrands'
-   * // });
+   * if (error) {
+   *   // error: QError, data: undefined
+   *   console.error(error.message, error.cause);
+   *   return;
+   * }
+   * // data is narrowed to the selected rows (ie: { id: number; name: string }[])
+   * console.log(`${data.length} rows in ${meta.getTotalTimeMs()}ms`);
    *
-   * const result = await ds.query(rawSql);
+   * // Optionally: map over the rows (a failing mapper returns an error result)
+   * const { data: brands } = result.map((row) => {
+   *   return { ...row, key: `key-${row.id}` };
+   * });
    *
-   * // Option 1: the QResult object contains the data, metadata and error
-   * //  - data:  the result rows (TData or undefined if error)
-   * //  - error: the error (QError or undefined if success)
-   * //  - meta:  the metadata (always present)
-   *
-   * const { data, meta, error } = result;
-   *
-   * // Option 2: You operate over the result, ie: mapping the data
-   *
-   * const { data } = result.map((row) => {
-   *   return {
-   *    ...row,
-   *    key: `key-${row.productId}`
-   * }})
+   * // Send the result to a client, the error cause (driver internals) is left out
+   * return Response.json(result.toJsonifiable());
    * ```
    */
   query = async <
@@ -235,15 +268,23 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   };
 
   /**
-   * Run the query or throw on error
+   * Run a query and return the rows directly, or throw when it fails.
+   *
+   * The thrown Error message is prefixed with "Query failed: " and its
+   * `cause` holds the driver error.
+   *
+   * Use `query()` to handle errors without try/catch.
    *
    * @example
    * ```typescript
-   * const ds = new KyselyDatasource();
+   * const ds = new KyselyDatasource({ connection: db });
+   * const query = ds.queryBuilder.selectFrom('brand as b').select(['b.id', 'b.name']);
    * try {
-   *  const { data, meta } = await ds.query(sql`select 1`);
+   *   const { data, meta } = await ds.queryOrThrow(query);
+   *   console.log(`${data.length} rows in ${meta.getTotalTimeMs()}ms`);
    * } catch (e) {
-   *   //
+   *   // ie: "Query failed: Invalid object name 'brand'."
+   *   console.error(e);
    * }
    * ```
    */
@@ -268,39 +309,147 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   };
 
   /**
-   * Stream query
+   * Run a query expecting at most one row and return a QResult holding the
+   * row, or null when the query returns no row. Like `query()`, it never
+   * throws and checking `error` narrows `data`.
+   *
+   * When the query returns more than one row, the result is an error with
+   * `code` "TOO_MANY_RESULTS" and a `QErrors.TooManyResults` as `cause`.
+   *
+   * Check `error` before falling back on `data` (ie: `data ?? fallback`): on
+   * error, `data` is undefined and the fallback would hide the failure. For
+   * a one-liner, prefer `queryOneOrThrow(query, { defaultValue })`.
+   * Query failures have no `code`.
+   *
+   * More than one row is logged as a warning, no row at debug level (often
+   * an expected outcome). Also applies to `queryOneOrThrow()`.
+   *
+   * Note: the SQL is never rewritten and checking the row count is free,
+   * but all rows are fetched. When the query isn't constrained by a unique
+   * key, bound it to 2 rows (ie: `.limit(2)`, `.top(2)` on SQL Server).
    *
    * @example
    * ```typescript
-   * import { KyselyDatasource } from '@flowblade/source-kysely';
+   * const ds = new KyselyDatasource({ connection: db });
+   * const query = ds.queryBuilder
+   *   .selectFrom("brand as b")
+   *   .select(["b.id", "b.name"])
+   *   .where("b.id", "=", id);
    *
-   * const ds = new KyselyDatasource({ db });
-   * const query = ds.queryBuilder // This gives access to Kysely expression builder
-   *         .selectFrom('brand as b')
-   *         .select(['b.id', 'b.name'])
-   *         .leftJoin('product as p', 'p.brand_id', 'b.id')
-   *         .select(['p.id as product_id', 'p.name as product_name'])
-   *         .where('b.created_at', '<', new Date())
-   *         .orderBy('b.name', 'desc');
+   * const { data: brand, error } = await ds.queryOne(query);
+   * if (error) {
+   *   // query failure or more than one row
+   *   throw new Error(error.message, { cause: error.cause });
+   * }
+   * if (brand === null) {
+   *   // not found, ie: return a 404
+   * }
+   * ```
+   */
+  queryOne = async <
+    TQuery extends KyselyQueryOrRawQuery,
+    TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
+  >(
+    query: TQuery,
+    options?: KyselyQueryOptions
+  ): Promise<QResult<TData[number] | null, QError>> => {
+    const result = await this.query<TQuery, TData>(query, options);
+    if (result.error === undefined) {
+      this.logRowCount(result.meta, result.data.length);
+    }
+    return toOneRowQResult(result);
+  };
+
+  /**
+   * Run a query expecting exactly one row and return it.
    *
-   * const stream = ds.stream(query, {
-   *    // Chunksize used when reading the database
-   *    // @default undefined
-   *    chunkSize: undefined
+   * Throws a `QErrors.NoResult` when the query returns no row, a `QErrors.TooManyResults`
+   * when it returns more than one and, like `queryOrThrow()`, an Error with
+   * the driver error as `cause` when the query fails.
+   *
+   * Use it when the row must exist. The thrown errors can be replaced with
+   * `onNoResult` / `onTooManyResults` factories, per query or as datasource
+   * defaults (`errors` param). When the row might not exist, set a
+   * `defaultValue` (returned rather than throwing when there's no row) or
+   * use `queryOne()`.
+   *
+   * Note: the SQL is never rewritten and checking the row count is free,
+   * but all rows are fetched. When the query isn't constrained by a unique
+   * key, bound it to 2 rows (ie: `.limit(2)`, `.top(2)` on SQL Server).
+   *
+   * @example
+   * ```typescript
+   * import { HttpNotFound } from "@httpx/exception";
+   *
+   * const ds = new KyselyDatasource({ connection: db });
+   * const query = ds.queryBuilder
+   *   .selectFrom("brand as b")
+   *   .select(["b.id", "b.name"])
+   *   .where("b.id", "=", id);
+   *
+   * // Throws when there isn't exactly one row
+   * const { data: brand, meta } = await ds.queryOneOrThrow(query);
+   *
+   * // Or throw your own error (also settable as datasource default)
+   * const { data: brand } = await ds.queryOneOrThrow(query, {
+   *   onNoResult: ({ error }) =>
+   *     new HttpNotFound({ message: `Brand ${id} not found`, cause: error }),
    * });
    *
+   * // Or return a default value when there's no row
+   * const { data: settings } = await ds.queryOneOrThrow(settingsQuery, {
+   *   defaultValue: defaultSettings,
+   * });
+   * ```
+   */
+  queryOneOrThrow = async <
+    TQuery extends KyselyQueryOrRawQuery,
+    TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
+    TDefault = never,
+  >(
+    query: TQuery,
+    options?: KyselyQueryOptions & QueryOneOrThrowOptions<TDefault>
+  ): Promise<{
+    data: TData[number] | TDefault;
+    meta: QMeta;
+  }> => {
+    const result = await this.queryOne<TQuery, TData>(query, options);
+    return {
+      data: getOneRowOrThrow(result, options, this.errors),
+      meta: result.meta,
+    };
+  };
+
+  /**
+   * Stream the rows of a query, one row at a time, rather than loading
+   * the whole result in memory.
+   *
+   * Rows are read from the database in chunks of `chunkSize` rows (support
+   * depends on the dialect). Breaking or returning before the stream has
+   * ended is supported and releases the database connection.
+   *
+   * Unlike `query()`, errors are thrown while iterating. Only query builders
+   * can be streamed, raw `sql` queries throw.
+   *
+   * @example
+   * ```typescript
+   * const ds = new KyselyDatasource({ connection: db });
+   * const query = ds.queryBuilder
+   *   .selectFrom('brand as b')
+   *   .select(['b.id', 'b.name'])
+   *   .orderBy('b.name', 'desc');
+   *
+   * const stream = ds.stream(query, { chunkSize: 1000 });
    * for await (const brand of stream) {
-   *   console.log(brand.name)
+   *   console.log(brand.name);
    *   if (brand.name === 'Something') {
-   *     // Breaking or returning before the stream has ended will release
-   *     // the database connection and invalidate the stream.
-   *     break
+   *     break;
    *   }
    * }
    * ```
    *
-   * @yields {TData[0]} Each row of the query result as it is streamed.
-   * @throws Error
+   * @yields Each row of the query result as it is streamed.
+   * @throws Error with the driver error as cause when the query fails.
    */
   async *stream<
     TQuery extends KyselyQueryOrRawQuery,
@@ -373,10 +522,34 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     }
   }
 
+  /**
+   * Log the `queryOne()` row count when it isn't one: more than one row as
+   * a warning (missing condition or broken data integrity), no row at debug
+   * level as it's often an expected outcome (ie: not found).
+   */
+  private readonly logRowCount = (meta: QMeta, rowCount: number): void => {
+    const [span] = meta.getSpansByType("sql");
+    if (rowCount === 1 || span === undefined) {
+      return;
+    }
+    const properties = {
+      ...this.getLogFromSpan(meta.name ?? "anonymous", span, "queryOne"),
+      rowCount,
+    };
+    if (rowCount > 1) {
+      this.logger.warn(
+        'Query "{queryName}" expected one row, received {rowCount}',
+        properties
+      );
+    } else {
+      this.logger.debug('Query "{queryName}" returned no row', properties);
+    }
+  };
+
   private readonly getLogFromSpan = (
     queryName: string,
     span: QMetaSqlSpan,
-    method: "stream" | "query"
+    method: "query" | "queryOne" | "stream"
   ) => {
     return {
       queryName,

@@ -246,10 +246,7 @@ describe(QResult, () => {
         });
 
         expectTypeOf(mappedResult).toEqualTypeOf<
-          QResult<
-            { name: number; capitalized: string }[] | undefined,
-            QError | undefined
-          >
+          QResult<{ name: number; capitalized: string }[], QError | undefined>
         >();
 
         expect(mappedResult.isOk()).toBe(true);
@@ -346,6 +343,71 @@ describe(QResult, () => {
         cause: expect.any(TypeError),
       });
       expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
+    });
+
+    describe("with a single row result", () => {
+      type Row = { id: number };
+
+      it("should map the row", () => {
+        const mappedResult = new QResult<Row | null, QError>({
+          data: { id: 1 },
+        }).map((row) => {
+          return { key: `key-${row.id}` };
+        });
+        expect(mappedResult.isOk()).toBe(true);
+        expect(mappedResult.data).toStrictEqual({ key: "key-1" });
+        expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
+        expectTypeOf(mappedResult.data).toEqualTypeOf<
+          { key: string } | null | undefined
+        >();
+      });
+
+      it("should keep null without calling the transform", () => {
+        const transformFn = vi.fn<(row: Row) => { key: string }>();
+        const mappedResult = new QResult<Row | null, QError>({
+          data: null,
+          shape: "one",
+        }).map(transformFn);
+        expect(mappedResult.isOk()).toBe(true);
+        expect(mappedResult.data).toBeNull();
+        expect(transformFn).not.toHaveBeenCalled();
+      });
+
+      it("should keep the shape when chaining", () => {
+        const mappedResult = new QResult<Row | null, QError>({
+          data: null,
+          shape: "one",
+        })
+          .map((row) => {
+            return { id: row.id + 1 };
+          })
+          .map((row) => {
+            return { id: row.id + 1 };
+          });
+        expect(mappedResult.data).toBeNull();
+      });
+
+      it("should return an error when the transform throws", () => {
+        const mappedResult = new QResult<Row | null, QError>({
+          data: { id: 1 },
+        }).map(() => {
+          throw new Error("failed");
+        });
+        expect(mappedResult.error).toStrictEqual({
+          message: "failed",
+          cause: expect.any(Error),
+        });
+      });
+
+      it("should be serializable", () => {
+        const result = new QResult<Row | null, QError>({
+          data: null,
+          shape: "one",
+        });
+        expect(result.toJsonifiable().data).toBeNull();
+        expect(result.getOrThrow()).toBeNull();
+        expectTypeOf(result.getOrThrow()).toEqualTypeOf<Row | null>();
+      });
     });
 
     it("should map an empty result to an empty array", () => {

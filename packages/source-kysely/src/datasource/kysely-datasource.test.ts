@@ -1,3 +1,4 @@
+import type { QOneRowErrorFactories } from "@flowblade/core";
 import { describe, expect, it, vi } from "vitest";
 
 import { KyselyDatasource } from "./kysely-datasource.ts";
@@ -42,7 +43,8 @@ const createStreamDatasource = (
 
 const createQueryDatasource = (
   executeQuery: () => Promise<{ rows: unknown[] }>,
-  inflightQueryAbortStrategy?: "ignore query" | "cancel query" | "kill session"
+  inflightQueryAbortStrategy?: "ignore query" | "cancel query" | "kill session",
+  errors?: QOneRowErrorFactories
 ) => {
   const query = {
     compile: vi
@@ -50,15 +52,17 @@ const createQueryDatasource = (
       .mockReturnValue({ sql: "SELECT 1", parameters: [] }),
   };
 
+  const logger = {
+    debug: vi.fn<(message: string, properties?: unknown) => void>(),
+    info: vi.fn<(message: string, properties?: unknown) => void>(),
+    error: vi.fn<(message: string, properties?: unknown) => void>(),
+    warn: vi.fn<(message: string, properties?: unknown) => void>(),
+  };
   const ds = new KyselyDatasource({
     connection: {} as never,
     inflightQueryAbortStrategy,
-    logger: {
-      debug: vi.fn<() => void>(),
-      info: vi.fn<() => void>(),
-      error: vi.fn<() => void>(),
-      warn: vi.fn<() => void>(),
-    } as never,
+    errors,
+    logger: logger as never,
   });
 
   const executeQueryMock = vi
@@ -67,7 +71,12 @@ const createQueryDatasource = (
   // @ts-expect-error - access private to mock
   ds.db = { executeQuery: executeQueryMock };
 
-  return { ds, query: query as never, executeQuery: executeQueryMock };
+  return {
+    ds,
+    logger,
+    query: query as never,
+    executeQuery: executeQueryMock,
+  };
 };
 
 describe(KyselyDatasource, () => {
@@ -115,6 +124,234 @@ describe(KyselyDatasource, () => {
       expect(executeQuery).toHaveBeenCalledExactlyOnceWith(expect.anything(), {
         signal,
       });
+    });
+  });
+
+  describe("queryOne", () => {
+    it("should return the row when exactly one matches", async () => {
+      const { ds, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [{ id: 1 }] })
+      );
+      const { data, error } = await ds.queryOne(query);
+      expect(error).toBeUndefined();
+      expect(data).toStrictEqual({ id: 1 });
+    });
+
+    it("should return null when no row matches", async () => {
+      const { ds, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [] })
+      );
+      const { data, error } = await ds.queryOne(query);
+      expect(error).toBeUndefined();
+      expect(data).toBeNull();
+    });
+
+    it("should return a TOO_MANY_RESULTS error when more than one row matches", async () => {
+      const { ds, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [{ id: 1 }, { id: 2 }] })
+      );
+      const { error } = await ds.queryOne(query);
+      expect(error?.code).toBe("TOO_MANY_RESULTS");
+    });
+  });
+
+  describe("queryOneOrThrow", () => {
+    it("should return the row when exactly one matches", async () => {
+      const { ds, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [{ id: 1 }] })
+      );
+      const { data } = await ds.queryOneOrThrow(query);
+      expect(data).toStrictEqual({ id: 1 });
+    });
+
+    it("should throw when no row matches", async () => {
+      const { ds, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [] })
+      );
+      await expect(ds.queryOneOrThrow(query)).rejects.toThrow(
+        expect.objectContaining({
+          name: "QNoResultError",
+          message: "Expected exactly one row, received none",
+          code: "NO_RESULT",
+        })
+      );
+    });
+
+    it("should throw when more than one row matches", async () => {
+      const { ds, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [{ id: 1 }, { id: 2 }] })
+      );
+      await expect(ds.queryOneOrThrow(query)).rejects.toThrow(
+        expect.objectContaining({
+          name: "QTooManyResultsError",
+          message: "Expected exactly one row, received 2",
+          code: "TOO_MANY_RESULTS",
+          rowCount: 2,
+        })
+      );
+    });
+
+    it("should throw with the driver error as cause when the query fails", async () => {
+      const driverError = new Error("Incorrect syntax near 'FROM'.");
+      const { ds, query } = createQueryDatasource(() =>
+        Promise.reject(driverError)
+      );
+      await expect(ds.queryOneOrThrow(query)).rejects.toThrow(
+        expect.objectContaining({
+          message: "Query failed: Incorrect syntax near 'FROM'.",
+          cause: driverError,
+        })
+      );
+    });
+  });
+
+  describe("queryOne logging", () => {
+    it("should log more than one row as a warning", async () => {
+      const { ds, logger, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [{ id: 1 }, { id: 2 }] })
+      );
+      await ds.queryOne(query, { name: "getBrand" });
+      expect(logger.warn).toHaveBeenCalledExactlyOnceWith(
+        'Query "{queryName}" expected one row, received {rowCount}',
+        expect.objectContaining({
+          queryName: "getBrand",
+          source: "kysely",
+          method: "queryOne",
+          sql: "SELECT 1",
+          rowCount: 2,
+        })
+      );
+    });
+
+    it("should log no row at debug level", async () => {
+      const { ds, logger, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [] })
+      );
+      await expect(ds.queryOne(query)).resolves.toMatchObject({
+        data: null,
+      });
+      expect(logger.warn).not.toHaveBeenCalled();
+      expect(logger.debug).toHaveBeenCalledWith(
+        'Query "{queryName}" returned no row',
+        expect.objectContaining({ method: "queryOne", rowCount: 0 })
+      );
+    });
+
+    it("should not log row counts when the query fails", async () => {
+      const { ds, logger, query } = createQueryDatasource(() =>
+        Promise.reject(new Error("driver error"))
+      );
+      await ds.queryOne(query);
+      expect(logger.error).toHaveBeenCalledOnce();
+      expect(logger.warn).not.toHaveBeenCalled();
+      expect(logger.debug).toHaveBeenCalledOnce(); // "Executing query" only
+    });
+
+    it("should log nothing more when exactly one row matches", async () => {
+      const { ds, logger, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [{ id: 1 }] })
+      );
+      await ds.queryOneOrThrow(query);
+      expect(logger.warn).not.toHaveBeenCalled();
+      expect(logger.debug).toHaveBeenCalledOnce(); // "Executing query" only
+    });
+
+    it("should still log when a custom error replaces the default one", async () => {
+      const { ds, logger, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [{ id: 1 }, { id: 2 }] })
+      );
+      await expect(
+        ds.queryOneOrThrow(query, {
+          onTooManyResults: () => new Error("custom"),
+        })
+      ).rejects.toThrow("custom");
+      expect(logger.warn).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe("queryOneOrThrow defaultValue", () => {
+    it("should return the default value when no row matches", async () => {
+      const { ds, query } = createQueryDatasource(
+        () => Promise.resolve({ rows: [] }),
+        undefined,
+        { onNoResult: () => new Error("default not found") }
+      );
+      const defaultRow = { id: 0 };
+      const { data } = await ds.queryOneOrThrow(query, {
+        defaultValue: defaultRow,
+      });
+      expect(data).toBe(defaultRow);
+    });
+
+    it("should return the row when one matches", async () => {
+      const { ds, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [{ id: 1 }] })
+      );
+      const { data } = await ds.queryOneOrThrow(query, { defaultValue: null });
+      expect(data).toStrictEqual({ id: 1 });
+    });
+
+    it("should still throw when more than one row matches", async () => {
+      const { ds, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [{ id: 1 }, { id: 2 }] })
+      );
+      await expect(
+        ds.queryOneOrThrow(query, { defaultValue: null })
+      ).rejects.toThrow(
+        expect.objectContaining({ name: "QTooManyResultsError" })
+      );
+    });
+  });
+
+  describe("errors", () => {
+    const errors: QOneRowErrorFactories = {
+      onNoResult: ({ error }) =>
+        new Error("default not found", { cause: error }),
+      onTooManyResults: ({ rowCount }) => new Error(`default got ${rowCount}`),
+    };
+
+    it("should throw the datasource default errors", async () => {
+      const { ds: noneDs, query } = createQueryDatasource(
+        () => Promise.resolve({ rows: [] }),
+        undefined,
+        errors
+      );
+      await expect(noneDs.queryOneOrThrow(query)).rejects.toThrow(
+        expect.objectContaining({
+          message: "default not found",
+          cause: expect.objectContaining({ code: "NO_RESULT" }),
+        })
+      );
+      // No row is not an error for queryOne()
+      await expect(noneDs.queryOne(query)).resolves.toMatchObject({
+        data: null,
+      });
+
+      const { ds: manyDs } = createQueryDatasource(
+        () => Promise.resolve({ rows: [{ id: 1 }, { id: 2 }] }),
+        undefined,
+        errors
+      );
+      await expect(manyDs.queryOneOrThrow(query)).rejects.toThrow(
+        "default got 2"
+      );
+      // Not used by queryOne(), which never throws
+      await expect(manyDs.queryOne(query)).resolves.toMatchObject({
+        error: { code: "TOO_MANY_RESULTS" },
+      });
+    });
+
+    it("should let query options override the datasource defaults", async () => {
+      const { ds, query } = createQueryDatasource(
+        () => Promise.resolve({ rows: [] }),
+        undefined,
+        errors
+      );
+      await expect(
+        ds.queryOneOrThrow(query, {
+          onNoResult: () => new Error("query not found"),
+        })
+      ).rejects.toThrow("query not found");
     });
   });
 

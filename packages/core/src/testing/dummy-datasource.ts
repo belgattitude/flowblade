@@ -6,17 +6,25 @@ import {
   createQResultSuccess,
   createSqlSpan,
   type DatasourceInterface,
+  getOneRowOrThrow,
   type QError,
   QMeta,
+  type QOneRowErrorFactories,
   type QResult,
+  type QueryOneOrThrowOptions,
   type QueryOptions,
   type QueryStreamOptions,
+  toOneRowQResult,
 } from "../index";
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 type DummyDatasourceParams = {
   connection: VoluntaryAny;
+  /**
+   * Default errors thrown by `queryOneOrThrow()`.
+   */
+  errors?: QOneRowErrorFactories;
 };
 
 /**
@@ -24,10 +32,12 @@ type DummyDatasourceParams = {
  */
 export class DummyDatasource implements DatasourceInterface {
   private readonly db: VoluntaryAny;
+  private readonly errors: QOneRowErrorFactories | undefined;
 
   constructor(params: DummyDatasourceParams) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.db = params.connection;
+    this.errors = params.errors;
   }
 
   /**
@@ -127,6 +137,69 @@ export class DummyDatasource implements DatasourceInterface {
       data: result.getOrThrow(
         (qErr) => new Error(`Query failed: ${qErr.message}`)
       ),
+      meta: result.meta,
+    };
+  };
+
+  /**
+   * Run a query expecting at most one row and return a QResult holding
+   * the row, or null when the query returns no row.
+   *
+   * When the query returns more than one row, the result is an error with
+   * `code` "TOO_MANY_RESULTS" and a `QErrors.TooManyResults` as `cause`.
+   *
+   * Check `error` before falling back on `data` (ie: `data ?? fallback`): on
+   * error, `data` is undefined and the fallback would hide the failure. For
+   * a one-liner, prefer `queryOneOrThrow(query, { defaultValue })`.
+   *
+   * Note: the SQL is never rewritten and checking the row count is free,
+   * but all rows are fetched. When the query isn't constrained by a unique
+   * key, bound it to 2 rows (ie: `LIMIT 2`, `TOP 2` on SQL Server).
+   *
+   * @example
+   * ```typescript
+   * const ds = new DummyDatasource();
+   * const { data: row, error } = await ds.queryOne(sql`select 1 as id`);
+   * if (error) {
+   *   // query failure or more than one row
+   *   throw new Error(error.message, { cause: error.cause });
+   * }
+   * if (row === null) {
+   *   // not found, ie: return a 404
+   * }
+   * ```
+   */
+  queryOne = async <TData extends unknown[]>(
+    rawQuery: SqlTag<TData>,
+    options?: QueryOptions
+  ): AsyncQResult<TData[number] | null> =>
+    toOneRowQResult(await this.query<TData>(rawQuery, options));
+
+  /**
+   * Run a query expecting exactly one row and return it.
+   *
+   * Throws a `QErrors.NoResult` when the query returns no row, a `QErrors.TooManyResults`
+   * when it returns more than one and an Error when the query fails. The row
+   * count errors can be replaced with `onNoResult` / `onTooManyResults`
+   * factories, per query or as datasource defaults (`errors` param), and a
+   * `defaultValue` can be returned rather than throwing when there's no row.
+   *
+   * @example
+   * ```typescript
+   * const ds = new DummyDatasource();
+   * const { data: row, meta } = await ds.queryOneOrThrow(sql`select 1 as id`);
+   * ```
+   */
+  queryOneOrThrow = async <TData extends unknown[], TDefault = never>(
+    rawQuery: SqlTag<TData>,
+    options?: QueryOneOrThrowOptions<TDefault>
+  ): Promise<{
+    data: TData[number] | TDefault;
+    meta: QMeta;
+  }> => {
+    const result = await this.queryOne<TData>(rawQuery, options);
+    return {
+      data: getOneRowOrThrow(result, options, this.errors),
       meta: result.meta,
     };
   };

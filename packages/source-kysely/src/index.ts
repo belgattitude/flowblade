@@ -13,4 +13,4 @@ export { TediousConnUtils } from "./utils/tedious-conn-utils.ts";
 
 // Export from @flowblade/core
 export type { QError } from "@flowblade/core";
-export { QResult } from "@flowblade/core";
+export { QErrors, QResult } from "@flowblade/core";

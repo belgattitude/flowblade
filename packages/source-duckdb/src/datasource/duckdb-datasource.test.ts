@@ -18,6 +18,7 @@ import { duckTest as it } from "../../tests/utils/duck-test.ts";
 import {
   DuckdbDatasource,
   flowbladeLogtapeDuckdbConfig,
+  QErrors,
   sql,
 } from "../index.ts";
 
@@ -91,6 +92,179 @@ describe(DuckdbDatasource, () => {
       ).rejects.toThrow(
         'Query failed: Failed to extract statements: Parser Error: syntax error at or near "1"'
       );
+    });
+  });
+
+  describe("queryOne", () => {
+    type Row = { id: number };
+
+    it("should return the row when exactly one matches", async ({ ds }) => {
+      const { data, error } = await ds.queryOne(
+        sql<Row>`SELECT range::INTEGER as id FROM range(1, 10) WHERE id = ${5}::INTEGER`
+      );
+      expect(error).toBeUndefined();
+      expect(data).toStrictEqual({ id: 5 });
+      expectTypeOf(data).toEqualTypeOf<Row | null | undefined>();
+    });
+
+    it("should return null when no row matches", async ({ ds }) => {
+      const result = await ds.queryOne(
+        sql<Row>`SELECT range::INTEGER as id FROM range(1, 10) WHERE id = ${50}::INTEGER`
+      );
+      if (result.error) {
+        throw new Error("Should not fail");
+      }
+      expect(result.data).toBeNull();
+      expectTypeOf(result.data).toEqualTypeOf<Row | null>();
+    });
+
+    it("should map the row", async ({ ds }) => {
+      const result = await ds.queryOne(
+        sql<Row>`SELECT range::INTEGER as id FROM range(1, 10) WHERE id = ${5}::INTEGER`
+      );
+      const { data } = result.map((row) => {
+        return { key: `key-${row.id}` };
+      });
+      expect(data).toStrictEqual({ key: "key-5" });
+    });
+
+    it("should return a TOO_MANY_RESULTS error when more than one row matches", async ({
+      ds,
+    }) => {
+      const { error } = await ds.queryOne(
+        sql<Row>`SELECT range::INTEGER as id FROM range(1, 10)`
+      );
+      expect(error).toMatchObject({
+        message: "Expected exactly one row, received 9",
+        code: "TOO_MANY_RESULTS",
+      });
+      expect(error?.cause).toBeInstanceOf(QErrors.TooManyResults);
+    });
+
+    it("should return the query error when the query fails", async ({ ds }) => {
+      const { error } = await ds.queryOne(sql<Row>`SELECT FRM 1`);
+      expect(error?.code).toBeUndefined();
+      expect(error?.message).toContain("Parser Error");
+    });
+  });
+
+  describe("queryOneOrThrow", () => {
+    type Row = { id: number };
+
+    it("should return the row when exactly one matches", async ({ ds }) => {
+      const { data, meta } = await ds.queryOneOrThrow(
+        sql<Row>`SELECT range::INTEGER as id FROM range(1, 10) WHERE id = ${5}::INTEGER`
+      );
+      expect(data).toStrictEqual({ id: 5 });
+      expect(meta.getSpans()).toHaveLength(1);
+      expectTypeOf(data).toEqualTypeOf<Row>();
+    });
+
+    it("should throw when no row matches", async ({ ds }) => {
+      await expect(
+        ds.queryOneOrThrow(
+          sql<Row>`SELECT range::INTEGER as id FROM range(1, 10) WHERE id = ${50}::INTEGER`
+        )
+      ).rejects.toThrow(
+        expect.objectContaining({
+          name: "QNoResultError",
+          message: "Expected exactly one row, received none",
+          code: "NO_RESULT",
+        })
+      );
+    });
+
+    it("should throw when more than one row matches", async ({ ds }) => {
+      await expect(
+        ds.queryOneOrThrow(
+          sql<Row>`SELECT range::INTEGER as id FROM range(1, 10)`
+        )
+      ).rejects.toThrow(
+        expect.objectContaining({
+          name: "QTooManyResultsError",
+          message: "Expected exactly one row, received 9",
+          code: "TOO_MANY_RESULTS",
+          rowCount: 9,
+        })
+      );
+    });
+
+    it("should throw with the duckdb error as cause when the query fails", async ({
+      ds,
+    }) => {
+      await expect(ds.queryOneOrThrow(sql<Row>`SELECT FRM 1`)).rejects.toThrow(
+        expect.objectContaining({ cause: expect.any(Error) })
+      );
+    });
+  });
+
+  describe("queryOneOrThrow defaultValue", () => {
+    type Row = { id: number };
+    const noRow = sql<Row>`SELECT range::INTEGER as id FROM range(1, 10) WHERE id = ${50}::INTEGER`;
+
+    it("should return the default value when no row matches", async ({
+      ds,
+    }) => {
+      const defaultRow = { id: 0, isDefault: true };
+      const { data, meta } = await ds.queryOneOrThrow(noRow, {
+        defaultValue: defaultRow,
+      });
+      expect(data).toBe(defaultRow);
+      expect(meta.getSpans()).toHaveLength(1);
+      expectTypeOf(data).toEqualTypeOf<
+        Row | { id: number; isDefault: boolean }
+      >();
+    });
+
+    it("should accept null as default value", async ({ ds }) => {
+      const { data } = await ds.queryOneOrThrow(noRow, { defaultValue: null });
+      expect(data).toBeNull();
+      expectTypeOf(data).toEqualTypeOf<Row | null>();
+    });
+
+    it("should still throw when more than one row matches", async ({ ds }) => {
+      await expect(
+        ds.queryOneOrThrow(
+          sql<Row>`SELECT range::INTEGER as id FROM range(1, 10)`,
+          { defaultValue: null }
+        )
+      ).rejects.toBeInstanceOf(QErrors.TooManyResults);
+    });
+  });
+
+  describe("errors", () => {
+    type Row = { id: number };
+    const noRow = sql<Row>`SELECT range::INTEGER as id FROM range(1, 10) WHERE id = ${50}::INTEGER`;
+    const manyRows = sql<Row>`SELECT range::INTEGER as id FROM range(1, 10)`;
+
+    it("should throw the datasource default errors", async ({ ds }) => {
+      const customDs = new DuckdbDatasource({
+        connection: ds.getConnection(),
+        errors: {
+          onNoResult: ({ error }) =>
+            new Error("default not found", { cause: error }),
+          onTooManyResults: ({ rowCount }) =>
+            new Error(`default got ${rowCount}`),
+        },
+      });
+      await expect(customDs.queryOneOrThrow(noRow)).rejects.toThrow(
+        expect.objectContaining({
+          message: "default not found",
+          cause: expect.objectContaining({ code: "NO_RESULT" }),
+        })
+      );
+      await expect(customDs.queryOneOrThrow(manyRows)).rejects.toThrow(
+        "default got 9"
+      );
+      // Not used by queryOne(), which never throws
+      const { error } = await customDs.queryOne(manyRows);
+      expect(error?.code).toBe("TOO_MANY_RESULTS");
+      // Overridden per query
+      await expect(
+        customDs.queryOneOrThrow(noRow, {
+          onNoResult: () => new Error("query not found"),
+        })
+      ).rejects.toThrow("query not found");
     });
   });
 
@@ -301,6 +475,48 @@ describe(DuckdbDatasource, () => {
         })
       );
       expect(Date.now() - start).toBeLessThan(5000);
+    });
+  });
+
+  describe("queryOne logging", () => {
+    type Row = { id: number };
+
+    it("should log more than one row as a warning and no row at debug level", async ({
+      ds,
+    }) => {
+      const logger = {
+        debug: vi.fn<(message: string, properties?: unknown) => void>(),
+        info: vi.fn<(message: string, properties?: unknown) => void>(),
+        error: vi.fn<(message: string, properties?: unknown) => void>(),
+        warn: vi.fn<(message: string, properties?: unknown) => void>(),
+      };
+      const loggedDs = new DuckdbDatasource({
+        connection: ds.getConnection(),
+        logger: logger as never,
+      });
+
+      await loggedDs.queryOne(
+        sql<Row>`SELECT range::INTEGER as id FROM range(1, 4)`,
+        { name: "tooMany" }
+      );
+      expect(logger.warn).toHaveBeenCalledExactlyOnceWith(
+        'Query "{queryName}" expected one row, received {rowCount}',
+        expect.objectContaining({
+          queryName: "tooMany",
+          source: "duckdb",
+          method: "queryOne",
+          rowCount: 3,
+        })
+      );
+
+      await loggedDs.queryOne(
+        sql<Row>`SELECT range::INTEGER as id FROM range(1, 4) WHERE id = ${50}::INTEGER`
+      );
+      expect(logger.debug).toHaveBeenCalledWith(
+        'Query "{queryName}" returned no row',
+        expect.objectContaining({ method: "queryOne", rowCount: 0 })
+      );
+      expect(logger.warn).toHaveBeenCalledOnce();
     });
   });
 

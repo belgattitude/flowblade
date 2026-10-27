@@ -3,33 +3,55 @@ import { type Err, type Ok, Result } from "better-result";
 import { QMeta, type QMetaJsonifiable } from "../meta/q-meta";
 import type { QError } from "./types";
 
-interface ConstructorParams<
-  TData extends unknown[] | undefined,
-  TError extends QError | undefined,
-> {
+/**
+ * Shape of the result data, used by `map()`:
+ * - "many": an array of rows (ie: `query()`)
+ * - "one": a single row or null (ie: `queryOne()`)
+ */
+export type QResultShape = "many" | "one";
+
+interface ConstructorParams<TData, TError extends QError | undefined> {
   meta?: QMeta;
   data?: TData;
   error?: TError;
+  /**
+   * Shape of the data. When omitted, it's "one" for a data that is neither
+   * an array, null nor undefined, otherwise "many". Set "one" when the
+   * data can be null.
+   */
+  shape?: QResultShape;
 }
 
-type InnerOkPayload<TData extends unknown[] | undefined> = {
+type InnerOkPayload<TData> = {
   rows: TData;
   meta: QMeta;
 };
 
-export type QResultJsonifiable<
-  TData extends unknown[] | undefined,
-  TError extends QError | undefined,
-> = {
+/**
+ * Row type of the result data: the array item for "many" results,
+ * the non-null row for "one" results.
+ */
+type QResultRow<TData> = TData extends readonly (infer TRow)[]
+  ? TRow
+  : Exclude<TData, null | undefined>;
+
+/**
+ * Data type after `map()`: an array for "many" results, the mapped row
+ * (or null) for "one" results.
+ */
+type QResultMappedData<TData, TMappedRow> = TData extends readonly unknown[]
+  ? TMappedRow[]
+  : TData extends null | undefined
+    ? TData
+    : TMappedRow;
+
+export type QResultJsonifiable<TData, TError extends QError | undefined> = {
   data?: TData;
   error?: TError;
   meta: QMetaJsonifiable;
 };
 
-export class QResult<
-  TData extends unknown[] | undefined,
-  TError extends QError | undefined,
-> {
+class QResultImpl<TData, TError extends QError | undefined> {
   /**
    * Utility getter to infer the value type of the result.
    * Note: this getter does not hold any value, it's only used for type inference.
@@ -43,6 +65,8 @@ export class QResult<
   declare $inferError: TError;
 
   readonly #meta: QMeta;
+
+  readonly #shape: QResultShape;
 
   readonly #innerResult:
     | Ok<InnerOkPayload<TData>, TError>
@@ -115,6 +139,12 @@ export class QResult<
       new QMeta({
         name: "default",
       });
+    const { data } = params;
+    this.#shape =
+      params.shape ??
+      (data === undefined || data === null || Array.isArray(data)
+        ? "many"
+        : "one");
 
     this.#innerResult =
       params.error === undefined
@@ -131,6 +161,7 @@ export class QResult<
    * This generally includes the query execution time,
    * affected rows, and other metadata.
    *
+   * @example
    * ```typescript
    *  const initialSqlSpan: QMetaSqlSpan = {
    *     type: 'sql',
@@ -187,7 +218,11 @@ export class QResult<
   isError = (): boolean => this.#innerResult.isErr();
 
   /**
-   * Transforms the value of a successful result using the transform callback.
+   * Transforms the rows of a successful result using the transform callback.
+   *
+   * For results holding an array of rows (ie: `query()`), each row is
+   * transformed. For results holding a single row (ie: `queryOne()`), the row
+   * is transformed and null is kept as is.
    *
    * The transform function will add a span to the metas to allow access to metrics
    *
@@ -208,30 +243,44 @@ export class QResult<
    * });
    *
    * // 👇 Type of the new result will properly be inferred as
-   * // QResult<{ name: number; capitalized: string }[] | undefined, QError | undefined>
+   * // QResult<{ name: number; capitalized: string }[], QError>
    *
    * // 👇 A new span of type 'map' will be appended to the meta, allowing
    * //    access to performance metrics
    *
    * console.log(newResult.meta.getLatestSpan()); // { type: 'map', timeMs: 10 }
    *
+   * // 👇 With a single row result, ie: QResult<{ name: string } | null, QError>
+   * const { data } = (await ds.queryOne(query)).map((row) => ({
+   *   capitalized: row.name.toUpperCase(),
+   * }));
+   * // data: { capitalized: string } | null
    * ```
    */
   map = <TMappedRow extends Record<string, unknown>>(
-    transformFn: (row: NonNullable<TData>[number]) => TMappedRow
-  ): QResult<TMappedRow[] | undefined, TError | undefined> => {
+    transformFn: (row: QResultRow<TData>) => TMappedRow
+  ): QResult<QResultMappedData<TData, TMappedRow>, TError | QError> => {
+    type TMappedData = QResultMappedData<TData, TMappedRow>;
     const start = Date.now();
+    const shape = this.#shape;
     if (this.#innerResult.isOk()) {
-      let returned: TMappedRow[] | undefined;
+      let returned: unknown;
       let err: QError | undefined;
       const { rows } = this.#innerResult.value;
       try {
-        if (!Array.isArray(rows)) {
-          throw new TypeError(
-            `QResult.map(): expected data to be an array of rows, received ${rows === null ? "null" : typeof rows}`
-          );
+        if (shape === "one") {
+          returned =
+            rows === null || rows === undefined
+              ? rows
+              : transformFn(rows as QResultRow<TData>);
+        } else {
+          if (!Array.isArray(rows)) {
+            throw new TypeError(
+              `QResult.map(): expected data to be an array of rows, received ${rows === null ? "null" : typeof rows}`
+            );
+          }
+          returned = rows.map((row: QResultRow<TData>) => transformFn(row));
         }
-        returned = rows.map((row) => transformFn(row));
       } catch (error) {
         let message: string;
         if (error instanceof Error) {
@@ -251,23 +300,23 @@ export class QResult<
         timeMs: Date.now() - start,
       });
       if (err === undefined) {
-        return new QResult<TMappedRow[], undefined>({
-          data: returned,
+        return new QResultImpl<TMappedData, TError | QError>({
+          data: returned as TMappedData,
           meta,
-          error: undefined,
-        });
+          shape,
+        }) as QResult<TMappedData, TError | QError>;
       }
-      return new QResult<undefined, TError>({
-        data: undefined,
+      return new QResultImpl<TMappedData, TError | QError>({
         meta,
-        error: err as TError,
-      });
+        error: err,
+        shape,
+      }) as QResult<TMappedData, TError | QError>;
     }
-    return new QResult<undefined, TError>({
-      data: undefined,
+    return new QResultImpl<TMappedData, TError | QError>({
       meta: this.#meta,
       error: this.#innerResult.error,
-    });
+      shape,
+    }) as QResult<TMappedData, TError | QError>;
   };
 
   /**
@@ -306,6 +355,7 @@ export class QResult<
   /**
    * Transforms the result into a JSON-serializable object with `data`, `error`, and `meta`.
    *
+   * @example
    * ```typescript
    *  const initialSqlSpan: QMetaSqlSpan = {
    *     type: 'sql',
@@ -339,3 +389,49 @@ export class QResult<
     return json;
   };
 }
+
+type QResultOk<TData> = {
+  readonly data: TData;
+  readonly error: undefined;
+};
+
+type QResultErr<TError> = {
+  readonly data: undefined;
+  readonly error: TError;
+};
+
+/**
+ * Result of a query, either a success holding `data` or a failure holding `error`.
+ *
+ * `data` holds the rows (ie: `query()` returns `QResult<Row[], QError>`) or,
+ * for single row queries, the row or null (ie: `queryOne()` returns
+ * `QResult<Row | null, QError>`).
+ *
+ * It's a discriminated union: checking `error` narrows `data`, even
+ * after destructuring.
+ *
+ * @example
+ * ```typescript
+ * const { data, error, meta } = await ds.query(sql<{ id: number }>`SELECT 1 as id`);
+ * if (error) {
+ *   // error: QError, data: undefined
+ *   return console.error(error.message);
+ * }
+ * // data: { id: number }[]
+ * ```
+ */
+// The QResult type and value (constructor) share the same name, like a class
+// oxlint-disable-next-line no-redeclare
+export type QResult<TData, TError extends QError | undefined> = QResultImpl<
+  TData,
+  TError
+> &
+  ([NonNullable<TError>] extends [never]
+    ? QResultOk<TData>
+    : QResultOk<TData> | QResultErr<NonNullable<TError>>);
+
+type QResultConstructor = new <TData, TError extends QError | undefined>(
+  params: ConstructorParams<TData, TError>
+) => QResult<TData, TError>;
+
+export const QResult = QResultImpl as unknown as QResultConstructor;
