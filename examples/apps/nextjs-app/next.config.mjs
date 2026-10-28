@@ -16,7 +16,7 @@ const nextConfig = {
   reactCompiler: true,
   compress: serverEnv.NEXT_CONFIG_COMPRESS === "true",
   ...(buildOutput === undefined ? {} : { output: buildOutput }),
-  // transpilePackages: ['@duckdb/duckdb-wasm'],
+  //transpilePackages: ['@duckdb/duckdb-wasm'],
   serverExternalPackages: [
     "@duckdb/node-api",
     "@duckdb/node-bindings",
