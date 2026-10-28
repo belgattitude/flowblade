@@ -1,6 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { QMeta } from "../meta/q-meta";
+import { QResult } from "../query-result/q-result";
+import type { QError } from "../query-result/types";
 import { brandKey } from "../utils/brand";
+import {
+  createQResultSuccess,
+  getOneRowOrThrow,
+  toOneRowQResult,
+} from "../utils/datasource.factories";
+import type { QTooManyResultsErrorFactory } from "./q-error-factories";
 import { QNoResultError } from "./q-no-result-error";
 import { QTooManyResultsError } from "./q-too-many-results-error";
 
@@ -14,7 +23,10 @@ const runInNewContext = await import("node:vm")
  */
 const importOtherCopy = async () => {
   vi.resetModules();
-  return await import("../index");
+  return {
+    ...(await import("../index")),
+    ...(await import("../data-source/index")),
+  };
 };
 
 describe("Cross-realm specs", () => {
@@ -39,6 +51,7 @@ describe("Cross-realm specs", () => {
         expect(noResult).toMatchObject({
           name: "QNoResultError",
           code: "NO_RESULT",
+          statusCode: 404,
         });
         expect(tooMany).toBeInstanceOf(QTooManyResultsError);
         expect(tooMany).toBeInstanceOf(Error);
@@ -46,6 +59,7 @@ describe("Cross-realm specs", () => {
         expect(tooMany).toMatchObject({
           name: "QTooManyResultsError",
           code: "TOO_MANY_RESULTS",
+          statusCode: 500,
           rowCount: 3,
         });
       });
@@ -103,6 +117,89 @@ describe("Cross-realm specs", () => {
           )
         ).not.toBeInstanceOf(QNoResultError);
       });
+
+      it("should apply the onTooManyResults factory to a cause from a new context", () => {
+        const cause = runInNewContext!(
+          `const e = new Error("Expected exactly one row, received 2");
+           Object.assign(e, { code: "TOO_MANY_RESULTS", statusCode: 500, rowCount: 2 });
+           Object.defineProperty(e, Symbol.for(brandName), { value: ["QTooManyResultsError"] });
+           e`,
+          { brandName: Symbol.keyFor(brandKey) }
+        ) as Error;
+        const result = new QResult<{ id: number } | null, QError>({
+          meta: new QMeta({ name: "test" }),
+          error: { message: cause.message, code: "TOO_MANY_RESULTS", cause },
+          shape: "one",
+        });
+        const onTooManyResults = vi.fn<QTooManyResultsErrorFactory>(
+          ({ rowCount }) => new Error(`custom got ${rowCount}`)
+        );
+        expect(() => getOneRowOrThrow(result, { onTooManyResults })).toThrow(
+          "custom got 2"
+        );
+        expect(onTooManyResults).toHaveBeenCalledWith(
+          expect.objectContaining({ error: cause, rowCount: 2 })
+        );
+        // the defaults (ie: datasource defaultOptions) apply too
+        expect(() =>
+          getOneRowOrThrow(result, undefined, { onTooManyResults })
+        ).toThrow("custom got 2");
+        // without factory, the vm error is thrown as is
+        expect(() => getOneRowOrThrow(result)).toThrow(cause);
+      });
+
+      it("should handle rows created in a new context", () => {
+        const meta = new QMeta({ name: "test" });
+        const fromVm = (code: string) =>
+          runInNewContext!(code) as { id: number }[];
+
+        // Array.isArray works across realms, unlike instanceof Array
+        const oneRow = fromVm(`[{ id: 1 }]`);
+        expect(oneRow).not.toBeInstanceOf(Array);
+        const one = toOneRowQResult(createQResultSuccess(oneRow, meta));
+        expect(one.data).toStrictEqual(oneRow[0]);
+        expect(
+          one.map((row) => {
+            return { value: row.id };
+          }).data
+        ).toStrictEqual({
+          value: 1,
+        });
+        expect(getOneRowOrThrow(one)).toBe(oneRow[0]);
+
+        const none = toOneRowQResult(createQResultSuccess(fromVm(`[]`), meta));
+        expect(none.data).toBeNull();
+        expect(() => getOneRowOrThrow(none)).toThrow(QNoResultError);
+        expect(getOneRowOrThrow(none, { defaultValue: "default" })).toBe(
+          "default"
+        );
+
+        const many = toOneRowQResult(
+          createQResultSuccess(fromVm(`[{ id: 1 }, { id: 2 }]`), meta)
+        );
+        expect(many.error?.cause).toBeInstanceOf(QTooManyResultsError);
+        expect(() => getOneRowOrThrow(many)).toThrow(QTooManyResultsError);
+
+        // shape inference: a vm array holds rows, a vm object is a single row
+        const rows = new QResult({ data: fromVm(`[{ id: 1 }, { id: 2 }]`) });
+        // mapped with the vm Array.prototype.map: copied to compare the values,
+        // toStrictEqual also compares the (realm) prototypes
+        expect([
+          ...(rows.map((row) => {
+            return { value: row.id };
+          }).data ?? []),
+        ]).toStrictEqual([{ value: 1 }, { value: 2 }]);
+        const single = new QResult({
+          data: runInNewContext!(`({ id: 3 })`) as { id: number },
+        });
+        expect(
+          single.map((row) => {
+            return { value: row.id };
+          }).data
+        ).toStrictEqual({
+          value: 3,
+        });
+      });
     }
   );
 
@@ -148,6 +245,39 @@ describe("Cross-realm specs", () => {
         other.createQResultSuccess([], new other.QMeta({ name: "test" }))
       );
       expect(() => other.getOneRowOrThrow(noRow)).toThrow(QNoResultError);
+    });
+
+    it("should keep statusCode across copies", async () => {
+      const other = await importOtherCopy();
+      const noResult = new other.QErrors.NoResult();
+      expect(noResult).toBeInstanceOf(QNoResultError);
+      expect(noResult).toMatchObject({ statusCode: 404 });
+      const tooMany = new other.QErrors.TooManyResults(2);
+      expect(tooMany).toBeInstanceOf(QTooManyResultsError);
+      expect(tooMany).toMatchObject({ statusCode: 500, rowCount: 2 });
+    });
+
+    it("should apply the factories to results created by another copy", async () => {
+      const other = await importOtherCopy();
+      const meta = new other.QMeta({ name: "test" });
+      const many = other.toOneRowQResult(
+        other.createQResultSuccess([{ id: 1 }, { id: 2 }], meta)
+      );
+      const onTooManyResults = vi.fn<QTooManyResultsErrorFactory>(
+        ({ rowCount }) => new Error(`custom got ${rowCount}`)
+      );
+      expect(() => getOneRowOrThrow(many, { onTooManyResults })).toThrow(
+        "custom got 2"
+      );
+      expect(onTooManyResults).toHaveBeenCalledOnce();
+
+      // and the other way around, with datasource defaults
+      const manyHere = toOneRowQResult(
+        createQResultSuccess([{ id: 1 }, { id: 2 }], new QMeta({ name: "t" }))
+      );
+      expect(() =>
+        other.getOneRowOrThrow(manyHere, undefined, { onTooManyResults })
+      ).toThrow("custom got 2");
     });
   });
 

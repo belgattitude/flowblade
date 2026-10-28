@@ -1,8 +1,8 @@
-import { QNoResultError } from "../errors/q-no-result-error";
 import type {
   QOneRowErrorFactories,
   QOneRowNoResultOptions,
-} from "../errors/q-one-row-error-factories";
+} from "../errors/q-error-factories";
+import { QNoResultError } from "../errors/q-no-result-error";
 import { QTooManyResultsError } from "../errors/q-too-many-results-error";
 import type { QMeta, QMetaSqlSpan } from "../meta/q-meta";
 import { QResult } from "../query-result/q-result";
@@ -93,39 +93,29 @@ export const toOneRowQResult = <TData extends unknown[]>(
  * When there's no row, returns `defaultValue` if set in the options, otherwise
  * throws the `onNoResult` factory error or a `QErrors.NoResult`. Throws the
  * `onTooManyResults` factory error or a `QErrors.TooManyResults` when there's
- * more than one and, for query failures, an Error prefixed with
- * "Query failed: " holding the driver error as cause.
+ * more than one and, like `QResult.getOrThrow()`, the `onError` factory error
+ * or a `QErrors.QueryFailed` / `QErrors.Aborted` when the query failed.
  *
  * Error factories set in the options win over the defaults (ie: datasource
- * `errors` param).
+ * `defaultOptions.queryOneOrThrow` param).
  */
 export const getOneRowOrThrow = <TRow, TDefault = never>(
   result: QResult<TRow | null, QError>,
-  options?: Pick<QOneRowErrorFactories, "onTooManyResults"> &
+  options?: Pick<QOneRowErrorFactories, "onError" | "onTooManyResults"> &
     QOneRowNoResultOptions<TDefault>,
   defaults?: QOneRowErrorFactories
 ): TRow | TDefault => {
-  const { meta } = result;
-  const factories = [options, defaults];
-  const row = result.getOrThrow((qErr) => {
-    const { cause } = qErr;
-    if (cause instanceof QTooManyResultsError) {
-      const factory = factories.find(
-        (f) => f?.onTooManyResults
-      )?.onTooManyResults;
-      return (
-        factory?.({ error: cause, rowCount: cause.rowCount, meta }) ?? cause
-      );
-    }
-    return new Error(`Query failed: ${qErr.message}`, { cause });
+  const row = result.getOrThrow({
+    onError: options?.onError ?? defaults?.onError,
+    onTooManyResults: options?.onTooManyResults ?? defaults?.onTooManyResults,
   });
   if (row === null) {
     if (options !== undefined && "defaultValue" in options) {
       return options.defaultValue as TDefault;
     }
     const error = new QNoResultError();
-    const factory = factories.find((f) => f?.onNoResult)?.onNoResult;
-    throw factory?.({ error, meta }) ?? error;
+    const onNoResult = options?.onNoResult ?? defaults?.onNoResult;
+    throw onNoResult?.({ error, meta: result.meta }) ?? error;
   }
   return row;
 };

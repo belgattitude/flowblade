@@ -1,20 +1,23 @@
 import type { SqlTag } from "@flowblade/sql-tag";
 
 import {
-  type AsyncQResult,
   createQResultError,
   createQResultSuccess,
   createSqlSpan,
-  type DatasourceInterface,
   getOneRowOrThrow,
+  toOneRowQResult,
+} from "../data-source/index";
+import {
+  type AsyncQResult,
+  type DatasourceInterface,
   type QError,
   QMeta,
-  type QOneRowErrorFactories,
+  type DatasourceDefaultOptions,
   type QResult,
   type QueryOneOrThrowOptions,
   type QueryOptions,
+  type QueryOrThrowOptions,
   type QueryStreamOptions,
-  toOneRowQResult,
 } from "../index";
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -22,9 +25,9 @@ type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-a
 type DummyDatasourceParams = {
   connection: VoluntaryAny;
   /**
-   * Default errors thrown by `queryOneOrThrow()`.
+   * Default options, keyed by method name (ie: `queryOneOrThrow` errors).
    */
-  errors?: QOneRowErrorFactories;
+  defaultOptions?: DatasourceDefaultOptions;
 };
 
 /**
@@ -32,12 +35,12 @@ type DummyDatasourceParams = {
  */
 export class DummyDatasource implements DatasourceInterface {
   private readonly db: VoluntaryAny;
-  private readonly errors: QOneRowErrorFactories | undefined;
+  private readonly defaultOptions: DatasourceDefaultOptions;
 
   constructor(params: DummyDatasourceParams) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.db = params.connection;
-    this.errors = params.errors;
+    this.defaultOptions = params.defaultOptions ?? {};
   }
 
   /**
@@ -103,6 +106,8 @@ export class DummyDatasource implements DatasourceInterface {
       return createQResultError(
         {
           message: (error as Error).message,
+          code: "QUERY_FAILED",
+          cause: error,
         },
         new QMeta({
           name,
@@ -127,16 +132,16 @@ export class DummyDatasource implements DatasourceInterface {
    */
   queryOrThrow = async <TData extends unknown[]>(
     rawQuery: SqlTag<TData>,
-    options?: QueryOptions
+    options?: QueryOrThrowOptions
   ): Promise<{
     data: TData;
     meta: QMeta;
   }> => {
     const result = await this.query<TData>(rawQuery, options);
     return {
-      data: result.getOrThrow(
-        (qErr) => new Error(`Query failed: ${qErr.message}`)
-      ),
+      data: result.getOrThrow({
+        onError: options?.onError ?? this.defaultOptions.queryOrThrow?.onError,
+      }),
       meta: result.meta,
     };
   };
@@ -178,11 +183,11 @@ export class DummyDatasource implements DatasourceInterface {
   /**
    * Run a query expecting exactly one row and return it.
    *
-   * Throws a `QErrors.NoResult` when the query returns no row, a `QErrors.TooManyResults`
-   * when it returns more than one and an Error when the query fails. The row
-   * count errors can be replaced with `onNoResult` / `onTooManyResults`
-   * factories, per query or as datasource defaults (`errors` param), and a
-   * `defaultValue` can be returned rather than throwing when there's no row.
+   * Throws a `QErrors.NoResult` when the query returns no row (unless a
+   * `defaultValue` is set), a `QErrors.TooManyResults` when it returns more
+   * than one and an Error when the query fails. The row count errors can be
+   * replaced with `onNoResult` / `onTooManyResults` factories, per query or
+   * with the `defaultOptions.queryOneOrThrow` param.
    *
    * @example
    * ```typescript
@@ -199,7 +204,11 @@ export class DummyDatasource implements DatasourceInterface {
   }> => {
     const result = await this.queryOne<TData>(rawQuery, options);
     return {
-      data: getOneRowOrThrow(result, options, this.errors),
+      data: getOneRowOrThrow(
+        result,
+        options,
+        this.defaultOptions.queryOneOrThrow
+      ),
       meta: result.meta,
     };
   };

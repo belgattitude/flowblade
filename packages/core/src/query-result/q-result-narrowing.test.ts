@@ -14,7 +14,10 @@ type Row = { id: number };
 
 const getResult = (fail: boolean): QResult<Row[], QError> =>
   fail
-    ? createQResultError({ message: "failed" }, new QMeta({}))
+    ? createQResultError(
+        { message: "failed", code: "QUERY_FAILED" },
+        new QMeta({})
+      )
     : createQResultSuccess<Row[]>([{ id: 1 }], new QMeta({}));
 
 describe("QResult discriminated union", () => {
@@ -47,6 +50,28 @@ describe("QResult discriminated union", () => {
     }
     expectTypeOf(result.data).toEqualTypeOf<Row[]>();
     expect(result).toBeInstanceOf(QResult);
+  });
+
+  it("should narrow with isOk() and isError()", () => {
+    const success = getResult(false);
+    if (!success.isOk()) {
+      expectTypeOf(success.error).toEqualTypeOf<QError>();
+      throw new Error("Should not fail");
+    }
+    expectTypeOf(success.data).toEqualTypeOf<Row[]>();
+    expectTypeOf(success.error).toEqualTypeOf<undefined>();
+    expect(success.data).toStrictEqual([{ id: 1 }]);
+
+    const failure = getResult(true);
+    if (!failure.isError()) {
+      expectTypeOf(failure.data).toEqualTypeOf<Row[]>();
+      throw new Error("Should fail");
+    }
+    expectTypeOf(failure.error).toEqualTypeOf<QError>();
+    expectTypeOf(failure.data).toEqualTypeOf<undefined>();
+    expect(failure.error.code).toBe("QUERY_FAILED");
+    // the result methods are still available after narrowing
+    expect(failure.toJsonifiable().error?.code).toBe("QUERY_FAILED");
   });
 
   it("should narrow mapped results", () => {

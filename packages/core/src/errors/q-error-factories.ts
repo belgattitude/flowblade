@@ -1,6 +1,22 @@
 import type { QMeta } from "../meta/q-meta";
+import type { QError } from "../query-result/types";
 import type { QNoResultError } from "./q-no-result-error";
 import type { QTooManyResultsError } from "./q-too-many-results-error";
+
+/**
+ * Create the error thrown for a failed result, ie: by `QResult.getOrThrow()`.
+ */
+export type QErrorFactory = (context: {
+  /**
+   * The default error (ie: `QErrors.QueryFailed`), useful as `cause`
+   */
+  error: Error;
+  /**
+   * The error of the result, ie: to switch on its `code`
+   */
+  qError: QError;
+  meta: QMeta;
+}) => Error;
 
 /**
  * Create the error thrown when a query expecting one row returns none.
@@ -30,10 +46,12 @@ export type QTooManyResultsErrorFactory = (context: {
 
 /**
  * Replace the errors thrown by `queryOneOrThrow()`,
- * ie: to throw your own (http) errors rather than `QErrors.NoResult` and
- * `QErrors.TooManyResults`.
+ * ie: to throw your own (http) errors rather than `QErrors.NoResult`,
+ * `QErrors.TooManyResults` and, with `onError`, the query failures
+ * (`QErrors.QueryFailed` / `QErrors.Aborted`).
  *
- * Can be set as datasource defaults (`errors` param) and overridden per query.
+ * Can be set as datasource defaults (`defaultOptions.queryOneOrThrow` param)
+ * and overridden per query.
  *
  * @example
  * ```typescript
@@ -51,7 +69,37 @@ export type QTooManyResultsErrorFactory = (context: {
  * ```
  */
 export type QOneRowErrorFactories = {
+  onError?: QErrorFactory;
   onNoResult?: QNoResultErrorFactory;
+  onTooManyResults?: QTooManyResultsErrorFactory;
+};
+
+/**
+ * Replace the errors thrown by `QResult.getOrThrow()`, with the same
+ * factory style as `queryOneOrThrow()`:
+ * - `onTooManyResults`: the result has more than one row ("TOO_MANY_RESULTS"),
+ * - `onError`: the other failures, ie: the query failed ("QUERY_FAILED",
+ *   "ABORTED") or the `map()` transform threw ("MAP_FAILED").
+ *
+ * @example
+ * ```typescript
+ * import { HttpInternalServerError, HttpServiceUnavailable } from "@httpx/exception";
+ *
+ * const row = (await ds.queryOne(query)).getOrThrow({
+ *   onError: ({ error, qError }) =>
+ *     qError.code === "ABORTED"
+ *       ? new HttpServiceUnavailable({ cause: error })
+ *       : new HttpInternalServerError({ cause: error }),
+ *   onTooManyResults: ({ error, rowCount }) =>
+ *     new HttpInternalServerError({
+ *       message: `Expected one row, got ${rowCount}`,
+ *       cause: error,
+ *     }),
+ * });
+ * ```
+ */
+export type QGetOrThrowErrorFactories = {
+  onError?: QErrorFactory;
   onTooManyResults?: QTooManyResultsErrorFactory;
 };
 

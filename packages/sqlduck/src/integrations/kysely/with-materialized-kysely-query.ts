@@ -1,6 +1,7 @@
 import { DuckDBConnection } from "@duckdb/node-api";
 import type { AsyncQResult, QMetaMaterializationSpan } from "@flowblade/core";
-import { createQResultError, QMeta } from "@flowblade/core";
+import { QMeta } from "@flowblade/core";
+import { createQResultError } from "@flowblade/core/datasource";
 import { DuckdbDatasource } from "@flowblade/source-duckdb";
 
 import type { Table } from "../../objects/table.ts";
@@ -91,7 +92,7 @@ export const withMaterializedKyselyQuery = async <
   ] as const) {
     if (name !== undefined && !isDuckdbValidIdentifier(name)) {
       return createQResultError(
-        { message: `Invalid ${kind} name '${name}'` },
+        { message: `Invalid ${kind} name '${name}'`, code: "QUERY_FAILED" },
         new QMeta({})
       );
     }
@@ -120,6 +121,7 @@ export const withMaterializedKyselyQuery = async <
       return createQResultError(
         {
           message: `Can't materialize table ${materializedTable.getFullName()} - ${getErrorMessage(error)}`,
+          code: "QUERY_FAILED",
           cause: error,
         },
         new QMeta({})

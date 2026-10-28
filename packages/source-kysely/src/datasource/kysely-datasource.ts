@@ -1,19 +1,22 @@
 import {
+  type AsyncQResult,
+  type DatasourceInterface,
+  QErrors,
+  QMeta,
+  type QMetaSqlSpan,
+  type DatasourceDefaultOptions,
+  type QueryOneOrThrowOptions,
+  type QueryOptions,
+  type QueryOrThrowOptions,
+  type QueryStreamOptions,
+} from "@flowblade/core";
+import {
   createQResultError,
   createQResultSuccess,
   createSqlSpan,
-  type DatasourceInterface,
-  type QError,
   getOneRowOrThrow,
-  QMeta,
-  type QMetaSqlSpan,
-  type QOneRowErrorFactories,
-  type QResult,
-  type QueryOneOrThrowOptions,
-  type QueryOptions,
-  type QueryStreamOptions,
   toOneRowQResult,
-} from "@flowblade/core";
+} from "@flowblade/core/datasource";
 import type { Logger } from "@logtape/logtape";
 import type {
   Compilable,
@@ -37,15 +40,8 @@ type Params<TDatabase> = {
    */
   logger?: Logger;
   /**
-   * What happens to an in-flight query when its `signal` is aborted.
-   *
-   * - `'ignore query'` (Kysely default): stop waiting for the results, the query
-   *   keeps running on the database and the connection is released once it settles.
-   * - `'cancel query'`: cancel the query on the database (ie: mssql, postgres, mysql).
-   *   Falls back to `'ignore query'` with a warning when the dialect can't.
-   * - `'kill session'`: kill the database session running the query.
-   *
-   * Can be overridden per query.
+   * @deprecated Use `defaultOptions.query.inflightQueryAbortStrategy`
+   * instead, the `defaultOptions` value wins when both are set.
    */
   inflightQueryAbortStrategy?: InflightQueryAbortStrategy;
   /**
@@ -58,32 +54,67 @@ type Params<TDatabase> = {
    */
   logParams?: boolean;
   /**
-   * Default errors thrown by `queryOneOrThrow()`
-   * when the query doesn't return exactly one row, overridable per query.
+   * Default options, keyed by method name, the options passed per query win:
+   * - `query`: options of `query()`, also used by the methods running it
+   *   (`queryOrThrow()`, `queryOne()` and `queryOneOrThrow()`),
+   * - `queryOrThrow` / `queryOneOrThrow`: error factories, used by the named
+   *   method only.
    *
    * @example
    * ```typescript
    * import { HttpInternalServerError, HttpNotFound } from "@httpx/exception";
    *
-   * errors: {
-   *   onNoResult: ({ error }) =>
-   *     new HttpNotFound({ message: "Resource not found", cause: error }),
-   *   onTooManyResults: ({ error, rowCount }) =>
-   *     new HttpInternalServerError({
-   *       message: `Expected one row, got ${rowCount}`,
-   *       cause: error,
-   *     }),
+   * defaultOptions: {
+   *   query: {
+   *     // Cancel aborted queries on the database (Kysely default: 'ignore query')
+   *     inflightQueryAbortStrategy: "cancel query",
+   *   },
+   *   // Used by queryOrThrow() only, query() never throws
+   *   queryOrThrow: {
+   *     onError: ({ error }) => new HttpInternalServerError({ cause: error }),
+   *   },
+   *   // Used by queryOneOrThrow() only, queryOne() never throws
+   *   queryOneOrThrow: {
+   *     onError: ({ error }) => new HttpInternalServerError({ cause: error }),
+   *     onNoResult: ({ error }) =>
+   *       new HttpNotFound({ message: "Resource not found", cause: error }),
+   *     onTooManyResults: ({ error, rowCount }) =>
+   *       new HttpInternalServerError({
+   *         message: `Expected one row, got ${rowCount}`,
+   *         cause: error,
+   *       }),
+   *   },
    * }
    * ```
    */
-  errors?: QOneRowErrorFactories;
+  defaultOptions?: KyselyDatasourceDefaultOptions;
 };
 
 export type KyselyQueryOptions = QueryOptions & {
   /**
-   * Override the datasource `inflightQueryAbortStrategy` for this query.
+   * What happens to an in-flight query when its `signal` is aborted.
+   *
+   * - `'ignore query'` (Kysely default): stop waiting for the results, the query
+   *   keeps running on the database and the connection is released once it settles.
+   * - `'cancel query'`: cancel the query on the database (ie: mssql, postgres, mysql).
+   *   Falls back to `'ignore query'` with a warning when the dialect can't.
+   * - `'kill session'`: kill the database session running the query.
+   *
+   * Defaults to the datasource `defaultOptions.query.inflightQueryAbortStrategy`.
    */
   inflightQueryAbortStrategy?: InflightQueryAbortStrategy;
+};
+
+/**
+ * Datasource default options of the `KyselyDatasource`: the core defaults
+ * plus the `query()` options.
+ */
+export type KyselyDatasourceDefaultOptions = DatasourceDefaultOptions & {
+  /**
+   * Default options of `query()`, also used by the methods running it
+   * (`queryOrThrow()`, `queryOne()` and `queryOneOrThrow()`).
+   */
+  query?: Pick<KyselyQueryOptions, "inflightQueryAbortStrategy">;
 };
 
 type KyselyQueryOrRawQuery<T = unknown> = Compilable<T> | RawBuilder<T>;
@@ -98,10 +129,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   private readonly db: Kysely<TDatabase>;
   private readonly logger: Logger;
   private readonly logParams: boolean;
-  private readonly errors: QOneRowErrorFactories | undefined;
-  private readonly inflightQueryAbortStrategy:
-    | InflightQueryAbortStrategy
-    | undefined;
+  private readonly defaultOptions: KyselyDatasourceDefaultOptions;
 
   /**
    * Return a new Kysely expression builder.
@@ -142,9 +170,17 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   constructor(params: Params<TDatabase>) {
     this.db = params.connection;
     this.logger = params.logger ?? kyselyDefaultLogtapeLogger;
-    this.inflightQueryAbortStrategy = params.inflightQueryAbortStrategy;
     this.logParams = params.logParams ?? true;
-    this.errors = params.errors;
+    // oxlint-disable-next-line typescript/no-deprecated -- still supported as an alias
+    const { defaultOptions = {}, inflightQueryAbortStrategy } = params;
+    this.defaultOptions = {
+      ...defaultOptions,
+      query: {
+        // deprecated param, kept as an alias
+        inflightQueryAbortStrategy,
+        ...defaultOptions.query,
+      },
+    };
   }
 
   /**
@@ -158,16 +194,18 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   /**
    * Run a query and return a QResult object.
    *
-   * It never throws: when the query fails, `error` holds a QError (message and
-   * the driver error as `cause`) and `data` is undefined. `meta` is always
-   * present (sql, params, timing, affected rows...).
+   * It never throws: when the query fails, `error` holds a QError (message,
+   * `code` "QUERY_FAILED" and the driver error as `cause`, or `code`
+   * "ABORTED" and the abort reason as `cause`) and `data` is undefined.
+   * `meta` is always present (sql, params, timing, affected rows...).
    *
    * The result is a discriminated union: checking `error` narrows `data`,
    * even after destructuring.
    *
    * Accepts a Kysely query builder or a raw `sql` query from kysely. When
-   * aborted with `signal`, the `inflightQueryAbortStrategy` decides what
-   * happens to the running query.
+   * aborted with `signal`, the `inflightQueryAbortStrategy` option (default:
+   * `defaultOptions.query.inflightQueryAbortStrategy`) decides what happens
+   * to the running query.
    *
    * Use `queryOrThrow()` to get the rows directly and throw on error instead.
    *
@@ -208,7 +246,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   >(
     query: TQuery,
     options?: KyselyQueryOptions
-  ): Promise<QResult<TData, QError>> => {
+  ): AsyncQResult<TData> => {
     const name = options?.name ?? "anonymous";
 
     const compiled = query.compile(this.db);
@@ -229,7 +267,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         signal: options?.signal,
         inflightQueryAbortStrategy:
           options?.inflightQueryAbortStrategy ??
-          this.inflightQueryAbortStrategy,
+          this.defaultOptions.query?.inflightQueryAbortStrategy,
       });
       const { numAffectedRows, ...result } = r;
       span.timeMs = Date.now() - start;
@@ -254,10 +292,15 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         errorMessage: message,
       });
 
+      // Report an aborted query with the abort reason as cause, whatever
+      // the dialect threw
+      const signal = options?.signal;
+      const aborted = signal?.aborted === true;
       return createQResultError(
         {
           message,
-          cause: error,
+          code: aborted ? "ABORTED" : "QUERY_FAILED",
+          cause: aborted ? signal.reason : error,
         },
         new QMeta({
           name,
@@ -270,8 +313,11 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   /**
    * Run a query and return the rows directly, or throw when it fails.
    *
-   * The thrown Error message is prefixed with "Query failed: " and its
-   * `cause` holds the driver error.
+   * Throws a `QErrors.QueryFailed` (message prefixed with "Query failed: ",
+   * the driver error as `cause`), or a `QErrors.Aborted` when aborted with
+   * `signal` (the abort reason as `cause`). To throw your own error, pass
+   * an `onError` factory, per query or for the whole datasource with the
+   * `defaultOptions.queryOrThrow` param.
    *
    * Use `query()` to handle errors without try/catch.
    *
@@ -293,17 +339,16 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
   >(
     query: TQuery,
-    options?: KyselyQueryOptions
+    options?: KyselyQueryOptions & QueryOrThrowOptions
   ): Promise<{
     data: TData;
     meta: QMeta;
   }> => {
     const result = await this.query<TQuery, TData>(query, options);
     return {
-      data: result.getOrThrow(
-        (qErr) =>
-          new Error(`Query failed: ${qErr.message}`, { cause: qErr.cause })
-      ),
+      data: result.getOrThrow({
+        onError: options?.onError ?? this.defaultOptions.queryOrThrow?.onError,
+      }),
       meta: result.meta,
     };
   };
@@ -314,12 +359,12 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    * throws and checking `error` narrows `data`.
    *
    * When the query returns more than one row, the result is an error with
-   * `code` "TOO_MANY_RESULTS" and a `QErrors.TooManyResults` as `cause`.
+   * `code` "TOO_MANY_RESULTS" and a `QErrors.TooManyResults` as `cause`
+   * (query failures: "QUERY_FAILED" or "ABORTED").
    *
    * Check `error` before falling back on `data` (ie: `data ?? fallback`): on
    * error, `data` is undefined and the fallback would hide the failure. For
    * a one-liner, prefer `queryOneOrThrow(query, { defaultValue })`.
-   * Query failures have no `code`.
    *
    * More than one row is logged as a warning, no row at debug level (often
    * an expected outcome). Also applies to `queryOneOrThrow()`.
@@ -352,7 +397,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   >(
     query: TQuery,
     options?: KyselyQueryOptions
-  ): Promise<QResult<TData[number] | null, QError>> => {
+  ): AsyncQResult<TData[number] | null> => {
     const result = await this.query<TQuery, TData>(query, options);
     if (result.error === undefined) {
       this.logRowCount(result.meta, result.data.length);
@@ -363,15 +408,23 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   /**
    * Run a query expecting exactly one row and return it.
    *
-   * Throws a `QErrors.NoResult` when the query returns no row, a `QErrors.TooManyResults`
-   * when it returns more than one and, like `queryOrThrow()`, an Error with
-   * the driver error as `cause` when the query fails.
+   * Throws when the query doesn't return exactly one row:
+   * - no row: a `QErrors.NoResult`, unless a `defaultValue` is set (returned
+   *   instead),
+   * - more than one row: a `QErrors.TooManyResults` (with `rowCount`).
    *
-   * Use it when the row must exist. The thrown errors can be replaced with
-   * `onNoResult` / `onTooManyResults` factories, per query or as datasource
-   * defaults (`errors` param). When the row might not exist, set a
-   * `defaultValue` (returned rather than throwing when there's no row) or
-   * use `queryOne()`.
+   * Like `queryOrThrow()`, a query failure throws a `QErrors.QueryFailed`
+   * (or a `QErrors.Aborted`).
+   *
+   * The errors can be replaced with `onNoResult` / `onTooManyResults` /
+   * `onError` (query failures) factories, per query or for the whole
+   * datasource with the `defaultOptions.queryOneOrThrow` param (per query
+   * options win).
+   * When the row might not exist, set a `defaultValue` or use `queryOne()`.
+   *
+   * Not to be confused with `(await ds.queryOne(query)).getOrThrow()`, which
+   * returns null when there's no row (it throws the same errors otherwise)
+   * and ignores the `defaultOptions.queryOneOrThrow` factories.
    *
    * Note: the SQL is never rewritten and checking the row count is free,
    * but all rows are fetched. When the query isn't constrained by a unique
@@ -388,9 +441,9 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    *   .where("b.id", "=", id);
    *
    * // Throws when there isn't exactly one row
-   * const { data: brand, meta } = await ds.queryOneOrThrow(query);
+   * const { data: row, meta } = await ds.queryOneOrThrow(query);
    *
-   * // Or throw your own error (also settable as datasource default)
+   * // Or throw your own error (for the whole datasource: `defaultOptions.queryOneOrThrow`)
    * const { data: brand } = await ds.queryOneOrThrow(query, {
    *   onNoResult: ({ error }) =>
    *     new HttpNotFound({ message: `Brand ${id} not found`, cause: error }),
@@ -415,7 +468,11 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
   }> => {
     const result = await this.queryOne<TQuery, TData>(query, options);
     return {
-      data: getOneRowOrThrow(result, options, this.errors),
+      data: getOneRowOrThrow(
+        result,
+        options,
+        this.defaultOptions.queryOneOrThrow
+      ),
       meta: result.meta,
     };
   };
@@ -428,7 +485,8 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    * depends on the dialect). Breaking or returning before the stream has
    * ended is supported and releases the database connection.
    *
-   * Unlike `query()`, errors are thrown while iterating. Only query builders
+   * Unlike `query()`, errors are thrown while iterating: a `QErrors.QueryFailed`,
+   * or a `QErrors.Aborted` when aborted with `signal`. Only query builders
    * can be streamed, raw `sql` queries throw.
    *
    * @example
@@ -449,7 +507,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    * ```
    *
    * @yields Each row of the query result as it is streamed.
-   * @throws Error with the driver error as cause when the query fails.
+   * @throws QErrors.QueryFailed with the driver error as cause when the query fails, QErrors.Aborted with the abort reason as cause when aborted.
    */
   async *stream<
     TQuery extends KyselyQueryOrRawQuery,
@@ -504,9 +562,11 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         }
       );
 
-      throw new Error(message, {
-        cause: error,
-      });
+      if (signal?.aborted === true) {
+        // oxlint-disable-next-line preserve-caught-error -- the abort reason is the intended cause
+        throw new QErrors.Aborted(message, { cause: signal.reason });
+      }
+      throw new QErrors.QueryFailed(message, { cause: error });
     } finally {
       // Runs on completion, on early exit (break / return) and on failure,
       // the failure being already logged as an error above.

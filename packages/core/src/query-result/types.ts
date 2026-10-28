@@ -1,17 +1,25 @@
 import type { QResult } from "./q-result";
 
 /**
- * Error codes set by flowblade itself (driver error codes are kept in the cause).
+ * Error codes, always set on a QError (driver error codes are kept in the cause):
+ * - "QUERY_FAILED": the query failed, the driver error is the cause,
+ * - "ABORTED": the query was aborted with its `signal`, the abort reason is the cause,
+ * - "TOO_MANY_RESULTS": `queryOne()` got more than one row, a `QErrors.TooManyResults` is the cause,
+ * - "MAP_FAILED": the `QResult.map()` transform threw, the thrown error is the cause.
  */
-export type QErrorCode = "TOO_MANY_RESULTS";
+export type QErrorCode =
+  | "QUERY_FAILED"
+  | "ABORTED"
+  | "TOO_MANY_RESULTS"
+  | "MAP_FAILED";
 
 export type QError = {
   message: string;
   /**
-   * Set when the error originates from flowblade rather than the driver,
-   * ie: `queryOne()` returning more than one row ("TOO_MANY_RESULTS").
+   * What failed, ie: "QUERY_FAILED" or "ABORTED" (see QErrorCode), useful
+   * to `switch` over the errors.
    */
-  code?: QErrorCode;
+  code: QErrorCode;
   /**
    * The original error (ie: the driver error), useful to inspect
    * driver specific details like error codes.

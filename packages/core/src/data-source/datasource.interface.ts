@@ -1,9 +1,10 @@
 import type {
+  QErrorFactory,
   QOneRowErrorFactories,
   QOneRowNoResultOptions,
-} from "../errors/q-one-row-error-factories";
+} from "../errors/q-error-factories";
 import type { QMeta } from "../meta/q-meta";
-import type { QResult } from "../query-result/q-result";
+import type { AsyncQResult } from "../query-result/types";
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -28,13 +29,64 @@ export type QueryStreamOptions = QueryOptions & {
 };
 
 /**
+ * Options of `queryOrThrow()`: `onError` overrides the datasource default
+ * (`defaultOptions.queryOrThrow` param).
+ */
+export type QueryOrThrowOptions = QueryOptions & {
+  /**
+   * Create the error thrown when the query fails, rather than a
+   * `QErrors.QueryFailed` / `QErrors.Aborted` (received as `error`).
+   */
+  onError?: QErrorFactory;
+};
+
+/**
  * Options of `queryOneOrThrow()`: the error factories override the
- * datasource defaults (`errors` param), `defaultValue` is returned rather
- * than throwing when there's no row.
+ * datasource defaults (`defaultOptions.queryOneOrThrow` param),
+ * `defaultValue` is returned rather than throwing when there's no row.
  */
 export type QueryOneOrThrowOptions<TDefault = never> = QueryOptions &
-  Pick<QOneRowErrorFactories, "onTooManyResults"> &
+  Pick<QOneRowErrorFactories, "onError" | "onTooManyResults"> &
   QOneRowNoResultOptions<TDefault>;
+
+/**
+ * Datasource level default options, keyed by method name. Only the named
+ * method uses them, and the options passed per query win.
+ *
+ * @example
+ * ```typescript
+ * import { HttpInternalServerError, HttpNotFound } from "@httpx/exception";
+ *
+ * const defaultOptions: DatasourceDefaultOptions = {
+ *   // Used by queryOrThrow() only, query() never throws
+ *   queryOrThrow: {
+ *     onError: ({ error }) => new HttpInternalServerError({ cause: error }),
+ *   },
+ *   // Used by queryOneOrThrow() only, queryOne() never throws
+ *   queryOneOrThrow: {
+ *     onError: ({ error }) => new HttpInternalServerError({ cause: error }),
+ *     onNoResult: ({ error }) =>
+ *       new HttpNotFound({ message: "Resource not found", cause: error }),
+ *     onTooManyResults: ({ error, rowCount }) =>
+ *       new HttpInternalServerError({
+ *         message: `Expected one row, got ${rowCount}`,
+ *         cause: error,
+ *       }),
+ *   },
+ * };
+ * ```
+ */
+export type DatasourceDefaultOptions = {
+  /**
+   * Default error factory of `queryOrThrow()`, used when the query fails.
+   */
+  queryOrThrow?: Pick<QueryOrThrowOptions, "onError">;
+  /**
+   * Default error factories of `queryOneOrThrow()`, used when the query
+   * fails (`onError`) or doesn't return exactly one row.
+   */
+  queryOneOrThrow?: QOneRowErrorFactories;
+};
 
 /**
  * Contract implemented by the flowblade datasources (ie: DuckdbDatasource,
@@ -46,7 +98,10 @@ export type QueryOneOrThrowOptions<TDefault = never> = QueryOptions &
  *   either `data` or `error`. An empty result isn't an error: `query()`
  *   returns `[]` and `queryOne()` returns null.
  * - `queryOrThrow()` and `queryOneOrThrow()` return the data directly and
- *   throw on error. `queryOneOrThrow()` also throws when there's no row.
+ *   throw on error (`QErrors`). `queryOneOrThrow()` also throws when
+ *   there's no row, unless a `defaultValue` is set. The thrown errors can
+ *   be replaced with error factories (ie: `onError`), per query or with
+ *   the datasource `defaultOptions`.
  *
  * `queryOne()` and `queryOneOrThrow()` expect at most one row: more than one
  * is always an error, protecting against a missing condition or broken
@@ -67,9 +122,10 @@ export interface DatasourceInterface {
   /**
    * Run a query and return a QResult object.
    *
-   * It never throws: when the query fails, `error` holds a QError (message and
-   * the original driver error as `cause`) and `data` is undefined. `meta` is
-   * always present (sql, params, timing, affected rows...).
+   * It never throws: when the query fails, `error` holds a QError (message,
+   * `code` "QUERY_FAILED" and the driver error as `cause`, or `code`
+   * "ABORTED" and the abort reason as `cause`) and `data` is undefined.
+   * `meta` is always present (sql, params, timing, affected rows...).
    *
    * The result is a discriminated union: checking `error` narrows `data`,
    * even after destructuring.
@@ -97,19 +153,30 @@ export interface DatasourceInterface {
   query: (
     query: VoluntaryAny,
     options?: QueryOptions
-  ) => Promise<QResult<VoluntaryAny, VoluntaryAny>>;
+  ) => AsyncQResult<VoluntaryAny, VoluntaryAny>;
 
   /**
    * Run a query and return the rows directly, or throw when it fails.
    *
-   * The thrown Error message is prefixed with "Query failed: " and its
-   * `cause` holds the original driver error.
+   * Throws a `QErrors.QueryFailed` (message prefixed with "Query failed: ",
+   * the driver error as `cause`), or a `QErrors.Aborted` when aborted with
+   * `signal` (the abort reason as `cause`).
+   *
+   * To throw your own error, pass an `onError` factory, per query or for
+   * the whole datasource with the `defaultOptions.queryOrThrow` param.
    *
    * Use `query()` to handle errors without try/catch.
    *
    * @example
    * ```typescript
+   * import { HttpServiceUnavailable } from "@httpx/exception";
+   *
    * const ds = new XXDatasource();
+   * const { data } = await ds.queryOrThrow(query, {
+   *   onError: ({ error, qError }) =>
+   *     new HttpServiceUnavailable({ message: qError.message, cause: error }),
+   * });
+   *
    * try {
    *   const { data, meta } = await ds.queryOrThrow('select id, name from product');
    *   console.log(`${data.length} rows in ${meta.getTotalTimeMs()}ms`);
@@ -121,7 +188,7 @@ export interface DatasourceInterface {
    */
   queryOrThrow: (
     query: VoluntaryAny,
-    options?: QueryOptions
+    options?: QueryOrThrowOptions
   ) => Promise<{
     data: VoluntaryAny;
     meta: QMeta;
@@ -133,12 +200,12 @@ export interface DatasourceInterface {
    * throws and checking `error` narrows `data`.
    *
    * When the query returns more than one row, the result is an error with
-   * `code` "TOO_MANY_RESULTS" and a `QErrors.TooManyResults` as `cause`.
+   * `code` "TOO_MANY_RESULTS" and a `QErrors.TooManyResults` as `cause`
+   * (query failures: "QUERY_FAILED" or "ABORTED").
    *
    * Check `error` before falling back on `data` (ie: `data ?? fallback`): on
    * error, `data` is undefined and the fallback would hide the failure. For
    * a one-liner, prefer `queryOneOrThrow(query, { defaultValue })`.
-   * Query failures have no `code`.
    *
    * Note: the SQL is never rewritten and checking the row count is free,
    * but all rows are fetched. When the query isn't constrained by a unique
@@ -160,20 +227,28 @@ export interface DatasourceInterface {
   queryOne: (
     query: VoluntaryAny,
     options?: QueryOptions
-  ) => Promise<QResult<VoluntaryAny, VoluntaryAny>>;
+  ) => AsyncQResult<VoluntaryAny, VoluntaryAny>;
 
   /**
    * Run a query expecting exactly one row and return it.
    *
-   * Throws a `QErrors.NoResult` when the query returns no row, a `QErrors.TooManyResults`
-   * when it returns more than one and, like `queryOrThrow()`, an Error with
-   * the driver error as `cause` when the query fails.
+   * Throws when the query doesn't return exactly one row:
+   * - no row: a `QErrors.NoResult`, unless a `defaultValue` is set (returned
+   *   instead),
+   * - more than one row: a `QErrors.TooManyResults` (with `rowCount`).
    *
-   * Use it when the row must exist. The thrown errors can be replaced with
-   * `onNoResult` / `onTooManyResults` factories, per query or as datasource
-   * defaults (`errors` param). When the row might not exist, set a
-   * `defaultValue` (returned rather than throwing when there's no row) or
-   * use `queryOne()`.
+   * Like `queryOrThrow()`, a query failure throws a `QErrors.QueryFailed`
+   * (or a `QErrors.Aborted`).
+   *
+   * The errors can be replaced with `onNoResult` / `onTooManyResults` /
+   * `onError` (query failures) factories, per query or for the whole
+   * datasource with the `defaultOptions.queryOneOrThrow` param (per query
+   * options win).
+   * When the row might not exist, set a `defaultValue` or use `queryOne()`.
+   *
+   * Not to be confused with `(await ds.queryOne(query)).getOrThrow()`, which
+   * returns null when there's no row (it throws the same errors otherwise)
+   * and ignores the `defaultOptions.queryOneOrThrow` factories.
    *
    * Note: the SQL is never rewritten and checking the row count is free,
    * but all rows are fetched. When the query isn't constrained by a unique
@@ -187,7 +262,7 @@ export interface DatasourceInterface {
    * // Throws when there isn't exactly one row
    * const { data: row, meta } = await ds.queryOneOrThrow('select 1 as id');
    *
-   * // Or throw your own error
+   * // Or throw your own error (for the whole datasource: `defaultOptions.queryOneOrThrow`)
    * const { data: product } = await ds.queryOneOrThrow(query, {
    *   onNoResult: ({ error }) =>
    *     new HttpNotFound({ message: `Product ${id} not found`, cause: error }),
@@ -215,7 +290,8 @@ export interface DatasourceInterface {
    * depends on the datasource). Breaking or returning before the stream
    * has ended is supported and releases the underlying resources.
    *
-   * Unlike `query()`, errors are thrown while iterating.
+   * Unlike `query()`, errors are thrown while iterating: a `QErrors.QueryFailed`,
+   * or a `QErrors.Aborted` when aborted with `signal`.
    *
    * @example
    * ```typescript

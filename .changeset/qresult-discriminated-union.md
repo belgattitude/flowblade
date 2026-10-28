@@ -12,4 +12,4 @@ if (error) {
 // data is typed { id: number }[], no longer `| undefined`
 ```
 
-`QResult.map()` now returns `QResult<TMappedRow[], TError | QError>` instead of `QResult<TMappedRow[] | undefined, TError | undefined>`.
+`QResult.map()` keeps the union too: mapping rows returns `QResult<TMappedRow[], TError | QError>` instead of `QResult<TMappedRow[] | undefined, TError | undefined>`.

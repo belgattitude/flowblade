@@ -1,5 +1,7 @@
 import { type Err, type Ok, Result } from "better-result";
 
+import type { QGetOrThrowErrorFactories } from "../errors/q-error-factories";
+import { qErrorToException } from "../errors/q-error-to-exception";
 import { QMeta, type QMetaJsonifiable } from "../meta/q-meta";
 import type { QError } from "./types";
 
@@ -95,22 +97,21 @@ class QResultImpl<TData, TError extends QError | undefined> {
    *     }),
    *  });
    *
-   *  // 👇 You can dereference, data, meta and error
+   *  // 👇 You can destructure data, meta and error
    *
-   *  const { data, meta, error } = result;
-   *  if (data) {
-   *    // typed in this case to SuccessPayload
-   *    console.log(data); // [{ name: 'Seb' }]
-   *  }
-   *
+   *  const { data, meta, error } = successResult;
    *  if (error) {
-   *    // typed in this case to QError
-   *    console.error(error); // QError object
+   *    // typed in this case to QError, data is undefined
+   *    console.error(error.code, error.message);
+   *  } else {
+   *    // 👇 checking error narrows data to SuccessPayload
+   *    console.log(data); // [{ name: 'Seb' }]
    *  }
    *
    *  const failureResult = new QResult<SuccessPayload, QError>({
    *    error: {
    *       message: 'Error message',
+   *       code: 'QUERY_FAILED',
    *    },
    *    meta: new QMeta({
    *       spans: initialSqlSpan,
@@ -123,14 +124,12 @@ class QResultImpl<TData, TError extends QError | undefined> {
    *
    *  // Helpers
    *
-   *  failureResult.getOrThrow(); // 👈 throw Error('Error message')
+   *  failureResult.getOrThrow(); // 👈 throw QErrors.QueryFailed('Query failed: Error message')
    *
-   *  // 👇 Customize the error and throws
-   *  failureResult.getOrThrow((qErr) => {
-   *    return new HttpServiceUnavailable({
-   *      cause: new Error(qErr.message)
-   *    })
-   *  })
+   *  // 👇 Throw your own error, the default one is available as cause
+   *  failureResult.getOrThrow({
+   *    onError: ({ error }) => new HttpServiceUnavailable({ cause: error }),
+   *  });
    * ```
    */
   constructor(params: ConstructorParams<TData, TError>) {
@@ -206,16 +205,37 @@ class QResultImpl<TData, TError extends QError | undefined> {
   }
 
   /**
-   * Check whether the result is a success
+   * Check whether the result is a success, narrows `data` like checking
+   * `error`.
+   *
+   * @example
+   * ```typescript
+   * const result = await ds.query(query);
+   * if (result.isOk()) {
+   *   // result.data: Row[], result.error: undefined
+   * }
+   * ```
    */
-  isOk(): boolean {
+  isOk(): this is QResultOk<TData> {
     return this.#innerResult.isOk();
   }
 
   /**
-   * Check whether the result is an error
+   * Check whether the result is an error, narrows `error` and `data` like
+   * checking `error`.
+   *
+   * @example
+   * ```typescript
+   * const result = await ds.query(query);
+   * if (result.isError()) {
+   *   // result.error: QError, result.data: undefined
+   *   console.error(result.error.code);
+   * }
+   * ```
    */
-  isError = (): boolean => this.#innerResult.isErr();
+  isError(): this is QResultErr<NonNullable<TError>> {
+    return this.#innerResult.isErr();
+  }
 
   /**
    * Transforms the rows of a successful result using the transform callback.
@@ -226,7 +246,9 @@ class QResultImpl<TData, TError extends QError | undefined> {
    *
    * The transform function will add a span to the metas to allow access to metrics
    *
-   * Map transform is never applied on failure results.
+   * Map transform is never applied on failure results. When the transform
+   * throws, an error result is returned with code "MAP_FAILED" and the
+   * thrown error as cause.
    *
    * @example
    * ```typescript
@@ -235,7 +257,7 @@ class QResultImpl<TData, TError extends QError | undefined> {
    *  });
    *
    *  const newResult = result.map((row) => {
-   *    // In case of error you can throw
+   *    // A throwing transform returns an error result (code "MAP_FAILED")
    *    return {
    *      name: row.name.length,
    *      capitalized: row.name.toUpperCase(),
@@ -292,6 +314,7 @@ class QResultImpl<TData, TError extends QError | undefined> {
         }
         err = {
           message,
+          code: "MAP_FAILED",
           cause: error,
         };
       }
@@ -320,34 +343,58 @@ class QResultImpl<TData, TError extends QError | undefined> {
   };
 
   /**
-   * Get (unwrap) the success value or throw an error with the QError message
-   * (and the QError cause as error cause).
+   * Get (unwrap) the success value or throw, depending on the error `code`:
+   * - "QUERY_FAILED": a `QErrors.QueryFailed`, the driver error as cause,
+   * - "ABORTED": a `QErrors.Aborted`, the abort reason as cause,
+   * - "TOO_MANY_RESULTS": the `QErrors.TooManyResults` cause itself,
+   * - "MAP_FAILED": an Error with the transform error as cause.
+   *
+   * To throw your own errors, pass `onError` / `onTooManyResults` factories
+   * (same style as `queryOneOrThrow()`), or a function receiving the QError.
    *
    * @example
    * ```typescript
-   *  const failureResult = new QResult<SuccessPayload, QError>({
-   *    error: {
-   *       message: 'Error message',
-   *    },
-   *  });
+   * import { HttpInternalServerError, HttpServiceUnavailable } from "@httpx/exception";
    *
-   *  failureResult.getOrThrow(); // 👈 throw Error('Error message')
+   * const failureResult = new QResult<SuccessPayload, QError>({
+   *   error: {
+   *     message: "Error message",
+   *     code: "QUERY_FAILED",
+   *   },
+   * });
    *
-   *  // 👇 Customize the error and throws
-   *  failureResult.getOrThrow((qErr) => {
-   *    return new HttpServiceUnavailable({
-   *      cause: new Error(qErr.message)
-   *    })
-   *  })
+   * failureResult.getOrThrow(); // 👈 throw QErrors.QueryFailed('Query failed: Error message')
+   *
+   * // 👇 Throw your own errors, the default one is available as cause
+   * failureResult.getOrThrow({
+   *   // query failures ("QUERY_FAILED", "ABORTED", "MAP_FAILED")
+   *   onError: ({ error, qError }) =>
+   *     qError.code === "ABORTED"
+   *       ? new HttpServiceUnavailable({ cause: error })
+   *       : new HttpInternalServerError({ cause: error }),
+   *   // more than one row (queryOne() results)
+   *   onTooManyResults: ({ error, rowCount }) =>
+   *     new HttpInternalServerError({
+   *       message: `Expected one row, got ${rowCount}`,
+   *       cause: error,
+   *     }),
+   * });
+   *
+   * // 👇 Or with a function receiving the QError
+   * failureResult.getOrThrow((qErr) => {
+   *   return new HttpServiceUnavailable({ cause: new Error(qErr.message) });
+   * });
    * ```
    *
    * @throws Error if the result is a failure
    */
-  getOrThrow = (customErrorFn?: (qError: QError) => Error): TData => {
+  getOrThrow = (
+    factories?: QGetOrThrowErrorFactories | ((qError: QError) => Error)
+  ): TData => {
     if (this.error !== undefined) {
-      throw customErrorFn === undefined
-        ? new Error(this.error.message, { cause: this.error.cause })
-        : customErrorFn(this.error);
+      throw typeof factories === "function"
+        ? factories(this.error)
+        : qErrorToException(this.error, this.#meta, factories);
     }
     return this.data as TData;
   };

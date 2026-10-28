@@ -1,10 +1,12 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 
-import { QNoResultError } from "../errors/q-no-result-error";
+import * as QErrors from "../errors/index";
 import type {
+  QErrorFactory,
   QNoResultErrorFactory,
   QTooManyResultsErrorFactory,
-} from "../errors/q-one-row-error-factories";
+} from "../errors/q-error-factories";
+import { QNoResultError } from "../errors/q-no-result-error";
 import { QTooManyResultsError } from "../errors/q-too-many-results-error";
 import { QMeta } from "../meta/q-meta";
 import type { QResult } from "../query-result/q-result";
@@ -85,12 +87,16 @@ describe(toOneRowQResult, () => {
   it("should keep the original error on failure", () => {
     const cause = new Error("driver error");
     const result = toOneRowQResult(
-      createQResultError({ message: "driver error", cause }, meta) as QResult<
-        Row[],
-        QError
-      >
+      createQResultError(
+        { message: "driver error", code: "QUERY_FAILED", cause },
+        meta
+      ) as QResult<Row[], QError>
     );
-    expect(result.error).toStrictEqual({ message: "driver error", cause });
+    expect(result.error).toStrictEqual({
+      message: "driver error",
+      code: "QUERY_FAILED",
+      cause,
+    });
     expect(result.meta).toBe(meta);
   });
 });
@@ -196,14 +202,14 @@ describe(getOneRowOrThrow, () => {
         getOneRowOrThrow(many(), { defaultValue: defaultRow })
       ).toThrow(QTooManyResultsError);
       const failed = toOneRowQResult(
-        createQResultError({ message: "driver error" }, meta) as QResult<
-          Row[],
-          QError
-        >
+        createQResultError(
+          { message: "driver error", code: "QUERY_FAILED" },
+          meta
+        ) as QResult<Row[], QError>
       );
       expect(() =>
         getOneRowOrThrow(failed, { defaultValue: defaultRow })
-      ).toThrow("Query failed: driver error");
+      ).toThrow(QErrors.QueryFailed);
     });
 
     it("should not allow onNoResult with a defaultValue", () => {
@@ -223,14 +229,70 @@ describe(getOneRowOrThrow, () => {
       () => new Error("not found")
     );
     const failed = toOneRowQResult(
-      createQResultError({ message: "driver error", cause }, meta) as QResult<
-        Row[],
-        QError
-      >
+      createQResultError(
+        { message: "driver error", code: "QUERY_FAILED", cause },
+        meta
+      ) as QResult<Row[], QError>
     );
     expect(() => getOneRowOrThrow(failed, { onNoResult })).toThrow(
       expect.objectContaining({ message: "Query failed: driver error", cause })
     );
+    expect(() => getOneRowOrThrow(failed, { onNoResult })).toThrow(
+      QErrors.QueryFailed
+    );
     expect(onNoResult).not.toHaveBeenCalled();
+  });
+
+  describe("onError", () => {
+    const cause = new Error("driver error");
+    const failed = () =>
+      toOneRowQResult(
+        createQResultError(
+          { message: "driver error", code: "QUERY_FAILED", cause },
+          meta
+        ) as QResult<Row[], QError>
+      );
+
+    it("should throw the onError error on query failure", () => {
+      const onError = vi.fn<QErrorFactory>(
+        ({ error }) => new Error("custom", { cause: error })
+      );
+      expect(() => getOneRowOrThrow(failed(), { onError })).toThrow(
+        expect.objectContaining({
+          message: "custom",
+          cause: expect.any(QErrors.QueryFailed),
+        })
+      );
+      expect(onError).toHaveBeenCalledExactlyOnceWith({
+        error: expect.any(QErrors.QueryFailed),
+        qError: expect.objectContaining({ code: "QUERY_FAILED", cause }),
+        meta,
+      });
+    });
+
+    it("should not use onError for the row count errors", () => {
+      const onError = vi.fn<QErrorFactory>(() => new Error("custom"));
+      expect(() => getOneRowOrThrow(none(), { onError })).toThrow(
+        QNoResultError
+      );
+      expect(() => getOneRowOrThrow(many(), { onError })).toThrow(
+        QTooManyResultsError
+      );
+      expect(onError).not.toHaveBeenCalled();
+    });
+
+    it("should prefer the option over the default", () => {
+      const defaults = { onError: () => new Error("default") };
+      expect(() => getOneRowOrThrow(failed(), undefined, defaults)).toThrow(
+        "default"
+      );
+      expect(() =>
+        getOneRowOrThrow(
+          failed(),
+          { onError: () => new Error("option") },
+          defaults
+        )
+      ).toThrow("option");
+    });
   });
 });

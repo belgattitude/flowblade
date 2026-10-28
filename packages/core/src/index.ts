@@ -1,7 +1,9 @@
 export type {
+  DatasourceDefaultOptions,
   DatasourceInterface,
   QueryOneOrThrowOptions,
   QueryOptions,
+  QueryOrThrowOptions,
   QueryStreamOptions,
 } from "./data-source/datasource.interface";
 /**
@@ -10,11 +12,13 @@ export type {
  */
 export * as QErrors from "./errors/index";
 export type {
+  QErrorFactory,
+  QGetOrThrowErrorFactories,
   QNoResultErrorFactory,
   QOneRowErrorFactories,
   QOneRowNoResultOptions,
   QTooManyResultsErrorFactory,
-} from "./errors/q-one-row-error-factories";
+} from "./errors/q-error-factories";
 export {
   QMeta,
   type QMetaMapSpan,
@@ -29,10 +33,3 @@ export type { InferQResult } from "./query-result/infer-q-result";
 export type { QResultJsonifiable, QResultShape } from "./query-result/q-result";
 export { QResult } from "./query-result/q-result";
 export type { AsyncQResult, QError, QErrorCode } from "./query-result/types";
-export {
-  createQResultError,
-  createQResultSuccess,
-  createSqlSpan,
-  getOneRowOrThrow,
-  toOneRowQResult,
-} from "./utils/datasource.factories";

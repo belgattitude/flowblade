@@ -1,3 +1,4 @@
+import type { QErrorFactory } from "@flowblade/core";
 import {
   configure,
   getConsoleSink,
@@ -143,7 +144,7 @@ describe(DuckdbDatasource, () => {
 
     it("should return the query error when the query fails", async ({ ds }) => {
       const { error } = await ds.queryOne(sql<Row>`SELECT FRM 1`);
-      expect(error?.code).toBeUndefined();
+      expect(error?.code).toBe("QUERY_FAILED");
       expect(error?.message).toContain("Parser Error");
     });
   });
@@ -232,7 +233,7 @@ describe(DuckdbDatasource, () => {
     });
   });
 
-  describe("errors", () => {
+  describe("defaultOptions.queryOneOrThrow", () => {
     type Row = { id: number };
     const noRow = sql<Row>`SELECT range::INTEGER as id FROM range(1, 10) WHERE id = ${50}::INTEGER`;
     const manyRows = sql<Row>`SELECT range::INTEGER as id FROM range(1, 10)`;
@@ -240,11 +241,13 @@ describe(DuckdbDatasource, () => {
     it("should throw the datasource default errors", async ({ ds }) => {
       const customDs = new DuckdbDatasource({
         connection: ds.getConnection(),
-        errors: {
-          onNoResult: ({ error }) =>
-            new Error("default not found", { cause: error }),
-          onTooManyResults: ({ rowCount }) =>
-            new Error(`default got ${rowCount}`),
+        defaultOptions: {
+          queryOneOrThrow: {
+            onNoResult: ({ error }) =>
+              new Error("default not found", { cause: error }),
+            onTooManyResults: ({ rowCount }) =>
+              new Error(`default got ${rowCount}`),
+          },
         },
       });
       await expect(customDs.queryOneOrThrow(noRow)).rejects.toThrow(
@@ -268,16 +271,62 @@ describe(DuckdbDatasource, () => {
     });
   });
 
+  describe("onError", () => {
+    const invalid = sql`SELECT FRM 1`;
+
+    it("should throw the onError error on query failure", async ({ ds }) => {
+      const onError = vi.fn<QErrorFactory>(
+        ({ error }) => new Error("custom", { cause: error })
+      );
+      const expected = expect.objectContaining({
+        message: "custom",
+        cause: expect.any(QErrors.QueryFailed),
+      });
+      await expect(ds.queryOrThrow(invalid, { onError })).rejects.toThrow(
+        expected
+      );
+      await expect(ds.queryOneOrThrow(invalid, { onError })).rejects.toThrow(
+        expected
+      );
+      expect(onError).toHaveBeenCalledTimes(2);
+    });
+
+    it("should use the datasource defaults of the named method only", async ({
+      ds,
+    }) => {
+      const customDs = new DuckdbDatasource({
+        connection: ds.getConnection(),
+        defaultOptions: {
+          queryOrThrow: { onError: () => new Error("queryOrThrow default") },
+          queryOneOrThrow: {
+            onError: () => new Error("queryOneOrThrow default"),
+          },
+        },
+      });
+      await expect(customDs.queryOrThrow(invalid)).rejects.toThrow(
+        "queryOrThrow default"
+      );
+      await expect(customDs.queryOneOrThrow(invalid)).rejects.toThrow(
+        "queryOneOrThrow default"
+      );
+      await expect(
+        customDs.queryOrThrow(invalid, { onError: () => new Error("option") })
+      ).rejects.toThrow("option");
+    });
+  });
+
   describe("Error cause", () => {
     it("should keep the duckdb error as the error cause", async ({ ds }) => {
       const result = await ds.query(sql`SELECT FRM 1`);
       expect(result.error).toStrictEqual({
         message: expect.stringContaining("Parser Error"),
+        code: "QUERY_FAILED",
         cause: expect.any(Error),
       });
       // Never serialized
       expect(result.toJsonifiable().error).toStrictEqual({
         message: result.error?.message,
+        code: "QUERY_FAILED",
       });
     });
 
@@ -288,6 +337,18 @@ describe(DuckdbDatasource, () => {
       await expect(ds.queryOrThrow(sql`SELECT FRM 1`)).rejects.toThrow(
         expect.objectContaining({ cause: result.error?.cause })
       );
+      await expect(ds.queryOrThrow(sql`SELECT FRM 1`)).rejects.toThrow(
+        QErrors.QueryFailed
+      );
+      await expect(ds.queryOneOrThrow(sql`SELECT FRM 1`)).rejects.toThrow(
+        expect.objectContaining({
+          message: expect.stringMatching(/^Query failed: .*Parser Error/),
+          statusCode: 500,
+        })
+      );
+      await expect(
+        Array.fromAsync(ds.stream(sql`SELECT FRM 1`))
+      ).rejects.toThrow(QErrors.QueryFailed);
     });
   });
 
@@ -299,7 +360,12 @@ describe(DuckdbDatasource, () => {
         { signal: AbortSignal.timeout(100) }
       );
       expect(result.error?.message).toMatch(/Interrupted/);
+      expect(result.error?.code).toBe("ABORTED");
       expect(result.error?.cause).toMatchObject({ name: "TimeoutError" });
+      expect(() => result.getOrThrow()).toThrow(QErrors.Aborted);
+      expect(() => result.getOrThrow()).toThrow(
+        expect.objectContaining({ statusCode: 504 })
+      );
       expect(Date.now() - start).toBeLessThan(5000);
 
       // The connection is still usable
@@ -319,7 +385,17 @@ describe(DuckdbDatasource, () => {
         }
       );
       // The abort reason, its message differs between runtimes
+      expect(result.error?.code).toBe("ABORTED");
       expect(result.error?.cause).toMatchObject({ name: "AbortError" });
+      await expect(
+        ds.queryOrThrow(sql`SELECT 1`, { signal: AbortSignal.abort() })
+      ).rejects.toThrow(
+        expect.objectContaining({
+          code: "ABORTED",
+          statusCode: 499,
+          cause: expect.objectContaining({ name: "AbortError" }),
+        })
+      );
       const { data } = await ds.queryOrThrow(
         sql<{
           count: number;
@@ -424,6 +500,7 @@ describe(DuckdbDatasource, () => {
         )
       ).rejects.toThrow(
         expect.objectContaining({
+          code: "ABORTED",
           cause: expect.objectContaining({ name: "AbortError" }),
         })
       );
@@ -470,7 +547,9 @@ describe(DuckdbDatasource, () => {
         )
       ).rejects.toThrow(
         expect.objectContaining({
-          message: expect.stringMatching(/Interrupted/),
+          message: expect.stringMatching(/^Query aborted: .*Interrupted/),
+          code: "ABORTED",
+          statusCode: 504,
           cause: expect.objectContaining({ name: "TimeoutError" }),
         })
       );

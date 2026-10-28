@@ -71,7 +71,7 @@ const { data, meta, error } = result;
 
 const { data: data2 } = result.map((row) => {
     return {
-        ...data,
+        ...row,
         key: `key-${row.productId}`,
     };
 });

@@ -8,6 +8,11 @@ import {
   it,
 } from "vitest";
 
+import * as QErrors from "../errors/index";
+import type {
+  QErrorFactory,
+  QTooManyResultsErrorFactory,
+} from "../errors/q-error-factories";
 import {
   QMeta,
   type QMetaSpan,
@@ -39,6 +44,7 @@ describe(QResult, () => {
     new QResult<{ name: string }[], QError>({
       error: {
         message: errMsg ?? "An error occurred",
+        code: "QUERY_FAILED",
       },
       meta: new QMeta({ spans: initialSqlSpan }),
     });
@@ -97,6 +103,7 @@ describe(QResult, () => {
       const errorResult = new QResult<{ name: string }[], QError>({
         error: {
           message: "error",
+          code: "QUERY_FAILED",
         },
         meta: new QMeta({
           spans: initialSqlSpan,
@@ -142,6 +149,7 @@ describe(QResult, () => {
         expect(jsonifiable).toStrictEqual({
           error: {
             message: "An error occurred",
+            code: "QUERY_FAILED",
           },
           meta: {
             spans: [initialSqlSpan],
@@ -158,12 +166,14 @@ describe(QResult, () => {
         const result = new QResult<undefined, QError>({
           error: {
             message: "An error occurred",
+            code: "QUERY_FAILED",
             cause: new Error("Driver error"),
           },
         });
         const jsonifiable = result.toJsonifiable();
         expect(jsonifiable.error).toStrictEqual({
           message: "An error occurred",
+          code: "QUERY_FAILED",
         });
         // The original error isn't altered
         expect(result.error?.cause).toBeInstanceOf(Error);
@@ -179,19 +189,67 @@ describe(QResult, () => {
       expectTypeOf(value).toEqualTypeOf<SuccessData>();
     });
 
-    it("should throw the error if a failure", () => {
-      const errorResult = createErrorResult("errorMessage");
-      expect(() => errorResult.getOrThrow()).toThrow(new Error("errorMessage"));
-    });
-
-    it("should throw with the error cause if a failure", () => {
+    it("should throw a QErrors.QueryFailed on query failure", () => {
       const cause = new Error("Driver error");
       const errorResult = new QResult<undefined, QError>({
-        error: { message: "errorMessage", cause },
+        error: { message: "errorMessage", code: "QUERY_FAILED", cause },
       });
+      expect(() => errorResult.getOrThrow()).toThrow(QErrors.QueryFailed);
       expect(() => errorResult.getOrThrow()).toThrow(
-        expect.objectContaining({ message: "errorMessage", cause })
+        expect.objectContaining({
+          message: "Query failed: errorMessage",
+          code: "QUERY_FAILED",
+          statusCode: 500,
+          cause,
+        })
       );
+    });
+
+    it("should throw a QErrors.Aborted when aborted", () => {
+      const timeout = new DOMException("timed out", "TimeoutError");
+      const timedOut = new QResult<undefined, QError>({
+        error: { message: "timed out", code: "ABORTED", cause: timeout },
+      });
+      expect(() => timedOut.getOrThrow()).toThrow(
+        expect.objectContaining({
+          message: "Query aborted: timed out",
+          code: "ABORTED",
+          statusCode: 504,
+          cause: timeout,
+        })
+      );
+      const reason = new DOMException("aborted", "AbortError");
+      const aborted = new QResult<undefined, QError>({
+        error: { message: "aborted", code: "ABORTED", cause: reason },
+      });
+      expect(() => aborted.getOrThrow()).toThrow(QErrors.Aborted);
+      expect(() => aborted.getOrThrow()).toThrow(
+        expect.objectContaining({ statusCode: 499, cause: reason })
+      );
+    });
+
+    it("should throw the QErrors.TooManyResults cause itself", () => {
+      const cause = new QErrors.TooManyResults(2);
+      const result = new QResult<undefined, QError>({
+        error: { message: cause.message, code: "TOO_MANY_RESULTS", cause },
+      });
+      expect(() => result.getOrThrow()).toThrow(cause);
+    });
+
+    it("should throw an Error with the cause when the mapper failed", () => {
+      const result = createErrorResult("x").map(() => {
+        return {};
+      });
+      const cause = new Error("mapper bug");
+      const mapFailed = createSuccessResult().map(() => {
+        throw cause;
+      });
+      expect(mapFailed.error).toMatchObject({ code: "MAP_FAILED", cause });
+      expect(() => mapFailed.getOrThrow()).toThrow(
+        expect.objectContaining({ message: "mapper bug", cause })
+      );
+      expect(() => mapFailed.getOrThrow()).not.toThrow(QErrors.QueryFailed);
+      expect(result.error?.code).toBe("QUERY_FAILED");
     });
 
     it("should throw custom error if a failure", () => {
@@ -201,6 +259,86 @@ describe(QResult, () => {
           (qErr) => new EvalError(`${qErr.message} & custom`)
         )
       ).toThrow(new EvalError(`qErrMsg & custom`));
+    });
+
+    describe("with error factories", () => {
+      const tooManyCause = new QErrors.TooManyResults(3);
+      const createTooManyResult = () =>
+        new QResult<undefined, QError>({
+          error: {
+            message: tooManyCause.message,
+            code: "TOO_MANY_RESULTS",
+            cause: tooManyCause,
+          },
+          meta: new QMeta({ name: "getOne" }),
+        });
+
+      it("should throw the onError error with the default error and the QError", () => {
+        const errorResult = createErrorResult("qErrMsg");
+        const onError = vi.fn<QErrorFactory>(
+          ({ error }) => new EvalError("custom", { cause: error })
+        );
+        expect(() => errorResult.getOrThrow({ onError })).toThrow(
+          expect.objectContaining({
+            name: "EvalError",
+            message: "custom",
+            cause: expect.any(QErrors.QueryFailed),
+          })
+        );
+        expect(onError).toHaveBeenCalledExactlyOnceWith({
+          error: expect.any(QErrors.QueryFailed),
+          qError: errorResult.error,
+          meta: errorResult.meta,
+        });
+      });
+
+      it("should throw the onTooManyResults error with the row count", () => {
+        const result = createTooManyResult();
+        const onError = vi.fn<QErrorFactory>(() => new Error("onError"));
+        const onTooManyResults = vi.fn<QTooManyResultsErrorFactory>(
+          ({ rowCount }) => new RangeError(`got ${rowCount}`)
+        );
+        expect(() => result.getOrThrow({ onError, onTooManyResults })).toThrow(
+          new RangeError("got 3")
+        );
+        expect(onTooManyResults).toHaveBeenCalledExactlyOnceWith({
+          error: tooManyCause,
+          rowCount: 3,
+          meta: result.meta,
+        });
+        expect(onError).not.toHaveBeenCalled();
+      });
+
+      it("should not use onError for too many results", () => {
+        const onError = vi.fn<QErrorFactory>(() => new Error("onError"));
+        expect(() => createTooManyResult().getOrThrow({ onError })).toThrow(
+          tooManyCause
+        );
+        expect(onError).not.toHaveBeenCalled();
+      });
+
+      it("should throw the default errors without factories", () => {
+        expect(() => createErrorResult().getOrThrow({})).toThrow(
+          QErrors.QueryFailed
+        );
+        // onTooManyResults only applies to too many results
+        expect(() =>
+          createErrorResult().getOrThrow({
+            onTooManyResults: () => new Error("unexpected"),
+          })
+        ).toThrow(QErrors.QueryFailed);
+        expect(() =>
+          createTooManyResult().getOrThrow({ onError: undefined })
+        ).toThrow(tooManyCause);
+      });
+
+      it("should return the data on success", () => {
+        const onError = vi.fn<QErrorFactory>(() => new Error("onError"));
+        expect(createSuccessResult().getOrThrow({ onError })).toStrictEqual(
+          successData
+        );
+        expect(onError).not.toHaveBeenCalled();
+      });
     });
   });
 
@@ -282,6 +420,7 @@ describe(QResult, () => {
       expect(mappedResult.isError()).toBe(true);
       expect(mappedResult.error).toStrictEqual({
         message: "Hello",
+        code: "MAP_FAILED",
         cause: thrown,
       });
       const span = mappedResult.meta.getLatestSpan();
@@ -297,6 +436,7 @@ describe(QResult, () => {
       expect(mappedResult.isError()).toBe(true);
       expect(mappedResult.error).toStrictEqual({
         message: "Hello string",
+        code: "MAP_FAILED",
         cause: "Hello string",
       });
     });
@@ -310,6 +450,7 @@ describe(QResult, () => {
       expect(mappedResult.isError()).toBe(true);
       expect(mappedResult.error).toStrictEqual({
         message: "mapper: unknown error",
+        code: "MAP_FAILED",
         cause: [new Error("first"), new Error("second")],
       });
       expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
@@ -325,6 +466,7 @@ describe(QResult, () => {
       expect(mappedResult.error).toStrictEqual({
         message:
           "QResult.map(): expected data to be an array of rows, received undefined",
+        code: "MAP_FAILED",
         cause: expect.any(TypeError),
       });
       expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
@@ -340,6 +482,7 @@ describe(QResult, () => {
       expect(mappedResult.error).toStrictEqual({
         message:
           "QResult.map(): expected data to be an array of rows, received null",
+        code: "MAP_FAILED",
         cause: expect.any(TypeError),
       });
       expect(mappedResult.meta.getLatestSpan()?.type).toBe("map");
@@ -395,6 +538,7 @@ describe(QResult, () => {
         });
         expect(mappedResult.error).toStrictEqual({
           message: "failed",
+          code: "MAP_FAILED",
           cause: expect.any(Error),
         });
       });

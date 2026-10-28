@@ -45,6 +45,7 @@ describe("QResult internal inference test", () => {
             data: undefined,
             error: {
               message: "Error",
+              code: "QUERY_FAILED",
             },
             meta: new QMeta({
               spans: initialSqlSpan,
@@ -67,12 +68,13 @@ describe("QResult internal inference test", () => {
               data: undefined,
               error: {
                 message: "Error",
+                code: "QUERY_FAILED",
               },
               meta: new QMeta({
                 spans: initialSqlSpan,
               }),
             });
-            // Inferred from the given error ({ message: string }), a valid QError
+            // Inferred from the given error ({ message, code }), a valid QError
             expectTypeOf(errorResult.$inferError).toExtend<QError>();
           });
         });

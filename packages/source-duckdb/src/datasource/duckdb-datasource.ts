@@ -5,19 +5,23 @@ import type {
 } from "@duckdb/node-api";
 import {
   type AsyncQResult,
+  type DatasourceInterface,
+  QErrors,
+  QMeta,
+  type QMetaSqlSpan,
+  type DatasourceDefaultOptions,
+  type QueryOneOrThrowOptions,
+  type QueryOptions,
+  type QueryOrThrowOptions,
+  type QueryStreamOptions,
+} from "@flowblade/core";
+import {
   createQResultError,
   createQResultSuccess,
   createSqlSpan,
-  type DatasourceInterface,
   getOneRowOrThrow,
-  QMeta,
-  type QMetaSqlSpan,
-  type QOneRowErrorFactories,
-  type QueryOneOrThrowOptions,
-  type QueryOptions,
-  type QueryStreamOptions,
   toOneRowQResult,
-} from "@flowblade/core";
+} from "@flowblade/core/datasource";
 import type { SqlTag } from "@flowblade/sql-tag";
 import type { Logger } from "@logtape/logtape";
 
@@ -41,25 +45,33 @@ export type DuckdbDatasourceParams = {
    */
   logParams?: boolean;
   /**
-   * Default errors thrown by `queryOneOrThrow()`
-   * when the query doesn't return exactly one row, overridable per query.
+   * Default options, keyed by method name: only the named method uses them,
+   * and the options passed per query win.
    *
    * @example
    * ```typescript
    * import { HttpInternalServerError, HttpNotFound } from "@httpx/exception";
    *
-   * errors: {
-   *   onNoResult: ({ error }) =>
-   *     new HttpNotFound({ message: "Resource not found", cause: error }),
-   *   onTooManyResults: ({ error, rowCount }) =>
-   *     new HttpInternalServerError({
-   *       message: `Expected one row, got ${rowCount}`,
-   *       cause: error,
-   *     }),
+   * defaultOptions: {
+   *   // Used by queryOrThrow() only, query() never throws
+   *   queryOrThrow: {
+   *     onError: ({ error }) => new HttpInternalServerError({ cause: error }),
+   *   },
+   *   // Used by queryOneOrThrow() only, queryOne() never throws
+   *   queryOneOrThrow: {
+   *     onError: ({ error }) => new HttpInternalServerError({ cause: error }),
+   *     onNoResult: ({ error }) =>
+   *       new HttpNotFound({ message: "Resource not found", cause: error }),
+   *     onTooManyResults: ({ error, rowCount }) =>
+   *       new HttpInternalServerError({
+   *         message: `Expected one row, got ${rowCount}`,
+   *         cause: error,
+   *       }),
+   *   },
    * }
    * ```
    */
-  errors?: QOneRowErrorFactories;
+  defaultOptions?: DatasourceDefaultOptions;
 };
 
 type SqlTagInformation = {
@@ -71,13 +83,13 @@ export class DuckdbDatasource implements DatasourceInterface {
   private readonly db: DuckDBConnection;
   private readonly logger: Logger;
   private readonly logParams: boolean;
-  private readonly errors: QOneRowErrorFactories | undefined;
+  private readonly defaultOptions: DatasourceDefaultOptions;
 
   constructor(params: DuckdbDatasourceParams) {
     this.db = params.connection;
     this.logger = params.logger ?? duckdbDefaultLogtapeLogger;
     this.logParams = params.logParams ?? true;
-    this.errors = params.errors;
+    this.defaultOptions = params.defaultOptions ?? {};
   }
 
   /**
@@ -91,16 +103,17 @@ export class DuckdbDatasource implements DatasourceInterface {
   /**
    * Run a query and return a QResult object.
    *
-   * It never throws: when the query fails, `error` holds a QError (message and
-   * the DuckDB error as `cause`) and `data` is undefined. `meta` is always
-   * present (sql, params, timing, affected rows...).
+   * It never throws: when the query fails, `error` holds a QError (message,
+   * `code` "QUERY_FAILED" and the DuckDB error as `cause`, or `code`
+   * "ABORTED" and the abort reason as `cause`) and `data` is undefined.
+   * `meta` is always present (sql, params, timing, affected rows...).
    *
    * The result is a discriminated union: checking `error` narrows `data`,
    * even after destructuring.
    *
    * Rows are converted to JSON compatible values (DuckDB `getRowObjectsJson()`,
    * ie: timestamps as strings). When aborted with `signal`, the query is
-   * interrupted and the error `cause` holds the abort reason.
+   * interrupted and the error (`code` "ABORTED") holds the abort reason as `cause`.
    *
    * Use `queryOrThrow()` to get the rows directly and throw on error instead.
    *
@@ -186,10 +199,15 @@ export class DuckdbDatasource implements DatasourceInterface {
         errorMessage: message,
       });
 
+      // The interrupt can make DuckDB fail before the abort check,
+      // always report an aborted query with the abort reason as cause
+      const aborted = signal?.aborted === true;
       return createQResultError(
-        // The interrupt can make DuckDB fail before the abort check,
-        // always report an aborted query with the abort reason as cause
-        { message, cause: signal?.aborted === true ? signal.reason : error },
+        {
+          message,
+          code: aborted ? "ABORTED" : "QUERY_FAILED",
+          cause: aborted ? signal.reason : error,
+        },
         new QMeta({
           name,
           spans: span,
@@ -203,8 +221,11 @@ export class DuckdbDatasource implements DatasourceInterface {
   /**
    * Run a query and return the rows directly, or throw when it fails.
    *
-   * The thrown Error message is prefixed with "Query failed: " and its
-   * `cause` holds the DuckDB error.
+   * Throws a `QErrors.QueryFailed` (message prefixed with "Query failed: ",
+   * the DuckDB error as `cause`), or a `QErrors.Aborted` when aborted with
+   * `signal` (the abort reason as `cause`). To throw your own error, pass
+   * an `onError` factory, per query or for the whole datasource with the
+   * `defaultOptions.queryOrThrow` param.
    *
    * Use `query()` to handle errors without try/catch.
    *
@@ -224,17 +245,16 @@ export class DuckdbDatasource implements DatasourceInterface {
    */
   queryOrThrow = async <TData extends unknown[]>(
     rawQuery: SqlTag<TData> | SqlTagInformation,
-    options?: QueryOptions
+    options?: QueryOrThrowOptions
   ): Promise<{
     data: TData;
     meta: QMeta;
   }> => {
     const result = await this.query<TData>(rawQuery, options);
     return {
-      data: result.getOrThrow(
-        (qErr) =>
-          new Error(`Query failed: ${qErr.message}`, { cause: qErr.cause })
-      ),
+      data: result.getOrThrow({
+        onError: options?.onError ?? this.defaultOptions.queryOrThrow?.onError,
+      }),
       meta: result.meta,
     };
   };
@@ -245,12 +265,12 @@ export class DuckdbDatasource implements DatasourceInterface {
    * throws and checking `error` narrows `data`.
    *
    * When the query returns more than one row, the result is an error with
-   * `code` "TOO_MANY_RESULTS" and a `QErrors.TooManyResults` as `cause`.
+   * `code` "TOO_MANY_RESULTS" and a `QErrors.TooManyResults` as `cause`
+   * (query failures: "QUERY_FAILED" or "ABORTED").
    *
    * Check `error` before falling back on `data` (ie: `data ?? fallback`): on
    * error, `data` is undefined and the fallback would hide the failure. For
    * a one-liner, prefer `queryOneOrThrow(query, { defaultValue })`.
-   * Query failures have no `code`.
    *
    * More than one row is logged as a warning, no row at debug level (often
    * an expected outcome). Also applies to `queryOneOrThrow()`.
@@ -288,15 +308,23 @@ export class DuckdbDatasource implements DatasourceInterface {
   /**
    * Run a query expecting exactly one row and return it.
    *
-   * Throws a `QErrors.NoResult` when the query returns no row, a `QErrors.TooManyResults`
-   * when it returns more than one and, like `queryOrThrow()`, an Error with
-   * the driver error as `cause` when the query fails.
+   * Throws when the query doesn't return exactly one row:
+   * - no row: a `QErrors.NoResult`, unless a `defaultValue` is set (returned
+   *   instead),
+   * - more than one row: a `QErrors.TooManyResults` (with `rowCount`).
    *
-   * Use it when the row must exist. The thrown errors can be replaced with
-   * `onNoResult` / `onTooManyResults` factories, per query or as datasource
-   * defaults (`errors` param). When the row might not exist, set a
-   * `defaultValue` (returned rather than throwing when there's no row) or
-   * use `queryOne()`.
+   * Like `queryOrThrow()`, a query failure throws a `QErrors.QueryFailed`
+   * (or a `QErrors.Aborted`).
+   *
+   * The errors can be replaced with `onNoResult` / `onTooManyResults` /
+   * `onError` (query failures) factories, per query or for the whole
+   * datasource with the `defaultOptions.queryOneOrThrow` param (per query
+   * options win).
+   * When the row might not exist, set a `defaultValue` or use `queryOne()`.
+   *
+   * Not to be confused with `(await ds.queryOne(query)).getOrThrow()`, which
+   * returns null when there's no row (it throws the same errors otherwise)
+   * and ignores the `defaultOptions.queryOneOrThrow` factories.
    *
    * Note: the SQL is never rewritten and checking the row count is free,
    * but all rows are fetched. When the query isn't constrained by a unique
@@ -310,9 +338,9 @@ export class DuckdbDatasource implements DatasourceInterface {
    * const query = sql<{ id: number }>`SELECT id FROM product WHERE id = ${id}`;
    *
    * // Throws when there isn't exactly one row
-   * const { data: product, meta } = await ds.queryOneOrThrow(query);
+   * const { data: row, meta } = await ds.queryOneOrThrow(query);
    *
-   * // Or throw your own error (also settable as datasource default)
+   * // Or throw your own error (for the whole datasource: `defaultOptions.queryOneOrThrow`)
    * const { data: product } = await ds.queryOneOrThrow(query, {
    *   onNoResult: ({ error }) =>
    *     new HttpNotFound({ message: `Product ${id} not found`, cause: error }),
@@ -333,7 +361,11 @@ export class DuckdbDatasource implements DatasourceInterface {
   }> => {
     const result = await this.queryOne<TData>(rawQuery, options);
     return {
-      data: getOneRowOrThrow(result, options, this.errors),
+      data: getOneRowOrThrow(
+        result,
+        options,
+        this.defaultOptions.queryOneOrThrow
+      ),
       meta: result.meta,
     };
   };
@@ -346,7 +378,8 @@ export class DuckdbDatasource implements DatasourceInterface {
    * results (JSON compatible values). Breaking or returning before the stream
    * has ended is supported and releases the underlying resources.
    *
-   * Unlike `query()`, errors are thrown while iterating.
+   * Unlike `query()`, errors are thrown while iterating: a `QErrors.QueryFailed`,
+   * or a `QErrors.Aborted` when aborted with `signal`.
    *
    * Note: the `chunkSize` option is ignored, DuckDB uses its own chunk size.
    *
@@ -366,7 +399,7 @@ export class DuckdbDatasource implements DatasourceInterface {
    * ```
    *
    * @yields Each row of the query result as it is streamed.
-   * @throws Error with the DuckDB error as cause when the query fails, or the abort reason when aborted.
+   * @throws QErrors.QueryFailed with the DuckDB error as cause when the query fails, QErrors.Aborted with the abort reason as cause when aborted.
    */
   async *stream<TData extends unknown[]>(
     rawQuery: SqlTag<TData> | SqlTagInformation,
@@ -421,10 +454,11 @@ export class DuckdbDatasource implements DatasourceInterface {
 
       // The interrupt can hit the next chunk fetch before the between-chunks check,
       // always report an aborted stream with the abort reason as cause
-      // oxlint-disable-next-line preserve-caught-error -- the abort reason is the intended cause
-      throw new Error(message, {
-        cause: signal?.aborted === true ? signal.reason : error,
-      });
+      if (signal?.aborted === true) {
+        // oxlint-disable-next-line preserve-caught-error -- the abort reason is the intended cause
+        throw new QErrors.Aborted(message, { cause: signal.reason });
+      }
+      throw new QErrors.QueryFailed(message, { cause: error });
     } finally {
       signal?.removeEventListener("abort", onAbort);
       // Since DuckDB 2.0, a stream not read to the end (break / return / failure)

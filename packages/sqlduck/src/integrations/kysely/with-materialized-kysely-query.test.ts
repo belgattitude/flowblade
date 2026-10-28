@@ -1,5 +1,6 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
-import { createQResultSuccess, QMeta } from "@flowblade/core";
+import { QMeta } from "@flowblade/core";
+import { createQResultSuccess } from "@flowblade/core/datasource";
 import { sql } from "@flowblade/sql-tag";
 import { describe, expect } from "vitest";
 import * as z from "zod";

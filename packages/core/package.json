@@ -15,7 +15,8 @@
     "directory": "packages/core"
   },
   "files": [
-    "dist"
+    "dist",
+    "UPGRADE.md"
   ],
   "type": "module",
   "sideEffects": false,
@@ -25,6 +26,13 @@
       "import": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
+      }
+    },
+    "./datasource": {
+      "flowblade-monorepo-source": "./src/data-source/index.ts",
+      "import": {
+        "types": "./dist/datasource.d.ts",
+        "default": "./dist/datasource.js"
       }
     },
     "./package.json": "./package.json"

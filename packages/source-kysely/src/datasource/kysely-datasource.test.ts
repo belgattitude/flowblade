@@ -1,6 +1,7 @@
-import type { QOneRowErrorFactories } from "@flowblade/core";
 import { describe, expect, it, vi } from "vitest";
 
+import type { KyselyDatasourceDefaultOptions } from "../index.ts";
+import { QErrors } from "../index.ts";
 import { KyselyDatasource } from "./kysely-datasource.ts";
 
 const createStreamDatasource = (
@@ -43,8 +44,10 @@ const createStreamDatasource = (
 
 const createQueryDatasource = (
   executeQuery: () => Promise<{ rows: unknown[] }>,
-  inflightQueryAbortStrategy?: "ignore query" | "cancel query" | "kill session",
-  errors?: QOneRowErrorFactories
+  params?: Pick<
+    ConstructorParameters<typeof KyselyDatasource>[0],
+    "defaultOptions" | "inflightQueryAbortStrategy"
+  >
 ) => {
   const query = {
     compile: vi
@@ -60,8 +63,7 @@ const createQueryDatasource = (
   };
   const ds = new KyselyDatasource({
     connection: {} as never,
-    inflightQueryAbortStrategy,
-    errors,
+    ...params,
     logger: logger as never,
   });
 
@@ -91,11 +93,13 @@ describe(KyselyDatasource, () => {
 
       expect(result.error).toStrictEqual({
         message: "Incorrect syntax near 'FROM'.",
+        code: "QUERY_FAILED",
         cause: driverError,
       });
       // Never serialized
       expect(result.toJsonifiable().error).toStrictEqual({
         message: "Incorrect syntax near 'FROM'.",
+        code: "QUERY_FAILED",
       });
     });
 
@@ -108,9 +112,45 @@ describe(KyselyDatasource, () => {
       await expect(ds.queryOrThrow(query)).rejects.toThrow(
         expect.objectContaining({
           message: "Query failed: Incorrect syntax near 'FROM'.",
+          code: "QUERY_FAILED",
+          statusCode: 500,
           cause: driverError,
         })
       );
+      await expect(ds.queryOrThrow(query)).rejects.toThrow(QErrors.QueryFailed);
+      await expect(ds.queryOneOrThrow(query)).rejects.toThrow(
+        QErrors.QueryFailed
+      );
+    });
+
+    it("should return an ABORTED error with the abort reason as cause", async () => {
+      const controller = new AbortController();
+      const reason = new DOMException("timed out", "TimeoutError");
+      const { ds, query } = createQueryDatasource(() => {
+        controller.abort(reason);
+        return Promise.reject(new Error("driver aborted"));
+      });
+
+      const result = await ds.query(query, { signal: controller.signal });
+      expect(result.error).toStrictEqual({
+        message: "driver aborted",
+        code: "ABORTED",
+        cause: reason,
+      });
+
+      await expect(
+        ds.queryOrThrow(query, { signal: controller.signal })
+      ).rejects.toThrow(
+        expect.objectContaining({
+          message: "Query aborted: driver aborted",
+          code: "ABORTED",
+          statusCode: 504,
+          cause: reason,
+        })
+      );
+      await expect(
+        ds.queryOneOrThrow(query, { signal: controller.signal })
+      ).rejects.toThrow(QErrors.Aborted);
     });
 
     it("should pass the signal to kysely", async () => {
@@ -273,8 +313,13 @@ describe(KyselyDatasource, () => {
     it("should return the default value when no row matches", async () => {
       const { ds, query } = createQueryDatasource(
         () => Promise.resolve({ rows: [] }),
-        undefined,
-        { onNoResult: () => new Error("default not found") }
+        {
+          defaultOptions: {
+            queryOneOrThrow: {
+              onNoResult: () => new Error("default not found"),
+            },
+          },
+        }
       );
       const defaultRow = { id: 0 };
       const { data } = await ds.queryOneOrThrow(query, {
@@ -303,18 +348,20 @@ describe(KyselyDatasource, () => {
     });
   });
 
-  describe("errors", () => {
-    const errors: QOneRowErrorFactories = {
-      onNoResult: ({ error }) =>
-        new Error("default not found", { cause: error }),
-      onTooManyResults: ({ rowCount }) => new Error(`default got ${rowCount}`),
+  describe("defaultOptions.queryOneOrThrow", () => {
+    const defaultOptions: KyselyDatasourceDefaultOptions = {
+      queryOneOrThrow: {
+        onNoResult: ({ error }) =>
+          new Error("default not found", { cause: error }),
+        onTooManyResults: ({ rowCount }) =>
+          new Error(`default got ${rowCount}`),
+      },
     };
 
     it("should throw the datasource default errors", async () => {
       const { ds: noneDs, query } = createQueryDatasource(
         () => Promise.resolve({ rows: [] }),
-        undefined,
-        errors
+        { defaultOptions }
       );
       await expect(noneDs.queryOneOrThrow(query)).rejects.toThrow(
         expect.objectContaining({
@@ -329,8 +376,7 @@ describe(KyselyDatasource, () => {
 
       const { ds: manyDs } = createQueryDatasource(
         () => Promise.resolve({ rows: [{ id: 1 }, { id: 2 }] }),
-        undefined,
-        errors
+        { defaultOptions }
       );
       await expect(manyDs.queryOneOrThrow(query)).rejects.toThrow(
         "default got 2"
@@ -344,8 +390,7 @@ describe(KyselyDatasource, () => {
     it("should let query options override the datasource defaults", async () => {
       const { ds, query } = createQueryDatasource(
         () => Promise.resolve({ rows: [] }),
-        undefined,
-        errors
+        { defaultOptions }
       );
       await expect(
         ds.queryOneOrThrow(query, {
@@ -355,11 +400,130 @@ describe(KyselyDatasource, () => {
     });
   });
 
+  describe("onError", () => {
+    const failing = () => Promise.reject(new Error("driver error"));
+
+    it("should throw the onError error on query failure", async () => {
+      const { ds, query } = createQueryDatasource(failing);
+      const onError = ({ error }: { error: Error }) =>
+        new Error("custom", { cause: error });
+
+      await expect(ds.queryOrThrow(query, { onError })).rejects.toThrow(
+        expect.objectContaining({
+          message: "custom",
+          cause: expect.any(QErrors.QueryFailed),
+        })
+      );
+      await expect(ds.queryOneOrThrow(query, { onError })).rejects.toThrow(
+        expect.objectContaining({
+          message: "custom",
+          cause: expect.any(QErrors.QueryFailed),
+        })
+      );
+    });
+
+    it("should use the datasource defaults of the named method only", async () => {
+      const { ds, query } = createQueryDatasource(failing, {
+        defaultOptions: {
+          queryOrThrow: { onError: () => new Error("queryOrThrow default") },
+          queryOneOrThrow: {
+            onError: () => new Error("queryOneOrThrow default"),
+          },
+        },
+      });
+
+      await expect(ds.queryOrThrow(query)).rejects.toThrow(
+        "queryOrThrow default"
+      );
+      await expect(ds.queryOneOrThrow(query)).rejects.toThrow(
+        "queryOneOrThrow default"
+      );
+      await expect(
+        ds.queryOrThrow(query, { onError: () => new Error("option") })
+      ).rejects.toThrow("option");
+    });
+
+    it("should not use onError for the row count errors", async () => {
+      const { ds, query } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [] })
+      );
+
+      await expect(
+        ds.queryOneOrThrow(query, { onError: () => new Error("custom") })
+      ).rejects.toThrow(QErrors.NoResult);
+    });
+  });
+
   describe("inflightQueryAbortStrategy", () => {
+    it("should use the datasource strategy for all query methods", async () => {
+      const { ds, query, executeQuery } = createQueryDatasource(
+        () => Promise.resolve({ rows: [{ id: 1 }] }),
+        {
+          defaultOptions: {
+            query: { inflightQueryAbortStrategy: "cancel query" },
+          },
+        }
+      );
+      const { signal } = new AbortController();
+
+      await ds.queryOrThrow(query, { signal });
+      await ds.queryOne(query, { signal });
+      await ds.queryOneOrThrow(query, { signal });
+
+      expect(executeQuery).toHaveBeenCalledTimes(3);
+      for (const call of executeQuery.mock.calls) {
+        expect(call).toStrictEqual([
+          expect.anything(),
+          { signal, inflightQueryAbortStrategy: "cancel query" },
+        ]);
+      }
+    });
+
+    it("should support the deprecated inflightQueryAbortStrategy param", async () => {
+      const { ds, query, executeQuery } = createQueryDatasource(
+        () => Promise.resolve({ rows: [] }),
+        // oxlint-disable-next-line typescript/no-deprecated -- testing the alias
+        { inflightQueryAbortStrategy: "kill session" }
+      );
+      const { signal } = new AbortController();
+
+      await ds.query(query, { signal });
+
+      expect(executeQuery).toHaveBeenCalledExactlyOnceWith(expect.anything(), {
+        signal,
+        inflightQueryAbortStrategy: "kill session",
+      });
+    });
+
+    it("should prefer defaultOptions over the deprecated param", async () => {
+      const { ds, query, executeQuery } = createQueryDatasource(
+        () => Promise.resolve({ rows: [] }),
+        {
+          // oxlint-disable-next-line typescript/no-deprecated -- testing the alias
+          inflightQueryAbortStrategy: "kill session",
+          defaultOptions: {
+            query: { inflightQueryAbortStrategy: "cancel query" },
+          },
+        }
+      );
+      const { signal } = new AbortController();
+
+      await ds.query(query, { signal });
+
+      expect(executeQuery).toHaveBeenCalledExactlyOnceWith(expect.anything(), {
+        signal,
+        inflightQueryAbortStrategy: "cancel query",
+      });
+    });
+
     it("should use the datasource strategy", async () => {
       const { ds, query, executeQuery } = createQueryDatasource(
         () => Promise.resolve({ rows: [] }),
-        "cancel query"
+        {
+          defaultOptions: {
+            query: { inflightQueryAbortStrategy: "cancel query" },
+          },
+        }
       );
       const { signal } = new AbortController();
 
@@ -374,7 +538,11 @@ describe(KyselyDatasource, () => {
     it("should let a query override the datasource strategy", async () => {
       const { ds, query, executeQuery } = createQueryDatasource(
         () => Promise.resolve({ rows: [] }),
-        "cancel query"
+        {
+          defaultOptions: {
+            query: { inflightQueryAbortStrategy: "cancel query" },
+          },
+        }
       );
       const { signal } = new AbortController();
 
@@ -502,7 +670,11 @@ describe(KyselyDatasource, () => {
       });
 
       await expect(Array.fromAsync(stream)).rejects.toThrow(
-        expect.objectContaining({ message: "Connection lost", cause: failure })
+        expect.objectContaining({
+          message: "Query failed: Connection lost",
+          code: "QUERY_FAILED",
+          cause: failure,
+        })
       );
 
       expect(logger.error).toHaveBeenCalledExactlyOnceWith(
@@ -514,6 +686,24 @@ describe(KyselyDatasource, () => {
         })
       );
       expect(logger.info).not.toHaveBeenCalled();
+    });
+
+    it("should throw a QErrors.Aborted when aborted", async () => {
+      const controller = new AbortController();
+      const { stream } = createStreamDatasource(async function* rows() {
+        yield { id: 1 };
+        controller.abort();
+        throw new Error("Stream aborted");
+      }, controller.signal);
+
+      await expect(Array.fromAsync(stream)).rejects.toThrow(
+        expect.objectContaining({
+          message: "Query aborted: Stream aborted",
+          code: "ABORTED",
+          statusCode: 499,
+          cause: expect.objectContaining({ name: "AbortError" }),
+        })
+      );
     });
   });
 });
