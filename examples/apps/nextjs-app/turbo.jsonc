@@ -18,17 +18,22 @@
     "typecheck": {
       // We rely on tsconfig path aliases to ease starting
       // Only exception @flowblade/sqlduck that is used for env
-      "dependsOn": ["@flowblade/sqlduck#build"],
+      "dependsOn": ["@flowblade/sqlduck#build", "@flowblade/core#build"]
     },
     "typecheck-bun": {
       // We rely on tsconfig path aliases to ease starting
       // Only exception @flowblade/sqlduck that is used for env
-      "dependsOn": ["@flowblade/sqlduck#build"],
+      "dependsOn": ["@flowblade/sqlduck#build", "@flowblade/core#build"]
     },
     "lint": {
       // We rely on tsconfig path aliases to ease starting
       // Only exception @flowblade/sqlduck that is used for env
-      "dependsOn": ["@flowblade/sqlduck#build"],
+      "dependsOn": ["@flowblade/sqlduck#build", "@flowblade/core#build"]
+    },
+    "lint-fix": {
+      // We rely on tsconfig path aliases to ease starting
+      // Only exception @flowblade/sqlduck that is used for env
+      "dependsOn": ["@flowblade/sqlduck#build", "@flowblade/core#build"]
     },
     // Docker images: never cached, we always want freshly built images.
     // The build tasks don't depend on each other. The images comparison
@@ -44,7 +49,7 @@
       "persistent": true,
       // We rely on tsconfig path aliases to ease starting
       // Only exception @flowblade/sqlduck that is used for env
-      "dependsOn": ["@flowblade/sqlduck#build"],
+      "dependsOn": ["@flowblade/sqlduck#build", "@flowblade/core#build"]
     },
   },
 }
