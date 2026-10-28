@@ -25,7 +25,7 @@ const importOtherCopy = async () => {
   vi.resetModules();
   return {
     ...(await import("../index")),
-    ...(await import("../data-source/index")),
+    ...(await import("../datasource/index")),
   };
 };
 

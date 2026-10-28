@@ -16,7 +16,9 @@
   },
   "files": [
     "dist",
-    "UPGRADE.md"
+    "UPGRADE.md",
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
   "sideEffects": false,
@@ -29,7 +31,7 @@
       }
     },
     "./datasource": {
-      "flowblade-monorepo-source": "./src/data-source/index.ts",
+      "flowblade-monorepo-source": "./src/datasource/index.ts",
       "import": {
         "types": "./dist/datasource.d.ts",
         "default": "./dist/datasource.js"

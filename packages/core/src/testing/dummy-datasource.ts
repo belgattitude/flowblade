@@ -6,7 +6,7 @@ import {
   createSqlSpan,
   getOneRowOrThrow,
   toOneRowQResult,
-} from "../data-source/index";
+} from "../datasource/index";
 import {
   type AsyncQResult,
   type DatasourceInterface,

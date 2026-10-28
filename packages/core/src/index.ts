@@ -5,7 +5,7 @@ export type {
   QueryOptions,
   QueryOrThrowOptions,
   QueryStreamOptions,
-} from "./data-source/datasource.interface";
+} from "./datasource/datasource.interface";
 /**
  * Errors thrown by flowblade (ie: `QErrors.NoResult`, `QErrors.TooManyResults`),
  * usable with `instanceof` and as types.
