@@ -1,5 +1,271 @@
 # @flowblade/core
 
+## 0.7.0
+
+### Minor Changes
+
+- [#1456](https://github.com/belgattitude/flowblade/pull/1456) [`d5bb2e1`](https://github.com/belgattitude/flowblade/commit/d5bb2e1d76ff5973821bd3d91c44f7b8437b2f46) Thanks [@belgattitude](https://github.com/belgattitude)! - Move the helpers to implement a datasource to a dedicated `@flowblade/core/datasource` entry, to keep the main entry focused on what datasource users need (`import * from "@flowblade/core"`: ~4.43 kB → ~4.17 kB).
+  
+  Moved: `createQResultSuccess()`, `createQResultError()` and `createSqlSpan()`. The new `toOneRowQResult()` and `getOneRowOrThrow()`, to implement `queryOne()` / `queryOneOrThrow()`, are exported there too.
+  
+  ```typescript
+  import { QMeta } from "@flowblade/core";
+  import {
+    createQResultError,
+    createQResultSuccess,
+    createSqlSpan,
+  } from "@flowblade/core/datasource";
+  ```
+  
+  Breaking change: the moved helpers are no longer exported from `@flowblade/core`, see `UPGRADE.md` to migrate.
+
+- [#1456](https://github.com/belgattitude/flowblade/pull/1456) [`d5bb2e1`](https://github.com/belgattitude/flowblade/commit/d5bb2e1d76ff5973821bd3d91c44f7b8437b2f46) Thanks [@belgattitude](https://github.com/belgattitude)! - The throwing methods accept error factories (except `stream()`). `QResult.getOrThrow()` accepts `onError` / `onTooManyResults`, in the same style as `queryOneOrThrow()`. Each factory receives the default error (ie: `QErrors.QueryFailed`), useful as `cause`.
+  
+  - `onTooManyResults({ error, rowCount, meta })`: the result has more than one row (`queryOne()` results).
+  - `onError({ error, qError, meta })`: the other failures, ie: the query failed (`"QUERY_FAILED"`, `"ABORTED"`) or the `map()` transform threw. Switch on `qError.code` if needed.
+  
+  ```typescript
+  import { HttpInternalServerError } from "@httpx/exception";
+  
+  const row = (await ds.queryOne(query)).getOrThrow({
+    onError: ({ error }) => new HttpInternalServerError({ cause: error }),
+    onTooManyResults: ({ error, rowCount }) =>
+      new HttpInternalServerError({
+        message: `Expected one row, got ${rowCount}`,
+        cause: error,
+      }),
+  });
+  ```
+  
+  `queryOrThrow()` and `queryOneOrThrow()` accept an `onError` factory too, per query or as datasource defaults (`defaultOptions.queryOrThrow` / `defaultOptions.queryOneOrThrow`). All the throwing methods share the same factories:
+  
+  | Method | Factories | Datasource defaults |
+  | --- | --- | --- |
+  | `queryOrThrow()` | `onError` | `defaultOptions.queryOrThrow` |
+  | `queryOneOrThrow()` | `onError`, `onNoResult`, `onTooManyResults` | `defaultOptions.queryOneOrThrow` |
+  | `QResult.getOrThrow()` | `onError`, `onTooManyResults` |  |
+  
+  ```typescript
+  import { HttpGatewayTimeout, HttpInternalServerError } from "@httpx/exception";
+  
+  const onError = ({ error, qError }) =>
+    qError.code === "ABORTED"
+      ? new HttpGatewayTimeout({ cause: error })
+      : new HttpInternalServerError({ cause: error });
+  
+  const ds = new DuckdbDatasource({
+    connection: duckdb,
+    defaultOptions: {
+      queryOrThrow: { onError },
+      queryOneOrThrow: { onError },
+    },
+  });
+  ```
+  
+  Passing a function receiving the `QError` to `getOrThrow()` still works: `result.getOrThrow((qErr) => new Error(qErr.message))`.
+  
+  New types: `QErrorFactory`, `QGetOrThrowErrorFactories` and `QueryOrThrowOptions`.
+
+- [#1456](https://github.com/belgattitude/flowblade/pull/1456) [`d5bb2e1`](https://github.com/belgattitude/flowblade/commit/d5bb2e1d76ff5973821bd3d91c44f7b8437b2f46) Thanks [@belgattitude](https://github.com/belgattitude)! - `QResult` is now a discriminated union: checking `error` narrows `data` (and the other way around), even after destructuring.
+  
+  ```typescript
+  const { data, error } = await ds.query(sql<{ id: number }>`SELECT 1 as id`);
+  if (error) {
+    return console.error(error.message);
+  }
+  // data is typed { id: number }[], no longer `| undefined`
+  ```
+  
+  `QResult.map()` keeps the union too: mapping rows returns `QResult<TMappedRow[], TError | QError>` instead of `QResult<TMappedRow[] | undefined, TError | undefined>`.
+
+- [#1456](https://github.com/belgattitude/flowblade/pull/1456) [`d5bb2e1`](https://github.com/belgattitude/flowblade/commit/d5bb2e1d76ff5973821bd3d91c44f7b8437b2f46) Thanks [@belgattitude](https://github.com/belgattitude)! - `QResult` data is no longer always an array. It holds either:
+  
+  - the rows, for `query()`: `QResult<Row[]>`,
+  - the row or `null`, for `queryOne()`: `QResult<Row | null>`.
+  
+  The API stays the same for both:
+  
+  - `map()` transforms each row of an array, or the single row (`null` is kept as is, the transform isn't called).
+  - `InferQResult` infers the data type: `Row[]` or `Row | null`.
+  - `getOrThrow()` and `toJsonifiable()` return the data as is (ie: `data: null` for a missing row).
+  
+  ```typescript
+  import type { InferQResult } from "@flowblade/core";
+  
+  type Row = { id: number; name: string };
+  
+  const result = await ds.queryOne(
+    sql<Row>`SELECT id, name FROM product WHERE id = ${id}`
+  );
+  const { data: product, error } = result;
+  if (error) {
+    throw new Error(error.message, { cause: error.cause });
+  }
+  // product: Row | null
+  
+  type Product = InferQResult<typeof result>; // Row | null
+  
+  // map() transforms the row, null is kept as is
+  const { data: dto } = result.map((row) => {
+    return { ...row, slug: slugify(row.name) };
+  });
+  // dto: (Row & { slug: string }) | null
+  ```
+  
+  **Migration**: `query()` results are unchanged. Only generic code constrained to arrays (ie: `<T extends QResult<unknown[], QError>>`) needs to widen the constraint to `QResult<unknown, QError>` to accept both shapes. `DatasourceHelpers.toJsonified()` from `@flowblade/source-kysely` already accepts both.
+
+- [#1456](https://github.com/belgattitude/flowblade/pull/1456) [`d5bb2e1`](https://github.com/belgattitude/flowblade/commit/d5bb2e1d76ff5973821bd3d91c44f7b8437b2f46) Thanks [@belgattitude](https://github.com/belgattitude)! - Consistent errors: every `QError` has a `code`, and every throwing method throws an error from the `QErrors` namespace, usable with `instanceof` and carrying a suggested http `statusCode`. See the `UPGRADE.md` of each package to migrate.
+  
+  | `QError.code` | Thrown error (`*OrThrow()`, `stream()`, `getOrThrow()`) | `statusCode` |
+  | --- | --- | --- |
+  | `QUERY_FAILED` (driver error as `cause`) | `QErrors.QueryFailed`, message prefixed with `"Query failed: "` | 500 |
+  | `ABORTED` (abort reason as `cause`) | `QErrors.Aborted`, message prefixed with `"Query aborted: "` | 504 on timeout, 499 otherwise |
+  | `TOO_MANY_RESULTS` | `QErrors.TooManyResults` | 500 |
+  | `MAP_FAILED` (`map()` transform error as `cause`) | `Error` |  |
+  
+  `queryOneOrThrow()` also throws `QErrors.NoResult` (404) when there's no row.
+  
+  ```typescript
+  import { QErrors } from "@flowblade/source-duckdb";
+  
+  // Results: switch over the error code
+  const { data, error } = await ds.query(query, {
+    signal: AbortSignal.timeout(5_000),
+  });
+  if (error) {
+    switch (error.code) {
+      case "ABORTED":
+        // error.cause is the abort reason, ie: a TimeoutError
+        break;
+      case "QUERY_FAILED":
+        // error.cause is the driver error
+        break;
+    }
+  }
+  
+  // Throwing methods: use instanceof
+  try {
+    await ds.queryOrThrow(query, { signal: AbortSignal.timeout(5_000) });
+  } catch (e) {
+    if (e instanceof QErrors.Aborted) {
+      // e.statusCode === 504
+    }
+    throw e;
+  }
+  ```
+  
+  `queryOne().getOrThrow()` and `queryOneOrThrow()` now throw the same errors, except when there's no row (`null` vs `QErrors.NoResult`).
+  
+  `QResult.isOk()` and `QResult.isError()` are now type guards, narrowing `data` and `error` like checking `error`:
+  
+  ```typescript
+  const result = await ds.query(query);
+  if (result.isError()) {
+    // result.error: QError, result.data: undefined
+    return console.error(result.error.code);
+  }
+  // result.data: Row[]
+  ```
+  
+  Breaking changes:
+  
+  - `QError.code` is required: QErrors built by hand (ie: tests, custom datasources) must set it, and `toJsonifiable()` includes it.
+  - `QResult.getOrThrow()` throws `QErrors.QueryFailed` / `QErrors.Aborted` (messages prefixed with `"Query failed: "` / `"Query aborted: "`) rather than a plain `Error`, and the `QErrors.TooManyResults` cause itself.
+  - `queryOrThrow()` throws `QErrors.Aborted` with a `"Query aborted: "` message when aborted, and `stream()` errors are prefixed with `"Query failed: "` / `"Query aborted: "`.
+  - `@flowblade/source-kysely`: the `cause` of an aborted query is the abort reason (`signal.reason`) rather than the dialect error.
+  - `QResult.isError` is a method rather than an arrow function property: unbound uses (ie: `const { isError } = result`) must call it on the result.
+
+- [#1456](https://github.com/belgattitude/flowblade/pull/1456) [`d5bb2e1`](https://github.com/belgattitude/flowblade/commit/d5bb2e1d76ff5973821bd3d91c44f7b8437b2f46) Thanks [@belgattitude](https://github.com/belgattitude)! - Add `queryOne()` and `queryOneOrThrow()` to datasources, for queries expecting a single row. More than one row is always an error, protecting against a missing condition or broken data integrity.
+  
+  | Method | No row | One row | More than one row | Query failure |
+  | --- | --- | --- | --- | --- |
+  | `queryOne()` | `data: null` | `data: row` | `error.code: "TOO_MANY_RESULTS"` | `error.code: "QUERY_FAILED"` / `"ABORTED"` |
+  | `queryOneOrThrow()` | throws `QErrors.NoResult` (or returns `defaultValue`) | `data: row` | throws `QErrors.TooManyResults` | throws `QErrors.QueryFailed` / `QErrors.Aborted` |
+  
+  #### `queryOne()`, never throws
+  
+  Like `query()` returns `[]`, an empty result isn't an error: `data` is `null`.
+  
+  ```typescript
+  import { DuckdbDatasource, sql } from "@flowblade/source-duckdb";
+  
+  const query = sql<{ id: number }>`SELECT id FROM product WHERE id = ${id}`;
+  
+  const { data: product, error } = await ds.queryOne(query);
+  if (error) {
+    // error.code: "QUERY_FAILED", "ABORTED" or "TOO_MANY_RESULTS"
+    throw new Error(error.message, { cause: error.cause });
+  }
+  if (product === null) {
+    // not found, ie: return a 404
+  }
+  ```
+  
+  #### `queryOneOrThrow()`, the row must exist
+  
+  ```typescript
+  import { QErrors } from "@flowblade/source-duckdb";
+  import { HttpNotFound } from "@httpx/exception";
+  
+  // Throws QErrors.NoResult or QErrors.TooManyResults
+  const { data: product, meta } = await ds.queryOneOrThrow(query);
+  
+  // Return a default value when there's no row (ie: default settings)
+  const { data: settings } = await ds.queryOneOrThrow(settingsQuery, {
+    defaultValue: defaultSettings,
+  });
+  
+  // Throw your own error
+  const { data: brand } = await ds.queryOneOrThrow(brandQuery, {
+    onNoResult: ({ error }) =>
+      new HttpNotFound({ message: `Brand ${id} not found`, cause: error }),
+  });
+  
+  // Or recognize the flowblade errors
+  try {
+    await ds.queryOneOrThrow(query);
+  } catch (e) {
+    if (e instanceof QErrors.TooManyResults) {
+      console.error(`Expected one row, got ${e.rowCount}`);
+    }
+    throw e;
+  }
+  ```
+  
+  #### Datasource defaults
+  
+  The error factories can be set once per datasource with `defaultOptions`, keyed by method name (per query options win):
+  
+  ```typescript
+  import { HttpInternalServerError, HttpNotFound } from "@httpx/exception";
+  
+  const ds = new DuckdbDatasource({
+    connection: duckdb,
+    defaultOptions: {
+      // Used by queryOneOrThrow() only, queryOne() never throws
+      queryOneOrThrow: {
+        // onError: ({ error }) => ..., for query failures
+        onNoResult: ({ error }) =>
+          new HttpNotFound({ message: "Resource not found", cause: error }),
+        onTooManyResults: ({ error, rowCount }) =>
+          new HttpInternalServerError({
+            message: `Expected one row, got ${rowCount}`,
+            cause: error,
+          }),
+      },
+    },
+  });
+  ```
+  
+  #### `QErrors`
+  
+  `QErrors.NoResult` and `QErrors.TooManyResults` (along with `QErrors.QueryFailed` and `QErrors.Aborted`, see the query errors changeset) are exported under the `QErrors` namespace (from `@flowblade/core`, re-exported by `@flowblade/source-duckdb` and `@flowblade/source-kysely`), usable with `instanceof` and as types. They carry a suggested http `statusCode` (404 and 500), recognized by http error helpers such as `isErrorWithErrorStatusCode()` from `@httpx/exception`.
+  
+  #### Notes
+  
+  - The SQL is never rewritten (no `LIMIT` added, unsupported by SQL Server), so checking the row count costs nothing on the happy path. All rows are fetched though: when the query isn't constrained by a unique key, bound it to 2 rows.
+  - Row counts other than one are logged with LogTape: more than one row as a warning, no row at debug level (often an expected outcome).
+
 ## 0.6.1
 
 ### Patch Changes
