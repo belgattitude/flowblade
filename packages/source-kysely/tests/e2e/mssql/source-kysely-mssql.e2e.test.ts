@@ -69,6 +69,7 @@ describe("MSSQL e2e tests", () => {
         expect(result.data).toBeUndefined();
         expect(result.error).toStrictEqual({
           message: "Incorrect syntax near the keyword 'FROM'.",
+          code: "QUERY_FAILED",
           // 156: incorrect syntax near a keyword
           cause: expect.objectContaining({ number: 156 }),
         });
@@ -125,6 +126,7 @@ describe("MSSQL e2e tests", () => {
         const { error } = result;
         expect(error).toStrictEqual({
           message: "Incorrect syntax near 'qsqdfqsldkjf'.",
+          code: "QUERY_FAILED",
           // 102: incorrect syntax
           cause: expect.objectContaining({ number: 102 }),
         });
@@ -242,6 +244,7 @@ describe("MSSQL e2e tests", () => {
           { signal: AbortSignal.timeout(200) }
         );
         expect(result.isError()).toBe(true);
+        expect(result.error?.code).toBe("ABORTED");
         expect(Date.now() - start).toBeLessThan(2000);
       });
 
@@ -278,7 +281,12 @@ describe("MSSQL e2e tests", () => {
           .select(["t.id"]);
         await expect(
           Array.fromAsync(ds.stream(query, { signal: AbortSignal.abort() }))
-        ).rejects.toThrow("This operation was aborted");
+        ).rejects.toThrow(
+          expect.objectContaining({
+            message: expect.stringContaining("This operation was aborted"),
+            code: "ABORTED",
+          })
+        );
       });
     });
 
@@ -295,7 +303,13 @@ describe("MSSQL e2e tests", () => {
           ds.queryOrThrow(rawSql, {
             name: "nok query",
           })
-        ).rejects.toThrow("Query failed: Incorrect syntax near '1'.");
+        ).rejects.toThrow(
+          expect.objectContaining({
+            message: "Query failed: Incorrect syntax near '1'.",
+            code: "QUERY_FAILED",
+            statusCode: 500,
+          })
+        );
       });
     });
   });

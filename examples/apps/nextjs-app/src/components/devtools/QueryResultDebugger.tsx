@@ -7,7 +7,7 @@ import { SqlFormatter } from "@flowblade/sql-tag-format";
 import { DynamicCodeBlock } from "@/components/code/DynamicCodeBlock";
 import { cn } from "@/components/utils";
 
-export type SerializedQResult<T extends unknown[] = unknown[]> = Omit<
+export type SerializedQResult<T = unknown> = Omit<
   QResult<T, QError>,
   "meta"
 > & {
@@ -16,7 +16,7 @@ export type SerializedQResult<T extends unknown[] = unknown[]> = Omit<
   };
 };
 
-interface Props<T extends unknown[] = unknown[]> {
+interface Props<T = unknown> {
   result: SerializedQResult<T>;
 }
 

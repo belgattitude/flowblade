@@ -12,13 +12,16 @@
       ],
       "@examples/base-ui/*": ["../../shared/base-ui/src/*"],
       "@flowblade/sqlduck/zod": [
-        "../../../packages/sqlduck/src/validation/zod/index.ts"
+        "../../../packages/sqlduck/src/validation/zod/index"
       ],
       "@flowblade/sqlduck/valibot": [
-        "../../../packages/sqlduck/src/validation/valibot/index.ts"
+        "../../../packages/sqlduck/src/validation/valibot/index"
       ],
       "@flowblade/sqlduck": ["../../../packages/sqlduck/src/index"],
       "@flowblade/core": ["../../../packages/core/src/index"],
+      "@flowblade/core/datasource": [
+        "../../../packages/core/src/datasource/index"
+      ],
       "@flowblade/source-duckdb": ["../../../packages/source-duckdb/src/index"],
       "@flowblade/source-kysely": ["../../../packages/source-kysely/src/index"],
       "@flowblade/sql-tag": ["../../../packages/sql-tag/src/index"],

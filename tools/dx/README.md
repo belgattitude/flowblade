@@ -414,7 +414,7 @@ The second argument changes the dx base:
 | Option | Default | Description |
 | --- | --- | --- |
 | `react` | `false` | adds the `@vitejs/plugin-react` plugin and uses the `happy-dom` environment |
-| `testingLibrary` | `false` | adds a setup file extending `expect` with the `@testing-library/jest-dom` matchers (`toBeInTheDocument`...) |
+| `testingLibrary` | `false` | adds a setup file extending `expect` with the `@testing-library/jest-dom` matchers (`toBeInTheDocument`...) and running the `@testing-library/react` `cleanup` after each test |
 | `codspeed` | `process.env.CODSPEED === "1"` | adds the `@codspeed/vitest-plugin` (set by `dx-bench-codspeed`) |
 | `isolate` | `true` for `vitest bench` or with `codspeed`, `false` otherwise | vitest `isolate`: set it to `true` (or `test.isolate`) for tests relying on a fresh module state (module level mocks or state shared between files) |
 | `cache` | `<root>/.cache/vitest/<package path>` | directory of the vite (`vite`) and vitest (`modules`) caches, `false` for the vite and vitest defaults |
@@ -436,7 +436,7 @@ export default createVitestConfig(
 );
 ```
 
-`testingLibrary` only adds the matchers. `@testing-library/react` registers its `cleanup` after each test only with `globals: true`: otherwise call it in an `afterEach`.
+`testingLibrary` also registers the `@testing-library/react` `cleanup` after each test: don't add one in the package. `@testing-library/react` only does it itself with `globals: true`, and without isolation it is imported once per worker: only the first test file would be cleaned up, the next ones would find the elements rendered by the previous files. The setup file imports the package's `@testing-library/react` (`resolve.dedupe`, the same instance as the tests): the package must depend on it (at the version pinned by @flowblade/dx).
 
 ### Package dependencies
 

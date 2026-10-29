@@ -12,7 +12,9 @@ pnpm add @flowblade/core
 
 ### QResult
 
-This is specialized Result object for database interactions
+A Result object specialized for database interactions, returned by the datasources (ie: `query()`, `queryOne()`). It holds either `data` or `error`, and `meta` (sql, params, timing...) is always present.
+
+`data` holds the rows for `query()` (`Row[]`), or the row or `null` for `queryOne()` (`Row | null`).
 
 ### Create a success QResult
 
@@ -30,16 +32,15 @@ const successResult = new QResult({
   }),
 });
 
-// 👇 You can dereference, data, meta and error
-const { data, meta, error } = result;
-if (data) {
-  // typed in this case to { name: string}[]
-  console.log(data); // [{ name: 'Seb' }]
-}
+// 👇 You can destructure data, meta and error
+const { data, meta, error } = successResult;
 
 if (error) {
-  // typed in this case to QError
-  console.error(error); // QError object
+  // typed in this case to QError, data is undefined
+  console.error(error);
+} else {
+  // 👇 checking error narrows data to { name: string }[]
+  console.log(data); // [{ name: 'Seb' }]
 }
 ```
 
@@ -49,6 +50,8 @@ if (error) {
 const failureResult = new QResult<SuccessPayload, QError>({
   error: {
     message: "Error message",
+    // "QUERY_FAILED" | "ABORTED" | "TOO_MANY_RESULTS" | "MAP_FAILED"
+    code: "QUERY_FAILED",
   },
 });
 
@@ -60,12 +63,27 @@ failureResult.data; // 👈 undefined
 #### Helpers
 
 ```typescript
+// 👇 Maps each row, or the single row for queryOne() results (null is kept)
 result.map((row) => {
   return { ...row, name: row.name.toUpperCase() };
 });
 
-result.getOrThrow(); // 👈 throw Error('Error message')
-// 👇 Customize the error and throws
+// 👇 Throws depending on the error code: QErrors.QueryFailed ("QUERY_FAILED"),
+// QErrors.Aborted ("ABORTED"), QErrors.TooManyResults ("TOO_MANY_RESULTS")
+result.getOrThrow();
+// 👇 Throw your own errors, the default error is available as cause
+result.getOrThrow({
+  // query failures (switch on qError.code if needed, ie: "ABORTED")
+  onError: ({ error, qError, meta }) =>
+    new HttpInternalServerError({ cause: error }),
+  // more than one row (queryOne() results)
+  onTooManyResults: ({ error, rowCount, meta }) =>
+    new HttpInternalServerError({
+      message: `Expected one row, got ${rowCount}`,
+      cause: error,
+    }),
+});
+// 👇 Or with a function receiving the QError
 result.getOrThrow((qErr) => {
   return new HttpServiceUnavailable({
     cause: new Error(qErr.message),
@@ -73,14 +91,70 @@ result.getOrThrow((qErr) => {
 });
 ```
 
+### QErrors
+
+Errors thrown by the datasources throwing methods (`queryOrThrow()`, `queryOneOrThrow()`, `stream()`) and `QResult.getOrThrow()`, usable with `instanceof` (even across realms and duplicated installs) and as types. They carry a suggested http `statusCode`, recognized by http error helpers such as `isErrorWithErrorStatusCode()` from `@httpx/exception`.
+
+| Error | When | `code` | `statusCode` |
+| --- | --- | --- | --- |
+| `QErrors.QueryFailed` | the query failed, the driver error as `cause` | `QUERY_FAILED` | 500 |
+| `QErrors.Aborted` | the query was aborted, the abort reason as `cause` | `ABORTED` | 504 on timeout, 499 otherwise |
+| `QErrors.NoResult` | `queryOneOrThrow()` got no row | `NO_RESULT` | 404 |
+| `QErrors.TooManyResults` | more than one row, with `rowCount` | `TOO_MANY_RESULTS` | 500 |
+
+```typescript
+import { QErrors } from "@flowblade/core"; // or from the datasource package
+
+try {
+  const { data: product } = await ds.queryOneOrThrow(query);
+} catch (e) {
+  if (e instanceof QErrors.QueryFailed) {
+    // e.statusCode === 500, e.cause is the driver error
+  }
+  if (e instanceof QErrors.NoResult) {
+    // no row, e.statusCode === 404
+  }
+  if (e instanceof QErrors.TooManyResults) {
+    // more than one row, e.statusCode === 500
+    console.error(`Expected one row, got ${e.rowCount}`);
+  }
+  throw e;
+}
+```
+
+### Implementing a datasource
+
+Helpers to implement a datasource (`DatasourceInterface`) are exported from `@flowblade/core/datasource`: `createQResultSuccess()`, `createQResultError()`, `createSqlSpan()`, `toOneRowQResult()` (for `queryOne()`) and `getOneRowOrThrow()` (for `queryOneOrThrow()`).
+
+```typescript
+import { QMeta } from "@flowblade/core";
+import {
+  createQResultError,
+  createQResultSuccess,
+  createSqlSpan,
+} from "@flowblade/core/datasource";
+
+const span = createSqlSpan({ sql, params });
+try {
+  const rows = await driver.execute(sql, params);
+  return createQResultSuccess(rows, new QMeta({ name, spans: span }));
+} catch (error) {
+  return createQResultError(
+    { message: String(error), code: "QUERY_FAILED", cause: error },
+    new QMeta({ name, spans: span })
+  );
+}
+```
+
 ## Bundle size
 
 Bundle size is tracked by a [size-limit configuration](https://github.com/belgattitude/flowblade/blob/main/packages/core/.size-limit.ts) (minified and brotli compressed, bundled with rolldown).
 
-| Scenario (esm)                              | Size (compressed) |
-| ------------------------------------------- | ----------------: |
-| `import * from '@flowblade/core'`           |         ~ 3.61 kB |
-| `import { QResult } from '@flowblade/core'` |         ~ 3.43 kB |
+| Scenario (esm)                               | Size (compressed) |
+| -------------------------------------------- | ----------------: |
+| `import * from '@flowblade/core'`            |         ~ 4.17 kB |
+| `import { QResult } from '@flowblade/core'`  |         ~ 3.98 kB |
+| `import * from '@flowblade/core/datasource'` |         ~ 4.35 kB |
 
 ## Compatibility
 

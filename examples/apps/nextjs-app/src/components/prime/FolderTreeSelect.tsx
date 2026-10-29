@@ -24,6 +24,7 @@ export const FolderTreeSelect: FC<Props> = (props) => {
     NodeService.getTreeNodes()
       .then((data) => {
         setNodes(data);
+        return undefined;
       })
       .catch((error: unknown) => {
         console.error("Error fetching nodes:", error);

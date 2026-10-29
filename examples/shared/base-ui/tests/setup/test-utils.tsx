@@ -1,13 +1,7 @@
-import { cleanup, render } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import type { ReactElement } from "react";
-import { afterEach } from "vitest";
 
 import { AppTestProviders } from "./app-test-providers";
-
-/** Recommended in vitest only to cleanup context */
-afterEach(() => {
-  cleanup();
-});
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const customRender = (ui: ReactElement, options?: any) =>

@@ -8,4 +8,4 @@ export { sql, type SqlTag } from "@flowblade/sql-tag";
 
 // re-export from @flowblade/core
 export type { QError } from "@flowblade/core";
-export { QResult } from "@flowblade/core";
+export { QErrors, QResult } from "@flowblade/core";

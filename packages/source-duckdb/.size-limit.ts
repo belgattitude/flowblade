@@ -6,7 +6,7 @@ const config = createSizeLimitConfig(
       name: "Import * (ESM)",
       path: ["dist/index.mjs"],
       import: "*",
-      limit: "9.76 kB",
+      limit: "10.6 kB",
     },
   ],
   { browserslist: false }
