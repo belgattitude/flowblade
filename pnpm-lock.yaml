@@ -177,7 +177,7 @@ overrides:
   deepmerge-ts@<8.0.0: 8.0.0
   esbuild: ^0.28.2
   http-cache-semantics@<=4.2.0: 4.3.0
-  katex@>=0.11.0 <0.18.2: 0.18.2
+  katex@>=0.11.0 <0.18.2: 0.19.1
   lodash-es@<=4.17.23: 4.18.1
   lodash-es@>=4.0.0 <=4.17.23: 4.18.1
   mysql2@<=3.23.0: 3.24.5
@@ -8633,10 +8633,6 @@ packages:
     resolution: {integrity: sha512-rZ08i6TpnOBwDMGWtOUkSbRnEFaK5eKhYi1D+Pz2uwovouvqIp2CInbFL+XsnecpUoOBBcvP08I6WadLv4PdOA==}
     engines: {node: '>= 10'}
 
-  commander@8.3.0:
-    resolution: {integrity: sha512-o52CB1vu+7Zbns+dhjeG6htTMLkAJRlF1YDiFWFT8ZX3HC0mfndR7qC88GJxeRbcFU26yNCipnQ/EMgb5jj33w==}
-    engines: {node: '>= 12'}
-
   commist@3.2.0:
     resolution: {integrity: sha512-LPGDCZttjuSXoAij8+eNC7+62YwPqIu4vuCsvCs7fvFdkCE/REiwIJVOi3l4djrcttSPUnGNGvmWPIsA0YvwEQ==}
 
@@ -10510,8 +10506,8 @@ packages:
     resolution: {integrity: sha512-rX2h/mBKuxLxgRvZhiYAMsQ3p0VYfNmHotyKn+qFOIKTTPxJim4J3VQ1d8eohe7P5LPt9dSMDo0dtew5dqf5NQ==}
     hasBin: true
 
-  katex@0.18.2:
-    resolution: {integrity: sha512-z+sVel1FM2Krck+FDocFzJuIGQOGVcEjUWGIFs9M9OE/c0CLJub/F+UgCFmE4Ex0xDNWlOPMNGNUn5x+btL8iQ==}
+  katex@0.19.1:
+    resolution: {integrity: sha512-SdC303lzzArENYm0TReYQsSjBDxJC9My8RKMG6FBvbWMroymBhKdUTGLl4mL6uYrGXHmYAOHZNNE+N7aN9yucA==}
     hasBin: true
 
   keyv@5.6.0:
@@ -20477,8 +20473,6 @@ snapshots:
 
   commander@7.2.0: {}
 
-  commander@8.3.0: {}
-
   commist@3.2.0: {}
 
   common-ancestor-path@2.0.0: {}
@@ -22544,9 +22538,9 @@ snapshots:
     dependencies:
       commander: 15.0.0
 
-  katex@0.18.2:
+  katex@0.19.1:
     dependencies:
-      commander: 8.3.0
+      commander: 15.0.0
 
   keyv@5.6.0:
     dependencies:
@@ -23079,7 +23073,7 @@ snapshots:
       dompurify: 3.4.17
       elkjs: 0.9.3
       es-toolkit: 1.53.0
-      katex: 0.18.2
+      katex: 0.19.1
       khroma: 2.1.0
       marked: 16.4.2
       roughjs: 4.6.6
