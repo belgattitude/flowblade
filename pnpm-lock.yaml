@@ -182,7 +182,7 @@ overrides:
   lodash-es@>=4.0.0 <=4.17.23: 4.18.1
   mysql2@<=3.23.0: 3.24.5
   path-to-regexp@>=4.0.0 <6.3.0: 6.3.0
-  postcss-selector-parser@<7.1.6: 7.1.6
+  postcss-selector-parser@<7.1.6: 7.1.7
   seroval@<=1.6.2: 1.6.3
   zod@<4.6.6: 4.6.7
 
@@ -11905,10 +11905,6 @@ packages:
     resolution: {integrity: sha512-/cD7++kTkmeKQh32CEGDpjP3MRpnV7tmR+eojbsMURREWihlF5+yi9C7BTzsY1kx6VosnRmvL0AjxOfm5jCmJg==}
     engines: {node: '>= 0.4'}
 
-  postcss-selector-parser@7.1.6:
-    resolution: {integrity: sha512-WV9iD13gTRvy8mybogkqY3UJyQ9BOhh2grs7g5v7BVKAlZOiElkLnSUc8UpFpd8Um8vW3tQcOKw/Uo69aCqgyg==}
-    engines: {node: '>=4'}
-
   postcss-selector-parser@7.1.7:
     resolution: {integrity: sha512-lxIYjD1aMZXb+AYpgM3aqvw4LbOeWhIGirOlduuwDYZsD16zwDxzZMxTzcgZpZsKc8CTM2pqqt3sTdHyUF7aHw==}
     engines: {node: '>=4'}
@@ -18185,7 +18181,7 @@ snapshots:
 
   '@tailwindcss/typography@0.5.20(tailwindcss@4.3.3)':
     dependencies:
-      postcss-selector-parser: 7.1.6
+      postcss-selector-parser: 7.1.7
       tailwindcss: 4.3.3
 
   '@tailwindcss/vite@4.3.3(vite@8.3.5)':
@@ -24185,11 +24181,6 @@ snapshots:
       points-on-curve: 0.2.0
 
   possible-typed-array-names@1.1.0: {}
-
-  postcss-selector-parser@7.1.6:
-    dependencies:
-      cssesc: 3.0.0
-      util-deprecate: 1.0.2
 
   postcss-selector-parser@7.1.7:
     dependencies:
