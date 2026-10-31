@@ -1,7 +1,7 @@
 export type {
   OnChunkAppendedCb,
   OnChunkAppendedStats,
-} from "./appender/data-appender-callback.ts";
+} from "./loader/progress/progress-collector.ts";
 export * from "./helpers/index.ts";
 export type { SqlDuckParams, ToTableParams } from "./sql-duck.ts";
 export { SqlDuck } from "./sql-duck.ts";
