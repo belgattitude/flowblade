@@ -1,4 +1,4 @@
-export type OnChunkAppendedStats = {
+export type LoadProgress = {
   /**
    * Total number of rows appended so far (all batches included)
    */
@@ -13,24 +13,34 @@ export type OnChunkAppendedStats = {
   rowsPerSecond: number;
 };
 
-type OnChunkAppendedSyncCb = (stats: OnChunkAppendedStats) => void;
-type OnChunkAppendedAsyncCb = (stats: OnChunkAppendedStats) => Promise<void>;
+type OnLoadProgressSyncCb = (progress: LoadProgress) => void;
+type OnLoadProgressAsyncCb = (progress: LoadProgress) => Promise<void>;
 
-export type OnChunkAppendedCb = OnChunkAppendedSyncCb | OnChunkAppendedAsyncCb;
+export type OnLoadProgressCb = OnLoadProgressSyncCb | OnLoadProgressAsyncCb;
 
-export const createOnChunkAppendedCollector = () => {
+/**
+ * Former name of {@link LoadProgress}, used by `SqlDuck.toTable`.
+ */
+export type OnChunkAppendedStats = LoadProgress;
+
+/**
+ * Former name of {@link OnLoadProgressCb}, used by `SqlDuck.toTable`.
+ */
+export type OnChunkAppendedCb = OnLoadProgressCb;
+
+export const createProgressCollector = () => {
   let lastCallbackTimeStart: number = Date.now();
   let appendedTotalRows = 0;
-  return (currentTotalRows: number) => {
+  return (currentTotalRows: number): LoadProgress => {
     const cbTimeMs = Math.round(Date.now() - lastCallbackTimeStart);
     const cbTotalRows = currentTotalRows - appendedTotalRows;
-    const stats: OnChunkAppendedStats = {
+    const progress: LoadProgress = {
       totalRows: currentTotalRows,
       timeMs: cbTimeMs,
       rowsPerSecond: Math.round((cbTotalRows / cbTimeMs) * 1000),
     };
     appendedTotalRows = currentTotalRows;
     lastCallbackTimeStart = Date.now();
-    return stats;
+    return progress;
   };
 };
