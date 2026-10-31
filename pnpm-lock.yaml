@@ -160,10 +160,14 @@ lockfileVersion: '9.0'
 
 settings:
   addMissingPeerTypes: true
+  autoDedupe: true
   autoInstallPeers: false
+  dedupeInjectedDeps: true
+  dedupePeerDependents: true
   dedupePeers: true
   excludeLinksFromLockfile: false
   integrityTarget: tar
+  linkWorkspacePackages: false
 
 overrides:
   '@azure/msal-node@>=5.0.0-beta.0 <7.1.0': 7.1.2

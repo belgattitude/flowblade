@@ -12,8 +12,7 @@ autoDedupe: true
 
 lockfile:
   integrityTarget: tar
-# uncomment when turbo repo prune supports the settings entry in pnpm lock
-# includeResolutionSettings: true
+  includeResolutionSettings: true
 
 autoInstallPeers: false
 strictPeerDependencies: false
