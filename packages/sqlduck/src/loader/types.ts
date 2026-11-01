@@ -98,8 +98,9 @@ export type LoadCheckpointOptions = {
 export type LoadProgressOptions = {
   /**
    * Called during the load, and once at the end when the last rows were
-   * not reported yet. Awaited when it returns a promise (backpressure), a
-   * rejection fails the load.
+   * not reported yet. Awaited when it returns a promise (backpressure).
+   * An error during the load fails it, an error in the final call (rows
+   * already committed) is logged as a warning.
    */
   onProgress: OnLoadProgressCb;
 } & (

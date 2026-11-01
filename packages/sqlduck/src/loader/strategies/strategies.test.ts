@@ -271,6 +271,23 @@ describe("PreparedInsertStrategy", () => {
     ]);
   });
 
+  it("should quote the database, schema and table names", async ({ conn }) => {
+    await conn.run(`ATTACH IF NOT EXISTS ':memory:' AS "my-data"`);
+    await conn.run(
+      `CREATE OR REPLACE TABLE "my-data".main."order" (id INTEGER PRIMARY KEY, name VARCHAR NOT NULL)`
+    );
+    const result = await new DuckTableLoader({
+      conn,
+      strategy: new PreparedInsertStrategy(),
+    }).load({
+      table: new Table({ name: "order", schema: "main", database: "my-data" }),
+      schema,
+      rows: [{ id: 1, name: "a" }],
+      mode: "append",
+    });
+    expect(result.totalRows).toBe(1);
+  });
+
   it("should destroy every prepared statement, whatever the chunk sizes", async ({
     conn,
   }) => {

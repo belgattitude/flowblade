@@ -15,8 +15,9 @@ export type TableDatabase = {
 
 /**
  * Find the database holding `table`: `table.databaseName`, or the current
- * database when not set. In-memory databases have no path in
- * `duckdb_databases()`, whatever their name.
+ * database when not set, compared case-insensitively like DuckDB does.
+ * In-memory databases have no path in `duckdb_databases()`, whatever their
+ * name.
  */
 export const resolveTableDatabase = async (
   conn: DuckDBConnection,
@@ -25,7 +26,7 @@ export const resolveTableDatabase = async (
   const reader = await conn.runAndReadAll(
     `SELECT database_name, path
      FROM duckdb_databases()
-     WHERE database_name = coalesce($database::VARCHAR, current_database())`,
+     WHERE lower(database_name) = lower(coalesce($database::VARCHAR, current_database()))`,
     { database: table.databaseName ?? null }
   );
   const [row] = reader.getRowObjects();

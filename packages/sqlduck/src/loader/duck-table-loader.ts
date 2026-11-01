@@ -120,7 +120,7 @@ export class DuckTableLoader {
       !(Number.isFinite(progress.intervalMs) && progress.intervalMs >= 0)
     ) {
       throw new Error(
-        `progress.intervalMs must be a positive number, got ${progress.intervalMs}`
+        `progress.intervalMs must be a non-negative number, got ${progress.intervalMs}`
       );
     }
     assertPositiveInteger(strategy.chunkSize, "strategy.chunkSize");
@@ -220,9 +220,7 @@ export class DuckTableLoader {
       );
     };
     const reportProgress = async (): Promise<void> => {
-      lastProgressTime = performance.now();
       reportedRows = totalRows;
-      armProgressTimer();
       // Await any returned promise (async functions, but also regular
       // functions returning a promise) for backpressure and errors
       const returned = progress?.onProgress(
@@ -231,6 +229,10 @@ export class DuckTableLoader {
       if (returned instanceof Promise) {
         await returned;
       }
+      // The next interval starts once the callback is done: a callback
+      // slower than intervalMs must not make the next chunks tiny
+      lastProgressTime = performance.now();
+      armProgressTimer();
     };
 
     let session: LoadStrategySession | undefined;
@@ -287,9 +289,22 @@ export class DuckTableLoader {
         );
       }
 
-      // Progress always ends with the total
+      // Progress always ends with the total. The rows are committed: a
+      // failing callback is logged, it must not report a failed load (a
+      // retry would load the rows twice).
       if (progress !== undefined && reportedRows !== totalRows) {
-        await reportProgress();
+        try {
+          await reportProgress();
+        } catch (error) {
+          this.#logger.warning(
+            "onProgress failed after loading {totalRows} rows into table '{table}' - {errorMessage}",
+            {
+              table: tableFullName,
+              totalRows,
+              errorMessage: getErrorMessage(error),
+            }
+          );
+        }
       }
 
       const timeMs = Math.round(performance.now() - timeStart);

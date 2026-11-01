@@ -214,8 +214,11 @@ costs one boolean check per row.
 | `intervalMs`    | Time since the previous call   |
 | `rowsPerSecond` | Rate since the previous call   |
 
-A returned promise is awaited before the next chunk (backpressure). If it
-rejects, the load fails.
+A returned promise is awaited before the next chunk (backpressure), and the
+next interval starts once it is done. If it throws or rejects during the
+load, the load fails. The final call happens once the rows are committed: an
+error there is logged as a warning and the load succeeds, so that a retry
+doesn't load the rows twice.
 
 ### Abort
 

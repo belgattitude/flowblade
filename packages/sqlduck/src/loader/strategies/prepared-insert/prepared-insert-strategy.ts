@@ -1,5 +1,6 @@
 import type { DuckDBPreparedStatement } from "@duckdb/node-api";
 
+import { quoteIdentifier } from "../../../utils/quote-value.ts";
 import type {
   LoadStrategy,
   LoadStrategyContext,
@@ -36,8 +37,6 @@ const insertVerbs = {
   replace: "INSERT OR REPLACE INTO",
 } as const satisfies Record<PreparedInsertOnConflict, string>;
 
-const quoteIdentifier = (name: string) => `"${name.replaceAll('"', '""')}"`;
-
 /**
  * Load rows with prepared multi-row `INSERT ... VALUES` statements.
  *
@@ -71,7 +70,11 @@ export class PreparedInsertStrategy implements LoadStrategy {
     const { conn, table, columnNames, columnTypes } = context;
     const { chunkSize } = this;
     const columnCount = columnNames.length;
-    const insertPrefix = `${insertVerbs[this.#onConflict]} ${table.getFullName()} (${columnNames.map(quoteIdentifier).join(", ")}) VALUES `;
+    const tableName = [table.databaseName, table.schemaName, table.tableName]
+      .filter((part) => part !== undefined)
+      .map(quoteIdentifier)
+      .join(".");
+    const insertPrefix = `${insertVerbs[this.#onConflict]} ${tableName} (${columnNames.map(quoteIdentifier).join(", ")}) VALUES `;
     const rowPlaceholders = `(${Array.from({ length: columnCount }, () => "?").join(", ")})`;
 
     const prepare = (rowCount: number) =>

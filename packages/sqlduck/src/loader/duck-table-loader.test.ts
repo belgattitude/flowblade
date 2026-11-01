@@ -216,6 +216,17 @@ describe("DuckTableLoader", () => {
       expect(countCheckpoints()).toBe(1);
     });
 
+    it("should find the database case-insensitively", async ({ conn }) => {
+      await conn.run("ATTACH IF NOT EXISTS ':memory:' AS LoaderMixedCase");
+      const result = await new DuckTableLoader({ conn }).load({
+        table: new Table({ name: "t", database: "loadermixedcase" }),
+        schema,
+        rows: rows(2),
+        mode: "createOrReplace",
+      });
+      expect(result.totalRows).toBe(2);
+    });
+
     it("should reject a database that is not attached", async ({ conn }) => {
       await expect(
         new DuckTableLoader({ conn }).load({
@@ -363,6 +374,38 @@ describe("DuckTableLoader options", () => {
       expect(reader.getRowObjects()).toStrictEqual([{ count: 30 }]);
     });
 
+    it("should keep full chunks when onProgress is slower than intervalMs", async ({
+      conn,
+    }) => {
+      const reported: number[] = [];
+      async function* rowsWithPauses() {
+        for (let id = 0; id < 400; id++) {
+          if (id % 10 === 0) {
+            await sleep(1);
+          }
+          yield { id, name: `name-${id}` };
+        }
+      }
+      await new DuckTableLoader({ conn }).load({
+        table: new Table("test_loader_slow_progress"),
+        schema,
+        rows: rowsWithPauses(),
+        mode: "createOrReplace",
+        progress: {
+          intervalMs: 10,
+          onProgress: async ({ totalRows }) => {
+            reported.push(totalRows);
+            // 3x the interval
+            await sleep(30);
+          },
+        },
+      });
+      // A timer armed before the callback would fire during it, then make
+      // each following chunk a single row (~400 calls)
+      expect(reported.length).toBeLessThan(40);
+      expect(reported.at(-1)).toBe(400);
+    });
+
     it("should not leave a timer after a load", async ({ conn }) => {
       const before = countTimers();
       await new DuckTableLoader({ conn }).load({
@@ -412,6 +455,28 @@ describe("DuckTableLoader options", () => {
       ).rejects.toThrow(/abort/i);
       expect(countTimers()).toBe(before);
     });
+  });
+
+  it("should not fail a committed load when the final onProgress fails", async ({
+    conn,
+  }) => {
+    const result = await new DuckTableLoader({ conn }).load({
+      table: new Table("test_loader_final_progress"),
+      schema,
+      rows: rows(3),
+      mode: "createOrReplace",
+      progress: {
+        intervalMs: 60_000,
+        onProgress: () => {
+          throw new Error("progress failure");
+        },
+      },
+    });
+    expect(result.totalRows).toBe(3);
+    const reader = await conn.runAndReadAll(
+      "SELECT count(*)::INTEGER AS count FROM test_loader_final_progress"
+    );
+    expect(reader.getRowObjects()).toStrictEqual([{ count: 3 }]);
   });
 
   describe("checkpoint.everyRows", () => {
