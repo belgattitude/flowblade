@@ -20,6 +20,7 @@ await new DuckSettingsManager(conn).withSessionSettings(
 - loader: progress every `intervalMs` (default 1000ms, independent of the chunk size) or `everyRows`, checkpoints and flushes counted in rows (`checkpoint.everyRows`, `flushEveryRows`).
 - loader: checkpoint once loaded by default when the table database is stored in a file (detected with `duckdb_databases()`, also for tables without `databaseName`).
 - settings: `DuckSettingsManager.withSessionSettings(settings, fn)` overrides settings for one connection (`SET SESSION`) and restores them, `DuckSessionSettings`, `DuckGlobalSettings` and `DuckSettings` types are generated from DuckDB.
+- `DuckDatabaseManager.checkpoint()` quotes the database name instead of validating it as an alias, names derived from a file name (ie: `my-data` for `my-data.db`) no longer throw.
 - toTable: `rowStream` accepts any sync or async iterable (ie: arrays), codec fields accept their input type (ie: `bigint` for `zodCodecs.bigintToString`).
 - toTable: errors and logs now read `Failed to load data into table '<table>'` and `Loaded <n> rows into table '<table>'`, a table in a database that is not attached fails before the table is created.
 - toTable: `onChunkAppended` stats no longer report an infinite `rowsPerSecond` for chunks appended in under a millisecond.

@@ -179,6 +179,52 @@ describe("DuckDatabaseManagerTest", () => {
     });
   });
 
+  describe("checkpoint", () => {
+    it("should checkpoint a database whose name needs quoting", async ({
+      conn,
+    }) => {
+      fs.mkdirSync(testTempDir, { recursive: true });
+      const dbPath = path.join(testTempDir, "checkpoint-my-data.db");
+      fs.rmSync(dbPath, { force: true });
+      fs.rmSync(`${dbPath}.wal`, { force: true });
+      // Named after the file, like the default database of
+      // DuckDBInstance.create("my-data.db")
+      await conn.run(`ATTACH '${dbPath}' AS "checkpoint-my-data"`);
+      await conn.run(
+        `CREATE TABLE "checkpoint-my-data".t AS SELECT range AS i FROM range(1000)`
+      );
+      const dbManager = new DuckDatabaseManager(conn);
+      await expect(dbManager.checkpoint("checkpoint-my-data")).resolves.toBe(
+        true
+      );
+      expect(
+        fs.statSync(`${dbPath}.wal`, { throwIfNoEntry: false })?.size ?? 0
+      ).toBe(0);
+      await conn.run(`DETACH "checkpoint-my-data"`);
+    });
+
+    it("should throw for a database that is not attached", async ({ conn }) => {
+      await expect(
+        new DuckDatabaseManager(conn).checkpoint("not_attached")
+      ).rejects.toThrow(/Database "not_attached" not found/);
+    });
+
+    it("should not run sql injected in the name", async ({ conn }) => {
+      await conn.run("CREATE TABLE injected (i INTEGER)");
+      await expect(
+        new DuckDatabaseManager(conn).checkpoint(
+          `memory"; DROP TABLE injected; --`
+        )
+      ).rejects.toThrow(
+        /Database "memory"; DROP TABLE injected; --" not found/
+      );
+      const reader = await conn.runAndReadAll(
+        "SELECT count(*)::INTEGER AS count FROM duckdb_tables() WHERE table_name = 'injected'"
+      );
+      expect(reader.getRowObjects()).toStrictEqual([{ count: 1 }]);
+    });
+  });
+
   describe("detach", () => {
     it("should detach a valid database", async ({ conn }) => {
       const dbManager = new DuckDatabaseManager(conn);

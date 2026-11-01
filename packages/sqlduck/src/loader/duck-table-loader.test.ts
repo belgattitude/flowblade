@@ -129,7 +129,7 @@ describe("DuckTableLoader", () => {
       conn: DuckDBConnection,
       onTestFinished: (fn: () => void) => void
     ) => {
-      const spy = vi.spyOn(conn, "run");
+      const spy = vi.spyOn(conn, "runAndReadAll");
       onTestFinished(() => spy.mockRestore());
       return () =>
         spy.mock.calls.filter(([sql]) => sql.startsWith("CHECKPOINT")).length;
@@ -488,7 +488,7 @@ describe("DuckTableLoader options", () => {
         type: "memory",
         alias: "loader_db_every",
       });
-      const spy = vi.spyOn(conn, "run");
+      const spy = vi.spyOn(conn, "runAndReadAll");
       onTestFinished(() => spy.mockRestore());
       await new DuckTableLoader({
         conn,

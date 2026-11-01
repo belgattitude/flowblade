@@ -7,11 +7,11 @@ import type { Logger } from "@logtape/logtape";
 
 import { createDuckColumnConverters } from "../converter/create-duck-column-converters.ts";
 import { sqlduckDefaultLogtapeLogger } from "../logger/sqlduck-default-logtape-logger.ts";
+import { DuckDatabaseManager } from "../manager/database/duck-database-manager.ts";
 import { createTableFromZod } from "../table/create-table-from-zod.ts";
 import { getTableCreateFromZod } from "../table/get-table-create-from-zod.ts";
 import type { TableCreateOptions } from "../table/get-table-create-from-zod.ts";
 import { getErrorMessage } from "../utils/get-error-message.ts";
-import { quoteIdentifier } from "../utils/quote-value.ts";
 import { rowsToConvertedColumnsChunks } from "../utils/rows-to-converted-columns-chunks.ts";
 import type { ChunkYieldRequest } from "../utils/rows-to-converted-columns-chunks.ts";
 import type { TableSchemaZod } from "../validation/zod/index.ts";
@@ -375,9 +375,7 @@ export class DuckTableLoader {
     failureMessage: string
   ): Promise<void> => {
     try {
-      // Quoted: database names come from file names (ie: 'my-data'), the
-      // stricter alias validation of DuckDatabaseManager would reject them
-      await this.#conn.run(`CHECKPOINT ${quoteIdentifier(database)}`);
+      await new DuckDatabaseManager(this.#conn).checkpoint(database);
     } catch (error) {
       this.#logger.warning(failureMessage, {
         database,
