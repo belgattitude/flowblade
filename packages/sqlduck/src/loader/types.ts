@@ -83,13 +83,14 @@ export interface LoadStrategy {
 export type LoadCheckpointOptions = {
   /**
    * Checkpoint the database each time N more rows are loaded, at the end
-   * of the chunk crossing the threshold. Requires `table.databaseName`.
+   * of the chunk crossing the threshold.
    */
   everyRows?: number;
   /**
    * Checkpoint the database once all rows are loaded.
-   * Setting it to `true` requires `table.databaseName`.
-   * @default true when `table.databaseName` is set, false otherwise
+   * @default true when the table database is stored in a file, false for
+   * in-memory databases (the database is `table.databaseName` or the
+   * current database)
    */
   onComplete?: boolean;
 };

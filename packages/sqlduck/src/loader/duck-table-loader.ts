@@ -7,11 +7,11 @@ import type { Logger } from "@logtape/logtape";
 
 import { createDuckColumnConverters } from "../converter/create-duck-column-converters.ts";
 import { sqlduckDefaultLogtapeLogger } from "../logger/sqlduck-default-logtape-logger.ts";
-import { DuckDatabaseManager } from "../manager/database/duck-database-manager.ts";
 import { createTableFromZod } from "../table/create-table-from-zod.ts";
 import { getTableCreateFromZod } from "../table/get-table-create-from-zod.ts";
 import type { TableCreateOptions } from "../table/get-table-create-from-zod.ts";
 import { getErrorMessage } from "../utils/get-error-message.ts";
+import { quoteIdentifier } from "../utils/quote-value.ts";
 import { rowsToConvertedColumnsChunks } from "../utils/rows-to-converted-columns-chunks.ts";
 import type { ChunkYieldRequest } from "../utils/rows-to-converted-columns-chunks.ts";
 import type { TableSchemaZod } from "../validation/zod/index.ts";
@@ -30,6 +30,7 @@ import {
   assertSameColumns,
   getExistingColumnNames,
 } from "./utils/get-existing-column-names.ts";
+import { resolveTableDatabase } from "./utils/resolve-table-database.ts";
 
 export type DuckTableLoaderParams = {
   conn: DuckDBConnection;
@@ -108,23 +109,10 @@ export class DuckTableLoader {
       progress,
       signal,
     } = params;
-    const {
-      everyRows: checkpointEveryRows,
-      onComplete: checkpointOnComplete = table.databaseName !== undefined,
-    } = checkpoint ?? {};
+    const checkpointEveryRows = checkpoint?.everyRows;
     const strategy = this.#strategy;
     const conn = this.#conn;
 
-    if (checkpointOnComplete && table.databaseName === undefined) {
-      throw new Error(
-        "checkpoint.onComplete requires table.databaseName to be provided."
-      );
-    }
-    if (checkpointEveryRows !== undefined && table.databaseName === undefined) {
-      throw new Error(
-        "checkpoint.everyRows requires table.databaseName to be provided."
-      );
-    }
     assertPositiveInteger(checkpointEveryRows, "checkpoint.everyRows");
     assertPositiveInteger(progress?.everyRows, "progress.everyRows");
     if (
@@ -141,6 +129,10 @@ export class DuckTableLoader {
 
     const timeStart = performance.now();
     const tableFullName = table.getFullName();
+
+    // Checkpoints only matter for databases stored in a file
+    const database = await resolveTableDatabase(conn, table);
+    const checkpointOnComplete = checkpoint?.onComplete ?? database.isFile;
 
     // The appender strategies write values by position: an existing table
     // must have the schema columns, in the same order.
@@ -271,11 +263,10 @@ export class DuckTableLoader {
 
         if (
           checkpointEveryRows !== undefined &&
-          table.databaseName !== undefined &&
           crossedEveryRows(checkpointEveryRows, previousRows, totalRows)
         ) {
           await this.#tryCheckpoint(
-            table.databaseName,
+            database.name,
             tableFullName,
             "Failed to checkpoint database '{database}' while loading data into table '{table}' - {errorMessage}"
           );
@@ -288,9 +279,9 @@ export class DuckTableLoader {
       }
       session = undefined;
 
-      if (checkpointOnComplete && table.databaseName !== undefined) {
+      if (checkpointOnComplete) {
         await this.#tryCheckpoint(
-          table.databaseName,
+          database.name,
           tableFullName,
           "Failed to checkpoint database '{database}' after loading data into table '{table}' - {errorMessage}"
         );
@@ -369,7 +360,9 @@ export class DuckTableLoader {
     failureMessage: string
   ): Promise<void> => {
     try {
-      await new DuckDatabaseManager(this.#conn).checkpoint(database);
+      // Quoted: database names come from file names (ie: 'my-data'), the
+      // stricter alias validation of DuckDatabaseManager would reject them
+      await this.#conn.run(`CHECKPOINT ${quoteIdentifier(database)}`);
     } catch (error) {
       this.#logger.warning(failureMessage, {
         database,

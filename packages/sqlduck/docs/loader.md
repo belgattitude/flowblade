@@ -48,15 +48,17 @@ console.log(`Loaded ${result.totalRows} rows in ${result.timeMs}ms`);
 
 1. Validate the options. An already aborted `signal` rejects here, before
    anything is created.
-2. With `append` or `createIfNotExists`, check that an existing table has
+2. Find the database of the table, and whether it is stored in a file
+   (see [Checkpoints](#checkpoints)).
+3. With `append` or `createIfNotExists`, check that an existing table has
    the schema columns.
-3. Create the table from the Zod schema, except in `append` mode (see
+4. Create the table from the Zod schema, except in `append` mode (see
    [Zod schema to DuckDB column types](./duckdb_zod_schema_types.md)).
-4. Open a strategy session.
-5. Convert the rows to column chunks of `strategy.chunkSize` rows and pass
+5. Open a strategy session.
+6. Convert the rows to column chunks of `strategy.chunkSize` rows and pass
    each chunk to the session. Progress callbacks and periodic checkpoints
    run between chunks.
-6. Complete the session, checkpoint if enabled, then report the final
+7. Complete the session, checkpoint if enabled, then report the final
    progress.
 
 When something fails after the session is opened, the session is aborted
@@ -130,17 +132,22 @@ are not compared, DuckDB rejects the values that don't fit.
 
 ### Checkpoints
 
-A checkpoint writes the WAL into the database file. It needs a database, so
-both options require `table.databaseName`.
+A checkpoint writes the WAL into the database file. The checkpointed
+database is the one of the table: `table.databaseName`, or the current
+database when not set.
 
-| Option       | Default                                               | Description                           |
-| ------------ | ----------------------------------------------------- | ------------------------------------- |
-| `onComplete` | `true` when `table.databaseName` is set, else `false` | Checkpoint once all rows are loaded   |
-| `everyRows`  | none                                                  | Checkpoint each time N more rows load |
+| Option       | Default                                                     | Description                           |
+| ------------ | ----------------------------------------------------------- | ------------------------------------- |
+| `onComplete` | `true` for a database stored in a file, `false` in memory   | Checkpoint once all rows are loaded   |
+| `everyRows`  | none                                                        | Checkpoint each time N more rows load |
 
-Setting `onComplete: true` or `everyRows` on a table without `databaseName`
-throws. A failing checkpoint is logged as a warning and does not fail the
-load.
+The storage is read from `duckdb_databases()` (in-memory databases have no
+path), so it doesn't depend on the database name: `ATTACH ':memory:' AS
+mydb` is detected as in-memory, and a table without `databaseName` in an
+instance opened on a file (`DuckDBInstance.create("data.db")`) is
+checkpointed. A database that is not attached fails the load before the
+table is created. A failing checkpoint is logged as a warning and does not
+fail the load.
 
 A checkpoint is not a flush: flushing (see the strategy `flushEveryRows`
 option) moves the appender buffer into the table, a checkpoint moves the
@@ -384,7 +391,8 @@ Behavior changes:
 
 - `autoCheckpoint` defaults to `true` and throws without
   `table.databaseName`, while `checkpoint.onComplete` defaults to `true`
-  only when `table.databaseName` is set.
+  only when the table database is stored in a file (with or without
+  `table.databaseName`).
 - `onProgress` is also called once at the end with the total, when the last
   rows were not reported yet.
 
@@ -455,3 +463,91 @@ setting with `SET SESSION`:
 ```bash
 pnpm --filter @flowblade/sqlduck generate-settings-types
 ```
+
+## Tuning by storage profile
+
+The defaults are a good fit for a database file on a local disk. The table
+below lists every option of a load and how to set it for an in-memory
+database, a local disk, and a slow disk (ie: NFS, network volumes).
+
+| Option                                      | Where                         | Memory                                   | Disk (local)                  | Slow disk (NFS)                                                    |
+| ------------------------------------------- | ----------------------------- | ---------------------------------------- | ----------------------------- | ------------------------------------------------------------------ |
+| `strategy`                                  | `DuckTableLoader` constructor | `ChunkAppenderStrategy` (default)        | `ChunkAppenderStrategy`       | `ChunkAppenderStrategy`                                            |
+| `chunkSize`                                 | strategy                      | `2048` (default)                         | `2048`                        | `2048`                                                             |
+| `flushEveryRows`                            | appender strategies           | default                                  | default                       | default, never below `122_880`                                     |
+| `mode`                                      | `load()`                      | as needed                                | as needed                     | as needed                                                          |
+| `checkpoint.onComplete`                     | `load()`                      | `false` (default in memory)              | `true` (default for a file)   | `true`                                                          |
+| `checkpoint.everyRows`                      | `load()`                      | not set                                  | not set                       | not set                                                            |
+| `progress`                                  | `load()`                      | `intervalMs: 1000` (default)             | `intervalMs: 1000`            | `intervalMs: 1000`                                                 |
+| `signal`                                    | `load()`                      | as needed                                | as needed                     | as needed                                                          |
+| `enable_optimistic_write`                   | session setting               | `false`                                  | `true` (default)              | `true` (default)                                                   |
+| `write_buffer_row_group_count`              | session setting               | default (`5`)                            | default (`5`)                 | `10` to `20`                                                       |
+| `wal_autocheckpoint`                        | global setting (instance)     | n/a                                      | default (`16MiB`)             | `256MiB` to `1GB`                                                  |
+| `fsync_mode`                                | global setting (instance)     | n/a                                      | default (`STANDARD`)          | default, `NONE` only for data that can be rebuilt                  |
+
+Session settings are applied with
+[`withSessionSettings`](#session-settings), global settings when creating the
+instance (`DuckDBInstance.create(path, { wal_autocheckpoint: "1GB" })`).
+
+> [!NOTE]
+> The memory and local disk values were measured with DuckDB 2.0 on a local
+> SSD. The slow disk values follow from how DuckDB writes data (below) but
+> were not benchmarked on NFS: measure them with your storage.
+
+### How DuckDB writes the rows
+
+- **The appender flushes by itself every 204,800 rows** (100 chunks of
+  2048). A flush is a commit: the rows become visible and, on a file
+  database, the commit is synced to disk. `flushEveryRows` can only make
+  flushes more frequent, a value above 204,800 has no effect.
+- **Large flushes skip the WAL.** A flush of at least one row group
+  (122,880 rows) writes the rows straight into the database file
+  (`enable_optimistic_write`). Smaller flushes write the rows into the WAL
+  first, then again into the database file at the next checkpoint: on a slow
+  disk, each small flush costs a sync and the data is written twice.
+- **A checkpoint moves the WAL into the database file.** It doesn't flush
+  the appender: rows still buffered are not part of it. DuckDB checkpoints
+  by itself once the WAL reaches `wal_autocheckpoint` (16 MiB), so
+  `checkpoint.everyRows` is rarely needed. `checkpoint.onComplete` leaves a
+  single, self-contained database file, which is what you want before
+  copying or sharing it.
+- **Flushes block the event loop.** `@duckdb/node-api` appends and flushes
+  synchronously: while a commit waits for the disk, nothing else runs in
+  the Node.js process. Fewer, larger flushes keep it responsive on a slow
+  disk.
+
+### Per profile
+
+- **Memory**: there is no WAL and nothing to sync, checkpoints are useless.
+  DuckDB recommends disabling `enable_optimistic_write` for in-memory bulk
+  appends, to keep the data in memory.
+
+  ```typescript
+  await new DuckSettingsManager(conn).withSessionSettings(
+    { enable_optimistic_write: false },
+    () =>
+      // no checkpoint: the default for in-memory databases
+      loader.load({ table, schema, rows })
+  );
+  ```
+
+- **Disk (local)**: keep the defaults. Rows are written once, in row groups,
+  and the final checkpoint leaves a single file.
+- **Slow disk (NFS)**: avoid many small writes and syncs. Keep the default
+  flushes (never small `flushEveryRows`), buffer more row groups before
+  writing (`write_buffer_row_group_count`), and raise `wal_autocheckpoint`
+  on the instance so small commits don't trigger repeated checkpoints. When
+  possible, build the database on a local disk, checkpoint, then copy the
+  file to the slow disk: one sequential copy beats any setting. File locks
+  are unreliable on NFS, keep a single writer process.
+
+  ```typescript
+  const instance = await DuckDBInstance.create("/mnt/nfs/data.db", {
+    wal_autocheckpoint: "1GB",
+  });
+  const conn = await instance.connect();
+  await new DuckSettingsManager(conn).withSessionSettings(
+    { write_buffer_row_group_count: 10 },
+    () => new DuckTableLoader({ conn }).load({ table, schema, rows })
+  );
+  ```

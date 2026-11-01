@@ -1,10 +1,14 @@
+import { mkdir, rm } from "node:fs/promises";
+import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 
+import { DuckDBInstance } from "@duckdb/node-api";
 import type { DuckDBConnection, DuckDBValue } from "@duckdb/node-api";
 import { describe, expect, vi } from "vitest";
 import * as z from "zod";
 
 import { createDuckTest } from "#tests/utils/duck-test.ts";
+import { testTempDir } from "#tests/utils/get-test-temp-dir.ts";
 
 import { DuckDatabaseManager } from "../manager/database/duck-database-manager.ts";
 import { Table } from "../objects/table.ts";
@@ -125,23 +129,26 @@ describe("DuckTableLoader", () => {
       conn: DuckDBConnection,
       onTestFinished: (fn: () => void) => void
     ) => {
-      const spy = vi.spyOn(conn, "runAndReadAll");
+      const spy = vi.spyOn(conn, "run");
       onTestFinished(() => spy.mockRestore());
       return () =>
         spy.mock.calls.filter(([sql]) => sql.startsWith("CHECKPOINT")).length;
     };
 
-    it("should checkpoint by default when the table has a database", async ({
+    it("should checkpoint by default a database stored in a file", async ({
       conn,
       onTestFinished,
     }) => {
-      await new DuckDatabaseManager(conn).attachIfNotExists({
-        type: "memory",
-        alias: "loader_db",
+      await mkdir(testTempDir, { recursive: true });
+      await new DuckDatabaseManager(conn).attachOrReplace({
+        type: "filesystem",
+        alias: "loader_file_db",
+        path: path.join(testTempDir, "loader-checkpoint.db"),
+        options: { accessMode: "READ_WRITE" },
       });
       const countCheckpoints = spyCheckpoints(conn, onTestFinished);
       await new DuckTableLoader({ conn }).load({
-        table: new Table({ name: "test_loader_cp", database: "loader_db" }),
+        table: new Table({ name: "test_cp", database: "loader_file_db" }),
         schema,
         rows: rows(3),
         mode: "createOrReplace",
@@ -149,33 +156,75 @@ describe("DuckTableLoader", () => {
       expect(countCheckpoints()).toBe(1);
     });
 
-    it("should not checkpoint by default when the table has no database", async ({
+    it("should not checkpoint by default an in-memory database, whatever its name", async ({
+      conn,
+      onTestFinished,
+    }) => {
+      await new DuckDatabaseManager(conn).attachIfNotExists({
+        type: "memory",
+        alias: "loader_mem_db",
+      });
+      const countCheckpoints = spyCheckpoints(conn, onTestFinished);
+      for (const table of [
+        new Table({ name: "test_no_cp", database: "loader_mem_db" }),
+        // the current database of the test instance is in memory
+        new Table("test_no_cp"),
+      ]) {
+        await new DuckTableLoader({ conn }).load({
+          table,
+          schema,
+          rows: rows(3),
+          mode: "createOrReplace",
+        });
+      }
+      expect(countCheckpoints()).toBe(0);
+    });
+
+    it("should checkpoint by default a table without database in a file-backed instance", async ({
+      onTestFinished,
+    }) => {
+      await mkdir(testTempDir, { recursive: true });
+      const dbPath = path.join(testTempDir, "loader-checkpoint-main.db");
+      await rm(dbPath, { force: true });
+      const instance = await DuckDBInstance.create(dbPath);
+      const fileConn = await instance.connect();
+      onTestFinished(() => {
+        fileConn.closeSync();
+        instance.closeSync();
+      });
+      const countCheckpoints = spyCheckpoints(fileConn, onTestFinished);
+      await new DuckTableLoader({ conn: fileConn }).load({
+        table: new Table("test_cp_main"),
+        schema,
+        rows: rows(3),
+      });
+      expect(countCheckpoints()).toBe(1);
+    });
+
+    it("should checkpoint an in-memory database when explicitly enabled", async ({
       conn,
       onTestFinished,
     }) => {
       const countCheckpoints = spyCheckpoints(conn, onTestFinished);
-      const result = await new DuckTableLoader({ conn }).load({
-        table: new Table("test_loader_no_cp"),
+      await new DuckTableLoader({ conn }).load({
+        table: new Table("test_cp_forced"),
         schema,
-        rows: rows(3),
+        rows: rows(1),
         mode: "createOrReplace",
+        checkpoint: { onComplete: true },
       });
-      expect(result.totalRows).toBe(3);
-      expect(countCheckpoints()).toBe(0);
+      expect(countCheckpoints()).toBe(1);
     });
 
-    it("should require a database name when explicitly enabled", async ({
-      conn,
-    }) => {
+    it("should reject a database that is not attached", async ({ conn }) => {
       await expect(
         new DuckTableLoader({ conn }).load({
-          table: new Table("test_loader_checkpoint"),
+          table: new Table({ name: "t", database: "not_attached" }),
           schema,
           rows: rows(1),
-          checkpoint: { onComplete: true },
         })
       ).rejects.toThrow(
-        "checkpoint.onComplete requires table.databaseName to be provided."
+        "Database 'not_attached' of table 'not_attached.t' is not attached."
       );
     });
   });
@@ -374,7 +423,7 @@ describe("DuckTableLoader options", () => {
         type: "memory",
         alias: "loader_db_every",
       });
-      const spy = vi.spyOn(conn, "runAndReadAll");
+      const spy = vi.spyOn(conn, "run");
       onTestFinished(() => spy.mockRestore());
       await new DuckTableLoader({
         conn,
