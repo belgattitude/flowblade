@@ -2,7 +2,7 @@ import type { ValueMapperFn } from "../converter/create-duck-column-converters.t
 
 type RowsToConvertedColumnsChunksParams<TRow extends Record<string, unknown>> =
   {
-    rows: AsyncGenerator<TRow> | Generator<TRow> | AsyncIterableIterator<TRow>;
+    rows: Iterable<TRow> | AsyncIterable<TRow>;
     chunkSize: number;
     /**
      * Columns to extract from each row, in the order they are yielded.
@@ -25,7 +25,18 @@ type RowsToConvertedColumnsChunksParams<TRow extends Record<string, unknown>> =
      * is only seen once that row arrives.
      */
     signal?: AbortSignal;
+    /**
+     * Set `requested` to `true` (ie: from a timer) to yield the current chunk
+     * after the next row, even when it is not full. It is reset once the
+     * chunk is yielded. Checked after each row, a single property read.
+     */
+    yieldRequest?: ChunkYieldRequest;
   };
+
+/**
+ * Asks `rowsToConvertedColumnsChunks` to yield the current chunk early.
+ */
+export type ChunkYieldRequest = { requested: boolean };
 
 /**
  * Fill row `r` of `cols` with the (converted) values of `row`.
@@ -129,6 +140,7 @@ export async function* rowsToConvertedColumnsChunks<
     converters,
     compile = true,
     signal,
+    yieldRequest = { requested: false },
   } = params;
   if (!Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
     throw new Error(`chunkSize must be a positive integer, got ${chunkSize}`);
@@ -222,7 +234,8 @@ export async function* rowsToConvertedColumnsChunks<
         fillRow(cols, row, rowsInChunk);
       }
       rowsInChunk++;
-      if (rowsInChunk >= chunkSize) {
+      if (rowsInChunk >= chunkSize || yieldRequest.requested) {
+        yieldRequest.requested = false;
         yield toChunk(cols, rowsInChunk);
         cols = createColumns();
         rowsInChunk = 0;
@@ -238,7 +251,8 @@ export async function* rowsToConvertedColumnsChunks<
         fillRow(cols, row, rowsInChunk);
       }
       rowsInChunk++;
-      if (rowsInChunk >= chunkSize) {
+      if (rowsInChunk >= chunkSize || yieldRequest.requested) {
+        yieldRequest.requested = false;
         yield toChunk(cols, rowsInChunk);
         cols = createColumns();
         rowsInChunk = 0;

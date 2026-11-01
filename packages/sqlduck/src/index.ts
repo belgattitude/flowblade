@@ -1,9 +1,10 @@
+export * from "./helpers/index.ts";
 export type {
   OnChunkAppendedCb,
   OnChunkAppendedStats,
-} from "./loader/progress/progress-collector.ts";
-export * from "./helpers/index.ts";
-export type { SqlDuckParams, ToTableParams } from "./sql-duck.ts";
+  SqlDuckParams,
+  ToTableParams,
+} from "./sql-duck.ts";
 export { SqlDuck } from "./sql-duck.ts";
 export {
   getTableCreateFromZod,
@@ -26,6 +27,12 @@ export { duckReservedKeywords } from "./validation/core/duck-reserved-keywords.t
 export { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts";
 export { DuckExtensionsManager } from "./manager/extensions/duck-extensions-manager.ts";
 export { DuckSettingsManager } from "./manager/settings/duck-settings-manager.ts";
+export type {
+  DuckGlobalSettings,
+  DuckSessionSettings,
+  DuckSettings,
+  DuckSettingValue,
+} from "./manager/settings/duck-settings.types.ts";
 
 // Logtape
 export { flowbladeLogtapeSqlduckConfig } from "./config/flowblade-logtape-sqlduck.config.ts";

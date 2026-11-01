@@ -1,46 +1,52 @@
 export type LoadProgress = {
   /**
-   * Total number of rows appended so far (all batches included)
+   * Total number of rows loaded so far.
    */
   totalRows: number;
   /**
-   * Time taken to append the last batch in milliseconds
+   * Time since the previous progress call (or the start of the load) in
+   * milliseconds.
    */
-  timeMs: number;
+  intervalMs: number;
   /**
-   * Estimated rows per seconds based on the current batch
+   * Rows per second since the previous progress call, `0` when no time
+   * elapsed.
    */
   rowsPerSecond: number;
 };
 
-type OnLoadProgressSyncCb = (progress: LoadProgress) => void;
-type OnLoadProgressAsyncCb = (progress: LoadProgress) => Promise<void>;
-
-export type OnLoadProgressCb = OnLoadProgressSyncCb | OnLoadProgressAsyncCb;
+/**
+ * Progress callback of `DuckTableLoader.load`, awaited when it returns a
+ * promise.
+ *
+ * @example
+ * ```typescript
+ * const onProgress: OnLoadProgressCb = ({ totalRows, intervalMs, rowsPerSecond }) => {
+ *   console.log(`${totalRows} rows loaded, ${rowsPerSecond} rows/s over ${intervalMs}ms`);
+ * };
+ * ```
+ */
+export type OnLoadProgressCb = (progress: LoadProgress) => void | Promise<void>;
 
 /**
- * Former name of {@link LoadProgress}, used by `SqlDuck.toTable`.
+ * Return a function computing the progress since its previous call.
  */
-export type OnChunkAppendedStats = LoadProgress;
-
-/**
- * Former name of {@link OnLoadProgressCb}, used by `SqlDuck.toTable`.
- */
-export type OnChunkAppendedCb = OnLoadProgressCb;
-
 export const createProgressCollector = () => {
-  let lastCallbackTimeStart: number = Date.now();
-  let appendedTotalRows = 0;
-  return (currentTotalRows: number): LoadProgress => {
-    const cbTimeMs = Math.round(Date.now() - lastCallbackTimeStart);
-    const cbTotalRows = currentTotalRows - appendedTotalRows;
+  let previousTime = performance.now();
+  let previousTotalRows = 0;
+  return (totalRows: number): LoadProgress => {
+    const now = performance.now();
+    const elapsedMs = now - previousTime;
     const progress: LoadProgress = {
-      totalRows: currentTotalRows,
-      timeMs: cbTimeMs,
-      rowsPerSecond: Math.round((cbTotalRows / cbTimeMs) * 1000),
+      totalRows,
+      intervalMs: Math.round(elapsedMs),
+      rowsPerSecond:
+        elapsedMs > 0
+          ? Math.round(((totalRows - previousTotalRows) / elapsedMs) * 1000)
+          : 0,
     };
-    appendedTotalRows = currentTotalRows;
-    lastCallbackTimeStart = Date.now();
+    previousTotalRows = totalRows;
+    previousTime = now;
     return progress;
   };
 };

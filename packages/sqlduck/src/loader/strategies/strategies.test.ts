@@ -1,9 +1,11 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
-import { describe, expect } from "vitest";
+import { INTEGER, VARCHAR } from "@duckdb/node-api";
+import { describe, expect, vi } from "vitest";
 import * as z from "zod";
 
 import { createDuckTest } from "#tests/utils/duck-test.ts";
 
+import { sqlduckDefaultLogtapeLogger } from "../../logger/sqlduck-default-logtape-logger.ts";
 import { Table } from "../../objects/table.ts";
 import { zodCodecs } from "../../utils/zod-codecs.ts";
 import type { InferZodRelaxedDataSchema } from "../../validation/zod/index.ts";
@@ -26,7 +28,7 @@ const strategies: [string, (chunkSize: number) => LoadStrategy][] = [
   ],
   [
     "PreparedInsertStrategy",
-    (chunkSize) => new PreparedInsertStrategy({ rowsPerInsert: chunkSize }),
+    (chunkSize) => new PreparedInsertStrategy({ chunkSize }),
   ],
 ];
 
@@ -47,7 +49,7 @@ const typesRows: TypesRow[] = [
   {
     id: 1,
     name: "a",
-    big: "9223372036854775807",
+    big: 9_223_372_036_854_775_807n,
     uid: "019d2155-d292-71fa-87d7-9d1f1ed83569",
     tags: ["x", "y"],
     price: 1.23,
@@ -57,7 +59,7 @@ const typesRows: TypesRow[] = [
   {
     id: 2,
     name: null,
-    big: "-1",
+    big: -1n,
     uid: null,
     tags: null,
     price: -99_999_999.99,
@@ -67,7 +69,7 @@ const typesRows: TypesRow[] = [
   {
     id: 3,
     name: "c",
-    big: "0",
+    big: 0n,
     uid: "ffffffff-ffff-ffff-ffff-ffffffffffff",
     tags: [],
     price: 0,
@@ -96,9 +98,7 @@ describe.each(strategies)("%s", (name, createStrategy) => {
     }).load({
       table: new Table(tableName),
       schema: typesSchema,
-      rows: (function* gen() {
-        yield* typesRows;
-      })(),
+      rows: typesRows,
       mode: "createOrReplace",
     });
     expect(result.totalRows).toBe(3);
@@ -146,9 +146,7 @@ describe.each(strategies)("%s", (name, createStrategy) => {
       new DuckTableLoader({ conn, strategy: createStrategy(2) }).load({
         table: new Table(`${tableName}_enum`),
         schema: typesSchema,
-        rows: (function* gen() {
-          yield* rows;
-        })(),
+        rows,
         mode: "createOrReplace",
       })
     ).rejects.toThrow(/'deleted'/);
@@ -169,13 +167,11 @@ describe("RowAppenderStrategy", () => {
       }).load({
         table: new Table("test_row_appender_error"),
         schema: typesSchema,
-        rows: (function* gen() {
-          yield* rows;
-        })(),
+        rows,
         mode: "createOrReplace",
       })
     ).rejects.toThrow(
-      "Failed to append data into table 'test_row_appender_error' - Row 2, column 'status' - "
+      "Failed to load data into table 'test_row_appender_error' - Row 2, column 'status' - "
     );
   });
 
@@ -189,14 +185,12 @@ describe("RowAppenderStrategy", () => {
     await expect(
       new DuckTableLoader({
         conn,
-        // flush after each chunk of 2 rows
-        strategy: new RowAppenderStrategy({ chunkSize: 2, flushEvery: 1 }),
+        // flush every 2 rows
+        strategy: new RowAppenderStrategy({ chunkSize: 2, flushEveryRows: 2 }),
       }).load({
         table,
         schema: typesSchema,
-        rows: (function* gen() {
-          yield* rows;
-        })(),
+        rows,
         mode: "createOrReplace",
       })
     ).rejects.toThrow("Row 2, column 'status'");
@@ -208,7 +202,7 @@ describe("RowAppenderStrategy", () => {
 
   it("should reject an invalid chunkSize", () => {
     expect(() => new RowAppenderStrategy({ chunkSize: 0 })).toThrow(
-      "chunkSize must be a number between 1 and 2048"
+      "chunkSize must be an integer between 1 and 2048, got 0"
     );
   });
 });
@@ -228,9 +222,7 @@ describe("PreparedInsertStrategy", () => {
     new DuckTableLoader({ conn, strategy }).load({
       table,
       schema,
-      rows: (function* gen() {
-        yield* rows;
-      })(),
+      rows,
       mode: "createIfNotExists",
     });
 
@@ -279,9 +271,56 @@ describe("PreparedInsertStrategy", () => {
     ]);
   });
 
-  it("should reject an invalid rowsPerInsert", () => {
-    expect(() => new PreparedInsertStrategy({ rowsPerInsert: 2049 })).toThrow(
-      "rowsPerInsert must be a number between 1 and 2048"
+  it("should destroy every prepared statement, whatever the chunk sizes", async ({
+    conn,
+  }) => {
+    let prepared = 0;
+    let destroyed = 0;
+    const prepare = conn.prepare.bind(conn);
+    const spy = vi.spyOn(conn, "prepare").mockImplementation(async (sql) => {
+      const statement = await prepare(sql);
+      prepared += 1;
+      const destroySync = statement.destroySync.bind(statement);
+      statement.destroySync = () => {
+        destroyed += 1;
+        destroySync();
+      };
+      return statement;
+    });
+    try {
+      const strategy = new PreparedInsertStrategy({ chunkSize: 4 });
+      const session = await strategy.open({
+        conn,
+        table: new Table("test_prepared_sizes"),
+        columnNames: ["id", "name"],
+        columnTypes: [INTEGER, VARCHAR],
+        logger: sqlduckDefaultLogtapeLogger,
+      });
+      await conn.run(
+        "CREATE OR REPLACE TABLE test_prepared_sizes (id INTEGER, name VARCHAR)"
+      );
+      // Full chunks reuse one statement, partial chunks of any size don't stay
+      let id = 0;
+      for (const size of [4, 1, 4, 2, 3, 4, 1]) {
+        const ids = Array.from({ length: size }, () => id++);
+        await session.appendChunk([ids, ids.map(String)]);
+      }
+      await session.complete();
+      // 1 statement for the full chunks + 1 per partial chunk
+      expect(prepared).toBe(1 + 4);
+      expect(destroyed).toBe(prepared);
+      const reader = await conn.runAndReadAll(
+        "SELECT count(*)::INTEGER AS count FROM test_prepared_sizes"
+      );
+      expect(reader.getRowObjects()).toStrictEqual([{ count: id }]);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it("should reject an invalid chunkSize", () => {
+    expect(() => new PreparedInsertStrategy({ chunkSize: 2049 })).toThrow(
+      "chunkSize must be an integer between 1 and 2048, got 2049"
     );
   });
 });

@@ -12,15 +12,25 @@ import type {
 } from "../validation/zod/index.ts";
 import type { OnLoadProgressCb } from "./progress/progress-collector.ts";
 
-export type RowStream<T> =
-  | AsyncIterableIterator<T>
-  | AsyncGenerator<T>
-  | Generator<T>;
+/**
+ * Rows to load: any sync or async iterable (arrays, generators, streams...).
+ */
+export type RowStream<T> = Iterable<T> | AsyncIterable<T>;
 
 /**
  * What happens to the target table before the rows are loaded.
+ *
+ * - `create`: `CREATE TABLE`, fails when the table exists
+ * - `createOrReplace`: `CREATE OR REPLACE TABLE`
+ * - `createIfNotExists`: `CREATE TABLE IF NOT EXISTS`, an existing table
+ *   must have the schema columns
+ * - `append`: no DDL, the table must exist with the schema columns
  */
-export type LoadMode = "create" | "createOrReplace" | "createIfNotExists";
+export type LoadMode =
+  | "create"
+  | "createOrReplace"
+  | "createIfNotExists"
+  | "append";
 
 export type LoadStrategyContext = {
   conn: DuckDBConnection;
@@ -63,7 +73,8 @@ export interface LoadStrategySession {
 export interface LoadStrategy {
   readonly name: string;
   /**
-   * Number of rows per chunk handed to `appendChunk`.
+   * Maximum number of rows per chunk handed to `appendChunk`, a positive
+   * integer.
    */
   readonly chunkSize: number;
   open: (context: LoadStrategyContext) => Promise<LoadStrategySession>;
@@ -71,10 +82,10 @@ export interface LoadStrategy {
 
 export type LoadCheckpointOptions = {
   /**
-   * Checkpoint the database every N chunks (1 to 100_000).
-   * Requires `table.databaseName`.
+   * Checkpoint the database each time N more rows are loaded, at the end
+   * of the chunk crossing the threshold. Requires `table.databaseName`.
    */
-  every?: number;
+  everyRows?: number;
   /**
    * Checkpoint the database once all rows are loaded.
    * Setting it to `true` requires `table.databaseName`.
@@ -82,6 +93,34 @@ export type LoadCheckpointOptions = {
    */
   onComplete?: boolean;
 };
+
+export type LoadProgressOptions = {
+  /**
+   * Called during the load, and once at the end when the last rows were
+   * not reported yet. Awaited when it returns a promise (backpressure), a
+   * rejection fails the load.
+   */
+  onProgress: OnLoadProgressCb;
+} & (
+  | {
+      /**
+       * Call `onProgress` at the end of the first chunk loaded after N
+       * milliseconds since the previous call (or the start of the load),
+       * `0` calls it after every chunk.
+       * @default 1000
+       */
+      intervalMs?: number;
+      everyRows?: never;
+    }
+  | {
+      /**
+       * Call `onProgress` each time N more rows are loaded, at the end of
+       * the chunk crossing the threshold. Replaces `intervalMs`.
+       */
+      everyRows: number;
+      intervalMs?: never;
+    }
+);
 
 export type LoadParams<TSchema extends TableSchemaZod> = {
   /**
@@ -94,7 +133,7 @@ export type LoadParams<TSchema extends TableSchemaZod> = {
    */
   schema: TSchema;
   /**
-   * An iterable (async or sync) or generator that yields the rows to load.
+   * Rows to load: any sync or async iterable (arrays, generators...).
    */
   rows: RowStream<InferZodRelaxedDataSchema<TSchema>>;
   /**
@@ -102,25 +141,10 @@ export type LoadParams<TSchema extends TableSchemaZod> = {
    */
   mode?: LoadMode;
   checkpoint?: LoadCheckpointOptions;
-  /**
-   * Overrides DuckDB's `preserve_insertion_order` session setting during
-   * the load, the original value is restored afterwards.
-   * If omitted, the session setting is left untouched.
-   * @see {@link https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads.html#preserving-insertion-order}
-   */
-  preserveInsertionOrder?: boolean;
-  /**
-   * Called after chunks are appended, awaited when it returns a promise.
-   */
-  onProgress?: OnLoadProgressCb;
-  /**
-   * Call `onProgress` every N chunks (1 to 100_000).
-   * @default 1
-   */
-  progressEvery?: number;
+  progress?: LoadProgressOptions;
   /**
    * Aborts the load, `load` then rejects with `signal.reason` and closes
-   * `rows`. The table is still created and the chunks appended before the
+   * `rows`. The table is still created and the chunks loaded before the
    * abort are kept, but no checkpoint happens.
    */
   signal?: AbortSignal;
@@ -136,9 +160,10 @@ export type LoadResult = {
    */
   totalRows: number;
   /**
-   * The DDL statement used to create the table.
+   * The DDL statement used to create the table, `undefined` in `append`
+   * mode.
    */
-  createTableDDL: string;
+  createTableDDL: string | undefined;
   /**
    * Name of the strategy used.
    */

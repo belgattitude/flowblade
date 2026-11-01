@@ -5,8 +5,11 @@ import type {
   LoadStrategyContext,
   LoadStrategySession,
 } from "../../types.ts";
-import { assertChunkSize } from "../../utils/assert-chunk-size.ts";
-import { assertFrequency } from "../../utils/assert-frequency.ts";
+import {
+  assertPositiveInteger,
+  MAX_CHUNK_SIZE,
+} from "../../utils/assert-positive-integer.ts";
+import { crossedEveryRows } from "../../utils/crossed-every-rows.ts";
 
 export type ChunkAppenderStrategyOptions = {
   /**
@@ -15,13 +18,15 @@ export type ChunkAppenderStrategyOptions = {
    */
   chunkSize?: number;
   /**
-   * Call `appender.flushSync()` every N chunks (1 to 100_000).
+   * Flush the appender (`appender.flushSync()`) each time N more rows are
+   * appended, at the end of the chunk crossing the threshold. Flushing
+   * makes the rows visible in the table, it is not a checkpoint.
    *
    * Each flush has a fixed cost, frequent flushes slow down inserts
-   * (~30% slower with 10 than 100 on a file database).
-   * @default 100
+   * (~30% slower every 20_480 rows than every 204_800 on a file database).
+   * @default 204_800 (100 chunks of 2048 rows)
    */
-  flushEvery?: number;
+  flushEveryRows?: number;
 };
 
 /**
@@ -31,21 +36,22 @@ export type ChunkAppenderStrategyOptions = {
  * ```typescript
  * const loader = new DuckTableLoader({
  *   conn,
- *   strategy: new ChunkAppenderStrategy({ chunkSize: 2048, flushEvery: 100 }),
+ *   strategy: new ChunkAppenderStrategy({ chunkSize: 2048, flushEveryRows: 204_800 }),
  * });
  * ```
  */
 export class ChunkAppenderStrategy implements LoadStrategy {
   readonly name = "chunkAppender";
   readonly chunkSize: number;
-  readonly #flushEvery: number;
+  readonly #flushEveryRows: number;
 
   constructor(options?: ChunkAppenderStrategyOptions) {
-    const { chunkSize = 2048, flushEvery = 100 } = options ?? {};
-    assertChunkSize(chunkSize, "chunkSize");
-    assertFrequency(flushEvery, "flushEvery");
+    const { chunkSize = MAX_CHUNK_SIZE, flushEveryRows = 204_800 } =
+      options ?? {};
+    assertPositiveInteger(chunkSize, "chunkSize", MAX_CHUNK_SIZE);
+    assertPositiveInteger(flushEveryRows, "flushEveryRows");
     this.chunkSize = chunkSize;
-    this.#flushEvery = flushEvery;
+    this.#flushEveryRows = flushEveryRows;
   }
 
   open = async (context: LoadStrategyContext): Promise<LoadStrategySession> => {
@@ -55,15 +61,16 @@ export class ChunkAppenderStrategy implements LoadStrategy {
       table.schemaName,
       table.databaseName
     );
-    const flushEvery = this.#flushEvery;
-    let chunkCount = 0;
+    const flushEveryRows = this.#flushEveryRows;
+    let totalRows = 0;
     return {
       appendChunk: (columns) => {
         const chunk = DuckDBDataChunk.create(columnTypes);
         chunk.setColumns(columns);
         appender.appendDataChunk(chunk);
-        chunkCount += 1;
-        if (chunkCount % flushEvery === 0) {
+        const previousRows = totalRows;
+        totalRows += columns[0]?.length ?? 0;
+        if (crossedEveryRows(flushEveryRows, previousRows, totalRows)) {
           appender.flushSync();
         }
       },

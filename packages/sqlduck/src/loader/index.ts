@@ -17,6 +17,7 @@ export type {
   LoadCheckpointOptions,
   LoadMode,
   LoadParams,
+  LoadProgressOptions,
   LoadResult,
   LoadStrategy,
   LoadStrategyContext,

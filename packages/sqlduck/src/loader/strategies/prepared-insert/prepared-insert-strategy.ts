@@ -5,7 +5,10 @@ import type {
   LoadStrategyContext,
   LoadStrategySession,
 } from "../../types.ts";
-import { assertChunkSize } from "../../utils/assert-chunk-size.ts";
+import {
+  assertPositiveInteger,
+  MAX_CHUNK_SIZE,
+} from "../../utils/assert-positive-integer.ts";
 
 /**
  * What to do when a row conflicts with a primary key or unique constraint.
@@ -20,7 +23,7 @@ export type PreparedInsertStrategyOptions = {
    * Number of rows inserted by each `INSERT` statement, between 1 and 2048.
    * @default 256
    */
-  rowsPerInsert?: number;
+  chunkSize?: number;
   /**
    * @default 'error'
    */
@@ -58,36 +61,31 @@ export class PreparedInsertStrategy implements LoadStrategy {
   readonly #onConflict: PreparedInsertOnConflict;
 
   constructor(options?: PreparedInsertStrategyOptions) {
-    const { rowsPerInsert = 256, onConflict = "error" } = options ?? {};
-    assertChunkSize(rowsPerInsert, "rowsPerInsert");
-    this.chunkSize = rowsPerInsert;
+    const { chunkSize = 256, onConflict = "error" } = options ?? {};
+    assertPositiveInteger(chunkSize, "chunkSize", MAX_CHUNK_SIZE);
+    this.chunkSize = chunkSize;
     this.#onConflict = onConflict;
   }
 
   open = async (context: LoadStrategyContext): Promise<LoadStrategySession> => {
     const { conn, table, columnNames, columnTypes } = context;
+    const { chunkSize } = this;
     const columnCount = columnNames.length;
     const insertPrefix = `${insertVerbs[this.#onConflict]} ${table.getFullName()} (${columnNames.map(quoteIdentifier).join(", ")}) VALUES `;
     const rowPlaceholders = `(${Array.from({ length: columnCount }, () => "?").join(", ")})`;
 
-    // One statement per row count: the full chunk size, and the last chunk
-    const statements = new Map<number, DuckDBPreparedStatement>();
-    const getStatement = async (rowCount: number) => {
-      let statement = statements.get(rowCount);
-      if (statement === undefined) {
-        statement = await conn.prepare(
-          insertPrefix +
-            Array.from({ length: rowCount }, () => rowPlaceholders).join(", ")
-        );
-        statements.set(rowCount, statement);
-      }
-      return statement;
-    };
-    const destroyStatements = () => {
-      for (const statement of statements.values()) {
-        statement.destroySync();
-      }
-      statements.clear();
+    const prepare = (rowCount: number) =>
+      conn.prepare(
+        insertPrefix +
+          Array.from({ length: rowCount }, () => rowPlaceholders).join(", ")
+      );
+    // Only the full chunk statement is reused: smaller chunks (the last one,
+    // or yielded early for progress) can have any size, caching them would
+    // keep up to chunkSize statements alive.
+    let fullChunkStatement: DuckDBPreparedStatement | undefined;
+    const destroyFullChunkStatement = () => {
+      fullChunkStatement?.destroySync();
+      fullChunkStatement = undefined;
     };
 
     return {
@@ -96,21 +94,34 @@ export class PreparedInsertStrategy implements LoadStrategy {
         if (rowCount === 0) {
           return;
         }
-        const statement = await getStatement(rowCount);
-        for (let c = 0; c < columnCount; c++) {
-          // eslint-disable-next-line typescript/no-non-null-assertion
-          const column = columns[c]!;
-          const type = columnTypes[c];
-          for (let r = 0; r < rowCount; r++) {
-            // Parameters are 1-based, row-major
+        const isFullChunk = rowCount === chunkSize;
+        if (isFullChunk) {
+          fullChunkStatement ??= await prepare(rowCount);
+        }
+        const statement = isFullChunk
+          ? // eslint-disable-next-line typescript/no-non-null-assertion
+            fullChunkStatement!
+          : await prepare(rowCount);
+        try {
+          for (let c = 0; c < columnCount; c++) {
             // eslint-disable-next-line typescript/no-non-null-assertion
-            statement.bindValue(r * columnCount + c + 1, column[r]!, type);
+            const column = columns[c]!;
+            const type = columnTypes[c];
+            for (let r = 0; r < rowCount; r++) {
+              // Parameters are 1-based, row-major
+              // eslint-disable-next-line typescript/no-non-null-assertion
+              statement.bindValue(r * columnCount + c + 1, column[r]!, type);
+            }
+          }
+          await statement.run();
+        } finally {
+          if (!isFullChunk) {
+            statement.destroySync();
           }
         }
-        await statement.run();
       },
-      complete: destroyStatements,
-      abort: destroyStatements,
+      complete: destroyFullChunkStatement,
+      abort: destroyFullChunkStatement,
     };
   };
 }

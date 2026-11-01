@@ -15,11 +15,11 @@ Source: `bench/appender.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| duckdb appender, count: 100000, chunk size 1024 | 58.42 ms | 44.49 ms | +31.32% | 17.21 ops/s | 22.48 ops/s | +30.61% |
-| duckdb appender memory, count: 100000, chunk size 2048 | 59.98 ms | 45.07 ms | +33.07% | 16.84 ops/s | 22.22 ops/s | +31.91% |
-| duckdb appender file no wal, count: 100000, chunk size 1024 | 64.89 ms | 54.2 ms | +19.72% | 15.42 ops/s | 18.51 ops/s | +20.04% |
-| duckdb appender file no wal, count: 100000, chunk size 2048 | 71.88 ms | 51.44 ms | +39.74% | 14.02 ops/s | 19.44 ops/s | +38.7% |
-| duckdb appender file, count: 100000, chunk size 2048 | 84.34 ms | 55.63 ms | +51.61% | 11.96 ops/s | 17.98 ops/s | +50.34% |
+| duckdb appender memory, count: 100000, chunk size 2048 | 53.42 ms | 42.05 ms | +27.06% | 18.72 ops/s | 23.79 ops/s | +27.06% |
+| duckdb appender, count: 100000, chunk size 1024 | 53.47 ms | 43.22 ms | +23.71% | 18.71 ops/s | 23.14 ops/s | +23.71% |
+| duckdb appender file no wal, count: 100000, chunk size 2048 | 62.98 ms | 49.35 ms | +27.61% | 15.88 ops/s | 20.26 ops/s | +27.6% |
+| duckdb appender file no wal, count: 100000, chunk size 1024 | 63.76 ms | 50.44 ms | +26.39% | 15.69 ops/s | 19.83 ops/s | +26.36% |
+| duckdb appender file, count: 100000, chunk size 2048 | 67.25 ms | 53.41 ms | +25.91% | 14.87 ops/s | 18.73 ops/s | +25.92% |
 
 ## DuckValueConverter.toTimestampMs, count: 100000
 
@@ -27,12 +27,12 @@ Source: `bench/duck-value-converter.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| from bigint | 3.82 ms | 1.29 ms | +195.44% | 264.94 ops/s | 774.92 ops/s | +192.49% |
-| from Date | 4.59 ms | 1.71 ms | +168.43% | 218.59 ops/s | 586.33 ops/s | +168.23% |
-| from number | 4.7 ms | 1.66 ms | +183.34% | 213.48 ops/s | 603.92 ops/s | +182.9% |
-| from date string | 7.28 ms | 4.55 ms | +60.1% | 138.5 ops/s | 220.08 ops/s | +58.9% |
-| from ISO string | 9.47 ms | 7.05 ms | +34.26% | 106.85 ops/s | 141.83 ops/s | +32.73% |
-| from SQL string | 9.97 ms | 6.69 ms | +49.02% | 101.04 ops/s | 149.57 ops/s | +48.03% |
+| from bigint | 3.62 ms | 1.24 ms | +190.89% | 276.37 ops/s | 804.41 ops/s | +191.06% |
+| from Date | 4.39 ms | 1.71 ms | +156.54% | 228.21 ops/s | 584.74 ops/s | +156.23% |
+| from number | 4.47 ms | 1.59 ms | +181.22% | 223.86 ops/s | 629.77 ops/s | +181.32% |
+| from date string | 6.46 ms | 4.6 ms | +40.53% | 154.9 ops/s | 217.71 ops/s | +40.55% |
+| from ISO string | 8.37 ms | 7.16 ms | +16.79% | 119.81 ops/s | 139.69 ops/s | +16.59% |
+| from SQL string | 8.63 ms | 6.86 ms | +25.79% | 115.9 ops/s | 145.74 ops/s | +25.75% |
 
 ## DuckValueConverter.toTimestamp, count: 100000
 
@@ -40,9 +40,9 @@ Source: `bench/duck-value-converter.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| from Date | 5.13 ms | 2.62 ms | +95.79% | 195.36 ops/s | 384.78 ops/s | +96.96% |
-| from number | 5.28 ms | 2.53 ms | +108.8% | 189.77 ops/s | 395.89 ops/s | +108.62% |
-| from ISO string | 10.35 ms | 7.88 ms | +31.28% | 97.87 ops/s | 127.03 ops/s | +29.8% |
+| from number | 4.82 ms | 2.38 ms | +101.99% | 207.79 ops/s | 419.59 ops/s | +101.93% |
+| from Date | 4.99 ms | 2.47 ms | +101.98% | 201.07 ops/s | 405.24 ops/s | +101.55% |
+| from ISO string | 8.7 ms | 7.49 ms | +16.24% | 115.17 ops/s | 133.62 ops/s | +16.02% |
 
 ## DuckValueConverter.toDate, count: 100000
 
@@ -50,9 +50,9 @@ Source: `bench/duck-value-converter.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| from Date | 3.79 ms | 1.67 ms | +127.31% | 264.58 ops/s | 600.45 ops/s | +126.94% |
-| from date string | 6.27 ms | 4.37 ms | +43.25% | 160.6 ops/s | 228.81 ops/s | +42.47% |
-| from ISO string | 6.62 ms | 4.39 ms | +50.76% | 152.68 ops/s | 227.82 ops/s | +49.22% |
+| from Date | 3.62 ms | 1.58 ms | +128.33% | 276.63 ops/s | 631.58 ops/s | +128.31% |
+| from ISO string | 5.72 ms | 4.22 ms | +35.5% | 174.93 ops/s | 236.91 ops/s | +35.43% |
+| from date string | 5.75 ms | 4.25 ms | +35.1% | 174.18 ops/s | 235.41 ops/s | +35.15% |
 
 ## DuckValueConverter.toBigInt, count: 100000
 
@@ -60,9 +60,9 @@ Source: `bench/duck-value-converter.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| from bigint | 535.82 us | 256.77 us | +108.68% | 1,884.6 ops/s | 3,933.34 ops/s | +108.71% |
-| from number | 1.44 ms | 667.27 us | +115.45% | 701.57 ops/s | 1,507.91 ops/s | +114.93% |
-| from string | 3.28 ms | 2.75 ms | +19.04% | 305.52 ops/s | 364.31 ops/s | +19.24% |
+| from bigint | 502.47 us | 223.76 us | +124.55% | 1,993.17 ops/s | 4,473.57 ops/s | +124.45% |
+| from number | 1.3 ms | 625.15 us | +107.78% | 770.28 ops/s | 1,604.12 ops/s | +108.25% |
+| from string | 3.03 ms | 2.69 ms | +12.52% | 330.33 ops/s | 373.22 ops/s | +12.98% |
 
 ## DuckValueConverter misc, count: 100000
 
@@ -70,9 +70,9 @@ Source: `bench/duck-value-converter.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| toStringEnum from string | 572.7 us | 238.85 us | +139.78% | 1,787.75 ops/s | 4,197.29 ops/s | +134.78% |
-| toDecimal(18,3) from number | 4.48 ms | 2.11 ms | +112.18% | 223.72 ops/s | 474.89 ops/s | +112.27% |
-| toUUID from string | 14 ms | 11 ms | +27.26% | 71.74 ops/s | 91.19 ops/s | +27.12% |
+| toStringEnum from string | 508.67 us | 258.43 us | +96.83% | 1,969.37 ops/s | 3,878.05 ops/s | +96.92% |
+| toDecimal(18,3) from number | 4.19 ms | 2.04 ms | +105.59% | 238.54 ops/s | 491.08 ops/s | +105.87% |
+| toUUID from string | 11.86 ms | 9.82 ms | +20.85% | 84.29 ops/s | 101.93 ops/s | +20.93% |
 
 ## Bench rowsToColumnsChunks
 
@@ -80,9 +80,9 @@ Source: `bench/stream.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| rowToColumnsChunk with chunkSize 2048 (count: 100000) | 25.14 ms | 12.43 ms | +102.21% | 39.82 ops/s | 80.87 ops/s | +103.11% |
-| rowToColumnsChunk with transformer with chunkSize 2048 (count: 100000) | 26.48 ms | 14.2 ms | +86.39% | 37.83 ops/s | 70.97 ops/s | +87.58% |
-| mapFakeRowStream with chunkSize 2048 (count: 100000) | 35.44 ms | 16.46 ms | +115.32% | 28.34 ops/s | 60.82 ops/s | +114.63% |
+| rowToColumnsChunk with chunkSize 2048 (count: 100000) | 24.4 ms | 11.14 ms | +119.05% | 41.04 ops/s | 89.84 ops/s | +118.91% |
+| rowToColumnsChunk with transformer with chunkSize 2048 (count: 100000) | 25.15 ms | 12.67 ms | +98.6% | 39.78 ops/s | 79.09 ops/s | +98.83% |
+| mapFakeRowStream with chunkSize 2048 (count: 100000) | 32.57 ms | 15.14 ms | +115.13% | 30.71 ops/s | 66.06 ops/s | +115.11% |
 
 ## Bench rowsToColumnsChunks with full supported-columns schema
 
@@ -90,10 +90,10 @@ Source: `bench/stream.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| full schema, no transformers, chunkSize 2048 (count: 100000) | 109.56 ms | 72.16 ms | +51.84% | 9.14 ops/s | 13.88 ops/s | +51.78% |
-| full schema, rowsToConvertedColumnsChunks compiled, chunkSize 2048 (count: 100000) | 169.02 ms | 120.85 ms | +39.86% | 5.93 ops/s | 8.28 ops/s | +39.74% |
-| full schema, rowsToConvertedColumnsChunks, chunkSize 2048 (count: 100000) | 195.75 ms | 112.26 ms | +74.37% | 5.17 ops/s | 8.93 ops/s | +72.81% |
-| full schema, with all column converters, chunkSize 2048 (count: 100000) | 207.83 ms | 142.33 ms | +46.02% | 4.82 ops/s | 7.03 ops/s | +46.07% |
+| full schema, no transformers, chunkSize 2048 (count: 100000) | 105.53 ms | 66.75 ms | +58.1% | 9.48 ops/s | 14.99 ops/s | +58.1% |
+| full schema, rowsToConvertedColumnsChunks compiled, chunkSize 2048 (count: 100000) | 157.97 ms | 108.9 ms | +45.06% | 6.33 ops/s | 9.19 ops/s | +45.19% |
+| full schema, rowsToConvertedColumnsChunks, chunkSize 2048 (count: 100000) | 179.87 ms | 103.02 ms | +74.6% | 5.56 ops/s | 9.71 ops/s | +74.66% |
+| full schema, with all column converters, chunkSize 2048 (count: 100000) | 204.62 ms | 128.44 ms | +59.31% | 4.89 ops/s | 7.79 ops/s | +59.1% |
 
 ## Bench rowsToColumnsChunks with pre-generated rows
 
@@ -101,8 +101,8 @@ Source: `bench/stream.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| 26 columns, sync generator, chunkSize 2048 (count: 100000) | 34.48 ms | 38.36 ms | -10.13% | 29.02 ops/s | 26.07 ops/s | -10.15% |
-| 26 columns, async generator, chunkSize 2048 (count: 100000) | 34.79 ms | 37.22 ms | -6.54% | 28.88 ops/s | 26.9 ops/s | -6.86% |
+| 26 columns, async generator, chunkSize 2048 (count: 100000) | 31.52 ms | 35.11 ms | -10.23% | 31.73 ops/s | 28.49 ops/s | -10.22% |
+| 26 columns, sync generator, chunkSize 2048 (count: 100000) | 31.67 ms | 36.33 ms | -12.82% | 31.58 ops/s | 27.53 ops/s | -12.82% |
 
 ## Bench getTableCreateFromZod
 
@@ -110,4 +110,4 @@ Source: `bench/table-create.bench.ts`
 
 | Benchmark | Node mean latency | Bun mean latency | Bun latency difference | Node throughput | Bun throughput | Bun throughput difference |
 | --- | --: | --: | --: | --: | --: | --: |
-| getTableCreateFromZod | 18.1 us | 8.93 us | +102.73% | 59,040.09 ops/s | 123,739.26 ops/s | +109.59% |
+| getTableCreateFromZod | 16.17 us | 8.06 us | +100.7% | 63,180.7 ops/s | 135,331.45 ops/s | +114.2% |

@@ -1,6 +1,5 @@
 import { setTimeout as sleep } from "node:timers/promises";
 
-import type { DuckDBConnection } from "@duckdb/node-api";
 import { DuckdbDatasource, sql } from "@flowblade/source-duckdb";
 import { isParsableStrictIsoDateZ } from "@httpx/assert";
 import { reset } from "@logtape/logtape";
@@ -14,9 +13,9 @@ import { createFakeRowsAsyncIterator } from "#tests/utils/create-fake-rows-itera
 import { createDuckTest } from "#tests/utils/duck-test.ts";
 
 import { flowbladeLogtapeSqlduckConfig } from "./config/flowblade-logtape-sqlduck.config.ts";
-import type { OnChunkAppendedCb } from "./loader/progress/progress-collector.ts";
 import { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts";
 import { Table } from "./objects/table.ts";
+import type { OnChunkAppendedCb } from "./sql-duck.ts";
 import { SqlDuck } from "./sql-duck.ts";
 import { getTableCreateFromZod } from "./table/get-table-create-from-zod.ts";
 import { zodCodecs } from "./utils/zod-codecs.ts";
@@ -350,13 +349,6 @@ describe("Duckdb tests", () => {
           yield { id };
         }
       };
-      const getPreserveInsertionOrder = async (conn: DuckDBConnection) => {
-        const reader = await conn.runAndReadAll(
-          "SELECT current_setting('preserve_insertion_order') as value"
-        );
-        return reader.getRowObjects()[0]?.value;
-      };
-
       it("should not leak values between chunks", async ({ conn }) => {
         // chunkSize 2: the same positions alternate between null and values,
         // lists change length, the last chunk is smaller
@@ -385,29 +377,6 @@ describe("Duckdb tests", () => {
           "SELECT id, name, tags FROM test_chunk_reuse ORDER BY id"
         );
         expect(reader.getRowObjectsJson()).toStrictEqual(data);
-      });
-
-      it("should restore preserve_insertion_order when the appender can't be created", async ({
-        conn,
-        onTestFinished,
-      }) => {
-        await expect(getPreserveInsertionOrder(conn)).resolves.toBe(true);
-        const spy = vi
-          .spyOn(conn, "createAppender")
-          .mockRejectedValueOnce(new Error("appender failure"));
-        onTestFinished(() => spy.mockRestore());
-
-        await expect(
-          new SqlDuck({ conn }).toTable({
-            table: new Table("test_restore_setting"),
-            schema,
-            rowStream: rows(),
-            autoCheckpoint: false,
-            preserveInsertionOrder: false,
-            createOptions: { create: "CREATE_OR_REPLACE" },
-          })
-        ).rejects.toThrow("appender failure");
-        await expect(getPreserveInsertionOrder(conn)).resolves.toBe(true);
       });
 
       it("should await an onChunkAppended callback returning a promise", async ({
@@ -916,7 +885,7 @@ describe("Duckdb tests", () => {
             },
           })
         ).rejects.toThrow(
-          "Failed to append data into table 'test_enums_invalid' - 'deleted' is not a member of ENUM('draft', 'published', 'archived')"
+          "Failed to load data into table 'test_enums_invalid' - 'deleted' is not a member of ENUM('draft', 'published', 'archived')"
         );
 
         // The chunk holding the invalid value isn't appended
@@ -1037,7 +1006,7 @@ describe("Duckdb tests", () => {
       expect(logBuffer.at(-1)).toMatchObject({
         category: flowbladeLogtapeSqlduckConfig.categories,
         rawMessage:
-          "Successfully appended {totalRows} rows into '{table}' in {timeMs}ms",
+          "Loaded {totalRows} rows into table '{table}' in {timeMs}ms",
         level: "info",
         properties: {
           table: "sql_duck_test.test",
@@ -1060,8 +1029,7 @@ describe("Duckdb tests", () => {
 
       // on nodejs: Cannot convert 1 to a BigInt
       // on bun: Invalid argument type in ToBigInt ope…
-      const regexpError =
-        /failed to append data into table (.*)test(.*)bigint/i;
+      const regexpError = /failed to load data into table (.*)test(.*)bigint/i;
 
       await expect(
         sqlDuck.toTable({
@@ -1082,7 +1050,7 @@ describe("Duckdb tests", () => {
       expect(logBuffer.at(-1)).toMatchObject({
         category: flowbladeLogtapeSqlduckConfig.categories,
         rawMessage:
-          "Failed to append data into table '{table}' - {errorMessage}",
+          "Failed to load data into table '{table}' after {totalRows} rows - {errorMessage}",
         level: "error",
         properties: {
           table: "sql_duck_test.test",

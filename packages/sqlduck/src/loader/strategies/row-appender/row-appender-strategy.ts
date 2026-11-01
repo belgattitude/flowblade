@@ -4,8 +4,10 @@ import type {
   LoadStrategyContext,
   LoadStrategySession,
 } from "../../types.ts";
-import { assertChunkSize } from "../../utils/assert-chunk-size.ts";
-import { assertFrequency } from "../../utils/assert-frequency.ts";
+import {
+  assertPositiveInteger,
+  MAX_CHUNK_SIZE,
+} from "../../utils/assert-positive-integer.ts";
 
 export type RowAppenderStrategyOptions = {
   /**
@@ -15,10 +17,11 @@ export type RowAppenderStrategyOptions = {
    */
   chunkSize?: number;
   /**
-   * Call `appender.flushSync()` every N chunks (1 to 100_000).
-   * @default 100
+   * Flush the appender (`appender.flushSync()`) after every N rows.
+   * Flushing makes the rows visible in the table, it is not a checkpoint.
+   * @default 204_800
    */
-  flushEvery?: number;
+  flushEveryRows?: number;
 };
 
 /**
@@ -28,8 +31,9 @@ export type RowAppenderStrategyOptions = {
  * with its row index and column name, which helps finding bad data.
  *
  * When a value fails, DuckDB can't drop the partially appended row: all the
- * rows appended since the last flush are discarded. Use a small `flushEvery`
- * to keep more rows.
+ * rows appended since the last flush are discarded. Use a small
+ * `flushEveryRows` to keep more rows (`1` keeps every row before the
+ * failing one).
  *
  * @example
  * ```typescript
@@ -42,14 +46,15 @@ export type RowAppenderStrategyOptions = {
 export class RowAppenderStrategy implements LoadStrategy {
   readonly name = "rowAppender";
   readonly chunkSize: number;
-  readonly #flushEvery: number;
+  readonly #flushEveryRows: number;
 
   constructor(options?: RowAppenderStrategyOptions) {
-    const { chunkSize = 2048, flushEvery = 100 } = options ?? {};
-    assertChunkSize(chunkSize, "chunkSize");
-    assertFrequency(flushEvery, "flushEvery");
+    const { chunkSize = MAX_CHUNK_SIZE, flushEveryRows = 204_800 } =
+      options ?? {};
+    assertPositiveInteger(chunkSize, "chunkSize", MAX_CHUNK_SIZE);
+    assertPositiveInteger(flushEveryRows, "flushEveryRows");
     this.chunkSize = chunkSize;
-    this.#flushEvery = flushEvery;
+    this.#flushEveryRows = flushEveryRows;
   }
 
   open = async (context: LoadStrategyContext): Promise<LoadStrategySession> => {
@@ -59,8 +64,7 @@ export class RowAppenderStrategy implements LoadStrategy {
       table.schemaName,
       table.databaseName
     );
-    const flushEvery = this.#flushEvery;
-    let chunkCount = 0;
+    const flushEveryRows = this.#flushEveryRows;
     // Index of the row in the whole load, 0-based
     let rowIndex = 0;
     return {
@@ -81,10 +85,9 @@ export class RowAppenderStrategy implements LoadStrategy {
           }
           appender.endRow();
           rowIndex += 1;
-        }
-        chunkCount += 1;
-        if (chunkCount % flushEvery === 0) {
-          appender.flushSync();
+          if (rowIndex % flushEveryRows === 0) {
+            appender.flushSync();
+          }
         }
       },
       complete: () => {

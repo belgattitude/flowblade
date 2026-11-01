@@ -4,21 +4,17 @@ import type {
   DuckDBValue,
 } from "@duckdb/node-api";
 import type { Logger } from "@logtape/logtape";
-import type * as z from "zod";
-import type { ZodObject } from "zod";
 
 import { createDuckColumnConverters } from "../converter/create-duck-column-converters.ts";
 import { sqlduckDefaultLogtapeLogger } from "../logger/sqlduck-default-logtape-logger.ts";
 import { DuckDatabaseManager } from "../manager/database/duck-database-manager.ts";
 import { createTableFromZod } from "../table/create-table-from-zod.ts";
+import { getTableCreateFromZod } from "../table/get-table-create-from-zod.ts";
 import type { TableCreateOptions } from "../table/get-table-create-from-zod.ts";
 import { getErrorMessage } from "../utils/get-error-message.ts";
 import { rowsToConvertedColumnsChunks } from "../utils/rows-to-converted-columns-chunks.ts";
-import type { InferZodRelaxedDataSchema } from "../validation/zod/index.ts";
-import {
-  restorePreserveInsertionOrder,
-  setPreserveInsertionOrder,
-} from "./policies/preserve-insertion-order.ts";
+import type { ChunkYieldRequest } from "../utils/rows-to-converted-columns-chunks.ts";
+import type { TableSchemaZod } from "../validation/zod/index.ts";
 import { createProgressCollector } from "./progress/progress-collector.ts";
 import { ChunkAppenderStrategy } from "./strategies/chunk-appender/chunk-appender-strategy.ts";
 import type {
@@ -28,7 +24,12 @@ import type {
   LoadStrategy,
   LoadStrategySession,
 } from "./types.ts";
-import { assertFrequency } from "./utils/assert-frequency.ts";
+import { assertPositiveInteger } from "./utils/assert-positive-integer.ts";
+import { crossedEveryRows } from "./utils/crossed-every-rows.ts";
+import {
+  assertSameColumns,
+  getExistingColumnNames,
+} from "./utils/get-existing-column-names.ts";
 
 export type DuckTableLoaderParams = {
   conn: DuckDBConnection;
@@ -45,12 +46,14 @@ export type DuckTableLoaderParams = {
   strategy?: LoadStrategy;
 };
 
+const DEFAULT_PROGRESS_INTERVAL_MS = 1000;
+
 const modeToCreateOption = {
   create: "CREATE",
   createOrReplace: "CREATE_OR_REPLACE",
   createIfNotExists: "IF_NOT_EXISTS",
 } as const satisfies Record<
-  LoadMode,
+  Exclude<LoadMode, "append">,
   NonNullable<TableCreateOptions["create"]>
 >;
 
@@ -61,7 +64,7 @@ const modeToCreateOption = {
  * ```typescript
  * const loader = new DuckTableLoader({
  *   conn,
- *   strategy: new ChunkAppenderStrategy({ chunkSize: 2048, flushEvery: 100 }),
+ *   strategy: new ChunkAppenderStrategy({ chunkSize: 2048 }),
  * });
  *
  * const result = await loader.load({
@@ -69,9 +72,15 @@ const modeToCreateOption = {
  *   schema: userSchema,
  *   rows: getUserRows(),
  *   mode: 'createOrReplace',
- *   checkpoint: { every: 100, onComplete: true },
- *   onProgress: ({ totalRows }) => {
- *     console.log(`Loaded ${totalRows} rows so far`);
+ *   checkpoint: { everyRows: 1_000_000 },
+ *   progress: {
+ *     intervalMs: 1000, // the default, or everyRows: 100_000
+ *     onProgress: ({ totalRows, intervalMs, rowsPerSecond }) => {
+ *       // totalRows: rows loaded so far
+ *       // intervalMs: time since the previous call
+ *       // rowsPerSecond: rate since the previous call
+ *       console.log(`${totalRows} rows loaded, ${rowsPerSecond} rows/s over ${intervalMs}ms`);
+ *     },
  *   },
  * });
  * ```
@@ -87,7 +96,7 @@ export class DuckTableLoader {
     this.#strategy = params.strategy ?? new ChunkAppenderStrategy();
   }
 
-  load = async <TSchema extends ZodObject>(
+  load = async <TSchema extends TableSchemaZod>(
     params: LoadParams<TSchema>
   ): Promise<LoadResult> => {
     const {
@@ -96,118 +105,179 @@ export class DuckTableLoader {
       rows,
       mode = "create",
       checkpoint,
-      preserveInsertionOrder,
-      onProgress,
-      progressEvery,
+      progress,
       signal,
     } = params;
     const {
-      every: checkpointEvery,
+      everyRows: checkpointEveryRows,
       onComplete: checkpointOnComplete = table.databaseName !== undefined,
     } = checkpoint ?? {};
     const strategy = this.#strategy;
+    const conn = this.#conn;
 
     if (checkpointOnComplete && table.databaseName === undefined) {
       throw new Error(
         "checkpoint.onComplete requires table.databaseName to be provided."
       );
     }
-    if (checkpointEvery !== undefined && table.databaseName === undefined) {
+    if (checkpointEveryRows !== undefined && table.databaseName === undefined) {
       throw new Error(
-        "checkpoint.every requires table.databaseName to be provided."
+        "checkpoint.everyRows requires table.databaseName to be provided."
       );
     }
-    assertFrequency(checkpointEvery, "checkpoint.every");
-    assertFrequency(progressEvery, "progressEvery");
+    assertPositiveInteger(checkpointEveryRows, "checkpoint.everyRows");
+    assertPositiveInteger(progress?.everyRows, "progress.everyRows");
+    if (
+      progress?.intervalMs !== undefined &&
+      !(Number.isFinite(progress.intervalMs) && progress.intervalMs >= 0)
+    ) {
+      throw new Error(
+        `progress.intervalMs must be a positive number, got ${progress.intervalMs}`
+      );
+    }
+    assertPositiveInteger(strategy.chunkSize, "strategy.chunkSize");
 
     signal?.throwIfAborted();
 
-    const dbManager = new DuckDatabaseManager(this.#conn);
-
-    const timeStart = Date.now();
-
-    const { columnTypes, ddl } = await createTableFromZod({
-      conn: this.#conn,
-      schema,
-      table,
-      options: { create: modeToCreateOption[mode] },
-    });
-
-    const columnTypeIds = {} as Record<keyof z.output<TSchema>, DuckDBType>;
-    const columnKeys = [] as (keyof z.output<TSchema>)[];
-    for (const [key, duckType] of columnTypes) {
-      columnKeys.push(key);
-      columnTypeIds[key as keyof z.output<TSchema>] = duckType;
-    }
-
-    const converters = createDuckColumnConverters(columnTypeIds);
-
-    const columnStream = rowsToConvertedColumnsChunks<
-      InferZodRelaxedDataSchema<TSchema>
-    >({
-      rows,
-      chunkSize: strategy.chunkSize,
-      columns: columnKeys as (keyof TSchema["shape"])[],
-      converters,
-      signal,
-    });
-
-    const progressCollector = createProgressCollector();
+    const timeStart = performance.now();
     const tableFullName = table.getFullName();
 
+    // The appender strategies write values by position: an existing table
+    // must have the schema columns, in the same order.
+    const { columnTypes } = getTableCreateFromZod({ table, schema });
+    const columnNames = [...columnTypes.keys()] as string[];
+    if (mode === "append" || mode === "createIfNotExists") {
+      const existingColumns = await getExistingColumnNames(conn, table);
+      if (existingColumns === undefined) {
+        if (mode === "append") {
+          throw new Error(
+            `Table '${tableFullName}' does not exist, use mode 'create' or 'createIfNotExists' to create it.`
+          );
+        }
+      } else {
+        assertSameColumns(table, existingColumns, columnNames);
+      }
+    }
+
+    let createTableDDL: string | undefined;
+    if (mode !== "append") {
+      const created = await createTableFromZod({
+        conn,
+        logger: this.#logger,
+        schema,
+        table,
+        options: { create: modeToCreateOption[mode] },
+      });
+      createTableDDL = created.ddl;
+    }
+
+    const converters = createDuckColumnConverters(
+      Object.fromEntries(columnTypes) as Record<string, DuckDBType>
+    );
+
+    // Time based progress. Chunks can take long to fill with a slow source,
+    // so a timer asks the chunker to yield the rows read so far once the
+    // interval is due: progress doesn't depend on the chunk size. Not needed
+    // with intervalMs 0 (every chunk) or everyRows.
+    const progressIntervalMs =
+      progress === undefined || progress.everyRows !== undefined
+        ? undefined
+        : (progress.intervalMs ?? DEFAULT_PROGRESS_INTERVAL_MS);
+    const yieldRequest: ChunkYieldRequest = { requested: false };
+    let progressTimer: ReturnType<typeof setTimeout> | undefined;
+    let progressTimerFired = false;
+    const armProgressTimer = (): void => {
+      clearTimeout(progressTimer);
+      progressTimerFired = false;
+      yieldRequest.requested = false;
+      if (progressIntervalMs !== undefined && progressIntervalMs > 0) {
+        progressTimer = setTimeout(() => {
+          progressTimerFired = true;
+          yieldRequest.requested = true;
+        }, progressIntervalMs);
+        // Never keeps the process alive
+        progressTimer.unref();
+      }
+    };
+
+    // Rows are typed by the schema, the columns come from the same schema
+    const columnStream = rowsToConvertedColumnsChunks<Record<string, unknown>>({
+      rows,
+      chunkSize: strategy.chunkSize,
+      columns: columnNames,
+      converters,
+      signal,
+      yieldRequest,
+    });
+
     let totalRows = 0;
-    let chunkCount = 0;
-    // Set once the session setting has been changed, to restore it in finally
-    let originalPreserveInsertionOrder: boolean | undefined;
+    let reportedRows = 0;
+    let lastProgressTime = timeStart;
+    const collectProgress = createProgressCollector();
+    const isProgressDue = (previousRows: number): boolean => {
+      if (progress === undefined) {
+        return false;
+      }
+      if (progress.everyRows !== undefined) {
+        return crossedEveryRows(progress.everyRows, previousRows, totalRows);
+      }
+      return (
+        // Timers can fire a bit early, the timer is the reference
+        progressTimerFired ||
+        performance.now() - lastProgressTime >= (progressIntervalMs ?? 0)
+      );
+    };
+    const reportProgress = async (): Promise<void> => {
+      lastProgressTime = performance.now();
+      reportedRows = totalRows;
+      armProgressTimer();
+      // Await any returned promise (async functions, but also regular
+      // functions returning a promise) for backpressure and errors
+      const returned = progress?.onProgress(
+        collectProgress(totalRows)
+      ) as unknown;
+      if (returned instanceof Promise) {
+        await returned;
+      }
+    };
+
     let session: LoadStrategySession | undefined;
     try {
-      if (preserveInsertionOrder !== undefined) {
-        originalPreserveInsertionOrder = await setPreserveInsertionOrder(
-          this.#conn,
-          preserveInsertionOrder
-        );
-      }
-
       session = await strategy.open({
-        conn: this.#conn,
+        conn,
         table,
-        columnNames: [...columnTypes.keys()],
+        columnNames,
         columnTypes: [...columnTypes.values()],
         logger: this.#logger,
       });
 
+      if (progress !== undefined) {
+        lastProgressTime = performance.now();
+        armProgressTimer();
+      }
       for await (const dataChunk of columnStream) {
         const columns = dataChunk as DuckDBValue[][];
-        totalRows += columns[0]?.length ?? 0;
 
         const appended = session.appendChunk(columns);
         if (appended instanceof Promise) {
           await appended;
         }
-        chunkCount += 1;
+        const previousRows = totalRows;
+        totalRows += columns[0]?.length ?? 0;
 
-        if (
-          onProgress !== undefined &&
-          (progressEvery === undefined || chunkCount % progressEvery === 0)
-        ) {
-          // Await any returned promise (async functions, but also regular
-          // functions returning a promise) for backpressure and errors
-          const returned = onProgress(progressCollector(totalRows)) as unknown;
-          if (returned instanceof Promise) {
-            await returned;
-          }
+        if (isProgressDue(previousRows)) {
+          await reportProgress();
         }
 
         if (
-          checkpointEvery !== undefined &&
-          chunkCount % checkpointEvery === 0 &&
-          table.databaseName !== undefined
+          checkpointEveryRows !== undefined &&
+          table.databaseName !== undefined &&
+          crossedEveryRows(checkpointEveryRows, previousRows, totalRows)
         ) {
           await this.#tryCheckpoint(
-            dbManager,
             table.databaseName,
             tableFullName,
-            "Failed to checkpoint database '{database}' after appending chunk into table '{table}' - {errorMessage}"
+            "Failed to checkpoint database '{database}' while loading data into table '{table}' - {errorMessage}"
           );
         }
       }
@@ -220,16 +290,20 @@ export class DuckTableLoader {
 
       if (checkpointOnComplete && table.databaseName !== undefined) {
         await this.#tryCheckpoint(
-          dbManager,
           table.databaseName,
           tableFullName,
-          "Failed to checkpoint database '{database}' after appending data into table '{table}' - {errorMessage}"
+          "Failed to checkpoint database '{database}' after loading data into table '{table}' - {errorMessage}"
         );
       }
 
-      const timeMs = Date.now() - timeStart;
+      // Progress always ends with the total
+      if (progress !== undefined && reportedRows !== totalRows) {
+        await reportProgress();
+      }
+
+      const timeMs = Math.round(performance.now() - timeStart);
       this.#logger.info(
-        "Successfully appended {totalRows} rows into '{table}' in {timeMs}ms",
+        "Loaded {totalRows} rows into table '{table}' in {timeMs}ms",
         {
           table: tableFullName,
           timeMs,
@@ -240,7 +314,7 @@ export class DuckTableLoader {
       return {
         timeMs,
         totalRows,
-        createTableDDL: ddl,
+        createTableDDL,
         strategy: strategy.name,
         mode,
       };
@@ -260,7 +334,7 @@ export class DuckTableLoader {
       }
       if (signal?.aborted === true && error === signal.reason) {
         this.#logger.warning(
-          "Aborted appending data into table '{table}' after {totalRows} rows",
+          "Aborted loading data into table '{table}' after {totalRows} rows",
           {
             table: tableFullName,
             totalRows,
@@ -271,47 +345,31 @@ export class DuckTableLoader {
       }
       const errorMessage = getErrorMessage(error);
       this.#logger.error(
-        "Failed to append data into table '{table}' - {errorMessage}",
+        "Failed to load data into table '{table}' after {totalRows} rows - {errorMessage}",
         {
           table: tableFullName,
+          totalRows,
           errorMessage,
         }
       );
       throw new Error(
-        `Failed to append data into table '${tableFullName}' - ${errorMessage}`,
+        `Failed to load data into table '${tableFullName}' - ${errorMessage}`,
         {
           cause: error,
         }
       );
     } finally {
-      if (originalPreserveInsertionOrder !== undefined) {
-        try {
-          await restorePreserveInsertionOrder(
-            this.#conn,
-            originalPreserveInsertionOrder
-          );
-        } catch (error) {
-          this.#logger.warning(
-            "Failed to restore preserve_insertion_order to {value} after appending data into table '{table}' - {errorMessage}",
-            {
-              value: originalPreserveInsertionOrder,
-              table: tableFullName,
-              errorMessage: getErrorMessage(error),
-            }
-          );
-        }
-      }
+      clearTimeout(progressTimer);
     }
   };
 
   readonly #tryCheckpoint = async (
-    dbManager: DuckDatabaseManager,
     database: string,
     tableFullName: string,
     failureMessage: string
   ): Promise<void> => {
     try {
-      await dbManager.checkpoint(database);
+      await new DuckDatabaseManager(this.#conn).checkpoint(database);
     } catch (error) {
       this.#logger.warning(failureMessage, {
         database,
