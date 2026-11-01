@@ -6,6 +6,7 @@ import { createDuckTest } from "#tests/utils/duck-test.ts";
 
 import { Table } from "../../objects/table.ts";
 import { zodCodecs } from "../../utils/zod-codecs.ts";
+import type { InferZodRelaxedDataSchema } from "../../validation/zod/index.ts";
 import { DuckTableLoader } from "../duck-table-loader.ts";
 import type { LoadStrategy } from "../types.ts";
 import { ChunkAppenderStrategy } from "./chunk-appender/chunk-appender-strategy.ts";
@@ -40,13 +41,13 @@ const typesSchema = z.strictObject({
   status: z.enum(["draft", "published"]),
 });
 
-type TypesRow = z.input<typeof typesSchema>;
+type TypesRow = InferZodRelaxedDataSchema<typeof typesSchema>;
 
 const typesRows: TypesRow[] = [
   {
     id: 1,
     name: "a",
-    big: 9_223_372_036_854_775_807n,
+    big: "9223372036854775807",
     uid: "019d2155-d292-71fa-87d7-9d1f1ed83569",
     tags: ["x", "y"],
     price: 1.23,
@@ -56,7 +57,7 @@ const typesRows: TypesRow[] = [
   {
     id: 2,
     name: null,
-    big: -1n,
+    big: "-1",
     uid: null,
     tags: null,
     price: -99_999_999.99,
@@ -66,7 +67,7 @@ const typesRows: TypesRow[] = [
   {
     id: 3,
     name: "c",
-    big: 0n,
+    big: "0",
     uid: "ffffffff-ffff-ffff-ffff-ffffffffffff",
     tags: [],
     price: 0,
