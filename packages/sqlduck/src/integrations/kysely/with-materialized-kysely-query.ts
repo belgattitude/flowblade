@@ -4,11 +4,14 @@ import { QMeta } from "@flowblade/core";
 import { createQResultError } from "@flowblade/core/datasource";
 import { DuckdbDatasource } from "@flowblade/source-duckdb";
 
+import { DuckTableLoader } from "../../loader/duck-table-loader.ts";
+import { ChunkAppenderStrategy } from "../../loader/strategies/chunk-appender/chunk-appender-strategy.ts";
+import type { LoadResult } from "../../loader/types.ts";
 import type { Table } from "../../objects/table.ts";
-import { SqlDuck, type ToTableResult } from "../../sql-duck.ts";
 import { createRandomTable } from "../../table/create-random-table.ts";
 import { getErrorMessage } from "../../utils/get-error-message.ts";
 import { isDuckdbValidIdentifier } from "../../validation/core/is-duckdb-valid-identifier.ts";
+import type { TableSchemaZod } from "../../validation/zod/table-schema-zod.ts";
 import type { KyselyQueryWithZodSchema } from "./kysely-query-with-zod-schema.ts";
 
 const chunkSize = 1024;
@@ -27,7 +30,7 @@ type Params<TData extends unknown[]> = {
    */
   schema?: string;
   /**
-   * Abort the materialization: stops the kysely query stream and `toTable`.
+   * Abort the materialization: stops the kysely query stream and the load.
    * Also given to `query`, to abort the duckdb query (ie: `dsDuck.query(sql, { signal })`).
    */
   signal?: AbortSignal;
@@ -105,16 +108,24 @@ export const withMaterializedKyselyQuery = async <
   });
 
   try {
-    let materialized: ToTableResult;
+    let materialized: LoadResult;
     try {
-      materialized = await new SqlDuck({
+      materialized = await new DuckTableLoader({
         conn: dsDuck.getConnection(),
-      }).toTable({
-        chunkSize,
-        rowStream: table.getQuery().stream({ chunkSize, signal }),
-        schema: table.getSchema(),
+        strategy: new ChunkAppenderStrategy({
+          chunkSize,
+          flushEveryRows: 100 * chunkSize,
+        }),
+      }).load({
         table: materializedTable,
-        autoCheckpoint: materializedTable.databaseName !== undefined,
+        // Typed after the kysely query, unsupported zod types are rejected
+        // when the table is created
+        schema: table.getSchema() as TableSchemaZod,
+        rows: table.getQuery().stream({ chunkSize, signal }),
+        mode: "create",
+        checkpoint: {
+          onComplete: materializedTable.databaseName !== undefined,
+        },
         signal,
       });
     } catch (error) {
@@ -136,7 +147,8 @@ export const withMaterializedKyselyQuery = async <
     if (!queryResult.error) {
       queryResult.meta.prependSpan(
         createMaterializationSpan({
-          ddl: materialized.createTableDDL,
+          // Never undefined, the 'create' mode always runs a DDL
+          ddl: materialized.createTableDDL ?? "",
           timeMs: materialized.timeMs,
           affectedRows: materialized.totalRows,
           tableName: materializedTable.getFullName(),

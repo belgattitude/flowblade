@@ -192,6 +192,31 @@ describe("DuckSettingsManagerTest", () => {
       await expect(get(conn, "preserve_insertion_order")).resolves.toBe("true");
     });
 
+    it("should not block the connection when a nested call outlives its enclosing call", async ({
+      onTestFinished,
+    }) => {
+      const { conn } = await openTwoConnections(onTestFinished);
+      const manager = new DuckSettingsManager(conn);
+      const { promise: blocked, resolve: release } =
+        Promise.withResolvers<undefined>();
+      let nested: Promise<undefined> | undefined;
+      await manager.withSessionSettings(
+        { preserve_insertion_order: false },
+        () => {
+          // Not awaited: finishes after the enclosing call
+          nested = manager.withSessionSettings(
+            { enable_optimistic_write: false },
+            () => blocked
+          );
+        }
+      );
+      release(undefined);
+      await nested;
+      await expect(
+        manager.withSessionSettings({ enable_optimistic_write: false }, () => 1)
+      ).resolves.toBe(1);
+    });
+
     it("should not run sql injected in a setting value", async ({
       onTestFinished,
     }) => {

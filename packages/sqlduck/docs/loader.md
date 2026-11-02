@@ -1,14 +1,13 @@
 # Loader
 
 `DuckTableLoader` creates a DuckDB table from a Zod schema and loads rows
-into it. It replaces `SqlDuck.toTable`, which now delegates to it.
+into it.
 
 How the rows are written is chosen with a **strategy**. The default,
-`ChunkAppenderStrategy`, uses the DuckDB appender, as `toTable` does.
+`ChunkAppenderStrategy`, uses the DuckDB appender.
 
 > [!NOTE]
-> The loader is experimental, its API may still change. `toTable` will be
-> deprecated once it is stable.
+> The loader is experimental, its API may still change.
 
 ## Quick start
 
@@ -372,63 +371,6 @@ const loggingStrategy: LoadStrategy = {
 functions avoid an extra `await` per chunk on the hot path. An error thrown
 by `abort` is logged and does not replace the original error. Keep the
 per-load state inside `open`, so the strategy can be reused.
-
-## Migrating from `toTable`
-
-| `toTable`                                   | `DuckTableLoader`                                                                                                  |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `new SqlDuck({ conn, logger })`             | `new DuckTableLoader({ conn, logger, strategy })`                                                                  |
-| `rowStream`                                 | `rows`                                                                                                             |
-| `createOptions.create`                      | `mode`: `CREATE` → `"create"`, `CREATE_OR_REPLACE` → `"createOrReplace"`, `IF_NOT_EXISTS` → `"createIfNotExists"` |
-| `chunkSize`                                 | `new ChunkAppenderStrategy({ chunkSize })`                                                                         |
-| `flushSyncFrequency` (chunks)               | `new ChunkAppenderStrategy({ flushEveryRows })` (rows)                                                             |
-| `autoCheckpoint`                            | `checkpoint.onComplete`                                                                                            |
-| `checkpointChunksFrequency` (chunks)        | `checkpoint.everyRows` (rows)                                                                                      |
-| `onChunkAppended`                           | `progress.onProgress`                                                                                              |
-| `onChunkAppendedFrequency` (chunks)         | `progress.everyRows` (rows) or `progress.intervalMs`                                                               |
-| `preserveInsertionOrder`                    | removed, use `withSessionSettings({ preserve_insertion_order })`, see [DuckDB settings](#duckdb-settings) |
-| `signal`                                    | unchanged                                                                                                          |
-| `OnChunkAppendedCb`, `OnChunkAppendedStats` | `OnLoadProgressCb`, `LoadProgress` (`timeMs` is now `intervalMs`)                                                  |
-
-Behavior changes:
-
-- `autoCheckpoint` defaults to `true` and throws without
-  `table.databaseName`, while `checkpoint.onComplete` defaults to `true`
-  only when the table database is stored in a file (with or without
-  `table.databaseName`).
-- `onProgress` is also called once at the end with the total, when the last
-  rows were not reported yet.
-
-```typescript
-// Before
-await new SqlDuck({ conn }).toTable({
-  table,
-  schema,
-  rowStream: getUserRows(),
-  chunkSize: 2048,
-  flushSyncFrequency: 100,
-  checkpointChunksFrequency: 100,
-  createOptions: { create: "CREATE_OR_REPLACE" },
-});
-
-// After
-await new DuckTableLoader({
-  conn,
-  strategy: new ChunkAppenderStrategy({
-    chunkSize: 2048,
-    flushEveryRows: 204_800,
-  }),
-}).load({
-  table,
-  schema,
-  rows: getUserRows(),
-  checkpoint: { everyRows: 204_800 },
-  mode: "createOrReplace",
-});
-```
-
-`LoadResult` contains the fields of `ToTableResult` (`timeMs`, `totalRows`,
-`createTableDDL`) plus `strategy` and `mode`.
 
 ## Session settings
 

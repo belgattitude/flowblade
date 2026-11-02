@@ -102,7 +102,7 @@ const isSyncIterable = <T>(
 
 /**
  * Specialized version of `rowsToColumnsChunks` for when the columns and their
- * converters are known upfront (ie: `SqlDuck.toTable`).
+ * converters are known upfront (ie: `DuckTableLoader`).
  *
  * Yields chunks as an array of column arrays, aligned with `columns`, ready to
  * be passed to `DuckDBDataChunk.setColumns()`.

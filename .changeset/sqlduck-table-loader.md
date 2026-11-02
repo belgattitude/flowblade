@@ -2,7 +2,7 @@
 "@flowblade/sqlduck": minor
 ---
 
-Add the experimental `DuckTableLoader` (`@flowblade/sqlduck/loader`) and `DuckSettingsManager.withSessionSettings`, `SqlDuck.toTable` now delegates to the loader. See `docs/loader.md`.
+Add the experimental `DuckTableLoader` (`@flowblade/sqlduck/loader`) and `DuckSettingsManager.withSessionSettings`, `SqlDuck.toTable` now delegates to the loader and is deprecated. See `docs/loader.md` and the migration guide in `UPGRADE.md`.
 
 **Breaking**: `toTable` no longer accepts `preserveInsertionOrder`. It used a plain `SET`, which DuckDB applies to every connection of the instance, not only the one running the load. Wrap the call to change the setting for that connection only:
 

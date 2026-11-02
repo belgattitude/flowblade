@@ -4,7 +4,7 @@ import { setTimeout as sleep } from "node:timers/promises";
 
 import { DuckDBInstance } from "@duckdb/node-api";
 import type { DuckDBConnection, DuckDBValue } from "@duckdb/node-api";
-import { describe, expect, vi } from "vitest";
+import { afterEach, describe, expect, vi } from "vitest";
 import * as z from "zod";
 
 import { createDuckTest } from "#tests/utils/duck-test.ts";
@@ -335,8 +335,35 @@ describe("DuckTableLoader options", () => {
   });
 
   describe("progress timer", () => {
-    const countTimers = () =>
-      process.getActiveResourcesInfo().filter((r) => r === "Timeout").length;
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    /**
+     * Spy on the timers armed with `delayMs`. The progress timer is unref'd,
+     * so it can't be tracked with process.getActiveResourcesInfo().
+     */
+    const spyProgressTimers = (delayMs: number) => {
+      const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
+      const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
+      return {
+        armed: (): unknown[] =>
+          setTimeoutSpy.mock.calls.flatMap(([, ms], i): unknown[] =>
+            ms === delayMs ? [setTimeoutSpy.mock.results[i]?.value] : []
+          ),
+        cleared: (): unknown[] =>
+          clearTimeoutSpy.mock.calls.map(([handle]): unknown => handle),
+      };
+    };
+
+    const expectAllCleared = (timers: ReturnType<typeof spyProgressTimers>) => {
+      const armed = timers.armed();
+      expect(armed.length).toBeGreaterThan(0);
+      const cleared = new Set(timers.cleared());
+      for (const handle of armed) {
+        expect(cleared.has(handle)).toBe(true);
+      }
+    };
 
     async function* slowRows(count: number, delayMs: number) {
       for (let id = 0; id < count; id++) {
@@ -407,7 +434,7 @@ describe("DuckTableLoader options", () => {
     });
 
     it("should not leave a timer after a load", async ({ conn }) => {
-      const before = countTimers();
+      const timers = spyProgressTimers(60_000);
       await new DuckTableLoader({ conn }).load({
         table: new Table("test_loader_timer_ok"),
         schema,
@@ -415,13 +442,13 @@ describe("DuckTableLoader options", () => {
         mode: "createOrReplace",
         progress: { intervalMs: 60_000, onProgress: () => {} },
       });
-      expect(countTimers()).toBe(before);
+      expectAllCleared(timers);
     });
 
     it("should not leave a timer after a failing or aborted load", async ({
       conn,
     }) => {
-      const before = countTimers();
+      const timers = spyProgressTimers(60_000);
       await expect(
         new DuckTableLoader({ conn }).load({
           table: new Table("test_loader_timer_ko"),
@@ -436,7 +463,8 @@ describe("DuckTableLoader options", () => {
           },
         })
       ).rejects.toThrow("progress failure");
-      expect(countTimers()).toBe(before);
+      // intervalMs 0 reports every chunk, without a timer
+      expect(timers.armed()).toStrictEqual([]);
 
       const controller = new AbortController();
       await expect(
@@ -453,7 +481,7 @@ describe("DuckTableLoader options", () => {
           signal: controller.signal,
         })
       ).rejects.toThrow(/abort/i);
-      expect(countTimers()).toBe(before);
+      expectAllCleared(timers);
     });
   });
 

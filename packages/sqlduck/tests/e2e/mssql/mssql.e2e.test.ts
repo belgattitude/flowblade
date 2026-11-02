@@ -8,7 +8,8 @@ import * as z from "zod";
 
 import { openDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 
-import { SqlDuck, Table, zodCodecs } from "../../../src/index.ts";
+import { Table, zodCodecs } from "../../../src/index.ts";
+import { DuckTableLoader } from "../../../src/loader/index.ts";
 import { createMssqlDatasource } from "./create-mssql-datasource.ts";
 import {
   anIsoDate,
@@ -71,7 +72,7 @@ describe("MSSQL e2e tests", () => {
       });
     });
   });
-  describe("ToTable", () => {
+  describe("DuckTableLoader", () => {
     it("should append the mssql query results into duckdb", async () => {
       const query = mssqlDs.queryBuilder
         .selectFrom("TestTable as t")
@@ -98,7 +99,7 @@ describe("MSSQL e2e tests", () => {
       // Arrange
       await duckConn.run(`ATTACH ':memory:' AS ${dbName} (COMPRESS 'true')`);
 
-      const sqlDuck = new SqlDuck({
+      const loader = new DuckTableLoader({
         conn: duckConn,
       });
 
@@ -114,10 +115,10 @@ describe("MSSQL e2e tests", () => {
         iso_date: z.nullable(z.iso.date()),
       });
 
-      const { totalRows } = await sqlDuck.toTable({
+      const { totalRows } = await loader.load({
         table: testTable,
         schema: testSchema,
-        rowStream,
+        rows: rowStream,
       });
       expect(totalRows).toBe(testDataCount);
 

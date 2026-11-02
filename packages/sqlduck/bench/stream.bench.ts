@@ -96,9 +96,9 @@ test(`Bench rowsToColumnsChunks with full supported-columns schema`, async ({
   const chunkSize = 2048;
 
   // Real DuckDB column types for the full schema, derived the same way
-  // `toTable` does, so the transformers below exercise the exact converter
+  // `DuckTableLoader` does, so the transformers below exercise the exact converter
   // mix (BIGINT, TIMESTAMP_MS, UUID, ENUM, DATE, DECIMAL, LIST) a real
-  // `toTable` call would build via `createDuckColumnConverters` — enough
+  // load would build via `createDuckColumnConverters` — enough
   // distinct converter functions per row for V8 call-site polymorphism to
   // actually kick in, unlike the single-bigint-transformer bench above.
   const { columnTypes } = getTableCreateFromZod({

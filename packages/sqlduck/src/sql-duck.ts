@@ -168,6 +168,9 @@ export class SqlDuck {
   /**
    * Create a table from a Zod schema and fill it with data from a row stream.
    *
+   * @deprecated Use `DuckTableLoader` from `@flowblade/sqlduck/loader`, see
+   * the migration guide in `UPGRADE.md`.
+   *
    * @example
    * ```typescript
    * import * as z from 'zod';

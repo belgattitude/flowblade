@@ -5,7 +5,8 @@ import * as z from "zod";
 import { openDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 import type { DuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-db.ts";
 
-import { DuckDatabaseManager, SqlDuck, Table } from "../../../src/index.ts";
+import { DuckDatabaseManager, Table } from "../../../src/index.ts";
+import { DuckTableLoader } from "../../../src/loader/index.ts";
 
 describe("basic appender", () => {
   let conn: DuckDBConnection;
@@ -20,7 +21,7 @@ describe("basic appender", () => {
     duckDb?.close();
   });
 
-  describe("toTable", () => {
+  describe("DuckTableLoader", () => {
     it("should correclty append data", async () => {
       const dbManager = new DuckDatabaseManager(conn);
       const database = await dbManager.attach({
@@ -29,7 +30,7 @@ describe("basic appender", () => {
         options: { compress: false },
       });
 
-      const sqlDuck = new SqlDuck({ conn });
+      const loader = new DuckTableLoader({ conn });
 
       // Define a zod schema, it will be used to create the table
       const userSchema = z.object({
@@ -40,38 +41,38 @@ describe("basic appender", () => {
         }),
       });
 
-      // Example of a datasource (can be generator, async generator, async iterable)
+      // Example of a datasource (can be an array, generator, async iterable...)
       async function* getUsers(): AsyncIterableIterator<
-        z.infer<typeof userSchema>
+        z.input<typeof userSchema>
       > {
         // database or api call
         yield { id: 1, name: "John", decimal_18_3: 1.001 };
         yield { id: 2, name: "Jane", decimal_18_3: 2 };
       }
 
-      // Create a table from the schema and the datasource
-      const result = await sqlDuck.toTable({
+      // Create a table from the schema and load the rows
+      const result = await loader.load({
         table: new Table({ name: "user", database: database.alias }),
         schema: userSchema, // The schema to use to create the table
-        rowStream: getUsers(), // The async iterable that yields rows
+        rows: getUsers(), // The rows to load
         // 👇Optional:
-        chunkSize: 2048, // Number of rows to append when using duckdb appender. Default is 2048
-        checkpointChunksFrequency: 1,
-        autoCheckpoint: true,
-        onChunkAppended: ({ timeMs, totalRows, rowsPerSecond }) => {
-          console.log(
-            `Appended ${totalRows} in time ${timeMs}ms, est: ${rowsPerSecond} rows/s`
-          );
-        },
-        // Optional table creation options
-        createOptions: {
-          create: "CREATE_OR_REPLACE",
+        mode: "createOrReplace",
+        checkpoint: { everyRows: 2048, onComplete: true },
+        progress: {
+          everyRows: 2048,
+          onProgress: ({ intervalMs, totalRows, rowsPerSecond }) => {
+            console.log(
+              `Loaded ${totalRows} rows, est: ${rowsPerSecond} rows/s over ${intervalMs}ms`
+            );
+          },
         },
       });
       expect(result).toStrictEqual({
         timeMs: expect.any(Number),
         totalRows: 2,
         createTableDDL: expect.stringMatching(/^CREATE OR REPLACE TABLE(.*)/),
+        strategy: "chunkAppender",
+        mode: "createOrReplace",
       });
 
       const reader = await conn.runAndReadAll("select * from mydb.user");

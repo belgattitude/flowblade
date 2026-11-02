@@ -149,10 +149,12 @@ export class DuckSettingsManager {
       return await sessionSettingsStorage.run(layers, fn);
     } finally {
       await this.#restoreSessionSettings(applied.toReversed(), enclosingLayers);
-      if (running === 0) {
+      // Decrement the current count: nested calls can finish in any order
+      const remaining = (runningCalls.get(conn) ?? 1) - 1;
+      if (remaining <= 0) {
         runningCalls.delete(conn);
       } else {
-        runningCalls.set(conn, running);
+        runningCalls.set(conn, remaining);
       }
     }
   };

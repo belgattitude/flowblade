@@ -1,3 +1,4 @@
+/* oxlint-disable typescript/no-deprecated -- tests the deprecated toTable */
 import { setTimeout as sleep } from "node:timers/promises";
 
 import { DuckdbDatasource, sql } from "@flowblade/source-duckdb";
