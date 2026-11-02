@@ -21,7 +21,8 @@ export const conn = await instance.connect();
 ### Append data to a database
 
 ```typescript
-import { SqlDuck, DuckDatabaseManager } from "@flowblade/sqlduck";
+import { DuckDatabaseManager, Table } from "@flowblade/sqlduck";
+import { DuckTableLoader } from "@flowblade/sqlduck/loader";
 import * as z from "zod";
 
 import { conn } from "./db.config.ts";
@@ -33,36 +34,35 @@ const database = await dbManager.attach({
   options: { COMPRESS: "false" },
 });
 
-const sqlDuck = new SqlDuck({ conn });
-
 // Define a zod schema, it will be used to create the table
 const userSchema = z.object({
   id: z.int32().min(1).meta({ primaryKey: true }),
   name: z.string(),
 });
 
-// Example of a datasource (can be generator, async generator, async iterable)
-async function* getUsers(): AsyncIterableIterator<z.infer<typeof userSchema>> {
+// Example of a datasource (can be an array, generator, async iterable...)
+async function* getUsers(): AsyncIterableIterator<z.input<typeof userSchema>> {
   // database or api call
   yield { id: 1, name: "John" };
   yield { id: 2, name: "Jane" };
 }
 
-// Create a table from the schema and the datasource
-const result = await sqlDuck.toTable({
+const loader = new DuckTableLoader({ conn });
+
+// Create a table from the schema and load the rows
+const result = await loader.load({
   table: new Table({ name: "user", database: database.alias }),
   schema: userSchema, // The schema to use to create the table
-  rowStream: getUsers(), // The async iterable that yields rows
+  rows: getUsers(), // The rows to load
   // 👇Optional:
-  chunkSize: 2048, // Number of rows to append when using duckdb appender. Default is 2048
-  onChunkAppended: ({ timeMs, totalRows, rowsPerSecond }) => {
-    console.log(
-      `Appended ${totalRows} in time ${timeMs}ms, est: ${rowsPerSecond} rows/s`
-    );
-  },
-  // Optional table creation options
-  createOptions: {
-    create: "CREATE_OR_REPLACE",
+  mode: "createOrReplace", // Default is "create"
+  progress: {
+    intervalMs: 1000, // Default, or everyRows: 100_000
+    onProgress: ({ intervalMs, totalRows, rowsPerSecond }) => {
+      console.log(
+        `Loaded ${totalRows} rows, est: ${rowsPerSecond} rows/s over ${intervalMs}ms`
+      );
+    },
   },
 });
 
@@ -74,55 +74,7 @@ const rows = reader.getRowObjectsJS();
 // [{id: 1, name: 'John'}, {id: 2, name: 'Jane'}]]
 ```
 
-### Create a memory table
-
-```typescript
-import { SqlDuck } from "@flowblade/sqlduck";
-import * as z from "zod";
-
-import { dbDuckDbMemoryConn } from "./db.duckdb-memory.config";
-
-const sqlDuck = new SqlDuck({ conn: duckDbConnection });
-
-// Schema of the table, not that you can use meta to add information
-const userSchema = z.object({
-  id: z.number().int().meta({ primaryKey: true }),
-  name: z.string(),
-});
-
-// Async generator function that yields rows to insert
-async function* getUserRows(): AsyncIterableIterator<
-  z.infer<typeof userSchema>
-> {
-  // database or api call
-}
-
-const result = sqlDuck.toTable({
-  table: new Table({ name: "user", database: "mydb" }), // Table definition
-  schema: userSchema, // The schema to use to create the table
-  rowStream: getUserRows(), // The async iterable that yields rows
-  // 👇Optional:
-  chunkSize: 2048, // Number of rows to append when using duckdb appender. Default is 2048
-  onChunkAppended: ({ totalRows }) => {
-    console.log(`Appended ${totalRows} rows so far`);
-  },
-  // Optional table creation options
-  createOptions: {
-    create: "CREATE_OR_REPLACE",
-  },
-});
-
-console.log(`Inserted ${result.totalRows} rows in ${result.timeMs}ms`);
-console.log(`Table created with DDL: ${result.createTableDDL}`);
-
-// You can now use the table in your queries
-const queryResult = await dbDuckDbMemoryConn.query<{
-  id: number;
-  name: string;
-}>(`
-  SELECT id, name FROM mydb.user WHERE id < 1000
-`);
-```
+The loading strategy (DuckDB appender by default, row appender, prepared inserts with upserts), modes, checkpoints, progress and tuning are described in the [loader documentation](./docs/loader.md).
 
 ### Query a materialized Kysely query
 

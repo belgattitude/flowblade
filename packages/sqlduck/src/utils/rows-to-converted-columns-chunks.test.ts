@@ -125,6 +125,42 @@ describe(rowsToConvertedColumnsChunks, () => {
     );
   });
 
+  it.for([true, false])(
+    "yields a partial chunk once a yield is requested (sync source: %s)",
+    async (sync) => {
+      const yieldRequest = { requested: false };
+      const source = [1, 2, 3, 4, 5].map((id) => {
+        return { id, name: null };
+      });
+      function* syncRows() {
+        for (const row of source) {
+          // Requested while reading the 2nd row
+          yieldRequest.requested = row.id === 2;
+          yield row;
+        }
+      }
+      const chunks: unknown[][][] = [];
+      for await (const chunk of rowsToConvertedColumnsChunks<Row>({
+        rows: sync ? syncRows() : makeRows([...syncRows()]),
+        chunkSize: 10,
+        columns: ["id"],
+        converters: {},
+        yieldRequest,
+      })) {
+        chunks.push(chunk);
+      }
+      expect(chunks.map((c) => c[0])).toStrictEqual(
+        sync
+          ? [
+              [1, 2],
+              [3, 4, 5],
+            ]
+          : [[1, 2, 3, 4, 5]]
+      );
+      expect(yieldRequest.requested).toBe(false);
+    }
+  );
+
   it("throws on invalid chunkSize", async () => {
     const gen = rowsToConvertedColumnsChunks({
       rows: makeRows(input),

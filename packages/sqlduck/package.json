@@ -30,6 +30,11 @@
       "types": "./dist/index.d.mts",
       "default": "./dist/index.mjs"
     },
+    "./loader": {
+      "flowblade-monorepo-source": "./src/loader/index.ts",
+      "types": "./dist/loader/index.d.mts",
+      "default": "./dist/loader/index.mjs"
+    },
     "./filesystem": {
       "flowblade-monorepo-source": "./src/filesystem/index.ts",
       "types": "./dist/filesystem/index.d.mts",
@@ -71,6 +76,7 @@
     "docgen-typedoc": "rimraf ./docs/api && typedoc --plugin typedoc-plugin-markdown --out ./docs/api",
     "fix": "dx-oxlint --fix && dx-oxfmt --write",
     "format": "dx-oxfmt --write",
+    "generate-settings-types": "tsx scripts/generate-duck-settings-types.ts",
     "lint": "dx-oxfmt --check --no-error-on-unmatched-pattern && dx-oxlint",
     "lint-fix": "dx-oxlint --fix && dx-oxfmt --write",
     "test": "vitest run",

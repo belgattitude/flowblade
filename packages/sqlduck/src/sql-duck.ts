@@ -1,28 +1,44 @@
-import { DuckDBDataChunk } from "@duckdb/node-api";
-import type {
-  DuckDBAppender,
-  DuckDBConnection,
-  DuckDBType,
-  DuckDBValue,
-} from "@duckdb/node-api";
+import type { DuckDBConnection } from "@duckdb/node-api";
 import type { Logger } from "@logtape/logtape";
-import type * as z from "zod";
 import type { ZodObject } from "zod";
 
-import { createOnChunkAppendedCollector } from "./appender/data-appender-callback.ts";
-import type { OnChunkAppendedCb } from "./appender/data-appender-callback.ts";
-import { createDuckColumnConverters } from "./converter/create-duck-column-converters.ts";
+import { DuckTableLoader } from "./loader/duck-table-loader.ts";
+import { createProgressCollector } from "./loader/progress/progress-collector.ts";
+import { ChunkAppenderStrategy } from "./loader/strategies/chunk-appender/chunk-appender-strategy.ts";
+import type { LoadMode, RowStream } from "./loader/types.ts";
+import { assertPositiveInteger } from "./loader/utils/assert-positive-integer.ts";
 import { sqlduckDefaultLogtapeLogger } from "./logger/sqlduck-default-logtape-logger.ts";
-import { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts";
 import type { Table } from "./objects/table.ts";
-import { createTableFromZod } from "./table/create-table-from-zod.ts";
 import type { TableCreateOptions } from "./table/get-table-create-from-zod.ts";
-import { getErrorMessage } from "./utils/get-error-message.ts";
-import { rowsToConvertedColumnsChunks } from "./utils/rows-to-converted-columns-chunks.ts";
 import type {
   InferZodRelaxedDataSchema,
   TableSchemaZod,
 } from "./validation/zod/index.ts";
+
+/**
+ * Stats passed to `ToTableParams.onChunkAppended`.
+ */
+export type OnChunkAppendedStats = {
+  /**
+   * Total number of rows appended so far (all batches included)
+   */
+  totalRows: number;
+  /**
+   * Time taken to append the last batch in milliseconds
+   */
+  timeMs: number;
+  /**
+   * Estimated rows per seconds based on the current batch
+   */
+  rowsPerSecond: number;
+};
+
+export type OnChunkAppendedCb = (
+  stats: OnChunkAppendedStats
+) => void | Promise<void>;
+
+/** Max value of the toTable "every N chunks" options */
+const MAX_CHUNKS_FREQUENCY = 100_000;
 
 export type SqlDuckParams = {
   conn: DuckDBConnection;
@@ -33,8 +49,6 @@ export type SqlDuckParams = {
    */
   logger?: Logger;
 };
-
-type RowStream<T> = AsyncIterableIterator<T> | AsyncGenerator<T> | Generator<T>;
 
 export type ToTableParams<TSchema extends TableSchemaZod> = {
   /**
@@ -109,18 +123,6 @@ export type ToTableParams<TSchema extends TableSchemaZod> = {
   checkpointChunksFrequency?: number;
 
   /**
-   * Controls DuckDB's `preserve_insertion_order` session setting while the data is being appended.
-   *
-   * When set to `false`, DuckDB is allowed to reorder rows (e.g. across threads) in exchange for
-   * improved performance and lower memory usage. The original session value is captured before
-   * the change and restored once the insertion completes, whether it succeeds or fails.
-   *
-   * If omitted, the session's current `preserve_insertion_order` setting is left untouched.
-   * @see {@link https://duckdb.org/docs/stable/guides/performance/how_to_tune_workloads.html#preserving-insertion-order}
-   */
-  preserveInsertionOrder?: boolean;
-
-  /**
    * Aborts the insertion, `toTable` then rejects with `signal.reason` (an
    * `AbortError` DOMException by default) and closes `rowStream`.
    *
@@ -145,6 +147,15 @@ export type ToTableResult = {
   createTableDDL: string;
 };
 
+const createOptionToMode = {
+  CREATE: "create",
+  CREATE_OR_REPLACE: "createOrReplace",
+  IF_NOT_EXISTS: "createIfNotExists",
+} as const satisfies Record<
+  NonNullable<TableCreateOptions["create"]>,
+  LoadMode
+>;
+
 export class SqlDuck {
   readonly #conn: DuckDBConnection;
   readonly #logger: Logger;
@@ -156,6 +167,9 @@ export class SqlDuck {
 
   /**
    * Create a table from a Zod schema and fill it with data from a row stream.
+   *
+   * @deprecated Use `DuckTableLoader` from `@flowblade/sqlduck/loader`, see
+   * the migration guide in `UPGRADE.md`.
    *
    * @example
    * ```typescript
@@ -186,7 +200,6 @@ export class SqlDuck {
    *  },
    *  autoCheckpoint: true,
    *  checkpointChunksFrequency: 100, // checkpoint after every 100 chunks
-   *  preserveInsertionOrder: false, // allow DuckDB to reorder rows for performance
    *  createOptions: {
    *    create: 'CREATE_OR_REPLACE',
    *  },
@@ -210,13 +223,8 @@ export class SqlDuck {
       flushSyncFrequency = 100,
       autoCheckpoint = true,
       checkpointChunksFrequency,
-      preserveInsertionOrder,
       signal,
     } = params;
-
-    if (!Number.isSafeInteger(chunkSize) || chunkSize < 1 || chunkSize > 2048) {
-      throw new Error("chunkSize must be a number between 1 and 2048");
-    }
 
     if (autoCheckpoint && table.databaseName === undefined) {
       throw new Error(
@@ -233,244 +241,72 @@ export class SqlDuck {
       );
     }
 
-    if (
-      checkpointChunksFrequency !== undefined &&
-      (checkpointChunksFrequency < 1 || checkpointChunksFrequency > 100_000)
-    ) {
-      throw new Error(
-        "checkpointChunksFrequency must be a number between 1 and 100_000."
-      );
-    }
+    // Validated here to keep error messages naming the toTable options
+    assertPositiveInteger(
+      checkpointChunksFrequency,
+      "checkpointChunksFrequency",
+      MAX_CHUNKS_FREQUENCY
+    );
+    assertPositiveInteger(
+      onChunkAppendedFrequency,
+      "onChunkAppendedFrequency",
+      MAX_CHUNKS_FREQUENCY
+    );
+    assertPositiveInteger(
+      flushSyncFrequency,
+      "flushSyncFrequency",
+      MAX_CHUNKS_FREQUENCY
+    );
 
-    if (
-      onChunkAppendedFrequency !== undefined &&
-      (onChunkAppendedFrequency < 1 || onChunkAppendedFrequency > 100_000)
-    ) {
-      throw new Error(
-        "onChunkAppendedFrequency must be a number between 1 and 100_000."
-      );
-    }
-
-    if (
-      flushSyncFrequency !== undefined &&
-      (flushSyncFrequency < 1 || flushSyncFrequency > 100_000)
-    ) {
-      throw new Error(
-        "flushSyncFrequency must be a number between 1 and 100_000."
-      );
-    }
-
-    signal?.throwIfAborted();
-
-    const dbManager = new DuckDatabaseManager(this.#conn);
-
-    const timeStart = Date.now();
-
-    const { columnTypes, ddl } = await createTableFromZod({
-      conn: this.#conn,
-      schema,
-      table,
-      options: createOptions,
+    const strategy = new ChunkAppenderStrategy({
+      chunkSize,
+      // Every chunk is full but the last one: N chunks = N * chunkSize rows
+      flushEveryRows: flushSyncFrequency * chunkSize,
     });
 
-    const chunkTypes = [...columnTypes.values()];
+    // The loader reports every chunk and ends with the total, toTable keeps
+    // calling onChunkAppended every N chunks only
+    const chunksPerCallback = onChunkAppendedFrequency ?? 1;
+    const collectStats = createProgressCollector();
+    let chunkCount = 0;
+    const onProgress =
+      onChunkAppended === undefined
+        ? undefined
+        : async ({ totalRows }: { totalRows: number }) => {
+            chunkCount += 1;
+            if (chunkCount % chunksPerCallback === 0) {
+              const { intervalMs, rowsPerSecond } = collectStats(totalRows);
+              await onChunkAppended({
+                totalRows,
+                timeMs: intervalMs,
+                rowsPerSecond,
+              });
+            }
+          };
 
-    const columnTypeIds = {} as Record<keyof z.output<TSchema>, DuckDBType>;
-    const columnKeys = [] as (keyof z.output<TSchema>)[];
-    for (const [key, duckType] of columnTypes) {
-      columnKeys.push(key);
-      columnTypeIds[key as keyof z.output<TSchema>] = duckType;
-    }
-
-    const transformers = createDuckColumnConverters(columnTypeIds);
-
-    let totalRows = 0;
-
-    const chunkAppendedCollector = createOnChunkAppendedCollector();
-
-    const columnStream = rowsToConvertedColumnsChunks<
-      InferZodRelaxedDataSchema<TSchema>
-    >({
+    const { timeMs, totalRows, createTableDDL } = await new DuckTableLoader({
+      conn: this.#conn,
+      logger: this.#logger,
+      strategy,
+    }).load({
+      table,
+      schema,
       rows: rowStream,
-      chunkSize,
-      columns: columnKeys as (keyof TSchema["shape"])[],
-      converters: transformers,
+      mode: createOptionToMode[createOptions?.create ?? "CREATE"],
+      checkpoint: {
+        everyRows:
+          checkpointChunksFrequency === undefined
+            ? undefined
+            : checkpointChunksFrequency * chunkSize,
+        onComplete: autoCheckpoint,
+      },
+      // intervalMs 0: every chunk, counted by onProgress
+      progress:
+        onProgress === undefined ? undefined : { intervalMs: 0, onProgress },
       signal,
     });
 
-    let appendedChunkCount = 0;
-
-    const tableFullName = table.getFullName();
-
-    // Set once the session setting has been changed, to restore it in finally
-    let originalPreserveInsertionOrder: boolean | undefined;
-    let appender: DuckDBAppender | undefined;
-    try {
-      if (preserveInsertionOrder !== undefined) {
-        const settingQuery = await this.#conn.runAndReadAll(
-          "SELECT current_setting('preserve_insertion_order') as value"
-        );
-        const currentValue = settingQuery.getRowObjects()[0]?.value as
-          | boolean
-          | undefined;
-
-        await this.#conn.run(
-          `SET preserve_insertion_order = ${preserveInsertionOrder};`
-        );
-        originalPreserveInsertionOrder = currentValue;
-      }
-
-      appender = await this.#conn.createAppender(
-        table.tableName,
-        table.schemaName,
-        table.databaseName
-      );
-
-      for await (const dataChunk of columnStream) {
-        const chunk = DuckDBDataChunk.create(chunkTypes);
-
-        const columns = dataChunk as DuckDBValue[][];
-
-        totalRows += columns[0]?.length ?? 0;
-
-        chunk.setColumns(columns);
-        appender.appendDataChunk(chunk);
-
-        appendedChunkCount += 1;
-
-        if (
-          onChunkAppended !== undefined &&
-          (onChunkAppendedFrequency === undefined ||
-            appendedChunkCount % onChunkAppendedFrequency === 0)
-        ) {
-          // Await any returned promise (async functions, but also regular
-          // functions returning a promise) for backpressure and errors
-          const returned = onChunkAppended(
-            chunkAppendedCollector(totalRows)
-          ) as unknown;
-          if (returned instanceof Promise) {
-            await returned;
-          }
-        }
-
-        // Flush frequency
-        if (
-          flushSyncFrequency !== undefined &&
-          appendedChunkCount % flushSyncFrequency === 0
-        ) {
-          appender.flushSync();
-        }
-
-        // Checkpoint point frequency
-        if (
-          checkpointChunksFrequency !== undefined &&
-          appendedChunkCount % checkpointChunksFrequency === 0 &&
-          table.databaseName !== undefined
-        ) {
-          try {
-            await dbManager.checkpoint(table.databaseName);
-          } catch (error) {
-            this.#logger.warning(
-              "Failed to checkpoint database '{database}' after appending chunk into table '{table}' - {errorMessage}",
-              {
-                database: table.databaseName,
-                table: tableFullName,
-                errorMessage: getErrorMessage(error),
-              }
-            );
-          }
-        }
-      }
-
-      appender.flushSync();
-      appender.closeSync();
-      appender = undefined;
-
-      if (autoCheckpoint && table.databaseName !== undefined) {
-        try {
-          await dbManager.checkpoint(table.databaseName);
-        } catch (error) {
-          this.#logger.warning(
-            "Failed to checkpoint database '{database}' after appending data into table '{table}' - {errorMessage}",
-            {
-              database: table.databaseName,
-              table: tableFullName,
-              errorMessage: getErrorMessage(error),
-            }
-          );
-        }
-      }
-
-      const timeMs = Date.now() - timeStart;
-      this.#logger.info(
-        "Successfully appended {totalRows} rows into '{table}' in {timeMs}ms",
-        {
-          table: tableFullName,
-          timeMs,
-          totalRows,
-        }
-      );
-
-      return {
-        timeMs,
-        totalRows,
-        createTableDDL: ddl,
-      };
-    } catch (error) {
-      // A failing close must not hide the original error
-      try {
-        appender?.closeSync();
-      } catch (closeError) {
-        this.#logger.warning(
-          "Failed to close the appender of table '{table}' - {errorMessage}",
-          {
-            table: tableFullName,
-            errorMessage: getErrorMessage(closeError),
-          }
-        );
-      }
-      if (signal?.aborted === true && error === signal.reason) {
-        this.#logger.warning(
-          "Aborted appending data into table '{table}' after {totalRows} rows",
-          {
-            table: tableFullName,
-            totalRows,
-          }
-        );
-        // Not wrapped so callers can check for an AbortError
-        throw error;
-      }
-      const errorMessage = getErrorMessage(error);
-      this.#logger.error(
-        "Failed to append data into table '{table}' - {errorMessage}",
-        {
-          table: tableFullName,
-          errorMessage,
-        }
-      );
-      throw new Error(
-        `Failed to append data into table '${tableFullName}' - ${errorMessage}`,
-        {
-          cause: error,
-        }
-      );
-    } finally {
-      if (originalPreserveInsertionOrder !== undefined) {
-        try {
-          await this.#conn.run(
-            `SET preserve_insertion_order = ${originalPreserveInsertionOrder};`
-          );
-        } catch (error) {
-          this.#logger.warning(
-            "Failed to restore preserve_insertion_order to {value} after appending data into table '{table}' - {errorMessage}",
-            {
-              value: originalPreserveInsertionOrder,
-              table: tableFullName,
-              errorMessage: getErrorMessage(error),
-            }
-          );
-        }
-      }
-    }
+    // Never undefined, toTable doesn't use the 'append' mode
+    return { timeMs, totalRows, createTableDDL: createTableDDL ?? "" };
   };
 }

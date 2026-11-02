@@ -7,7 +7,7 @@ import { FileSystemUtils } from "../../filesystem/file-system-utils.ts";
 import { sqlduckDefaultLogtapeLogger } from "../../logger/sqlduck-default-logtape-logger.ts";
 import { Database } from "../../objects/database.ts";
 import { getErrorMessage } from "../../utils/get-error-message.ts";
-import { quoteValue } from "../../utils/quote-value.ts";
+import { quoteIdentifier, quoteValue } from "../../utils/quote-value.ts";
 import type { DuckConnectionParams } from "../../validation/core/types.ts";
 import { duckConnectionParamsZodSchema } from "../../validation/zod/duck-connection-params-zod-schema.ts";
 import {
@@ -304,11 +304,17 @@ export class DuckDatabaseManager {
     return true;
   };
 
+  /**
+   * Checkpoint a database: write its WAL into the database file.
+   *
+   * The name is quoted, any attached database name works, including the
+   * ones derived from a file name (ie: `my-data` for `my-data.db`).
+   * @throws if the database is not attached
+   */
   checkpoint = async (dbAlias: string): Promise<boolean> => {
-    const safeAlias = duckValidatorsZod.aliasName.parse(dbAlias);
     await this.#executor.getRowObjectsJS(
-      `checkpoint(${safeAlias})`,
-      `CHECKPOINT ${safeAlias}`
+      `checkpoint(${dbAlias})`,
+      `CHECKPOINT ${quoteIdentifier(dbAlias)}`
     );
     return true;
   };

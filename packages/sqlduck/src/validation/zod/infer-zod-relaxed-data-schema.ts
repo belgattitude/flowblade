@@ -16,12 +16,18 @@ type MapRelaxedZodSchemaField<T extends z.ZodType> =
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           T extends z.ZodNullable<any>
           ? MapRelaxedZodSchemaField<T["_def"]["innerType"]> | null
-          : // Fallback for primitive schemas (strings, numbers, booleans, arrays)
-            z.infer<T>;
+          : // Codecs accept their input (ie: bigint) or output (ie: string)
+            // type. Only codecs: the input of other schemas can be `unknown`
+            // (ie: z.coerce, z.preprocess).
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            T extends z.ZodCodec<any, any>
+            ? z.input<T> | z.output<T>
+            : // Fallback for primitive schemas (strings, numbers, booleans, arrays)
+              z.output<T>;
 
 /**
- * Add string type to all Date properties so it makes it an union between
- * Date | string
+ * Relaxed row type of a schema: Date properties accept `Date | string`, and
+ * codecs accept both their input and output types.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type InferZodRelaxedDataSchema<T extends z.ZodObject<any>> = {

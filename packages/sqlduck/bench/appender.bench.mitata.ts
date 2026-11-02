@@ -6,8 +6,9 @@ import { bench, boxplot, run, summary } from "mitata";
 import * as z from "zod";
 
 import { DuckMemory } from "../src/helpers/duck-memory.ts";
+import { DuckTableLoader } from "../src/loader/duck-table-loader.ts";
+import { ChunkAppenderStrategy } from "../src/loader/strategies/chunk-appender/chunk-appender-strategy.ts";
 import { Table } from "../src/objects/table.ts";
-import { SqlDuck } from "../src/sql-duck.ts";
 import { zodCodecs } from "../src/utils/zod-codecs.ts";
 import { createDuckdbTestMemoryDb } from "../tests/utils/create-duckdb-test-memory-db.ts";
 import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator.ts";
@@ -49,33 +50,45 @@ const testTable = new Table({
   database: dbName,
 });
 
-const sqlDuck = new SqlDuck({ conn });
+// Same settings as the former toTable defaults: flush every 100 chunks
+const loader2048 = new DuckTableLoader({
+  conn,
+  strategy: new ChunkAppenderStrategy({
+    chunkSize: 2048,
+    flushEveryRows: 100 * 2048,
+  }),
+});
+const loader1024 = new DuckTableLoader({
+  conn,
+  strategy: new ChunkAppenderStrategy({
+    chunkSize: 1024,
+    flushEveryRows: 100 * 1024,
+  }),
+});
 const duckMemory = new DuckMemory(conn);
 
 boxplot(() => {
   summary(() => {
     bench("duckdb appender, chunk size 2048", async () => {
-      const { totalRows } = await sqlDuck.toTable({
+      const { totalRows } = await loader2048.load({
         table: testTable,
         schema: userSchema,
-        rowStream: getFakeRowStream(),
-        chunkSize: 2048,
-        onChunkAppendedFrequency: 10,
-        onChunkAppended: async (stats) => {
-          const heap = v8.getHeapStatistics();
-          const duckMem = await duckMemory.getSummary();
-          console.log({
-            ...stats,
-            usedHeapSizeMb: Math.round(heap.used_heap_size / 1024 / 1024),
-            freeMemMb: os.freemem() / 1024 / 1024,
-            duckMem,
-          });
+        rows: getFakeRowStream(),
+        mode: "createOrReplace",
+        progress: {
+          everyRows: 10 * 2048,
+          onProgress: async (stats) => {
+            const heap = v8.getHeapStatistics();
+            const duckMem = await duckMemory.getSummary();
+            console.log({
+              ...stats,
+              usedHeapSizeMb: Math.round(heap.used_heap_size / 1024 / 1024),
+              freeMemMb: os.freemem() / 1024 / 1024,
+              duckMem,
+            });
+          },
         },
-        createOptions: {
-          create: "CREATE_OR_REPLACE",
-        },
-        checkpointChunksFrequency: 100,
-        autoCheckpoint: true,
+        checkpoint: { everyRows: 100 * 2048, onComplete: true },
       });
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows}`);
@@ -83,14 +96,12 @@ boxplot(() => {
     }).gc("inner");
 
     bench("duckdb appender, chunk size 1024", async () => {
-      const { totalRows } = await sqlDuck.toTable({
+      const { totalRows } = await loader1024.load({
         table: testTable,
         schema: userSchema,
-        rowStream: getFakeRowStream(),
-        chunkSize: 1024,
-        createOptions: {
-          create: "CREATE_OR_REPLACE",
-        },
+        rows: getFakeRowStream(),
+        mode: "createOrReplace",
+        checkpoint: { onComplete: true },
       });
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows}`);

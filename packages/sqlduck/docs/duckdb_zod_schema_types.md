@@ -1,7 +1,7 @@
 # Zod schema to DuckDB column types
 
 How `@flowblade/sqlduck` maps a Zod schema to DuckDB column types when it
-creates a table (`SqlDuck.toTable`, `getTableCreateFromZod`).
+creates a table (`DuckTableLoader`, `getTableCreateFromZod`).
 
 Types are inferred from the Zod schema. When the inferred type isn't the one
 you want, you can set it explicitly with `.meta({ duckdbType })` (see
@@ -104,7 +104,7 @@ Enums are declared inline in the `CREATE TABLE` statement, no reusable type
 | `z.array(z.enum(['a', 'b']))` | `ENUM('a', 'b')[]` |                                |
 
 Values that aren't members of the enum are rejected when appending, the
-`toTable` call fails with `'x' is not a member of ENUM('a', 'b')`. This
+load fails with `'x' is not a member of ENUM('a', 'b')`. This
 requires `@duckdb/node-api` `>= 1.5.5-r.5`, earlier versions silently stored
 the first member instead.
 

@@ -30,6 +30,11 @@
 
 Create a table from a Zod schema and fill it with data from a row stream.
 
+#### Deprecated
+
+Use `DuckTableLoader` from `@flowblade/sqlduck/loader`, see
+the migration guide in `UPGRADE.md`.
+
 #### Type Parameters
 
 ##### TSchema

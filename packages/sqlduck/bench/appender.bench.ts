@@ -8,8 +8,9 @@ import { openDuckdbTestMemoryDb } from "#tests/utils/create-duckdb-test-memory-d
 import { testTempDir } from "#tests/utils/get-test-temp-dir.ts";
 
 import { DuckDatabaseManager, zodCodecs } from "../src/index.ts";
+import { DuckTableLoader } from "../src/loader/duck-table-loader.ts";
+import { ChunkAppenderStrategy } from "../src/loader/strategies/chunk-appender/chunk-appender-strategy.ts";
 import { Table } from "../src/objects/table.ts";
-import { SqlDuck } from "../src/sql-duck.ts";
 import { createFakeRowsAsyncIterator } from "../tests/utils/create-fake-rows-iterator.ts";
 
 const benchConfig: BenchCompareOptions = {
@@ -100,68 +101,69 @@ test("appender benches", async ({ bench, onTestFinished }) => {
     database: fileDbNoWAL.alias,
   });
 
-  const sqlDuck = new SqlDuck({ conn });
+  // Same settings as the former toTable defaults: flush and checkpoint every
+  // 100 chunks, checkpoint once loaded
+  const loaders = {
+    2048: new DuckTableLoader({
+      conn,
+      strategy: new ChunkAppenderStrategy({
+        chunkSize: 2048,
+        flushEveryRows: 100 * 2048,
+      }),
+    }),
+    1024: new DuckTableLoader({
+      conn,
+      strategy: new ChunkAppenderStrategy({
+        chunkSize: 1024,
+        flushEveryRows: 100 * 1024,
+      }),
+    }),
+  } as const;
 
   await bench.compare(
     bench(`duckdb appender memory, count: ${limit}, chunk size 2048`, async () => {
-      const { totalRows } = await sqlDuck.toTable({
+      const { totalRows } = await loaders[2048].load({
         table: memoryTable,
         schema: userSchema,
-        rowStream: getFakeRowStream(),
-        chunkSize: 2048,
-        createOptions: {
-          create: "CREATE_OR_REPLACE",
-        },
-        checkpointChunksFrequency: 100,
-        autoCheckpoint: true,
+        rows: getFakeRowStream(),
+        mode: "createOrReplace",
+        checkpoint: { everyRows: 100 * 2048, onComplete: true },
       });
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
       }
     }),
     bench(`duckdb appender file, count: ${limit}, chunk size 2048`, async () => {
-      const { totalRows } = await sqlDuck.toTable({
+      const { totalRows } = await loaders[2048].load({
         table: fileTable,
         schema: userSchema,
-        rowStream: getFakeRowStream(),
-        chunkSize: 2048,
-        createOptions: {
-          create: "CREATE_OR_REPLACE",
-        },
-        checkpointChunksFrequency: 100,
-        autoCheckpoint: true,
+        rows: getFakeRowStream(),
+        mode: "createOrReplace",
+        checkpoint: { everyRows: 100 * 2048, onComplete: true },
       });
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
       }
     }),
     bench(`duckdb appender file no wal, count: ${limit}, chunk size 2048`, async () => {
-      const { totalRows } = await sqlDuck.toTable({
+      const { totalRows } = await loaders[2048].load({
         table: fileTableNoWAL,
         schema: userSchema,
-        rowStream: getFakeRowStream(),
-        chunkSize: 2048,
-        createOptions: {
-          create: "CREATE_OR_REPLACE",
-        },
-        checkpointChunksFrequency: 100,
-        autoCheckpoint: true,
+        rows: getFakeRowStream(),
+        mode: "createOrReplace",
+        checkpoint: { everyRows: 100 * 2048, onComplete: true },
       });
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
       }
     }),
     bench(`duckdb appender file no wal, count: ${limit}, chunk size 1024`, async () => {
-      const { totalRows } = await sqlDuck.toTable({
+      const { totalRows } = await loaders[1024].load({
         table: fileTableNoWAL,
         schema: userSchema,
-        rowStream: getFakeRowStream(),
-        chunkSize: 1024,
-        createOptions: {
-          create: "CREATE_OR_REPLACE",
-        },
-        checkpointChunksFrequency: 100,
-        autoCheckpoint: true,
+        rows: getFakeRowStream(),
+        mode: "createOrReplace",
+        checkpoint: { everyRows: 100 * 1024, onComplete: true },
       });
       if (totalRows !== limit) {
         throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
@@ -171,22 +173,23 @@ test("appender benches", async ({ bench, onTestFinished }) => {
       `duckdb appender, count: ${limit}, chunk size 1024`,
       benchConfig,
       async () => {
-        const { totalRows } = await sqlDuck.toTable({
+        const { totalRows } = await loaders[1024].load({
           table: memoryTable,
           schema: userSchema,
-          rowStream: getFakeRowStream(),
-          chunkSize: 1024,
+          rows: getFakeRowStream(),
+          mode: "createOrReplace",
+          checkpoint: { onComplete: true },
           /*
-          onChunkAppended: (stats) => {
-            const heap = v8.getHeapStatistics();
-            console.log({
-              ...stats,
-              mem: Math.round(heap.used_heap_size / 1024 / 1024),
-            });
+          progress: {
+            everyRows: 1024,
+            onProgress: (stats) => {
+              const heap = v8.getHeapStatistics();
+              console.log({
+                ...stats,
+                mem: Math.round(heap.used_heap_size / 1024 / 1024),
+              });
+            },
           }, */
-          createOptions: {
-            create: "CREATE_OR_REPLACE",
-          },
         });
         if (totalRows !== limit) {
           throw new Error(`Expected ${limit} rows, got ${totalRows} rows`);
