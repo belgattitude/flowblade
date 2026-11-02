@@ -6,9 +6,6 @@ into it.
 How the rows are written is chosen with a **strategy**. The default,
 `ChunkAppenderStrategy`, uses the DuckDB appender.
 
-> [!NOTE]
-> The loader is experimental, its API may still change.
-
 ## Quick start
 
 ```typescript
