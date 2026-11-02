@@ -171,7 +171,7 @@ settings:
 
 overrides:
   '@azure/msal-node@>=5.0.0-beta.0 <7.1.0': 7.1.2
-  '@opentelemetry/core@<2.8.0': 2.12.0
+  '@opentelemetry/core@<2.8.0': 3.0.0
   '@xmldom/xmldom@>=0.9.0 <=0.9.10': 0.9.12
   '@xmldom/xmldom@>=0.9.0 <=0.9.11': 0.9.12
   '@xmldom/xmldom@>=0.9.0-beta.1 <=0.9.11': 0.9.12
@@ -226,7 +226,7 @@ importers:
         version: 0.0.93
       react-doctor:
         specifier: 0.9.18
-        version: 0.9.18(@opentelemetry/core@2.12.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2005)(react@19.3.1)(supports-color@7.2.0)
+        version: 0.9.18(@opentelemetry/core@3.0.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2005)(react@19.3.1)(supports-color@7.2.0)
       rimraf:
         specifier: 6.1.3
         version: 6.1.3
@@ -272,7 +272,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
 
   examples/apps/fastify-app:
     dependencies:
@@ -399,7 +399,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
 
   examples/apps/nextjs-app:
     dependencies:
@@ -724,7 +724,7 @@ importers:
         version: 8.5.32
       react-doctor:
         specifier: 0.9.18
-        version: 0.9.18(@opentelemetry/core@2.12.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2005)(react@19.3.1)(supports-color@7.2.0)
+        version: 0.9.18(@opentelemetry/core@3.0.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2005)(react@19.3.1)(supports-color@7.2.0)
       rimraf:
         specifier: 6.1.3
         version: 6.1.3
@@ -766,7 +766,7 @@ importers:
         version: link:../../../packages/sql-tag
       better-auth:
         specifier: 1.7.15
-        version: 1.7.15(@opentelemetry/api@1.9.1)(@prisma/client@7.10.1)(@types/react-dom@19.3.0)(@types/react@19.3.0)(next@16.4.4)(prisma@7.10.1)(react-dom@19.3.1)(react@19.3.1)(solid-js@1.9.17)(vitest@5.0.5)
+        version: 1.7.15(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1)(@types/react-dom@19.3.0)(@types/react@19.3.0)(next@16.4.4)(prisma@7.10.1)(react-dom@19.3.1)(react@19.3.1)(solid-js@1.9.17)(vitest@5.0.5)
       jose:
         specifier: 6.2.14
         version: 6.2.14
@@ -776,7 +776,7 @@ importers:
     devDependencies:
       '@better-auth/core':
         specifier: 1.7.15
-        version: 1.7.15(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.9.1)(better-call@1.4.4)(jose@6.2.14)(kysely@0.29.8)(nanostores@1.5.5)
+        version: 1.7.15(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.10.0)(better-call@1.4.4)(jose@6.2.14)(kysely@0.29.8)(nanostores@1.5.5)
       '@better-auth/utils':
         specifier: 0.5.1
         version: 0.5.1
@@ -842,7 +842,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
 
   examples/shared/base-ui:
     dependencies:
@@ -942,7 +942,7 @@ importers:
         version: 19.3.1
       react-doctor:
         specifier: 0.9.18
-        version: 0.9.18(@opentelemetry/core@2.12.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2005)(react@19.3.1)(supports-color@7.2.0)
+        version: 0.9.18(@opentelemetry/core@3.0.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2005)(react@19.3.1)(supports-color@7.2.0)
       react-dom:
         specifier: 19.3.1
         version: 19.3.1(@types/react@19.3.0)(react@19.3.1)
@@ -975,7 +975,7 @@ importers:
         version: 8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
 
   examples/shared/db-sqlserver:
     dependencies:
@@ -1051,7 +1051,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
 
   examples/shared/duckb-openfoodfact:
     devDependencies:
@@ -1150,7 +1150,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
       yocto-spinner:
         specifier: 1.2.2
         version: 1.2.2
@@ -1208,7 +1208,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
 
   packages/source-duckdb:
     dependencies:
@@ -1266,7 +1266,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
 
   packages/source-kysely:
     dependencies:
@@ -1351,7 +1351,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
 
   packages/sql-tag:
     dependencies:
@@ -1397,7 +1397,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
 
   packages/sql-tag-format:
     dependencies:
@@ -1440,7 +1440,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
 
   packages/sqlduck:
     dependencies:
@@ -1573,7 +1573,7 @@ importers:
         version: 1.5.0(typescript@7.0.2)
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
 
   tools/dx:
     dependencies:
@@ -1675,7 +1675,7 @@ importers:
         version: 8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+        version: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
     devDependencies:
       '@types/node':
         specifier: 26.6.6
@@ -3691,10 +3691,6 @@ packages:
 
   '@opentelemetry/api@1.10.0':
     resolution: {integrity: sha512-uUWiVrTvvgvqkHmbJLG6GUWH53/ALV/mOy4fjw7KuBXOBjc5OKaRDknh6JvzBERZDlgYN4AXfEDLzPg8nAJq6g==}
-    engines: {node: '>=8.0.0'}
-
-  '@opentelemetry/api@1.9.1':
-    resolution: {integrity: sha512-WtmbwiWZhkgdYNSVhdDAungDs/06+W1k9QtYxO08ZBmTtkX7v3ZqJD5qk8LnA18+DS1jUsaJBUxihZ9/Dq8zfg==}
     engines: {node: '>=8.0.0'}
 
   '@opentelemetry/core@2.12.0':
@@ -5739,7 +5735,7 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       '@opentelemetry/api': ^1.9.0
-      '@opentelemetry/core': 2.12.0
+      '@opentelemetry/core': 3.0.0
       '@opentelemetry/exporter-trace-otlp-http': '>=0.57.0 <1'
       '@opentelemetry/instrumentation': '>=0.57.1 <1'
       '@opentelemetry/sdk-trace-base': ^1.30.1 || ^2.1.0
@@ -5779,7 +5775,7 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       '@opentelemetry/api': ^1.9.0
-      '@opentelemetry/core': 2.12.0
+      '@opentelemetry/core': 3.0.0
       '@opentelemetry/sdk-trace-base': ^1.30.1 || ^2.1.0
       '@types/opentelemetry__api': '*'
       '@types/opentelemetry__core': '*'
@@ -14993,19 +14989,6 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.10.0
 
-  '@better-auth/core@1.7.15(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.9.1)(better-call@1.4.4)(jose@6.2.14)(kysely@0.29.8)(nanostores@1.5.5)':
-    dependencies:
-      '@better-auth/utils': 0.5.1
-      '@better-fetch/fetch': 1.3.3
-      '@standard-schema/spec': 1.1.0
-      better-call: 1.4.4(zod@4.6.7)
-      jose: 6.2.14
-      kysely: 0.29.8
-      nanostores: 1.5.5
-      zod: 4.6.7
-    optionalDependencies:
-      '@opentelemetry/api': 1.9.1
-
   '@better-auth/drizzle-adapter@1.7.15(@better-auth/core@1.7.15)(@better-auth/utils@0.5.1)':
     dependencies:
       '@better-auth/core': 1.7.15(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.10.0)(better-call@1.4.4)(jose@6.2.14)(kysely@0.29.8)(nanostores@1.5.5)
@@ -15038,11 +15021,11 @@ snapshots:
 
   '@better-auth/sso@1.7.15(@better-auth/core@1.7.15)(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(better-auth@1.7.15)(better-call@1.4.4)':
     dependencies:
-      '@better-auth/core': 1.7.15(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.9.1)(better-call@1.4.4)(jose@6.2.14)(kysely@0.29.8)(nanostores@1.5.5)
+      '@better-auth/core': 1.7.15(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.10.0)(better-call@1.4.4)(jose@6.2.14)(kysely@0.29.8)(nanostores@1.5.5)
       '@better-auth/utils': 0.5.1
       '@better-fetch/fetch': 1.3.3
       '@xmldom/xmldom': 0.9.12
-      better-auth: 1.7.15(@opentelemetry/api@1.9.1)(@prisma/client@7.10.1)(@types/react-dom@19.3.0)(@types/react@19.3.0)(next@16.4.4)(prisma@7.10.1)(react-dom@19.3.1)(react@19.3.1)(solid-js@1.9.17)(vitest@5.0.5)
+      better-auth: 1.7.15(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1)(@types/react-dom@19.3.0)(@types/react@19.3.0)(next@16.4.4)(prisma@7.10.1)(react-dom@19.3.1)(react@19.3.1)(solid-js@1.9.17)(vitest@5.0.5)
       better-call: 1.4.4(zod@4.6.7)
       fast-xml-parser: 5.11.2
       jose: 6.2.14
@@ -15304,7 +15287,7 @@ snapshots:
       '@codspeed/core': 6.1.0(debug@4.4.3)(supports-color@7.2.0)
       tinybench: 6.2.2
       vite: 8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
-      vitest: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+      vitest: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
     transitivePeerDependencies:
       - debug
       - supports-color
@@ -16272,16 +16255,9 @@ snapshots:
 
   '@opentelemetry/api@1.10.0': {}
 
-  '@opentelemetry/api@1.9.1': {}
-
   '@opentelemetry/core@2.12.0(@opentelemetry/api@1.10.0)':
     dependencies:
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/semantic-conventions': 1.44.0
-
-  '@opentelemetry/core@2.12.0(@opentelemetry/api@1.9.1)':
-    dependencies:
-      '@opentelemetry/api': 1.9.1
       '@opentelemetry/semantic-conventions': 1.44.0
 
   '@opentelemetry/core@3.0.0(@opentelemetry/api@1.10.0)':
@@ -16293,7 +16269,7 @@ snapshots:
     dependencies:
       '@grpc/grpc-js': 1.14.6
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-exporter-base': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-grpc-exporter-base': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-transformer': 0.208.0(@opentelemetry/api@1.10.0)
@@ -16303,7 +16279,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.10.0
       '@opentelemetry/api-logs': 0.208.0
-      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-exporter-base': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-transformer': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/sdk-logs': 0.208.0(@opentelemetry/api@1.10.0)
@@ -16312,7 +16288,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.10.0
       '@opentelemetry/api-logs': 0.208.0
-      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-exporter-base': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-transformer': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/resources': 2.2.0(@opentelemetry/api@1.10.0)
@@ -16339,14 +16315,14 @@ snapshots:
   '@opentelemetry/otlp-exporter-base@0.208.0(@opentelemetry/api@1.10.0)':
     dependencies:
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-transformer': 0.208.0(@opentelemetry/api@1.10.0)
 
   '@opentelemetry/otlp-grpc-exporter-base@0.208.0(@opentelemetry/api@1.10.0)':
     dependencies:
       '@grpc/grpc-js': 1.14.6
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-exporter-base': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-transformer': 0.208.0(@opentelemetry/api@1.10.0)
 
@@ -16354,7 +16330,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.10.0
       '@opentelemetry/api-logs': 0.208.0
-      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/resources': 2.2.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/sdk-logs': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/sdk-metrics': 2.2.0(@opentelemetry/api@1.10.0)
@@ -16370,7 +16346,7 @@ snapshots:
   '@opentelemetry/resources@2.2.0(@opentelemetry/api@1.10.0)':
     dependencies:
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/semantic-conventions': 1.44.0
 
   '@opentelemetry/resources@3.0.0(@opentelemetry/api@1.10.0)':
@@ -16383,7 +16359,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.10.0
       '@opentelemetry/api-logs': 0.208.0
-      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/resources': 2.2.0(@opentelemetry/api@1.10.0)
 
   '@opentelemetry/sdk-logs@3.0.0(@opentelemetry/api@1.10.0)':
@@ -16396,7 +16372,7 @@ snapshots:
   '@opentelemetry/sdk-metrics@2.2.0(@opentelemetry/api@1.10.0)':
     dependencies:
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/resources': 2.2.0(@opentelemetry/api@1.10.0)
 
   '@opentelemetry/sdk-metrics@3.0.0(@opentelemetry/api@1.10.0)':
@@ -16416,7 +16392,7 @@ snapshots:
   '@opentelemetry/sdk-trace-base@2.2.0(@opentelemetry/api@1.10.0)':
     dependencies:
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/resources': 2.2.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/semantic-conventions': 1.44.0
 
@@ -17725,27 +17701,27 @@ snapshots:
     dependencies:
       '@sentry/conventions': 0.16.0
 
-  '@sentry/node-core@10.76.2(@opentelemetry/api@1.10.0)(@opentelemetry/core@2.12.0)(@opentelemetry/instrumentation@0.220.0)(@opentelemetry/sdk-trace-base@2.12.0)':
+  '@sentry/node-core@10.76.2(@opentelemetry/api@1.10.0)(@opentelemetry/core@3.0.0)(@opentelemetry/instrumentation@0.220.0)(@opentelemetry/sdk-trace-base@2.12.0)':
     dependencies:
       '@sentry/conventions': 0.16.0
       '@sentry/core': 10.76.2
-      '@sentry/opentelemetry': 10.76.2(@opentelemetry/api@1.10.0)(@opentelemetry/core@2.12.0)(@opentelemetry/sdk-trace-base@2.12.0)
+      '@sentry/opentelemetry': 10.76.2(@opentelemetry/api@1.10.0)(@opentelemetry/core@3.0.0)(@opentelemetry/sdk-trace-base@2.12.0)
       import-in-the-middle: 3.5.2
     optionalDependencies:
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/instrumentation': 0.220.0(@opentelemetry/api@1.10.0)(supports-color@7.2.0)
       '@opentelemetry/sdk-trace-base': 2.12.0(@opentelemetry/api@1.10.0)
 
-  '@sentry/node@10.76.2(@opentelemetry/core@2.12.0)(supports-color@7.2.0)':
+  '@sentry/node@10.76.2(@opentelemetry/core@3.0.0)(supports-color@7.2.0)':
     dependencies:
       '@opentelemetry/api': 1.10.0
       '@opentelemetry/instrumentation': 0.220.0(@opentelemetry/api@1.10.0)(supports-color@7.2.0)
       '@opentelemetry/sdk-trace-base': 2.12.0(@opentelemetry/api@1.10.0)
       '@sentry/conventions': 0.16.0
       '@sentry/core': 10.76.2
-      '@sentry/node-core': 10.76.2(@opentelemetry/api@1.10.0)(@opentelemetry/core@2.12.0)(@opentelemetry/instrumentation@0.220.0)(@opentelemetry/sdk-trace-base@2.12.0)
-      '@sentry/opentelemetry': 10.76.2(@opentelemetry/api@1.10.0)(@opentelemetry/core@2.12.0)(@opentelemetry/sdk-trace-base@2.12.0)
+      '@sentry/node-core': 10.76.2(@opentelemetry/api@1.10.0)(@opentelemetry/core@3.0.0)(@opentelemetry/instrumentation@0.220.0)(@opentelemetry/sdk-trace-base@2.12.0)
+      '@sentry/opentelemetry': 10.76.2(@opentelemetry/api@1.10.0)(@opentelemetry/core@3.0.0)(@opentelemetry/sdk-trace-base@2.12.0)
       '@sentry/server-utils': 10.76.2
       import-in-the-middle: 3.5.2
     transitivePeerDependencies:
@@ -17758,10 +17734,10 @@ snapshots:
       - '@types/opentelemetry__sdk-trace-base'
       - supports-color
 
-  '@sentry/opentelemetry@10.76.2(@opentelemetry/api@1.10.0)(@opentelemetry/core@2.12.0)(@opentelemetry/sdk-trace-base@2.12.0)':
+  '@sentry/opentelemetry@10.76.2(@opentelemetry/api@1.10.0)(@opentelemetry/core@3.0.0)(@opentelemetry/sdk-trace-base@2.12.0)':
     dependencies:
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/sdk-trace-base': 2.12.0(@opentelemetry/api@1.10.0)
       '@sentry/conventions': 0.16.0
       '@sentry/core': 10.76.2
@@ -18041,7 +18017,7 @@ snapshots:
       storybook: 10.6.5(@types/react@19.3.0)(prettier@3.9.10)(react@19.3.1)
     optionalDependencies:
       '@vitest/browser': 5.0.5(vite@8.3.5)(vitest@5.0.5)
-      vitest: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+      vitest: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
     transitivePeerDependencies:
       - '@types/react'
       - react
@@ -18888,7 +18864,7 @@ snapshots:
   '@vercel/analytics@2.0.1(@types/react@19.3.0)(next@16.4.4)(react@19.3.1)':
     optionalDependencies:
       '@types/react': 19.3.0
-      next: 16.4.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(react-dom@19.3.1)(react@19.3.1)
+      next: 16.4.4(@babel/core@7.29.7)(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(react-dom@19.3.1)(react@19.3.1)
       react: 19.3.1
 
   '@vercel/blob@2.8.2':
@@ -19070,7 +19046,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+      vitest: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
       ws: 8.22.0
     transitivePeerDependencies:
       - '@types/bufferutil'
@@ -19092,7 +19068,7 @@ snapshots:
       obug: 3.0.0
       std-env: 4.3.0
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+      vitest: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
     optionalDependencies:
       '@vitest/browser': 5.0.5(vite@8.3.5)(vitest@5.0.5)
 
@@ -19141,7 +19117,7 @@ snapshots:
       pathe: 2.0.3
       sirv: 3.0.2
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
+      vitest: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -19887,47 +19863,6 @@ snapshots:
       react-dom: 19.3.1(@types/react@19.3.0)(react@19.3.1)
       solid-js: 1.9.17
       vitest: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
-    transitivePeerDependencies:
-      - '@opentelemetry/api'
-      - '@types/better-auth__core'
-      - '@types/better-auth__utils'
-      - '@types/better-call'
-      - '@types/better-fetch__fetch'
-      - '@types/jose'
-      - '@types/kysely'
-      - '@types/nanostores'
-      - '@types/opentelemetry__api'
-      - '@types/zod'
-
-  better-auth@1.7.15(@opentelemetry/api@1.9.1)(@prisma/client@7.10.1)(@types/react-dom@19.3.0)(@types/react@19.3.0)(next@16.4.4)(prisma@7.10.1)(react-dom@19.3.1)(react@19.3.1)(solid-js@1.9.17)(vitest@5.0.5):
-    dependencies:
-      '@better-auth/core': 1.7.15(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.9.1)(better-call@1.4.4)(jose@6.2.14)(kysely@0.29.8)(nanostores@1.5.5)
-      '@better-auth/drizzle-adapter': 1.7.15(@better-auth/core@1.7.15)(@better-auth/utils@0.5.1)
-      '@better-auth/kysely-adapter': 1.7.15(@better-auth/core@1.7.15)(@better-auth/utils@0.5.1)(kysely@0.29.8)
-      '@better-auth/memory-adapter': 1.7.15(@better-auth/core@1.7.15)(@better-auth/utils@0.5.1)
-      '@better-auth/mongo-adapter': 1.7.15(@better-auth/core@1.7.15)(@better-auth/utils@0.5.1)
-      '@better-auth/prisma-adapter': 1.7.15(@better-auth/core@1.7.15)(@better-auth/utils@0.5.1)(@prisma/client@7.10.1)(prisma@7.10.1)
-      '@better-auth/telemetry': 1.7.15(@better-auth/core@1.7.15)(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)
-      '@better-auth/utils': 0.5.1
-      '@better-fetch/fetch': 1.3.3
-      '@noble/ciphers': 2.4.0
-      '@noble/hashes': 2.4.0
-      better-call: 1.4.4(zod@4.6.7)
-      defu: 6.1.7
-      jose: 6.2.14
-      kysely: 0.29.8
-      nanostores: 1.5.5
-      zod: 4.6.7
-    optionalDependencies:
-      '@prisma/client': 7.10.1(prisma@7.10.1)(typescript@7.0.2)
-      '@types/react': 19.3.0
-      '@types/react-dom': 19.3.0(@types/react@19.3.0)
-      next: 16.4.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(react-dom@19.3.1)(react@19.3.1)
-      prisma: 7.10.1(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.1)(react@19.3.1)(typescript@7.0.2)
-      react: 19.3.1
-      react-dom: 19.3.1(@types/react@19.3.0)(react@19.3.1)
-      solid-js: 1.9.17
-      vitest: 5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5)
     transitivePeerDependencies:
       - '@opentelemetry/api'
       - '@types/better-auth__core'
@@ -23456,35 +23391,6 @@ snapshots:
       - '@types/node'
       - babel-plugin-macros
 
-  next@16.4.4(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(react-dom@19.3.1)(react@19.3.1):
-    dependencies:
-      '@next/env': 16.4.4
-      '@swc/helpers': 0.5.23
-      baseline-browser-mapping: 2.11.34
-      caniuse-lite: 1.0.30001820
-      postcss: 8.5.23
-      react: 19.3.1
-      react-dom: 19.3.1(@types/react@19.3.0)(react@19.3.1)
-      styled-jsx: 5.1.6(@babel/core@7.29.7)(@types/react@19.3.0)(react@19.3.1)
-    optionalDependencies:
-      '@next/swc-darwin-arm64': 16.4.4
-      '@next/swc-darwin-x64': 16.4.4
-      '@next/swc-linux-arm64-gnu': 16.4.4
-      '@next/swc-linux-arm64-musl': 16.4.4
-      '@next/swc-linux-x64-gnu': 16.4.4
-      '@next/swc-linux-x64-musl': 16.4.4
-      '@next/swc-win32-arm64-msvc': 16.4.4
-      '@next/swc-win32-x64-msvc': 16.4.4
-      '@opentelemetry/api': 1.9.1
-      '@types/react': 19.3.0
-      '@types/react-dom': 19.3.0(@types/react@19.3.0)
-      sharp: 0.35.5(@types/node@26.6.6)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@types/node'
-      - babel-plugin-macros
-    optional: true
-
   nlcst-to-string@4.0.0:
     dependencies:
       '@types/nlcst': 2.0.3
@@ -24402,10 +24308,10 @@ snapshots:
       - '@types/browserslist'
       - supports-color
 
-  react-doctor@0.9.18(@opentelemetry/core@2.12.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2005)(react@19.3.1)(supports-color@7.2.0):
+  react-doctor@0.9.18(@opentelemetry/core@3.0.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2005)(react@19.3.1)(supports-color@7.2.0):
     dependencies:
       '@astrojs/compiler': 4.0.0
-      '@sentry/node': 10.76.2(@opentelemetry/core@2.12.0)(supports-color@7.2.0)
+      '@sentry/node': 10.76.2(@opentelemetry/core@3.0.0)(supports-color@7.2.0)
       agent-install: 0.0.5
       bippy: 0.6.1(@types/react@19.3.0)(react@19.3.1)
       conf: 15.1.0
@@ -26101,33 +26007,6 @@ snapshots:
       why-is-node-running: 3.2.1
     optionalDependencies:
       '@opentelemetry/api': 1.10.0
-      '@types/node': 26.6.6
-      '@vitest/coverage-v8': 5.0.5(@vitest/browser@5.0.5)(vitest@5.0.5)
-      '@vitest/ui': 5.0.5(vitest@5.0.5)
-      happy-dom: 21.0.4
-    transitivePeerDependencies:
-      - '@types/msw'
-      - '@types/picomatch'
-      - msw
-
-  vitest@5.0.5(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5):
-    dependencies:
-      '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.5(vite@8.3.5)
-      chai: 6.3.0
-      es-module-lexer: 2.3.2
-      expect-type: 1.4.0
-      magic-string: 1.4.3
-      obug: 3.0.0
-      picomatch: 4.0.7
-      std-env: 4.3.0
-      tinybench: 6.2.2
-      tinyexec: 1.3.1
-      tinyglobby: 0.2.17
-      vite: 8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
-      why-is-node-running: 3.2.1
-    optionalDependencies:
-      '@opentelemetry/api': 1.9.1
       '@types/node': 26.6.6
       '@vitest/coverage-v8': 5.0.5(@vitest/browser@5.0.5)(vitest@5.0.5)
       '@vitest/ui': 5.0.5(vitest@5.0.5)
