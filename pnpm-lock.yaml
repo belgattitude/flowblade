@@ -188,7 +188,7 @@ overrides:
   lodash-es@>=4.0.0 <=4.17.23: 4.18.1
   minimatch@<11.0.1: 11.0.1
   mysql2@<=3.23.0: 3.24.6
-  path-to-regexp@>=4.0.0 <6.3.0: 6.3.0
+  path-to-regexp@>=4.0.0 <6.3.0: 9.0.0
   postcss-selector-parser@<7.1.6: 7.1.7
   seroval@<=1.6.2: 1.7.6
   zod@<4.6.6: 4.6.7
@@ -11814,6 +11814,9 @@ packages:
   path-to-regexp@8.4.2:
     resolution: {integrity: sha512-id36uYGU2tnIXOxrjZLtLm/fhHUopfRPNzo7eRPTouHcnRcdM5lYVpRKidbXlC1IBdnFEaMBO4PcWZ4izR1gQg==}
 
+  path-to-regexp@9.0.0:
+    resolution: {integrity: sha512-dWKUKT5LspLU/XgzxZbuSCX2CPKMEgfqoIXRi5WR2t+MPaWU0xRE1In5bKrvLxB009WBQYqw6UIEFAgbDHKWRw==}
+
   pathe@2.0.3:
     resolution: {integrity: sha512-OpA1xeg6LV/vZeE9sdWDFWYg+9YsbUYsHJdCJxVZYEpqMF1U5SzQHF1Dw55MWf/f9qImDGz6n/9eVBtwcPKihw==}
 
@@ -18932,7 +18935,7 @@ snapshots:
 
   '@vercel/routing-utils@6.6.0':
     dependencies:
-      path-to-regexp: 6.3.0
+      path-to-regexp: 9.0.0
       path-to-regexp-updated: path-to-regexp@6.3.0
     optionalDependencies:
       ajv: 6.15.0
@@ -23965,6 +23968,8 @@ snapshots:
   path-to-regexp@6.3.0: {}
 
   path-to-regexp@8.4.2: {}
+
+  path-to-regexp@9.0.0: {}
 
   pathe@2.0.3: {}
 
