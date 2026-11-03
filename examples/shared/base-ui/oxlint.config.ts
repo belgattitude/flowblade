@@ -11,6 +11,7 @@ export default defineConfig({
   ignorePatterns: [
     ...(oxlintDefaultConfig.ignorePatterns ?? []),
     "src/components/**",
+    "src/hooks/**",
   ],
   rules: {
     ...reactConfig.rules,
