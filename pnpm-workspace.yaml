@@ -37,6 +37,7 @@ trustPolicyExclude:
   - "undici-types@6.21.0"
   - "prisma"
   - "lefthook@2.2.2"
+  - "reselect"
 
 verifyDepsBeforeRun: install
 
@@ -155,3 +156,5 @@ minimumReleaseAgeExclude:
   - turbo
   - oxlint-tsgolint
   - http-cache-semantics@4.3.0
+  - "@vitest/mocker@5.1.0"
+  - "@vitest/spy@5.1.0"
