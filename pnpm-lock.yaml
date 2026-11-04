@@ -225,8 +225,8 @@ importers:
         specifier: 0.0.93
         version: 0.0.93
       react-doctor:
-        specifier: 0.9.21
-        version: 0.9.21(@opentelemetry/core@3.0.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2005)(react@19.3.1)(supports-color@7.2.0)
+        specifier: 0.9.22
+        version: 0.9.22(@opentelemetry/core@3.0.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2005)(react@19.3.1)(supports-color@7.2.0)
       rimraf:
         specifier: 6.1.3
         version: 6.1.3
@@ -11660,6 +11660,10 @@ packages:
     resolution: {integrity: sha512-zesVBk0snAql/lWWuAnuQltCTRFWFRl/OkbjdYgxQ2BFLr1QdXcoC/7T+4/+6LlEg69pJA364XhNiNq35BM9iw==}
     engines: {node: ^20.19.0 || >=22.13.0}
 
+  oxlint-plugin-react-doctor@0.9.22:
+    resolution: {integrity: sha512-3tV4DExFsdvN0kojlF52buL/sZYVuHMqshecrjGuDOIHQ777v9C/sS7Xy2L091i3PpCAPqUY7gg77zd6LWGv9w==}
+    engines: {node: ^20.19.0 || >=22.13.0}
+
   oxlint-tailwindcss@1.17.1:
     resolution: {integrity: sha512-Dqr77RKRBUa905laB2KCthWbWK/QyFiMeAgzLBKR6XjbS0x/xLowmax+1Tp4yR714IZgXC+Jj9GVYbKwVwaxcw==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -12164,6 +12168,11 @@ packages:
 
   react-doctor@0.9.21:
     resolution: {integrity: sha512-IlAf4NgocDxz+pL1b0BFKpvmUPS0chR+u9vhbJRLNJhuGWt+F/jJLx62UwvMfx7lltSpJVj0gZHWX0pG7moXqQ==}
+    engines: {node: ^20.19.0 || >=22.13.0}
+    hasBin: true
+
+  react-doctor@0.9.22:
+    resolution: {integrity: sha512-RkSLvuUt92ja3wdCUhhaDOVIjBZU0iCAMx4omx12MOQz6BYsPQ4hdPQC4a/B8q5JN3N5UaaBIEdsdbpJWK/jvA==}
     engines: {node: ^20.19.0 || >=22.13.0}
     hasBin: true
 
@@ -23819,6 +23828,15 @@ snapshots:
       lightningcss: 1.33.0
       oxc-parser: 0.148.0
 
+  oxlint-plugin-react-doctor@0.9.22:
+    dependencies:
+      '@shaderfrog/glsl-parser': 7.0.1
+      '@typescript-eslint/types': 8.72.0
+      eslint-scope: 9.1.2
+      eslint-visitor-keys: 5.0.1
+      lightningcss: 1.33.0
+      oxc-parser: 0.148.0
+
   oxlint-tailwindcss@1.17.1:
     dependencies:
       '@tailwindcss/node': 4.3.3
@@ -24336,6 +24354,51 @@ snapshots:
       oxc-resolver: 11.24.2
       oxlint: 1.81.0(oxlint-tsgolint@7.0.2005)
       oxlint-plugin-react-doctor: 0.9.21
+      playwright-core: 1.64.1
+      prompts: 2.4.2
+      typescript: 5.9.3
+      yaml: 2.9.1
+      yoga-layout: 3.2.1
+    transitivePeerDependencies:
+      - '@opentelemetry/core'
+      - '@opentelemetry/exporter-trace-otlp-http'
+      - '@types/ajv'
+      - '@types/babel__core'
+      - '@types/browserslist'
+      - '@types/emnapi__core'
+      - '@types/emnapi__runtime'
+      - '@types/eslint'
+      - '@types/opentelemetry__api'
+      - '@types/opentelemetry__core'
+      - '@types/opentelemetry__exporter-trace-otlp-http'
+      - '@types/opentelemetry__instrumentation'
+      - '@types/opentelemetry__sdk-trace-base'
+      - '@types/oxlint-tsgolint'
+      - '@types/react'
+      - '@types/vite-plus'
+      - '@types/zod'
+      - eslint
+      - oxlint-tsgolint
+      - react
+      - supports-color
+      - vite-plus
+
+  react-doctor@0.9.22(@opentelemetry/core@3.0.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2005)(react@19.3.1)(supports-color@7.2.0):
+    dependencies:
+      '@astrojs/compiler': 4.0.0
+      '@sentry/node': 10.76.2(@opentelemetry/core@3.0.0)(supports-color@7.2.0)
+      agent-install: 0.0.5
+      bippy: 0.6.1(@types/react@19.3.0)(react@19.3.1)
+      conf: 15.1.0
+      confbox: 0.2.4
+      eslint-plugin-react-hooks: 7.1.1(@types/babel__core@7.20.5)(eslint@10.14.0)(supports-color@7.2.0)
+      is-unicode-supported: 2.1.0
+      jiti: 2.7.0
+      magicast: 0.5.5
+      oxc-parser: 0.148.0
+      oxc-resolver: 11.24.2
+      oxlint: 1.81.0(oxlint-tsgolint@7.0.2005)
+      oxlint-plugin-react-doctor: 0.9.22
       playwright-core: 1.64.1
       prompts: 2.4.2
       typescript: 5.9.3
