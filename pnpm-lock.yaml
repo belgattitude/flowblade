@@ -1644,8 +1644,8 @@ importers:
         specifier: 1.0.1
         version: 1.0.1
       oxlint-plugin-react-doctor:
-        specifier: 0.9.21
-        version: 0.9.21
+        specifier: 0.9.22
+        version: 0.9.22
       oxlint-tailwindcss:
         specifier: 1.17.1
         version: 1.17.1
@@ -11658,6 +11658,10 @@ packages:
 
   oxlint-plugin-react-doctor@0.9.21:
     resolution: {integrity: sha512-zesVBk0snAql/lWWuAnuQltCTRFWFRl/OkbjdYgxQ2BFLr1QdXcoC/7T+4/+6LlEg69pJA364XhNiNq35BM9iw==}
+    engines: {node: ^20.19.0 || >=22.13.0}
+
+  oxlint-plugin-react-doctor@0.9.22:
+    resolution: {integrity: sha512-3tV4DExFsdvN0kojlF52buL/sZYVuHMqshecrjGuDOIHQ777v9C/sS7Xy2L091i3PpCAPqUY7gg77zd6LWGv9w==}
     engines: {node: ^20.19.0 || >=22.13.0}
 
   oxlint-tailwindcss@1.17.1:
@@ -23811,6 +23815,15 @@ snapshots:
       '@oxlint/plugins': 1.89.0
 
   oxlint-plugin-react-doctor@0.9.21:
+    dependencies:
+      '@shaderfrog/glsl-parser': 7.0.1
+      '@typescript-eslint/types': 8.72.0
+      eslint-scope: 9.1.2
+      eslint-visitor-keys: 5.0.1
+      lightningcss: 1.33.0
+      oxc-parser: 0.148.0
+
+  oxlint-plugin-react-doctor@0.9.22:
     dependencies:
       '@shaderfrog/glsl-parser': 7.0.1
       '@typescript-eslint/types': 8.72.0
