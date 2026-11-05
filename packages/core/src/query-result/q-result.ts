@@ -380,12 +380,15 @@ class QResultImpl<TData, TError extends QError | undefined> {
    *
    * @throws Error if the result is a failure
    *
-   * @deprecated Use the datasource throwing methods instead, they throw the
-   * same errors and support the `defaultOptions` error factories:
+   * @deprecated Use the datasource throwing methods instead:
    * - `ds.queryOrThrow(query)` instead of `(await ds.query(query)).getOrThrow()`
    * - `ds.queryOneOrThrow(query, { defaultValue: null })` instead of
    *   `(await ds.queryOne(query)).getOrThrow()`
    * - or check `error` / `isError()` before accessing `data`.
+   *
+   * By default they throw the same errors, but unlike `getOrThrow()` they
+   * apply the datasource `defaultOptions` error factories. To keep the
+   * default errors, pass `onError: ({ error }) => error`.
    */
   getOrThrow = (
     factories?: QGetOrThrowErrorFactories | ((qError: QError) => Error)

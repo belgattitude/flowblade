@@ -2,6 +2,66 @@
 
 Breaking changes and how to migrate, by version. See the [CHANGELOG](./CHANGELOG.md) for all changes.
 
+## 0.8.0
+
+> **Note**: no breaking change, `QResult.getOrThrow()` is deprecated and will be removed in a future release.
+
+### `QResult.getOrThrow()` is deprecated
+
+Use the datasource throwing methods instead: by default they throw the same errors (`QErrors.QueryFailed`, `QErrors.Aborted`, `QErrors.TooManyResults`) and they also apply the datasource `defaultOptions` error factories (see the warning below).
+
+**Migrate**:
+
+```typescript
+// Before
+const rows = (await ds.query(query)).getOrThrow();
+const row = (await ds.queryOne(query)).getOrThrow();
+
+// After
+const { data: rows } = await ds.queryOrThrow(query);
+// 👇 defaultValue: null keeps returning null when there's no row,
+//    without it a QErrors.NoResult is thrown
+const { data: row } = await ds.queryOneOrThrow(query, { defaultValue: null });
+```
+
+Error factories move to the throwing methods options, `onError` / `onTooManyResults` keep the same signature:
+
+```typescript
+// Before
+const row = (await ds.queryOne(query)).getOrThrow({
+  onError: ({ error }) => new HttpInternalServerError({ cause: error }),
+});
+// After
+const { data: row } = await ds.queryOneOrThrow(query, {
+  defaultValue: null,
+  onError: ({ error }) => new HttpInternalServerError({ cause: error }),
+});
+```
+
+> **Warning**: `getOrThrow()` ignored the datasource `defaultOptions`, the throwing methods apply them. If your datasource sets `defaultOptions.queryOrThrow` / `defaultOptions.queryOneOrThrow` factories, the migrated calls throw your factories errors instead of `QErrors.QueryFailed`, `QErrors.Aborted` or `QErrors.TooManyResults` (ie: `instanceof QErrors.*` checks, `toThrow()` assertions). To keep the previous errors, return the default error from the factories:
+>
+> ```typescript
+> const { data: row } = await ds.queryOneOrThrow(query, {
+>   defaultValue: null,
+>   onError: ({ error }) => error,
+>   onTooManyResults: ({ error }) => error,
+> });
+> ```
+
+The function form (`getOrThrow((qError) => new Error(qError.message))`) has no direct equivalent: use `onError`, which receives the `qError` too.
+
+For other results (ie: after `map()`, or built by hand), check `error` / `isError()` before accessing `data`.
+
+**Custom datasources**: use the new `getDataOrThrow()` from `@flowblade/core/datasource` to implement `queryOrThrow()`.
+
+```typescript
+// Before
+return { data: result.getOrThrow({ onError }), meta: result.meta };
+// After
+import { getDataOrThrow } from "@flowblade/core/datasource";
+return { data: getDataOrThrow(result, { onError }), meta: result.meta };
+```
+
 ## 0.7.0
 
 > **Note**: this release contains small breaking changes, listed below. They mostly affect custom datasources, code matching error messages and results built by hand.

@@ -150,7 +150,7 @@ const ds = new KyselyDatasource({
 
 #### Migrating from `queryOne().getOrThrow()`
 
-`QResult.getOrThrow()` is deprecated, use `queryOneOrThrow()`: it throws the same errors and supports the `defaultOptions.queryOneOrThrow` factories. Set `defaultValue: null` to keep getting `null` when there's no row:
+`QResult.getOrThrow()` is deprecated, use `queryOneOrThrow()`. By default it throws the same errors, but it also applies the `defaultOptions.queryOneOrThrow` factories, which `getOrThrow()` ignored: when they're set, pass `onError: ({ error }) => error` (and `onTooManyResults`) to keep the default errors. Set `defaultValue: null` to keep getting `null` when there's no row:
 
 ```typescript
 // ⚠️ Deprecated
