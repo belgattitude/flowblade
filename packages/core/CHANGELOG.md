@@ -1,5 +1,16 @@
 # @flowblade/core
 
+## 0.8.0
+
+### Minor Changes
+
+- [#1498](https://github.com/belgattitude/flowblade/pull/1498) [`6508565`](https://github.com/belgattitude/flowblade/commit/65085659d912b2183abf91aef2137bb5a8608775) Thanks [@belgattitude](https://github.com/belgattitude)! - Deprecate `QResult.getOrThrow()`, use the datasource throwing methods instead (they throw the same errors and support the `defaultOptions` error factories):
+  
+  - `ds.queryOrThrow(query)` instead of `(await ds.query(query)).getOrThrow()`
+  - `ds.queryOneOrThrow(query, { defaultValue: null })` instead of `(await ds.queryOne(query)).getOrThrow()`
+  
+  Add `getDataOrThrow(result, factories)` to `@flowblade/core/datasource`, used by the datasources to implement `queryOrThrow()`.
+
 ## 0.7.0
 
 ### Minor Changes
