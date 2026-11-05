@@ -6,6 +6,7 @@ import type { QGetOrThrowErrorFactories } from "./q-error-factories";
 import { QQueryFailedError } from "./q-query-failed-error";
 import { QRolledBackError } from "./q-rolled-back-error";
 import { QTooManyResultsError } from "./q-too-many-results-error";
+import { QTransactionConflictError } from "./q-transaction-conflict-error";
 import { QTransactionFailedError } from "./q-transaction-failed-error";
 
 /**
@@ -17,6 +18,7 @@ import { QTransactionFailedError } from "./q-transaction-failed-error";
  *   ie: a `QErrors.RolledBack` from `tx.rollback()`), or a `QErrors.RolledBack`
  *   with the cause when the callback threw a non Error value,
  * - "TRANSACTION_FAILED": a `QErrors.TransactionFailed`, the driver error as cause,
+ * - "TRANSACTION_CONFLICT": a `QErrors.TransactionConflict`, with the cause,
  * - otherwise (ie: "MAP_FAILED"): an Error with the QError cause.
  */
 const toDefaultException = (qError: QError): Error => {
@@ -36,6 +38,9 @@ const toDefaultException = (qError: QError): Error => {
   }
   if (code === "TRANSACTION_FAILED") {
     return new QTransactionFailedError(message, { cause });
+  }
+  if (code === "TRANSACTION_CONFLICT") {
+    return new QTransactionConflictError(message, { cause });
   }
   // "MAP_FAILED", or a QError built without a known code at runtime
   return new Error(message, { cause });

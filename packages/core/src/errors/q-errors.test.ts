@@ -16,12 +16,19 @@ describe("QErrors", () => {
     expect(QErrors.Aborted).toBe(QAbortedError);
     expect(QErrors.RolledBack).toBe(QRolledBackError);
     expect(QErrors.TransactionFailed).toBe(QTransactionFailedError);
+    expect(new QErrors.TransactionConflict("deadlock")).toMatchObject({
+      name: "QTransactionConflictError",
+      code: "TRANSACTION_CONFLICT",
+      message: "Transaction conflict: deadlock",
+      statusCode: 409,
+    });
     expect(Object.keys(QErrors).toSorted()).toStrictEqual([
       "Aborted",
       "NoResult",
       "QueryFailed",
       "RolledBack",
       "TooManyResults",
+      "TransactionConflict",
       "TransactionFailed",
     ]);
   });

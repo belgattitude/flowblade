@@ -1,5 +1,6 @@
 import { setTimeout as sleep } from "node:timers/promises";
 
+import { DuckDBInstance } from "@duckdb/node-api";
 import { describe, expect, expectTypeOf, vi } from "vitest";
 
 import { duckTest } from "../../tests/utils/duck-test.ts";
@@ -8,6 +9,7 @@ import {
   type DuckdbTransactionDatasource,
   QErrors,
   sql,
+  withConnectionLock,
 } from "../index.ts";
 
 const flush = () => sleep(10);
@@ -144,6 +146,36 @@ describe("DuckdbDatasource transactions", () => {
       });
       expect(result.error?.code).toBe("TRANSACTION_FAILED");
       await expect(getIds(ds)).resolves.toStrictEqual([]);
+    });
+
+    it("should reject the queries of a transaction datasource kept after the end", async ({
+      ds,
+    }) => {
+      let kept: DuckdbTransactionDatasource | undefined;
+      await ds.transactionOrThrow(async (tx) => {
+        kept = tx;
+      });
+      const { paused, resume } = createGate();
+      const second = ds.transaction(async (tx) => {
+        await insert(tx, 1);
+        await paused;
+      });
+      await flush();
+      // would otherwise run in the second transaction, without the lock
+      const { error } = await kept!.query(
+        sql`INSERT INTO product VALUES (2::INTEGER)`
+      );
+      expect(error?.code).toBe("QUERY_FAILED");
+      expect(error?.message).toContain("The transaction has ended");
+      await expect(async () => {
+        for await (const _row of kept!.stream(sql`SELECT 1`)) {
+          // never reached
+        }
+      }).rejects.toThrow("The transaction has ended");
+      resume();
+      const { error: secondError } = await second;
+      expect(secondError).toBeUndefined();
+      await expect(getIds(ds)).resolves.toStrictEqual([1]);
     });
 
     it("should run read only transactions", async ({ ds }) => {
@@ -301,6 +333,236 @@ describe("DuckdbDatasource transactions", () => {
       expect(fn).not.toHaveBeenCalled();
       resume();
       await first;
+    });
+  });
+
+  describe("in the transaction callback", () => {
+    it("should run the queries of the datasource in the transaction", async ({
+      ds,
+    }) => {
+      const result = await ds.transaction(async (tx) => {
+        await insert(tx, 1);
+        // same connection: runs in the transaction rather than waiting forever
+        await ds.queryOrThrow(sql`INSERT INTO product VALUES (2::INTEGER)`);
+        const ids: number[] = [];
+        for await (const row of ds.stream(
+          sql<{ id: number }>`SELECT id FROM product ORDER BY id`
+        )) {
+          ids.push(row.id);
+        }
+        tx.rollback(ids.join(","));
+      });
+      expect(result.error?.message).toBe("Transaction rolled back: 1,2");
+      // reported to the transaction
+      expect(result.meta.getSpansByType("sql")).toHaveLength(3);
+      await expect(getIds(ds)).resolves.toStrictEqual([]);
+    });
+
+    it("should not commit after a failed query of the datasource", async ({
+      ds,
+    }) => {
+      const result = await ds.transaction(async (tx) => {
+        await insert(tx, 1);
+        await ds.query(sql`INSERT INTO product VALUES (1::INTEGER)`);
+      });
+      expect(result.error?.code).toBe("TRANSACTION_FAILED");
+      await expect(getIds(ds)).resolves.toStrictEqual([]);
+    });
+
+    it("should not support nested transactions from the datasource", async ({
+      ds,
+    }) => {
+      const { data } = await ds.transactionOrThrow(async () => {
+        const nested = await ds.transaction(async () => 1);
+        return nested.error?.message;
+      });
+      expect(data).toContain("Nested transactions are not supported");
+    });
+
+    it("should wait for the lock again after the transaction", async ({
+      ds,
+    }) => {
+      let later: Promise<unknown> | undefined;
+      await ds.transactionOrThrow(async (tx) => {
+        await insert(tx, 1);
+        // started in the callback async context, runs after the end
+        later = sleep(20).then(() =>
+          ds.queryOrThrow(sql`INSERT INTO product VALUES (2::INTEGER)`)
+        );
+      });
+      const { paused, resume } = createGate();
+      const second = ds.transaction(async (tx) => {
+        await insert(tx, 3);
+        await paused;
+        tx.rollback();
+      });
+      await sleep(40);
+      // waiting for the second transaction, not run in it
+      resume();
+      await second;
+      await later;
+      await expect(getIds(ds)).resolves.toStrictEqual([1, 2]);
+    });
+  });
+
+  describe("withConnectionLock", () => {
+    it("should make the transactions wait", async ({ ds }) => {
+      const conn = ds.getConnection();
+      const events: string[] = [];
+      const { paused, resume } = createGate();
+      const locked = withConnectionLock(conn, async () => {
+        await conn.run("INSERT INTO product VALUES (1)");
+        await paused;
+        events.push("locked");
+      });
+      await flush();
+      const transaction = ds.transactionOrThrow(async () => {
+        events.push("transaction");
+      });
+      await flush();
+      expect(events).toStrictEqual([]);
+      resume();
+      await Promise.all([locked, transaction]);
+      expect(events).toStrictEqual(["locked", "transaction"]);
+    });
+
+    it("should be reentrant, even with a waiting transaction", async ({
+      ds,
+    }) => {
+      const conn = ds.getConnection();
+      const { paused, resume } = createGate();
+      const locked = withConnectionLock(conn, async () => {
+        await paused;
+        // a transaction is waiting: would deadlock without reentrancy
+        await ds.queryOrThrow(sql`INSERT INTO product VALUES (1::INTEGER)`);
+        await withConnectionLock(conn, () =>
+          conn.run("INSERT INTO product VALUES (2)")
+        );
+      });
+      await flush();
+      const transaction = ds.transactionOrThrow((tx) => insert(tx, 3));
+      await flush();
+      resume();
+      await Promise.all([locked, transaction]);
+      await expect(getIds(ds)).resolves.toStrictEqual([1, 2, 3]);
+    });
+
+    it("should fail to begin a transaction in the callback", async ({ ds }) => {
+      const result = await withConnectionLock(ds.getConnection(), () =>
+        ds.transaction(async () => 1)
+      );
+      expect(result.error?.code).toBe("TRANSACTION_FAILED");
+      expect(result.error?.message).toContain(
+        "Can't begin a transaction while the connection is held"
+      );
+    });
+
+    it("should run in a transaction callback, an error preventing the commit", async ({
+      ds,
+    }) => {
+      const conn = ds.getConnection();
+      const result = await ds.transaction(async (tx) => {
+        await insert(tx, 1);
+        await withConnectionLock(conn, () =>
+          conn.run("INSERT INTO product VALUES (2)")
+        );
+        await withConnectionLock(conn, () =>
+          conn.run("INSERT INTO product VALUES (2)")
+        ).catch(() => undefined);
+      });
+      expect(result.error?.code).toBe("TRANSACTION_FAILED");
+      await expect(getIds(ds)).resolves.toStrictEqual([]);
+    });
+
+    it("should stop waiting when aborted", async ({ ds }) => {
+      const { paused, resume } = createGate();
+      const transaction = ds.transactionOrThrow(async () => await paused);
+      await flush();
+      await expect(
+        withConnectionLock(ds.getConnection(), async () => 1, {
+          signal: AbortSignal.abort(new Error("timeout")),
+        })
+      ).rejects.toThrow("timeout");
+      resume();
+      await transaction;
+    });
+  });
+
+  describe("conflicts", () => {
+    /**
+     * Two datasources on two connections of the same database: conflicts
+     * only happen between connections (a connection runs one transaction).
+     */
+    const createDatasources = async () => {
+      const instance = await DuckDBInstance.create(":memory:");
+      const [conn1, conn2] = await Promise.all([
+        instance.connect(),
+        instance.connect(),
+      ]);
+      const ds1 = new DuckdbDatasource({ connection: conn1 });
+      const ds2 = new DuckdbDatasource({ connection: conn2 });
+      await ds1.queryOrThrow(
+        sql`CREATE TABLE stock (id INTEGER PRIMARY KEY, quantity INTEGER)`
+      );
+      await ds1.queryOrThrow(sql`INSERT INTO stock VALUES (1, 10)`);
+      return {
+        ds1,
+        ds2,
+        [Symbol.dispose]: () => {
+          conn1.closeSync();
+          conn2.closeSync();
+          instance.closeSync();
+        },
+      };
+    };
+
+    const decrement = (tx: DuckdbTransactionDatasource) =>
+      tx.queryOrThrow(
+        sql`UPDATE stock SET quantity = quantity - 1 WHERE id = 1`
+      );
+
+    it("should return TRANSACTION_CONFLICT", async () => {
+      using dss = await createDatasources();
+      const { ds1, ds2 } = dss;
+      const { paused, resume } = createGate();
+      const first = ds1.transactionOrThrow(async (tx) => {
+        await decrement(tx);
+        await paused;
+      });
+      await flush();
+      const result = await ds2.transaction(decrement);
+      expect(result.error?.code).toBe("TRANSACTION_CONFLICT");
+      expect(result.error?.message).toBe(
+        "TransactionContext Error: Conflict on update!"
+      );
+      await expect(ds2.transactionOrThrow(decrement)).rejects.toThrow(
+        QErrors.TransactionConflict
+      );
+      resume();
+      await first;
+    });
+
+    it("should retry until the concurrent transaction ends", async () => {
+      using dss = await createDatasources();
+      const { ds1, ds2 } = dss;
+      const { paused, resume } = createGate();
+      const first = ds1.transactionOrThrow(async (tx) => {
+        await decrement(tx);
+        await paused;
+      });
+      await flush();
+      setTimeout(resume, 30);
+      const result = await ds2.transaction(decrement, {
+        retry: { maxRetries: 10, delayMs: 20 },
+      });
+      await first;
+      expect(result.error).toBeUndefined();
+      const [span] = result.meta.getSpansByType("transaction");
+      expect(span?.retries).toBeGreaterThanOrEqual(1);
+      const { data } = await ds1.queryOneOrThrow(
+        sql<{ quantity: number }>`SELECT quantity FROM stock WHERE id = 1`
+      );
+      expect(data.quantity).toBe(8);
     });
   });
 

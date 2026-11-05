@@ -9,7 +9,9 @@ import type { QResult } from "./q-result";
  * - "ROLLED_BACK": the `transaction()` callback threw (or called `tx.rollback()`)
  *   and the transaction was rolled back, the thrown value is the cause,
  * - "TRANSACTION_FAILED": the transaction couldn't begin, commit or roll back,
- *   the driver error is the cause.
+ *   the driver error is the cause,
+ * - "TRANSACTION_CONFLICT": the transaction conflicts with a concurrent one
+ *   (ie: serialization failure, deadlock), transient: can be retried.
  */
 export type QErrorCode =
   | "QUERY_FAILED"
@@ -17,7 +19,8 @@ export type QErrorCode =
   | "TOO_MANY_RESULTS"
   | "MAP_FAILED"
   | "ROLLED_BACK"
-  | "TRANSACTION_FAILED";
+  | "TRANSACTION_FAILED"
+  | "TRANSACTION_CONFLICT";
 
 export type QError = {
   message: string;

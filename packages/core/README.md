@@ -82,6 +82,7 @@ Errors thrown by the datasources throwing methods (`queryOrThrow()`, `queryOneOr
 | `QErrors.NoResult` | `queryOneOrThrow()` got no row | `NO_RESULT` | 404 |
 | `QErrors.TooManyResults` | more than one row, with `rowCount` | `TOO_MANY_RESULTS` | 500 |
 | `QErrors.RolledBack` | `tx.rollback()` was called in a transaction | `ROLLED_BACK` | 500 |
+| `QErrors.TransactionConflict` | a transaction conflicts with a concurrent one (serialization failure, deadlock), can be retried | `TRANSACTION_CONFLICT` | 409 |
 | `QErrors.TransactionFailed` | a query failed in a transaction (handled by the callback), or it couldn't begin, commit or roll back, the driver error as `cause` | `TRANSACTION_FAILED` | 500 |
 
 ```typescript
@@ -112,6 +113,7 @@ Datasources supporting transactions implement `TransactionalDatasourceInterface`
 | --- | --- | --- |
 | `ROLLED_BACK` | the callback threw or called `tx.rollback()`, the thrown error as `cause` | the thrown error, as is |
 | `TRANSACTION_FAILED` | a query failed (handled by the callback, ie: `tx.query()`), or couldn't begin, commit or roll back, the driver error as `cause` | `QErrors.TransactionFailed` |
+| `TRANSACTION_CONFLICT` | conflicts with a concurrent transaction (serialization failure, deadlock), retried with the `retry` option | `QErrors.TransactionConflict` |
 | `ABORTED` | aborted with `signal` (never committed), the abort reason as `cause` | `QErrors.Aborted` |
 
 The result `meta` holds a `transaction` span (`status`, begin/commit time) followed by the spans of the queries run in the transaction.

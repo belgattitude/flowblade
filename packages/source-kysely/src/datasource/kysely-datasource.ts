@@ -36,6 +36,7 @@ import type {
 
 import { getKyselyErrorMessage } from "../internal/get-kysely-error-message.ts";
 import { isKyselyStreamable } from "../internal/is-kysely-streamable.ts";
+import { isKyselyTransactionConflict } from "../internal/is-kysely-transaction-conflict.ts";
 import { parseBigIntToSafeInt } from "../internal/parse-bigint-to-safeint.ts";
 import { kyselyDefaultLogtapeLogger } from "../logger/kysely-default-logtape-logger.ts";
 
@@ -61,6 +62,22 @@ type Params<TDatabase> = {
    * @default true
    */
   logParams?: boolean;
+  /**
+   * Whether a driver error is a conflict with a concurrent transaction
+   * (serialization failure, deadlock): reported as a "TRANSACTION_CONFLICT"
+   * error by `transaction()`, retried with its `retry` option.
+   *
+   * Defaults to recognize the Postgres (pg, postgres.js: "40001", "40P01"),
+   * SQL Server (tedious: 1205, 3960) and MySQL (mysql2: 1213) errors.
+   *
+   * @example
+   * ```typescript
+   * // ie: also retry SQLite busy errors
+   * isTransactionConflict: (error) =>
+   *   (error as { code?: unknown }).code === "SQLITE_BUSY",
+   * ```
+   */
+  isTransactionConflict?: (error: unknown) => boolean;
   /**
    * Default options, keyed by method name, the options passed per query win:
    * - `query`: options of `query()`, also used by the methods running it
@@ -153,6 +170,7 @@ export class KyselyDatasource<TDatabase>
   private readonly logger: Logger;
   private readonly logParams: boolean;
   private readonly defaultOptions: KyselyDatasourceDefaultOptions;
+  private readonly isTransactionConflict: (error: unknown) => boolean;
   /**
    * Transaction datasource only: the transaction signal (combined with the
    * queries one), and the reporting of its queries to `runTransaction()`
@@ -202,6 +220,8 @@ export class KyselyDatasource<TDatabase>
     this.db = params.connection;
     this.logger = params.logger ?? kyselyDefaultLogtapeLogger;
     this.logParams = params.logParams ?? true;
+    this.isTransactionConflict =
+      params.isTransactionConflict ?? isKyselyTransactionConflict;
     // oxlint-disable-next-line typescript/no-deprecated -- still supported as an alias
     const { defaultOptions = {}, inflightQueryAbortStrategy } = params;
     this.defaultOptions = {
@@ -294,6 +314,7 @@ export class KyselyDatasource<TDatabase>
         'Executing query "{queryName}"',
         this.getLogFromSpan(name, span, "query")
       );
+      this.transactionContext?.assertActive();
 
       const r = await this.db.executeQuery(compiled, {
         signal,
@@ -574,6 +595,7 @@ export class KyselyDatasource<TDatabase>
     let failed = false;
 
     try {
+      this.transactionContext?.assertActive();
       for await (const row of query.stream({
         chunkSize,
         signal,
@@ -713,6 +735,13 @@ export class KyselyDatasource<TDatabase>
     >({
       options,
       getErrorMessage: getKyselyErrorMessage,
+      isConflictError: this.isTransactionConflict,
+      onRetry: ({ retry, delayMs, error }) => {
+        this.logger.warn(
+          'Transaction "{transactionName}" conflicts with a concurrent one, retry {retry} in {delayMs}ms: {errorMessage}',
+          { ...logProps, retry, delayMs, errorMessage: error.message }
+        );
+      },
       begin: async (context) => {
         if (this.db.isTransaction) {
           throw new Error(
@@ -753,6 +782,7 @@ export class KyselyDatasource<TDatabase>
     const props = {
       ...logProps,
       status: span?.status,
+      ...(span?.retries === undefined ? {} : { retries: span.retries }),
       queryCount: meta.getSpans().length - 1,
       timeMs: meta.getTotalTimeMs(),
     };
@@ -760,6 +790,11 @@ export class KyselyDatasource<TDatabase>
       this.logger.info(
         'Transaction "{transactionName}" committed in {timeMs}ms, {queryCount} query(ies)',
         props
+      );
+    } else if (error.code === "TRANSACTION_CONFLICT") {
+      this.logger.warn(
+        'Transaction "{transactionName}" conflicts with a concurrent one: {errorMessage}',
+        { ...props, errorMessage: error.message }
       );
     } else if (error.code === "TRANSACTION_FAILED") {
       this.logger.error(

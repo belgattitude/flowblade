@@ -1,6 +1,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
 import type { DuckDBConnection } from "@duckdb/node-api";
+import { withConnectionLock } from "@flowblade/source-duckdb";
 import type { Logger } from "@logtape/logtape";
 
 import { sqlduckDefaultLogtapeLogger } from "../../logger/sqlduck-default-logtape-logger.ts";
@@ -128,8 +129,10 @@ export class DuckSettingsManager {
     try {
       for (const [name, value] of entries) {
         try {
-          await conn.run(
-            `SET SESSION ${quoteIdentifier(name)} = ${toSettingLiteral(value)}`
+          await withConnectionLock(conn, () =>
+            conn.run(
+              `SET SESSION ${quoteIdentifier(name)} = ${toSettingLiteral(value)}`
+            )
           );
         } catch (error) {
           throw new Error(
@@ -173,10 +176,12 @@ export class DuckSettingsManager {
         (layer) => layer.conn === this.#conn && name in layer.settings
       )?.settings[name];
       try {
-        await this.#conn.run(
-          enclosingValue === undefined
-            ? `RESET SESSION ${quoteIdentifier(name)}`
-            : `SET SESSION ${quoteIdentifier(name)} = ${toSettingLiteral(enclosingValue)}`
+        await withConnectionLock(this.#conn, () =>
+          this.#conn.run(
+            enclosingValue === undefined
+              ? `RESET SESSION ${quoteIdentifier(name)}`
+              : `SET SESSION ${quoteIdentifier(name)} = ${toSettingLiteral(enclosingValue)}`
+          )
         );
       } catch (error) {
         this.#logger.warning(

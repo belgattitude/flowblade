@@ -27,15 +27,19 @@ import {
   getOneRowOrThrow,
   runTransaction,
   toOneRowQResult,
-  type TransactionBeginContext,
 } from "@flowblade/core/datasource";
 import type { SqlTag } from "@flowblade/sql-tag";
 import type { Logger } from "@logtape/logtape";
 
 import {
+  type ConnectionHold,
+  type DuckdbTransactionContext,
   getConnectionLock,
+  getContextHold,
   type ReleaseLock,
+  runWithHold,
 } from "../internal/connection-lock.ts";
+import { isDuckdbTransactionConflict } from "../internal/is-duckdb-transaction-conflict.ts";
 import { duckdbDefaultLogtapeLogger } from "../logger/duckdb-default-logtape-logger.ts";
 
 export type DuckdbDatasourceParams = {
@@ -118,14 +122,6 @@ export type DuckdbTransactionDatasource = Omit<
 > &
   TransactionScopeInterface;
 
-/**
- * Set on the transaction datasource only: reports its queries to
- * `runTransaction()` (spans, failed queries prevent the commit).
- */
-type TransactionContext = TransactionBeginContext & {
-  signal: AbortSignal | undefined;
-};
-
 export class DuckdbDatasource
   implements
     DatasourceInterface,
@@ -136,9 +132,10 @@ export class DuckdbDatasource
   private readonly logParams: boolean;
   private readonly defaultOptions: DatasourceDefaultOptions;
   /**
-   * Transaction datasource only, see `TransactionContext`.
+   * Transaction datasource only: reports its queries to `runTransaction()`
+   * (spans, failed queries prevent the commit).
    */
-  protected transactionContext: TransactionContext | undefined;
+  protected transactionContext: DuckdbTransactionContext | undefined;
 
   constructor(params: DuckdbDatasourceParams) {
     this.db = params.connection;
@@ -209,7 +206,9 @@ export class DuckdbDatasource
     options?: QueryOptions
   ): AsyncQResult<TData> => {
     const name = options?.name ?? "anonymous";
-    const signal = this.getSignal(options?.signal);
+    // the transaction datasource, or a datasource used in a transaction callback
+    const txContext = this.getTransactionContext();
+    const signal = this.getSignal(options?.signal, txContext);
     const { text: sql, values: params } = rawQuery;
     const span = createSqlSpan({ sql, params });
     const start = Date.now();
@@ -224,6 +223,7 @@ export class DuckdbDatasource
         this.getLogFromSpan(name, span, "query")
       );
       signal?.throwIfAborted();
+      txContext?.assertActive();
       // Waits for a running transaction, before listening to the abort:
       // the interrupt would hit the transaction query
       releaseLock = await this.acquireSharedLock(signal);
@@ -238,7 +238,7 @@ export class DuckdbDatasource
         'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
         this.getLogFromSpan(name, span, "query")
       );
-      this.transactionContext?.addSpan(span);
+      txContext?.addSpan(span);
 
       return createQResultSuccess(
         rows.getRowObjectsJson() as TData,
@@ -258,8 +258,8 @@ export class DuckdbDatasource
         ...this.getLogFromSpan(name, span, "query"),
         errorMessage: message,
       });
-      this.transactionContext?.addSpan(span);
-      this.transactionContext?.onQueryFailed(error);
+      txContext?.addSpan(span);
+      txContext?.onQueryFailed(error);
 
       // The interrupt can make DuckDB fail before the abort check,
       // always report an aborted query with the abort reason as cause
@@ -468,7 +468,9 @@ export class DuckdbDatasource
     options?: QueryStreamOptions
   ): AsyncIterableIterator<TData[number]> {
     const name = options?.name ?? "anonymous";
-    const signal = this.getSignal(options?.signal);
+    // the transaction datasource, or a datasource used in a transaction callback
+    const txContext = this.getTransactionContext();
+    const signal = this.getSignal(options?.signal, txContext);
     const { text: sql, values: params } = rawQuery;
     const span = createSqlSpan({ sql, params });
     const start = Date.now();
@@ -489,6 +491,7 @@ export class DuckdbDatasource
 
     try {
       signal?.throwIfAborted();
+      txContext?.assertActive();
       // Held until the stream ends: a transaction waits for it
       releaseLock = await this.acquireSharedLock(signal);
       signal?.addEventListener("abort", onAbort, { once: true });
@@ -516,7 +519,7 @@ export class DuckdbDatasource
           errorMessage: message,
         }
       );
-      this.transactionContext?.onQueryFailed(error);
+      txContext?.onQueryFailed(error);
 
       // The interrupt can hit the next chunk fetch before the between-chunks check,
       // always report an aborted stream with the abort reason as cause
@@ -528,10 +531,8 @@ export class DuckdbDatasource
     } finally {
       signal?.removeEventListener("abort", onAbort);
       // Since DuckDB 2.0, a stream not read to the end (break / return / failure)
-      // blocks the connection until closed. closeSync() is not available before 1.5.6-r.2.
-      if (result !== undefined && "closeSync" in result) {
-        result.closeSync();
-      }
+      // blocks the connection until closed.
+      result?.closeSync();
       releaseLock?.();
       // Runs on completion, on early exit (break / return) and on failure,
       // the failure being already logged as an error above.
@@ -544,7 +545,7 @@ export class DuckdbDatasource
           this.getLogFromSpan(name, span, "stream")
         );
       }
-      this.transactionContext?.addSpan(span);
+      txContext?.addSpan(span);
     }
   }
 
@@ -569,17 +570,18 @@ export class DuckdbDatasource
    * run in the transaction.
    *
    * The transaction holds the connection: the queries and streams of the
-   * datasources using the same connection wait for it to end, and it waits
-   * for the running ones to end before beginning.
+   * datasources using the same connection (and `withConnectionLock()`
+   * callbacks) wait for it to end, and it waits for the running ones to end
+   * before beginning. In the callback (its async context), they run in the
+   * transaction rather than waiting forever: prefer `tx` though.
    *
    * Notes:
    * - A failed query is never committed, even when handled by the callback
    *   (ie: `tx.query()` never throws): DuckDB aborts the transaction on any
    *   error and silently rolls back on commit. Prefer the throwing methods
    *   (ie: `tx.queryOrThrow()`) in the callback.
-   * - Run the queries with `tx`: the datasource queries wait for the end of
-   *   the transaction, forever when awaited in the callback. Likewise, don't
-   *   start a transaction while iterating over a stream of the same connection.
+   * - Don't start a transaction while iterating over a stream of the same
+   *   connection, it would wait for the stream forever.
    * - Await all the queries before returning, and fully consume (or break)
    *   the `tx.stream()` iterators.
    * - DuckDB has no isolation levels (snapshot isolation) and doesn't support
@@ -631,15 +633,34 @@ export class DuckdbDatasource
     const result = await runTransaction<
       {
         tx: DuckdbTransactionDatasourceImpl;
+        hold: ConnectionHold;
         releaseLock: ReleaseLock;
       },
       TData
     >({
       options,
+      isConflictError: isDuckdbTransactionConflict,
+      onRetry: ({ retry, delayMs, error }) => {
+        this.logger.warn(
+          'Transaction "{transactionName}" conflicts with a concurrent one, retry {retry} in {delayMs}ms: {errorMessage}',
+          { ...logProps, retry, delayMs, errorMessage: error.message }
+        );
+      },
       begin: async (context) => {
-        if (this.transactionContext !== undefined) {
+        const lock = getConnectionLock(this.db);
+        const contextHold = getContextHold(lock);
+        if (
+          this.transactionContext !== undefined ||
+          contextHold?.transaction !== undefined
+        ) {
           throw new Error(
             "Nested transactions are not supported, run the queries with the transaction datasource"
+          );
+        }
+        if (contextHold !== undefined) {
+          // would wait for the lock held by this async context forever
+          throw new Error(
+            "Can't begin a transaction while the connection is held by this async context (ie: in a withConnectionLock() callback)"
           );
         }
         // not in the types, but might be passed through TransactionalDatasourceInterface
@@ -652,9 +673,7 @@ export class DuckdbDatasource
             "DuckDB doesn't support isolation levels (snapshot isolation)"
           );
         }
-        const releaseLock = await getConnectionLock(this.db).acquireExclusive(
-          options?.signal
-        );
+        const releaseLock = await lock.acquireExclusive(options?.signal);
         try {
           await this.db.run(
             accessMode === "read only"
@@ -675,18 +694,27 @@ export class DuckdbDatasource
           },
           { ...context, signal: options?.signal }
         );
-        return { tx, releaseLock };
+        // The callback holds the connection: in its async context, the
+        // queries of the datasources on this connection run in the transaction
+        const hold: ConnectionHold = {
+          lock,
+          released: false,
+          transaction: { ...context, signal: options?.signal },
+        };
+        return { tx, hold, releaseLock };
       },
-      fn: ({ tx }) => fn(tx),
-      commit: async ({ releaseLock }) => {
+      fn: ({ tx, hold }) => runWithHold(hold, () => fn(tx)),
+      commit: async ({ hold, releaseLock }) => {
         // On failure, runTransaction() rolls back and releases the lock
         await this.db.run("COMMIT");
+        hold.released = true;
         releaseLock();
       },
-      rollback: async ({ releaseLock }) => {
+      rollback: async ({ hold, releaseLock }) => {
         try {
           await this.db.run("ROLLBACK");
         } finally {
+          hold.released = true;
           releaseLock();
         }
       },
@@ -697,6 +725,7 @@ export class DuckdbDatasource
     const props = {
       ...logProps,
       status: span?.status,
+      ...(span?.retries === undefined ? {} : { retries: span.retries }),
       queryCount: meta.getSpans().length - 1,
       timeMs: meta.getTotalTimeMs(),
     };
@@ -704,6 +733,11 @@ export class DuckdbDatasource
       this.logger.info(
         'Transaction "{transactionName}" committed in {timeMs}ms, {queryCount} query(ies)',
         props
+      );
+    } else if (error.code === "TRANSACTION_CONFLICT") {
+      this.logger.warn(
+        'Transaction "{transactionName}" conflicts with a concurrent one: {errorMessage}',
+        { ...props, errorMessage: error.message }
       );
     } else if (error.code === "TRANSACTION_FAILED") {
       this.logger.error(
@@ -764,9 +798,10 @@ export class DuckdbDatasource
    * Combine the query signal with the transaction one, if any.
    */
   private readonly getSignal = (
-    signal: AbortSignal | undefined
+    signal: AbortSignal | undefined,
+    txContext: DuckdbTransactionContext | undefined
   ): AbortSignal | undefined => {
-    const transactionSignal = this.transactionContext?.signal;
+    const transactionSignal = txContext?.signal;
     if (transactionSignal === undefined || signal === undefined) {
       return signal ?? transactionSignal;
     }
@@ -774,15 +809,31 @@ export class DuckdbDatasource
   };
 
   /**
-   * Wait for a running transaction on the connection, the transaction
-   * datasource already holds the connection.
+   * The transaction the queries run in: of the transaction datasource, or of
+   * the transaction callback the query is run in (the connection is shared).
+   */
+  private readonly getTransactionContext = ():
+    | DuckdbTransactionContext
+    | undefined =>
+    this.transactionContext ??
+    getContextHold(getConnectionLock(this.db))?.transaction;
+
+  /**
+   * Wait for a running transaction on the connection, unless the connection
+   * is already held: by the transaction datasource, or by the current async
+   * context (a transaction or `withConnectionLock()` callback).
    */
   private readonly acquireSharedLock = async (
     signal: AbortSignal | undefined
-  ): Promise<ReleaseLock | undefined> =>
-    this.transactionContext === undefined
-      ? await getConnectionLock(this.db).acquireShared(signal)
+  ): Promise<ReleaseLock | undefined> => {
+    if (this.transactionContext !== undefined) {
+      return undefined;
+    }
+    const lock = getConnectionLock(this.db);
+    return getContextHold(lock) === undefined
+      ? await lock.acquireShared(signal)
       : undefined;
+  };
 
   /**
    * Log the `queryOne()` row count when it isn't one: more than one row as
@@ -833,7 +884,10 @@ class DuckdbTransactionDatasourceImpl
   extends DuckdbDatasource
   implements TransactionScopeInterface
 {
-  constructor(params: DuckdbDatasourceParams, context: TransactionContext) {
+  constructor(
+    params: DuckdbDatasourceParams,
+    context: DuckdbTransactionContext
+  ) {
     super(params);
     this.transactionContext = context;
   }

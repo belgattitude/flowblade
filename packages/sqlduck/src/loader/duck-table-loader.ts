@@ -3,6 +3,7 @@ import type {
   DuckDBType,
   DuckDBValue,
 } from "@duckdb/node-api";
+import { withConnectionLock } from "@flowblade/source-duckdb";
 import type { Logger } from "@logtape/logtape";
 
 import { createDuckColumnConverters } from "../converter/create-duck-column-converters.ts";
@@ -97,7 +98,40 @@ export class DuckTableLoader {
     this.#strategy = params.strategy ?? new ChunkAppenderStrategy();
   }
 
+  /**
+   * Holds the connection lock (see `withConnectionLock()` from
+   * `@flowblade/source-duckdb`) for the whole load: a `DuckdbDatasource`
+   * transaction on the same connection waits for the load, and a load run
+   * in a transaction callback runs in the transaction.
+   */
   load = async <TSchema extends TableSchemaZod>(
+    params: LoadParams<TSchema>
+  ): Promise<LoadResult> => {
+    // Before the lock: invalid options aren't a failed query of a transaction
+    this.#assertValidParams(params);
+    return await withConnectionLock(this.#conn, () => this.#load(params), {
+      signal: params.signal,
+    });
+  };
+
+  readonly #assertValidParams = (params: LoadParams<TableSchemaZod>): void => {
+    const { checkpoint, progress } = params;
+    const checkpointEveryRows = checkpoint?.everyRows;
+    const strategy = this.#strategy;
+    assertPositiveInteger(checkpointEveryRows, "checkpoint.everyRows");
+    assertPositiveInteger(progress?.everyRows, "progress.everyRows");
+    if (
+      progress?.intervalMs !== undefined &&
+      !(Number.isFinite(progress.intervalMs) && progress.intervalMs >= 0)
+    ) {
+      throw new Error(
+        `progress.intervalMs must be a non-negative number, got ${progress.intervalMs}`
+      );
+    }
+    assertPositiveInteger(strategy.chunkSize, "strategy.chunkSize");
+  };
+
+  readonly #load = async <TSchema extends TableSchemaZod>(
     params: LoadParams<TSchema>
   ): Promise<LoadResult> => {
     const {
@@ -112,18 +146,6 @@ export class DuckTableLoader {
     const checkpointEveryRows = checkpoint?.everyRows;
     const strategy = this.#strategy;
     const conn = this.#conn;
-
-    assertPositiveInteger(checkpointEveryRows, "checkpoint.everyRows");
-    assertPositiveInteger(progress?.everyRows, "progress.everyRows");
-    if (
-      progress?.intervalMs !== undefined &&
-      !(Number.isFinite(progress.intervalMs) && progress.intervalMs >= 0)
-    ) {
-      throw new Error(
-        `progress.intervalMs must be a non-negative number, got ${progress.intervalMs}`
-      );
-    }
-    assertPositiveInteger(strategy.chunkSize, "strategy.chunkSize");
 
     signal?.throwIfAborted();
 

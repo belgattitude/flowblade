@@ -1,4 +1,17 @@
+import { AsyncLocalStorage } from "node:async_hooks";
+
 import type { DuckDBConnection } from "@duckdb/node-api";
+import type { TransactionBeginContext } from "@flowblade/core/datasource";
+
+/**
+ * Context of a transaction datasource: the transaction signal and the
+ * reporting of its queries to `runTransaction()`.
+ *
+ * @internal
+ */
+export type DuckdbTransactionContext = TransactionBeginContext & {
+  signal: AbortSignal | undefined;
+};
 
 type Waiter = {
   exclusive: boolean;
@@ -100,6 +113,44 @@ export class SharedExclusiveLock {
   }
 }
 
+/**
+ * The lock held by an async context: by a transaction callback (exclusive,
+ * with its `transaction`) or a `withConnectionLock()` callback (shared).
+ *
+ * @internal
+ */
+export type ConnectionHold = {
+  readonly lock: SharedExclusiveLock;
+  /**
+   * Set when the lock is released: the async tasks started in the context
+   * and still running then wait for the lock like any other.
+   */
+  released: boolean;
+  readonly transaction?: DuckdbTransactionContext;
+};
+
+const holdStorage = new AsyncLocalStorage<readonly ConnectionHold[]>();
+
+/**
+ * Return the hold of the lock by the current async context, if any.
+ *
+ * @internal
+ */
+export const getContextHold = (
+  lock: SharedExclusiveLock
+): ConnectionHold | undefined =>
+  holdStorage
+    .getStore()
+    ?.findLast((hold) => hold.lock === lock && !hold.released);
+
+/**
+ * Run `fn` in an async context holding the lock.
+ *
+ * @internal
+ */
+export const runWithHold = <T>(hold: ConnectionHold, fn: () => T): T =>
+  holdStorage.run([...(holdStorage.getStore() ?? []), hold], fn);
+
 const connectionLocks = new WeakMap<DuckDBConnection, SharedExclusiveLock>();
 
 /**
@@ -116,4 +167,63 @@ export const getConnectionLock = (
     connectionLocks.set(connection, lock);
   }
   return lock;
+};
+
+/**
+ * Run `fn` holding the lock of a DuckDB connection, for code using the
+ * connection directly (ie: `getConnection()`): a `DuckdbDatasource`
+ * transaction on the same connection doesn't begin while `fn` runs, and `fn`
+ * waits for a running one.
+ *
+ * - Reentrant: in `fn`, the datasource queries and nested `withConnectionLock()`
+ *   calls on the same connection don't wait for the lock again.
+ * - In a transaction callback (the connection is held by the transaction),
+ *   `fn` runs in the transaction: an error thrown by `fn` prevents the commit.
+ * - Beginning a transaction on the same connection in `fn` fails, it would
+ *   wait for `fn` forever.
+ *
+ * @example
+ * ```typescript
+ * import { withConnectionLock } from "@flowblade/source-duckdb";
+ *
+ * const conn = ds.getConnection();
+ * await withConnectionLock(conn, async () => {
+ *   await conn.run("CREATE TABLE product AS SELECT * FROM staging");
+ *   await conn.run("DROP TABLE staging");
+ * });
+ * ```
+ */
+export const withConnectionLock = async <T>(
+  connection: DuckDBConnection,
+  fn: () => Promise<T>,
+  options?: {
+    /**
+     * Stop waiting for the lock, rejects with the abort reason.
+     */
+    signal?: AbortSignal;
+  }
+): Promise<T> => {
+  const lock = getConnectionLock(connection);
+  const hold = getContextHold(lock);
+  if (hold !== undefined) {
+    const { transaction } = hold;
+    if (transaction === undefined) {
+      return await fn();
+    }
+    transaction.assertActive();
+    try {
+      return await fn();
+    } catch (error) {
+      transaction.onQueryFailed(error);
+      throw error;
+    }
+  }
+  const release = await lock.acquireShared(options?.signal);
+  const newHold: ConnectionHold = { lock, released: false };
+  try {
+    return await runWithHold(newHold, fn);
+  } finally {
+    newHold.released = true;
+    release();
+  }
 };

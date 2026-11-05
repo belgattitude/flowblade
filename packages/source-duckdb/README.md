@@ -314,19 +314,43 @@ const {
     }
     return row.count;
   },
-  { name: "refreshProducts" } // also: accessMode ("read only"), signal
+  { name: "refreshProducts" } // also: accessMode ("read only"), signal, retry
 );
 if (error) {
   // "ROLLED_BACK": the callback threw (ie: tx.queryOrThrow()) or called tx.rollback()
   // "TRANSACTION_FAILED": a query failed (handled by the callback), or couldn't begin, commit or roll back
+  // "TRANSACTION_CONFLICT": conflicts with a concurrent transaction, see retry
   // "ABORTED": aborted with signal, never committed
   console.error(error.code, error.message, error.cause);
 }
 ```
 
-The transaction holds the connection: queries and streams of the datasources sharing the connection wait for it to end, and it waits for the running ones before beginning.
+Conflicts with a concurrent transaction (serialization failure, deadlock) are reported as `TRANSACTION_CONFLICT`, run the transaction again with the `retry` option (the callback is called again: keep its side effects in the transaction):
 
-> **Note**: DuckDB aborts the transaction on any failed query (and would silently roll back on commit): after a failed `tx.query()` (it never throws), the transaction is rolled back with a `TRANSACTION_FAILED` error. Prefer the throwing methods in the callback, always use `tx` (not `ds`, it would wait for the transaction forever). DuckDB has no isolation levels (snapshot isolation) nor nested transactions.
+```typescript
+const { data, error } = await ds.transaction(fn, {
+  // waits 50ms, 100ms then 200ms by default, or set delayMs: (retry) => ms
+  retry: { maxRetries: 3 },
+});
+```
+
+DuckDB conflicts happen between connections of the same database (ie: `Conflict on update!`).
+
+The transaction holds the connection: queries and streams of the datasources sharing the connection wait for it to end, and it waits for the running ones before beginning. In the callback, they run in the transaction (prefer `tx` though).
+
+Code using the connection directly (`getConnection()`) can take part with `withConnectionLock()`: a transaction doesn't begin while the callback runs, and in a transaction callback it runs in the transaction (an error then prevents the commit).
+
+```typescript
+import { withConnectionLock } from "@flowblade/source-duckdb";
+
+const conn = ds.getConnection();
+await withConnectionLock(conn, async () => {
+  await conn.run("CREATE TABLE product AS SELECT * FROM staging");
+  await conn.run("DROP TABLE staging");
+});
+```
+
+> **Note**: DuckDB aborts the transaction on any failed query (and would silently roll back on commit): after a failed `tx.query()` (it never throws), the transaction is rolled back with a `TRANSACTION_FAILED` error. Prefer the throwing methods in the callback. DuckDB has no isolation levels (snapshot isolation) nor nested transactions.
 
 ### Aborting queries
 
@@ -410,6 +434,7 @@ export const ds = new DuckdbDatasource({ connection: duckdb });
 | Node | ✅ | Requires 22.18+, CI for 22.x, 24.x & 26.x |
 | Bun | ✅ | Bun 1.4+, unit tests run on CI with the latest Bun |
 | Deno | ✅ | Deno LTS, unit tests run on CI with Deno 2 |
+| DuckDB | ✅ | `@duckdb/node-api` 2.x (`^2.0.0-r.1`), 1.x is no longer supported |
 | Typescript | ✅ | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI. |
 | ES2022 | ✅ | Dist files checked with [es-check](https://github.com/yowainwright/es-check) |
 

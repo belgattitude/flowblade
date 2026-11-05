@@ -62,6 +62,11 @@ export interface QMetaTransactionSpan {
   timeMs: number;
   isolationLevel?: TransactionIsolationLevel;
   accessMode?: TransactionAccessMode;
+  /**
+   * Number of retries after a conflict (see the `retry` option), set when
+   * retried: the spans are the ones of the last attempt.
+   */
+  retries?: number;
 }
 
 /**

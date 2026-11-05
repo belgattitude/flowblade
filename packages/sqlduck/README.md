@@ -144,6 +144,24 @@ if (result.error) {
 
 `database` and `schema` must be valid, non-reserved DuckDB identifiers, otherwise an error result is returned and the query is not run. Targeting an attached file database keeps large materializations out of the in-memory one.
 
+### Transactions
+
+sqlduck takes part in the `DuckdbDatasource` transactions of the same connection (see [@flowblade/source-duckdb](https://github.com/belgattitude/flowblade/tree/main/packages/source-duckdb#transactions)):
+
+- a transaction waits for a running load (`toTable()`) or manager query, and they wait for a running transaction,
+- in a transaction callback, they run in the transaction: a failed load prevents the commit.
+
+```typescript
+const ds = new DuckdbDatasource({ connection: conn });
+await ds.transactionOrThrow(async (tx) => {
+  await tx.queryOrThrow(sql`DELETE FROM product`);
+  // rolled back with the delete if anything fails
+  await sqlDuck.toTable({ table, schema, rowStream, autoCheckpoint: false });
+});
+```
+
+> **Note**: DuckDB can't checkpoint in a transaction, set `autoCheckpoint: false` for the loads run in a transaction callback.
+
 ## Compatibility
 
 | Level | CI | Description |
@@ -151,6 +169,7 @@ if (result.error) {
 | Node | ✅ | Requires 22.18+, CI for 22.x, 24.x & 26.x |
 | Bun | ✅ | Bun 1.4+, unit tests run on CI with the latest Bun |
 | Deno | ✅ | Deno LTS, unit tests run on CI with Deno 2 |
+| DuckDB | ✅ | `@duckdb/node-api` 2.x (`^2.0.0-r.1`), 1.x is no longer supported |
 | Typescript | ✅ | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI. |
 | ES2022 | ✅ | Dist files checked with [es-check](https://github.com/yowainwright/es-check) |
 

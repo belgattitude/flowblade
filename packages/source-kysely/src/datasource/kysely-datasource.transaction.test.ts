@@ -344,6 +344,20 @@ describe("KyselyDatasource transactions", () => {
       ).rejects.toThrow(QErrors.TransactionFailed);
     });
 
+    it("should reject the queries of a transaction datasource kept after the end", async () => {
+      const { ds, calls } = createDatasource();
+      let kept: KyselyTransactionDatasource<Database> | undefined;
+      await ds.transactionOrThrow(async (tx) => {
+        kept = tx;
+      });
+      const { error } = await kept!.query(insertProduct(kept!, 1));
+      expect(error?.code).toBe("QUERY_FAILED");
+      expect(error?.message).toBe(
+        "The transaction has ended, run its queries in the callback and await them"
+      );
+      expect(calls).toStrictEqual(["begin", "commit"]);
+    });
+
     it("should not support nested transactions", async () => {
       const { ds } = createDatasource();
       const result = await ds.transaction(async (tx) => {

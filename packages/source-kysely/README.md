@@ -326,22 +326,35 @@ const {
   },
   {
     name: "createOrder",
-    isolationLevel: "serializable", // optional, also: accessMode, signal
+    isolationLevel: "serializable", // optional, also: accessMode, signal, retry
   }
 );
 if (error) {
   // "ROLLED_BACK": the callback threw (ie: tx.queryOrThrow()) or called tx.rollback()
   // "TRANSACTION_FAILED": a query failed (handled by the callback), or couldn't begin, commit or roll back
+  // "TRANSACTION_CONFLICT": conflicts with a concurrent transaction, see retry
   // "ABORTED": aborted with signal, never committed
   console.error(error.code, error.message, error.cause);
 }
 // meta: a "transaction" span followed by the spans of the queries
 
-// Or throw: the error thrown by the callback as is, a QErrors.TransactionFailed or a QErrors.Aborted
+// Or throw: the error thrown by the callback as is, a QErrors.TransactionConflict, QErrors.TransactionFailed or QErrors.Aborted
 const { data } = await ds.transactionOrThrow(async (tx) => {
   /* ... */
 });
 ```
+
+Conflicts with a concurrent transaction (serialization failure, deadlock) are reported as `TRANSACTION_CONFLICT`, run the transaction again with the `retry` option (the callback is called again: keep its side effects in the transaction):
+
+```typescript
+const { data, error } = await ds.transaction(fn, {
+  isolationLevel: "serializable",
+  // waits 50ms, 100ms then 200ms by default, or set delayMs: (retry) => ms
+  retry: { maxRetries: 3 },
+});
+```
+
+Postgres, SQL Server and MySQL conflicts are recognized, set the `isTransactionConflict` param for other databases.
 
 > **Note**: a failed query is never committed, even when handled by the callback (ie: `tx.query()` never throws): the transaction is rolled back with a `TRANSACTION_FAILED` error (Postgres aborts the transaction on error and would silently roll back on commit). Prefer the throwing methods in the callback. Always use `tx` (not `ds`) in the callback, nested transactions aren't supported.
 

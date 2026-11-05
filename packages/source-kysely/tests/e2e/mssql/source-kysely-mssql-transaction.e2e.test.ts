@@ -1,5 +1,13 @@
 import { sql } from "kysely";
-import { afterEach, beforeAll, describe, expect, inject, it } from "vitest";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  inject,
+  it,
+} from "vitest";
 
 import {
   type KyselyDatasource,
@@ -161,5 +169,100 @@ describe("MSSQL e2e transactions", () => {
       )
     );
     expect(levels).toStrictEqual([1, 4]);
+  });
+
+  describe("conflicts", () => {
+    beforeAll(async () => {
+      // already on for the master database
+      await ds.queryOrThrow(sql`
+        DECLARE @alter NVARCHAR(MAX) = 'ALTER DATABASE ' + QUOTENAME(DB_NAME()) + ' SET ALLOW_SNAPSHOT_ISOLATION ON';
+        IF (SELECT snapshot_isolation_state FROM sys.databases WHERE name = DB_NAME()) = 0
+          EXEC(@alter);
+      `);
+    });
+
+    /**
+     * A snapshot transaction updating a row changed (and committed) by
+     * another transaction since its first read: SQL Server error 3960.
+     */
+    const updateAfterConcurrentChange =
+      (
+        tx: KyselyTransactionDatasource<mssqlE2eDb>,
+        changeConcurrently: boolean
+      ) =>
+      async () => {
+        // the snapshot starts with the first read
+        await tx.queryOrThrow(
+          tx.queryBuilder
+            .selectFrom("TestTableLinked")
+            .select("name")
+            .where("id", "=", firstId)
+        );
+        if (changeConcurrently) {
+          await ds.queryOrThrow(
+            ds.queryBuilder
+              .updateTable("TestTableLinked")
+              .set({ name: "concurrent" })
+              .where("id", "=", firstId)
+          );
+        }
+        await tx.queryOrThrow(
+          tx.queryBuilder
+            .updateTable("TestTableLinked")
+            .set({ name: "transaction" })
+            .where("id", "=", firstId)
+        );
+      };
+
+    const getName = async () => {
+      const { data } = await ds.queryOneOrThrow(
+        ds.queryBuilder
+          .selectFrom("TestTableLinked")
+          .select("name")
+          .where("id", "=", firstId)
+      );
+      return data.name;
+    };
+
+    beforeEach(async () => {
+      await ds.queryOrThrow(
+        ds.queryBuilder
+          .insertInto("TestTableLinked")
+          .values({ id: firstId, name: "initial", test_table_id: 1 })
+      );
+    });
+
+    it("should return TRANSACTION_CONFLICT", async () => {
+      const result = await ds.transaction(
+        (tx) => updateAfterConcurrentChange(tx, true)(),
+        { isolationLevel: "snapshot" }
+      );
+      expect(result.error?.code).toBe("TRANSACTION_CONFLICT");
+      expect(result.error?.cause).toBeInstanceOf(QErrors.QueryFailed);
+      // 3960: snapshot isolation update conflict
+      expect(result.error?.cause).toHaveProperty(
+        "cause",
+        expect.objectContaining({ number: 3960 })
+      );
+      await expect(getName()).resolves.toBe("concurrent");
+    });
+
+    it("should retry the conflicting transaction", async () => {
+      let attempts = 0;
+      const result = await ds.transaction(
+        (tx) => {
+          attempts++;
+          return updateAfterConcurrentChange(tx, attempts === 1)();
+        },
+        { isolationLevel: "snapshot", retry: { maxRetries: 2, delayMs: 0 } }
+      );
+      expect(result.error).toBeUndefined();
+      expect(attempts).toBe(2);
+      expect(result.meta.getSpans()[0]).toMatchObject({
+        status: "committed",
+        retries: 1,
+      });
+      await expect(getName()).resolves.toBe("transaction");
+    });
   });
 });

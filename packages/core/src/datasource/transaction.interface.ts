@@ -38,6 +38,31 @@ export type TransactionOptions = {
    * Access mode, defaults to the database default (ie: "read write").
    */
   accessMode?: TransactionAccessMode;
+  /**
+   * Run the transaction again when it conflicts with a concurrent one
+   * ("TRANSACTION_CONFLICT": serialization failure, deadlock...), the callback
+   * is called again: keep its side effects in the transaction.
+   *
+   * @example
+   * ```typescript
+   * { retry: { maxRetries: 3 } } // waits 50ms, 100ms then 200ms
+   * { retry: { maxRetries: 5, delayMs: (retry) => retry * 100 } }
+   * ```
+   */
+  retry?: TransactionRetryOptions;
+};
+
+export type TransactionRetryOptions = {
+  /**
+   * Retries after the first attempt, a non-negative integer.
+   */
+  maxRetries: number;
+  /**
+   * Delay before a retry in milliseconds, or a function of the retry number
+   * (1 for the first retry). Defaults to an exponential backoff: 50ms, 100ms,
+   * 200ms... up to 1s.
+   */
+  delayMs?: number | ((retry: number) => number);
 };
 
 /**
@@ -91,6 +116,8 @@ export interface TransactionalDatasourceInterface<
    * - "TRANSACTION_FAILED": a query failed in the transaction (handled by
    *   the callback or not, it's then rolled back), or the transaction
    *   couldn't begin, commit or roll back, the driver error is the `cause`,
+   * - "TRANSACTION_CONFLICT": the transaction conflicts with a concurrent one
+   *   (ie: serialization failure, deadlock), it can be retried (see `retry`),
    * - "ABORTED": aborted with `signal`, the abort reason is the `cause`.
    *
    * `meta` holds a "transaction" span followed by the spans of the queries
@@ -128,6 +155,7 @@ export interface TransactionalDatasourceInterface<
    *
    * Throws the error thrown by the callback as is (ie: a `QErrors.QueryFailed`
    * from `tx.queryOrThrow()`, a `QErrors.RolledBack` from `tx.rollback()`),
+   * a `QErrors.TransactionConflict` when it conflicts with a concurrent one,
    * a `QErrors.TransactionFailed` when a query failed in the transaction
    * (handled by the callback) or the transaction couldn't begin, commit
    * or roll back, or a `QErrors.Aborted` when aborted with `signal`. To throw

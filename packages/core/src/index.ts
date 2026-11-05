@@ -12,6 +12,7 @@ export type {
   TransactionIsolationLevel,
   TransactionOptions,
   TransactionOrThrowOptions,
+  TransactionRetryOptions,
   TransactionScopeInterface,
 } from "./datasource/transaction.interface";
 /**

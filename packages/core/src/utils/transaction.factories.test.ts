@@ -39,12 +39,17 @@ const createDriver = (
   };
   const run = <TData>(
     fn: (tx: FakeTx) => Promise<TData>,
-    options?: Parameters<typeof runTransaction>[0]["options"]
+    options?: Parameters<typeof runTransaction>[0]["options"],
+    extra?: Pick<
+      Parameters<typeof runTransaction>[0],
+      "isConflictError" | "onRetry"
+    >
   ) =>
     runTransaction<FakeTx, TData>({
+      ...extra,
       fn,
       options,
-      begin: async ({ addSpan, onQueryFailed }) => {
+      begin: async ({ addSpan, onQueryFailed, assertActive }) => {
         await driver.begin();
         return {
           failedQuery: (sql, error) => {
@@ -53,6 +58,7 @@ const createDriver = (
             onQueryFailed(error);
           },
           query: async (sql) => {
+            assertActive();
             calls.push(sql);
             addSpan(createSqlSpan({ sql, params: [], timeMs: 1 }));
           },
@@ -207,6 +213,32 @@ describe(runTransaction, () => {
     expect(result.error).toMatchObject({ code: "ROLLED_BACK", cause: thrown });
   });
 
+  it("should reject the queries run after the callback returned", async () => {
+    const { driver, run } = createDriver();
+    let kept: FakeTx | undefined;
+    const result = await run(async (tx) => {
+      kept = tx;
+      await tx.query("INSERT 1");
+    });
+    expect(result.error).toBeUndefined();
+    await expect(kept?.query("INSERT 2")).rejects.toThrow(
+      "The transaction has ended"
+    );
+    expect(driver.calls).toStrictEqual(["begin", "INSERT 1", "commit"]);
+  });
+
+  it("should reject the queries run after the callback threw", async () => {
+    const { run } = createDriver();
+    let kept: FakeTx | undefined;
+    await run(async (tx) => {
+      kept = tx;
+      throw new Error("thrown");
+    });
+    await expect(kept?.query("INSERT 1")).rejects.toThrow(
+      "The transaction has ended"
+    );
+  });
+
   it("should return TRANSACTION_FAILED when begin fails", async () => {
     const beginError = new Error("pool timeout");
     const { driver, run } = createDriver({
@@ -357,6 +389,218 @@ describe(runTransaction, () => {
         statusCode: 500,
         cause: commitError,
       });
+    });
+  });
+
+  describe("conflicts", () => {
+    const isConflictError = (error: unknown) =>
+      (error as { code?: unknown }).code === "40001";
+    const createConflict = () =>
+      Object.assign(new Error("could not serialize access"), {
+        code: "40001",
+      });
+
+    it("should return TRANSACTION_CONFLICT when the callback throws a conflict", async () => {
+      const { run } = createDriver();
+      const thrown = new QErrors.QueryFailed("could not serialize access", {
+        cause: createConflict(),
+      });
+      const result = await run(
+        () => Promise.reject(thrown),
+        {},
+        { isConflictError }
+      );
+      expect(result.error).toStrictEqual({
+        message: "could not serialize access",
+        code: "TRANSACTION_CONFLICT",
+        cause: thrown,
+      });
+      expect(result.meta.getSpans()[0]).toMatchObject({
+        status: "rolled back",
+      });
+      let caught: unknown;
+      try {
+        getDataOrThrow(result);
+      } catch (error) {
+        caught = error;
+      }
+      expect(caught).toBeInstanceOf(QErrors.TransactionConflict);
+      expect(caught).toMatchObject({ statusCode: 409, cause: thrown });
+    });
+
+    it("should return TRANSACTION_CONFLICT for a handled failed query", async () => {
+      const { run } = createDriver();
+      const conflictError = createConflict();
+      const result = await run(
+        async (tx) => {
+          tx.failedQuery("UPDATE 1", conflictError);
+        },
+        {},
+        { isConflictError }
+      );
+      expect(result.error).toMatchObject({
+        code: "TRANSACTION_CONFLICT",
+        cause: conflictError,
+      });
+    });
+
+    it("should return TRANSACTION_CONFLICT when the commit conflicts", async () => {
+      const conflictError = createConflict();
+      const { driver, run } = createDriver({
+        commit: () => Promise.reject(conflictError),
+      });
+      const result = await run(async () => 1, {}, { isConflictError });
+      expect(driver.calls).toStrictEqual(["begin", "commit", "rollback"]);
+      expect(result.error).toMatchObject({
+        code: "TRANSACTION_CONFLICT",
+        cause: conflictError,
+      });
+      expect(result.meta.getSpans()[0]).toMatchObject({ status: "failed" });
+    });
+
+    it("should report the conflict when the rollback fails", async () => {
+      // ie: sql server rolls back a deadlock victim, ROLLBACK then fails
+      const { run } = createDriver({
+        rollback: () =>
+          Promise.reject(new Error("no corresponding BEGIN TRANSACTION")),
+      });
+      const conflictError = createConflict();
+      const thrown = await run(
+        () => Promise.reject(conflictError),
+        {},
+        { isConflictError }
+      );
+      expect(thrown.error).toMatchObject({
+        code: "TRANSACTION_CONFLICT",
+        cause: conflictError,
+      });
+      const handled = await run(
+        async (tx) => {
+          tx.failedQuery("UPDATE 1", conflictError);
+        },
+        {},
+        { isConflictError }
+      );
+      expect(handled.error).toMatchObject({
+        code: "TRANSACTION_CONFLICT",
+        cause: conflictError,
+      });
+    });
+
+    it("should not report conflicts without isConflictError", async () => {
+      const { run } = createDriver();
+      const result = await run(() => Promise.reject(createConflict()));
+      expect(result.error?.code).toBe("ROLLED_BACK");
+    });
+
+    it("should retry the conflicts", async () => {
+      const { driver, run } = createDriver();
+      const onRetry = vi.fn<(info: unknown) => void>();
+      let attempts = 0;
+      const result = await run(
+        async (tx) => {
+          attempts++;
+          await tx.query(`UPDATE ${attempts}`);
+          if (attempts < 3) {
+            throw createConflict();
+          }
+          return attempts;
+        },
+        { retry: { maxRetries: 3, delayMs: 0 } },
+        { isConflictError, onRetry }
+      );
+      expect(result.error).toBeUndefined();
+      expect(result.data).toBe(3);
+      expect(driver.begin).toHaveBeenCalledTimes(3);
+      expect(driver.commit).toHaveBeenCalledOnce();
+      expect(onRetry.mock.calls.map(([info]) => info)).toStrictEqual([
+        {
+          retry: 1,
+          delayMs: 0,
+          error: expect.objectContaining({ code: "TRANSACTION_CONFLICT" }),
+        },
+        {
+          retry: 2,
+          delayMs: 0,
+          error: expect.objectContaining({ code: "TRANSACTION_CONFLICT" }),
+        },
+      ]);
+      // the spans of the last attempt
+      expect(result.meta.getSpans()[0]).toMatchObject({
+        status: "committed",
+        retries: 2,
+      });
+      expect(result.meta.getSpansByType("sql")).toHaveLength(1);
+    });
+
+    it("should return the conflict when the retries are exhausted", async () => {
+      const { driver, run } = createDriver();
+      const result = await run(
+        () => Promise.reject(createConflict()),
+        { retry: { maxRetries: 2, delayMs: (retry) => retry } },
+        { isConflictError }
+      );
+      expect(driver.begin).toHaveBeenCalledTimes(3);
+      expect(result.error?.code).toBe("TRANSACTION_CONFLICT");
+      expect(result.meta.getSpans()[0]).toMatchObject({ retries: 2 });
+    });
+
+    it("should use an exponential backoff by default", async () => {
+      const { run } = createDriver();
+      const onRetry = vi.fn<(info: { delayMs: number }) => void>();
+      await run(
+        () => Promise.reject(createConflict()),
+        { retry: { maxRetries: 2 } },
+        { isConflictError, onRetry }
+      );
+      expect(onRetry.mock.calls.map(([info]) => info.delayMs)).toStrictEqual([
+        50, 100,
+      ]);
+    });
+
+    it("should not retry the other errors", async () => {
+      const { driver, run } = createDriver();
+      const result = await run(
+        () => Promise.reject(new Error("syntax error")),
+        { retry: { maxRetries: 3, delayMs: 0 } },
+        { isConflictError }
+      );
+      expect(driver.begin).toHaveBeenCalledOnce();
+      expect(result.error?.code).toBe("ROLLED_BACK");
+    });
+
+    it("should stop retrying when aborted while waiting", async () => {
+      const { driver, run } = createDriver();
+      const controller = new AbortController();
+      const result = await run(
+        () => Promise.reject(createConflict()),
+        {
+          signal: controller.signal,
+          retry: { maxRetries: 3, delayMs: 1000 },
+        },
+        {
+          isConflictError,
+          onRetry: () => {
+            controller.abort(new Error("timeout"));
+          },
+        }
+      );
+      expect(driver.begin).toHaveBeenCalledOnce();
+      expect(result.error).toMatchObject({ code: "ABORTED" });
+    });
+
+    it("should return TRANSACTION_FAILED for invalid retries", async () => {
+      const { driver, run } = createDriver();
+      const result = await run(async () => 1, {
+        name: "invalid",
+        retry: { maxRetries: -1 },
+      });
+      expect(driver.begin).not.toHaveBeenCalled();
+      expect(result.error).toStrictEqual({
+        message: "retry.maxRetries must be a non-negative integer, got -1",
+        code: "TRANSACTION_FAILED",
+      });
+      expect(result.meta.name).toBe("invalid");
     });
   });
 });
