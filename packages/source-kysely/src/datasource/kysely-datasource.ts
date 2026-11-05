@@ -9,7 +9,6 @@ import {
   type QueryOptions,
   type QueryOrThrowOptions,
   type QueryStreamOptions,
-  type QMetaSpan,
   type TransactionalDatasourceInterface,
   type TransactionOptions,
   type TransactionOrThrowOptions,
@@ -23,6 +22,7 @@ import {
   getOneRowOrThrow,
   runTransaction,
   toOneRowQResult,
+  type TransactionBeginContext,
 } from "@flowblade/core/datasource";
 import type { Logger } from "@logtape/logtape";
 import type {
@@ -154,14 +154,13 @@ export class KyselyDatasource<TDatabase>
   private readonly logParams: boolean;
   private readonly defaultOptions: KyselyDatasourceDefaultOptions;
   /**
-   * Transaction datasource only: the transaction signal, combined with the
-   * queries one.
+   * Transaction datasource only: the transaction signal (combined with the
+   * queries one), and the reporting of its queries to `runTransaction()`
+   * (spans, failed queries prevent the commit).
    */
-  protected transactionSignal: AbortSignal | undefined;
-  /**
-   * Transaction datasource only: reports the query spans to the transaction.
-   */
-  protected onSpan: ((span: QMetaSpan) => void) | undefined;
+  protected transactionContext:
+    | (TransactionBeginContext & { signal: AbortSignal | undefined })
+    | undefined;
 
   /**
    * Return a new Kysely expression builder.
@@ -310,7 +309,7 @@ export class KyselyDatasource<TDatabase>
         'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
         this.getLogFromSpan(name, span, "query")
       );
-      this.onSpan?.(span);
+      this.transactionContext?.addSpan(span);
 
       return createQResultSuccess(
         result.rows as TData,
@@ -325,7 +324,8 @@ export class KyselyDatasource<TDatabase>
         ...this.getLogFromSpan(name, span, "query"),
         errorMessage: message,
       });
-      this.onSpan?.(span);
+      this.transactionContext?.addSpan(span);
+      this.transactionContext?.onQueryFailed(error);
 
       // Report an aborted query with the abort reason as cause, whatever
       // the dialect threw
@@ -595,6 +595,7 @@ export class KyselyDatasource<TDatabase>
           errorMessage: message,
         }
       );
+      this.transactionContext?.onQueryFailed(error);
 
       if (signal?.aborted === true) {
         // oxlint-disable-next-line preserve-caught-error -- the abort reason is the intended cause
@@ -613,7 +614,7 @@ export class KyselyDatasource<TDatabase>
           this.getLogFromSpan(name, span, "stream")
         );
       }
-      this.onSpan?.(span);
+      this.transactionContext?.addSpan(span);
     }
   }
 
@@ -634,17 +635,19 @@ export class KyselyDatasource<TDatabase>
    * It never throws, `error.code` is:
    * - "ROLLED_BACK": the callback threw (ie: a failed `tx.queryOrThrow()`) or
    *   called `tx.rollback()`, the thrown error is the `cause`,
-   * - "TRANSACTION_FAILED": the transaction couldn't begin, commit or roll
-   *   back, the driver error is the `cause`,
+   * - "TRANSACTION_FAILED": a query failed in the transaction (handled by
+   *   the callback or not, it's then rolled back), or the transaction
+   *   couldn't begin, commit or roll back, the driver error is the `cause`,
    * - "ABORTED": aborted with `signal`, the abort reason is the `cause`.
    *
    * `meta` holds a "transaction" span followed by the spans of the queries
    * run in the transaction.
    *
    * Notes:
-   * - `tx.query()` never throws: a failed query doesn't roll back the
-   *   transaction unless you throw or call `tx.rollback()`. Prefer the
-   *   throwing methods (ie: `tx.queryOrThrow()`) in the callback.
+   * - A failed query is never committed, even when handled by the callback
+   *   (ie: `tx.query()` never throws): Postgres aborts the transaction on
+   *   error and silently rolls back on commit. Prefer the throwing methods
+   *   (ie: `tx.queryOrThrow()`) in the callback.
    * - Await all the queries before returning, and fully consume (or break)
    *   the `tx.stream()` iterators.
    * - Run the queries with `tx`: the datasource queries run outside of the
@@ -710,7 +713,7 @@ export class KyselyDatasource<TDatabase>
     >({
       options,
       getErrorMessage: getKyselyErrorMessage,
-      begin: async ({ addSpan }) => {
+      begin: async (context) => {
         if (this.db.isTransaction) {
           throw new Error(
             "Nested transactions are not supported, run the queries with the transaction datasource"
@@ -732,7 +735,7 @@ export class KyselyDatasource<TDatabase>
             logParams: this.logParams,
             defaultOptions: this.defaultOptions,
           },
-          { signal: options?.signal, onSpan: addSpan }
+          { ...context, signal: options?.signal }
         );
         return { trx, tx };
       },
@@ -782,7 +785,8 @@ export class KyselyDatasource<TDatabase>
    *
    * Throws the error thrown by the callback as is (ie: a `QErrors.QueryFailed`
    * from `tx.queryOrThrow()`, a `QErrors.RolledBack` from `tx.rollback()`),
-   * a `QErrors.TransactionFailed` when the transaction couldn't begin, commit
+   * a `QErrors.TransactionFailed` when a query failed in the transaction
+   * (handled by the callback) or the transaction couldn't begin, commit
    * or roll back, or a `QErrors.Aborted` when aborted with `signal`. To throw
    * your own error, pass an `onError` factory.
    *
@@ -819,7 +823,7 @@ export class KyselyDatasource<TDatabase>
   private readonly getSignal = (
     signal: AbortSignal | undefined
   ): AbortSignal | undefined => {
-    const { transactionSignal } = this;
+    const transactionSignal = this.transactionContext?.signal;
     if (transactionSignal === undefined || signal === undefined) {
       return signal ?? transactionSignal;
     }
@@ -872,14 +876,10 @@ class KyselyTransactionDatasourceImpl<TDatabase>
 {
   constructor(
     params: Params<TDatabase>,
-    context: {
-      signal: AbortSignal | undefined;
-      onSpan: (span: QMetaSpan) => void;
-    }
+    context: TransactionBeginContext & { signal: AbortSignal | undefined }
   ) {
     super(params);
-    this.transactionSignal = context.signal;
-    this.onSpan = context.onSpan;
+    this.transactionContext = context;
   }
 
   rollback = (reason?: string): never => {

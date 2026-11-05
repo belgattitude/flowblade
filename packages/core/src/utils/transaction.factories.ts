@@ -8,14 +8,31 @@ import { QResult } from "../query-result/q-result";
 import type { AsyncQResult, QError } from "../query-result/types";
 import { isError } from "./brand";
 
+/**
+ * Received by `begin`, for the transaction datasource to report its queries.
+ */
+export type TransactionBeginContext = {
+  /**
+   * Report the span of a query run in the transaction (succeeded or failed),
+   * added to the result meta.
+   */
+  addSpan: (span: QMetaSpan) => void;
+  /**
+   * Report a failed query (the driver error), even when the callback handles
+   * it: the transaction is then rolled back rather than committed. Most
+   * databases abort the transaction on error (ie: Postgres, DuckDB), and
+   * silently roll back on commit.
+   */
+  onQueryFailed: (error: unknown) => void;
+};
+
 export type RunTransactionParams<TTx, TData> = {
   /**
    * Begin the transaction and return what the callback and `commit` /
-   * `rollback` receive (ie: the transaction datasource). Report the spans of
-   * the queries run in the transaction with `addSpan`, they're added to the
-   * result meta.
+   * `rollback` receive (ie: the transaction datasource), which reports its
+   * queries through the `context`.
    */
-  begin: (context: { addSpan: (span: QMetaSpan) => void }) => Promise<TTx>;
+  begin: (context: TransactionBeginContext) => Promise<TTx>;
   commit: (tx: TTx) => Promise<void>;
   /**
    * Roll back the transaction, also called after a failed commit to release
@@ -52,6 +69,9 @@ const defaultGetErrorMessage = (error: unknown): string => {
  *   ("ABORTED" when `signal` is aborted, ie: while waiting for a connection).
  * - `fn` throws (ie: `tx.rollback()`): rolled back, a "ROLLED_BACK" error
  *   with the thrown value as cause.
+ * - a query reported with `onQueryFailed`, but `fn` returns (ie: it handled
+ *   the error): never committed, rolled back with a "TRANSACTION_FAILED"
+ *   error with the first query error as cause.
  * - `commit` fails: rolled back, a "TRANSACTION_FAILED" error with the
  *   driver error as cause.
  * - `rollback` fails: a "TRANSACTION_FAILED" error with an `AggregateError`
@@ -62,15 +82,19 @@ const defaultGetErrorMessage = (error: unknown): string => {
  * The result meta (named after `options.name`) holds a "transaction" span
  * followed by the spans reported with `addSpan`.
  *
+ * The transaction datasource must report its queries: call `addSpan` for
+ * each query and `onQueryFailed` for each failed one.
+ *
  * @example
  * ```typescript
  * transaction = <TData>(fn: (tx: MyTxDatasource) => Promise<TData>, options?: TransactionOptions) =>
  *   runTransaction({
  *     fn,
  *     options,
- *     begin: async ({ addSpan }) => {
+ *     begin: async (context) => {
  *       const conn = await this.driver.begin(options?.isolationLevel);
- *       return new MyTxDatasource({ conn, onSpan: addSpan, signal: options?.signal });
+ *       // calls addSpan() and onQueryFailed() for its queries
+ *       return new MyTxDatasource({ conn, context, signal: options?.signal });
  *     },
  *     commit: (tx) => tx.conn.commit(),
  *     rollback: (tx) => tx.conn.rollback(),
@@ -92,6 +116,7 @@ export const runTransaction = async <TTx, TData>(
 
   const spans: QMetaSpan[] = [];
   let timeMs = 0;
+  let queryError: { error: unknown } | undefined;
 
   const timed = async <T>(operation: () => Promise<T>): Promise<T> => {
     const start = Date.now();
@@ -147,6 +172,9 @@ export const runTransaction = async <TTx, TData>(
         addSpan: (span) => {
           spans.push(span);
         },
+        onQueryFailed: (error) => {
+          queryError ??= { error };
+        },
       })
     );
   } catch (error) {
@@ -154,20 +182,33 @@ export const runTransaction = async <TTx, TData>(
     return isAborted() ? aborted("failed") : transactionFailed(error);
   }
 
-  let data: TData;
-  try {
-    data = await fn(tx);
-    // Never commit an aborted transaction
-    signal?.throwIfAborted();
-  } catch (error) {
+  /**
+   * Roll back, return the failure when it fails.
+   */
+  const rollbackOrFail = async (
+    error: unknown
+  ): Promise<QResult<TData, QError> | undefined> => {
     try {
       await timed(() => rollback(tx));
+      return undefined;
     } catch (rollbackError) {
       const message = `Rollback failed: ${getErrorMessage(rollbackError)}`;
       return transactionFailed(
         new AggregateError([rollbackError, error], message),
         message
       );
+    }
+  };
+
+  let data: TData;
+  try {
+    data = await fn(tx);
+    // Never commit an aborted transaction
+    signal?.throwIfAborted();
+  } catch (error) {
+    const rollbackFailure = await rollbackOrFail(error);
+    if (rollbackFailure !== undefined) {
+      return rollbackFailure;
     }
     if (isAborted()) {
       return aborted("rolled back");
@@ -177,6 +218,19 @@ export const runTransaction = async <TTx, TData>(
       code: "ROLLED_BACK",
       cause: error,
     });
+  }
+
+  // Never commit after a failed query, handled by the callback or not
+  if (queryError !== undefined) {
+    const { error } = queryError;
+    return (
+      (await rollbackOrFail(error)) ??
+      failure("rolled back", {
+        message: `A query failed in the transaction, it can't be committed: ${getErrorMessage(error)}`,
+        code: "TRANSACTION_FAILED",
+        cause: error,
+      })
+    );
   }
 
   try {

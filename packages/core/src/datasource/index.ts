@@ -36,4 +36,5 @@ export {
 export {
   runTransaction,
   type RunTransactionParams,
+  type TransactionBeginContext,
 } from "../utils/transaction.factories";

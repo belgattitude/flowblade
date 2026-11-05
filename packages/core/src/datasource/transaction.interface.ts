@@ -88,16 +88,18 @@ export interface TransactionalDatasourceInterface<
    * It never throws, `error.code` is:
    * - "ROLLED_BACK": the callback threw (ie: a failed `tx.queryOrThrow()`) or
    *   called `tx.rollback()`, the thrown error is the `cause`,
-   * - "TRANSACTION_FAILED": the transaction couldn't begin, commit or roll
-   *   back, the driver error is the `cause`,
+   * - "TRANSACTION_FAILED": a query failed in the transaction (handled by
+   *   the callback or not, it's then rolled back), or the transaction
+   *   couldn't begin, commit or roll back, the driver error is the `cause`,
    * - "ABORTED": aborted with `signal`, the abort reason is the `cause`.
    *
    * `meta` holds a "transaction" span followed by the spans of the queries
    * run in the transaction.
    *
-   * Note: `tx.query()` never throws, a failed query doesn't roll back the
-   * transaction unless you throw or call `tx.rollback()`. Prefer the throwing
-   * methods (ie: `tx.queryOrThrow()`) in the callback.
+   * Note: a failed query is never committed, even when handled by the
+   * callback (ie: `tx.query()` never throws): most databases abort the
+   * transaction on error and silently roll back on commit. Prefer the
+   * throwing methods (ie: `tx.queryOrThrow()`) in the callback.
    *
    * @example
    * ```typescript
@@ -126,7 +128,8 @@ export interface TransactionalDatasourceInterface<
    *
    * Throws the error thrown by the callback as is (ie: a `QErrors.QueryFailed`
    * from `tx.queryOrThrow()`, a `QErrors.RolledBack` from `tx.rollback()`),
-   * a `QErrors.TransactionFailed` when the transaction couldn't begin, commit
+   * a `QErrors.TransactionFailed` when a query failed in the transaction
+   * (handled by the callback) or the transaction couldn't begin, commit
    * or roll back, or a `QErrors.Aborted` when aborted with `signal`. To throw
    * your own error, pass an `onError` factory.
    *

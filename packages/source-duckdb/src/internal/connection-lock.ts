@@ -58,11 +58,11 @@ export class SharedExclusiveLock {
   }
 
   #drain(): void {
-    let head = this.#queue[0];
+    let [head] = this.#queue;
     while (head !== undefined && this.#canGrant(head.exclusive)) {
       this.#queue.shift();
       head.grant();
-      head = this.#queue[0];
+      [head] = this.#queue;
     }
   }
 
@@ -75,26 +75,28 @@ export class SharedExclusiveLock {
     if (this.#queue.length === 0 && this.#canGrant(exclusive)) {
       return this.#take(exclusive);
     }
-    return await new Promise<ReleaseLock>((resolve, reject) => {
-      const onAbort = () => {
-        const idx = this.#queue.indexOf(waiter);
-        if (idx !== -1) {
-          this.#queue.splice(idx, 1);
-          // the removed waiter might have blocked the next ones
-          this.#drain();
-        }
-        reject(signal?.reason);
-      };
-      const waiter: Waiter = {
-        exclusive,
-        grant: () => {
-          signal?.removeEventListener("abort", onAbort);
-          resolve(this.#take(exclusive));
-        },
-      };
-      signal?.addEventListener("abort", onAbort, { once: true });
-      this.#queue.push(waiter);
-    });
+    const { promise, resolve, reject } = Promise.withResolvers<ReleaseLock>();
+    const waiter: Waiter = {
+      exclusive,
+      grant: () => {
+        // oxlint-disable-next-line no-use-before-define -- mutual reference, only called later
+        signal?.removeEventListener("abort", onAbort);
+        resolve(this.#take(exclusive));
+      },
+    };
+    const onAbort = () => {
+      const idx = this.#queue.indexOf(waiter);
+      if (idx !== -1) {
+        this.#queue.splice(idx, 1);
+        // the removed waiter might have blocked the next ones
+        this.#drain();
+      }
+      // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- the abort reason, like signal.throwIfAborted()
+      reject(signal?.reason);
+    };
+    signal?.addEventListener("abort", onAbort, { once: true });
+    this.#queue.push(waiter);
+    return await promise;
   }
 }
 

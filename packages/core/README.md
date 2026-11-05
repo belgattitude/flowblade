@@ -82,7 +82,7 @@ Errors thrown by the datasources throwing methods (`queryOrThrow()`, `queryOneOr
 | `QErrors.NoResult` | `queryOneOrThrow()` got no row | `NO_RESULT` | 404 |
 | `QErrors.TooManyResults` | more than one row, with `rowCount` | `TOO_MANY_RESULTS` | 500 |
 | `QErrors.RolledBack` | `tx.rollback()` was called in a transaction | `ROLLED_BACK` | 500 |
-| `QErrors.TransactionFailed` | a transaction couldn't begin, commit or roll back, the driver error as `cause` | `TRANSACTION_FAILED` | 500 |
+| `QErrors.TransactionFailed` | a query failed in a transaction (handled by the callback), or it couldn't begin, commit or roll back, the driver error as `cause` | `TRANSACTION_FAILED` | 500 |
 
 ```typescript
 import { QErrors } from "@flowblade/core"; // or from the datasource package
@@ -111,7 +111,7 @@ Datasources supporting transactions implement `TransactionalDatasourceInterface`
 | `error.code` (`transaction()`) | When | Thrown by `transactionOrThrow()` |
 | --- | --- | --- |
 | `ROLLED_BACK` | the callback threw or called `tx.rollback()`, the thrown error as `cause` | the thrown error, as is |
-| `TRANSACTION_FAILED` | couldn't begin, commit or roll back, the driver error as `cause` | `QErrors.TransactionFailed` |
+| `TRANSACTION_FAILED` | a query failed (handled by the callback, ie: `tx.query()`), or couldn't begin, commit or roll back, the driver error as `cause` | `QErrors.TransactionFailed` |
 | `ABORTED` | aborted with `signal` (never committed), the abort reason as `cause` | `QErrors.Aborted` |
 
 The result `meta` holds a `transaction` span (`status`, begin/commit time) followed by the spans of the queries run in the transaction.

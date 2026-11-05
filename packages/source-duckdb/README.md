@@ -293,6 +293,41 @@ const ds = new DuckdbDatasource({
 });
 ```
 
+### Transactions
+
+Run queries in a transaction with `transaction()` (returns a QResult, never throws) or `transactionOrThrow()`. The callback receives a datasource (`tx`) running its queries in the transaction: committed when the callback returns, rolled back when it throws or calls `tx.rollback()`.
+
+```typescript
+const {
+  data: count,
+  error,
+  meta,
+} = await ds.transaction(
+  async (tx) => {
+    await tx.queryOrThrow(sql`DELETE FROM product WHERE expired`);
+    await tx.queryOrThrow(sql`INSERT INTO product SELECT * FROM staging`);
+    const { data: row } = await tx.queryOneOrThrow(
+      sql<{ count: number }>`SELECT count(*)::INTEGER as count FROM product`
+    );
+    if (row.count === 0) {
+      tx.rollback("empty product table"); // error.code: "ROLLED_BACK"
+    }
+    return row.count;
+  },
+  { name: "refreshProducts" } // also: accessMode ("read only"), signal
+);
+if (error) {
+  // "ROLLED_BACK": the callback threw (ie: tx.queryOrThrow()) or called tx.rollback()
+  // "TRANSACTION_FAILED": a query failed (handled by the callback), or couldn't begin, commit or roll back
+  // "ABORTED": aborted with signal, never committed
+  console.error(error.code, error.message, error.cause);
+}
+```
+
+The transaction holds the connection: queries and streams of the datasources sharing the connection wait for it to end, and it waits for the running ones before beginning.
+
+> **Note**: DuckDB aborts the transaction on any failed query (and would silently roll back on commit): after a failed `tx.query()` (it never throws), the transaction is rolled back with a `TRANSACTION_FAILED` error. Prefer the throwing methods in the callback, always use `tx` (not `ds`, it would wait for the transaction forever). DuckDB has no isolation levels (snapshot isolation) nor nested transactions.
+
 ### Aborting queries
 
 All the query methods and `stream()` accept an [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal), the running query is interrupted with [`connection.interrupt()`](https://github.com/duckdb/duckdb-node-neo):

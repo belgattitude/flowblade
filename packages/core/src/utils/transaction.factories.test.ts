@@ -7,6 +7,10 @@ import { runTransaction } from "./transaction.factories";
 
 type FakeTx = {
   query: (sql: string) => Promise<void>;
+  /**
+   * A failed query, not thrown (ie: `tx.query()`)
+   */
+  failedQuery: (sql: string, error: Error) => void;
   rollback: (reason?: string) => never;
 };
 
@@ -40,9 +44,14 @@ const createDriver = (
     runTransaction<FakeTx, TData>({
       fn,
       options,
-      begin: async ({ addSpan }) => {
+      begin: async ({ addSpan, onQueryFailed }) => {
         await driver.begin();
         return {
+          failedQuery: (sql, error) => {
+            calls.push(sql);
+            addSpan(createSqlSpan({ sql, params: [] }));
+            onQueryFailed(error);
+          },
           query: async (sql) => {
             calls.push(sql);
             addSpan(createSqlSpan({ sql, params: [], timeMs: 1 }));
@@ -141,6 +150,61 @@ describe(runTransaction, () => {
       "Transaction rolled back: insufficient funds"
     );
     expect(result.error?.cause).toBeInstanceOf(QErrors.RolledBack);
+  });
+
+  it("should roll back rather than commit after a failed query", async () => {
+    const { driver, run } = createDriver();
+    const queryError = new Error("current transaction is aborted");
+    const result = await run(async (tx) => {
+      await tx.query("INSERT 1");
+      tx.failedQuery("INSERT 2", queryError);
+      tx.failedQuery("INSERT 3", new Error("second error"));
+      return 1;
+    });
+    expect(driver.calls).toStrictEqual([
+      "begin",
+      "INSERT 1",
+      "INSERT 2",
+      "INSERT 3",
+      "rollback",
+    ]);
+    expect(driver.commit).not.toHaveBeenCalled();
+    // the first query error
+    expect(result.error).toStrictEqual({
+      message:
+        "A query failed in the transaction, it can't be committed: current transaction is aborted",
+      code: "TRANSACTION_FAILED",
+      cause: queryError,
+    });
+    expect(result.meta.getSpans()[0]).toMatchObject({ status: "rolled back" });
+    expect(result.meta.getSpansByType("sql")).toHaveLength(3);
+  });
+
+  it("should report a failed rollback after a failed query", async () => {
+    const rollbackError = new Error("connection lost");
+    const { run } = createDriver({
+      rollback: () => Promise.reject(rollbackError),
+    });
+    const queryError = new Error("query error");
+    const result = await run(async (tx) => {
+      tx.failedQuery("INSERT 1", queryError);
+    });
+    expect(result.error?.code).toBe("TRANSACTION_FAILED");
+    expect(result.error?.message).toBe("Rollback failed: connection lost");
+    expect(result.error?.cause).toHaveProperty("errors", [
+      rollbackError,
+      queryError,
+    ]);
+  });
+
+  it("should report the thrown error over a failed query", async () => {
+    const { run } = createDriver();
+    const thrown = new Error("thrown");
+    const result = await run(async (tx) => {
+      tx.failedQuery("INSERT 1", new Error("query error"));
+      throw thrown;
+    });
+    expect(result.error).toMatchObject({ code: "ROLLED_BACK", cause: thrown });
   });
 
   it("should return TRANSACTION_FAILED when begin fails", async () => {

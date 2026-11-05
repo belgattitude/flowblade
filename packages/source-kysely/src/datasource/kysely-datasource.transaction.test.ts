@@ -288,21 +288,60 @@ describe("KyselyDatasource transactions", () => {
       expect(result.error?.cause).toBe(controller.signal.reason);
     });
 
-    it("should pass the transaction signal to the queries", async () => {
+    it("should combine the query signal with the transaction one", async () => {
       const controller = new AbortController();
       controller.abort(new Error("query aborted"));
-      const { ds } = createDatasource();
+      const { ds, calls } = createDatasource();
       const txController = new AbortController();
+      let queryErrorCode: string | undefined;
       const result = await ds.transaction(
         async (tx) => {
           const { error } = await tx.query(insertProduct(tx, 1), {
             signal: controller.signal,
           });
-          return error?.code;
+          queryErrorCode = error?.code;
         },
         { signal: txController.signal }
       );
-      expect(result.data).toBe("ABORTED");
+      expect(queryErrorCode).toBe("ABORTED");
+      // a failed query, even handled, is never committed
+      expect(calls.at(-1)).toBe("rollback");
+      expect(result.error?.code).toBe("TRANSACTION_FAILED");
+    });
+
+    it("should roll back rather than commit after a handled failed query", async () => {
+      const driverError = new Error("current transaction is aborted");
+      const { ds, calls, getReleased } = createDatasource({
+        handler: async (query) => {
+          if (query.parameters[0] === 2) {
+            throw driverError;
+          }
+          return { rows: [] };
+        },
+      });
+      const result = await ds.transaction(async (tx) => {
+        await tx.queryOrThrow(insertProduct(tx, 1));
+        // never throws, handled by the callback
+        const { error } = await tx.query(insertProduct(tx, 2));
+        return error?.code;
+      });
+      expect(calls).not.toContain("commit");
+      expect(calls.at(-1)).toBe("rollback");
+      expect(getReleased()).toBe(1);
+      expect(result.error).toStrictEqual({
+        message:
+          "A query failed in the transaction, it can't be committed: current transaction is aborted",
+        code: "TRANSACTION_FAILED",
+        cause: driverError,
+      });
+      expect(result.meta.getSpans()[0]).toMatchObject({
+        status: "rolled back",
+      });
+      await expect(
+        ds.transactionOrThrow(async (tx) => {
+          await tx.queryOrThrow(insertProduct(tx, 2)).catch(() => undefined);
+        })
+      ).rejects.toThrow(QErrors.TransactionFailed);
     });
 
     it("should not support nested transactions", async () => {

@@ -1,8 +1,10 @@
+import { setTimeout as sleep } from "node:timers/promises";
+
 import { describe, expect, it } from "vitest";
 
 import { getConnectionLock, SharedExclusiveLock } from "./connection-lock.ts";
 
-const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+const flush = () => sleep(0);
 
 /**
  * Track the order the lock requests are granted in.
@@ -18,6 +20,8 @@ describe(SharedExclusiveLock, () => {
     const lock = new SharedExclusiveLock();
     const r1 = await lock.acquireShared();
     const r2 = await lock.acquireShared();
+    expect(r1).toBeTypeOf("function");
+    expect(r2).toBeTypeOf("function");
     r1();
     r2();
   });

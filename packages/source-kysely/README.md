@@ -305,7 +305,11 @@ const ds = new KyselyDatasource({
 Run queries in a transaction with `transaction()` (returns a QResult, never throws) or `transactionOrThrow()`. The callback receives a datasource (`tx`) running its queries in the transaction: committed when the callback returns, rolled back when it throws or calls `tx.rollback()`.
 
 ```typescript
-const { data: orderId, error, meta } = await ds.transaction(
+const {
+  data: orderId,
+  error,
+  meta,
+} = await ds.transaction(
   async (tx) => {
     const { data: order } = await tx.queryOneOrThrow(
       tx.queryBuilder
@@ -327,7 +331,7 @@ const { data: orderId, error, meta } = await ds.transaction(
 );
 if (error) {
   // "ROLLED_BACK": the callback threw (ie: tx.queryOrThrow()) or called tx.rollback()
-  // "TRANSACTION_FAILED": couldn't begin, commit or roll back
+  // "TRANSACTION_FAILED": a query failed (handled by the callback), or couldn't begin, commit or roll back
   // "ABORTED": aborted with signal, never committed
   console.error(error.code, error.message, error.cause);
 }
@@ -339,7 +343,7 @@ const { data } = await ds.transactionOrThrow(async (tx) => {
 });
 ```
 
-> **Note**: `tx.query()` never throws: a failed query doesn't roll back the transaction unless you throw or call `tx.rollback()`, prefer the throwing methods in the callback. Always use `tx` (not `ds`) in the callback, nested transactions aren't supported.
+> **Note**: a failed query is never committed, even when handled by the callback (ie: `tx.query()` never throws): the transaction is rolled back with a `TRANSACTION_FAILED` error (Postgres aborts the transaction on error and would silently roll back on commit). Prefer the throwing methods in the callback. Always use `tx` (not `ds`) in the callback, nested transactions aren't supported.
 
 ## Aborting queries
 
