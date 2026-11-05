@@ -14,6 +14,7 @@ import type { QError } from "../query-result/types";
 import {
   createQResultError,
   createQResultSuccess,
+  getDataOrThrow,
   getOneRowOrThrow,
   toOneRowQResult,
 } from "./datasource.factories";
@@ -98,6 +99,50 @@ describe(toOneRowQResult, () => {
       cause,
     });
     expect(result.meta).toBe(meta);
+  });
+});
+
+describe(getDataOrThrow, () => {
+  type Row = { id: number };
+  const meta = new QMeta({ name: "test" });
+
+  it("should return the data on success", () => {
+    const result = createQResultSuccess<Row[]>([{ id: 1 }], meta);
+    const data = getDataOrThrow(result);
+    expect(data).toStrictEqual([{ id: 1 }]);
+    expectTypeOf(data).toEqualTypeOf<Row[]>();
+  });
+
+  it("should throw a QErrors.QueryFailed on a query failure", () => {
+    const result = createQResultError(
+      { message: "boom", code: "QUERY_FAILED" },
+      meta
+    );
+    expect(() => getDataOrThrow(result)).toThrow(QErrors.QueryFailed);
+  });
+
+  it("should throw the onError factory error", () => {
+    const custom = new Error("custom");
+    const onError = vi.fn<QErrorFactory>(() => custom);
+    const result = createQResultError(
+      { message: "boom", code: "QUERY_FAILED" },
+      meta
+    );
+    expect(() => getDataOrThrow(result, { onError })).toThrow(custom);
+    expect(onError).toHaveBeenCalledOnce();
+    expect(onError.mock.calls[0]?.[0].error).toBeInstanceOf(
+      QErrors.QueryFailed
+    );
+  });
+
+  it("should throw the onTooManyResults factory error", () => {
+    const custom = new Error("too many");
+    const result = toOneRowQResult(
+      createQResultSuccess<Row[]>([{ id: 1 }, { id: 2 }], meta)
+    );
+    expect(() =>
+      getDataOrThrow(result, { onTooManyResults: () => custom })
+    ).toThrow(custom);
   });
 });
 

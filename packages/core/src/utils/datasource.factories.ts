@@ -1,7 +1,9 @@
 import type {
+  QGetOrThrowErrorFactories,
   QOneRowErrorFactories,
   QOneRowNoResultOptions,
 } from "../errors/q-error-factories";
+import { qErrorToException } from "../errors/q-error-to-exception";
 import { QNoResultError } from "../errors/q-no-result-error";
 import { QTooManyResultsError } from "../errors/q-too-many-results-error";
 import type { QMeta, QMetaSqlSpan } from "../meta/q-meta";
@@ -87,13 +89,41 @@ export const toOneRowQResult = <TData extends unknown[]>(
 };
 
 /**
+ * Return the data of a result or throw, used to implement `queryOrThrow()`.
+ *
+ * On failure, throws the `onTooManyResults` factory error for more than one
+ * row, the `onError` factory error for the other failures, or the default
+ * error (ie: `QErrors.QueryFailed`, `QErrors.Aborted`) without factory.
+ *
+ * @example
+ * ```typescript
+ * const result = await this.query(query, options);
+ * return {
+ *   data: getDataOrThrow(result, {
+ *     onError: options?.onError ?? this.defaultOptions.queryOrThrow?.onError,
+ *   }),
+ *   meta: result.meta,
+ * };
+ * ```
+ */
+export const getDataOrThrow = <TData>(
+  result: QResult<TData, QError | undefined>,
+  factories?: QGetOrThrowErrorFactories
+): TData => {
+  if (result.error !== undefined) {
+    throw qErrorToException(result.error, result.meta, factories);
+  }
+  return result.data;
+};
+
+/**
  * Return the row of a `queryOne()` result or throw, used to implement
  * `queryOneOrThrow()`.
  *
  * When there's no row, returns `defaultValue` if set in the options, otherwise
  * throws the `onNoResult` factory error or a `QErrors.NoResult`. Throws the
  * `onTooManyResults` factory error or a `QErrors.TooManyResults` when there's
- * more than one and, like `QResult.getOrThrow()`, the `onError` factory error
+ * more than one and, like `getDataOrThrow()`, the `onError` factory error
  * or a `QErrors.QueryFailed` / `QErrors.Aborted` when the query failed.
  *
  * Error factories set in the options win over the defaults (ie: datasource
@@ -105,7 +135,7 @@ export const getOneRowOrThrow = <TRow, TDefault = never>(
     QOneRowNoResultOptions<TDefault>,
   defaults?: QOneRowErrorFactories
 ): TRow | TDefault => {
-  const row = result.getOrThrow({
+  const row = getDataOrThrow(result, {
     onError: options?.onError ?? defaults?.onError,
     onTooManyResults: options?.onTooManyResults ?? defaults?.onTooManyResults,
   });

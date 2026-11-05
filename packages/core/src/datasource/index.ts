@@ -29,6 +29,7 @@ export {
   createQResultError,
   createQResultSuccess,
   createSqlSpan,
+  getDataOrThrow,
   getOneRowOrThrow,
   toOneRowQResult,
 } from "../utils/datasource.factories";

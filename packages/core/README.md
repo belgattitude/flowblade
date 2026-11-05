@@ -67,33 +67,13 @@ failureResult.data; // 👈 undefined
 result.map((row) => {
   return { ...row, name: row.name.toUpperCase() };
 });
-
-// 👇 Throws depending on the error code: QErrors.QueryFailed ("QUERY_FAILED"),
-// QErrors.Aborted ("ABORTED"), QErrors.TooManyResults ("TOO_MANY_RESULTS")
-result.getOrThrow();
-// 👇 Throw your own errors, the default error is available as cause
-result.getOrThrow({
-  // query failures (switch on qError.code if needed, ie: "ABORTED")
-  onError: ({ error, qError, meta }) =>
-    new HttpInternalServerError({ cause: error }),
-  // more than one row (queryOne() results)
-  onTooManyResults: ({ error, rowCount, meta }) =>
-    new HttpInternalServerError({
-      message: `Expected one row, got ${rowCount}`,
-      cause: error,
-    }),
-});
-// 👇 Or with a function receiving the QError
-result.getOrThrow((qErr) => {
-  return new HttpServiceUnavailable({
-    cause: new Error(qErr.message),
-  });
-});
 ```
+
+> **Deprecated**: `result.getOrThrow()` will be removed, use the datasource throwing methods instead (`ds.queryOrThrow(query)`, `ds.queryOneOrThrow(query, { defaultValue: null })`) or check `error` / `isError()`.
 
 ### QErrors
 
-Errors thrown by the datasources throwing methods (`queryOrThrow()`, `queryOneOrThrow()`, `stream()`) and `QResult.getOrThrow()`, usable with `instanceof` (even across realms and duplicated installs) and as types. They carry a suggested http `statusCode`, recognized by http error helpers such as `isErrorWithErrorStatusCode()` from `@httpx/exception`.
+Errors thrown by the datasources throwing methods (`queryOrThrow()`, `queryOneOrThrow()`, `stream()`), usable with `instanceof` (even across realms and duplicated installs) and as types. They carry a suggested http `statusCode`, recognized by http error helpers such as `isErrorWithErrorStatusCode()` from `@httpx/exception`.
 
 | Error | When | `code` | `statusCode` |
 | --- | --- | --- | --- |

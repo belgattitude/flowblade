@@ -2,6 +2,21 @@
 
 Breaking changes and how to migrate, by version. See the [CHANGELOG](./CHANGELOG.md) for all changes.
 
+## 1.11.1
+
+> **Note**: no breaking change.
+
+`QResult.getOrThrow()` is deprecated in `@flowblade/core` 0.8.0, use `queryOrThrow()` / `queryOneOrThrow()` instead:
+
+```typescript
+// Before
+const row = (await ds.queryOne(query)).getOrThrow();
+// After: defaultValue: null keeps returning null when there's no row
+const { data: row } = await ds.queryOneOrThrow(query, { defaultValue: null });
+```
+
+See the [@flowblade/core upgrade guide](https://github.com/belgattitude/flowblade/blob/main/packages/core/UPGRADE.md#080).
+
 ## 1.11.0
 
 > **Note**: this minor release contains small breaking changes, listed below. They mostly affect code matching error messages, comparing serialized errors or building results by hand. Review them before upgrading, even though the major version is unchanged.

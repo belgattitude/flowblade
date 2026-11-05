@@ -148,57 +148,22 @@ const ds = new KyselyDatasource({
 
 `QErrors.NoResult` and `QErrors.TooManyResults` carry a suggested http `statusCode` (404 and 500), see [Error handling](#error-handling).
 
-#### `queryOneOrThrow()` vs `queryOne().getOrThrow()`
+#### Migrating from `queryOne().getOrThrow()`
 
-They throw the same errors, except when there's no row:
+`QResult.getOrThrow()` is deprecated, use `queryOneOrThrow()`. By default it throws the same errors, but it also applies the `defaultOptions.queryOneOrThrow` factories, which `getOrThrow()` ignored: when they're set, pass `onError: ({ error }) => error` (and `onTooManyResults`) to keep the default errors. Set `defaultValue: null` to keep getting `null` when there's no row:
 
 ```typescript
-// A: QResult.getOrThrow() on a queryOne() result
+// ⚠️ Deprecated
 const row = (await ds.queryOne(query)).getOrThrow();
 
-// B: the datasource method
-const { data: row, meta } = await ds.queryOneOrThrow(query);
+// ✅ Same behavior: null when there's no row
+const { data: row } = await ds.queryOneOrThrow(query, { defaultValue: null });
 ```
 
-|  | A: `queryOne().getOrThrow()` | B: `queryOneOrThrow()` |
-| --- | --- | --- |
-| No row | returns `null` | throws `QErrors.NoResult` (404), or returns `defaultValue` |
-| More than one row | throws `QErrors.TooManyResults` (500) | throws `QErrors.TooManyResults` (500) |
-| Query failure | throws `QErrors.QueryFailed` / `QErrors.Aborted` | throws `QErrors.QueryFailed` / `QErrors.Aborted` |
-| Returns | the row | `{ data, meta }` |
-| Custom errors | `onError` / `onTooManyResults`, per call | `onError` / `onNoResult` / `onTooManyResults`, per query or with `defaultOptions` |
-
-Only B throws when there's no row: for A, an empty result isn't an error.
-
-Both take error factories receiving the default error, useful as `cause`:
-
-```typescript
-import { HttpInternalServerError, HttpNotFound } from "@httpx/exception";
-
-const onTooManyResults = ({ error, rowCount }) =>
-  new HttpInternalServerError({
-    message: `Expected one row, got ${rowCount}`,
-    cause: error,
-  });
-
-// A: onError for query failures (switch on qError.code if needed)
-const row = (await ds.queryOne(query)).getOrThrow({
-  onTooManyResults,
-  onError: ({ error }) => new HttpInternalServerError({ cause: error }),
-});
-
-// B: onNoResult for no row, onError for query failures (optional)
-const { data } = await ds.queryOneOrThrow(query, {
-  onTooManyResults,
-  onNoResult: ({ error }) => new HttpNotFound({ cause: error }),
-});
-```
-
-Both are safe to fall back on a default value, unlike reading `data` without checking `error`:
+Prefer `defaultValue` (or checking `error`) to falling back on `data`, which hides failures:
 
 ```typescript
 // ✅ Query failures and more than one row still throw
-const settings = (await ds.queryOne(query)).getOrThrow() ?? defaultSettings;
 const { data: settings } = await ds.queryOneOrThrow(query, {
   defaultValue: defaultSettings,
 });
@@ -275,7 +240,7 @@ if (error) {
 }
 ```
 
-The throwing methods (`queryOrThrow()`, `queryOneOrThrow()`, `stream()` and `QResult.getOrThrow()`) throw errors exported under the `QErrors` namespace, usable with `instanceof`:
+The throwing methods (`queryOrThrow()`, `queryOneOrThrow()` and `stream()`) throw errors exported under the `QErrors` namespace, usable with `instanceof`:
 
 | Error | When | `statusCode` |
 | --- | --- | --- |
@@ -311,9 +276,8 @@ To throw your own errors, the throwing methods accept error factories, per call 
 | --- | --- | --- |
 | `queryOrThrow()` | `onError` | `defaultOptions.queryOrThrow` |
 | `queryOneOrThrow()` | `onError`, `onNoResult`, `onTooManyResults` | `defaultOptions.queryOneOrThrow` |
-| `QResult.getOrThrow()` | `onError`, `onTooManyResults` |  |
 
-`onError({ error, qError, meta })` handles query failures (`qError.code`: `"QUERY_FAILED"` or `"ABORTED"`, and `"MAP_FAILED"` for `getOrThrow()`), the row count errors have their own factories.
+`onError({ error, qError, meta })` handles query failures (`qError.code`: `"QUERY_FAILED"` or `"ABORTED"`), the row count errors have their own factories.
 
 ```typescript
 import { HttpGatewayTimeout, HttpInternalServerError } from "@httpx/exception";

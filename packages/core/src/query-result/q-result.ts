@@ -122,14 +122,6 @@ class QResultImpl<TData, TError extends QError | undefined> {
    *  failureResult.error         // 👈 QError
    *  failureResult.data          // 👈 undefined
    *
-   *  // Helpers
-   *
-   *  failureResult.getOrThrow(); // 👈 throw QErrors.QueryFailed('Query failed: Error message')
-   *
-   *  // 👇 Throw your own error, the default one is available as cause
-   *  failureResult.getOrThrow({
-   *    onError: ({ error }) => new HttpServiceUnavailable({ cause: error }),
-   *  });
    * ```
    */
   constructor(params: ConstructorParams<TData, TError>) {
@@ -387,6 +379,16 @@ class QResultImpl<TData, TError extends QError | undefined> {
    * ```
    *
    * @throws Error if the result is a failure
+   *
+   * @deprecated Use the datasource throwing methods instead:
+   * - `ds.queryOrThrow(query)` instead of `(await ds.query(query)).getOrThrow()`
+   * - `ds.queryOneOrThrow(query, { defaultValue: null })` instead of
+   *   `(await ds.queryOne(query)).getOrThrow()`
+   * - or check `error` / `isError()` before accessing `data`.
+   *
+   * By default they throw the same errors, but unlike `getOrThrow()` they
+   * apply the datasource `defaultOptions` error factories. To keep the
+   * default errors, pass `onError: ({ error }) => error`.
    */
   getOrThrow = (
     factories?: QGetOrThrowErrorFactories | ((qError: QError) => Error)
