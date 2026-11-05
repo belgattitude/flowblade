@@ -205,6 +205,23 @@ describe(runTransaction, () => {
     });
   });
 
+  it("should return ABORTED when aborted while beginning", async () => {
+    const controller = new AbortController();
+    const { driver, run } = createDriver({
+      begin: async () => {
+        controller.abort(new Error("timeout"));
+        throw controller.signal.reason;
+      },
+    });
+    const result = await run(async () => 1, { signal: controller.signal });
+    expect(driver.rollback).not.toHaveBeenCalled();
+    expect(result.error).toStrictEqual({
+      message: "timeout",
+      code: "ABORTED",
+      cause: controller.signal.reason,
+    });
+  });
+
   it("should roll back rather than commit when aborted during the callback", async () => {
     const { driver, run } = createDriver();
     const controller = new AbortController();

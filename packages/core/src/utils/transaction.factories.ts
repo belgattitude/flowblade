@@ -48,7 +48,8 @@ const defaultGetErrorMessage = (error: unknown): string => {
  * (`TransactionalDatasourceInterface`): the datasource provides how to begin,
  * commit and roll back, `runTransaction` the flow and the result.
  *
- * - `begin` fails: a "TRANSACTION_FAILED" error with the driver error as cause.
+ * - `begin` fails: a "TRANSACTION_FAILED" error with the driver error as cause
+ *   ("ABORTED" when `signal` is aborted, ie: while waiting for a connection).
  * - `fn` throws (ie: `tx.rollback()`): rolled back, a "ROLLED_BACK" error
  *   with the thrown value as cause.
  * - `commit` fails: rolled back, a "TRANSACTION_FAILED" error with the
@@ -149,7 +150,8 @@ export const runTransaction = async <TTx, TData>(
       })
     );
   } catch (error) {
-    return transactionFailed(error);
+    // ie: aborted while waiting for a connection or a lock
+    return isAborted() ? aborted("failed") : transactionFailed(error);
   }
 
   let data: TData;
