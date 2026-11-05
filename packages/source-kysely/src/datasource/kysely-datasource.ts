@@ -9,6 +9,11 @@ import {
   type QueryOptions,
   type QueryOrThrowOptions,
   type QueryStreamOptions,
+  type QMetaSpan,
+  type TransactionalDatasourceInterface,
+  type TransactionOptions,
+  type TransactionOrThrowOptions,
+  type TransactionScopeInterface,
 } from "@flowblade/core";
 import {
   createQResultError,
@@ -16,11 +21,13 @@ import {
   createSqlSpan,
   getDataOrThrow,
   getOneRowOrThrow,
+  runTransaction,
   toOneRowQResult,
 } from "@flowblade/core/datasource";
 import type { Logger } from "@logtape/logtape";
 import type {
   Compilable,
+  ControlledTransaction,
   InferResult,
   InflightQueryAbortStrategy,
   Kysely,
@@ -126,11 +133,35 @@ type KyselyInferQueryOrRawQuery<T extends KyselyQueryOrRawQuery> =
       ? InferResult<T>
       : never;
 
-export class KyselyDatasource<TDatabase> implements DatasourceInterface {
+/**
+ * Datasource received by the `transaction()` / `transactionOrThrow()`
+ * callbacks: a `KyselyDatasource` running its queries in the transaction,
+ * plus `rollback()`. Nested transactions aren't supported.
+ */
+export type KyselyTransactionDatasource<TDatabase> = Omit<
+  KyselyDatasource<TDatabase>,
+  "transaction" | "transactionOrThrow"
+> &
+  TransactionScopeInterface;
+
+export class KyselyDatasource<TDatabase>
+  implements
+    DatasourceInterface,
+    TransactionalDatasourceInterface<KyselyTransactionDatasource<TDatabase>>
+{
   private readonly db: Kysely<TDatabase>;
   private readonly logger: Logger;
   private readonly logParams: boolean;
   private readonly defaultOptions: KyselyDatasourceDefaultOptions;
+  /**
+   * Transaction datasource only: the transaction signal, combined with the
+   * queries one.
+   */
+  protected transactionSignal: AbortSignal | undefined;
+  /**
+   * Transaction datasource only: reports the query spans to the transaction.
+   */
+  protected onSpan: ((span: QMetaSpan) => void) | undefined;
 
   /**
    * Return a new Kysely expression builder.
@@ -249,6 +280,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     options?: KyselyQueryOptions
   ): AsyncQResult<TData> => {
     const name = options?.name ?? "anonymous";
+    const signal = this.getSignal(options?.signal);
 
     const compiled = query.compile(this.db);
     const span = createSqlSpan({
@@ -265,7 +297,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       );
 
       const r = await this.db.executeQuery(compiled, {
-        signal: options?.signal,
+        signal,
         inflightQueryAbortStrategy:
           options?.inflightQueryAbortStrategy ??
           this.defaultOptions.query?.inflightQueryAbortStrategy,
@@ -278,6 +310,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         'Query "{queryName}" executed in {timeMs}ms, affected {affectedRows} row(s)',
         this.getLogFromSpan(name, span, "query")
       );
+      this.onSpan?.(span);
 
       return createQResultSuccess(
         result.rows as TData,
@@ -292,10 +325,10 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
         ...this.getLogFromSpan(name, span, "query"),
         errorMessage: message,
       });
+      this.onSpan?.(span);
 
       // Report an aborted query with the abort reason as cause, whatever
       // the dialect threw
-      const signal = options?.signal;
       const aborted = signal?.aborted === true;
       return createQResultError(
         {
@@ -519,7 +552,8 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
     if (!isKyselyStreamable(query)) {
       throw new Error("Query is not streamable, be sure to check usage");
     }
-    const { chunkSize, signal } = options ?? {};
+    const { chunkSize } = options ?? {};
+    const signal = this.getSignal(options?.signal);
     const name = options?.name ?? "anonymous";
 
     const compiled = query.compile(this.db);
@@ -579,6 +613,7 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
           this.getLogFromSpan(name, span, "stream")
         );
       }
+      this.onSpan?.(span);
     }
   }
 
@@ -587,6 +622,210 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
    * a warning (missing condition or broken data integrity), no row at debug
    * level as it's often an expected outcome (ie: not found).
    */
+  /**
+   * Run a callback in a transaction and return a QResult holding the value
+   * returned by the callback.
+   *
+   * The callback receives a datasource running its queries in the transaction
+   * (`query()`, `queryOrThrow()`, `queryOne()`, `queryOneOrThrow()`, `stream()`
+   * and `queryBuilder`). The transaction is committed when the callback returns,
+   * and rolled back when it throws or calls `tx.rollback()`.
+   *
+   * It never throws, `error.code` is:
+   * - "ROLLED_BACK": the callback threw (ie: a failed `tx.queryOrThrow()`) or
+   *   called `tx.rollback()`, the thrown error is the `cause`,
+   * - "TRANSACTION_FAILED": the transaction couldn't begin, commit or roll
+   *   back, the driver error is the `cause`,
+   * - "ABORTED": aborted with `signal`, the abort reason is the `cause`.
+   *
+   * `meta` holds a "transaction" span followed by the spans of the queries
+   * run in the transaction.
+   *
+   * Notes:
+   * - `tx.query()` never throws: a failed query doesn't roll back the
+   *   transaction unless you throw or call `tx.rollback()`. Prefer the
+   *   throwing methods (ie: `tx.queryOrThrow()`) in the callback.
+   * - Await all the queries before returning, and fully consume (or break)
+   *   the `tx.stream()` iterators.
+   * - Run the queries with `tx`: the datasource queries run outside of the
+   *   transaction, and wait forever for its connection on single connection
+   *   dialects (ie: SQLite).
+   * - Nested transactions aren't supported.
+   *
+   * @example
+   * ```typescript
+   * import { KyselyDatasource } from '@flowblade/source-kysely';
+   *
+   * const ds = new KyselyDatasource({ connection: db });
+   *
+   * const { data: orderId, error, meta } = await ds.transaction(
+   *   async (tx) => {
+   *     const { data: order } = await tx.queryOneOrThrow(
+   *       tx.queryBuilder
+   *         .insertInto('order')
+   *         .values({ customer_id: customerId })
+   *         .returning(['id'])
+   *     );
+   *     const { data: stock } = await tx.queryOneOrThrow(getStock);
+   *     if (stock.quantity < quantity) {
+   *       // Rolls back, error.code: "ROLLED_BACK"
+   *       tx.rollback('out of stock');
+   *     }
+   *     await tx.queryOrThrow(insertOrderLines(order.id));
+   *     return order.id;
+   *   },
+   *   { name: 'createOrder', isolationLevel: 'serializable' }
+   * );
+   *
+   * if (error) {
+   *   // "ROLLED_BACK", "TRANSACTION_FAILED" or "ABORTED"
+   *   console.error(error.code, error.message, error.cause);
+   *   return;
+   * }
+   * console.log(`Order ${orderId} created in ${meta.getTotalTimeMs()}ms`);
+   * ```
+   */
+  transaction = async <TData>(
+    fn: (tx: KyselyTransactionDatasource<TDatabase>) => Promise<TData>,
+    options?: TransactionOptions
+  ): AsyncQResult<TData> => {
+    const name = options?.name ?? "anonymous";
+    const { isolationLevel, accessMode } = options ?? {};
+    const logProps = {
+      transactionName: name,
+      source: "kysely",
+      method: "transaction",
+      ...(isolationLevel === undefined ? {} : { isolationLevel }),
+      ...(accessMode === undefined ? {} : { accessMode }),
+    };
+
+    this.logger.debug('Beginning transaction "{transactionName}"', logProps);
+
+    const result = await runTransaction<
+      {
+        trx: ControlledTransaction<TDatabase>;
+        tx: KyselyTransactionDatasourceImpl<TDatabase>;
+      },
+      TData
+    >({
+      options,
+      getErrorMessage: getKyselyErrorMessage,
+      begin: async ({ addSpan }) => {
+        if (this.db.isTransaction) {
+          throw new Error(
+            "Nested transactions are not supported, run the queries with the transaction datasource"
+          );
+        }
+        let builder = this.db.startTransaction();
+        if (isolationLevel !== undefined) {
+          builder = builder.setIsolationLevel(isolationLevel);
+        }
+        if (accessMode !== undefined) {
+          builder = builder.setAccessMode(accessMode);
+        }
+        const trx = await builder.execute();
+        // oxlint-disable-next-line no-use-before-define -- subclass, defined after its parent
+        const tx = new KyselyTransactionDatasourceImpl<TDatabase>(
+          {
+            connection: trx,
+            logger: this.logger,
+            logParams: this.logParams,
+            defaultOptions: this.defaultOptions,
+          },
+          { signal: options?.signal, onSpan: addSpan }
+        );
+        return { trx, tx };
+      },
+      fn: ({ tx }) => fn(tx),
+      commit: async ({ trx }) => {
+        await trx.commit().execute();
+      },
+      rollback: async ({ trx }) => {
+        await trx.rollback().execute();
+      },
+    });
+
+    const { meta, error } = result;
+    const [span] = meta.getSpansByType("transaction");
+    const props = {
+      ...logProps,
+      status: span?.status,
+      queryCount: meta.getSpans().length - 1,
+      timeMs: meta.getTotalTimeMs(),
+    };
+    if (error === undefined) {
+      this.logger.info(
+        'Transaction "{transactionName}" committed in {timeMs}ms, {queryCount} query(ies)',
+        props
+      );
+    } else if (error.code === "TRANSACTION_FAILED") {
+      this.logger.error(
+        'Transaction "{transactionName}" failed: {errorMessage}',
+        { ...props, errorMessage: error.message }
+      );
+    } else {
+      this.logger.warn(
+        'Transaction "{transactionName}" rolled back: {errorMessage}',
+        { ...props, errorMessage: error.message }
+      );
+    }
+    return result;
+  };
+
+  /**
+   * Run a callback in a transaction and return the value returned by the
+   * callback, or throw when the transaction is rolled back or fails.
+   *
+   * Like `transaction()`, the callback receives a datasource running its
+   * queries in the transaction, committed when the callback returns and
+   * rolled back when it throws or calls `tx.rollback()`.
+   *
+   * Throws the error thrown by the callback as is (ie: a `QErrors.QueryFailed`
+   * from `tx.queryOrThrow()`, a `QErrors.RolledBack` from `tx.rollback()`),
+   * a `QErrors.TransactionFailed` when the transaction couldn't begin, commit
+   * or roll back, or a `QErrors.Aborted` when aborted with `signal`. To throw
+   * your own error, pass an `onError` factory.
+   *
+   * @example
+   * ```typescript
+   * import { KyselyDatasource } from '@flowblade/source-kysely';
+   *
+   * const ds = new KyselyDatasource({ connection: db });
+   *
+   * const { data: orderId } = await ds.transactionOrThrow(
+   *   async (tx) => {
+   *     const { data: order } = await tx.queryOneOrThrow(insertOrder);
+   *     await tx.queryOrThrow(insertOrderLines(order.id));
+   *     return order.id;
+   *   },
+   *   { name: 'createOrder' }
+   * );
+   * ```
+   */
+  transactionOrThrow = async <TData>(
+    fn: (tx: KyselyTransactionDatasource<TDatabase>) => Promise<TData>,
+    options?: TransactionOrThrowOptions
+  ): Promise<{ data: TData; meta: QMeta }> => {
+    const result = await this.transaction(fn, options);
+    return {
+      data: getDataOrThrow(result, { onError: options?.onError }),
+      meta: result.meta,
+    };
+  };
+
+  /**
+   * Combine the query signal with the transaction one, if any.
+   */
+  private readonly getSignal = (
+    signal: AbortSignal | undefined
+  ): AbortSignal | undefined => {
+    const { transactionSignal } = this;
+    if (transactionSignal === undefined || signal === undefined) {
+      return signal ?? transactionSignal;
+    }
+    return AbortSignal.any([signal, transactionSignal]);
+  };
+
   private readonly logRowCount = (meta: QMeta, rowCount: number): void => {
     const [span] = meta.getSpansByType("sql");
     if (rowCount === 1 || span === undefined) {
@@ -621,5 +860,29 @@ export class KyselyDatasource<TDatabase> implements DatasourceInterface {
       affectedRows: span.affectedRows,
       timeMs: span.timeMs,
     };
+  };
+}
+
+/**
+ * Datasource received by the transaction callbacks, see `KyselyTransactionDatasource`.
+ */
+class KyselyTransactionDatasourceImpl<TDatabase>
+  extends KyselyDatasource<TDatabase>
+  implements TransactionScopeInterface
+{
+  constructor(
+    params: Params<TDatabase>,
+    context: {
+      signal: AbortSignal | undefined;
+      onSpan: (span: QMetaSpan) => void;
+    }
+  ) {
+    super(params);
+    this.transactionSignal = context.signal;
+    this.onSpan = context.onSpan;
+  }
+
+  rollback = (reason?: string): never => {
+    throw new QErrors.RolledBack(reason);
   };
 }

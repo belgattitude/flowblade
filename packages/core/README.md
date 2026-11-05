@@ -81,6 +81,8 @@ Errors thrown by the datasources throwing methods (`queryOrThrow()`, `queryOneOr
 | `QErrors.Aborted` | the query was aborted, the abort reason as `cause` | `ABORTED` | 504 on timeout, 499 otherwise |
 | `QErrors.NoResult` | `queryOneOrThrow()` got no row | `NO_RESULT` | 404 |
 | `QErrors.TooManyResults` | more than one row, with `rowCount` | `TOO_MANY_RESULTS` | 500 |
+| `QErrors.RolledBack` | `tx.rollback()` was called in a transaction | `ROLLED_BACK` | 500 |
+| `QErrors.TransactionFailed` | a transaction couldn't begin, commit or roll back, the driver error as `cause` | `TRANSACTION_FAILED` | 500 |
 
 ```typescript
 import { QErrors } from "@flowblade/core"; // or from the datasource package
@@ -102,9 +104,21 @@ try {
 }
 ```
 
+### Transactions
+
+Datasources supporting transactions implement `TransactionalDatasourceInterface`: `transaction()` (returns a QResult, never throws) and `transactionOrThrow()`. The callback receives a datasource running its queries in the transaction, committed when the callback returns and rolled back when it throws or calls `tx.rollback()`.
+
+| `error.code` (`transaction()`) | When | Thrown by `transactionOrThrow()` |
+| --- | --- | --- |
+| `ROLLED_BACK` | the callback threw or called `tx.rollback()`, the thrown error as `cause` | the thrown error, as is |
+| `TRANSACTION_FAILED` | couldn't begin, commit or roll back, the driver error as `cause` | `QErrors.TransactionFailed` |
+| `ABORTED` | aborted with `signal` (never committed), the abort reason as `cause` | `QErrors.Aborted` |
+
+The result `meta` holds a `transaction` span (`status`, begin/commit time) followed by the spans of the queries run in the transaction.
+
 ### Implementing a datasource
 
-Helpers to implement a datasource (`DatasourceInterface`) are exported from `@flowblade/core/datasource`: `createQResultSuccess()`, `createQResultError()`, `createSqlSpan()`, `toOneRowQResult()` (for `queryOne()`) and `getOneRowOrThrow()` (for `queryOneOrThrow()`).
+Helpers to implement a datasource (`DatasourceInterface`) are exported from `@flowblade/core/datasource`: `createQResultSuccess()`, `createQResultError()`, `createSqlSpan()`, `toOneRowQResult()` (for `queryOne()`) and `getOneRowOrThrow()` (for `queryOneOrThrow()`). Use `runTransaction()` to implement `transaction()`: provide `begin`, `commit` and `rollback`, it handles the flow, errors and meta.
 
 ```typescript
 import { QMeta } from "@flowblade/core";

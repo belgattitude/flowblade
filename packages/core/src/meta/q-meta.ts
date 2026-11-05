@@ -1,4 +1,8 @@
 import type { QColumnModel } from "../cm/q-column-model";
+import type {
+  TransactionAccessMode,
+  TransactionIsolationLevel,
+} from "../datasource/transaction.interface";
 
 export interface QMetaMapSpan {
   type: "map";
@@ -41,12 +45,33 @@ export interface QMetaMaterializationSpan {
 }
 
 /**
+ * Span of a transaction (`transaction()` / `transactionOrThrow()`), the
+ * queries run in the transaction have their own spans.
+ */
+export interface QMetaTransactionSpan {
+  type: "transaction";
+  /**
+   * How the transaction ended: committed, rolled back (the callback threw or
+   * called `tx.rollback()`) or failed (couldn't begin, commit or roll back).
+   */
+  status: "committed" | "rolled back" | "failed";
+  /**
+   * Time spent to begin and end (commit / rollback) the transaction in
+   * milliseconds, the queries time is in their own spans.
+   */
+  timeMs: number;
+  isolationLevel?: TransactionIsolationLevel;
+  accessMode?: TransactionAccessMode;
+}
+
+/**
  * Spans with a dedicated shape, discriminated by their `type`.
  */
 export type QMetaKnownSpan =
   | QMetaSqlSpan
   | QMetaMapSpan
-  | QMetaMaterializationSpan;
+  | QMetaMaterializationSpan
+  | QMetaTransactionSpan;
 
 /**
  * Span shape for a given span type: the known shape when there is one,

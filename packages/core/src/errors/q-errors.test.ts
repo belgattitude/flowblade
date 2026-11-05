@@ -4,7 +4,9 @@ import { QErrors } from "../index";
 import { QAbortedError } from "./q-aborted-error";
 import { QNoResultError } from "./q-no-result-error";
 import { QQueryFailedError } from "./q-query-failed-error";
+import { QRolledBackError } from "./q-rolled-back-error";
 import { QTooManyResultsError } from "./q-too-many-results-error";
+import { QTransactionFailedError } from "./q-transaction-failed-error";
 
 describe("QErrors", () => {
   it("should expose the error classes", () => {
@@ -12,11 +14,15 @@ describe("QErrors", () => {
     expect(QErrors.TooManyResults).toBe(QTooManyResultsError);
     expect(QErrors.QueryFailed).toBe(QQueryFailedError);
     expect(QErrors.Aborted).toBe(QAbortedError);
+    expect(QErrors.RolledBack).toBe(QRolledBackError);
+    expect(QErrors.TransactionFailed).toBe(QTransactionFailedError);
     expect(Object.keys(QErrors).toSorted()).toStrictEqual([
       "Aborted",
       "NoResult",
       "QueryFailed",
+      "RolledBack",
       "TooManyResults",
+      "TransactionFailed",
     ]);
   });
 
@@ -62,6 +68,30 @@ describe("QErrors", () => {
       message: "Query aborted: aborted",
       cause: reason,
     });
+  });
+
+  it("should keep the transaction errors names, codes and causes", () => {
+    const cause = new Error("driver error");
+    expect(new QErrors.RolledBack("insufficient funds")).toMatchObject({
+      name: "QRolledBackError",
+      code: "ROLLED_BACK",
+      message: "Transaction rolled back: insufficient funds",
+      statusCode: 500,
+    });
+    expect(new QErrors.RolledBack().message).toBe("Transaction rolled back");
+    expect(new QErrors.RolledBack("").message).toBe("Transaction rolled back");
+    expect(
+      new QErrors.TransactionFailed("driver error", { cause })
+    ).toMatchObject({
+      name: "QTransactionFailedError",
+      code: "TRANSACTION_FAILED",
+      message: "Transaction failed: driver error",
+      statusCode: 500,
+      cause,
+    });
+    expect(new QErrors.RolledBack()).not.toBeInstanceOf(
+      QErrors.TransactionFailed
+    );
   });
 
   it("should suggest 504 for timeouts and 499 for other aborts", () => {

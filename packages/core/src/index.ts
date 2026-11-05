@@ -6,6 +6,14 @@ export type {
   QueryOrThrowOptions,
   QueryStreamOptions,
 } from "./datasource/datasource.interface";
+export type {
+  TransactionAccessMode,
+  TransactionalDatasourceInterface,
+  TransactionIsolationLevel,
+  TransactionOptions,
+  TransactionOrThrowOptions,
+  TransactionScopeInterface,
+} from "./datasource/transaction.interface";
 /**
  * Errors thrown by flowblade (ie: `QErrors.NoResult`, `QErrors.TooManyResults`),
  * usable with `instanceof` and as types.
@@ -28,6 +36,7 @@ export {
   type QMetaMaterializationSpan,
   type QMetaCustomSpan,
   type QMetaSqlSpan,
+  type QMetaTransactionSpan,
 } from "./meta/q-meta";
 export type { InferQResult } from "./query-result/infer-q-result";
 export type { QResultJsonifiable, QResultShape } from "./query-result/q-result";

@@ -300,6 +300,47 @@ const ds = new KyselyDatasource({
 });
 ```
 
+## Transactions
+
+Run queries in a transaction with `transaction()` (returns a QResult, never throws) or `transactionOrThrow()`. The callback receives a datasource (`tx`) running its queries in the transaction: committed when the callback returns, rolled back when it throws or calls `tx.rollback()`.
+
+```typescript
+const { data: orderId, error, meta } = await ds.transaction(
+  async (tx) => {
+    const { data: order } = await tx.queryOneOrThrow(
+      tx.queryBuilder
+        .insertInto("order")
+        .values({ customer_id: customerId })
+        .output(["inserted.id"])
+    );
+    const { data: stock } = await tx.queryOneOrThrow(getStock);
+    if (stock.quantity < quantity) {
+      tx.rollback("out of stock"); // error.code: "ROLLED_BACK"
+    }
+    await tx.queryOrThrow(insertOrderLines(order.id));
+    return order.id;
+  },
+  {
+    name: "createOrder",
+    isolationLevel: "serializable", // optional, also: accessMode, signal
+  }
+);
+if (error) {
+  // "ROLLED_BACK": the callback threw (ie: tx.queryOrThrow()) or called tx.rollback()
+  // "TRANSACTION_FAILED": couldn't begin, commit or roll back
+  // "ABORTED": aborted with signal, never committed
+  console.error(error.code, error.message, error.cause);
+}
+// meta: a "transaction" span followed by the spans of the queries
+
+// Or throw: the error thrown by the callback as is, a QErrors.TransactionFailed or a QErrors.Aborted
+const { data } = await ds.transactionOrThrow(async (tx) => {
+  /* ... */
+});
+```
+
+> **Note**: `tx.query()` never throws: a failed query doesn't roll back the transaction unless you throw or call `tx.rollback()`, prefer the throwing methods in the callback. Always use `tx` (not `ds`) in the callback, nested transactions aren't supported.
+
 ## Aborting queries
 
 All the query methods and `stream()` accept an [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal):
