@@ -4,6 +4,7 @@ import {
   createQResultError,
   createQResultSuccess,
   createSqlSpan,
+  getDataOrThrow,
   getOneRowOrThrow,
   toOneRowQResult,
 } from "../datasource/index";
@@ -139,7 +140,7 @@ export class DummyDatasource implements DatasourceInterface {
   }> => {
     const result = await this.query<TData>(rawQuery, options);
     return {
-      data: result.getOrThrow({
+      data: getDataOrThrow(result, {
         onError: options?.onError ?? this.defaultOptions.queryOrThrow?.onError,
       }),
       meta: result.meta,

@@ -1,3 +1,5 @@
+// Tests the deprecated QResult.getOrThrow(), kept until removal
+/* oxlint-disable typescript/no-deprecated */
 import type { QErrorFactory } from "@flowblade/core";
 import {
   configure,

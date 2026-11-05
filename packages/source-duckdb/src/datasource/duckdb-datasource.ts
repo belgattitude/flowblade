@@ -19,6 +19,7 @@ import {
   createQResultError,
   createQResultSuccess,
   createSqlSpan,
+  getDataOrThrow,
   getOneRowOrThrow,
   toOneRowQResult,
 } from "@flowblade/core/datasource";
@@ -252,7 +253,7 @@ export class DuckdbDatasource implements DatasourceInterface {
   }> => {
     const result = await this.query<TData>(rawQuery, options);
     return {
-      data: result.getOrThrow({
+      data: getDataOrThrow(result, {
         onError: options?.onError ?? this.defaultOptions.queryOrThrow?.onError,
       }),
       meta: result.meta,
@@ -322,9 +323,8 @@ export class DuckdbDatasource implements DatasourceInterface {
    * options win).
    * When the row might not exist, set a `defaultValue` or use `queryOne()`.
    *
-   * Not to be confused with `(await ds.queryOne(query)).getOrThrow()`, which
-   * returns null when there's no row (it throws the same errors otherwise)
-   * and ignores the `defaultOptions.queryOneOrThrow` factories.
+   * Replaces the deprecated `(await ds.queryOne(query)).getOrThrow()`: to
+   * get null when there's no row, set `{ defaultValue: null }`.
    *
    * Note: the SQL is never rewritten and checking the row count is free,
    * but all rows are fetched. When the query isn't constrained by a unique

@@ -1,3 +1,5 @@
+// Tests the deprecated QResult.getOrThrow(), kept until removal
+/* oxlint-disable typescript/no-deprecated */
 import {
   expectTypeOf,
   beforeEach,

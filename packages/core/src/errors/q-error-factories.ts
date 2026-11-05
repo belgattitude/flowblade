@@ -75,8 +75,8 @@ export type QOneRowErrorFactories = {
 };
 
 /**
- * Replace the errors thrown by `QResult.getOrThrow()`, with the same
- * factory style as `queryOneOrThrow()`:
+ * Replace the errors thrown by `getDataOrThrow()` (and the deprecated
+ * `QResult.getOrThrow()`), with the same factory style as `queryOneOrThrow()`:
  * - `onTooManyResults`: the result has more than one row ("TOO_MANY_RESULTS"),
  * - `onError`: the other failures, ie: the query failed ("QUERY_FAILED",
  *   "ABORTED") or the `map()` transform threw ("MAP_FAILED").
@@ -85,7 +85,7 @@ export type QOneRowErrorFactories = {
  * ```typescript
  * import { HttpInternalServerError, HttpServiceUnavailable } from "@httpx/exception";
  *
- * const row = (await ds.queryOne(query)).getOrThrow({
+ * const { data: row } = await ds.queryOneOrThrow(query, {
  *   onError: ({ error, qError }) =>
  *     qError.code === "ABORTED"
  *       ? new HttpServiceUnavailable({ cause: error })
