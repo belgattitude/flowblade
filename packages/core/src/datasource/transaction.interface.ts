@@ -46,7 +46,7 @@ export type TransactionOptions = {
    *
    * @example
    * ```typescript
-   * { retry: { maxRetries: 3 } } // waits 50ms, 100ms then 200ms
+   * { retry: { maxRetries: 3 } } // waits 25-50ms, 50-100ms then 100-200ms
    * { retry: { maxRetries: 5, delayMs: (retry) => retry * 100 } }
    * ```
    */
@@ -76,10 +76,34 @@ export type TransactionRetryOptions = {
   maxRetries: number;
   /**
    * Delay before a retry in milliseconds, or a function of the retry number
-   * (1 for the first retry). Defaults to an exponential backoff: 50ms, 100ms,
-   * 200ms... up to 1s.
+   * (1 for the first retry). Defaults to an exponential backoff with jitter
+   * (half of the delay is random, to spread the concurrent retries): 25-50ms,
+   * 50-100ms, 100-200ms... up to 500ms-1s. Use `createExponentialBackoff()`
+   * to configure it.
    */
   delayMs?: number | ((retry: number) => number);
+};
+
+/**
+ * Datasource level default options of `transaction()` and
+ * `transactionOrThrow()` (`defaultOptions.transaction`).
+ *
+ * @example
+ * ```typescript
+ * import { createExponentialBackoff } from "@flowblade/core";
+ *
+ * const transactionDefaults: TransactionDefaultOptions = {
+ *   // Only the retry delay: the transactions retry when they set maxRetries
+ *   retry: { delayMs: createExponentialBackoff({ jitter: "full" }) },
+ * };
+ * ```
+ */
+export type TransactionDefaultOptions = {
+  /**
+   * Default `retry` options, the fields of the `retry` option passed per
+   * transaction win (ie: `{ maxRetries: 0 }` disables the default retries).
+   */
+  retry?: Partial<TransactionRetryOptions>;
 };
 
 /**
@@ -231,14 +255,20 @@ export interface TransactionalDatasourceInterface<
    * ```typescript
    * const { data: orderId, error, meta } = await ds.transaction(
    *   async (tx) => {
+   *     // insertOrder returns the inserted row (ie: RETURNING id)
    *     const { data: order } = await tx.queryOneOrThrow(insertOrder);
    *     await tx.queryOrThrow(insertOrderLines(order.id));
    *     return order.id;
    *   },
-   *   { name: "createOrder", isolationLevel: "serializable" }
+   *   {
+   *     name: "createOrder",
+   *     isolationLevel: "serializable",
+   *     // serialization failures are expected, run it again on conflict
+   *     retry: { maxRetries: 3 },
+   *   }
    * );
    * if (error) {
-   *   // "ROLLED_BACK", "TRANSACTION_FAILED" or "ABORTED"
+   *   // "ROLLED_BACK", "TRANSACTION_FAILED", "TRANSACTION_CONFLICT" or "ABORTED"
    *   console.error(error.code, error.message, error.cause);
    * }
    * ```

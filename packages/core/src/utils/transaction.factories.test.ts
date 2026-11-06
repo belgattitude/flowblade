@@ -5,7 +5,7 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { QErrors } from "../index";
 import type { QMetaSqlSpan } from "../meta/q-meta";
 import { createSqlSpan, getDataOrThrow } from "./datasource.factories";
-import { runTransaction } from "./transaction.factories";
+import { defaultRetryDelayMs, runTransaction } from "./transaction.factories";
 
 type FakeTx = {
   query: (sql: string) => Promise<void>;
@@ -44,7 +44,7 @@ const createDriver = (
     options?: Parameters<typeof runTransaction>[0]["options"],
     extra?: Pick<
       Parameters<typeof runTransaction>[0],
-      "isConflictError" | "onRetry" | "log"
+      "isConflictError" | "onRetry" | "log" | "defaultRetry"
     >
   ) =>
     runTransaction<FakeTx, TData>({
@@ -692,17 +692,89 @@ describe(runTransaction, () => {
       expect(result.meta.getSpans()[0]).toMatchObject({ retries: 2 });
     });
 
-    it("should use an exponential backoff by default", async () => {
+    it("should use the default retry options, the per call fields win", async () => {
+      const onRetry = vi.fn<(info: { delayMs: number }) => void>();
+      const extra = {
+        isConflictError,
+        onRetry,
+        defaultRetry: { maxRetries: 1, delayMs: 7 },
+      };
+      const conflict = () => Promise.reject(createConflict());
+
+      const defaults = createDriver();
+      await defaults.run(conflict, undefined, extra);
+      expect(defaults.driver.begin).toHaveBeenCalledTimes(2);
+
+      // the default delayMs is kept
+      const perCall = createDriver();
+      await perCall.run(conflict, { retry: { maxRetries: 2 } }, extra);
+      expect(perCall.driver.begin).toHaveBeenCalledTimes(3);
+      expect(onRetry.mock.calls.map(([info]) => info.delayMs)).toStrictEqual([
+        7, 7, 7,
+      ]);
+
+      const disabled = createDriver();
+      const result = await disabled.run(
+        conflict,
+        { retry: { maxRetries: 0 } },
+        extra
+      );
+      expect(disabled.driver.begin).toHaveBeenCalledOnce();
+      expect(result.error?.code).toBe("TRANSACTION_CONFLICT");
+    });
+
+    it("should not retry with a default delay only", async () => {
+      const { driver, run } = createDriver();
+      const result = await run(
+        () => Promise.reject(createConflict()),
+        undefined,
+        {
+          isConflictError,
+          defaultRetry: { delayMs: 0 },
+        }
+      );
+      expect(driver.begin).toHaveBeenCalledOnce();
+      expect(result.error?.code).toBe("TRANSACTION_CONFLICT");
+    });
+
+    it("should use an exponential backoff with jitter by default", async () => {
       const { run } = createDriver();
       const onRetry = vi.fn<(info: { delayMs: number }) => void>();
-      await run(
-        () => Promise.reject(createConflict()),
-        { retry: { maxRetries: 2 } },
-        { isConflictError, onRetry }
-      );
+      const random = vi.spyOn(Math, "random").mockReturnValue(0);
+      try {
+        await run(
+          () => Promise.reject(createConflict()),
+          { retry: { maxRetries: 2 } },
+          { isConflictError, onRetry }
+        );
+      } finally {
+        random.mockRestore();
+      }
       expect(onRetry.mock.calls.map(([info]) => info.delayMs)).toStrictEqual([
-        50, 100,
+        25, 50,
       ]);
+    });
+
+    it("should bound the default retry delay", () => {
+      const random = vi.spyOn(Math, "random");
+      try {
+        random.mockReturnValue(0);
+        expect([1, 2, 3, 5, 6, 10].map(defaultRetryDelayMs)).toStrictEqual([
+          25, 50, 100, 400, 500, 500,
+        ]);
+        random.mockReturnValue(0.999_999);
+        expect([1, 2, 3, 5, 6, 10].map(defaultRetryDelayMs)).toStrictEqual([
+          50, 100, 200, 800, 1000, 1000,
+        ]);
+      } finally {
+        random.mockRestore();
+      }
+      for (let i = 0; i < 1000; i++) {
+        const delay = defaultRetryDelayMs(3);
+        expect(Number.isInteger(delay)).toBe(true);
+        expect(delay).toBeGreaterThanOrEqual(100);
+        expect(delay).toBeLessThanOrEqual(200);
+      }
     });
 
     it("should not retry the other errors", async () => {

@@ -326,7 +326,8 @@ const {
   },
   {
     name: "createOrder",
-    isolationLevel: "serializable", // optional, also: accessMode, signal, retry
+    isolationLevel: "serializable", // optional, also: accessMode, signal
+    retry: { maxRetries: 3 }, // serializable: run it again on conflict
   }
 );
 if (error) {
@@ -349,8 +350,32 @@ Conflicts with a concurrent transaction (serialization failure, deadlock) are re
 ```typescript
 const { data, error } = await ds.transaction(fn, {
   isolationLevel: "serializable",
-  // waits 50ms, 100ms then 200ms by default, or set delayMs: (retry) => ms
+  // waits 25-50ms, 50-100ms then 100-200ms by default (exponential backoff
+  // with jitter), or set delayMs: (retry) => ms
   retry: { maxRetries: 3 },
+});
+```
+
+The retry policy can be set for all the transactions of the datasource with `defaultOptions.transaction.retry`, the `retry` fields passed per transaction win (ie: `{ maxRetries: 0 }` disables the retries). `createExponentialBackoff()` configures the delay (`initialDelayMs`, `maxDelayMs` and `jitter`: `"equal"` by default, `"full"` or `"none"`):
+
+```typescript
+import { createExponentialBackoff } from "@flowblade/core";
+
+const ds = new KyselyDatasource({
+  connection: db,
+  defaultOptions: {
+    transaction: {
+      retry: {
+        maxRetries: 3,
+        // 0-100ms, 0-200ms then 0-400ms
+        delayMs: createExponentialBackoff({
+          initialDelayMs: 100,
+          maxDelayMs: 2000,
+          jitter: "full",
+        }),
+      },
+    },
+  },
 });
 ```
 

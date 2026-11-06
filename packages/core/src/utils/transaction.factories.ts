@@ -12,6 +12,7 @@ import {
 import { QResult } from "../query-result/q-result";
 import type { AsyncQResult, QError } from "../query-result/types";
 import { isError } from "./brand";
+import { createExponentialBackoff } from "./retry-backoff";
 
 /**
  * Received by `begin`, for the transaction datasource to report its queries.
@@ -88,6 +89,11 @@ export type RunTransactionParams<TTx, TData> = {
   fn: (tx: TTx) => Promise<TData>;
   options?: TransactionOptions | undefined;
   /**
+   * Datasource default retry options (ie: `defaultOptions.transaction.retry`),
+   * the `options.retry` fields win.
+   */
+  defaultRetry?: Partial<TransactionRetryOptions> | undefined;
+  /**
    * Message of the driver errors, defaults to the error message.
    */
   getErrorMessage?: (error: unknown) => string;
@@ -121,10 +127,28 @@ const defaultGetErrorMessage = (error: unknown): string => {
 };
 
 /**
- * Default retry delay: exponential backoff, 50ms, 100ms, 200ms... up to 1s.
+ * Default retry delay: exponential backoff (50ms, 100ms, 200ms... up to 1s)
+ * with "equal jitter", half of the backoff is randomized: 25-50ms, 50-100ms,
+ * 100-200ms... up to 500ms-1s.
+ *
+ * The jitter spreads the retries of transactions conflicting with each other
+ * (they'd retry at the same time and conflict again), half of the backoff is
+ * kept to never retry at once (ie: a deadlock victim while the other
+ * transaction still holds its locks).
  */
-const defaultRetryDelayMs = (retry: number): number =>
-  Math.min(1000, 25 * 2 ** retry);
+export const defaultRetryDelayMs = createExponentialBackoff();
+
+/**
+ * The retry options, the `options.retry` fields win over the datasource
+ * defaults (ie: the default `delayMs` is kept with a per call `maxRetries`).
+ */
+const mergeRetry = (
+  retry: TransactionRetryOptions | undefined,
+  defaultRetry: Partial<TransactionRetryOptions> | undefined
+): TransactionRetryOptions | undefined =>
+  defaultRetry === undefined
+    ? retry
+    : { maxRetries: 0, ...defaultRetry, ...retry };
 
 /**
  * The error, or one of its causes, matching `predicate`.
@@ -555,7 +579,7 @@ const runAttempt = async <TTx, TData>(
 export const runTransaction = async <TTx, TData>(
   params: RunTransactionParams<TTx, TData>
 ): AsyncQResult<TData> => {
-  const { options, onRetry, log } = params;
+  const { options, defaultRetry, onRetry, log } = params;
   const name = options?.name ?? "anonymous";
   const logProps = {
     transactionName: name,
@@ -570,7 +594,7 @@ export const runTransaction = async <TTx, TData>(
   };
   log?.logger.debug('Beginning transaction "{transactionName}"', logProps);
 
-  const retry = options?.retry;
+  const retry = mergeRetry(options?.retry, defaultRetry);
   if (!isValidRetry(retry)) {
     // never throws, like the other failures
     return logResult(
