@@ -120,6 +120,26 @@ describe("MSSQL e2e transactions", () => {
     await expect(getLinkedIds()).resolves.toStrictEqual([]);
   });
 
+  it("should commit after a handled failed query with onFailedQuery commit", async () => {
+    const result = await ds.transaction(
+      async (tx) => {
+        await insertLinked(tx, firstId);
+        // primary key violation: doesn't abort a sql server transaction
+        const { error } = await tx.query(
+          tx.queryBuilder
+            .insertInto("TestTableLinked")
+            .values({ id: firstId, name: "duplicate", test_table_id: 1 })
+        );
+        await insertLinked(tx, firstId + 1);
+        return error?.code;
+      },
+      { onFailedQuery: "commit" }
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toBe("QUERY_FAILED");
+    expect(await getLinkedIds()).toStrictEqual([firstId, firstId + 1]);
+  });
+
   it("should roll back with tx.rollback()", async () => {
     await expect(
       ds.transactionOrThrow(async (tx) => {

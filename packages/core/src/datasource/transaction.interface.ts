@@ -1,4 +1,5 @@
 import type { QErrorFactory } from "../errors/q-error-factories";
+import type { DatasourceInterface } from "./datasource.interface";
 import type { QMeta } from "../meta/q-meta";
 import type { AsyncQResult } from "../query-result/types";
 
@@ -50,6 +51,22 @@ export type TransactionOptions = {
    * ```
    */
   retry?: TransactionRetryOptions;
+  /**
+   * What to do when a query failed in the transaction but the callback
+   * handled the error (ie: `tx.query()` never throws) and returned:
+   * - "rollback" (default): roll back, the result is a "TRANSACTION_FAILED"
+   *   error. Most databases abort the transaction on error (ie: Postgres,
+   *   DuckDB) and silently roll back on commit.
+   * - "commit": commit anyway, for the databases where a failed statement
+   *   doesn't abort the transaction (ie: SQL Server without XACT_ABORT, MySQL),
+   *   ie: an insert failing with a duplicate key handled by the callback.
+   *   Never with Postgres: the commit would silently roll back. A conflict is
+   *   never committed ("TRANSACTION_CONFLICT").
+   *
+   * Prefer a savepoint when supported (ie: `tx.savepoint()` of the Kysely
+   * datasource): only the savepoint is rolled back.
+   */
+  onFailedQuery?: "rollback" | "commit";
 };
 
 export type TransactionRetryOptions = {
@@ -103,8 +120,88 @@ export interface TransactionScopeInterface {
  * Nested transactions aren't supported, the transaction datasource doesn't
  * expose `transaction()` / `transactionOrThrow()`.
  */
+export type SavepointOptions = {
+  /**
+   * Name used to label the savepoint in the meta (the SQL savepoint name is
+   * generated). Defaults to the generated name.
+   */
+  name?: string;
+};
+
+export type SavepointOrThrowOptions = SavepointOptions & {
+  /**
+   * Create the error thrown when the savepoint fails, rather than the
+   * default one (received as `error`).
+   */
+  onError?: QErrorFactory;
+};
+
+/**
+ * Savepoints of a transaction datasource (ie: Kysely, not DuckDB): a part
+ * of the transaction that can be rolled back alone.
+ */
+export interface TransactionSavepointInterface<TTx> {
+  /**
+   * Run a callback in a savepoint of the transaction and return a QResult
+   * holding the value returned by the callback. The callback receives a
+   * datasource running its queries in the savepoint, savepoints can be nested.
+   *
+   * The savepoint is released when the callback returns, and rolled back
+   * when it throws (or calls `tx.rollback()`) or a query failed in the
+   * savepoint: the transaction goes on, only the savepoint queries are
+   * rolled back. It never throws, `error.code` is:
+   * - "ROLLED_BACK": the callback threw, the thrown error is the `cause`,
+   * - "TRANSACTION_FAILED": a query failed in the savepoint (handled by the
+   *   callback), or the savepoint couldn't be created, rolled back or
+   *   released (the transaction then fails too),
+   * - "TRANSACTION_CONFLICT": a conflict with a concurrent transaction, the
+   *   transaction fails too (to be retried as a whole).
+   *
+   * @example
+   * ```typescript
+   * await ds.transactionOrThrow(async (tx) => {
+   *   await tx.queryOrThrow(insertOrder);
+   *   // ie: a duplicate is fine, the transaction goes on
+   *   const { error } = await tx.savepoint((sp) => sp.queryOrThrow(insertTag));
+   *   await tx.queryOrThrow(insertOrderLines);
+   * });
+   * ```
+   */
+  savepoint: <TData>(
+    fn: (tx: TTx) => Promise<TData>,
+    options?: SavepointOptions
+  ) => AsyncQResult<TData>;
+
+  /**
+   * Like `savepoint()`, but return the value returned by the callback or
+   * throw (the error thrown by the callback as is, a
+   * `QErrors.TransactionFailed` or a `QErrors.TransactionConflict`).
+   */
+  savepointOrThrow: <TData>(
+    fn: (tx: TTx) => Promise<TData>,
+    options?: SavepointOrThrowOptions
+  ) => Promise<{ data: TData; meta: QMeta }>;
+}
+
+/**
+ * Datasource received by the transaction callbacks, whatever the datasource:
+ * the default `tx` of `TransactionalDatasourceInterface`.
+ */
+export type TransactionDatasourceInterface = DatasourceInterface &
+  TransactionScopeInterface;
+
+/**
+ * @example
+ * ```typescript
+ * // Code working with any transactional datasource (ie: Kysely, DuckDB)
+ * const transfer = (ds: TransactionalDatasourceInterface, query: unknown) =>
+ *   ds.transactionOrThrow(async (tx) => {
+ *     await tx.queryOrThrow(query);
+ *   });
+ * ```
+ */
 export interface TransactionalDatasourceInterface<
-  TTx extends TransactionScopeInterface,
+  TTx extends TransactionScopeInterface = TransactionDatasourceInterface,
 > {
   /**
    * Run a callback in a transaction and return a QResult holding the value

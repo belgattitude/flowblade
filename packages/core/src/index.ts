@@ -9,11 +9,15 @@ export type {
 export type {
   TransactionAccessMode,
   TransactionalDatasourceInterface,
+  TransactionDatasourceInterface,
   TransactionIsolationLevel,
   TransactionOptions,
   TransactionOrThrowOptions,
   TransactionRetryOptions,
   TransactionScopeInterface,
+  SavepointOptions,
+  SavepointOrThrowOptions,
+  TransactionSavepointInterface,
 } from "./datasource/transaction.interface";
 /**
  * Errors thrown by flowblade (ie: `QErrors.NoResult`, `QErrors.TooManyResults`),
@@ -38,6 +42,7 @@ export {
   type QMetaCustomSpan,
   type QMetaSqlSpan,
   type QMetaTransactionSpan,
+  type QMetaSavepointSpan,
 } from "./meta/q-meta";
 export type { InferQResult } from "./query-result/infer-q-result";
 export type { QResultJsonifiable, QResultShape } from "./query-result/q-result";

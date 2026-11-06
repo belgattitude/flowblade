@@ -42,14 +42,14 @@ const createDriver = (
     options?: Parameters<typeof runTransaction>[0]["options"],
     extra?: Pick<
       Parameters<typeof runTransaction>[0],
-      "isConflictError" | "onRetry"
+      "isConflictError" | "onRetry" | "log"
     >
   ) =>
     runTransaction<FakeTx, TData>({
       ...extra,
       fn,
       options,
-      begin: async ({ addSpan, onQueryFailed, assertActive }) => {
+      begin: async ({ addSpan, onQueryFailed, assertActive, trackQuery }) => {
         await driver.begin();
         return {
           failedQuery: (sql, error) => {
@@ -57,11 +57,16 @@ const createDriver = (
             addSpan(createSqlSpan({ sql, params: [] }));
             onQueryFailed(error);
           },
-          query: async (sql) => {
-            assertActive();
-            calls.push(sql);
-            addSpan(createSqlSpan({ sql, params: [], timeMs: 1 }));
-          },
+          query: (sql) =>
+            trackQuery(
+              (async () => {
+                assertActive();
+                // a query takes some time
+                await Promise.resolve();
+                calls.push(sql);
+                addSpan(createSqlSpan({ sql, params: [], timeMs: 1 }));
+              })()
+            ),
           rollback: (reason) => {
             throw new QErrors.RolledBack(reason);
           },
@@ -186,6 +191,43 @@ describe(runTransaction, () => {
     expect(result.meta.getSpansByType("sql")).toHaveLength(3);
   });
 
+  it("should commit after a handled failed query with onFailedQuery commit", async () => {
+    const { driver, run } = createDriver();
+    const result = await run(
+      async (tx) => {
+        await tx.query("INSERT 1");
+        tx.failedQuery("INSERT 2", new Error("duplicate key"));
+        return 1;
+      },
+      { onFailedQuery: "commit" }
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.data).toBe(1);
+    expect(driver.calls.at(-1)).toBe("commit");
+  });
+
+  it("should never commit a handled conflict with onFailedQuery commit", async () => {
+    const { driver, run } = createDriver();
+    const conflictError = Object.assign(new Error("deadlock"), {
+      code: "40001",
+    });
+    const result = await run(
+      async (tx) => {
+        tx.failedQuery("UPDATE 1", conflictError);
+      },
+      { onFailedQuery: "commit" },
+      {
+        isConflictError: (error) =>
+          (error as { code?: unknown }).code === "40001",
+      }
+    );
+    expect(driver.commit).not.toHaveBeenCalled();
+    expect(result.error).toMatchObject({
+      code: "TRANSACTION_CONFLICT",
+      cause: conflictError,
+    });
+  });
+
   it("should report a failed rollback after a failed query", async () => {
     const rollbackError = new Error("connection lost");
     const { run } = createDriver({
@@ -237,6 +279,33 @@ describe(runTransaction, () => {
     await expect(kept?.query("INSERT 1")).rejects.toThrow(
       "The transaction has ended"
     );
+  });
+
+  it("should wait for the queries not awaited by the callback", async () => {
+    const { driver, run } = createDriver();
+    const result = await run(async (tx) => {
+      // not awaited (a bug): still runs before the commit
+      void tx.query("INSERT 1");
+      void tx.query("INSERT 2");
+    });
+    expect(result.error).toBeUndefined();
+    expect(driver.calls).toStrictEqual([
+      "begin",
+      "INSERT 1",
+      "INSERT 2",
+      "commit",
+    ]);
+    expect(result.meta.getSpansByType("sql")).toHaveLength(2);
+  });
+
+  it("should wait for the queries not awaited when the callback throws", async () => {
+    const { driver, run } = createDriver();
+    const result = await run(async (tx) => {
+      void tx.query("INSERT 1");
+      throw new Error("thrown");
+    });
+    expect(result.error?.code).toBe("ROLLED_BACK");
+    expect(driver.calls).toStrictEqual(["begin", "INSERT 1", "rollback"]);
   });
 
   it("should return TRANSACTION_FAILED when begin fails", async () => {
@@ -601,6 +670,88 @@ describe(runTransaction, () => {
         code: "TRANSACTION_FAILED",
       });
       expect(result.meta.name).toBe("invalid");
+    });
+  });
+
+  describe("log", () => {
+    const createLogger = () => {
+      return {
+        debug: vi.fn<(message: string, props?: unknown) => void>(),
+        info: vi.fn<(message: string, props?: unknown) => void>(),
+        warn: vi.fn<(message: string, props?: unknown) => void>(),
+        error: vi.fn<(message: string, props?: unknown) => void>(),
+      };
+    };
+
+    it("should log the beginning and the commit", async () => {
+      const logger = createLogger();
+      const { run } = createDriver();
+      await run(
+        async (tx) => {
+          await tx.query("INSERT 1");
+        },
+        { name: "insert", isolationLevel: "serializable" },
+        { log: { logger, source: "test" } }
+      );
+      expect(logger.debug).toHaveBeenCalledWith(
+        'Beginning transaction "{transactionName}"',
+        {
+          transactionName: "insert",
+          source: "test",
+          method: "transaction",
+          isolationLevel: "serializable",
+        }
+      );
+      expect(logger.info).toHaveBeenCalledWith(
+        'Transaction "{transactionName}" committed in {timeMs}ms, {queryCount} query(ies)',
+        expect.objectContaining({
+          transactionName: "insert",
+          status: "committed",
+          queryCount: 1,
+        })
+      );
+    });
+
+    it.each([
+      ["warn", "rolled back", () => Promise.reject(new Error("thrown"))],
+      [
+        "error",
+        "failed",
+        async (tx: FakeTx) => {
+          tx.failedQuery("INSERT 1", new Error("query error"));
+        },
+      ],
+    ] as const)("should log at %s level when %s", async (level, status, fn) => {
+      const logger = createLogger();
+      const { run } = createDriver();
+      await run(fn, {}, { log: { logger, source: "test" } });
+      expect(logger[level]).toHaveBeenCalledWith(
+        expect.stringContaining(`{transactionName}" ${status}`),
+        expect.objectContaining({ errorMessage: expect.any(String) })
+      );
+      expect(logger.info).not.toHaveBeenCalled();
+    });
+
+    it("should log the retries and the conflict", async () => {
+      const logger = createLogger();
+      const { run } = createDriver();
+      await run(
+        () =>
+          Promise.reject(
+            Object.assign(new Error("conflict"), { code: "40001" })
+          ),
+        { retry: { maxRetries: 1, delayMs: 0 } },
+        {
+          log: { logger, source: "test" },
+          isConflictError: (error) =>
+            (error as { code?: unknown }).code === "40001",
+        }
+      );
+      expect(logger.warn.mock.calls.map(([message]) => message)).toStrictEqual([
+        'Transaction "{transactionName}" conflicts with a concurrent one, retry {retry} in {delayMs}ms: {errorMessage}',
+        'Transaction "{transactionName}" conflicts with a concurrent one: {errorMessage}',
+      ]);
+      expect(logger.warn.mock.calls[1]?.[1]).toMatchObject({ retries: 1 });
     });
   });
 });

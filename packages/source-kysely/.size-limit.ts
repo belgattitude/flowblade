@@ -6,7 +6,7 @@ const config = createSizeLimitConfig(
       name: "Import * (ESM)",
       path: ["dist/index.js"],
       import: "*",
-      limit: "15 kB",
+      limit: "15.5 kB",
     },
   ],
   { browserslist: true }

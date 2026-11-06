@@ -4,8 +4,11 @@ import { QMeta } from "../meta/q-meta";
 import { QResult } from "../query-result/q-result";
 import type { QError } from "../query-result/types";
 import { brandKey } from "../utils/brand";
+import { QErrors } from "../index";
 import {
+  createQResultError,
   createQResultSuccess,
+  getDataOrThrow,
   getOneRowOrThrow,
   toOneRowQResult,
 } from "../utils/datasource.factories";
@@ -278,6 +281,71 @@ describe("Cross-realm specs", () => {
       expect(() =>
         other.getOneRowOrThrow(manyHere, undefined, { onTooManyResults })
       ).toThrow("custom got 2");
+    });
+  });
+
+  describe("Transaction errors", () => {
+    const transactionErrors = [
+      ["RolledBack", () => new QErrors.RolledBack("reason"), 500],
+      ["TransactionFailed", () => new QErrors.TransactionFailed("x"), 500],
+      ["TransactionConflict", () => new QErrors.TransactionConflict("x"), 409],
+    ] as const;
+
+    it.each(transactionErrors)(
+      "should support instanceof across copies for %s",
+      async (name, create, statusCode) => {
+        const other = await importOtherCopy();
+        const fromOther = new other.QErrors[name]("reason");
+        expect(fromOther).not.toBe(create());
+        expect(fromOther).toBeInstanceOf(QErrors[name]);
+        expect(fromOther).toBeInstanceOf(Error);
+        expect(fromOther).toMatchObject({ statusCode });
+        // the other way around
+        expect(create()).toBeInstanceOf(other.QErrors[name]);
+        // never another transaction error
+        for (const [otherName] of transactionErrors) {
+          if (otherName !== name) {
+            expect(fromOther).not.toBeInstanceOf(QErrors[otherName]);
+          }
+        }
+      }
+    );
+
+    it.skipIf(typeof runInNewContext !== "function")(
+      "should support instanceof when created in a new context",
+      () => {
+        const sandbox = {
+          RolledBack: QErrors.RolledBack,
+          TransactionFailed: QErrors.TransactionFailed,
+          TransactionConflict: QErrors.TransactionConflict,
+          errors: [] as unknown[],
+        };
+        runInNewContext!(
+          `errors = [new RolledBack("r"), new TransactionFailed("f"), new TransactionConflict("c")]`,
+          sandbox
+        );
+        const [rolledBack, failed, conflict] = sandbox.errors;
+        expect(rolledBack).toBeInstanceOf(QErrors.RolledBack);
+        expect(failed).toBeInstanceOf(QErrors.TransactionFailed);
+        expect(conflict).toBeInstanceOf(QErrors.TransactionConflict);
+        expect(conflict).not.toBeInstanceOf(QErrors.TransactionFailed);
+      }
+    );
+
+    it("should rethrow the transaction errors of another copy", async () => {
+      const other = await importOtherCopy();
+      const conflict = other.createQResultError(
+        { message: "deadlock", code: "TRANSACTION_CONFLICT" },
+        new other.QMeta({ name: "test" })
+      );
+      expect(() => getDataOrThrow(conflict)).toThrow(QErrors.TransactionConflict);
+      const thrown = new other.QErrors.RolledBack("nope");
+      const rolledBack = createQResultError(
+        { message: thrown.message, code: "ROLLED_BACK", cause: thrown },
+        new QMeta({ name: "test" })
+      );
+      // the error thrown by the callback, as is
+      expect(() => other.getDataOrThrow(rolledBack)).toThrow(thrown);
     });
   });
 

@@ -1,6 +1,10 @@
 import { setTimeout as sleep } from "node:timers/promises";
 
 import { DuckDBInstance } from "@duckdb/node-api";
+import type {
+  TransactionalDatasourceInterface,
+  TransactionDatasourceInterface,
+} from "@flowblade/core";
 import { describe, expect, expectTypeOf, vi } from "vitest";
 
 import { duckTest } from "../../tests/utils/duck-test.ts";
@@ -139,6 +143,21 @@ describe("DuckdbDatasource transactions", () => {
       await expect(getIds(ds)).resolves.toStrictEqual([2]);
     });
 
+    it("should ignore onFailedQuery commit, DuckDB aborted the transaction", async ({
+      ds,
+    }) => {
+      const result = await ds.transaction(
+        async (tx) => {
+          await insert(tx, 1);
+          await tx.query(sql`INSERT INTO product VALUES (1::INTEGER)`);
+        },
+        // @ts-expect-error - not supported by DuckDB
+        { onFailedQuery: "commit" }
+      );
+      expect(result.error?.code).toBe("TRANSACTION_FAILED");
+      expect(await getIds(ds)).toStrictEqual([]);
+    });
+
     it("should not commit after a caught failed query", async ({ ds }) => {
       const result = await ds.transaction(async (tx) => {
         await insert(tx, 1);
@@ -176,6 +195,23 @@ describe("DuckdbDatasource transactions", () => {
       const { error: secondError } = await second;
       expect(secondError).toBeUndefined();
       await expect(getIds(ds)).resolves.toStrictEqual([1]);
+    });
+
+    it("should wait for the queries not awaited by the callback", async ({
+      ds,
+    }) => {
+      const result = await ds.transaction(async (tx) => {
+        // not awaited (a bug): the commit still waits for it
+        void tx.query(
+          sql`INSERT INTO product SELECT range::INTEGER FROM range(100000)`
+        );
+      });
+      expect(result.error).toBeUndefined();
+      expect(result.meta.getSpansByType("sql")).toHaveLength(1);
+      const { data } = await ds.queryOneOrThrow(
+        sql<{ count: number }>`SELECT count(*)::INTEGER as count FROM product`
+      );
+      expect(data.count).toBe(100_000);
     });
 
     it("should run read only transactions", async ({ ds }) => {
@@ -239,6 +275,43 @@ describe("DuckdbDatasource transactions", () => {
       // the query sees the committed row
       await expect(query).resolves.toStrictEqual([1]);
       expect(events).toStrictEqual(["inserted", "committing", "query"]);
+    });
+
+    it("should not time the wait for the transaction in the span", async ({
+      ds,
+    }) => {
+      const logger = {
+        debug: vi.fn<(message: string, props?: unknown) => void>(),
+        info: vi.fn<(message: string, props?: unknown) => void>(),
+        warn: vi.fn<(message: string, props?: unknown) => void>(),
+        error: vi.fn<(message: string, props?: unknown) => void>(),
+      };
+      const other = new DuckdbDatasource({
+        connection: ds.getConnection(),
+        logger: logger as never,
+      });
+      const { paused, resume } = createGate();
+      const transaction = ds.transactionOrThrow(async () => await paused);
+      await flush();
+      const query = other.query(sql`SELECT 1`, { name: "waiting" });
+      await sleep(60);
+      resume();
+      const [{ meta }] = await Promise.all([query, transaction]);
+      expect(meta.getTotalTimeMs()).toBeLessThan(40);
+      expect(logger.debug).toHaveBeenCalledWith(
+        'Query "{queryName}" waited {lockWaitMs}ms for a transaction',
+        expect.objectContaining({
+          queryName: "waiting",
+          lockWaitMs: expect.any(Number),
+        })
+      );
+      const waitLog = logger.debug.mock.calls.find(([message]) =>
+        message.includes("waited")
+      );
+      expect(waitLog?.[1]).toHaveProperty(
+        "lockWaitMs",
+        expect.toSatisfy((ms: number) => ms >= 50)
+      );
     });
 
     it("should share the lock between datasources of the same connection", async ({
@@ -563,6 +636,34 @@ describe("DuckdbDatasource transactions", () => {
         sql<{ quantity: number }>`SELECT quantity FROM stock WHERE id = 1`
       );
       expect(data.quantity).toBe(8);
+    });
+  });
+
+  describe("TransactionalDatasourceInterface", () => {
+    /**
+     * Works with any transactional datasource
+     */
+    const insertAll = async (
+      ds: TransactionalDatasourceInterface,
+      queries: unknown[]
+    ) =>
+      ds.transactionOrThrow(async (tx) => {
+        expectTypeOf(tx).toEqualTypeOf<TransactionDatasourceInterface>();
+        for (const query of queries) {
+          // oxlint-disable-next-line no-await-in-loop -- sequential on purpose
+          await tx.queryOrThrow(query);
+        }
+        return queries.length;
+      });
+
+    it("should be implemented by the datasource", async ({ ds }) => {
+      expectTypeOf(ds).toExtend<TransactionalDatasourceInterface>();
+      const { data } = await insertAll(ds, [
+        sql`INSERT INTO product VALUES (1::INTEGER)`,
+        sql`INSERT INTO product VALUES (2::INTEGER)`,
+      ]);
+      expect(data).toBe(2);
+      expect(await getIds(ds)).toStrictEqual([1, 2]);
     });
   });
 

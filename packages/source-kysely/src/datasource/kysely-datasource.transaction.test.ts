@@ -1,3 +1,5 @@
+import { setTimeout as sleep } from "node:timers/promises";
+
 import {
   type CompiledQuery,
   type DatabaseConnection,
@@ -10,6 +12,10 @@ import {
   SqliteQueryCompiler,
   type TransactionSettings,
 } from "kysely";
+import type {
+  TransactionalDatasourceInterface,
+  TransactionDatasourceInterface,
+} from "@flowblade/core";
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 
 import type { KyselyTransactionDatasource } from "../index.ts";
@@ -358,6 +364,26 @@ describe("KyselyDatasource transactions", () => {
       expect(calls).toStrictEqual(["begin", "commit"]);
     });
 
+    it("should wait for the queries not awaited by the callback", async () => {
+      const { ds, calls } = createDatasource({
+        handler: async () => {
+          await sleep(20);
+          return { rows: [] };
+        },
+      });
+      const result = await ds.transaction(async (tx) => {
+        // not awaited (a bug): the commit still waits for it
+        void tx.query(insertProduct(tx, 1));
+      });
+      expect(result.error).toBeUndefined();
+      expect(calls).toStrictEqual([
+        "begin",
+        'insert into "product" ("id", "name") values (?, ?)',
+        "commit",
+      ]);
+      expect(result.meta.getSpansByType("sql")).toHaveLength(1);
+    });
+
     it("should not support nested transactions", async () => {
       const { ds } = createDatasource();
       const result = await ds.transaction(async (tx) => {
@@ -371,6 +397,32 @@ describe("KyselyDatasource transactions", () => {
         code: "TRANSACTION_FAILED",
         message: expect.stringContaining("Nested transactions"),
       });
+    });
+  });
+
+  describe("TransactionalDatasourceInterface", () => {
+    /**
+     * Works with any transactional datasource
+     */
+    const runAll = async (
+      ds: TransactionalDatasourceInterface,
+      queries: unknown[]
+    ) =>
+      ds.transactionOrThrow(async (tx) => {
+        expectTypeOf(tx).toEqualTypeOf<TransactionDatasourceInterface>();
+        for (const query of queries) {
+          // oxlint-disable-next-line no-await-in-loop -- sequential on purpose
+          await tx.queryOrThrow(query);
+        }
+        return queries.length;
+      });
+
+    it("should be implemented by the datasource", async () => {
+      const { ds, calls } = createDatasource();
+      expectTypeOf(ds).toExtend<TransactionalDatasourceInterface>();
+      const { data } = await runAll(ds, [sql`select 1`, sql`select 2`]);
+      expect(data).toBe(2);
+      expect(calls).toStrictEqual(["begin", "select 1", "select 2", "commit"]);
     });
   });
 

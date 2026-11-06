@@ -298,6 +298,21 @@ export class KyselyDatasource<TDatabase>
     query: TQuery,
     options?: KyselyQueryOptions
   ): AsyncQResult<TData> => {
+    const result = this.runQuery<TQuery, TData>(query, options);
+    // in a transaction: it waits for the query, even when not awaited
+    return await (this.transactionContext?.trackQuery(result) ?? result);
+  };
+
+  /**
+   * Run a query, see `query()`.
+   */
+  private readonly runQuery = async <
+    TQuery extends KyselyQueryOrRawQuery,
+    TData extends unknown[] = KyselyInferQueryOrRawQuery<TQuery>,
+  >(
+    query: TQuery,
+    options?: KyselyQueryOptions
+  ): AsyncQResult<TData> => {
     const name = options?.name ?? "anonymous";
     const signal = this.getSignal(options?.signal);
 
@@ -670,8 +685,9 @@ export class KyselyDatasource<TDatabase>
    *   (ie: `tx.query()` never throws): Postgres aborts the transaction on
    *   error and silently rolls back on commit. Prefer the throwing methods
    *   (ie: `tx.queryOrThrow()`) in the callback.
-   * - Await all the queries before returning, and fully consume (or break)
-   *   the `tx.stream()` iterators.
+   * - Await the queries: a query not awaited still ends before the commit
+   *   (the transaction waits for it), but a query started after the callback
+   *   returned fails. Fully consume (or break) the `tx.stream()` iterators.
    * - Run the queries with `tx`: the datasource queries run outside of the
    *   transaction, and wait forever for its connection on single connection
    *   dialects (ie: SQLite).
@@ -714,17 +730,7 @@ export class KyselyDatasource<TDatabase>
     fn: (tx: KyselyTransactionDatasource<TDatabase>) => Promise<TData>,
     options?: TransactionOptions
   ): AsyncQResult<TData> => {
-    const name = options?.name ?? "anonymous";
     const { isolationLevel, accessMode } = options ?? {};
-    const logProps = {
-      transactionName: name,
-      source: "kysely",
-      method: "transaction",
-      ...(isolationLevel === undefined ? {} : { isolationLevel }),
-      ...(accessMode === undefined ? {} : { accessMode }),
-    };
-
-    this.logger.debug('Beginning transaction "{transactionName}"', logProps);
 
     const result = await runTransaction<
       {
@@ -736,12 +742,7 @@ export class KyselyDatasource<TDatabase>
       options,
       getErrorMessage: getKyselyErrorMessage,
       isConflictError: this.isTransactionConflict,
-      onRetry: ({ retry, delayMs, error }) => {
-        this.logger.warn(
-          'Transaction "{transactionName}" conflicts with a concurrent one, retry {retry} in {delayMs}ms: {errorMessage}',
-          { ...logProps, retry, delayMs, errorMessage: error.message }
-        );
-      },
+      log: { logger: this.logger, source: "kysely" },
       begin: async (context) => {
         if (this.db.isTransaction) {
           throw new Error(
@@ -777,36 +778,6 @@ export class KyselyDatasource<TDatabase>
       },
     });
 
-    const { meta, error } = result;
-    const [span] = meta.getSpansByType("transaction");
-    const props = {
-      ...logProps,
-      status: span?.status,
-      ...(span?.retries === undefined ? {} : { retries: span.retries }),
-      queryCount: meta.getSpans().length - 1,
-      timeMs: meta.getTotalTimeMs(),
-    };
-    if (error === undefined) {
-      this.logger.info(
-        'Transaction "{transactionName}" committed in {timeMs}ms, {queryCount} query(ies)',
-        props
-      );
-    } else if (error.code === "TRANSACTION_CONFLICT") {
-      this.logger.warn(
-        'Transaction "{transactionName}" conflicts with a concurrent one: {errorMessage}',
-        { ...props, errorMessage: error.message }
-      );
-    } else if (error.code === "TRANSACTION_FAILED") {
-      this.logger.error(
-        'Transaction "{transactionName}" failed: {errorMessage}',
-        { ...props, errorMessage: error.message }
-      );
-    } else {
-      this.logger.warn(
-        'Transaction "{transactionName}" rolled back: {errorMessage}',
-        { ...props, errorMessage: error.message }
-      );
-    }
     return result;
   };
 

@@ -42,6 +42,12 @@ export class SharedExclusiveLock {
   acquireShared = (signal?: AbortSignal): Promise<ReleaseLock> =>
     this.#acquire(false, signal);
 
+  /**
+   * Whether acquiring a shared lock now would wait (ie: for a transaction).
+   */
+  isSharedBusy = (): boolean =>
+    this.#queue.length > 0 || !this.#canGrant(false);
+
   acquireExclusive = (signal?: AbortSignal): Promise<ReleaseLock> =>
     this.#acquire(true, signal);
 

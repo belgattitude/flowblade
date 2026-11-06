@@ -96,11 +96,12 @@ type SqlTagInformation = {
 
 /**
  * Options of the DuckDB `transaction()`: DuckDB has no isolation levels
- * (always snapshot isolation).
+ * (always snapshot isolation), and a failed query always aborts the
+ * transaction (no `onFailedQuery: "commit"`).
  */
 export type DuckdbTransactionOptions = Omit<
   TransactionOptions,
-  "isolationLevel"
+  "isolationLevel" | "onFailedQuery"
 >;
 
 /**
@@ -108,7 +109,7 @@ export type DuckdbTransactionOptions = Omit<
  */
 export type DuckdbTransactionOrThrowOptions = Omit<
   TransactionOrThrowOptions,
-  "isolationLevel"
+  "isolationLevel" | "onFailedQuery"
 >;
 
 /**
@@ -205,13 +206,26 @@ export class DuckdbDatasource
     rawQuery: SqlTag<TData> | SqlTagInformation,
     options?: QueryOptions
   ): AsyncQResult<TData> => {
+    const result = this.runQuery<TData>(rawQuery, options);
+    // in a transaction: it waits for the query, even when not awaited
+    return await (this.getTransactionContext()?.trackQuery(result) ?? result);
+  };
+
+  /**
+   * Run a query, see `query()`.
+   */
+  private readonly runQuery = async <TData extends unknown[]>(
+    rawQuery: SqlTag<TData> | SqlTagInformation,
+    options?: QueryOptions
+  ): AsyncQResult<TData> => {
     const name = options?.name ?? "anonymous";
     // the transaction datasource, or a datasource used in a transaction callback
     const txContext = this.getTransactionContext();
     const signal = this.getSignal(options?.signal, txContext);
     const { text: sql, values: params } = rawQuery;
     const span = createSqlSpan({ sql, params });
-    const start = Date.now();
+    // reset once the lock is acquired: the span times the query only
+    let start = Date.now();
     // Interrupts the query running on the connection when aborted
     const onAbort = () => {
       this.db.interrupt();
@@ -226,7 +240,17 @@ export class DuckdbDatasource
       txContext?.assertActive();
       // Waits for a running transaction, before listening to the abort:
       // the interrupt would hit the transaction query
+      const lockWaitStart = Date.now();
+      const waitsForLock = this.isLockBusy();
       releaseLock = await this.acquireSharedLock(signal);
+      if (waitsForLock) {
+        const lockWaitMs = Date.now() - lockWaitStart;
+        start = Date.now();
+        this.logger.debug(
+          'Query "{queryName}" waited {lockWaitMs}ms for a transaction',
+          { ...this.getLogFromSpan(name, span, "query"), lockWaitMs }
+        );
+      }
       signal?.addEventListener("abort", onAbort, { once: true });
       const rows = await this.db.runAndReadAll(sql, params as DuckDBValue[]);
       // Never return the results of an aborted query as complete
@@ -473,7 +497,8 @@ export class DuckdbDatasource
     const signal = this.getSignal(options?.signal, txContext);
     const { text: sql, values: params } = rawQuery;
     const span = createSqlSpan({ sql, params });
-    const start = Date.now();
+    // reset once the lock is acquired: the span times the query only
+    let start = Date.now();
     // Interrupts the chunk being fetched when aborted
     const onAbort = () => {
       this.db.interrupt();
@@ -493,7 +518,17 @@ export class DuckdbDatasource
       signal?.throwIfAborted();
       txContext?.assertActive();
       // Held until the stream ends: a transaction waits for it
+      const lockWaitStart = Date.now();
+      const waitsForLock = this.isLockBusy();
       releaseLock = await this.acquireSharedLock(signal);
+      if (waitsForLock) {
+        const lockWaitMs = Date.now() - lockWaitStart;
+        start = Date.now();
+        this.logger.debug(
+          'Streaming query "{queryName}" waited {lockWaitMs}ms for a transaction',
+          { ...this.getLogFromSpan(name, span, "stream"), lockWaitMs }
+        );
+      }
       signal?.addEventListener("abort", onAbort, { once: true });
       result = await this.db.stream(sql, params as DuckDBValue[]);
       for await (const rows of result.yieldRowObjectJson()) {
@@ -582,8 +617,9 @@ export class DuckdbDatasource
    *   (ie: `tx.queryOrThrow()`) in the callback.
    * - Don't start a transaction while iterating over a stream of the same
    *   connection, it would wait for the stream forever.
-   * - Await all the queries before returning, and fully consume (or break)
-   *   the `tx.stream()` iterators.
+   * - Await the queries: a query not awaited still ends before the commit
+   *   (the transaction waits for it), but a query started after the callback
+   *   returned fails. Fully consume (or break) the `tx.stream()` iterators.
    * - DuckDB has no isolation levels (snapshot isolation) and doesn't support
    *   nested transactions.
    *
@@ -619,16 +655,7 @@ export class DuckdbDatasource
     fn: (tx: DuckdbTransactionDatasource) => Promise<TData>,
     options?: DuckdbTransactionOptions
   ): AsyncQResult<TData> => {
-    const name = options?.name ?? "anonymous";
     const accessMode = options?.accessMode;
-    const logProps = {
-      transactionName: name,
-      source: "duckdb",
-      method: "transaction",
-      ...(accessMode === undefined ? {} : { accessMode }),
-    };
-
-    this.logger.debug('Beginning transaction "{transactionName}"', logProps);
 
     const result = await runTransaction<
       {
@@ -638,14 +665,14 @@ export class DuckdbDatasource
       },
       TData
     >({
-      options,
+      // DuckDB aborts the transaction on any failed query: a commit would
+      // silently roll back
+      options:
+        options === undefined
+          ? undefined
+          : { ...options, onFailedQuery: "rollback" },
       isConflictError: isDuckdbTransactionConflict,
-      onRetry: ({ retry, delayMs, error }) => {
-        this.logger.warn(
-          'Transaction "{transactionName}" conflicts with a concurrent one, retry {retry} in {delayMs}ms: {errorMessage}',
-          { ...logProps, retry, delayMs, errorMessage: error.message }
-        );
-      },
+      log: { logger: this.logger, source: "duckdb" },
       begin: async (context) => {
         const lock = getConnectionLock(this.db);
         const contextHold = getContextHold(lock);
@@ -720,36 +747,6 @@ export class DuckdbDatasource
       },
     });
 
-    const { meta, error } = result;
-    const [span] = meta.getSpansByType("transaction");
-    const props = {
-      ...logProps,
-      status: span?.status,
-      ...(span?.retries === undefined ? {} : { retries: span.retries }),
-      queryCount: meta.getSpans().length - 1,
-      timeMs: meta.getTotalTimeMs(),
-    };
-    if (error === undefined) {
-      this.logger.info(
-        'Transaction "{transactionName}" committed in {timeMs}ms, {queryCount} query(ies)',
-        props
-      );
-    } else if (error.code === "TRANSACTION_CONFLICT") {
-      this.logger.warn(
-        'Transaction "{transactionName}" conflicts with a concurrent one: {errorMessage}',
-        { ...props, errorMessage: error.message }
-      );
-    } else if (error.code === "TRANSACTION_FAILED") {
-      this.logger.error(
-        'Transaction "{transactionName}" failed: {errorMessage}',
-        { ...props, errorMessage: error.message }
-      );
-    } else {
-      this.logger.warn(
-        'Transaction "{transactionName}" rolled back: {errorMessage}',
-        { ...props, errorMessage: error.message }
-      );
-    }
     return result;
   };
 
@@ -817,6 +814,17 @@ export class DuckdbDatasource
     | undefined =>
     this.transactionContext ??
     getContextHold(getConnectionLock(this.db))?.transaction;
+
+  /**
+   * Whether a query must wait for the lock (ie: for a running transaction).
+   */
+  private readonly isLockBusy = (): boolean => {
+    if (this.transactionContext !== undefined) {
+      return false;
+    }
+    const lock = getConnectionLock(this.db);
+    return getContextHold(lock) === undefined && lock.isSharedBusy();
+  };
 
   /**
    * Wait for a running transaction on the connection, unless the connection

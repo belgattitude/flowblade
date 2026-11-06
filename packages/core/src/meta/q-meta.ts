@@ -70,13 +70,37 @@ export interface QMetaTransactionSpan {
 }
 
 /**
+ * Span of a savepoint (ie: `tx.savepoint()`), the queries run in the
+ * savepoint have their own spans.
+ */
+export interface QMetaSavepointSpan {
+  type: "savepoint";
+  /**
+   * Name of the savepoint (its label, not the SQL identifier).
+   */
+  name: string;
+  /**
+   * How the savepoint ended: released, rolled back (the callback threw or a
+   * query failed in the savepoint) or failed (couldn't be created, rolled
+   * back or released).
+   */
+  status: "released" | "rolled back" | "failed";
+  /**
+   * Time spent to create and end (release / rollback) the savepoint in
+   * milliseconds, the queries time is in their own spans.
+   */
+  timeMs: number;
+}
+
+/**
  * Spans with a dedicated shape, discriminated by their `type`.
  */
 export type QMetaKnownSpan =
   | QMetaSqlSpan
   | QMetaMapSpan
   | QMetaMaterializationSpan
-  | QMetaTransactionSpan;
+  | QMetaTransactionSpan
+  | QMetaSavepointSpan;
 
 /**
  * Span shape for a given span type: the known shape when there is one,
