@@ -5,6 +5,7 @@ import type {
 } from "../errors/q-error-factories";
 import type { QMeta } from "../meta/q-meta";
 import type { AsyncQResult } from "../query-result/types";
+import type { TransactionDefaultOptions } from "./transaction.interface";
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -86,6 +87,10 @@ export type DatasourceDefaultOptions = {
    * fails (`onError`) or doesn't return exactly one row.
    */
   queryOneOrThrow?: QOneRowErrorFactories;
+  /**
+   * Default options of `transaction()` and `transactionOrThrow()`.
+   */
+  transaction?: TransactionDefaultOptions;
 };
 
 /**

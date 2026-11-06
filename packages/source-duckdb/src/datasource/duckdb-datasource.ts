@@ -61,10 +61,13 @@ export type DuckdbDatasourceParams = {
   logParams?: boolean;
   /**
    * Default options, keyed by method name: only the named method uses them,
-   * and the options passed per query win.
+   * and the options passed per query win. `transaction` is used by
+   * `transaction()` and `transactionOrThrow()`, the `retry` fields passed per
+   * transaction win.
    *
    * @example
    * ```typescript
+   * import { createExponentialBackoff } from "@flowblade/core";
    * import { HttpInternalServerError, HttpNotFound } from "@httpx/exception";
    *
    * defaultOptions: {
@@ -82,6 +85,17 @@ export type DuckdbDatasourceParams = {
    *         message: `Expected one row, got ${rowCount}`,
    *         cause: error,
    *       }),
+   *   },
+   *   transaction: {
+   *     // Retry the conflicts with another connection, with an exponential
+   *     // backoff: 0-100ms, 0-200ms then 0-400ms
+   *     retry: {
+   *       maxRetries: 3,
+   *       delayMs: createExponentialBackoff({
+   *         initialDelayMs: 100,
+   *         jitter: "full",
+   *       }),
+   *     },
    *   },
    * }
    * ```
@@ -676,6 +690,7 @@ export class DuckdbDatasource
         options === undefined
           ? undefined
           : { ...options, onFailedQuery: "rollback" },
+      defaultRetry: this.defaultOptions.transaction?.retry,
       isConflictError: isDuckdbTransactionConflict,
       log: { logger: this.logger, source: "duckdb" },
       begin: async (context) => {

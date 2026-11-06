@@ -87,10 +87,13 @@ type Params<TDatabase> = {
    * - `query`: options of `query()`, also used by the methods running it
    *   (`queryOrThrow()`, `queryOne()` and `queryOneOrThrow()`),
    * - `queryOrThrow` / `queryOneOrThrow`: error factories, used by the named
-   *   method only.
+   *   method only,
+   * - `transaction`: options of `transaction()` and `transactionOrThrow()`
+   *   (ie: the `retry` policy), the `retry` fields passed per transaction win.
    *
    * @example
    * ```typescript
+   * import { createExponentialBackoff } from "@flowblade/core";
    * import { HttpInternalServerError, HttpNotFound } from "@httpx/exception";
    *
    * defaultOptions: {
@@ -112,6 +115,17 @@ type Params<TDatabase> = {
    *         message: `Expected one row, got ${rowCount}`,
    *         cause: error,
    *       }),
+   *   },
+   *   transaction: {
+   *     // Retry the conflicts (serialization failure, deadlock), with an
+   *     // exponential backoff: 0-100ms, 0-200ms then 0-400ms
+   *     retry: {
+   *       maxRetries: 3,
+   *       delayMs: createExponentialBackoff({
+   *         initialDelayMs: 100,
+   *         jitter: "full",
+   *       }),
+   *     },
    *   },
    * }
    * ```
@@ -763,6 +777,7 @@ export class KyselyDatasource<TDatabase>
       TData
     >({
       options,
+      defaultRetry: this.defaultOptions.transaction?.retry,
       getErrorMessage: getKyselyErrorMessage,
       isConflictError: this.isTransactionConflict,
       log: { logger: this.logger, source: "kysely" },

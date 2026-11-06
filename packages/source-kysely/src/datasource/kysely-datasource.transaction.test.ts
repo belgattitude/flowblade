@@ -20,7 +20,10 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest";
 
 import type { KyselyTransactionDatasource } from "../index.ts";
 import { QErrors } from "../index.ts";
-import { KyselyDatasource } from "./kysely-datasource.ts";
+import {
+  KyselyDatasource,
+  type KyselyDatasourceDefaultOptions,
+} from "./kysely-datasource.ts";
 
 type Database = {
   product: { id: number; name: string };
@@ -58,6 +61,7 @@ const createDatasource = (
      * Awaited when acquiring a connection, ie: an exhausted pool
      */
     acquire?: () => Promise<void>;
+    defaultOptions?: KyselyDatasourceDefaultOptions;
   } = {}
 ) => {
   const {
@@ -144,6 +148,7 @@ const createDatasource = (
   const ds = new KyselyDatasource<Database>({
     connection: db,
     logger: logger as never,
+    defaultOptions: params.defaultOptions,
   });
   return {
     ds,
@@ -159,6 +164,35 @@ const insertProduct = (tx: KyselyTransactionDatasource<Database>, id: number) =>
 
 describe("KyselyDatasource transactions", () => {
   describe("transaction", () => {
+    it("should retry the conflicts with defaultOptions.transaction.retry", async () => {
+      const conflict = Object.assign(new Error("could not serialize access"), {
+        code: "40001",
+      });
+      const delayMs = vi.fn<(retry: number) => number>(() => 0);
+      const { ds, calls } = createDatasource({
+        handler: async () => {
+          throw conflict;
+        },
+        defaultOptions: { transaction: { retry: { maxRetries: 2, delayMs } } },
+      });
+      const fn = async (tx: KyselyTransactionDatasource<Database>) => {
+        await tx.queryOrThrow(insertProduct(tx, 1));
+      };
+      const result = await ds.transaction(fn);
+      expect(result.error?.code).toBe("TRANSACTION_CONFLICT");
+      expect(calls.filter((call) => call === "begin")).toHaveLength(3);
+      expect(delayMs.mock.calls).toStrictEqual([[1], [2]]);
+      expect(result.meta.getSpans()[0]).toMatchObject({ retries: 2 });
+
+      // the per call retry fields win, the default delayMs is kept
+      calls.length = 0;
+      await ds
+        .transactionOrThrow(fn, { retry: { maxRetries: 1 } })
+        .catch(() => undefined);
+      expect(calls.filter((call) => call === "begin")).toHaveLength(2);
+      expect(delayMs).toHaveBeenCalledTimes(3);
+    });
+
     it("should run the queries in a committed transaction", async () => {
       const { ds, calls, settings, getReleased } = createDatasource({
         handler: async (query) =>

@@ -356,6 +356,29 @@ const { data, error } = await ds.transaction(fn, {
 });
 ```
 
+The retry policy can be set for all the transactions of the datasource with `defaultOptions.transaction.retry`, the `retry` fields passed per transaction win (ie: `{ maxRetries: 0 }` disables the retries). `createExponentialBackoff()` configures the delay (`initialDelayMs`, `maxDelayMs` and `jitter`: `"equal"` by default, `"full"` or `"none"`):
+
+```typescript
+import { createExponentialBackoff } from "@flowblade/core";
+
+const ds = new KyselyDatasource({
+  connection: db,
+  defaultOptions: {
+    transaction: {
+      retry: {
+        maxRetries: 3,
+        // 0-100ms, 0-200ms then 0-400ms
+        delayMs: createExponentialBackoff({
+          initialDelayMs: 100,
+          maxDelayMs: 2000,
+          jitter: "full",
+        }),
+      },
+    },
+  },
+});
+```
+
 Postgres, SQL Server and MySQL conflicts are recognized, set the `isTransactionConflict` param for other databases.
 
 ### Savepoints

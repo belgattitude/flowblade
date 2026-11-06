@@ -1,9 +1,11 @@
 import { setTimeout as sleep } from "node:timers/promises";
 
 import { DuckDBInstance } from "@duckdb/node-api";
-import type {
-  TransactionalDatasourceInterface,
-  TransactionDatasourceInterface,
+import {
+  createExponentialBackoff,
+  type DatasourceDefaultOptions,
+  type TransactionalDatasourceInterface,
+  type TransactionDatasourceInterface,
 } from "@flowblade/core";
 import { describe, expect, expectTypeOf, vi } from "vitest";
 
@@ -587,14 +589,19 @@ describe("DuckdbDatasource transactions", () => {
      * Two datasources on two connections of the same database: conflicts
      * only happen between connections (a connection runs one transaction).
      */
-    const createDatasources = async () => {
+    const createDatasources = async (
+      ds2DefaultOptions?: DatasourceDefaultOptions
+    ) => {
       const instance = await DuckDBInstance.create(":memory:");
       const [conn1, conn2] = await Promise.all([
         instance.connect(),
         instance.connect(),
       ]);
       const ds1 = new DuckdbDatasource({ connection: conn1 });
-      const ds2 = new DuckdbDatasource({ connection: conn2 });
+      const ds2 = new DuckdbDatasource({
+        connection: conn2,
+        defaultOptions: ds2DefaultOptions,
+      });
       await ds1.queryOrThrow(
         sql`CREATE TABLE stock (id INTEGER PRIMARY KEY, quantity INTEGER)`
       );
@@ -657,6 +664,33 @@ describe("DuckdbDatasource transactions", () => {
         sql<{ quantity: number }>`SELECT quantity FROM stock WHERE id = 1`
       );
       expect(data.quantity).toBe(8);
+    });
+
+    it("should retry with the defaultOptions.transaction.retry", async () => {
+      using dss = await createDatasources({
+        transaction: {
+          retry: {
+            maxRetries: 10,
+            delayMs: createExponentialBackoff({
+              initialDelayMs: 10,
+              maxDelayMs: 20,
+            }),
+          },
+        },
+      });
+      const { ds1, ds2 } = dss;
+      const { paused, resume } = createGate();
+      const first = ds1.transactionOrThrow(async (tx) => {
+        await decrement(tx);
+        await paused;
+      });
+      await flush();
+      setTimeout(resume, 30);
+      const result = await ds2.transaction(decrement);
+      await first;
+      expect(result.error).toBeUndefined();
+      const [span] = result.meta.getSpansByType("transaction");
+      expect(span?.retries).toBeGreaterThanOrEqual(1);
     });
   });
 

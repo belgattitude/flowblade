@@ -44,7 +44,7 @@ const createDriver = (
     options?: Parameters<typeof runTransaction>[0]["options"],
     extra?: Pick<
       Parameters<typeof runTransaction>[0],
-      "isConflictError" | "onRetry" | "log"
+      "isConflictError" | "onRetry" | "log" | "defaultRetry"
     >
   ) =>
     runTransaction<FakeTx, TData>({
@@ -690,6 +690,51 @@ describe(runTransaction, () => {
       expect(driver.begin).toHaveBeenCalledTimes(3);
       expect(result.error?.code).toBe("TRANSACTION_CONFLICT");
       expect(result.meta.getSpans()[0]).toMatchObject({ retries: 2 });
+    });
+
+    it("should use the default retry options, the per call fields win", async () => {
+      const onRetry = vi.fn<(info: { delayMs: number }) => void>();
+      const extra = {
+        isConflictError,
+        onRetry,
+        defaultRetry: { maxRetries: 1, delayMs: 7 },
+      };
+      const conflict = () => Promise.reject(createConflict());
+
+      const defaults = createDriver();
+      await defaults.run(conflict, undefined, extra);
+      expect(defaults.driver.begin).toHaveBeenCalledTimes(2);
+
+      // the default delayMs is kept
+      const perCall = createDriver();
+      await perCall.run(conflict, { retry: { maxRetries: 2 } }, extra);
+      expect(perCall.driver.begin).toHaveBeenCalledTimes(3);
+      expect(onRetry.mock.calls.map(([info]) => info.delayMs)).toStrictEqual([
+        7, 7, 7,
+      ]);
+
+      const disabled = createDriver();
+      const result = await disabled.run(
+        conflict,
+        { retry: { maxRetries: 0 } },
+        extra
+      );
+      expect(disabled.driver.begin).toHaveBeenCalledOnce();
+      expect(result.error?.code).toBe("TRANSACTION_CONFLICT");
+    });
+
+    it("should not retry with a default delay only", async () => {
+      const { driver, run } = createDriver();
+      const result = await run(
+        () => Promise.reject(createConflict()),
+        undefined,
+        {
+          isConflictError,
+          defaultRetry: { delayMs: 0 },
+        }
+      );
+      expect(driver.begin).toHaveBeenCalledOnce();
+      expect(result.error?.code).toBe("TRANSACTION_CONFLICT");
     });
 
     it("should use an exponential backoff with jitter by default", async () => {

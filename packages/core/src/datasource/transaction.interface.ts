@@ -78,9 +78,32 @@ export type TransactionRetryOptions = {
    * Delay before a retry in milliseconds, or a function of the retry number
    * (1 for the first retry). Defaults to an exponential backoff with jitter
    * (half of the delay is random, to spread the concurrent retries): 25-50ms,
-   * 50-100ms, 100-200ms... up to 500ms-1s.
+   * 50-100ms, 100-200ms... up to 500ms-1s. Use `createExponentialBackoff()`
+   * to configure it.
    */
   delayMs?: number | ((retry: number) => number);
+};
+
+/**
+ * Datasource level default options of `transaction()` and
+ * `transactionOrThrow()` (`defaultOptions.transaction`).
+ *
+ * @example
+ * ```typescript
+ * import { createExponentialBackoff } from "@flowblade/core";
+ *
+ * const transactionDefaults: TransactionDefaultOptions = {
+ *   // Only the retry delay: the transactions retry when they set maxRetries
+ *   retry: { delayMs: createExponentialBackoff({ jitter: "full" }) },
+ * };
+ * ```
+ */
+export type TransactionDefaultOptions = {
+  /**
+   * Default `retry` options, the fields of the `retry` option passed per
+   * transaction win (ie: `{ maxRetries: 0 }` disables the default retries).
+   */
+  retry?: Partial<TransactionRetryOptions>;
 };
 
 /**
