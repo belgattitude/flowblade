@@ -18,7 +18,7 @@ const config = createSizeLimitConfig(
       name: "Import * from '@flowblade/core/datasource' (ESM)",
       path: ["dist/datasource.js"],
       import: "*",
-      limit: "6 kB",
+      limit: "6.5 kB",
     },
   ],
   { browserslist: true }

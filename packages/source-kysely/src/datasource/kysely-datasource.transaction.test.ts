@@ -1,5 +1,9 @@
 import { setTimeout as sleep } from "node:timers/promises";
 
+import type {
+  TransactionalDatasourceInterface,
+  TransactionDatasourceInterface,
+} from "@flowblade/core";
 import {
   type CompiledQuery,
   type DatabaseConnection,
@@ -12,10 +16,6 @@ import {
   SqliteQueryCompiler,
   type TransactionSettings,
 } from "kysely";
-import type {
-  TransactionalDatasourceInterface,
-  TransactionDatasourceInterface,
-} from "@flowblade/core";
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 
 import type { KyselyTransactionDatasource } from "../index.ts";
@@ -47,6 +47,10 @@ const createDatasource = (
   params: {
     handler?: Handler;
     failOn?: Partial<Record<"begin" | "commit" | "rollback", Error>>;
+    /**
+     * Driver methods left out, ie: no savepoint support
+     */
+    unsupported?: ("savepoint" | "rollbackToSavepoint" | "releaseSavepoint")[];
   } = {}
 ) => {
   const {
@@ -85,15 +89,29 @@ const createDatasource = (
     },
     commitTransaction: () => step("commit"),
     rollbackTransaction: () => step("rollback"),
+    // the generated savepoint names are left out: unique in the process
+    savepoint: async () => {
+      calls.push("savepoint");
+    },
+    rollbackToSavepoint: async () => {
+      calls.push("rollback to savepoint");
+    },
+    releaseSavepoint: async () => {
+      calls.push("release savepoint");
+    },
     releaseConnection: async () => {
       released++;
     },
     destroy: async () => {},
   };
+  const unsupported = new Set<string>(params.unsupported);
+  const dialectDriver = Object.fromEntries(
+    Object.entries(driver).filter(([method]) => !unsupported.has(method))
+  ) as unknown as Driver;
   const db = new Kysely<Database>({
     dialect: {
       createAdapter: () => new MultiConnectionAdapter(),
-      createDriver: () => driver,
+      createDriver: () => dialectDriver,
       createIntrospector: (k) => new SqliteIntrospector(k),
       createQueryCompiler: () => new SqliteQueryCompiler(),
     },
@@ -400,6 +418,125 @@ describe("KyselyDatasource transactions", () => {
     });
   });
 
+  describe("savepoint", () => {
+    it("should release the savepoint", async () => {
+      const { ds, calls } = createDatasource();
+      const result = await ds.transaction(async (tx) => {
+        const sp = await tx.savepoint(
+          async (inner) => {
+            await inner.queryOrThrow(insertProduct(inner, 1));
+            return 1;
+          },
+          { name: "insertProduct" }
+        );
+        expectTypeOf(sp.data).toEqualTypeOf<number | undefined>();
+        return sp;
+      });
+      expect(result.error).toBeUndefined();
+      expect(calls).toStrictEqual([
+        "begin",
+        "savepoint",
+        'insert into "product" ("id", "name") values (?, ?)',
+        "release savepoint",
+        "commit",
+      ]);
+      expect(result.data?.data).toBe(1);
+      expect(result.data?.meta.getSpans()[0]).toMatchObject({
+        type: "savepoint",
+        name: "insertProduct",
+        status: "released",
+      });
+    });
+
+    it("should roll back the savepoint only after a failed query", async () => {
+      const driverError = new Error("UNIQUE constraint failed");
+      const { ds, calls } = createDatasource({
+        handler: async (query) => {
+          if (query.parameters[0] === 1) {
+            throw driverError;
+          }
+          return { rows: [] };
+        },
+      });
+      const result = await ds.transaction(async (tx) => {
+        const { error } = await tx.savepoint((sp) =>
+          sp.queryOrThrow(insertProduct(sp, 1))
+        );
+        await tx.queryOrThrow(insertProduct(tx, 2));
+        return error;
+      });
+      // the transaction goes on and commits
+      expect(result.error).toBeUndefined();
+      expect(result.data).toMatchObject({ code: "ROLLED_BACK" });
+      expect(calls).toStrictEqual([
+        "begin",
+        "savepoint",
+        'insert into "product" ("id", "name") values (?, ?)',
+        "rollback to savepoint",
+        'insert into "product" ("id", "name") values (?, ?)',
+        "commit",
+      ]);
+    });
+
+    it("should support nested savepoints and savepointOrThrow", async () => {
+      const { ds, calls } = createDatasource();
+      await ds.transactionOrThrow(async (tx) => {
+        await tx.savepointOrThrow(async (outer) => {
+          await expect(
+            outer.savepointOrThrow(async () => {
+              throw new QErrors.NoResult();
+            })
+          ).rejects.toBeInstanceOf(QErrors.NoResult);
+        });
+      });
+      expect(calls).toStrictEqual([
+        "begin",
+        "savepoint",
+        "savepoint",
+        "rollback to savepoint",
+        "release savepoint",
+        "commit",
+      ]);
+    });
+
+    it("should fail when the dialect doesn't support savepoints", async () => {
+      const { ds, calls } = createDatasource({
+        unsupported: ["savepoint", "rollbackToSavepoint", "releaseSavepoint"],
+      });
+      let savepointMessage: string | undefined;
+      const result = await ds.transaction(async (tx) => {
+        const sp = await tx.savepoint(async () => 1);
+        savepointMessage = sp.error?.message;
+      });
+      expect(savepointMessage).toBe(
+        "The `savepoint` method is not supported by this driver"
+      );
+      // the transaction can't be committed
+      expect(result.error?.code).toBe("TRANSACTION_FAILED");
+      expect(calls.at(-1)).toBe("rollback");
+    });
+
+    it("should skip the release when not supported (ie: sql server)", async () => {
+      const { ds, calls } = createDatasource({
+        unsupported: ["releaseSavepoint"],
+      });
+      const result = await ds.transaction(async (tx) => {
+        const sp = await tx.savepoint(async () => 1);
+        return sp.data;
+      });
+      expect(result.error).toBeUndefined();
+      expect(result.data).toBe(1);
+      expect(calls).toStrictEqual(["begin", "savepoint", "commit"]);
+    });
+
+    it("should not be available outside of a transaction", () => {
+      const { ds } = createDatasource();
+      expect(ds).not.toHaveProperty("savepoint");
+      // @ts-expect-error - transactions only
+      expectTypeOf(ds.savepoint).toBeUndefined();
+    });
+  });
+
   describe("TransactionalDatasourceInterface", () => {
     /**
      * Works with any transactional datasource
@@ -408,7 +545,7 @@ describe("KyselyDatasource transactions", () => {
       ds: TransactionalDatasourceInterface,
       queries: unknown[]
     ) =>
-      ds.transactionOrThrow(async (tx) => {
+      await ds.transactionOrThrow(async (tx) => {
         expectTypeOf(tx).toEqualTypeOf<TransactionDatasourceInterface>();
         for (const query of queries) {
           // oxlint-disable-next-line no-await-in-loop -- sequential on purpose

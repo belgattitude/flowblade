@@ -13,6 +13,9 @@ import {
   type TransactionOptions,
   type TransactionOrThrowOptions,
   type TransactionScopeInterface,
+  type SavepointOptions,
+  type SavepointOrThrowOptions,
+  type TransactionSavepointInterface,
 } from "@flowblade/core";
 import {
   createQResultError,
@@ -20,6 +23,7 @@ import {
   createSqlSpan,
   getDataOrThrow,
   getOneRowOrThrow,
+  runSavepoint,
   runTransaction,
   toOneRowQResult,
   type TransactionBeginContext,
@@ -153,13 +157,16 @@ type KyselyInferQueryOrRawQuery<T extends KyselyQueryOrRawQuery> =
 /**
  * Datasource received by the `transaction()` / `transactionOrThrow()`
  * callbacks: a `KyselyDatasource` running its queries in the transaction,
- * plus `rollback()`. Nested transactions aren't supported.
+ * plus `rollback()` and the savepoints (`savepoint()` /
+ * `savepointOrThrow()`). Nested transactions aren't supported, use a
+ * savepoint.
  */
 export type KyselyTransactionDatasource<TDatabase> = Omit<
   KyselyDatasource<TDatabase>,
   "transaction" | "transactionOrThrow"
 > &
-  TransactionScopeInterface;
+  TransactionScopeInterface &
+  TransactionSavepointInterface<KyselyTransactionDatasource<TDatabase>>;
 
 export class KyselyDatasource<TDatabase>
   implements
@@ -876,19 +883,136 @@ export class KyselyDatasource<TDatabase>
 /**
  * Datasource received by the transaction callbacks, see `KyselyTransactionDatasource`.
  */
+/**
+ * SQL names of the savepoints, unique in the process.
+ */
+let savepointCounter = 0;
+
+/**
+ * Thrown by kysely when the dialect driver has no `releaseSavepoint()`.
+ */
+const releaseSavepointNotSupportedMessage =
+  "The `releaseSavepoint` method is not supported by this driver";
+
 class KyselyTransactionDatasourceImpl<TDatabase>
   extends KyselyDatasource<TDatabase>
-  implements TransactionScopeInterface
+  implements
+    TransactionScopeInterface,
+    TransactionSavepointInterface<KyselyTransactionDatasource<TDatabase>>
 {
+  readonly #params: Params<TDatabase>;
+
   constructor(
     params: Params<TDatabase>,
     context: TransactionBeginContext & { signal: AbortSignal | undefined }
   ) {
     super(params);
+    this.#params = params;
     this.transactionContext = context;
   }
 
   rollback = (reason?: string): never => {
     throw new QErrors.RolledBack(reason);
+  };
+
+  /**
+   * Run a callback in a savepoint of the transaction and return a QResult
+   * holding the value returned by the callback. The callback receives a
+   * datasource running its queries in the savepoint, savepoints can be nested.
+   *
+   * The savepoint is released when the callback returns, and rolled back
+   * when it throws or a query failed in the savepoint: the transaction goes
+   * on, only the savepoint queries are rolled back. It never throws,
+   * `error.code` is:
+   * - "ROLLED_BACK": the callback threw, the thrown error is the `cause`,
+   * - "TRANSACTION_FAILED": a query failed in the savepoint (handled by the
+   *   callback), or the savepoint couldn't be created, rolled back or
+   *   released (the transaction then fails too),
+   * - "TRANSACTION_CONFLICT": a conflict with a concurrent transaction, the
+   *   transaction fails too (to be retried as a whole).
+   *
+   * Requires a dialect supporting savepoints (ie: Postgres, MySQL, SQL
+   * Server, SQLite), the result is a "TRANSACTION_FAILED" error otherwise.
+   * SQL Server has no RELEASE SAVEPOINT: its savepoints end with the
+   * transaction.
+   *
+   * @example
+   * ```typescript
+   * await ds.transactionOrThrow(async (tx) => {
+   *   await tx.queryOrThrow(insertOrder);
+   *   // a duplicate tag is fine: only the savepoint is rolled back
+   *   const { error } = await tx.savepoint(
+   *     (sp) => sp.queryOrThrow(insertTag),
+   *     { name: "insertTag" }
+   *   );
+   *   await tx.queryOrThrow(insertOrderLines);
+   * });
+   * ```
+   */
+  savepoint = async <TData>(
+    fn: (tx: KyselyTransactionDatasource<TDatabase>) => Promise<TData>,
+    options?: SavepointOptions
+  ): AsyncQResult<TData> => {
+    const context = this.transactionContext;
+    if (context === undefined) {
+      throw new Error("A savepoint requires a transaction");
+    }
+    savepointCounter++;
+    const name = `flowblade_sp_${savepointCounter}`;
+    // the savepoint names are checked by kysely types, not needed here
+    const trx = this.getConnection() as ControlledTransaction<
+      TDatabase,
+      [string]
+    >;
+    return await runSavepoint<
+      KyselyTransactionDatasourceImpl<TDatabase>,
+      TData
+    >({
+      context,
+      name,
+      options,
+      getErrorMessage: getKyselyErrorMessage,
+      begin: async (spContext) => {
+        await trx.savepoint(name).execute();
+        return new KyselyTransactionDatasourceImpl<TDatabase>(this.#params, {
+          ...spContext,
+          signal: context.signal,
+        });
+      },
+      rollback: async () => {
+        await trx.rollbackToSavepoint(name).execute();
+      },
+      release: async () => {
+        try {
+          await trx.releaseSavepoint(name).execute();
+        } catch (error) {
+          // ie: SQL Server has no RELEASE SAVEPOINT, the savepoint ends with
+          // the transaction
+          if (
+            !(error instanceof Error) ||
+            error.message !== releaseSavepointNotSupportedMessage
+          ) {
+            throw error;
+          }
+        }
+      },
+      fn,
+    });
+  };
+
+  /**
+   * Like `savepoint()`, but return the value returned by the callback or
+   * throw: the error thrown by the callback as is, a
+   * `QErrors.TransactionFailed` or a `QErrors.TransactionConflict`.
+   */
+  savepointOrThrow = async <TData>(
+    fn: (tx: KyselyTransactionDatasource<TDatabase>) => Promise<TData>,
+    options?: SavepointOrThrowOptions
+  ): Promise<{ data: TData; meta: QMeta }> => {
+    const result = await this.savepoint(fn, options);
+    return {
+      data: getDataOrThrow(result, { onError: options?.onError }),
+      meta: result.meta,
+    };
   };
 }

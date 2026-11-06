@@ -118,6 +118,19 @@ Datasources supporting transactions implement `TransactionalDatasourceInterface`
 
 The result `meta` holds a `transaction` span (`status`, begin/commit time) followed by the spans of the queries run in the transaction.
 
+`TransactionalDatasourceInterface` defaults `tx` to `TransactionDatasourceInterface`, for code working with any datasource. Datasources supporting savepoints (ie: Kysely) add `tx.savepoint()` / `tx.savepointOrThrow()` (`TransactionSavepointInterface`), with a `savepoint` span.
+
+```typescript
+import type { TransactionalDatasourceInterface } from "@flowblade/core";
+
+const runAll = (ds: TransactionalDatasourceInterface, queries: unknown[]) =>
+  ds.transactionOrThrow(async (tx) => {
+    for (const query of queries) {
+      await tx.queryOrThrow(query);
+    }
+  });
+```
+
 ### Implementing a datasource
 
 Helpers to implement a datasource (`DatasourceInterface`) are exported from `@flowblade/core/datasource`: `createQResultSuccess()`, `createQResultError()`, `createSqlSpan()`, `toOneRowQResult()` (for `queryOne()`) and `getOneRowOrThrow()` (for `queryOneOrThrow()`). Use `runTransaction()` to implement `transaction()`: provide `begin`, `commit` and `rollback`, it handles the flow, errors and meta.

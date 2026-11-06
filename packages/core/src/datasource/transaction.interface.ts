@@ -1,7 +1,7 @@
 import type { QErrorFactory } from "../errors/q-error-factories";
-import type { DatasourceInterface } from "./datasource.interface";
 import type { QMeta } from "../meta/q-meta";
 import type { AsyncQResult } from "../query-result/types";
+import type { DatasourceInterface } from "./datasource.interface";
 
 /**
  * Transaction isolation level, support depends on the database

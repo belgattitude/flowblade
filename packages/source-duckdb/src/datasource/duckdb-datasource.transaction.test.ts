@@ -155,7 +155,7 @@ describe("DuckdbDatasource transactions", () => {
         { onFailedQuery: "commit" }
       );
       expect(result.error?.code).toBe("TRANSACTION_FAILED");
-      expect(await getIds(ds)).toStrictEqual([]);
+      await expect(getIds(ds)).resolves.toStrictEqual([]);
     });
 
     it("should not commit after a caught failed query", async ({ ds }) => {
@@ -647,7 +647,7 @@ describe("DuckdbDatasource transactions", () => {
       ds: TransactionalDatasourceInterface,
       queries: unknown[]
     ) =>
-      ds.transactionOrThrow(async (tx) => {
+      await ds.transactionOrThrow(async (tx) => {
         expectTypeOf(tx).toEqualTypeOf<TransactionDatasourceInterface>();
         for (const query of queries) {
           // oxlint-disable-next-line no-await-in-loop -- sequential on purpose
@@ -663,7 +663,7 @@ describe("DuckdbDatasource transactions", () => {
         sql`INSERT INTO product VALUES (2::INTEGER)`,
       ]);
       expect(data).toBe(2);
-      expect(await getIds(ds)).toStrictEqual([1, 2]);
+      await expect(getIds(ds)).resolves.toStrictEqual([1, 2]);
     });
   });
 

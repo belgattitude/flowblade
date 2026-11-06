@@ -643,7 +643,12 @@ export const runSavepoint = async <TSp, TData>(
     status: QMetaSavepointSpan["status"],
     error: QError
   ): QResult<TData, QError> => {
-    const span: QMetaSavepointSpan = { type: "savepoint", name, status, timeMs };
+    const span: QMetaSavepointSpan = {
+      type: "savepoint",
+      name,
+      status,
+      timeMs,
+    };
     // reported to the transaction too, after the savepoint queries
     parent.addSpan(span);
     return new QResult<TData, QError>({

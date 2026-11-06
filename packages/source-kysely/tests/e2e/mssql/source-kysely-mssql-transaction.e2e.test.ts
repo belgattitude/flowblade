@@ -137,7 +137,32 @@ describe("MSSQL e2e transactions", () => {
     );
     expect(result.error).toBeUndefined();
     expect(result.data).toBe("QUERY_FAILED");
-    expect(await getLinkedIds()).toStrictEqual([firstId, firstId + 1]);
+    await expect(getLinkedIds()).resolves.toStrictEqual([firstId, firstId + 1]);
+  });
+
+  it("should roll back the savepoint only, the transaction goes on", async () => {
+    const result = await ds.transaction(async (tx) => {
+      await insertLinked(tx, firstId);
+      const duplicate = await tx.savepoint(async (sp) => {
+        await insertLinked(sp, firstId + 1);
+        // primary key violation
+        await insertLinked(sp, firstId);
+      });
+      await insertLinked(tx, firstId + 2);
+      return duplicate.error?.code;
+    });
+    expect(result.error).toBeUndefined();
+    expect(result.data).toBe("ROLLED_BACK");
+    // the savepoint inserts are rolled back, firstId + 1 included
+    await expect(getLinkedIds()).resolves.toStrictEqual([firstId, firstId + 2]);
+  });
+
+  it("should release the savepoint (no RELEASE on sql server)", async () => {
+    await ds.transactionOrThrow(async (tx) => {
+      await tx.savepointOrThrow((sp) => insertLinked(sp, firstId));
+      await insertLinked(tx, firstId + 1);
+    });
+    await expect(getLinkedIds()).resolves.toStrictEqual([firstId, firstId + 1]);
   });
 
   it("should roll back with tx.rollback()", async () => {

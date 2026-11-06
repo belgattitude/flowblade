@@ -141,6 +141,53 @@ describe("Postgres e2e transactions", () => {
     await expect(getIds()).resolves.toStrictEqual([1, 2]);
   });
 
+  describe("savepoint", () => {
+    it("should roll back the savepoint only, the transaction goes on", async () => {
+      const result = await ds.transaction(async (tx) => {
+        await insert(tx, 3);
+        // duplicate key: without a savepoint, postgres aborts the transaction
+        const duplicate = await tx.savepoint((sp) => insert(sp, 1), {
+          name: "duplicate",
+        });
+        await insert(tx, 4);
+        return duplicate.error;
+      });
+      expect(result.error).toBeUndefined();
+      expect(result.data).toMatchObject({ code: "ROLLED_BACK" });
+      expect(result.data?.cause).toHaveProperty(
+        "cause",
+        expect.objectContaining({ code: "23505" })
+      );
+      await expect(getIds()).resolves.toStrictEqual([1, 2, 3, 4]);
+      expect(
+        result.meta.getSpansByType("savepoint").map((span) => span.status)
+      ).toStrictEqual(["rolled back"]);
+    });
+
+    it("should release the savepoints, nested included", async () => {
+      await ds.transactionOrThrow(async (tx) => {
+        await tx.savepointOrThrow(async (outer) => {
+          await insert(outer, 3);
+          await outer.savepoint(async (inner) => {
+            await insert(inner, 4);
+            inner.rollback("inner only");
+          });
+          await insert(outer, 5);
+        });
+      });
+      await expect(getIds()).resolves.toStrictEqual([1, 2, 3, 5]);
+    });
+
+    it("should roll back the released savepoints with the transaction", async () => {
+      const result = await ds.transaction(async (tx) => {
+        await tx.savepointOrThrow((sp) => insert(sp, 3));
+        tx.rollback();
+      });
+      expect(result.error?.code).toBe("ROLLED_BACK");
+      await expect(getIds()).resolves.toStrictEqual([1, 2]);
+    });
+  });
+
   it("should apply the isolation level and access mode", async () => {
     const { data } = await ds.transactionOrThrow(
       async (tx) => {

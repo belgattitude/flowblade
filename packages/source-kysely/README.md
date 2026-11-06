@@ -356,6 +356,31 @@ const { data, error } = await ds.transaction(fn, {
 
 Postgres, SQL Server and MySQL conflicts are recognized, set the `isTransactionConflict` param for other databases.
 
+### Savepoints
+
+`tx.savepoint()` (returns a QResult) and `tx.savepointOrThrow()` run a part of the transaction that can be rolled back alone: released when the callback returns, rolled back when it throws or a query failed in it, the transaction goes on. Savepoints can be nested.
+
+```typescript
+await ds.transactionOrThrow(async (tx) => {
+  await tx.queryOrThrow(insertOrder);
+  // a duplicate tag is fine: only the savepoint is rolled back
+  const { error } = await tx.savepoint((sp) => sp.queryOrThrow(insertTag), {
+    name: "insertTag",
+  });
+  await tx.queryOrThrow(insertOrderLines);
+});
+```
+
+It's the way to recover from a failed query on Postgres, which aborts the whole transaction otherwise. A conflict or a failed savepoint statement fails the transaction too. Requires a dialect supporting savepoints (Postgres, MySQL, SQL Server, SQLite).
+
+### Failed queries handled by the callback
+
+By default a failed query is never committed, even when handled by the callback (`onFailedQuery: "rollback"`). With SQL Server (without `XACT_ABORT`) or MySQL, a failed statement doesn't abort the transaction: set `onFailedQuery: "commit"` to commit anyway (never with Postgres, the commit would silently roll back; prefer a savepoint when possible).
+
+```typescript
+await ds.transaction(fn, { onFailedQuery: "commit" });
+```
+
 > **Note**: a failed query is never committed, even when handled by the callback (ie: `tx.query()` never throws): the transaction is rolled back with a `TRANSACTION_FAILED` error (Postgres aborts the transaction on error and would silently roll back on commit). Prefer the throwing methods in the callback. Always use `tx` (not `ds`) in the callback, nested transactions aren't supported.
 
 ## Aborting queries
