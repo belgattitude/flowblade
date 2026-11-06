@@ -6,7 +6,11 @@
 Add transactions: `transaction()` (returns a QResult) and `transactionOrThrow()`, the callback receives a datasource running its queries in the transaction.
 
 ```typescript
-const { data: orderId, error, meta } = await ds.transaction(
+const {
+  data: orderId,
+  error,
+  meta,
+} = await ds.transaction(
   async (tx) => {
     // insertOrder returns the inserted row (ie: RETURNING id)
     const { data: order } = await tx.queryOneOrThrow(insertOrder);
