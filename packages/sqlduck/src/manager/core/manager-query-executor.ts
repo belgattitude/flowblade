@@ -2,6 +2,7 @@ import type {
   DuckDBConnection,
   DuckDBMaterializedResult,
 } from "@duckdb/node-api";
+import { withConnectionLock } from "@flowblade/source-duckdb";
 import type { Logger } from "@logtape/logtape";
 
 import { getErrorMessage } from "../../utils/get-error-message.ts";
@@ -32,7 +33,9 @@ export class ManagerQueryExecutor {
     const fnName = `${this.#className}.${name}`;
     const startTime = Date.now();
     try {
-      const result = await this.#conn.runAndReadAll(rawSql);
+      const result = await withConnectionLock(this.#conn, () =>
+        this.#conn.runAndReadAll(rawSql)
+      );
       const timeMs = Date.now() - startTime;
       const data = result.getRowObjectsJS();
       this.#logger.debug("{name} in {timeMs}ms", {

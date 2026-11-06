@@ -3,6 +3,10 @@ import type {
   DuckDBType,
   DuckDBValue,
 } from "@duckdb/node-api";
+import {
+  isInConnectionTransaction,
+  withConnectionLock,
+} from "@flowblade/source-duckdb";
 import type { Logger } from "@logtape/logtape";
 
 import { createDuckColumnConverters } from "../converter/create-duck-column-converters.ts";
@@ -97,22 +101,27 @@ export class DuckTableLoader {
     this.#strategy = params.strategy ?? new ChunkAppenderStrategy();
   }
 
+  /**
+   * Holds the connection lock (see `withConnectionLock()` from
+   * `@flowblade/source-duckdb`) for the whole load: a `DuckdbDatasource`
+   * transaction on the same connection waits for the load, and a load run
+   * in a transaction callback runs in the transaction (without checkpoints:
+   * DuckDB can't checkpoint in a transaction).
+   */
   load = async <TSchema extends TableSchemaZod>(
     params: LoadParams<TSchema>
   ): Promise<LoadResult> => {
-    const {
-      table,
-      schema,
-      rows,
-      mode = "create",
-      checkpoint,
-      progress,
-      signal,
-    } = params;
+    // Before the lock: invalid options aren't a failed query of a transaction
+    this.#assertValidParams(params);
+    return await withConnectionLock(this.#conn, () => this.#load(params), {
+      signal: params.signal,
+    });
+  };
+
+  readonly #assertValidParams = (params: LoadParams<TableSchemaZod>): void => {
+    const { checkpoint, progress } = params;
     const checkpointEveryRows = checkpoint?.everyRows;
     const strategy = this.#strategy;
-    const conn = this.#conn;
-
     assertPositiveInteger(checkpointEveryRows, "checkpoint.everyRows");
     assertPositiveInteger(progress?.everyRows, "progress.everyRows");
     if (
@@ -124,6 +133,28 @@ export class DuckTableLoader {
       );
     }
     assertPositiveInteger(strategy.chunkSize, "strategy.chunkSize");
+  };
+
+  readonly #load = async <TSchema extends TableSchemaZod>(
+    params: LoadParams<TSchema>
+  ): Promise<LoadResult> => {
+    const {
+      table,
+      schema,
+      rows,
+      mode = "create",
+      checkpoint,
+      progress,
+      signal,
+    } = params;
+    const strategy = this.#strategy;
+    const conn = this.#conn;
+    // DuckDB can't checkpoint in a transaction: a failed CHECKPOINT would
+    // fail the transaction of the callback the load runs in
+    const inTransaction = isInConnectionTransaction(conn);
+    const checkpointEveryRows = inTransaction
+      ? undefined
+      : checkpoint?.everyRows;
 
     signal?.throwIfAborted();
 
@@ -132,7 +163,8 @@ export class DuckTableLoader {
 
     // Checkpoints only matter for databases stored in a file
     const database = await resolveTableDatabase(conn, table);
-    const checkpointOnComplete = checkpoint?.onComplete ?? database.isFile;
+    const checkpointOnComplete =
+      !inTransaction && (checkpoint?.onComplete ?? database.isFile);
 
     // The appender strategies write values by position: an existing table
     // must have the schema columns, in the same order.

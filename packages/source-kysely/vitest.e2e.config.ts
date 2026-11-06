@@ -20,6 +20,16 @@ export default mergeConfig(
             },
           },
         },
+        {
+          test: {
+            name: "e2e-postgres",
+            include: ["./tests/e2e/postgres/**/*.test.ts"],
+
+            // Starts one container shared by all postgres test files
+            globalSetup: ["./tests/e2e/postgres/global-setup.ts"],
+            testTimeout: 10_000,
+          },
+        },
       ],
     },
   })

@@ -11,7 +11,6 @@ type Result =
  * Return the database name that is already attached to the error message
  *
  * Note duckdb might complain about already attached databases with a message like
- * (prefixed by "Binder Error:" in duckdb 1.5.x, "Resource In Use Error:" since 2.0)
  * Resource In Use Error: Unique file handle conflict: Cannot attach "duckdb_second_attached_file"
  * - the database file "/.../tests/tmp/duckdb_test_reattachable_file.db" is already attached
  * by database "duckdb_first_attached_file"

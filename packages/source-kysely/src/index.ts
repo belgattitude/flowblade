@@ -3,6 +3,7 @@ export { KyselyDatasource } from "./datasource/kysely-datasource.ts";
 export type {
   KyselyDatasourceDefaultOptions,
   KyselyQueryOptions,
+  KyselyTransactionDatasource,
 } from "./datasource/kysely-datasource.ts";
 export { DatasourceHelpers } from "./helpers/datasource-helpers.ts";
 export type { JsonifiedDataSourceResponse } from "./helpers/datasource-helpers.ts";

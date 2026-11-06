@@ -1,4 +1,5 @@
 import type { DuckDBConnection } from "@duckdb/node-api";
+import { withConnectionLock } from "@flowblade/source-duckdb";
 
 import { DuckExec } from "./duck-exec.ts";
 
@@ -65,7 +66,9 @@ export class DuckMemory {
       orderBy
     );
 
-    const res = await this.#conn.run(query);
+    const res = await withConnectionLock(this.#conn, () =>
+      this.#conn.run(query)
+    );
     return (await res.getRowObjectsJS()) as DuckMemoryRow[];
   };
 

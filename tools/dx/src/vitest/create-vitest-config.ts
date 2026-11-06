@@ -11,7 +11,10 @@ import {
 } from "../cache/monorepo-cache-dir.ts";
 import { dxConfig } from "../dx-config.ts";
 
-const sourceConditions = [...dxConfig.customConditions, "import", "default"];
+// No "import": vite adds "import" / "require" itself depending on how a module is
+// loaded, while vitest passes these conditions to node (--conditions) where
+// "import" makes require() load the ESM entry of dual packages (ie: pg-pool)
+const sourceConditions = [...dxConfig.customConditions, "default"];
 
 /**
  * `vitest bench` (dx-bench, dx-bench-codspeed): the config is loaded by the

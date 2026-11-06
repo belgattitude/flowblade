@@ -2,6 +2,7 @@ import type {
   DuckDBConnection,
   DuckDBMaterializedResult,
 } from "@duckdb/node-api";
+import { withConnectionLock } from "@flowblade/source-duckdb";
 
 type GenericJSRowObject = Awaited<
   ReturnType<DuckDBMaterializedResult["getRowObjectsJS"]>
@@ -18,13 +19,13 @@ export class DuckExec {
   getRowObjectJS = async <T extends GenericJSRowObject[]>(
     sql: string
   ): Promise<T> => {
-    const res = await this.#conn.run(sql);
+    const res = await withConnectionLock(this.#conn, () => this.#conn.run(sql));
     return (await res.getRowObjectsJS()) as T;
   };
   getRowObjectJson = async <T extends GenericJSRowObject[]>(
     sql: string
   ): Promise<T> => {
-    const res = await this.#conn.run(sql);
+    const res = await withConnectionLock(this.#conn, () => this.#conn.run(sql));
     return (await res.getRowObjectsJson()) as T;
   };
   getOneRowObjectJS = async <T extends GenericJSRowObject>(

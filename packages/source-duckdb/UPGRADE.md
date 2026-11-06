@@ -2,6 +2,14 @@
 
 Breaking changes and how to migrate, by version. See the [CHANGELOG](./CHANGELOG.md) for all changes.
 
+## 0.34.0
+
+### DuckDB 1.x is no longer supported
+
+The `@duckdb/node-api` peer dependency is now `^2.0.0-r.1` (was `^1.5.6-r.1 || ^2.0.0-r.1`).
+
+**Migrate**: upgrade `@duckdb/node-api` to 2.x (ie: `pnpm add @duckdb/node-api@^2.0.0-r.1`). Error messages changed in DuckDB 2.0 (ie: "Resource In Use Error:" rather than "Binder Error:" for an already attached database file), check code matching on them.
+
 ## 0.33.1
 
 > **Note**: no breaking change.

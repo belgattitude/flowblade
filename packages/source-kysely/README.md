@@ -300,6 +300,89 @@ const ds = new KyselyDatasource({
 });
 ```
 
+## Transactions
+
+Run queries in a transaction with `transaction()` (returns a QResult, never throws) or `transactionOrThrow()`. The callback receives a datasource (`tx`) running its queries in the transaction: committed when the callback returns, rolled back when it throws or calls `tx.rollback()`.
+
+```typescript
+const {
+  data: orderId,
+  error,
+  meta,
+} = await ds.transaction(
+  async (tx) => {
+    const { data: order } = await tx.queryOneOrThrow(
+      tx.queryBuilder
+        .insertInto("order")
+        .values({ customer_id: customerId })
+        .output(["inserted.id"])
+    );
+    const { data: stock } = await tx.queryOneOrThrow(getStock);
+    if (stock.quantity < quantity) {
+      tx.rollback("out of stock"); // error.code: "ROLLED_BACK"
+    }
+    await tx.queryOrThrow(insertOrderLines(order.id));
+    return order.id;
+  },
+  {
+    name: "createOrder",
+    isolationLevel: "serializable", // optional, also: accessMode, signal, retry
+  }
+);
+if (error) {
+  // "ROLLED_BACK": the callback threw (ie: tx.queryOrThrow()) or called tx.rollback()
+  // "TRANSACTION_FAILED": a query failed (handled by the callback), or couldn't begin, commit or roll back
+  // "TRANSACTION_CONFLICT": conflicts with a concurrent transaction, see retry
+  // "ABORTED": aborted with signal, never committed
+  console.error(error.code, error.message, error.cause);
+}
+// meta: a "transaction" span followed by the spans of the queries
+
+// Or throw: the error thrown by the callback as is, a QErrors.TransactionConflict, QErrors.TransactionFailed or QErrors.Aborted
+const { data } = await ds.transactionOrThrow(async (tx) => {
+  /* ... */
+});
+```
+
+Conflicts with a concurrent transaction (serialization failure, deadlock) are reported as `TRANSACTION_CONFLICT`, run the transaction again with the `retry` option (the callback is called again: keep its side effects in the transaction):
+
+```typescript
+const { data, error } = await ds.transaction(fn, {
+  isolationLevel: "serializable",
+  // waits 50ms, 100ms then 200ms by default, or set delayMs: (retry) => ms
+  retry: { maxRetries: 3 },
+});
+```
+
+Postgres, SQL Server and MySQL conflicts are recognized, set the `isTransactionConflict` param for other databases.
+
+### Savepoints
+
+`tx.savepoint()` (returns a QResult) and `tx.savepointOrThrow()` run a part of the transaction that can be rolled back alone: released when the callback returns, rolled back when it throws or a query failed in it, the transaction goes on. Savepoints can be nested.
+
+```typescript
+await ds.transactionOrThrow(async (tx) => {
+  await tx.queryOrThrow(insertOrder);
+  // a duplicate tag is fine: only the savepoint is rolled back
+  const { error } = await tx.savepoint((sp) => sp.queryOrThrow(insertTag), {
+    name: "insertTag",
+  });
+  await tx.queryOrThrow(insertOrderLines);
+});
+```
+
+It's the way to recover from a failed query on Postgres, which aborts the whole transaction otherwise. A conflict or a failed savepoint statement fails the transaction too. With `onFailedQuery: "commit"`, a savepoint whose failed query was handled by the callback is released, its other queries are committed. `tx.savepointOrThrow()` rolls back the savepoint then rethrows: catch the error for the transaction to go on. Requires a dialect supporting savepoints (Postgres, MySQL, SQL Server, SQLite).
+
+### Failed queries handled by the callback
+
+By default a failed query is never committed, even when handled by the callback (`onFailedQuery: "rollback"`). With SQL Server (without `XACT_ABORT`) or MySQL, a failed statement doesn't abort the transaction: set `onFailedQuery: "commit"` to commit anyway (never with Postgres, the commit would silently roll back; prefer a savepoint when possible).
+
+```typescript
+await ds.transaction(fn, { onFailedQuery: "commit" });
+```
+
+> **Note**: by default (`onFailedQuery: "rollback"`), a failed query is never committed, even when handled by the callback (ie: `tx.query()` never throws): the transaction is rolled back with a `TRANSACTION_FAILED` error (Postgres aborts the transaction on error and would silently roll back on commit). Prefer the throwing methods in the callback. Always use `tx` (not `ds`) in the callback (a query built with `ds.queryBuilder` and run with `tx` runs in the transaction), nested transactions aren't supported.
+
 ## Aborting queries
 
 All the query methods and `stream()` accept an [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal):

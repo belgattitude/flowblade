@@ -1,6 +1,15 @@
 export { flowbladeLogtapeDuckdbConfig } from "./config/flowblade-logtape-duckdb.config.ts";
-export type { DuckdbDatasourceParams } from "./datasource/duckdb-datasource.ts";
+export type {
+  DuckdbDatasourceParams,
+  DuckdbTransactionDatasource,
+  DuckdbTransactionOptions,
+  DuckdbTransactionOrThrowOptions,
+} from "./datasource/duckdb-datasource.ts";
 export { DuckdbDatasource } from "./datasource/duckdb-datasource.ts";
+export {
+  isInConnectionTransaction,
+  withConnectionLock,
+} from "./internal/connection-lock.ts";
 export { duckdbDefaultLogtapeLogger } from "./logger/duckdb-default-logtape-logger.ts";
 
 // re-export from @flowblade/sql-tag

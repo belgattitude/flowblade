@@ -21,8 +21,9 @@ type Branded = { [brandKey]?: string[] };
 /**
  * Unlike `instanceof Error`, also recognizes errors created in another realm
  * (ie: node:vm contexts, iframes) with that realm's Error constructor.
+ * @internal
  */
-const isError = (value: unknown): value is Error =>
+export const isError = (value: unknown): value is Error =>
   value instanceof Error ||
   Object.prototype.toString.call(value) === "[object Error]";
 

@@ -1,11 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { QErrors } from "../index";
 import { QMeta } from "../meta/q-meta";
 import { QResult } from "../query-result/q-result";
 import type { QError } from "../query-result/types";
 import { brandKey } from "../utils/brand";
 import {
+  createQResultError,
   createQResultSuccess,
+  getDataOrThrow,
   getOneRowOrThrow,
   toOneRowQResult,
 } from "../utils/datasource.factories";
@@ -278,6 +281,89 @@ describe("Cross-realm specs", () => {
       expect(() =>
         other.getOneRowOrThrow(manyHere, undefined, { onTooManyResults })
       ).toThrow("custom got 2");
+    });
+  });
+
+  describe("Transaction errors", () => {
+    type Copy = Awaited<ReturnType<typeof importOtherCopy>>;
+    const transactionErrors = [
+      {
+        name: "RolledBack",
+        cls: QErrors.RolledBack,
+        fromCopy: (copy: Copy) => copy.QErrors.RolledBack,
+        statusCode: 500,
+      },
+      {
+        name: "TransactionFailed",
+        cls: QErrors.TransactionFailed,
+        fromCopy: (copy: Copy) => copy.QErrors.TransactionFailed,
+        statusCode: 500,
+      },
+      {
+        name: "TransactionConflict",
+        cls: QErrors.TransactionConflict,
+        fromCopy: (copy: Copy) => copy.QErrors.TransactionConflict,
+        statusCode: 409,
+      },
+    ] as const;
+
+    it.each(transactionErrors)(
+      "should support instanceof across copies for $name",
+      async ({ name, cls, fromCopy, statusCode }) => {
+        const other = await importOtherCopy();
+        const OtherCls = fromCopy(other);
+        expect(OtherCls).not.toBe(cls);
+        const fromOther = new OtherCls("reason");
+        expect(fromOther).toBeInstanceOf(cls);
+        expect(fromOther).toBeInstanceOf(Error);
+        expect(fromOther).toMatchObject({ statusCode });
+        // the other way around
+        expect(new cls("reason")).toBeInstanceOf(OtherCls);
+        // never another transaction error
+        const others = transactionErrors.filter((error) => error.name !== name);
+        for (const otherError of others) {
+          expect(fromOther).not.toBeInstanceOf(otherError.cls);
+        }
+      }
+    );
+
+    it.skipIf(typeof runInNewContext !== "function")(
+      "should support instanceof when created in a new context",
+      () => {
+        const sandbox = {
+          RolledBack: QErrors.RolledBack,
+          TransactionFailed: QErrors.TransactionFailed,
+          TransactionConflict: QErrors.TransactionConflict,
+          errors: [] as unknown[],
+        };
+        runInNewContext!(
+          `errors = [new RolledBack("r"), new TransactionFailed("f"), new TransactionConflict("c")]`,
+          sandbox
+        );
+        const [rolledBack, failed, conflict] = sandbox.errors;
+        expect(rolledBack).toBeInstanceOf(QErrors.RolledBack);
+        expect(failed).toBeInstanceOf(QErrors.TransactionFailed);
+        expect(conflict).toBeInstanceOf(QErrors.TransactionConflict);
+        expect(conflict).not.toBeInstanceOf(QErrors.TransactionFailed);
+      }
+    );
+
+    it("should rethrow the transaction errors of another copy", async () => {
+      const other = await importOtherCopy();
+      const conflict = other.createQResultError(
+        { message: "deadlock", code: "TRANSACTION_CONFLICT" },
+        new other.QMeta({ name: "test" })
+      );
+      expect(() => getDataOrThrow(conflict)).toThrow(
+        QErrors.TransactionConflict
+      );
+      const thrown = new other.QErrors.RolledBack("nope");
+      const rolledBack = createQResultError(
+        { message: thrown.message, code: "ROLLED_BACK", cause: thrown },
+        new QMeta({ name: "test" })
+      );
+      // the error thrown by the callback, as is
+      expect(() => other.getDataOrThrow(rolledBack)).toThrow(thrown);
     });
   });
 
