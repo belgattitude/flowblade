@@ -329,7 +329,8 @@ Conflicts with a concurrent transaction (serialization failure, deadlock) are re
 
 ```typescript
 const { data, error } = await ds.transaction(fn, {
-  // waits 50ms, 100ms then 200ms by default, or set delayMs: (retry) => ms
+  // waits 25-50ms, 50-100ms then 100-200ms by default (exponential backoff
+  // with jitter), or set delayMs: (retry) => ms
   retry: { maxRetries: 3 },
 });
 ```

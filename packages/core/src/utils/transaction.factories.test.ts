@@ -5,7 +5,7 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { QErrors } from "../index";
 import type { QMetaSqlSpan } from "../meta/q-meta";
 import { createSqlSpan, getDataOrThrow } from "./datasource.factories";
-import { runTransaction } from "./transaction.factories";
+import { defaultRetryDelayMs, runTransaction } from "./transaction.factories";
 
 type FakeTx = {
   query: (sql: string) => Promise<void>;
@@ -692,17 +692,44 @@ describe(runTransaction, () => {
       expect(result.meta.getSpans()[0]).toMatchObject({ retries: 2 });
     });
 
-    it("should use an exponential backoff by default", async () => {
+    it("should use an exponential backoff with jitter by default", async () => {
       const { run } = createDriver();
       const onRetry = vi.fn<(info: { delayMs: number }) => void>();
-      await run(
-        () => Promise.reject(createConflict()),
-        { retry: { maxRetries: 2 } },
-        { isConflictError, onRetry }
-      );
+      const random = vi.spyOn(Math, "random").mockReturnValue(0);
+      try {
+        await run(
+          () => Promise.reject(createConflict()),
+          { retry: { maxRetries: 2 } },
+          { isConflictError, onRetry }
+        );
+      } finally {
+        random.mockRestore();
+      }
       expect(onRetry.mock.calls.map(([info]) => info.delayMs)).toStrictEqual([
-        50, 100,
+        25, 50,
       ]);
+    });
+
+    it("should bound the default retry delay", () => {
+      const random = vi.spyOn(Math, "random");
+      try {
+        random.mockReturnValue(0);
+        expect([1, 2, 3, 5, 6, 10].map(defaultRetryDelayMs)).toStrictEqual([
+          25, 50, 100, 400, 500, 500,
+        ]);
+        random.mockReturnValue(0.999_999);
+        expect([1, 2, 3, 5, 6, 10].map(defaultRetryDelayMs)).toStrictEqual([
+          50, 100, 200, 800, 1000, 1000,
+        ]);
+      } finally {
+        random.mockRestore();
+      }
+      for (let i = 0; i < 1000; i++) {
+        const delay = defaultRetryDelayMs(3);
+        expect(Number.isInteger(delay)).toBe(true);
+        expect(delay).toBeGreaterThanOrEqual(100);
+        expect(delay).toBeLessThanOrEqual(200);
+      }
     });
 
     it("should not retry the other errors", async () => {

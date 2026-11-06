@@ -46,7 +46,7 @@ export type TransactionOptions = {
    *
    * @example
    * ```typescript
-   * { retry: { maxRetries: 3 } } // waits 50ms, 100ms then 200ms
+   * { retry: { maxRetries: 3 } } // waits 25-50ms, 50-100ms then 100-200ms
    * { retry: { maxRetries: 5, delayMs: (retry) => retry * 100 } }
    * ```
    */
@@ -76,8 +76,9 @@ export type TransactionRetryOptions = {
   maxRetries: number;
   /**
    * Delay before a retry in milliseconds, or a function of the retry number
-   * (1 for the first retry). Defaults to an exponential backoff: 50ms, 100ms,
-   * 200ms... up to 1s.
+   * (1 for the first retry). Defaults to an exponential backoff with jitter
+   * (half of the delay is random, to spread the concurrent retries): 25-50ms,
+   * 50-100ms, 100-200ms... up to 500ms-1s.
    */
   delayMs?: number | ((retry: number) => number);
 };

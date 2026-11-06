@@ -121,10 +121,19 @@ const defaultGetErrorMessage = (error: unknown): string => {
 };
 
 /**
- * Default retry delay: exponential backoff, 50ms, 100ms, 200ms... up to 1s.
+ * Default retry delay: exponential backoff (50ms, 100ms, 200ms... up to 1s)
+ * with "equal jitter", half of the backoff is randomized: 25-50ms, 50-100ms,
+ * 100-200ms... up to 500ms-1s.
+ *
+ * The jitter spreads the retries of transactions conflicting with each other
+ * (they'd retry at the same time and conflict again), half of the backoff is
+ * kept to never retry at once (ie: a deadlock victim while the other
+ * transaction still holds its locks).
  */
-const defaultRetryDelayMs = (retry: number): number =>
-  Math.min(1000, 25 * 2 ** retry);
+export const defaultRetryDelayMs = (retry: number): number => {
+  const backoff = Math.min(1000, 25 * 2 ** retry);
+  return Math.round(backoff / 2 + Math.random() * (backoff / 2));
+};
 
 /**
  * The error, or one of its causes, matching `predicate`.
