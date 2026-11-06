@@ -326,7 +326,8 @@ const {
   },
   {
     name: "createOrder",
-    isolationLevel: "serializable", // optional, also: accessMode, signal, retry
+    isolationLevel: "serializable", // optional, also: accessMode, signal
+    retry: { maxRetries: 3 }, // serializable: run it again on conflict
   }
 );
 if (error) {

@@ -733,7 +733,12 @@ export class KyselyDatasource<TDatabase>
    *     await tx.queryOrThrow(insertOrderLines(order.id));
    *     return order.id;
    *   },
-   *   { name: 'createOrder', isolationLevel: 'serializable' }
+   *   {
+   *     name: 'createOrder',
+   *     isolationLevel: 'serializable',
+   *     // serialization failures are expected, run it again on conflict
+   *     retry: { maxRetries: 3 },
+   *   }
    * );
    *
    * if (error) {

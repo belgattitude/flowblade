@@ -231,14 +231,20 @@ export interface TransactionalDatasourceInterface<
    * ```typescript
    * const { data: orderId, error, meta } = await ds.transaction(
    *   async (tx) => {
+   *     // insertOrder returns the inserted row (ie: RETURNING id)
    *     const { data: order } = await tx.queryOneOrThrow(insertOrder);
    *     await tx.queryOrThrow(insertOrderLines(order.id));
    *     return order.id;
    *   },
-   *   { name: "createOrder", isolationLevel: "serializable" }
+   *   {
+   *     name: "createOrder",
+   *     isolationLevel: "serializable",
+   *     // serialization failures are expected, run it again on conflict
+   *     retry: { maxRetries: 3 },
+   *   }
    * );
    * if (error) {
-   *   // "ROLLED_BACK", "TRANSACTION_FAILED" or "ABORTED"
+   *   // "ROLLED_BACK", "TRANSACTION_FAILED", "TRANSACTION_CONFLICT" or "ABORTED"
    *   console.error(error.code, error.message, error.cause);
    * }
    * ```
