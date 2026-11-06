@@ -520,6 +520,27 @@ describe("DuckdbDatasource transactions", () => {
       await expect(getIds(ds)).resolves.toStrictEqual([1, 2, 3]);
     });
 
+    it("should end the transaction after a callback not awaited", async ({
+      ds,
+    }) => {
+      const conn = ds.getConnection();
+      const events: string[] = [];
+      const result = await ds.transaction(async (tx) => {
+        // not awaited: the transaction waits for it before rolling back
+        void withConnectionLock(conn, async () => {
+          await sleep(20);
+          await conn.run("INSERT INTO product VALUES (1)");
+          events.push("locked");
+        });
+        events.push("rollback");
+        tx.rollback();
+      });
+      expect(result.error?.code).toBe("ROLLED_BACK");
+      expect(events).toStrictEqual(["rollback", "locked"]);
+      // run in the transaction, not after it
+      await expect(getIds(ds)).resolves.toStrictEqual([]);
+    });
+
     it("should fail to begin a transaction in the callback", async ({ ds }) => {
       const result = await withConnectionLock(ds.getConnection(), () =>
         ds.transaction(async () => 1)

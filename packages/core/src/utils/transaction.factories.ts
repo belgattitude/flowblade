@@ -183,29 +183,37 @@ const raceAbort = async <T>(
   if (signal === undefined) {
     return await promise;
   }
+  // set when the abort wins the race: the promise value is then late
+  const race: { lost: boolean; onAbort?: () => void } = { lost: false };
+  // oxlint-disable-next-line promise/avoid-new -- rejects when aborted
+  const abortion = new Promise<never>((_resolve, reject) => {
+    race.onAbort = () => {
+      race.lost = true;
+      // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- the abort reason, like signal.throwIfAborted()
+      reject(signal.reason);
+    };
+    if (signal.aborted) {
+      // ie: aborted by the begin synchronous part
+      race.onAbort();
+    } else {
+      signal.addEventListener("abort", race.onAbort, { once: true });
+    }
+  });
   const settled = (async () => {
     const value = await promise;
-    if (signal.aborted) {
+    // only when nobody receives the value: never handled twice
+    if (race.lost) {
       onLate(value);
     }
     return value;
   })();
   // rejected after the abort: nobody waits for it anymore
   settled.catch(() => undefined);
-  const listener: { onAbort?: () => void } = {};
-  // oxlint-disable-next-line promise/avoid-new -- rejects when aborted
-  const abortion = new Promise<never>((_resolve, reject) => {
-    listener.onAbort = () => {
-      // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- the abort reason, like signal.throwIfAborted()
-      reject(signal.reason);
-    };
-    signal.addEventListener("abort", listener.onAbort, { once: true });
-  });
   try {
     return await Promise.race([settled, abortion]);
   } finally {
-    if (listener.onAbort !== undefined) {
-      signal.removeEventListener("abort", listener.onAbort);
+    if (race.onAbort !== undefined) {
+      signal.removeEventListener("abort", race.onAbort);
     }
   }
 };

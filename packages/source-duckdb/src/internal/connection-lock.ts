@@ -217,12 +217,17 @@ export const withConnectionLock = async <T>(
       return await fn();
     }
     transaction.assertActive();
-    try {
-      return await fn();
-    } catch (error) {
-      transaction.onQueryFailed(error);
-      throw error;
-    }
+    // tracked: the transaction never ends before it, even when not awaited
+    return await transaction.trackQuery(
+      (async () => {
+        try {
+          return await fn();
+        } catch (error) {
+          transaction.onQueryFailed(error);
+          throw error;
+        }
+      })()
+    );
   }
   const release = await lock.acquireShared(options?.signal);
   const newHold: ConnectionHold = { lock, released: false };

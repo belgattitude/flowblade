@@ -1,3 +1,5 @@
+import { setTimeout as sleep } from "node:timers/promises";
+
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 
 import { QErrors } from "../index";
@@ -435,6 +437,32 @@ describe(runTransaction, () => {
       expect(driver.rollback).toHaveBeenCalledOnce();
     });
     expect(result.error?.code).toBe("ABORTED");
+  });
+
+  it("should roll back once when aborted by the synchronous part of begin", async () => {
+    const controller = new AbortController();
+    const fn = vi.fn<() => Promise<number>>(async () => 1);
+    const rollback = vi.fn<() => Promise<void>>(async () => {});
+    const result = await runTransaction<object, number>({
+      fn,
+      options: { signal: controller.signal },
+      begin: async () => {
+        // before the abort listener is added
+        controller.abort(new Error("client gone"));
+        await Promise.resolve();
+        return {};
+      },
+      commit: async () => {},
+      rollback,
+    });
+    expect(result.error?.code).toBe("ABORTED");
+    await vi.waitFor(() => {
+      expect(rollback).toHaveBeenCalledWith({});
+    });
+    // never twice: by the late begin and after begin
+    await sleep(5);
+    expect(rollback).toHaveBeenCalledOnce();
+    expect(fn).not.toHaveBeenCalled();
   });
 
   it("should roll back rather than commit when aborted during the callback", async () => {
