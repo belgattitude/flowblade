@@ -6,7 +6,9 @@ const config = createSizeLimitConfig(
       name: "Import * (ESM)",
       path: ["dist/index.mjs"],
       import: "*",
-      limit: "10.6 kB",
+      // node builtin (AsyncLocalStorage of the connection lock)
+      ignore: ["node:async_hooks"],
+      limit: "13.5 kB",
     },
   ],
   { browserslist: false }

@@ -80,6 +80,10 @@ export interface LoadStrategy {
   open: (context: LoadStrategyContext) => Promise<LoadStrategySession>;
 }
 
+/**
+ * Ignored when the load runs in a `DuckdbDatasource` transaction callback:
+ * DuckDB can't checkpoint in a transaction.
+ */
 export type LoadCheckpointOptions = {
   /**
    * Checkpoint the database each time N more rows are loaded, at the end

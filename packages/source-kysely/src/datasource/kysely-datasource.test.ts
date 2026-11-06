@@ -22,10 +22,22 @@ const createStreamDatasource = (
         sql: "SELECT * FROM test",
         parameters: [],
       }),
-    stream: vi
-      .fn<() => AsyncGenerator<{ id: number }>>()
-      .mockImplementation(stream),
+    // never called: the datasource streams with its own executor
+    stream: vi.fn<() => never>(),
   };
+
+  // the executor yields the rows one by one
+  const executorStream = vi.fn<
+    (
+      compiled: unknown,
+      chunkSize: number,
+      options?: { signal?: AbortSignal }
+    ) => AsyncGenerator<{ rows: { id: number }[] }>
+  >(async function* executorRows() {
+    for await (const row of stream()) {
+      yield { rows: [row] };
+    }
+  });
 
   const ds = new KyselyDatasource({
     connection: {} as never, // db is only used for compile which we mocked
@@ -33,11 +45,17 @@ const createStreamDatasource = (
   });
 
   // @ts-expect-error - access private to mock
-  ds.db = { executeQuery: vi.fn<() => void>() };
+  ds.db = {
+    executeQuery: vi.fn<() => void>(),
+    getExecutor: () => {
+      return { stream: executorStream };
+    },
+  };
 
   return {
     logger,
     query,
+    executorStream,
     stream: ds.stream(query as never, { name: "test-stream", signal }),
   };
 };
@@ -571,11 +589,7 @@ describe(KyselyDatasource, () => {
         compile: vi
           .fn<() => { sql: string; parameters: unknown[] }>()
           .mockReturnValue({ sql: "SELECT @1 as v", parameters: [secret] }),
-        stream: vi
-          .fn<() => AsyncGenerator<{ v: string }>>()
-          .mockImplementation(async function* rows() {
-            yield { v: secret };
-          }),
+        stream: vi.fn<() => never>(),
       };
       const ds = new KyselyDatasource({
         connection: {} as never,
@@ -587,6 +601,13 @@ describe(KyselyDatasource, () => {
         executeQuery: vi
           .fn<() => Promise<{ rows: unknown[] }>>()
           .mockResolvedValue({ rows: [{ v: secret }] }),
+        getExecutor: () => {
+          return {
+            async *stream() {
+              yield { rows: [{ v: secret }] };
+            },
+          };
+        },
       };
 
       const { meta } = await ds.queryOrThrow(query as never);
@@ -607,18 +628,24 @@ describe(KyselyDatasource, () => {
   });
 
   describe("stream", () => {
-    it("should pass the chunkSize and signal to kysely", async () => {
+    it("should pass the chunkSize and signal to the datasource executor", async () => {
       const { signal } = new AbortController();
-      const { query, stream } = createStreamDatasource(async function* rows() {
-        yield { id: 1 };
-      }, signal);
+      const { query, executorStream, stream } = createStreamDatasource(
+        async function* rows() {
+          yield { id: 1 };
+        },
+        signal
+      );
 
       await Array.fromAsync(stream);
 
-      expect(query.stream).toHaveBeenCalledExactlyOnceWith({
-        chunkSize: undefined,
-        signal,
-      });
+      expect(executorStream).toHaveBeenCalledExactlyOnceWith(
+        { sql: "SELECT * FROM test", parameters: [] },
+        100,
+        { signal }
+      );
+      // not the executor of the builder (ie: outside the transaction)
+      expect(query.stream).not.toHaveBeenCalled();
     });
 
     it("should log the execution once the stream is fully consumed", async () => {

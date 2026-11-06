@@ -33,3 +33,11 @@ export {
   getOneRowOrThrow,
   toOneRowQResult,
 } from "../utils/datasource.factories";
+export {
+  runSavepoint,
+  type RunSavepointParams,
+  runTransaction,
+  type RunTransactionParams,
+  type TransactionBeginContext,
+  type TransactionLogger,
+} from "../utils/transaction.factories";

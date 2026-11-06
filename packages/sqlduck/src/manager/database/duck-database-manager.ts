@@ -94,8 +94,8 @@ export class DuckDatabaseManager {
         rawSql
       );
     } catch (error) {
-      // in duckdb > 1.5.5, the attach or replace of a file database now complains
-      // Resource In Use Error (Binder Error in 1.5.x): Unique file handle conflict: Cannot attach "duckdb_second_attached_file" - the database file "/home/sebastien/github/flowblade/packages/sqlduck/tests/tmp/duckdb_test_reattachable_file.db" is already attached by database "duckdb_first_attached_file"
+      // the attach or replace of a file database complains
+      // Resource In Use Error: Unique file handle conflict: Cannot attach "duckdb_second_attached_file" - the database file "/home/sebastien/github/flowblade/packages/sqlduck/tests/tmp/duckdb_test_reattachable_file.db" is already attached by database "duckdb_first_attached_file"
       if (
         options?.behaviour === "OR REPLACE" &&
         options?.runDetachIfAttachOrReplaceFailWithAlreadyAttached === true

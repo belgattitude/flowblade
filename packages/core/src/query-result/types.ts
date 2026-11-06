@@ -5,13 +5,22 @@ import type { QResult } from "./q-result";
  * - "QUERY_FAILED": the query failed, the driver error is the cause,
  * - "ABORTED": the query was aborted with its `signal`, the abort reason is the cause,
  * - "TOO_MANY_RESULTS": `queryOne()` got more than one row, a `QErrors.TooManyResults` is the cause,
- * - "MAP_FAILED": the `QResult.map()` transform threw, the thrown error is the cause.
+ * - "MAP_FAILED": the `QResult.map()` transform threw, the thrown error is the cause,
+ * - "ROLLED_BACK": the `transaction()` callback threw (or called `tx.rollback()`)
+ *   and the transaction was rolled back, the thrown value is the cause,
+ * - "TRANSACTION_FAILED": the transaction couldn't begin, commit or roll back,
+ *   the driver error is the cause,
+ * - "TRANSACTION_CONFLICT": the transaction conflicts with a concurrent one
+ *   (ie: serialization failure, deadlock), transient: can be retried.
  */
 export type QErrorCode =
   | "QUERY_FAILED"
   | "ABORTED"
   | "TOO_MANY_RESULTS"
-  | "MAP_FAILED";
+  | "MAP_FAILED"
+  | "ROLLED_BACK"
+  | "TRANSACTION_FAILED"
+  | "TRANSACTION_CONFLICT";
 
 export type QError = {
   message: string;
