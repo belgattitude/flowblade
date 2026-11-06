@@ -618,12 +618,16 @@ export class KyselyDatasource<TDatabase>
 
     try {
       this.transactionContext?.assertActive();
-      for await (const row of query.stream({
-        chunkSize,
-        signal,
-      }) as AsyncIterableIterator<TData[0]>) {
-        rowCount++;
-        yield row;
+      // Run on this datasource connection (ie: the transaction one), not
+      // the executor of the builder (ie: built with the parent queryBuilder)
+      const results = this.db
+        .getExecutor()
+        .stream(compiled, chunkSize ?? 100, { signal });
+      for await (const { rows } of results) {
+        for (const row of rows as TData[0][]) {
+          rowCount++;
+          yield row;
+        }
       }
     } catch (error) {
       failed = true;
@@ -680,24 +684,31 @@ export class KyselyDatasource<TDatabase>
    * - "ROLLED_BACK": the callback threw (ie: a failed `tx.queryOrThrow()`) or
    *   called `tx.rollback()`, the thrown error is the `cause`,
    * - "TRANSACTION_FAILED": a query failed in the transaction (handled by
-   *   the callback or not, it's then rolled back), or the transaction
-   *   couldn't begin, commit or roll back, the driver error is the `cause`,
+   *   the callback or not, it's then rolled back unless `onFailedQuery` is
+   *   "commit"), or the transaction couldn't begin, commit or roll back, the
+   *   driver error is the `cause`,
+   * - "TRANSACTION_CONFLICT": the transaction conflicts with a concurrent one
+   *   (ie: serialization failure, deadlock), it can be retried (see `retry`),
    * - "ABORTED": aborted with `signal`, the abort reason is the `cause`.
    *
    * `meta` holds a "transaction" span followed by the spans of the queries
    * run in the transaction.
    *
    * Notes:
-   * - A failed query is never committed, even when handled by the callback
-   *   (ie: `tx.query()` never throws): Postgres aborts the transaction on
-   *   error and silently rolls back on commit. Prefer the throwing methods
-   *   (ie: `tx.queryOrThrow()`) in the callback.
+   * - By default (`onFailedQuery: "rollback"`), a failed query is never
+   *   committed, even when handled by the callback (ie: `tx.query()` never
+   *   throws): Postgres aborts the transaction on error and silently rolls
+   *   back on commit. Prefer the throwing methods (ie: `tx.queryOrThrow()`)
+   *   in the callback, or a savepoint (`tx.savepoint()`). With
+   *   `onFailedQuery: "commit"` (ie: SQL Server, MySQL), the transaction is
+   *   committed anyway, except after a conflict.
    * - Await the queries: a query not awaited still ends before the commit
    *   (the transaction waits for it), but a query started after the callback
    *   returned fails. Fully consume (or break) the `tx.stream()` iterators.
    * - Run the queries with `tx`: the datasource queries run outside of the
    *   transaction, and wait forever for its connection on single connection
-   *   dialects (ie: SQLite).
+   *   dialects (ie: SQLite). A query built with `ds.queryBuilder` and run
+   *   with `tx` runs in the transaction.
    * - Nested transactions aren't supported.
    *
    * @example
@@ -726,7 +737,7 @@ export class KyselyDatasource<TDatabase>
    * );
    *
    * if (error) {
-   *   // "ROLLED_BACK", "TRANSACTION_FAILED" or "ABORTED"
+   *   // "ROLLED_BACK", "TRANSACTION_FAILED", "TRANSACTION_CONFLICT" or "ABORTED"
    *   console.error(error.code, error.message, error.cause);
    *   return;
    * }
@@ -798,10 +809,12 @@ export class KyselyDatasource<TDatabase>
    *
    * Throws the error thrown by the callback as is (ie: a `QErrors.QueryFailed`
    * from `tx.queryOrThrow()`, a `QErrors.RolledBack` from `tx.rollback()`),
-   * a `QErrors.TransactionFailed` when a query failed in the transaction
-   * (handled by the callback) or the transaction couldn't begin, commit
-   * or roll back, or a `QErrors.Aborted` when aborted with `signal`. To throw
-   * your own error, pass an `onError` factory.
+   * a `QErrors.TransactionConflict` when it conflicts with a concurrent one
+   * (see `retry`), a `QErrors.TransactionFailed` when a query failed in the
+   * transaction (handled by the callback, unless `onFailedQuery` is "commit")
+   * or the transaction couldn't begin, commit or roll back, or a
+   * `QErrors.Aborted` when aborted with `signal`. To throw your own error,
+   * pass an `onError` factory.
    *
    * @example
    * ```typescript
@@ -931,6 +944,10 @@ class KyselyTransactionDatasourceImpl<TDatabase>
    * - "TRANSACTION_CONFLICT": a conflict with a concurrent transaction, the
    *   transaction fails too (to be retried as a whole).
    *
+   * With `onFailedQuery: "commit"`, a savepoint with a failed query handled
+   * by the callback is released, not rolled back: its other queries are
+   * committed with the transaction.
+   *
    * Requires a dialect supporting savepoints (ie: Postgres, MySQL, SQL
    * Server, SQLite), the result is a "TRANSACTION_FAILED" error otherwise.
    * SQL Server has no RELEASE SAVEPOINT: its savepoints end with the
@@ -1004,6 +1021,10 @@ class KyselyTransactionDatasourceImpl<TDatabase>
    * Like `savepoint()`, but return the value returned by the callback or
    * throw: the error thrown by the callback as is, a
    * `QErrors.TransactionFailed` or a `QErrors.TransactionConflict`.
+   *
+   * The savepoint is rolled back before throwing, but the error ends the
+   * transaction callback too (and rolls back the whole transaction) unless
+   * caught: catch it for the transaction to go on, or use `savepoint()`.
    */
   savepointOrThrow = async <TData>(
     fn: (tx: KyselyTransactionDatasource<TDatabase>) => Promise<TData>,

@@ -176,11 +176,13 @@ describe("MSSQL e2e transactions", () => {
   });
 
   it("should stream in the transaction", async () => {
-    const { data: names } = await ds.transactionOrThrow(async (tx) => {
+    const { data: names, meta } = await ds.transactionOrThrow(async (tx) => {
       await insertLinked(tx, firstId);
       const rows: string[] = [];
+      // built with the parent datasource: still streamed in the transaction
+      // (sees the uncommitted insert)
       for await (const row of tx.stream(
-        tx.queryBuilder
+        ds.queryBuilder
           .selectFrom("TestTableLinked")
           .select("name")
           .where("id", ">=", firstId)
@@ -190,6 +192,13 @@ describe("MSSQL e2e transactions", () => {
       return rows;
     });
     expect(names).toStrictEqual([`linked-${firstId}`]);
+    // the insert and the stream
+    expect(meta.getSpans().map((span) => span.type)).toStrictEqual([
+      "transaction",
+      "sql",
+      "sql",
+    ]);
+    expect(meta.getSpansByType("sql")[1]).toMatchObject({ affectedRows: 1 });
   });
 
   it("should apply the isolation level", async () => {

@@ -350,6 +350,8 @@ await withConnectionLock(conn, async () => {
 });
 ```
 
+`isInConnectionTransaction(conn)` tells whether the current code runs in a transaction callback on the connection, ie: to skip a `CHECKPOINT` (DuckDB can't checkpoint in a transaction).
+
 > **Note**: DuckDB aborts the transaction on any failed query (and would silently roll back on commit): after a failed `tx.query()` (it never throws), the transaction is rolled back with a `TRANSACTION_FAILED` error. Prefer the throwing methods in the callback. DuckDB has no isolation levels (snapshot isolation) nor nested transactions.
 
 ### Aborting queries

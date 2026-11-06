@@ -1,11 +1,15 @@
+import { mkdir, rm } from "node:fs/promises";
+import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 
+import { DuckDBInstance } from "@duckdb/node-api";
 import type { DuckDBConnection } from "@duckdb/node-api";
 import { DuckdbDatasource, sql } from "@flowblade/source-duckdb";
 import { describe, expect } from "vitest";
 import * as z from "zod";
 
 import { createDuckTest } from "#tests/utils/duck-test.ts";
+import { testTempDir } from "#tests/utils/get-test-temp-dir.ts";
 
 import { Table } from "../objects/table.ts";
 import { DuckTableLoader } from "./duck-table-loader.ts";
@@ -103,5 +107,35 @@ describe("DuckTableLoader with DuckdbDatasource transactions", () => {
     });
     expect(result.error?.code).toBe("TRANSACTION_FAILED");
     await expect(countRows(conn, "tx_fail_kept")).resolves.toBe(0);
+  });
+
+  it("should skip the checkpoints of a load in the callback (file database)", async ({
+    onTestFinished,
+  }) => {
+    await mkdir(testTempDir, { recursive: true });
+    const dbPath = path.join(testTempDir, "loader-transaction.db");
+    await rm(dbPath, { force: true });
+    const instance = await DuckDBInstance.create(dbPath);
+    const fileConn = await instance.connect();
+    onTestFinished(() => {
+      fileConn.closeSync();
+      instance.closeSync();
+    });
+    const ds = new DuckdbDatasource({ connection: fileConn });
+    const result = await ds.transaction(async () => {
+      const { totalRows } = await new DuckTableLoader({
+        conn: fileConn,
+      }).load({
+        table: new Table("tx_file_loaded"),
+        schema,
+        rows: [{ id: 1 }, { id: 2 }, { id: 3 }],
+        // both ignored: DuckDB can't checkpoint in a transaction
+        checkpoint: { everyRows: 1, onComplete: true },
+      });
+      return totalRows;
+    });
+    expect(result.error).toBeUndefined();
+    expect(result.data).toBe(3);
+    await expect(countRows(fileConn, "tx_file_loaded")).resolves.toBe(3);
   });
 });

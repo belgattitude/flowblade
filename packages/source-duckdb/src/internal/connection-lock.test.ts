@@ -51,6 +51,18 @@ describe(SharedExclusiveLock, () => {
     expect(events).toStrictEqual(["s1", "s2"]);
   });
 
+  it("should make an exclusive lock wait for another exclusive one", async () => {
+    const lock = new SharedExclusiveLock();
+    const events: string[] = [];
+    const e1 = await lock.acquireExclusive();
+    const e2 = track(events, "e2", lock.acquireExclusive());
+    await flush();
+    expect(events).toStrictEqual([]);
+    e1();
+    (await e2)();
+    expect(events).toStrictEqual(["e2"]);
+  });
+
   it("should grant in request order, shared after a waiting exclusive wait", async () => {
     const lock = new SharedExclusiveLock();
     const events: string[] = [];

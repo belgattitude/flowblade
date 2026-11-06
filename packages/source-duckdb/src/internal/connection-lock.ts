@@ -233,3 +233,22 @@ export const withConnectionLock = async <T>(
     release();
   }
 };
+
+/**
+ * Whether the current async context runs in a `DuckdbDatasource` transaction
+ * callback on this connection: its queries run in the transaction (ie: skip
+ * a CHECKPOINT, DuckDB can't checkpoint in a transaction).
+ *
+ * @example
+ * ```typescript
+ * import { isInConnectionTransaction } from "@flowblade/source-duckdb";
+ *
+ * if (!isInConnectionTransaction(conn)) {
+ *   await conn.run("CHECKPOINT");
+ * }
+ * ```
+ */
+export const isInConnectionTransaction = (
+  connection: DuckDBConnection
+): boolean =>
+  getContextHold(getConnectionLock(connection))?.transaction !== undefined;

@@ -171,6 +171,46 @@ const sleep = async (ms: number, signal?: AbortSignal): Promise<void> => {
 };
 
 /**
+ * Resolve with the promise, or reject with the abort reason as soon as
+ * aborted: the promise goes on, `onLate` receives its value when it resolves
+ * after the abort.
+ */
+const raceAbort = async <T>(
+  promise: Promise<T>,
+  signal: AbortSignal | undefined,
+  onLate: (value: T) => void
+): Promise<T> => {
+  if (signal === undefined) {
+    return await promise;
+  }
+  const settled = (async () => {
+    const value = await promise;
+    if (signal.aborted) {
+      onLate(value);
+    }
+    return value;
+  })();
+  // rejected after the abort: nobody waits for it anymore
+  settled.catch(() => undefined);
+  const listener: { onAbort?: () => void } = {};
+  // oxlint-disable-next-line promise/avoid-new -- rejects when aborted
+  const abortion = new Promise<never>((_resolve, reject) => {
+    listener.onAbort = () => {
+      // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- the abort reason, like signal.throwIfAborted()
+      reject(signal.reason);
+    };
+    signal.addEventListener("abort", listener.onAbort, { once: true });
+  });
+  try {
+    return await Promise.race([settled, abortion]);
+  } finally {
+    if (listener.onAbort !== undefined) {
+      signal.removeEventListener("abort", listener.onAbort);
+    }
+  }
+};
+
+/**
  * Log the result of a transaction, and return it.
  */
 const logResult = <TData>(
@@ -320,37 +360,49 @@ const runAttempt = async <TTx, TData>(
 
   let tx: TTx;
   try {
+    // don't wait for a connection or a lock once aborted: a transaction
+    // begun after the abort is rolled back, the callback never runs
+    const beginning = begin({
+      addSpan: (span) => {
+        spans.push(span);
+      },
+      onQueryFailed: (error) => {
+        queryError ??= { error };
+      },
+      assertActive: () => {
+        if (ended) {
+          throw new Error(transactionEndedMessage);
+        }
+      },
+      onFailedQuery,
+      isConflict: (error) =>
+        isConflictError !== undefined &&
+        findInCauses(error, isConflictError) !== undefined,
+      trackQuery: (query) => {
+        pendingQueries.add(query);
+        const untrack = async () => {
+          await Promise.allSettled([query]);
+          pendingQueries.delete(query);
+        };
+        void untrack();
+        return query;
+      },
+    });
     tx = await timed(() =>
-      begin({
-        addSpan: (span) => {
-          spans.push(span);
-        },
-        onQueryFailed: (error) => {
-          queryError ??= { error };
-        },
-        assertActive: () => {
-          if (ended) {
-            throw new Error(transactionEndedMessage);
-          }
-        },
-        onFailedQuery,
-        isConflict: (error) =>
-          isConflictError !== undefined &&
-          findInCauses(error, isConflictError) !== undefined,
-        trackQuery: (query) => {
-          pendingQueries.add(query);
-          const untrack = async () => {
-            await Promise.allSettled([query]);
-            pendingQueries.delete(query);
-          };
-          void untrack();
-          return query;
-        },
+      raceAbort(beginning, signal, (lateTx) => {
+        ended = true;
+        rollback(lateTx).catch(() => undefined);
       })
     );
   } catch (error) {
     // ie: aborted while waiting for a connection or a lock
     return isAborted() ? aborted("failed") : transactionFailed(error);
+  }
+  if (isAborted()) {
+    // aborted when begin resolved: never run the callback
+    ended = true;
+    await rollback(tx).catch(() => undefined);
+    return aborted("rolled back");
   }
 
   /**

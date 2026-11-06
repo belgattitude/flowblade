@@ -387,6 +387,56 @@ describe(runTransaction, () => {
     });
   });
 
+  it("should not wait for begin once aborted, and roll back a late begin", async () => {
+    const controller = new AbortController();
+    let resolveBegin: (() => void) | undefined;
+    const { driver, run } = createDriver({
+      // ie: waiting for a connection of an exhausted pool, not aborted
+      begin: async () => {
+        // oxlint-disable-next-line promise/avoid-new -- resolved by the test
+        await new Promise<void>((resolve) => {
+          resolveBegin = resolve;
+        });
+      },
+    });
+    const fn = vi.fn<() => Promise<number>>(async () => 1);
+    const transaction = run(fn, { signal: controller.signal });
+    await vi.waitFor(() => {
+      expect(resolveBegin).toBeDefined();
+    });
+    controller.abort(new Error("client gone"));
+    const result = await transaction;
+    expect(result.error).toStrictEqual({
+      message: "client gone",
+      code: "ABORTED",
+      cause: controller.signal.reason,
+    });
+    expect(result.meta.getSpans()[0]).toMatchObject({ status: "failed" });
+    resolveBegin?.();
+    await vi.waitFor(() => {
+      expect(driver.rollback).toHaveBeenCalledOnce();
+    });
+    expect(fn).not.toHaveBeenCalled();
+    expect(driver.commit).not.toHaveBeenCalled();
+  });
+
+  it("should not run the callback when aborted as begin resolves", async () => {
+    const controller = new AbortController();
+    const { driver, run } = createDriver({
+      begin: async () => {
+        // aborted as begin resolves
+        queueMicrotask(() => controller.abort(new Error("client gone")));
+      },
+    });
+    const fn = vi.fn<() => Promise<number>>(async () => 1);
+    const result = await run(fn, { signal: controller.signal });
+    expect(fn).not.toHaveBeenCalled();
+    await vi.waitFor(() => {
+      expect(driver.rollback).toHaveBeenCalledOnce();
+    });
+    expect(result.error?.code).toBe("ABORTED");
+  });
+
   it("should roll back rather than commit when aborted during the callback", async () => {
     const { driver, run } = createDriver();
     const controller = new AbortController();

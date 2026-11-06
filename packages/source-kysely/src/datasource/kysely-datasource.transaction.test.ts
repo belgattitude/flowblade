@@ -37,7 +37,10 @@ class MultiConnectionAdapter extends SqliteAdapter {
   }
 }
 
-type Handler = (query: CompiledQuery) => Promise<QueryResult<unknown>>;
+type Handler = (
+  query: CompiledQuery,
+  signal?: AbortSignal
+) => Promise<QueryResult<unknown>>;
 
 /**
  * Kysely connected to a fake driver recording the statements, the queries
@@ -51,6 +54,10 @@ const createDatasource = (
      * Driver methods left out, ie: no savepoint support
      */
     unsupported?: ("savepoint" | "rollbackToSavepoint" | "releaseSavepoint")[];
+    /**
+     * Awaited when acquiring a connection, ie: an exhausted pool
+     */
+    acquire?: () => Promise<void>;
   } = {}
 ) => {
   const {
@@ -63,15 +70,23 @@ const createDatasource = (
   const settings: TransactionSettings[] = [];
   let released = 0;
 
-  const connection: DatabaseConnection = {
-    executeQuery: async <R>(query: CompiledQuery) => {
-      calls.push(query.sql);
-      return (await handler(query)) as QueryResult<R>;
-    },
-    // oxlint-disable-next-line require-yield -- never streamed
-    async *streamQuery() {
-      throw new Error("not implemented");
-    },
+  const inTransaction = new WeakSet<DatabaseConnection>();
+  const createConnection = (): DatabaseConnection => {
+    const connection: DatabaseConnection = {
+      executeQuery: async <R>(
+        query: CompiledQuery,
+        options?: { signal?: AbortSignal }
+      ) => {
+        calls.push(query.sql);
+        return (await handler(query, options?.signal)) as QueryResult<R>;
+      },
+      async *streamQuery<R>(query: CompiledQuery) {
+        const where = inTransaction.has(connection) ? "in" : "outside";
+        calls.push(`stream ${where} transaction: ${query.sql}`);
+        yield { rows: [{ id: 1, name: "p1" }] } as QueryResult<R>;
+      },
+    };
+    return connection;
   };
   const step = async (name: "begin" | "commit" | "rollback") => {
     calls.push(name);
@@ -82,8 +97,12 @@ const createDatasource = (
   };
   const driver: Driver = {
     init: async () => {},
-    acquireConnection: async () => connection,
-    beginTransaction: async (_conn, s) => {
+    acquireConnection: async () => {
+      await params.acquire?.();
+      return createConnection();
+    },
+    beginTransaction: async (conn, s) => {
+      inTransaction.add(conn);
       settings.push(s);
       await step("begin");
     },
@@ -331,6 +350,73 @@ describe("KyselyDatasource transactions", () => {
       // a failed query, even handled, is never committed
       expect(calls.at(-1)).toBe("rollback");
       expect(result.error?.code).toBe("TRANSACTION_FAILED");
+    });
+
+    it("should abort an in-flight query with the transaction signal", async () => {
+      const txController = new AbortController();
+      let driverSignalAborted: boolean | undefined;
+      const { ds } = createDatasource({
+        handler: async (_query, signal) => {
+          txController.abort(new Error("transaction aborted"));
+          driverSignalAborted = signal?.aborted;
+          signal?.throwIfAborted();
+          return { rows: [] };
+        },
+      });
+      const result = await ds.transaction(
+        async (tx) => {
+          // the query has its own signal: combined with the transaction one
+          const { error } = await tx.query(insertProduct(tx, 1), {
+            signal: new AbortController().signal,
+          });
+          return error?.code;
+        },
+        { signal: txController.signal }
+      );
+      expect(driverSignalAborted).toBe(true);
+      expect(result.error?.code).toBe("ABORTED");
+      expect(result.error?.cause).toBe(txController.signal.reason);
+    });
+
+    it("should not wait for a connection once aborted", async () => {
+      const controller = new AbortController();
+      const acquired = Promise.withResolvers<undefined>();
+      const { ds, calls, getReleased } = createDatasource({
+        // ie: an exhausted pool
+        acquire: async () => {
+          await acquired.promise;
+        },
+      });
+      const fn = vi.fn<() => Promise<number>>(async () => 1);
+      const transaction = ds.transaction(fn, { signal: controller.signal });
+      await sleep(5);
+      controller.abort(new Error("client gone"));
+      const result = await transaction;
+      expect(result.error?.code).toBe("ABORTED");
+      expect(result.error?.cause).toBe(controller.signal.reason);
+      // the connection acquired late: rolled back, the callback never runs
+      acquired.resolve(undefined);
+      await vi.waitFor(() => {
+        expect(getReleased()).toBe(1);
+      });
+      expect(calls).toStrictEqual(["begin", "rollback"]);
+      expect(fn).not.toHaveBeenCalled();
+    });
+
+    it("should stream in the transaction, whatever the query builder", async () => {
+      const { ds, calls } = createDatasource();
+      await ds.transactionOrThrow(async (tx) => {
+        // built with the parent datasource builder
+        const rows = await Array.fromAsync(
+          tx.stream(ds.queryBuilder.selectFrom("product").selectAll())
+        );
+        expect(rows).toStrictEqual([{ id: 1, name: "p1" }]);
+      });
+      expect(calls).toStrictEqual([
+        "begin",
+        'stream in transaction: select * from "product"',
+        "commit",
+      ]);
     });
 
     it("should roll back rather than commit after a handled failed query", async () => {

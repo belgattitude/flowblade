@@ -371,7 +371,7 @@ await ds.transactionOrThrow(async (tx) => {
 });
 ```
 
-It's the way to recover from a failed query on Postgres, which aborts the whole transaction otherwise. A conflict or a failed savepoint statement fails the transaction too. Requires a dialect supporting savepoints (Postgres, MySQL, SQL Server, SQLite).
+It's the way to recover from a failed query on Postgres, which aborts the whole transaction otherwise. A conflict or a failed savepoint statement fails the transaction too. With `onFailedQuery: "commit"`, a savepoint whose failed query was handled by the callback is released, its other queries are committed. `tx.savepointOrThrow()` rolls back the savepoint then rethrows: catch the error for the transaction to go on. Requires a dialect supporting savepoints (Postgres, MySQL, SQL Server, SQLite).
 
 ### Failed queries handled by the callback
 
@@ -381,7 +381,7 @@ By default a failed query is never committed, even when handled by the callback 
 await ds.transaction(fn, { onFailedQuery: "commit" });
 ```
 
-> **Note**: a failed query is never committed, even when handled by the callback (ie: `tx.query()` never throws): the transaction is rolled back with a `TRANSACTION_FAILED` error (Postgres aborts the transaction on error and would silently roll back on commit). Prefer the throwing methods in the callback. Always use `tx` (not `ds`) in the callback, nested transactions aren't supported.
+> **Note**: by default (`onFailedQuery: "rollback"`), a failed query is never committed, even when handled by the callback (ie: `tx.query()` never throws): the transaction is rolled back with a `TRANSACTION_FAILED` error (Postgres aborts the transaction on error and would silently roll back on commit). Prefer the throwing methods in the callback. Always use `tx` (not `ds`) in the callback (a query built with `ds.queryBuilder` and run with `tx` runs in the transaction), nested transactions aren't supported.
 
 ## Aborting queries
 

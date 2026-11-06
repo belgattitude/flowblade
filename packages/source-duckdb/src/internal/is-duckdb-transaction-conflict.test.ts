@@ -16,6 +16,8 @@ describe(isDuckdbTransactionConflict, () => {
     'TransactionContext Error: Failed to commit: PRIMARY KEY or UNIQUE constraint violation: duplicate key "2"',
     "TransactionContext Error: Current transaction is aborted (please ROLLBACK)",
     "Constraint Error: conflict in the name only",
+    'TransactionContext Error: Failed to commit: PRIMARY KEY or UNIQUE constraint violation: duplicate key "conflict_1"',
+    'TransactionContext Error: Failed to commit: table "write_conflict" has a constraint violation',
   ])("should not recognize %s", (message) => {
     expect(isDuckdbTransactionConflict(new Error(message))).toBe(false);
   });

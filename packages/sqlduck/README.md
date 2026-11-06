@@ -160,7 +160,7 @@ await ds.transactionOrThrow(async (tx) => {
 });
 ```
 
-> **Note**: DuckDB can't checkpoint in a transaction, set `autoCheckpoint: false` for the loads run in a transaction callback.
+> **Note**: DuckDB can't checkpoint in a transaction, the checkpoints of the loads run in a transaction callback are skipped (`autoCheckpoint`, `checkpointChunksFrequency`, the `checkpoint` options of `DuckTableLoader`). Use `isInConnectionTransaction(conn)` from `@flowblade/source-duckdb` to do the same in your code.
 
 ## Compatibility
 

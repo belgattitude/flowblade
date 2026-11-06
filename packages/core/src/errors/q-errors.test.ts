@@ -85,6 +85,10 @@ describe("QErrors", () => {
       message: "Transaction rolled back: insufficient funds",
       statusCode: 500,
     });
+    expect(
+      new QErrors.RolledBack("insufficient funds", { cause })
+    ).toMatchObject({ code: "ROLLED_BACK", cause });
+    expect(new QErrors.RolledBack()).not.toHaveProperty("cause");
     expect(new QErrors.RolledBack().message).toBe("Transaction rolled back");
     expect(new QErrors.RolledBack("").message).toBe("Transaction rolled back");
     expect(

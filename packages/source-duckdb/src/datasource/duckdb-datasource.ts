@@ -567,8 +567,11 @@ export class DuckdbDatasource
       signal?.removeEventListener("abort", onAbort);
       // Since DuckDB 2.0, a stream not read to the end (break / return / failure)
       // blocks the connection until closed.
-      result?.closeSync();
-      releaseLock?.();
+      try {
+        result?.closeSync();
+      } finally {
+        releaseLock?.();
+      }
       // Runs on completion, on early exit (break / return) and on failure,
       // the failure being already logged as an error above.
       if (!failed) {
@@ -599,6 +602,8 @@ export class DuckdbDatasource
    * - "TRANSACTION_FAILED": a query failed in the transaction (handled by
    *   the callback or not, it's then rolled back), or the transaction
    *   couldn't begin, commit or roll back, the driver error is the `cause`,
+   * - "TRANSACTION_CONFLICT": the transaction conflicts with a concurrent one
+   *   (of another connection), it can be retried (see `retry`),
    * - "ABORTED": aborted with `signal`, the abort reason is the `cause`.
    *
    * `meta` holds a "transaction" span followed by the spans of the queries
@@ -646,7 +651,7 @@ export class DuckdbDatasource
    * );
    *
    * if (error) {
-   *   // "ROLLED_BACK", "TRANSACTION_FAILED" or "ABORTED"
+   *   // "ROLLED_BACK", "TRANSACTION_FAILED", "TRANSACTION_CONFLICT" or "ABORTED"
    *   console.error(error.code, error.message, error.cause);
    * }
    * ```
@@ -760,6 +765,7 @@ export class DuckdbDatasource
    *
    * Throws the error thrown by the callback as is (ie: a `QErrors.QueryFailed`
    * from `tx.queryOrThrow()`, a `QErrors.RolledBack` from `tx.rollback()`),
+   * a `QErrors.TransactionConflict` when it conflicts with a concurrent one,
    * a `QErrors.TransactionFailed` when a query failed in the transaction
    * (handled by the callback) or the transaction couldn't begin, commit
    * or roll back, or a `QErrors.Aborted` when aborted with `signal`. To throw

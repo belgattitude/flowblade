@@ -211,7 +211,8 @@ export interface TransactionalDatasourceInterface<
    * - "ROLLED_BACK": the callback threw (ie: a failed `tx.queryOrThrow()`) or
    *   called `tx.rollback()`, the thrown error is the `cause`,
    * - "TRANSACTION_FAILED": a query failed in the transaction (handled by
-   *   the callback or not, it's then rolled back), or the transaction
+   *   the callback or not, it's then rolled back unless `onFailedQuery` is
+   *   "commit"), or the transaction
    *   couldn't begin, commit or roll back, the driver error is the `cause`,
    * - "TRANSACTION_CONFLICT": the transaction conflicts with a concurrent one
    *   (ie: serialization failure, deadlock), it can be retried (see `retry`),
@@ -220,10 +221,11 @@ export interface TransactionalDatasourceInterface<
    * `meta` holds a "transaction" span followed by the spans of the queries
    * run in the transaction.
    *
-   * Note: a failed query is never committed, even when handled by the
-   * callback (ie: `tx.query()` never throws): most databases abort the
-   * transaction on error and silently roll back on commit. Prefer the
-   * throwing methods (ie: `tx.queryOrThrow()`) in the callback.
+   * Note: by default (`onFailedQuery: "rollback"`), a failed query is never
+   * committed, even when handled by the callback (ie: `tx.query()` never
+   * throws): most databases abort the transaction on error and silently roll
+   * back on commit. Prefer the throwing methods (ie: `tx.queryOrThrow()`) in
+   * the callback.
    *
    * @example
    * ```typescript

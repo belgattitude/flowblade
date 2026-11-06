@@ -6,7 +6,10 @@ export type {
   DuckdbTransactionOrThrowOptions,
 } from "./datasource/duckdb-datasource.ts";
 export { DuckdbDatasource } from "./datasource/duckdb-datasource.ts";
-export { withConnectionLock } from "./internal/connection-lock.ts";
+export {
+  isInConnectionTransaction,
+  withConnectionLock,
+} from "./internal/connection-lock.ts";
 export { duckdbDefaultLogtapeLogger } from "./logger/duckdb-default-logtape-logger.ts";
 
 // re-export from @flowblade/sql-tag
