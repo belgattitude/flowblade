@@ -7,6 +7,7 @@ const workspaceIgnorePatterns = [
   "examples/**",
   "packages/**",
   "tools/**",
+  ".changesets/*.md"
 ];
 
 // agent skills, symlinked to vendored sources (followed by oxlint)
