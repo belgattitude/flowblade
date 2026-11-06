@@ -1,5 +1,102 @@
 # @flowblade/source-kysely
 
+## 1.12.0
+
+### Minor Changes
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Add transactions: `transaction()` (returns a QResult) and `transactionOrThrow()`, the callback receives a datasource running its queries in the transaction.
+  
+  ```typescript
+  const {
+    data: orderId,
+    error,
+    meta,
+  } = await ds.transaction(
+    async (tx) => {
+      // insertOrder returns the inserted row (ie: RETURNING id)
+      const { data: order } = await tx.queryOneOrThrow(insertOrder);
+      await tx.queryOrThrow(insertOrderLines(order.id));
+      return order.id;
+    },
+    {
+      name: "createOrder",
+      isolationLevel: "serializable",
+      // serialization failures are expected, run it again on conflict
+      retry: { maxRetries: 3 },
+    }
+  );
+  ```
+  
+  - Committed when the callback returns, rolled back when it throws or calls `tx.rollback(reason)`.
+  - `transaction()` error codes: `ROLLED_BACK` (the thrown error as cause), `TRANSACTION_FAILED` (begin, commit or rollback failed), `TRANSACTION_CONFLICT` (conflicts with a concurrent transaction, after the `retry` attempts) and `ABORTED` (with `signal`, never committed).
+  - `transactionOrThrow()` rethrows the callback error as is, or throws `QErrors.TransactionFailed` / `QErrors.TransactionConflict` / `QErrors.Aborted`, an `onError` factory can replace them.
+  - The result meta holds a new `transaction` span (`QMetaTransactionSpan`) followed by the spans of the queries run in the transaction.
+  
+  Core: add `TransactionalDatasourceInterface`, `QErrors.RolledBack`, `QErrors.TransactionFailed`, the `ROLLED_BACK` / `TRANSACTION_FAILED` error codes and `runTransaction()` in `@flowblade/core/datasource` to implement `transaction()` in datasources.
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Add transaction conflicts and retries.
+  
+  - New `TRANSACTION_CONFLICT` error code and `QErrors.TransactionConflict` (409): the transaction conflicts with a concurrent one (serialization failure, deadlock), thrown by `transactionOrThrow()`.
+  - New `retry` option: `ds.transaction(fn, { retry: { maxRetries: 3 } })` runs the transaction again on conflict (exponential backoff with jitter by default: 25-50ms, 50-100ms, 100-200ms... up to 500ms-1s, or `delayMs`), the transaction span gets `retries`.
+  - `@flowblade/source-kysely`: recognizes the Postgres ("40001", "40P01"), SQL Server (1205, 3960) and MySQL (1213) conflicts, the new `isTransactionConflict` param replaces the detection.
+  - `@flowblade/source-duckdb`: recognizes the DuckDB conflicts ("TransactionContext Error: ... conflict").
+  - `@flowblade/core`: `runTransaction()` takes `isConflictError` and `onRetry`, and `TransactionBeginContext.assertActive()` rejects the queries of a transaction datasource used after its callback ended.
+
+- [#1502](https://github.com/belgattitude/flowblade/pull/1502) [`a7def54`](https://github.com/belgattitude/flowblade/commit/a7def54ef0a4e635cc3382b7b1d60bc4512978c2) Thanks [@belgattitude](https://github.com/belgattitude)! - Set the transaction retry policy in the datasource constructors, and configure the backoff jitter.
+  
+  ```typescript
+  import { createExponentialBackoff } from "@flowblade/core";
+  
+  const ds = new KyselyDatasource({
+    connection: db,
+    defaultOptions: {
+      transaction: {
+        retry: {
+          maxRetries: 3,
+          // 0-100ms, 0-200ms then 0-400ms
+          delayMs: createExponentialBackoff({
+            initialDelayMs: 100,
+            maxDelayMs: 2000,
+            jitter: "full",
+          }),
+        },
+      },
+    },
+  });
+  ```
+  
+  - New `defaultOptions.transaction.retry` datasource param (`TransactionDefaultOptions`), used by `transaction()` and `transactionOrThrow()`: the `retry` fields passed per transaction win (ie: `{ maxRetries: 0 }` disables the retries, a per transaction `maxRetries` keeps the default `delayMs`).
+  - `@flowblade/core`: new `createExponentialBackoff({ initialDelayMs, maxDelayMs, jitter })` retry delay factory (defaults: 50ms, 1s, `"equal"`), `jitter` is `"equal"` (half of the delay is random), `"full"` (the whole delay) or `"none"`. `runTransaction()` takes a `defaultRetry` param.
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - A failed query in a transaction is never committed, even when handled by the callback (ie: `tx.query()` never throws, or a caught `tx.queryOrThrow()`): the transaction is rolled back with a `TRANSACTION_FAILED` error, the first query error as `cause`.
+  
+  Most databases abort the transaction on error and silently roll back on commit (ie: Postgres, DuckDB), the transaction would otherwise be reported as committed.
+  
+  `runTransaction()` handles it for all the datasources: `begin` receives a `TransactionBeginContext` with `onQueryFailed()`, to call (like `addSpan()`) for each failed query of the transaction datasource.
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Add savepoints, the `onFailedQuery` option and a default transaction datasource type.
+  
+  - `@flowblade/source-kysely`: `tx.savepoint()` / `tx.savepointOrThrow()`, a part of the transaction rolled back alone (when the callback throws or a query failed in it, unless `onFailedQuery` is "commit": the savepoint is then released), the transaction goes on. `tx.savepointOrThrow()` rethrows after rolling back the savepoint: catch the error for the transaction to go on. Nested savepoints are supported, SQL Server savepoints end with the transaction (no RELEASE).
+  - New `onFailedQuery: "rollback" | "commit"` transaction option: "commit" commits after a failed query handled by the callback, for SQL Server or MySQL (a conflict is never committed). Not available on DuckDB, which always aborts the transaction on a failed query.
+  - `@flowblade/core`: `TransactionalDatasourceInterface` defaults its transaction datasource to the new `TransactionDatasourceInterface`, add `TransactionSavepointInterface`, `runSavepoint()` and the `savepoint` span (`QMetaSavepointSpan`).
+
+### Patch Changes
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Transactions wait for the queries not awaited by the callback, and log in core.
+  
+  - A query started in the callback but not awaited (a bug) now always ends before the commit or rollback, rather than racing it.
+  - `@flowblade/core`: `TransactionBeginContext.trackQuery()` (for the datasources to report their queries), and `runTransaction()` logs the transactions with its `log: { logger, source }` param (begin, retries, result), the datasources no longer duplicate it.
+  - `@flowblade/source-duckdb`: a query waiting for a transaction on its connection no longer counts the wait in its span `timeMs`, the wait is logged ("waited {lockWaitMs}ms for a transaction").
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Transaction fixes.
+  
+  - `@flowblade/core`: an aborted transaction no longer waits for `begin` (ie: a connection of an exhausted pool, a lock): it returns "ABORTED" at once, a transaction begun after the abort is rolled back and the callback never runs.
+  - `@flowblade/source-kysely`: `tx.stream()` runs in the transaction even with a query built with `ds.queryBuilder` (it used the builder connection, outside the transaction).
+  - `@flowblade/source-duckdb`: only the known DuckDB conflict messages are reported as "TRANSACTION_CONFLICT" (not a constraint violation on a key containing "conflict"), the connection lock is released even when closing a stream fails. Add `isInConnectionTransaction(conn)`.
+  - `@flowblade/sqlduck`: the loads run in a `DuckdbDatasource` transaction callback skip their checkpoints (DuckDB can't checkpoint in a transaction, the transaction failed).
+- Updated dependencies [[`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`a7def54`](https://github.com/belgattitude/flowblade/commit/a7def54ef0a4e635cc3382b7b1d60bc4512978c2), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`a7def54`](https://github.com/belgattitude/flowblade/commit/a7def54ef0a4e635cc3382b7b1d60bc4512978c2), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db)]:
+  - @flowblade/core@0.9.0
+
 ## 1.11.1
 
 ### Patch Changes
