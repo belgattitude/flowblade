@@ -1,5 +1,30 @@
 # @flowblade/sqlduck
 
+## 0.45.0
+
+### Minor Changes
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - BREAKING: drop DuckDB 1.x, the `@duckdb/node-api` peer dependency is now `^2.0.0-r.1` (was `^1.5.6-r.1 || ^2.0.0-r.1`). See the upgrade guides.
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Share the DuckDB transaction lock with the code using the connection directly.
+  
+  - `@flowblade/source-duckdb`: add `withConnectionLock(connection, fn, { signal })`, a `DuckdbDatasource` transaction on the same connection doesn't begin while `fn` runs. Reentrant, and in a transaction callback `fn` runs in the transaction (an error then prevents the commit).
+  - In a transaction callback, the queries of the other datasources on the same connection now run in the transaction (they waited forever before), beginning a transaction while the connection is held by the async context fails rather than waiting forever.
+  - The queries of a transaction datasource kept after the end of its callback fail ("The transaction has ended"), rather than running outside of the transaction or in another one.
+  - `@flowblade/sqlduck`: the loads (`toTable()`, `DuckTableLoader`), the managers queries, `DuckMemory` and the session settings take part in the transactions.
+
+### Patch Changes
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Transaction fixes.
+  
+  - `@flowblade/core`: an aborted transaction no longer waits for `begin` (ie: a connection of an exhausted pool, a lock): it returns "ABORTED" at once, a transaction begun after the abort is rolled back and the callback never runs.
+  - `@flowblade/source-kysely`: `tx.stream()` runs in the transaction even with a query built with `ds.queryBuilder` (it used the builder connection, outside the transaction).
+  - `@flowblade/source-duckdb`: only the known DuckDB conflict messages are reported as "TRANSACTION_CONFLICT" (not a constraint violation on a key containing "conflict"), the connection lock is released even when closing a stream fails. Add `isInConnectionTransaction(conn)`.
+  - `@flowblade/sqlduck`: the loads run in a `DuckdbDatasource` transaction callback skip their checkpoints (DuckDB can't checkpoint in a transaction, the transaction failed).
+- Updated dependencies [[`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`a7def54`](https://github.com/belgattitude/flowblade/commit/a7def54ef0a4e635cc3382b7b1d60bc4512978c2), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`a7def54`](https://github.com/belgattitude/flowblade/commit/a7def54ef0a4e635cc3382b7b1d60bc4512978c2), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db)]:
+  - @flowblade/source-duckdb@0.34.0
+  - @flowblade/core@0.9.0
+
 ## 0.44.1
 
 ### Patch Changes

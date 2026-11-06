@@ -1,5 +1,94 @@
 # @flowblade/source-duckdb
 
+## 0.34.0
+
+### Minor Changes
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Add DuckDB transactions: `transaction()` (returns a QResult) and `transactionOrThrow()`, like the Kysely datasource.
+  
+  - The transaction holds the connection: the queries and streams of the datasources sharing the connection wait for it to end, and it waits for the running ones before beginning (aborting with `signal` stops waiting).
+  - DuckDB aborts the transaction on any failed query and would silently roll back on commit: after a failed query (ie: `tx.query()` or a caught `tx.queryOrThrow()`), the transaction is rolled back with a `TRANSACTION_FAILED` error.
+  - Supports `accessMode: "read only"`, DuckDB has no isolation levels nor nested transactions.
+  
+  Core: `runTransaction()` returns an `ABORTED` error (rather than `TRANSACTION_FAILED`) when aborted while beginning, ie: waiting for a connection.
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - BREAKING: drop DuckDB 1.x, the `@duckdb/node-api` peer dependency is now `^2.0.0-r.1` (was `^1.5.6-r.1 || ^2.0.0-r.1`). See the upgrade guides.
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Share the DuckDB transaction lock with the code using the connection directly.
+  
+  - `@flowblade/source-duckdb`: add `withConnectionLock(connection, fn, { signal })`, a `DuckdbDatasource` transaction on the same connection doesn't begin while `fn` runs. Reentrant, and in a transaction callback `fn` runs in the transaction (an error then prevents the commit).
+  - In a transaction callback, the queries of the other datasources on the same connection now run in the transaction (they waited forever before), beginning a transaction while the connection is held by the async context fails rather than waiting forever.
+  - The queries of a transaction datasource kept after the end of its callback fail ("The transaction has ended"), rather than running outside of the transaction or in another one.
+  - `@flowblade/sqlduck`: the loads (`toTable()`, `DuckTableLoader`), the managers queries, `DuckMemory` and the session settings take part in the transactions.
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Add transaction conflicts and retries.
+  
+  - New `TRANSACTION_CONFLICT` error code and `QErrors.TransactionConflict` (409): the transaction conflicts with a concurrent one (serialization failure, deadlock), thrown by `transactionOrThrow()`.
+  - New `retry` option: `ds.transaction(fn, { retry: { maxRetries: 3 } })` runs the transaction again on conflict (exponential backoff with jitter by default: 25-50ms, 50-100ms, 100-200ms... up to 500ms-1s, or `delayMs`), the transaction span gets `retries`.
+  - `@flowblade/source-kysely`: recognizes the Postgres ("40001", "40P01"), SQL Server (1205, 3960) and MySQL (1213) conflicts, the new `isTransactionConflict` param replaces the detection.
+  - `@flowblade/source-duckdb`: recognizes the DuckDB conflicts ("TransactionContext Error: ... conflict").
+  - `@flowblade/core`: `runTransaction()` takes `isConflictError` and `onRetry`, and `TransactionBeginContext.assertActive()` rejects the queries of a transaction datasource used after its callback ended.
+
+- [#1502](https://github.com/belgattitude/flowblade/pull/1502) [`a7def54`](https://github.com/belgattitude/flowblade/commit/a7def54ef0a4e635cc3382b7b1d60bc4512978c2) Thanks [@belgattitude](https://github.com/belgattitude)! - Set the transaction retry policy in the datasource constructors, and configure the backoff jitter.
+  
+  ```typescript
+  import { createExponentialBackoff } from "@flowblade/core";
+  
+  const ds = new KyselyDatasource({
+    connection: db,
+    defaultOptions: {
+      transaction: {
+        retry: {
+          maxRetries: 3,
+          // 0-100ms, 0-200ms then 0-400ms
+          delayMs: createExponentialBackoff({
+            initialDelayMs: 100,
+            maxDelayMs: 2000,
+            jitter: "full",
+          }),
+        },
+      },
+    },
+  });
+  ```
+  
+  - New `defaultOptions.transaction.retry` datasource param (`TransactionDefaultOptions`), used by `transaction()` and `transactionOrThrow()`: the `retry` fields passed per transaction win (ie: `{ maxRetries: 0 }` disables the retries, a per transaction `maxRetries` keeps the default `delayMs`).
+  - `@flowblade/core`: new `createExponentialBackoff({ initialDelayMs, maxDelayMs, jitter })` retry delay factory (defaults: 50ms, 1s, `"equal"`), `jitter` is `"equal"` (half of the delay is random), `"full"` (the whole delay) or `"none"`. `runTransaction()` takes a `defaultRetry` param.
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Transaction fixes.
+  
+  - `@flowblade/core`: an aborted transaction no longer waits for `begin` (ie: a connection of an exhausted pool, a lock): it returns "ABORTED" at once, a transaction begun after the abort is rolled back and the callback never runs.
+  - `@flowblade/source-kysely`: `tx.stream()` runs in the transaction even with a query built with `ds.queryBuilder` (it used the builder connection, outside the transaction).
+  - `@flowblade/source-duckdb`: only the known DuckDB conflict messages are reported as "TRANSACTION_CONFLICT" (not a constraint violation on a key containing "conflict"), the connection lock is released even when closing a stream fails. Add `isInConnectionTransaction(conn)`.
+  - `@flowblade/sqlduck`: the loads run in a `DuckdbDatasource` transaction callback skip their checkpoints (DuckDB can't checkpoint in a transaction, the transaction failed).
+
+### Patch Changes
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - A failed query in a transaction is never committed, even when handled by the callback (ie: `tx.query()` never throws, or a caught `tx.queryOrThrow()`): the transaction is rolled back with a `TRANSACTION_FAILED` error, the first query error as `cause`.
+  
+  Most databases abort the transaction on error and silently roll back on commit (ie: Postgres, DuckDB), the transaction would otherwise be reported as committed.
+  
+  `runTransaction()` handles it for all the datasources: `begin` receives a `TransactionBeginContext` with `onQueryFailed()`, to call (like `addSpan()`) for each failed query of the transaction datasource.
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Transactions wait for the queries not awaited by the callback, and log in core.
+  
+  - A query started in the callback but not awaited (a bug) now always ends before the commit or rollback, rather than racing it.
+  - `@flowblade/core`: `TransactionBeginContext.trackQuery()` (for the datasources to report their queries), and `runTransaction()` logs the transactions with its `log: { logger, source }` param (begin, retries, result), the datasources no longer duplicate it.
+  - `@flowblade/source-duckdb`: a query waiting for a transaction on its connection no longer counts the wait in its span `timeMs`, the wait is logged ("waited {lockWaitMs}ms for a transaction").
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Transaction race fixes.
+  
+  - `@flowblade/core`: a transaction aborted by the synchronous part of `begin` is rolled back once (it was rolled back twice).
+  - `@flowblade/source-duckdb`: a `withConnectionLock()` callback run in a transaction callback is waited for before the commit or rollback, even when not awaited (it could run after the transaction ended, outside of it).
+
+- [#1500](https://github.com/belgattitude/flowblade/pull/1500) [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db) Thanks [@belgattitude](https://github.com/belgattitude)! - Add savepoints, the `onFailedQuery` option and a default transaction datasource type.
+  
+  - `@flowblade/source-kysely`: `tx.savepoint()` / `tx.savepointOrThrow()`, a part of the transaction rolled back alone (when the callback throws or a query failed in it, unless `onFailedQuery` is "commit": the savepoint is then released), the transaction goes on. `tx.savepointOrThrow()` rethrows after rolling back the savepoint: catch the error for the transaction to go on. Nested savepoints are supported, SQL Server savepoints end with the transaction (no RELEASE).
+  - New `onFailedQuery: "rollback" | "commit"` transaction option: "commit" commits after a failed query handled by the callback, for SQL Server or MySQL (a conflict is never committed). Not available on DuckDB, which always aborts the transaction on a failed query.
+  - `@flowblade/core`: `TransactionalDatasourceInterface` defaults its transaction datasource to the new `TransactionDatasourceInterface`, add `TransactionSavepointInterface`, `runSavepoint()` and the `savepoint` span (`QMetaSavepointSpan`).
+- Updated dependencies [[`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`a7def54`](https://github.com/belgattitude/flowblade/commit/a7def54ef0a4e635cc3382b7b1d60bc4512978c2), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`a7def54`](https://github.com/belgattitude/flowblade/commit/a7def54ef0a4e635cc3382b7b1d60bc4512978c2), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db), [`8e4fcc4`](https://github.com/belgattitude/flowblade/commit/8e4fcc4e7ccd6e2a4b820c7c35534e62d68408db)]:
+  - @flowblade/core@0.9.0
+
 ## 0.33.1
 
 ### Patch Changes
