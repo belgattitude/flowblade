@@ -1,161 +1,216 @@
 ---
 title: "@flowblade/source-kysely"
-description: "A source adapter for Kysely."
+description: A Flowblade datasource adapter for Kysely and its supported database dialects.
 sidebar:
     label: "source-kysely"
 ---
 
-A source adapter for [Kysely](https://github.com/kysely-org/kysely).
-
-[![npm](https://img.shields.io/npm/v/@flowblade/source-kysely?style=for-the-badge&label=Npm&labelColor=444&color=informational)](https://www.npmjs.com/package/@flowblade/source-kysely)
-[![changelog](https://img.shields.io/static/v1?label=&message=changelog&logo=github&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/source-kysely/CHANGELOG.md)
-[![codecov](https://img.shields.io/codecov/c/github/belgattitude/flowblade?logo=codecov&label=Unit&flag=flowblade-source-kysely-unit&style=for-the-badge&labelColor=444)](https://app.codecov.io/gh/belgattitude/flowblade/tree/main/packages%2Fsource-kysely)
-[![bundles](https://img.shields.io/static/v1?label=&message=esm@treeshake&logo=rolldown&style=for-the-badge&labelColor=444&color=informational)](https://github.com/belgattitude/flowblade/blob/main/packages/source-kysely/.size-limit.ts)
-[![node](https://img.shields.io/static/v1?label=Node&message=22.18%2b&logo=node.js&style=for-the-badge&labelColor=444&color=informational)](#compatibility)
-[![browserslist](https://img.shields.io/static/v1?label=Browser&message=%3E96%25&logo=googlechrome&style=for-the-badge&labelColor=444&color=informational)](#compatibility)
-[![size](https://img.shields.io/bundlephobia/minzip/@flowblade/source-kysely@latest?label=Max&style=for-the-badge&labelColor=444&color=informational)](https://bundlephobia.com/package/@flowblade/source-kysely@latest)
-[![downloads](https://img.shields.io/npm/dm/@flowblade/source-kysely?style=for-the-badge&labelColor=444)](https://www.npmjs.com/package/@flowblade/source-kysely)
-[![license](https://img.shields.io/npm/l/@flowblade/source-kysely?style=for-the-badge&labelColor=444)](https://github.com/belgattitude/flowblade/blob/main/LICENSE)
+`@flowblade/source-kysely` wraps an existing [Kysely](https://kysely.dev/)
+instance and provides Flowblade's result, error, metadata, streaming and
+transaction APIs. Use your existing Kysely dialect, driver and database
+configuration.
 
 ## Install
 
-```package-install
-npm i @flowblade/source-kysely kysely
-
-# Install optional drivers
-# 01. for Ms SqlServer or Azure Sql Edge
-npm i tedious tarn valibot
+```bash
+npm install @flowblade/source-kysely kysely
 ```
 
-Kysely supports
-
-[![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=flat&logo=postgresql&logoColor=white)](https://kysely.dev/docs/getting-started?dialect=postgresql)
-[![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=flat&logo=mysql&logoColor=white)](https://kysely.dev/docs/getting-started?dialect=mysql)
-[![MicrosoftSQLServer](https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=flat&logo=microsoft%20sql%20server&logoColor=white)](https://kysely.dev/docs/getting-started?dialect=mssql)
-[![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=flat&logo=sqlite&logoColor=white)](https://kysely.dev/docs/getting-started?dialect=sqlite)
+Install the driver and dialect dependencies required by your database. The
+optional `createKyselyMssqlDialect()` helper for SQL Server and Azure SQL Edge
+also requires `tedious` and `tarn`.
 
 ## Quick start
 
 ```typescript
-// Your db configuration, see Utils section for more details
-import { db } from "@/config/db.config.ts";
-import { KyselyDatasource, isQueryResultError } from "@flowblade/source-kysely";
-import { sql } from "kysely";
+import { KyselyDatasource } from "@flowblade/source-kysely";
+import { db } from "./db.js"; // Your configured Kysely<DB> instance
 
-import { KyselyDatasource, isQueryResultError } from "@flowblade/source-kysely";
+const ds = new KyselyDatasource({ connection: db });
 
-const ds = new KyselyDatasource({ db });
-const query = ds.queryBuilder // This gives access to Kysely expression builder
-    .selectFrom("brand as b")
-    .select(["b.id", "b.name"])
-    .leftJoin("product as p", "p.brand_id", "b.id")
-    .select(["p.id as product_id", "p.name as product_name"])
-    .where("b.created_at", "<", new Date())
-    .orderBy("b.name", "desc");
+const query = ds.queryBuilder
+  .selectFrom("person")
+  .select(["id", "name"])
+  .where("active", "=", true);
 
-const result = await ds.query(query);
+const result = await ds.query(query, { name: "listActivePeople" });
 
-// Or with query information (will be sent in the metadata)
-// const result = await ds.query(query, {
-//  name: 'getBrands'
-// });
+if (result.error) {
+  console.error(result.error.code, result.error.message, result.error.cause);
+} else {
+  console.log(result.data);
+}
 
-// Option 1: the QResult object contains the data, metadata and error
-//  - data:  the result rows (TData or undefined if error)
-//  - error: the error (QError or undefined if success)
-//  - meta:  the metadata (always present)
+// Or use exception-based control flow:
+const { data: people, meta } = await ds.queryOrThrow(query);
+console.log(`${people.length} rows in ${meta.getTotalTimeMs()}ms`);
+```
 
-const { data, meta, error } = result;
+The `queryBuilder` getter provides the Kysely query builder. The datasource
+accepts compiled Kysely queries and raw Kysely query builders.
 
-// Option 2: You operate over the result, ie: mapping the data
+## Query methods and results
 
-const { data: data2 } = result.map((row) => {
-    return {
-        ...row,
-        key: `key-${row.productId}`,
-    };
+`query()` and `queryOne()` return `QResult` and do not throw. Their `OrThrow`
+counterparts return data directly and throw typed errors. `queryOne()` returns
+`null` when no row matches and reports `TOO_MANY_RESULTS` for multiple rows.
+`queryOneOrThrow()` throws `QErrors.NoResult` for no row unless `defaultValue`
+is set.
+
+One-row methods do not add `LIMIT` or otherwise rewrite SQL. All matching rows
+are fetched before checking the count, so bound non-unique queries yourself
+with `.limit(2)` (or `.top(2)` for SQL Server).
+
+`QResult` contains either `data` or `error`, plus `meta`. Driver errors are
+available as `error.cause` but omitted by `toJsonifiable()`. See
+[Flowblade core](/docs/core) for the shared error codes, HTTP status suggestions,
+metadata and error-factory options.
+
+## Streaming
+
+`stream()` yields individual rows rather than loading the full result into
+memory. `chunkSize` is used only by dialects that support it.
+
+```typescript
+const rows = ds.stream(
+  ds.queryBuilder.selectFrom("person").select(["id", "name"]),
+  { name: "streamPeople", chunkSize: 500 }
+);
+
+for await (const row of rows) {
+  console.log(row.name);
+  if (row.name === "Stop here") {
+    break;
+  }
+}
+```
+
+Breaking early releases the database connection and invalidates the stream.
+Errors are thrown during iteration as `QErrors.QueryFailed` or
+`QErrors.Aborted`.
+
+## Errors and cancellation
+
+`query()` returns `QUERY_FAILED` for execution/compilation errors and `ABORTED`
+for aborted work. Throwing methods expose `QErrors.QueryFailed`,
+`QErrors.Aborted`, `QErrors.NoResult` and `QErrors.TooManyResults`. Use the
+`onError`, `onNoResult` and `onTooManyResults` factories to map them to
+application-specific errors; factories can also be set in `defaultOptions`.
+
+Query methods and streams accept an `AbortSignal`:
+
+```typescript
+const result = await ds.query(query, {
+  signal: AbortSignal.timeout(5_000),
 });
 ```
 
-## Utils
+By default, Kysely may stop waiting while the database query continues to run.
+Set `inflightQueryAbortStrategy` to `"cancel query"` or `"kill session"` to
+request cancellation when the dialect supports it. Unsupported cancellation
+falls back to ignoring the in-flight query, with a warning. A datasource-wide
+default is configured under `defaultOptions.query`; it can also be set per
+query.
 
-### createKyselyMssqlDialect
+## Transactions and savepoints
 
-Create a Kysely dialect for Ms SqlServer or Azure Sql Edge.
+`transaction()` returns a result; `transactionOrThrow()` throws. Both pass a
+transaction-scoped datasource to the callback. Use and await `tx` queries in
+the callback, not the outer datasource. Nested transactions are not supported.
+
+```typescript
+const { data: newId } = await ds.transactionOrThrow(
+  async (tx) => {
+    const { data: person } = await tx.queryOneOrThrow(
+      tx.queryBuilder
+        .insertInto("person")
+        .values({ name: "Ada", active: true })
+        .returning("id")
+    );
+    return person.id;
+  },
+  {
+    name: "createPerson",
+    isolationLevel: "serializable",
+    retry: { maxRetries: 3 },
+  }
+);
+```
+
+Transaction options include `isolationLevel`, `accessMode`, `signal`,
+`retry` and `onFailedQuery`. Database support varies. Conflicts such as
+serialization failures and deadlocks are recognized for Postgres, SQL Server
+and MySQL; configure `isTransactionConflict` for other drivers. Retries are
+opt-in, use exponential backoff with jitter, and call the callback again.
+Keep external side effects outside retried callbacks.
+
+Failed queries roll back the transaction by default, even if the callback
+handles the returned error. `onFailedQuery: "commit"` can be used only when
+the database does not automatically abort the transaction for that statement;
+do not use it with Postgres. Prefer savepoints to recover from a failed query
+inside a transaction.
+
+`tx.savepoint()` and `tx.savepointOrThrow()` isolate a callback's work and can
+be nested. They are useful for handling expected statement failures (for
+example, a duplicate insert) without rolling back the whole transaction.
+Savepoint support depends on the Kysely dialect.
+
+See [core transaction semantics](/docs/core#transactions) for error states,
+retry defaults, metadata and general guidance.
+
+## SQL Server and Azure SQL Edge
+
+`createKyselyMssqlDialect()` builds a Kysely dialect using `tedious`. It accepts
+`tediousConfig`, optional `tarn` `poolOptions`, and `dialectConfig`. The
+`validateConnections` and `resetConnectionsOnRelease` options add validation
+or reset roundtrips when enabled; disabling them can improve performance when
+appropriate for your deployment.
 
 ```typescript
 import * as Tedious from "tedious";
 import {
-    TediousConnUtils,
-    createKyselyMssqlDialect,
+  createKyselyMssqlDialect,
+  TediousConnUtils,
 } from "@flowblade/source-kysely";
 
-const jdbcDsn =
-    "sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
-const tediousConfig = TediousConnUtils.fromJdbcDsn(jdbcDsn);
-
+const tediousConfig = TediousConnUtils.fromJdbcDsn(
+  process.env.DB_JDBC_DSN
+);
 const dialect = createKyselyMssqlDialect({
-    tediousConfig,
-    // 👉 Optional tarn pool options
-    poolOptions: {
-        min: 0, // 👉 Minimum number of connections, default 0
-        max: 10, // 👉 Maximum number of connections, default 10
-        propagateCreateError: true, // 👉 Propagate connection creation errors, default false
+  tediousConfig,
+  poolOptions: { min: 0, max: 10 },
+  dialectConfig: {
+    validateConnections: true,
+    resetConnectionsOnRelease: false,
+    tediousTypes: {
+      ...Tedious.TYPES,
+      NVarChar: Tedious.TYPES.VarChar,
+      DateTime: Tedious.TYPES.DateTime2,
     },
-    dialectConfig: {
-        /**
-         * When true, connections are validated before being acquired from the pool,
-         * resulting in additional requests to the database.
-         *
-         * In safe scenarios, this can be set to false to improve performance.
-         *
-         * Defaults to `true`.
-         */
-        validateConnections: true,
-        /**
-         * When true, connections are reset to their initial states when released back to the pool,
-         * resulting in additional requests to the database.
-         *
-         * Defaults to `false`.
-         */
-        resetConnectionsOnRelease: false,
-    },
-});
-
-const db = new Kysely<DB>({
-    dialect,
+  },
 });
 ```
 
-> **Note**: For performance you can avoid connection roundtrips by setting
-> `validateConnections` to `false` and `resetConnectionOnRelease` to `false`.
+`TediousConnUtils.fromJdbcDsn()` parses and validates a JDBC-style SQL Server
+connection string. Pool and dialect options are specific to this helper; for
+other databases, configure the Kysely dialect as usual.
 
-### TediousConnUtils
+## Logging and lifecycle
 
-#### fromJdbcDsn
+The adapter logs through LogTape in the `["flowblade", "kysely"]` category.
+Configure LogTape in your application to enable output. Query logs include SQL
+and, by default, bound parameters. Use `logParams: false` to keep parameters
+out of logs; they remain available in result metadata. You may also supply a
+custom `logger`.
 
-Parse and validate a JDBC connection string and return a Tedious connection
-configuration.
+The datasource uses the supplied Kysely instance; it does not own it or manage
+application shutdown. Close the Kysely instance when the application stops:
 
 ```typescript
-import * as Tedious from "tedious";
-import { TediousConnUtils } from "@flowblade/source-kysely";
-
-// In your .env file
-// DB_JDBC_DSN="sqlserver://localhost:1433;database=db;user=sa;password=pwd;trustServerCertificate=true;encrypt=false";
-
-const tediousConfig = TediousConnUtils.fromJdbcDsn(process.env.DB_JDBC_DSN);
-
-const tediousConnection = new Tedious.Connection(tediousConfig);
+await db.destroy();
 ```
 
-## Compatibility
-
-| Level        | CI  | Description                                                                                                                                                                                                                                                                                                                                                            |
-| ------------ | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node         | ✅  | Requires 22.18+, CI for 22.x, 24.x & 26.x                                                                                                                                                                                                                                                                                                                              |
-| Bun          | ✅  | Bun 1.4+, unit tests run on CI with the latest Bun                                                                                                                                                                                                                                                                                                                     |
-| Deno         | ✅  | Deno LTS, unit tests run on CI with Deno 2                                                                                                                                                                                                                                                                                                                             |
-| Browserslist | ✅  | [> 95%](https://browserslist.dev/?q=ZGVmYXVsdHMsIGNocm9tZSA%2BPSA5NiwgZmlyZWZveCA%2BPSAxMDUsIGVkZ2UgPj0gMTEzLCBzYWZhcmkgPj0gMTUsIGlvcyA%2BPSAxNSwgb3BlcmEgPj0gMTAzLCBub3QgZGVhZA%3D%3D) on 01/2025. [Chrome 96+, Firefox 90+, Edge 19+, ios 15+, Safari 15+ and Opera 77+](https://github.com/belgattitude/flowblade/blob/main/packages/source-kysely/.browserslistrc) |
-| Typescript   | ✅  | TS 5.0 + / [are-the-type-wrong](https://github.com/arethetypeswrong/arethetypeswrong.github.io) checks on CI.                                                                                                                                                                                                                                                          |
-| ES2022       | ✅  | Dist files checked with [es-check](https://github.com/yowainwright/es-check)                                                                                                                                                                                                                                                                                           |
+See the
+[package README](https://github.com/belgattitude/flowblade/blob/main/packages/source-kysely/README.md)
+and [API reference](https://github.com/belgattitude/flowblade/tree/main/packages/source-kysely/docs/api)
+for compatibility details and the complete option/type reference.
