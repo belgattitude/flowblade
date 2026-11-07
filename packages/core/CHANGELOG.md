@@ -1,5 +1,11 @@
 # @flowblade/core
 
+## 0.9.1
+
+### Patch Changes
+
+- [#1506](https://github.com/belgattitude/flowblade/pull/1506) [`a87fc98`](https://github.com/belgattitude/flowblade/commit/a87fc98aac78e75cbe2dff371b626cb6d1cd20ba) Thanks [@belgattitude](https://github.com/belgattitude)! - Update @httpx/plain-object and @httpx/dsn-parser internal deps to latest to reduce install size (esm only)
+
 ## 0.9.0
 
 ### Minor Changes
