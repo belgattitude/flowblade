@@ -98,7 +98,6 @@ export const ProductGrid: FC<Props> = (props) => {
         columnDefs={colDefs}
         getRowId={getRowId}
         autoSizeStrategy={autoSizeStrategy}
-        debug
       />
     </div>
   );
