@@ -1,0 +1,154 @@
+---
+title: "@flowblade/core"
+description: Shared result, error, metadata, datasource and transaction contracts used by Flowblade adapters.
+sidebar:
+    label: "core"
+---
+
+`@flowblade/core` defines the contracts shared by Flowblade datasources. It is
+normally installed automatically as an adapter dependency; install it directly
+when implementing a datasource or writing code against the common interfaces.
+
+```bash
+npm install @flowblade/core
+```
+
+## Datasource contract
+
+The `DatasourceInterface` exposes a consistent set of operations:
+
+| Method | Behavior |
+| --- | --- |
+| `query(query, options?)` | Returns a `QResult` containing rows or an error; it does not throw. |
+| `queryOrThrow(query, options?)` | Returns rows and throws a typed `QErrors` error on failure. |
+| `queryOne(query, options?)` | Returns one row or `null`; returns `TOO_MANY_RESULTS` if more than one row matches. |
+| `queryOneOrThrow(query, options?)` | Requires exactly one row, unless `defaultValue` is provided for no row. |
+| `stream(query, options?)` | Iterates through rows without materializing the full result in application memory. |
+| `getConnection()` | Exposes the underlying driver object for advanced use; it is not covered by API stability. |
+
+`queryOne()` and `queryOneOrThrow()` do not rewrite SQL or add a limit. They
+check the returned row count after fetching results. When the query is not
+constrained by a unique key, add a database-side bound such as `LIMIT 2` (or
+`TOP 2` on SQL Server).
+
+## QResult and errors
+
+`QResult<TData>` is a discriminated result: it contains either `data` or
+`error`, and always has `meta`. Checking `error` narrows the type of `data`.
+`result.map(mapper)` transforms successful rows and returns a new result;
+mapper failures become `MAP_FAILED`. `result.toJsonifiable()` omits the
+original `cause`, so driver internals are not serialized.
+
+| Error code | Meaning |
+| --- | --- |
+| `QUERY_FAILED` | The database or query execution failed. |
+| `ABORTED` | An `AbortSignal` cancelled or interrupted the operation. |
+| `TOO_MANY_RESULTS` | A one-row operation received multiple rows. |
+| `MAP_FAILED` | A `QResult.map()` mapper threw. |
+| `ROLLED_BACK` | A transaction callback threw or called `tx.rollback()`. |
+| `TRANSACTION_FAILED` | A query failed in a transaction, or transaction setup/finalization failed. |
+| `TRANSACTION_CONFLICT` | A transient serialization conflict or deadlock occurred. |
+
+The original driver error (or abort reason) is available as `error.cause`.
+Throwing methods convert query and transaction failures to classes under
+`QErrors`, including `QueryFailed`, `Aborted`, `NoResult`, `TooManyResults`,
+`TransactionFailed`, and `TransactionConflict`. These errors provide suggested
+HTTP status codes; applications choose how to map them to responses.
+
+```typescript
+const { data, error, meta } = await ds.query(query);
+
+if (error) {
+  console.error(error.code, error.message, error.cause);
+} else {
+  console.log(`${data.length} rows in ${meta.getTotalTimeMs()}ms`);
+}
+
+// For exception-based control flow:
+const { data: rows } = await ds.queryOrThrow(query);
+```
+
+For `queryOneOrThrow()`, `defaultValue` only handles a missing row; query
+failures and multiple rows still fail. Error factories (`onError`,
+`onNoResult`, `onTooManyResults`) let applications replace the default thrown
+errors per call or through a datasource's `defaultOptions`.
+
+## Metadata
+
+Every result includes `QMeta`. SQL spans record the SQL text, bound parameters,
+elapsed time and affected row count. Transaction and savepoint spans record
+their status and timing; transaction metadata also includes isolation/access
+mode and retry count where applicable. Metadata is useful for logging and
+diagnostics. Adapter loggers can omit parameter values, while parameters remain
+available in metadata.
+
+## Transactions
+
+Datasources that support transactions implement
+`TransactionalDatasourceInterface`. `transaction()` returns a result;
+`transactionOrThrow()` returns data or throws. Each callback receives `tx`, a
+datasource bound to the transaction. Use it for every query in the callback and
+await queries before returning. The transaction waits for tracked in-flight
+queries before it commits or rolls back.
+
+| Transaction error code | Meaning |
+| --- | --- |
+| `ROLLED_BACK` | The callback threw or called `tx.rollback()`. |
+| `TRANSACTION_FAILED` | A transaction query failed, or begin/commit/rollback failed. |
+| `TRANSACTION_CONFLICT` | A concurrent transaction conflict occurred; it may be retried. |
+| `ABORTED` | The transaction signal was aborted; the transaction is not committed. |
+
+Options are database-dependent:
+
+- `isolationLevel` and `accessMode` request a database transaction mode.
+- `signal` aborts the transaction and prevents a commit.
+- `retry: { maxRetries }` retries recognized transaction conflicts; retries
+  are disabled unless configured. The callback runs again, so do not put
+  non-transactional side effects (such as sending email) inside it.
+- `defaultOptions.transaction.retry` sets datasource-wide retry defaults;
+  per-transaction retry values override them.
+- By default (`onFailedQuery: "rollback"`), a handled query error still marks
+  the transaction for rollback. `onFailedQuery: "commit"` is only safe on
+  databases/configurations where a failed statement does not abort the
+  transaction; do not use it with Postgres. Prefer savepoints where available.
+
+Retries use exponential backoff with jitter by default. Use
+`createExponentialBackoff()` from `@flowblade/core` to customize the delay.
+
+Some adapters support savepoints through `tx.savepoint()` and
+`tx.savepointOrThrow()`. A failed savepoint can roll back its own work while
+allowing the outer transaction to continue; support and database semantics
+depend on the adapter.
+
+## Implementing a datasource
+
+`@flowblade/core/datasource` exports helpers for datasource implementations:
+`createQResultSuccess()`, `createQResultError()`, `createSqlSpan()`,
+`toOneRowQResult()`, `getOneRowOrThrow()`, `runTransaction()` and
+`runSavepoint()`.
+
+```typescript
+import { QMeta } from "@flowblade/core";
+import {
+  createQResultError,
+  createQResultSuccess,
+  createSqlSpan,
+} from "@flowblade/core/datasource";
+
+const span = createSqlSpan({ sql, params });
+try {
+  const rows = await driver.execute(sql, params);
+  return createQResultSuccess(rows, new QMeta({ name, spans: span }));
+} catch (cause) {
+  return createQResultError(
+    { message: String(cause), code: "QUERY_FAILED", cause },
+    new QMeta({ name, spans: span })
+  );
+}
+```
+
+See the adapter guides for concrete implementations and adapter-specific
+behavior: [Kysely](/docs/source-kysely) and [DuckDB](/docs/source-duckdb). The
+[core package README](https://github.com/belgattitude/flowblade/blob/main/packages/core/README.md)
+and [API reference](https://github.com/belgattitude/flowblade/tree/main/packages/core/docs/api)
+provide further details.

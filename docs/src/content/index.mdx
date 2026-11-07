@@ -1,27 +1,36 @@
 ---
 title: Flowblade
-description: Type-safe SQL, datasources and DuckDB tooling for TypeScript.
+description: Typed SQL datasources for TypeScript, with consistent results, errors, streaming and transactions.
 ---
 
-Flowblade is a collection of small, focused TypeScript packages for working with
-SQL.
+Flowblade provides typed datasource adapters with a consistent API for query
+results, errors, metadata, streaming and transactions. Use Kysely with your
+database, or use DuckDB directly for local analytics and data processing.
 
 <CardGroup cols={2}>
+    <Card title="Core contracts" href="/docs/core" icon="code">
+        QResult, errors, metadata, datasource interfaces and transaction behavior.
+    </Card>
     <Card title="@flowblade/sql-tag" href="/docs/sql-tag" icon="code">
-        Fast and lightweight sql template tag.
+        A small SQL template tag for safely binding values and composing SQL.
     </Card>
     <Card
         title="@flowblade/source-kysely"
         href="/docs/source-kysely"
         icon="database"
     >
-        A source adapter for Kysely.
+        A datasource adapter for Kysely-powered databases.
     </Card>
     <Card
         title="@flowblade/source-duckdb"
         href="/docs/source-duckdb"
         icon="database"
     >
-        Duckdb datasource adapter.
+        A DuckDB datasource with parameterized SQL, streaming and transactions.
     </Card>
 </CardGroup>
+
+Choose the adapter that fits your database: Kysely reuses your configured
+Kysely instance and dialect; DuckDB uses `@duckdb/node-api` and Flowblade's
+`sql` template tag. Both adapters share the core query, result, error and
+transaction contracts.

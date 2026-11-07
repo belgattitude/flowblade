@@ -430,12 +430,12 @@ import { type DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
 import { DuckdbDatasource } from "@flowblade/source-duckdb";
 
 // Create a connection to a DuckDB instance
-const createConnection = async (maxThreads = 4): Promise<DuckDBConnection> => {
+const createInstance = async (maxThreads = 4): Promise<DuckDBInstance> => {
   const availableThreads = os.availableParallelism();
   const maxParallelism = Math.min(maxThreads, availableThreads - 1);
   const threads = availableThreads > 1 ? maxParallelism : undefined;
 
-  const instance = await DuckDBInstance.create(":memory:", {
+  return await DuckDBInstance.create(":memory:", {
     // Choose between READ_ONLY or READ_WRITE
     // Note that in READ_WRITE mode concurrency is limited to 1
     // See: https://duckdb.org/docs/connect/concurrency.html
@@ -444,13 +444,20 @@ const createConnection = async (maxThreads = 4): Promise<DuckDBConnection> => {
     // Using more threads may require additional memory
     ...(threads ? { threads: threads.toString(10) } : {}),
   });
-  return await instance.connect();
 };
 
-const duckdb = await createConnection();
+const instance = await createInstance();
+const duckdb = await instance.connect();
 
 // Create a duckdb datasource
 export const ds = new DuckdbDatasource({ connection: duckdb });
+```
+
+The datasource does not own or close the connection or instance. Once the application has stopped using the datasource, close both resources (connection first):
+
+```typescript
+duckdb.closeSync();
+instance.closeSync();
 ```
 
 ## Compatibility

@@ -2,6 +2,18 @@
 
 Data store and transformation library for data-driven applications.
 
+### Getting started
+
+Use Node.js 22.18 or newer. Install the datasource and its database library; then follow its package README for a complete setup and query example:
+
+```bash
+pnpm add @flowblade/source-kysely kysely
+# Or use DuckDB:
+pnpm add @flowblade/source-duckdb @duckdb/node-api
+```
+
+See the [Kysely quick start](https://github.com/belgattitude/flowblade/tree/main/packages/source-kysely#quick-start) or [DuckDB query example](https://github.com/belgattitude/flowblade/tree/main/packages/source-duckdb#query-the-database).
+
 ### Datasources
 
 | Datasource | Description |

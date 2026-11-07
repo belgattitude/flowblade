@@ -62,6 +62,12 @@ const { data: data2 } = result.map((row) => {
 const { data: rows } = await ds.queryOrThrow(query);
 ```
 
+`KyselyDatasource` uses the supplied `Kysely` instance but does not own or destroy it. Close its database connections when your application shuts down:
+
+```typescript
+await db.destroy();
+```
+
 ### Query a single row
 
 `queryOne()` expects at most one row. Like `query()` it never throws: `data` holds the row, or `null` when the query returns no row.
@@ -530,7 +536,7 @@ const db = new Kysely<DB>({
 });
 ```
 
-> **Note**: For performance you can avoid connection roundtrips by setting `validateConnections` to `false` and `resetConnectionOnRelease` to `false`.
+> **Note**: For performance you can avoid connection roundtrips by setting `validateConnections` to `false` and `resetConnectionsOnRelease` to `false`.
 
 ### TediousConnUtils
 

@@ -336,16 +336,16 @@ export class KyselyDatasource<TDatabase>
   ): AsyncQResult<TData> => {
     const name = options?.name ?? "anonymous";
     const signal = this.getSignal(options?.signal);
-
-    const compiled = query.compile(this.db);
-    const span = createSqlSpan({
-      sql: compiled.sql,
-      params: compiled.parameters,
-    });
-
     const start = Date.now();
+    let span: QMetaSqlSpan | undefined;
 
     try {
+      const compiled = query.compile(this.db);
+      span = createSqlSpan({
+        sql: compiled.sql,
+        params: compiled.parameters,
+      });
+
       this.logger.debug(
         'Executing query "{queryName}"',
         this.getLogFromSpan(name, span, "query")
@@ -373,15 +373,25 @@ export class KyselyDatasource<TDatabase>
         new QMeta({ name, spans: span })
       );
     } catch (error) {
-      span.timeMs = Date.now() - start;
+      if (span !== undefined) {
+        span.timeMs = Date.now() - start;
+      }
 
       const message = getKyselyErrorMessage(error);
 
       this.logger.error('Query "{queryName}" failed: {errorMessage}', {
-        ...this.getLogFromSpan(name, span, "query"),
+        ...(span === undefined
+          ? {
+              queryName: name,
+              source: "kysely",
+              method: "query",
+            }
+          : this.getLogFromSpan(name, span, "query")),
         errorMessage: message,
       });
-      this.transactionContext?.addSpan(span);
+      if (span !== undefined) {
+        this.transactionContext?.addSpan(span);
+      }
       this.transactionContext?.onQueryFailed(error);
 
       // Report an aborted query with the abort reason as cause, whatever
@@ -395,7 +405,7 @@ export class KyselyDatasource<TDatabase>
         },
         new QMeta({
           name,
-          spans: span,
+          ...(span === undefined ? {} : { spans: span }),
         })
       );
     }
