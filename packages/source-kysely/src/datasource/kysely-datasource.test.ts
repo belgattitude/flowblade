@@ -121,6 +121,31 @@ describe(KyselyDatasource, () => {
       });
     });
 
+    it("should return a query error when compilation fails", async () => {
+      const compileError = new Error("Query compilation failed");
+      const { ds, logger } = createQueryDatasource(() =>
+        Promise.resolve({ rows: [] })
+      );
+      const query = {
+        compile: vi.fn<() => never>(() => {
+          throw compileError;
+        }),
+      };
+
+      const result = await ds.query(query as never);
+
+      expect(result.error).toStrictEqual({
+        message: "Query compilation failed",
+        code: "QUERY_FAILED",
+        cause: compileError,
+      });
+      expect(result.meta.getSpans()).toHaveLength(0);
+      expect(logger.error).toHaveBeenCalledOnce();
+      await expect(ds.queryOrThrow(query as never)).rejects.toThrow(
+        QErrors.QueryFailed
+      );
+    });
+
     it("should throw with the driver error as cause in queryOrThrow", async () => {
       const driverError = new Error("Incorrect syntax near 'FROM'.");
       const { ds, query } = createQueryDatasource(() =>

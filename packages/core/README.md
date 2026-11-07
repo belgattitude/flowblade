@@ -120,6 +120,10 @@ The result `meta` holds a `transaction` span (`status`, begin/commit time) follo
 
 `TransactionalDatasourceInterface` defaults `tx` to `TransactionDatasourceInterface`, for code working with any datasource. Datasources supporting savepoints (ie: Kysely) add `tx.savepoint()` / `tx.savepointOrThrow()` (`TransactionSavepointInterface`), with a `savepoint` span.
 
+Transactions accept `isolationLevel` and `accessMode` when supported by the database, and `signal` to abort and roll back. Conflicts such as serialization failures and deadlocks are not retried by default; set `retry: { maxRetries }` to retry with exponential backoff and jitter. A retry runs the callback again, so keep external side effects out of it. Datasource-wide retry defaults belong in `defaultOptions.transaction.retry`; per-transaction values override them.
+
+By default, a failed query causes the transaction to roll back even if the callback handles its error (`onFailedQuery: "rollback"`). `onFailedQuery: "commit"` is only appropriate for databases where a failed statement does not abort the transaction (for example, some SQL Server and MySQL configurations); do not use it with Postgres. Prefer a savepoint where supported.
+
 ```typescript
 import type { TransactionalDatasourceInterface } from "@flowblade/core";
 
