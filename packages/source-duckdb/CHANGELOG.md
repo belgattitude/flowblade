@@ -1,5 +1,117 @@
 # @flowblade/source-duckdb
 
+## 0.35.0
+
+### Minor Changes
+
+- [#1514](https://github.com/belgattitude/flowblade/pull/1514) [`20a0c9b`](https://github.com/belgattitude/flowblade/commit/20a0c9b1b77ae1101109a87c441ce53ad7e36b82) Thanks [@belgattitude](https://github.com/belgattitude)! - Add `QErrors.DomainRollback` for expected domain rejections that must abort a transaction, separate from unexpected callback and database failures. The non-throwing `transaction()` reports `DOMAIN_ROLLBACK` with the stable `reason`, serializable `details`, and original error as `cause`. `transactionOrThrow()` rethrows the same error instance, so application subclasses remain usable with `instanceof` when their constructors are shared. Across duplicate package copies or realms, use `instanceof QErrors.DomainRollback`; custom subclass constructors are not shared.
+  
+  ```typescript
+  import { QErrors } from "@flowblade/core";
+  
+  class OutOfStockError extends QErrors.DomainRollback {
+    override readonly name = "OutOfStockError";
+  
+    constructor(
+      readonly productId: number,
+      options?: ErrorOptions
+    ) {
+      super("OUT_OF_STOCK", { ...options, details: { productId } });
+    }
+  }
+  
+  // Return-style: inspect the transaction error code.
+  const { data, error } = await ds.transaction(async (tx) => {
+    const { data: order } = await tx.queryOneOrThrow(createOrder);
+    if (order.stock < 1) {
+      throw new OutOfStockError(order.id);
+    }
+    await tx.queryOrThrow(decrementStock(order.id));
+    return order.id;
+  });
+  
+  if (error?.code === "DOMAIN_ROLLBACK") {
+    // reason/details are available on the transaction error.
+    console.log(error.reason, error.details);
+    // The original custom class is retained at runtime.
+    if (error.cause instanceof OutOfStockError) {
+      console.log(error.cause.productId);
+    }
+  } else if (error) {
+    // Other transaction failures are not domain rejections.
+    throw error.cause;
+  } else {
+    console.log(data); // committed
+  }
+  
+  // Exception-style: transactionOrThrow() rethrows the same instance.
+  try {
+    await ds.transactionOrThrow(async () => {
+      throw new OutOfStockError(7);
+    });
+  } catch (error) {
+    if (error instanceof OutOfStockError) {
+      console.log(error.productId);
+    } else {
+      throw error;
+    }
+  }
+  ```
+  
+  Keep `details` serializable if results cross a process boundary. In `transaction()` results, `cause` is runtime-only and may be absent after serialization; `reason` and `details` are the portable classification.
+
+- [#1514](https://github.com/belgattitude/flowblade/pull/1514) [`20a0c9b`](https://github.com/belgattitude/flowblade/commit/20a0c9b1b77ae1101109a87c441ce53ad7e36b82) Thanks [@belgattitude](https://github.com/belgattitude)! - Narrow the `transaction()` result to the exported `TransactionQError` union. Checking its `code` now narrows transaction-specific fields; the `DOMAIN_ROLLBACK` variant has `reason`, `details`, and an optional typed `QErrors.DomainRollback` cause. The generic `QError` type remains broad.
+  
+  ```typescript
+  const { data, error } = await ds.transaction(async (tx) => {
+    await tx.queryOrThrow(query);
+    return "committed";
+  });
+  
+  if (error?.code === "DOMAIN_ROLLBACK") {
+    console.log(error.reason, error.details);
+    // `cause` is runtime-only and may be absent from deserialized results.
+  } else if (error?.code === "TRANSACTION_CONFLICT") {
+    // A transient conflict may be retried according to transaction options.
+  } else if (error) {
+    // ROLLED_BACK, TRANSACTION_FAILED, or ABORTED.
+    console.error(error.code, error.cause);
+  } else {
+    console.log(data);
+  }
+  ```
+  
+  This is a type-level refinement of the transaction result. Runtime transaction behavior and the meaning of the existing error codes are unchanged.
+
+- [#1514](https://github.com/belgattitude/flowblade/pull/1514) [`20a0c9b`](https://github.com/belgattitude/flowblade/commit/20a0c9b1b77ae1101109a87c441ce53ad7e36b82) Thanks [@belgattitude](https://github.com/belgattitude)! - Add discriminated query error types: `query()` returns `QueryQError`, and `queryOne()` returns `QueryOneQError`. Checking `error.code` narrows query failures, aborts, and multiple-row errors without changing the broad `QError` type. An `ABORTED` error is an `AbortedQError`; its `cause` remains `unknown` because `AbortSignal.reason` can be any JavaScript value. `QResult.map()` preserves the original variants and adds `MapFailedQError`.
+  
+  ```typescript
+  const { error } = await ds.query(query, { signal });
+  if (error?.code === "ABORTED") {
+    // error is AbortedQError. Do not assume its cause is an Error or DOMException.
+    console.log(error.cause);
+  }
+  
+  const one = await ds.queryOne(query, { signal });
+  if (one.error?.code === "TOO_MANY_RESULTS") {
+    // QueryOneQError discriminates this from a query failure or abort.
+    console.log(one.error.cause);
+  }
+  
+  const mapped = one.map((row) => ({ id: String(row.id) }));
+  if (mapped.error?.code === "ABORTED") {
+    // Abort narrowing is retained after map().
+    console.log(mapped.error.cause);
+  }
+  ```
+  
+  The thrown `QErrors.Aborted` wrapper and runtime abort behavior are unchanged; the original signal reason is still available as `cause`.
+
+### Patch Changes
+
+- Updated dependencies [[`c0f25c3`](https://github.com/belgattitude/flowblade/commit/c0f25c31bfdee8e95ff5bc567a2b6fcaa1512bbc), [`20a0c9b`](https://github.com/belgattitude/flowblade/commit/20a0c9b1b77ae1101109a87c441ce53ad7e36b82), [`c0f25c3`](https://github.com/belgattitude/flowblade/commit/c0f25c31bfdee8e95ff5bc567a2b6fcaa1512bbc), [`20a0c9b`](https://github.com/belgattitude/flowblade/commit/20a0c9b1b77ae1101109a87c441ce53ad7e36b82), [`20a0c9b`](https://github.com/belgattitude/flowblade/commit/20a0c9b1b77ae1101109a87c441ce53ad7e36b82)]:
+  - @flowblade/core@0.10.0
+
 ## 0.34.0
 
 ### Minor Changes
