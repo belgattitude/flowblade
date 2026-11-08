@@ -1,3 +1,4 @@
+import type { QDomainRollbackError } from "../errors/q-domain-rollback-error";
 import type { QResult } from "./q-result";
 
 /**
@@ -8,6 +9,8 @@ import type { QResult } from "./q-result";
  * - "MAP_FAILED": the `QResult.map()` transform threw, the thrown error is the cause,
  * - "ROLLED_BACK": the `transaction()` callback threw (or called `tx.rollback()`)
  *   and the transaction was rolled back, the thrown value is the cause,
+ * - "DOMAIN_ROLLBACK": the callback threw a `QErrors.DomainRollback`; the
+ *   transaction error includes its reason and serializable details,
  * - "TRANSACTION_FAILED": the transaction couldn't begin, commit or roll back,
  *   the driver error is the cause,
  * - "TRANSACTION_CONFLICT": the transaction conflicts with a concurrent one
@@ -19,6 +22,7 @@ export type QErrorCode =
   | "TOO_MANY_RESULTS"
   | "MAP_FAILED"
   | "ROLLED_BACK"
+  | "DOMAIN_ROLLBACK"
   | "TRANSACTION_FAILED"
   | "TRANSACTION_CONFLICT";
 
@@ -38,6 +42,45 @@ export type QError = {
    */
   cause?: unknown;
 };
+
+type QErrorWithCode<TCode extends QErrorCode> = Omit<QError, "code"> & {
+  code: TCode;
+};
+
+/**
+ * An aborted query result. `cause` is the signal's reason, which can be any
+ * JavaScript value.
+ */
+export type AbortedQError = QErrorWithCode<"ABORTED">;
+
+/** Errors returned by `query()`. */
+export type QueryQError = QErrorWithCode<"QUERY_FAILED"> | AbortedQError;
+
+/** A `queryOne()` result contains more than one row. */
+export type TooManyResultsQError = QErrorWithCode<"TOO_MANY_RESULTS">;
+
+/** Errors returned by `queryOne()`, including the multiple-row case. */
+export type QueryOneQError = QueryQError | TooManyResultsQError;
+
+/** Error added by `QResult.map()` when its mapper throws. */
+export type MapFailedQError = QErrorWithCode<"MAP_FAILED">;
+
+/**
+ * Errors returned by `transaction()`. The code discriminates the available
+ * fields; `DOMAIN_ROLLBACK` requires `reason` and `details`, while `cause` is
+ * runtime-only.
+ */
+export type TransactionQError =
+  | (QError & { code: "ROLLED_BACK" })
+  | (QError & {
+      code: "DOMAIN_ROLLBACK";
+      reason: string;
+      details: unknown;
+      cause?: QDomainRollbackError;
+    })
+  | (QError & { code: "TRANSACTION_FAILED" })
+  | (QError & { code: "TRANSACTION_CONFLICT" })
+  | AbortedQError;
 
 export type AsyncQResult<
   TData,

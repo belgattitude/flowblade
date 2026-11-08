@@ -88,6 +88,29 @@ describe("MSSQL e2e transactions", () => {
     });
   });
 
+  it("should report domain rollback as a typed QResult error", async () => {
+    const domainError = new QErrors.DomainRollback("OUT_OF_STOCK", {
+      productId: firstId,
+    });
+    const result = await ds.transaction(async (tx) => {
+      await insertLinked(tx, firstId);
+      throw domainError;
+    });
+
+    expect(result.error?.code).toBe("DOMAIN_ROLLBACK");
+    if (result.error?.code !== "DOMAIN_ROLLBACK") {
+      throw new Error("Expected a domain rollback");
+    }
+    expect(result.error.reason).toBe("OUT_OF_STOCK");
+    expect(result.error.details).toStrictEqual({ productId: firstId });
+    expect(result.error.cause).toBe(domainError);
+    expect(result.meta.getSpans()[0]).toMatchObject({
+      type: "transaction",
+      status: "rolled back",
+    });
+    await expect(getLinkedIds()).resolves.toStrictEqual([]);
+  });
+
   it("should roll back when a query fails", async () => {
     const result = await ds.transaction(async (tx) => {
       await insertLinked(tx, firstId);

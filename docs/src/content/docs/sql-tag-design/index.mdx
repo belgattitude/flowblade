@@ -1,0 +1,199 @@
+---
+title: SQL tag redesign plan
+description: Proposal for a dependency-free, dialect-aware SQL fragment API for Flowblade.
+sidebar:
+    label: "sql-tag redesign"
+---
+
+> **Status: proposal.** This page describes a possible direction, not released
+> behavior. The current `@flowblade/sql-tag` API remains the supported API
+> until an implementation and migration path are released.
+
+## Goal
+
+Replace the `sql-template-tag` implementation with a small Flowblade-owned
+fragment builder. Preserve the familiar tagged-template composition model while
+making target dialect rendering explicit and enabling future static tooling.
+Keep query execution, database connections, and schema introspection outside
+the SQL-tag package.
+
+Use [`@typed-sql/postgres`](https://www.npmjs.com/package/@typed-sql/postgres)
+as a source of design ideas—not as a dependency or as a scope target. Its
+dialect-owned renderer, strict handling of unsupported syntax, query structure
+and runtime contracts provide useful lessons. Its PostgreSQL grammar,
+catalog introspection, schema inference and codecs are substantially broader
+than the Flowblade tag and should not be pulled into the initial rewrite.
+
+## Proposed API
+
+A factory creates a tag whose render target is explicit:
+
+```typescript
+import { createSqlTag } from "@flowblade/sql-tag";
+
+const sql = createSqlTag({ dialect: "postgres" });
+
+const query = sql<{ id: number; name: string }>`
+  SELECT id, name
+  FROM ${sql.identifier("person")}
+  WHERE id IN (${sql.join(ids)})
+  ${sql.if(name !== undefined, () => sql`AND name = ${name}`)}
+`;
+
+const compiled = query.compile();
+// { sql: "...", values: [...] }
+```
+
+The generic row type remains a compile-time declaration by the caller. It does
+not validate database results. Database-aware type inference and runtime row
+validation would need schema evidence and belong in a separate analyzer or
+adapter feature.
+
+The `dialect` option selects SQL rendering rules such as placeholders and
+identifier quoting; it does not parse or validate the SQL grammar. Initial
+dialects should be selected based on Flowblade adapter usage and verified
+against actual drivers. PostgreSQL, DuckDB, MySQL, SQLite and SQL Server are
+candidates, not a promise of immediate support for every engine/version.
+
+## Internal representation
+
+Represent a query as an immutable sequence of literal text and typed
+interpolation parts rather than pre-rendered SQL strings:
+
+- **Value parts** hold parameter values and are always bound, never stringified
+  into SQL.
+- **Nested fragment parts** compose other tagged queries without losing value
+  order.
+- **Identifier parts** are quoted by the selected dialect.
+- **Raw parts** are an explicit unsafe escape hatch and remain clearly marked
+  as trusted SQL text.
+
+Render the complete fragment sequence only at `compile()`. This lets nested
+fragments and helpers share one placeholder counter, avoids renumbering bugs,
+and creates a natural future boundary for validation, fingerprints or
+prepared-statement shape checks. It also avoids pretending that interpolated
+values can safely stand for table names, column names or SQL keywords.
+
+## Safety and composition requirements
+
+1. Interpolated JavaScript values are parameters by default. Rendering errors
+   for unsupported values should be explicit; never silently convert objects,
+   symbols or functions into SQL source.
+2. `identifier()` quotes each identifier component according to the selected
+   dialect. A qualified name should be represented as components rather than
+   quoted as one dotted string.
+3. `raw()` is documented as unsafe and reserved for trusted, application-owned
+   SQL fragments. It must not be presented as a way to bind values.
+4. `join()` composes values or fragments in order. Define and test empty-array
+   behavior so callers cannot accidentally generate malformed or broader SQL.
+5. `bulk()` produces a fragment with parameterized values and validates row
+   width consistently; define empty input behavior explicitly.
+6. `if()` evaluates only the selected branch. The current `empty` fragment and
+   conditional composition remain available.
+
+These features reduce accidental injection risks but cannot make arbitrary
+dynamic SQL safe. In particular, user input must not be passed to `raw()`.
+
+## Dialect rendering
+
+Each dialect renderer owns only the rules needed to compile fragments, at
+minimum:
+
+- placeholder sequence and binding order;
+- identifier quoting and escaping;
+- any explicit dialect-specific rendering differences required by supported
+  adapters.
+
+Do not assume one placeholder style is interchangeable across drivers. Verify
+the rendered statement and values with each target driver. Keep rendering
+separate from formatting: a SQL formatter's dialect option is not a query
+parameter renderer.
+
+`compile()` should return one canonical result, initially proposed as:
+
+```typescript
+type CompiledSql = {
+  readonly sql: string;
+  readonly values: readonly unknown[];
+};
+```
+
+The current package exposes `sql`, `text`, `statement` and `values` through the
+upstream object. A migration must document which getters remain, what dialect
+they represent, and how they relate to `compile()`. Do not silently change
+their meanings. Keep the legacy default tag and output behavior during a
+deprecation period, or release a breaking major if equivalent compatibility
+cannot be maintained.
+
+## Lessons from typed-sql/postgres
+
+The following ideas can improve Flowblade without copying its entire
+compiler/runtime:
+
+| typed-sql idea | Flowblade application |
+| --- | --- |
+| Dialect-owned semantics and rendering | A factory-selected renderer, independent from execution adapters. |
+| Structural query representation | Immutable fragments, ordered values and one render pass for nested composition. |
+| Fail-closed diagnostics | Explicit errors for malformed helper inputs and unsupported interpolation types. |
+| Prepared query shape checks | A later opt-in utility can check that a query factory keeps stable SQL structure as values vary. |
+| Driver-neutral core and optional adapters | Keep the tag free of Kysely, DuckDB and driver imports; let adapters consume compiled output. |
+| Redacted observability | If query fingerprints or instrumentation are later added, exclude SQL values by default and keep observation opt-in. |
+| Schema-aware type policy and codecs | Consider only as separate packages/features with explicit schema evidence; `sql<Row>` alone cannot provide these guarantees. |
+
+`@typed-sql/postgres` also supports grammar-level analysis, catalog snapshots,
+live verification, plan inspection, and native bulk capabilities. These are
+valuable for a full typed query compiler, but are not requirements for this
+small SQL construction library.
+
+## Delivery plan
+
+### Phase 1: Fragment builder
+
+- Implement immutable literal/value/fragment/identifier/raw parts without an
+  external SQL-template dependency.
+- Preserve `sql`, `join`, `bulk`, `if`, `empty` and generic row typing.
+- Add `createSqlTag()` with a deliberately small, documented dialect set.
+- Add `compile()` returning SQL and ordered values.
+- Keep current imports and output properties working through compatibility
+  aliases where feasible.
+
+### Phase 2: Contract and security tests
+
+Test exact SQL and value order for basic templates, nested templates, multiple
+levels of composition, joins, conditionals, empty fragments and bulk rows.
+Test placeholder continuity across nested fragments, identifier escaping for
+each dialect, and rejection of invalid fragment inputs. Add driver-backed
+smoke coverage for every initially supported renderer, especially DuckDB,
+which consumes the tag today.
+
+### Phase 3: Adoption and migration
+
+Update `source-duckdb` to construct or consume the DuckDB-targeted tag without
+changing query semantics. Audit other consumers for assumptions about
+`.sql`, `.text` and `.statement`. Document migration examples and deprecation
+timelines, then remove `sql-template-tag` only after no runtime or type
+dependency remains.
+
+### Later, separately scoped work
+
+Evaluate typed table/column descriptors, schema-aware static checking,
+runtime codecs, query fingerprinting, and prepared-query shape validation as
+independent additions. Each requires its own public contract and evidence
+model; none should be implied by the base tag factory.
+
+## Acceptance criteria
+
+- No runtime or declaration dependency on `sql-template-tag`.
+- Existing composition features and adapter behavior are covered by regression
+  tests.
+- Every factory-created query renders deterministically for its declared
+  dialect and returns values in matching placeholder order.
+- Values remain parameterized; identifiers are escaped; raw SQL is explicitly
+  unsafe.
+- `sql<Row>` is documented as a type assertion, not schema validation.
+- Compatibility behavior and breaking changes are explicit before release.
+
+See the current [SQL tag guide](../sql-tag) for released behavior and the
+[`@typed-sql/postgres` execution guide](https://github.com/Lojhan/typed-sql/blob/main/docs/guides/execution.md)
+for the driver-neutral execution and capability design that informed this
+proposal.

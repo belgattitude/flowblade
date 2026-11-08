@@ -295,7 +295,7 @@ const ds = new DuckdbDatasource({
 
 ### Transactions
 
-Run queries in a transaction with `transaction()` (returns a QResult, never throws) or `transactionOrThrow()`. The callback receives a datasource (`tx`) running its queries in the transaction: committed when the callback returns, rolled back when it throws or calls `tx.rollback()`.
+Run queries in a transaction with `transaction()` (returns a QResult, never throws) or `transactionOrThrow()`. The callback receives a datasource (`tx`) running its queries in the transaction: committed when the callback returns, rolled back when it throws or calls `tx.rollback()`. Throw `QErrors.DomainRollback` for an expected business rejection.
 
 ```typescript
 const {
@@ -317,13 +317,16 @@ const {
   { name: "refreshProducts" } // also: accessMode ("read only"), signal, retry
 );
 if (error) {
-  // "ROLLED_BACK": the callback threw (ie: tx.queryOrThrow()) or called tx.rollback()
+  // "ROLLED_BACK": callback threw unexpectedly (ie: tx.queryOrThrow()) or called tx.rollback()
+  // "DOMAIN_ROLLBACK": callback threw QErrors.DomainRollback; reason/details are preserved
   // "TRANSACTION_FAILED": a query failed (handled by the callback), or couldn't begin, commit or roll back
   // "TRANSACTION_CONFLICT": conflicts with a concurrent transaction, see retry
   // "ABORTED": aborted with signal, never committed
   console.error(error.code, error.message, error.cause);
 }
 ```
+
+Throw `QErrors.DomainRollback` from the transaction callback for an expected domain rejection that should roll back. `transaction()` reports `DOMAIN_ROLLBACK` with serializable `reason` and `details`; `transactionOrThrow()` rethrows the error instance for `instanceof` handling. See the [core transaction guide](https://belgattitude.github.io/flowblade/docs/core#domain-rollbacks) for an example.
 
 Conflicts with a concurrent transaction (serialization failure, deadlock) are reported as `TRANSACTION_CONFLICT`, run the transaction again with the `retry` option (the callback is called again: keep its side effects in the transaction):
 

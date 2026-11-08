@@ -5,6 +5,7 @@
  * - `QErrors.NoResult`: `queryOneOrThrow()` got no row (404),
  * - `QErrors.TooManyResults`: `queryOne()` / `queryOneOrThrow()` got more than one row (500),
  * - `QErrors.RolledBack`: a transaction was rolled back with `tx.rollback()` (500),
+ * - `QErrors.DomainRollback`: an expected domain rejection rolled back a transaction,
  * - `QErrors.TransactionFailed`: a transaction couldn't begin, commit or roll back (500),
  * - `QErrors.TransactionConflict`: a transaction conflicts with a concurrent one (409).
  *
@@ -25,6 +26,7 @@
  * @module
  */
 export { QAbortedError as Aborted } from "./q-aborted-error";
+export { QDomainRollbackError as DomainRollback } from "./q-domain-rollback-error";
 export { QNoResultError as NoResult } from "./q-no-result-error";
 export { QQueryFailedError as QueryFailed } from "./q-query-failed-error";
 export { QRolledBackError as RolledBack } from "./q-rolled-back-error";

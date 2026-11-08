@@ -2,6 +2,28 @@
 
 Breaking changes and how to migrate, by version. See the [CHANGELOG](./CHANGELOG.md) for all changes.
 
+## Unreleased
+
+> **Note**: no runtime behavior changes. The datasource methods expose more specific result error types; see the [core upgrade guide](https://github.com/belgattitude/flowblade/blob/main/packages/core/UPGRADE.md#unreleased) for the full examples and type definitions.
+
+`query()` now returns `QueryQError`, `queryOne()` returns `QueryOneQError`, and `transaction()` returns `TransactionQError`. This improves narrowing for `ABORTED`, `TOO_MANY_RESULTS`, and `DOMAIN_ROLLBACK` when checking `error.code`. The broad `QError` type and runtime error behavior are unchanged. `AbortedQError.cause` is the signal's reason and remains `unknown`, since an `AbortSignal` can be aborted with any JavaScript value.
+
+```typescript
+const { error } = await ds.query(query, { signal });
+if (error?.code === "ABORTED") {
+  console.log(error.cause); // the original signal reason
+}
+
+const result = await ds.transaction(async (tx) => {
+  await tx.queryOrThrow(query);
+});
+if (result.error?.code === "DOMAIN_ROLLBACK") {
+  console.log(result.error.reason, result.error.details);
+}
+```
+
+Most application code requires no changes because the result type is inferred. Update explicit result annotations and any custom datasource implementations to use `QueryQError`, `QueryOneQError`, and `TransactionQError`. Expected business rejections should throw `QErrors.DomainRollback`; see the core guide for subclassing and `instanceof` handling.
+
 ## 0.34.0
 
 ### DuckDB 1.x is no longer supported

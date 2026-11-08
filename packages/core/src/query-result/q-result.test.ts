@@ -22,7 +22,7 @@ import {
   type QMetaSqlSpan,
 } from "../meta/q-meta";
 import { QResult } from "./q-result";
-import type { QError } from "./types";
+import type { MapFailedQError, QError } from "./types";
 
 describe(QResult, () => {
   const initialSqlSpan: QMetaSqlSpan = {
@@ -386,7 +386,10 @@ describe(QResult, () => {
         });
 
         expectTypeOf(mappedResult).toEqualTypeOf<
-          QResult<{ name: number; capitalized: string }[], QError | undefined>
+          QResult<
+            { name: number; capitalized: string }[],
+            QError | MapFailedQError | undefined
+          >
         >();
 
         expect(mappedResult.isOk()).toBe(true);

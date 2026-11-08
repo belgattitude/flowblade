@@ -4,7 +4,11 @@ import type {
   QOneRowNoResultOptions,
 } from "../errors/q-error-factories";
 import type { QMeta } from "../meta/q-meta";
-import type { AsyncQResult } from "../query-result/types";
+import type {
+  AsyncQResult,
+  QueryOneQError,
+  QueryQError,
+} from "../query-result/types";
 import type { TransactionDefaultOptions } from "./transaction.interface";
 
 type VoluntaryAny = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -158,7 +162,7 @@ export interface DatasourceInterface {
   query: (
     query: VoluntaryAny,
     options?: QueryOptions
-  ) => AsyncQResult<VoluntaryAny, VoluntaryAny>;
+  ) => AsyncQResult<VoluntaryAny, QueryQError>;
 
   /**
    * Run a query and return the rows directly, or throw when it fails.
@@ -232,7 +236,7 @@ export interface DatasourceInterface {
   queryOne: (
     query: VoluntaryAny,
     options?: QueryOptions
-  ) => AsyncQResult<VoluntaryAny, VoluntaryAny>;
+  ) => AsyncQResult<VoluntaryAny, QueryOneQError>;
 
   /**
    * Run a query expecting exactly one row and return it.

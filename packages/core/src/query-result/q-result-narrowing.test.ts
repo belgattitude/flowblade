@@ -8,7 +8,7 @@ import {
   createQResultSuccess,
 } from "../utils/datasource.factories";
 import { QResult } from "./q-result";
-import type { QError } from "./types";
+import type { AbortedQError, QError, QueryOneQError } from "./types";
 
 type Row = { id: number };
 
@@ -100,9 +100,29 @@ describe("QResult discriminated union", () => {
 
     const one = await ds.queryOne(sql<Row>`SELECT 1 as id`);
     if (one.error) {
-      expectTypeOf(one.error).toEqualTypeOf<QError>();
+      expectTypeOf(one.error).toEqualTypeOf<QueryOneQError>();
+      if (one.error.code === "ABORTED") {
+        expectTypeOf(one.error).toEqualTypeOf<AbortedQError>();
+        expectTypeOf(one.error.cause).toEqualTypeOf<unknown>();
+      }
       return;
     }
     expectTypeOf(one.data).toEqualTypeOf<Row | null>();
+  });
+
+  it("keeps the abort variant narrowed after mapping", () => {
+    const aborted = createQResultError<AbortedQError>(
+      { message: "cancelled", code: "ABORTED", cause: "cancelled by caller" },
+      new QMeta({})
+    ).map((row: Row) => {
+      return { id: String(row.id) };
+    });
+
+    if (aborted.error?.code !== "ABORTED") {
+      throw new Error("Expected an aborted result");
+    }
+    expectTypeOf(aborted.error).toEqualTypeOf<AbortedQError>();
+    expectTypeOf(aborted.error.cause).toEqualTypeOf<unknown>();
+    expect(aborted.error.cause).toBe("cancelled by caller");
   });
 });

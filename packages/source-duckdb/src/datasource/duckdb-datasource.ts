@@ -13,9 +13,12 @@ import {
   type QueryOneOrThrowOptions,
   type QueryOptions,
   type QueryOrThrowOptions,
+  type QueryOneQError,
+  type QueryQError,
   type QueryStreamOptions,
   type TransactionalDatasourceInterface,
   type TransactionOptions,
+  type TransactionQError,
   type TransactionOrThrowOptions,
   type TransactionScopeInterface,
 } from "@flowblade/core";
@@ -219,7 +222,7 @@ export class DuckdbDatasource
   query = async <TData extends unknown[]>(
     rawQuery: SqlTag<TData> | SqlTagInformation,
     options?: QueryOptions
-  ): AsyncQResult<TData> => {
+  ): AsyncQResult<TData, QueryQError> => {
     const result = this.runQuery<TData>(rawQuery, options);
     // in a transaction: it waits for the query, even when not awaited
     return await (this.getTransactionContext()?.trackQuery(result) ?? result);
@@ -231,7 +234,7 @@ export class DuckdbDatasource
   private readonly runQuery = async <TData extends unknown[]>(
     rawQuery: SqlTag<TData> | SqlTagInformation,
     options?: QueryOptions
-  ): AsyncQResult<TData> => {
+  ): AsyncQResult<TData, QueryQError> => {
     const name = options?.name ?? "anonymous";
     // the transaction datasource, or a datasource used in a transaction callback
     const txContext = this.getTransactionContext();
@@ -302,11 +305,12 @@ export class DuckdbDatasource
       // The interrupt can make DuckDB fail before the abort check,
       // always report an aborted query with the abort reason as cause
       const aborted = signal?.aborted === true;
+      const cause: unknown = aborted ? signal?.reason : error;
       return createQResultError(
         {
           message,
           code: aborted ? "ABORTED" : "QUERY_FAILED",
-          cause: aborted ? signal.reason : error,
+          cause,
         },
         new QMeta({
           name,
@@ -398,7 +402,7 @@ export class DuckdbDatasource
   queryOne = async <TData extends unknown[]>(
     rawQuery: SqlTag<TData> | SqlTagInformation,
     options?: QueryOptions
-  ): AsyncQResult<TData[number] | null> => {
+  ): AsyncQResult<TData[number] | null, QueryOneQError> => {
     const result = await this.query<TData>(rawQuery, options);
     if (result.error === undefined) {
       this.logRowCount(result.meta, result.data.length);
@@ -673,7 +677,7 @@ export class DuckdbDatasource
   transaction = async <TData>(
     fn: (tx: DuckdbTransactionDatasource) => Promise<TData>,
     options?: DuckdbTransactionOptions
-  ): AsyncQResult<TData> => {
+  ): AsyncQResult<TData, TransactionQError> => {
     const accessMode = options?.accessMode;
 
     const result = await runTransaction<

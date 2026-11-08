@@ -69,6 +69,15 @@ result.map((row) => {
 });
 ```
 
+`QError` remains the broad error shape. Datasource `query()` and `queryOne()` results use `QueryQError` and `QueryOneQError`, so checking `error.code === "ABORTED"` narrows to `AbortedQError`. Its `cause` is `unknown`, matching `AbortSignal.reason`, which can be any JavaScript value. Mapping a result preserves its error variants and adds `MapFailedQError`.
+
+```typescript
+const { error } = await ds.query(query, { signal });
+if (error?.code === "ABORTED") {
+  console.log(error.cause); // the signal's reason; not necessarily an Error
+}
+```
+
 > **Deprecated**: `result.getOrThrow()` will be removed, use the datasource throwing methods instead (`ds.queryOrThrow(query)`, `ds.queryOneOrThrow(query, { defaultValue: null })`) or check `error` / `isError()`.
 
 ### QErrors
@@ -82,6 +91,7 @@ Errors thrown by the datasources throwing methods (`queryOrThrow()`, `queryOneOr
 | `QErrors.NoResult` | `queryOneOrThrow()` got no row | `NO_RESULT` | 404 |
 | `QErrors.TooManyResults` | more than one row, with `rowCount` | `TOO_MANY_RESULTS` | 500 |
 | `QErrors.RolledBack` | `tx.rollback()` was called in a transaction | `ROLLED_BACK` | 500 |
+| `QErrors.DomainRollback` | An expected domain rejection rolled back a transaction | `DOMAIN_ROLLBACK` | map by application |
 | `QErrors.TransactionConflict` | a transaction conflicts with a concurrent one (serialization failure, deadlock), can be retried | `TRANSACTION_CONFLICT` | 409 |
 | `QErrors.TransactionFailed` | a query failed in a transaction (handled by the callback), or it couldn't begin, commit or roll back, the driver error as `cause` | `TRANSACTION_FAILED` | 500 |
 
@@ -107,11 +117,14 @@ try {
 
 ### Transactions
 
-Datasources supporting transactions implement `TransactionalDatasourceInterface`: `transaction()` (returns a QResult, never throws) and `transactionOrThrow()`. The callback receives a datasource running its queries in the transaction, committed when the callback returns and rolled back when it throws or calls `tx.rollback()`.
+Datasources supporting transactions implement `TransactionalDatasourceInterface`: `transaction()` (returns a QResult, never throws) and `transactionOrThrow()`. The callback receives a datasource running its queries in the transaction, committed when the callback returns and rolled back when it throws or calls `tx.rollback()`. Throw `QErrors.DomainRollback` for a domain rejection that should be classified separately.
+
+The `transaction()` result uses the `TransactionQError` discriminated union. Checking `error.code` narrows transaction-specific fields: only the `DOMAIN_ROLLBACK` variant has `reason` and `details`.
 
 | `error.code` (`transaction()`) | When | Thrown by `transactionOrThrow()` |
 | --- | --- | --- |
 | `ROLLED_BACK` | the callback threw or called `tx.rollback()`, the thrown error as `cause` | the thrown error, as is |
+| `DOMAIN_ROLLBACK` | the callback threw `QErrors.DomainRollback`; `reason` and `details` are serialized, the instance is `cause` | `QErrors.DomainRollback`, as is |
 | `TRANSACTION_FAILED` | a query failed (handled by the callback, ie: `tx.query()`), or couldn't begin, commit or roll back, the driver error as `cause` | `QErrors.TransactionFailed` |
 | `TRANSACTION_CONFLICT` | conflicts with a concurrent transaction (serialization failure, deadlock), retried with the `retry` option | `QErrors.TransactionConflict` |
 | `ABORTED` | aborted with `signal` (never committed), the abort reason as `cause` | `QErrors.Aborted` |
@@ -133,6 +146,76 @@ const runAll = (ds: TransactionalDatasourceInterface, queries: unknown[]) =>
       await tx.queryOrThrow(query);
     }
   });
+```
+
+Use `QErrors.DomainRollback` for an expected domain rejection that must roll back. Its `reason` identifies the rejection and `details` carries serializable context. `transaction()` reports it as `DOMAIN_ROLLBACK`; `transactionOrThrow()` rethrows the same error instance, so both APIs can distinguish it from an unexpected callback exception or database failure.
+
+```typescript
+import { QErrors } from "@flowblade/core";
+
+const { data, error } = await ds.transaction(async (tx) => {
+  const { data: order } = await tx.queryOneOrThrow(createOrder);
+  if (order.stock < 1) {
+    throw new QErrors.DomainRollback("OUT_OF_STOCK", {
+      productId: order.id,
+    });
+  }
+  await tx.queryOrThrow(decrementStock(order.id));
+  return order.id;
+});
+
+if (error?.code === "DOMAIN_ROLLBACK") {
+  console.log(error.reason, error.details);
+} else if (error) {
+  // Unexpected callback, query, transaction, conflict, or abort failure.
+  throw error.cause;
+} else {
+  console.log(data); // transaction committed
+}
+```
+
+For exception-based handling, subclass `QErrors.DomainRollback` to add a typed domain-specific error. `transactionOrThrow()` rethrows the same instance, so you can catch it with `instanceof` when the subclass constructor is shared:
+
+```typescript
+import { QErrors } from "@flowblade/core";
+
+class OutOfStockError extends QErrors.DomainRollback {
+  override readonly name = "OutOfStockError";
+
+  constructor(readonly productId: number) {
+    super("OUT_OF_STOCK", { productId });
+  }
+}
+
+try {
+  await ds.transactionOrThrow(async (tx) => {
+    throw new OutOfStockError(7);
+  });
+} catch (error) {
+  if (error instanceof OutOfStockError) {
+    console.log(error.productId); // custom, strongly typed property
+  } else if (error instanceof QErrors.DomainRollback) {
+    console.log(error.reason, error.details); // another domain rollback
+  } else {
+    throw error;
+  }
+}
+```
+
+For checks across duplicate package copies or realms, use `error instanceof QErrors.DomainRollback`; Flowblade brands that base class across copies. A custom subclass's `instanceof` check only recognizes the constructor used to create it.
+
+With `transaction()`, branch on the transaction error code; the original custom instance is available as `cause`:
+
+```typescript
+const { error } = await ds.transaction(async () => {
+  throw new OutOfStockError(7);
+});
+
+if (error?.code === "DOMAIN_ROLLBACK") {
+  if (error.cause instanceof OutOfStockError) {
+    console.log(error.cause.productId);
+  }
+}
 ```
 
 ### Implementing a datasource

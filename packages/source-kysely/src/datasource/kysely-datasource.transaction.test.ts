@@ -164,6 +164,46 @@ const insertProduct = (tx: KyselyTransactionDatasource<Database>, id: number) =>
 
 describe("KyselyDatasource transactions", () => {
   describe("transaction", () => {
+    it("should classify a domain rollback and preserve its details", async () => {
+      const { ds, calls } = createDatasource();
+      const domainError = new QErrors.DomainRollback("OUT_OF_STOCK", {
+        productId: 1,
+      });
+      const result = await ds.transaction(async (tx) => {
+        await tx.queryOrThrow(insertProduct(tx, 1));
+        throw domainError;
+      });
+
+      expect(result.error?.code).toBe("DOMAIN_ROLLBACK");
+      expect(result.error).toMatchObject({
+        reason: "OUT_OF_STOCK",
+        details: { productId: 1 },
+      });
+      if (result.error?.code === "DOMAIN_ROLLBACK") {
+        expectTypeOf(result.error.reason).toEqualTypeOf<string>();
+        expectTypeOf(result.error.details).toEqualTypeOf<unknown>();
+        expectTypeOf(result.error.cause).toEqualTypeOf<
+          QErrors.DomainRollback | undefined
+        >();
+      }
+      expect(result.error?.cause).toBe(domainError);
+      expect(calls.at(-1)).toBe("rollback");
+      expect(calls).not.toContain("commit");
+      expect(result.meta.getSpans()[0]).toMatchObject({
+        status: "rolled back",
+      });
+    });
+
+    it("should rethrow a domain rollback from transactionOrThrow", async () => {
+      const { ds } = createDatasource();
+      const domainError = new QErrors.DomainRollback("OUT_OF_STOCK");
+      await expect(
+        ds.transactionOrThrow(async () => {
+          throw domainError;
+        })
+      ).rejects.toBe(domainError);
+    });
+
     it("should retry the conflicts with defaultOptions.transaction.retry", async () => {
       const conflict = Object.assign(new Error("could not serialize access"), {
         code: "40001",

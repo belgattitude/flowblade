@@ -3,7 +3,7 @@ import { type Err, type Ok, Result } from "better-result";
 import type { QGetOrThrowErrorFactories } from "../errors/q-error-factories";
 import { qErrorToException } from "../errors/q-error-to-exception";
 import { QMeta, type QMetaJsonifiable } from "../meta/q-meta";
-import type { QError } from "./types";
+import type { MapFailedQError, QError } from "./types";
 
 /**
  * Shape of the result data, used by `map()`:
@@ -273,13 +273,17 @@ class QResultImpl<TData, TError extends QError | undefined> {
    */
   map = <TMappedRow extends Record<string, unknown>>(
     transformFn: (row: QResultRow<TData>) => TMappedRow
-  ): QResult<QResultMappedData<TData, TMappedRow>, TError | QError> => {
+  ): QResult<
+    QResultMappedData<TData, TMappedRow>,
+    TError | MapFailedQError
+  > => {
     type TMappedData = QResultMappedData<TData, TMappedRow>;
+    type TMappedError = TError | MapFailedQError;
     const start = Date.now();
     const shape = this.#shape;
     if (this.#innerResult.isOk()) {
       let returned: unknown;
-      let err: QError | undefined;
+      let err: MapFailedQError | undefined;
       const { rows } = this.#innerResult.value;
       try {
         if (shape === "one") {
@@ -315,23 +319,23 @@ class QResultImpl<TData, TError extends QError | undefined> {
         timeMs: Date.now() - start,
       });
       if (err === undefined) {
-        return new QResultImpl<TMappedData, TError | QError>({
+        return new QResultImpl<TMappedData, TMappedError>({
           data: returned as TMappedData,
           meta,
           shape,
-        }) as QResult<TMappedData, TError | QError>;
+        }) as QResult<TMappedData, TMappedError>;
       }
-      return new QResultImpl<TMappedData, TError | QError>({
+      return new QResultImpl<TMappedData, TMappedError>({
         meta,
         error: err,
         shape,
-      }) as QResult<TMappedData, TError | QError>;
+      }) as QResult<TMappedData, TMappedError>;
     }
-    return new QResultImpl<TMappedData, TError | QError>({
+    return new QResultImpl<TMappedData, TMappedError>({
       meta: this.#meta,
       error: this.#innerResult.error,
       shape,
-    }) as QResult<TMappedData, TError | QError>;
+    }) as QResult<TMappedData, TMappedError>;
   };
 
   /**

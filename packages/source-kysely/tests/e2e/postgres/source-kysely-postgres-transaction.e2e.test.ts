@@ -103,6 +103,28 @@ describe("Postgres e2e transactions", () => {
     ]);
   });
 
+  it("should report domain rollback as a typed QResult error", async () => {
+    const domainError = new QErrors.DomainRollback("OUT_OF_STOCK", {
+      productId: 3,
+    });
+    const result = await ds.transaction(async (tx) => {
+      await insert(tx, 3);
+      throw domainError;
+    });
+
+    expect(result.error?.code).toBe("DOMAIN_ROLLBACK");
+    expect(result.error).toMatchObject({
+      reason: "OUT_OF_STOCK",
+      details: { productId: 3 },
+    });
+    expect(result.error?.cause).toBe(domainError);
+    expect(result.meta.getSpans()[0]).toMatchObject({
+      type: "transaction",
+      status: "rolled back",
+    });
+    await expect(getIds()).resolves.toStrictEqual([1, 2]);
+  });
+
   it("should roll back when a query throws", async () => {
     const result = await ds.transaction(async (tx) => {
       await insert(tx, 3);

@@ -8,9 +8,12 @@ import {
   type QueryOneOrThrowOptions,
   type QueryOptions,
   type QueryOrThrowOptions,
+  type QueryOneQError,
+  type QueryQError,
   type QueryStreamOptions,
   type TransactionalDatasourceInterface,
   type TransactionOptions,
+  type TransactionQError,
   type TransactionOrThrowOptions,
   type TransactionScopeInterface,
   type SavepointOptions,
@@ -318,7 +321,7 @@ export class KyselyDatasource<TDatabase>
   >(
     query: TQuery,
     options?: KyselyQueryOptions
-  ): AsyncQResult<TData> => {
+  ): AsyncQResult<TData, QueryQError> => {
     const result = this.runQuery<TQuery, TData>(query, options);
     // in a transaction: it waits for the query, even when not awaited
     return await (this.transactionContext?.trackQuery(result) ?? result);
@@ -333,7 +336,7 @@ export class KyselyDatasource<TDatabase>
   >(
     query: TQuery,
     options?: KyselyQueryOptions
-  ): AsyncQResult<TData> => {
+  ): AsyncQResult<TData, QueryQError> => {
     const name = options?.name ?? "anonymous";
     const signal = this.getSignal(options?.signal);
     const start = Date.now();
@@ -397,11 +400,12 @@ export class KyselyDatasource<TDatabase>
       // Report an aborted query with the abort reason as cause, whatever
       // the dialect threw
       const aborted = signal?.aborted === true;
+      const cause: unknown = aborted ? signal?.reason : error;
       return createQResultError(
         {
           message,
           code: aborted ? "ABORTED" : "QUERY_FAILED",
-          cause: aborted ? signal.reason : error,
+          cause,
         },
         new QMeta({
           name,
@@ -498,7 +502,7 @@ export class KyselyDatasource<TDatabase>
   >(
     query: TQuery,
     options?: KyselyQueryOptions
-  ): AsyncQResult<TData[number] | null> => {
+  ): AsyncQResult<TData[number] | null, QueryOneQError> => {
     const result = await this.query<TQuery, TData>(query, options);
     if (result.error === undefined) {
       this.logRowCount(result.meta, result.data.length);
@@ -776,7 +780,7 @@ export class KyselyDatasource<TDatabase>
   transaction = async <TData>(
     fn: (tx: KyselyTransactionDatasource<TDatabase>) => Promise<TData>,
     options?: TransactionOptions
-  ): AsyncQResult<TData> => {
+  ): AsyncQResult<TData, TransactionQError> => {
     const { isolationLevel, accessMode } = options ?? {};
 
     const result = await runTransaction<

@@ -10,7 +10,7 @@ import { QNoResultError } from "../errors/q-no-result-error";
 import { QTooManyResultsError } from "../errors/q-too-many-results-error";
 import { QMeta } from "../meta/q-meta";
 import type { QResult } from "../query-result/q-result";
-import type { QError } from "../query-result/types";
+import type { QError, TooManyResultsQError } from "../query-result/types";
 import {
   createQResultError,
   createQResultSuccess,
@@ -30,7 +30,9 @@ describe(toOneRowQResult, () => {
     expect(result.error).toBeUndefined();
     expect(result.data).toStrictEqual({ id: 1 });
     expect(result.meta).toBe(meta);
-    expectTypeOf(result).toEqualTypeOf<QResult<Row | null, QError>>();
+    expectTypeOf(result).toEqualTypeOf<
+      QResult<Row | null, TooManyResultsQError>
+    >();
   });
 
   it("should return null when there's no row", () => {
