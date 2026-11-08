@@ -4,10 +4,7 @@
 "@flowblade/source-duckdb": minor
 ---
 
-Narrow the `transaction()` result to the exported `TransactionQError` union.
-Checking its `code` now narrows transaction-specific fields; the
-`DOMAIN_ROLLBACK` variant has `reason`, `details`, and an optional typed
-`QErrors.DomainRollback` cause. The generic `QError` type remains broad.
+Narrow the `transaction()` result to the exported `TransactionQError` union. Checking its `code` now narrows transaction-specific fields; the `DOMAIN_ROLLBACK` variant has `reason`, `details`, and an optional typed `QErrors.DomainRollback` cause. The generic `QError` type remains broad.
 
 ```typescript
 const { data, error } = await ds.transaction(async (tx) => {
@@ -28,5 +25,4 @@ if (error?.code === "DOMAIN_ROLLBACK") {
 }
 ```
 
-This is a type-level refinement of the transaction result. Runtime transaction
-behavior and the meaning of the existing error codes are unchanged.
+This is a type-level refinement of the transaction result. Runtime transaction behavior and the meaning of the existing error codes are unchanged.

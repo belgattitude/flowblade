@@ -4,12 +4,7 @@
 "@flowblade/source-duckdb": minor
 ---
 
-Add discriminated query error types: `query()` returns `QueryQError`, and
-`queryOne()` returns `QueryOneQError`. Checking `error.code` narrows query
-failures, aborts, and multiple-row errors without changing the broad `QError`
-type. An `ABORTED` error is an `AbortedQError`; its `cause` remains `unknown`
-because `AbortSignal.reason` can be any JavaScript value. `QResult.map()`
-preserves the original variants and adds `MapFailedQError`.
+Add discriminated query error types: `query()` returns `QueryQError`, and `queryOne()` returns `QueryOneQError`. Checking `error.code` narrows query failures, aborts, and multiple-row errors without changing the broad `QError` type. An `ABORTED` error is an `AbortedQError`; its `cause` remains `unknown` because `AbortSignal.reason` can be any JavaScript value. `QResult.map()` preserves the original variants and adds `MapFailedQError`.
 
 ```typescript
 const { error } = await ds.query(query, { signal });
@@ -31,5 +26,4 @@ if (mapped.error?.code === "ABORTED") {
 }
 ```
 
-The thrown `QErrors.Aborted` wrapper and runtime abort behavior are unchanged;
-the original signal reason is still available as `cause`.
+The thrown `QErrors.Aborted` wrapper and runtime abort behavior are unchanged; the original signal reason is still available as `cause`.
