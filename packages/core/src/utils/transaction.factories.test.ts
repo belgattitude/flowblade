@@ -157,12 +157,37 @@ describe(runTransaction, () => {
     const result = await run(async (tx) => {
       tx.rollback("insufficient funds");
     });
+
     expect(driver.calls).toStrictEqual(["begin", "rollback"]);
     expect(result.error?.code).toBe("ROLLED_BACK");
     expect(result.error?.message).toBe(
       "Transaction rolled back: insufficient funds"
     );
     expect(result.error?.cause).toBeInstanceOf(QErrors.RolledBack);
+  });
+
+  it("should report a domain rollback separately from a callback failure", async () => {
+    const { driver, run } = createDriver();
+    const domainError = new QErrors.DomainRollback("OUT_OF_STOCK", {
+      productId: 3,
+    });
+    const result = await run(async () => {
+      throw domainError;
+    });
+
+    expect(driver.calls).toStrictEqual(["begin", "rollback"]);
+    expect(result.error).toMatchObject({
+      code: "DOMAIN_ROLLBACK",
+      reason: "OUT_OF_STOCK",
+      details: { productId: 3 },
+      cause: domainError,
+    });
+    expect(result.toJsonifiable().error).toMatchObject({
+      code: "DOMAIN_ROLLBACK",
+      reason: "OUT_OF_STOCK",
+      details: { productId: 3 },
+    });
+    expect(result.toJsonifiable().error).not.toHaveProperty("cause");
   });
 
   it("should roll back rather than commit after a failed query", async () => {

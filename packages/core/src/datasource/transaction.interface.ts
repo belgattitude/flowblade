@@ -139,7 +139,8 @@ export interface TransactionScopeInterface {
  * Datasource supporting transactions. The callback receives a datasource
  * (`TTx`) running its queries in the transaction: the transaction is committed
  * when the callback returns, and rolled back when it throws or calls
- * `tx.rollback()`.
+ * `tx.rollback()`. Throw `QErrors.DomainRollback` for an expected domain
+ * rejection that must roll back.
  *
  * Nested transactions aren't supported, the transaction datasource doesn't
  * expose `transaction()` / `transactionOrThrow()`.
@@ -234,6 +235,8 @@ export interface TransactionalDatasourceInterface<
    * It never throws, `error.code` is:
    * - "ROLLED_BACK": the callback threw (ie: a failed `tx.queryOrThrow()`) or
    *   called `tx.rollback()`, the thrown error is the `cause`,
+   * - "DOMAIN_ROLLBACK": the callback threw a `QErrors.DomainRollback`, with
+   *   its `reason` and `details` available on the error,
    * - "TRANSACTION_FAILED": a query failed in the transaction (handled by
    *   the callback or not, it's then rolled back unless `onFailedQuery` is
    *   "commit"), or the transaction
@@ -283,7 +286,8 @@ export interface TransactionalDatasourceInterface<
    * callback, or throw when the transaction is rolled back or fails.
    *
    * Throws the error thrown by the callback as is (ie: a `QErrors.QueryFailed`
-   * from `tx.queryOrThrow()`, a `QErrors.RolledBack` from `tx.rollback()`),
+   * from `tx.queryOrThrow()`, a `QErrors.DomainRollback` for a domain
+   * rejection, a `QErrors.RolledBack` from `tx.rollback()`),
    * a `QErrors.TransactionConflict` when it conflicts with a concurrent one,
    * a `QErrors.TransactionFailed` when a query failed in the transaction
    * (handled by the callback) or the transaction couldn't begin, commit

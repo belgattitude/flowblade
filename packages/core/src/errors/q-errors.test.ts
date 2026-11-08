@@ -14,6 +14,11 @@ describe("QErrors", () => {
     expect(QErrors.TooManyResults).toBe(QTooManyResultsError);
     expect(QErrors.QueryFailed).toBe(QQueryFailedError);
     expect(QErrors.Aborted).toBe(QAbortedError);
+    expect(new QErrors.DomainRollback("OUT_OF_STOCK")).toMatchObject({
+      name: "QDomainRollbackError",
+      code: "DOMAIN_ROLLBACK",
+      reason: "OUT_OF_STOCK",
+    });
     expect(QErrors.RolledBack).toBe(QRolledBackError);
     expect(QErrors.TransactionFailed).toBe(QTransactionFailedError);
     expect(new QErrors.TransactionConflict("deadlock")).toMatchObject({
@@ -24,6 +29,7 @@ describe("QErrors", () => {
     });
     expect(Object.keys(QErrors).toSorted()).toStrictEqual([
       "Aborted",
+      "DomainRollback",
       "NoResult",
       "QueryFailed",
       "RolledBack",
@@ -40,6 +46,16 @@ describe("QErrors", () => {
     if (error instanceof QErrors.TooManyResults) {
       expectTypeOf(error.rowCount).toEqualTypeOf<number>();
     }
+  });
+
+  it("should carry a reason and serializable domain details", () => {
+    const error = new QErrors.DomainRollback("OUT_OF_STOCK", {
+      productId: 7,
+    });
+    expect(error).toBeInstanceOf(QErrors.DomainRollback);
+    expect(error.reason).toBe("OUT_OF_STOCK");
+    expectTypeOf(error.reason).toEqualTypeOf<string>();
+    expect(error.details).toStrictEqual({ productId: 7 });
   });
 
   it("should be usable as types", () => {

@@ -46,6 +46,38 @@ const getIds = async (ds: DuckdbDatasource) => {
 
 describe("DuckdbDatasource transactions", () => {
   describe("transaction", () => {
+    it("should classify a domain rollback and preserve its details", async ({
+      ds,
+    }) => {
+      const domainError = new QErrors.DomainRollback("OUT_OF_STOCK", {
+        productId: 1,
+      });
+      const result = await ds.transaction(async (tx) => {
+        await insert(tx, 1);
+        throw domainError;
+      });
+
+      expect(result.error?.code).toBe("DOMAIN_ROLLBACK");
+      expect(result.error?.reason).toBe("OUT_OF_STOCK");
+      expect(result.error?.details).toStrictEqual({ productId: 1 });
+      expect(result.error?.cause).toBe(domainError);
+      expect(result.meta.getSpans()[0]).toMatchObject({
+        status: "rolled back",
+      });
+      await expect(getIds(ds)).resolves.toStrictEqual([]);
+    });
+
+    it("should rethrow a domain rollback from transactionOrThrow", async ({
+      ds,
+    }) => {
+      const domainError = new QErrors.DomainRollback("OUT_OF_STOCK");
+      await expect(
+        ds.transactionOrThrow(async () => {
+          throw domainError;
+        })
+      ).rejects.toBe(domainError);
+    });
+
     it("should commit the queries", async ({ ds }) => {
       const result = await ds.transaction(
         async (tx) => {

@@ -82,6 +82,7 @@ Errors thrown by the datasources throwing methods (`queryOrThrow()`, `queryOneOr
 | `QErrors.NoResult` | `queryOneOrThrow()` got no row | `NO_RESULT` | 404 |
 | `QErrors.TooManyResults` | more than one row, with `rowCount` | `TOO_MANY_RESULTS` | 500 |
 | `QErrors.RolledBack` | `tx.rollback()` was called in a transaction | `ROLLED_BACK` | 500 |
+| `QErrors.DomainRollback` | An expected domain rejection rolled back a transaction | `DOMAIN_ROLLBACK` | application-defined |
 | `QErrors.TransactionConflict` | a transaction conflicts with a concurrent one (serialization failure, deadlock), can be retried | `TRANSACTION_CONFLICT` | 409 |
 | `QErrors.TransactionFailed` | a query failed in a transaction (handled by the callback), or it couldn't begin, commit or roll back, the driver error as `cause` | `TRANSACTION_FAILED` | 500 |
 
@@ -107,11 +108,12 @@ try {
 
 ### Transactions
 
-Datasources supporting transactions implement `TransactionalDatasourceInterface`: `transaction()` (returns a QResult, never throws) and `transactionOrThrow()`. The callback receives a datasource running its queries in the transaction, committed when the callback returns and rolled back when it throws or calls `tx.rollback()`.
+Datasources supporting transactions implement `TransactionalDatasourceInterface`: `transaction()` (returns a QResult, never throws) and `transactionOrThrow()`. The callback receives a datasource running its queries in the transaction, committed when the callback returns and rolled back when it throws or calls `tx.rollback()`. Throw `QErrors.DomainRollback` for a domain rejection that should be classified separately.
 
 | `error.code` (`transaction()`) | When | Thrown by `transactionOrThrow()` |
 | --- | --- | --- |
 | `ROLLED_BACK` | the callback threw or called `tx.rollback()`, the thrown error as `cause` | the thrown error, as is |
+| `DOMAIN_ROLLBACK` | the callback threw `QErrors.DomainRollback`; `reason` and `details` are serialized, the instance is `cause` | `QErrors.DomainRollback`, as is |
 | `TRANSACTION_FAILED` | a query failed (handled by the callback, ie: `tx.query()`), or couldn't begin, commit or roll back, the driver error as `cause` | `QErrors.TransactionFailed` |
 | `TRANSACTION_CONFLICT` | conflicts with a concurrent transaction (serialization failure, deadlock), retried with the `retry` option | `QErrors.TransactionConflict` |
 | `ABORTED` | aborted with `signal` (never committed), the abort reason as `cause` | `QErrors.Aborted` |
@@ -133,6 +135,50 @@ const runAll = (ds: TransactionalDatasourceInterface, queries: unknown[]) =>
       await tx.queryOrThrow(query);
     }
   });
+```
+
+Use `QErrors.DomainRollback` for an expected domain rejection that must roll back. Its `reason` identifies the rejection and `details` carries serializable context. `transaction()` reports it as `DOMAIN_ROLLBACK`; `transactionOrThrow()` rethrows the same error instance, so both APIs can distinguish it from an unexpected callback exception or database failure.
+
+```typescript
+import { QErrors } from "@flowblade/core";
+
+const { data, error } = await ds.transaction(async (tx) => {
+  const { data: order } = await tx.queryOneOrThrow(createOrder);
+  if (order.stock < 1) {
+    throw new QErrors.DomainRollback("OUT_OF_STOCK", {
+      productId: order.id,
+    });
+  }
+  await tx.queryOrThrow(decrementStock(order.id));
+  return order.id;
+});
+
+if (error) {
+  throw error.cause; // query or transaction failure
+}
+if (error?.code === "DOMAIN_ROLLBACK") {
+  console.log(error.reason, error.details);
+} else if (error) {
+  // Unexpected callback, query, transaction, conflict, or abort failure.
+} else {
+  console.log(data); // transaction committed
+}
+```
+
+For exception-based handling, `transactionOrThrow()` throws `QErrors.DomainRollback` and supports `instanceof`:
+
+```typescript
+try {
+  await ds.transactionOrThrow(async (tx) => {
+    throw new QErrors.DomainRollback("OUT_OF_STOCK", { productId: 7 });
+  });
+} catch (error) {
+  if (error instanceof QErrors.DomainRollback) {
+    console.log(error.reason, error.details);
+  } else {
+    throw error;
+  }
+}
 ```
 
 ### Implementing a datasource

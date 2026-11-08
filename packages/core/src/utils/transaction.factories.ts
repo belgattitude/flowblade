@@ -3,6 +3,7 @@ import type {
   TransactionOptions,
   TransactionRetryOptions,
 } from "../datasource/transaction.interface";
+import { QDomainRollbackError } from "../errors/q-domain-rollback-error";
 import {
   QMeta,
   type QMetaSavepointSpan,
@@ -484,7 +485,13 @@ const runAttempt = async <TTx, TData>(
       conflict("rolled back", error) ??
       failure("rolled back", {
         message: getErrorMessage(error),
-        code: "ROLLED_BACK",
+        code:
+          error instanceof QDomainRollbackError
+            ? "DOMAIN_ROLLBACK"
+            : "ROLLED_BACK",
+        ...(error instanceof QDomainRollbackError
+          ? { reason: error.reason, details: error.details }
+          : {}),
         cause: error,
       })
     );
@@ -534,8 +541,9 @@ const runAttempt = async <TTx, TData>(
  *
  * - `begin` fails: a "TRANSACTION_FAILED" error with the driver error as cause
  *   ("ABORTED" when `signal` is aborted, ie: while waiting for a connection).
- * - `fn` throws (ie: `tx.rollback()`): rolled back, a "ROLLED_BACK" error
- *   with the thrown value as cause.
+ * - `fn` throws: rolled back, a "ROLLED_BACK" error with the thrown value as
+ *   cause, except `QErrors.DomainRollback` which is reported as
+ *   "DOMAIN_ROLLBACK" with its reason and details.
  * - a query reported with `onQueryFailed`, but `fn` returns (ie: it handled
  *   the error): never committed, rolled back with a "TRANSACTION_FAILED"
  *   error with the first query error as cause (committed with

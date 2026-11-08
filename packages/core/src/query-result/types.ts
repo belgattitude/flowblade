@@ -8,6 +8,8 @@ import type { QResult } from "./q-result";
  * - "MAP_FAILED": the `QResult.map()` transform threw, the thrown error is the cause,
  * - "ROLLED_BACK": the `transaction()` callback threw (or called `tx.rollback()`)
  *   and the transaction was rolled back, the thrown value is the cause,
+ * - "DOMAIN_ROLLBACK": the callback threw a `QErrors.DomainRollback`; the
+ *   reason and details are included for safe inspection and serialization,
  * - "TRANSACTION_FAILED": the transaction couldn't begin, commit or roll back,
  *   the driver error is the cause,
  * - "TRANSACTION_CONFLICT": the transaction conflicts with a concurrent one
@@ -19,6 +21,7 @@ export type QErrorCode =
   | "TOO_MANY_RESULTS"
   | "MAP_FAILED"
   | "ROLLED_BACK"
+  | "DOMAIN_ROLLBACK"
   | "TRANSACTION_FAILED"
   | "TRANSACTION_CONFLICT";
 
@@ -29,6 +32,14 @@ export type QError = {
    * to `switch` over the errors.
    */
   code: QErrorCode;
+  /**
+   * Domain-specific reason for `DOMAIN_ROLLBACK` errors.
+   */
+  reason?: string;
+  /**
+   * Serializable domain details for `DOMAIN_ROLLBACK` errors.
+   */
+  details?: unknown;
   /**
    * The original error (ie: the driver error), useful to inspect
    * driver specific details like error codes.
