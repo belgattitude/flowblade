@@ -1,5 +1,5 @@
 ---
-"@flowblade/core": major
+"@flowblade/core": minor
 ---
 
 Change `QErrors.DomainRollback` to accept the native `Error` options bag as its second parameter, including `{ cause }`. Domain metadata moves to `options.details`.
