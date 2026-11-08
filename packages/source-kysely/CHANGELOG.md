@@ -1,5 +1,11 @@
 # @flowblade/source-kysely
 
+## 1.13.1
+
+### Patch Changes
+
+- [#1521](https://github.com/belgattitude/flowblade/pull/1521) [`d59afe6`](https://github.com/belgattitude/flowblade/commit/d59afe6b250481eaf6dddab5085475d036bfaa8f) Thanks [@belgattitude](https://github.com/belgattitude)! - Treat SQL Server error 3903 during transaction rollback cleanup as an already-completed rollback. This preserves the original callback or domain rollback error when database logic, such as a trigger, already rolled back the transaction. Other rollback errors remain transaction failures.
+
 ## 1.13.0
 
 ### Minor Changes
