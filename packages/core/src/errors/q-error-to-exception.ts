@@ -45,7 +45,7 @@ const toDefaultException = (qError: QError): Error => {
           "reason" in qError && typeof qError.reason === "string"
             ? qError.reason
             : message,
-          "details" in qError ? qError.details : undefined
+          { details: "details" in qError ? qError.details : undefined }
         );
   }
   if (code === "TRANSACTION_FAILED") {

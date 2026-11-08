@@ -139,7 +139,7 @@ describe(QResult, () => {
         });
         expectTypeOf(jsonifiable).toEqualTypeOf<{
           data?: { name: string }[] | undefined;
-          error?: QError;
+          error?: Omit<QError, "cause">;
           meta: QMetaJsonifiable;
         }>();
       });
@@ -159,7 +159,7 @@ describe(QResult, () => {
         });
         expectTypeOf(jsonifiable).toEqualTypeOf<{
           data?: { name: string }[] | undefined;
-          error?: QError;
+          error?: Omit<QError, "cause">;
           meta: QMetaJsonifiable;
         }>();
       });

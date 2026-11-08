@@ -3,7 +3,12 @@ import type {
   TransactionOptions,
   TransactionRetryOptions,
 } from "../datasource/transaction.interface";
+import { QAbortedError } from "../errors/q-aborted-error";
 import { QDomainRollbackError } from "../errors/q-domain-rollback-error";
+import { QRolledBackError } from "../errors/q-rolled-back-error";
+import { QTransactionConflictError } from "../errors/q-transaction-conflict-error";
+import { QTransactionDomainRollbackError } from "../errors/q-transaction-domain-rollback-error";
+import { QTransactionFailedError } from "../errors/q-transaction-failed-error";
 import {
   QMeta,
   type QMetaSavepointSpan,
@@ -18,6 +23,14 @@ import type {
 } from "../query-result/types";
 import { isError } from "./brand";
 import { createExponentialBackoff } from "./retry-backoff";
+
+const withTransactionErrorMessage = <TError extends Error>(
+  error: TError,
+  message: string
+): TError => {
+  error.message = message;
+  return error;
+};
 
 /**
  * Received by `begin`, for the transaction datasource to report its queries.
@@ -353,12 +366,16 @@ const runAttempt = async <TTx, TData>(
   ): QResult<TData, TransactionQError> =>
     new QResult<TData, TransactionQError>({ meta: createMeta(status), error });
 
-  const aborted = (status: QMetaTransactionSpan["status"]) =>
-    failure(status, {
-      message: getErrorMessage(signal?.reason),
-      code: "ABORTED",
-      cause: signal?.reason,
-    });
+  const aborted = (status: QMetaTransactionSpan["status"]) => {
+    const message = getErrorMessage(signal?.reason);
+    return failure(
+      status,
+      withTransactionErrorMessage(
+        new QAbortedError(message, { cause: signal?.reason }),
+        message
+      )
+    );
+  };
 
   /**
    * A "TRANSACTION_CONFLICT" failure when the error (or a cause) is a
@@ -372,21 +389,29 @@ const runAttempt = async <TTx, TData>(
       return undefined;
     }
     const conflictError = findInCauses(error, isConflictError);
-    return conflictError === undefined
-      ? undefined
-      : failure(status, {
-          message: getErrorMessage(conflictError),
-          code: "TRANSACTION_CONFLICT",
-          cause: error,
-        });
+    if (conflictError === undefined) {
+      return undefined;
+    }
+    const message = getErrorMessage(conflictError);
+    return failure(
+      status,
+      withTransactionErrorMessage(
+        new QTransactionConflictError(message, { cause: error }),
+        message
+      )
+    );
   };
 
-  const transactionFailed = (error: unknown, message?: string) =>
-    failure("failed", {
-      message: message ?? getErrorMessage(error),
-      code: "TRANSACTION_FAILED",
-      cause: error,
-    });
+  const transactionFailed = (error: unknown, message?: string) => {
+    const errorMessage = message ?? getErrorMessage(error);
+    return failure(
+      "failed",
+      withTransactionErrorMessage(
+        new QTransactionFailedError(errorMessage, { cause: error }),
+        errorMessage
+      )
+    );
+  };
 
   // a function: TS would keep the narrowing of a first `signal.aborted` check
   const isAborted = (): boolean => signal?.aborted === true;
@@ -486,24 +511,29 @@ const runAttempt = async <TTx, TData>(
       return aborted("rolled back");
     }
     if (error instanceof QDomainRollbackError) {
-      return (
-        conflict("rolled back", error) ??
-        failure("rolled back", {
-          message: getErrorMessage(error),
-          code: "DOMAIN_ROLLBACK",
-          reason: error.reason,
+      const message = getErrorMessage(error);
+      const domainRollbackError = withTransactionErrorMessage(
+        new QTransactionDomainRollbackError(error.reason, {
           details: error.details,
           cause: error,
-        })
+        }),
+        message
+      );
+      return (
+        conflict("rolled back", error) ??
+        failure("rolled back", domainRollbackError)
       );
     }
+    const message = getErrorMessage(error);
     return (
       conflict("rolled back", error) ??
-      failure("rolled back", {
-        message: getErrorMessage(error),
-        code: "ROLLED_BACK",
-        cause: error,
-      })
+      failure(
+        "rolled back",
+        withTransactionErrorMessage(
+          new QRolledBackError(message, { cause: error }),
+          message
+        )
+      )
     );
   }
 
@@ -517,15 +547,18 @@ const runAttempt = async <TTx, TData>(
   ) {
     const { error } = queryError;
     const rollbackFailure = await rollbackOrFail(error);
+    const message = `A query failed in the transaction, it can't be committed: ${getErrorMessage(error)}`;
     return (
       // the database rolls back on conflict, the rollback might then fail
       conflict("rolled back", error) ??
       rollbackFailure ??
-      failure("rolled back", {
-        message: `A query failed in the transaction, it can't be committed: ${getErrorMessage(error)}`,
-        code: "TRANSACTION_FAILED",
-        cause: error,
-      })
+      failure(
+        "rolled back",
+        withTransactionErrorMessage(
+          new QTransactionFailedError(message, { cause: error }),
+          message
+        )
+      )
     );
   }
 
@@ -614,14 +647,15 @@ export const runTransaction = async <TTx, TData>(
 
   const retry = mergeRetry(options?.retry, defaultRetry);
   if (!isValidRetry(retry)) {
+    const message = `retry.maxRetries must be a non-negative integer, got ${retry?.maxRetries}`;
     // never throws, like the other failures
     return logResult(
       new QResult<TData, TransactionQError>({
         meta: new QMeta({ name }),
-        error: {
-          message: `retry.maxRetries must be a non-negative integer, got ${retry?.maxRetries}`,
-          code: "TRANSACTION_FAILED",
-        },
+        error: withTransactionErrorMessage(
+          new QTransactionFailedError(message),
+          message
+        ),
       }),
       log?.logger,
       logProps
@@ -764,21 +798,27 @@ export const runSavepoint = async <TSp, TData>(
    */
   const savepointFailed = (error: unknown, message?: string) => {
     parent.onQueryFailed(error);
-    return failure("failed", {
-      message: message ?? getErrorMessage(error),
-      code: "TRANSACTION_FAILED",
-      cause: error,
-    });
+    const errorMessage = message ?? getErrorMessage(error);
+    return failure(
+      "failed",
+      withTransactionErrorMessage(
+        new QTransactionFailedError(errorMessage, { cause: error }),
+        errorMessage
+      )
+    );
   };
 
   try {
     parent.assertActive();
   } catch (error) {
-    return failure("failed", {
-      message: getErrorMessage(error),
-      code: "TRANSACTION_FAILED",
-      cause: error,
-    });
+    const message = getErrorMessage(error);
+    return failure(
+      "failed",
+      withTransactionErrorMessage(
+        new QTransactionFailedError(message, { cause: error }),
+        message
+      )
+    );
   }
 
   let sp: TSp;
@@ -842,11 +882,14 @@ export const runSavepoint = async <TSp, TData>(
       return undefined;
     }
     parent.onQueryFailed(error);
-    return failure("rolled back", {
-      message: getErrorMessage(error),
-      code: "TRANSACTION_CONFLICT",
-      cause: error,
-    });
+    const message = getErrorMessage(error);
+    return failure(
+      "rolled back",
+      withTransactionErrorMessage(
+        new QTransactionConflictError(message, { cause: error }),
+        message
+      )
+    );
   };
 
   let data: TData;
@@ -861,14 +904,17 @@ export const runSavepoint = async <TSp, TData>(
       }
     }
   } catch (error) {
+    const message = getErrorMessage(error);
     return (
       (await rollbackOrFail(error)) ??
       conflict(error) ??
-      failure("rolled back", {
-        message: getErrorMessage(error),
-        code: "ROLLED_BACK",
-        cause: error,
-      })
+      failure(
+        "rolled back",
+        withTransactionErrorMessage(
+          new QRolledBackError(message, { cause: error }),
+          message
+        )
+      )
     );
   }
 
@@ -877,14 +923,21 @@ export const runSavepoint = async <TSp, TData>(
     (parent.onFailedQuery !== "commit" || parent.isConflict(queryError.error))
   ) {
     const { error } = queryError;
-    return (
-      (await rollbackOrFail(error)) ??
-      conflict(error) ??
-      failure("rolled back", {
-        message: `A query failed in the savepoint, it was rolled back: ${getErrorMessage(error)}`,
-        code: "TRANSACTION_FAILED",
-        cause: error,
-      })
+    const rollbackFailure = await rollbackOrFail(error);
+    if (rollbackFailure !== undefined) {
+      return rollbackFailure;
+    }
+    const conflictFailure = conflict(error);
+    if (conflictFailure !== undefined) {
+      return conflictFailure;
+    }
+    const message = `A query failed in the savepoint, it was rolled back: ${getErrorMessage(error)}`;
+    return failure(
+      "rolled back",
+      withTransactionErrorMessage(
+        new QTransactionFailedError(message, { cause: error }),
+        message
+      )
     );
   }
 

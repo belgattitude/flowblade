@@ -1,5 +1,6 @@
 import { describe, expect, vi, it } from "vitest";
 
+import { QErrors } from "../index";
 import type { QResult } from "../query-result/q-result";
 import type { QError } from "../query-result/types";
 import { createSqlSpan, getDataOrThrow } from "./datasource.factories";
@@ -162,11 +163,12 @@ describe(runSavepoint, () => {
       "INSERT 3",
       "COMMIT",
     ]);
-    expect(savepointResult?.error).toStrictEqual({
+    expect(savepointResult?.error).toMatchObject({
       message: "duplicate",
       code: "ROLLED_BACK",
       cause: thrown,
     });
+    expect(savepointResult?.error).toBeInstanceOf(QErrors.RolledBack);
     expect(savepointResult?.meta.getSpans()[0]).toMatchObject({
       status: "rolled back",
     });
@@ -192,12 +194,13 @@ describe(runSavepoint, () => {
       "INSERT 2",
       "COMMIT",
     ]);
-    expect(savepointResult?.error).toStrictEqual({
+    expect(savepointResult?.error).toMatchObject({
       message:
         "A query failed in the savepoint, it was rolled back: duplicate key",
       code: "TRANSACTION_FAILED",
       cause: queryError,
     });
+    expect(savepointResult?.error).toBeInstanceOf(QErrors.TransactionFailed);
   });
 
   it("should release after a handled failed query with onFailedQuery commit", async () => {
@@ -237,11 +240,13 @@ describe(runSavepoint, () => {
       code: "TRANSACTION_CONFLICT",
       cause: conflictError,
     });
+    expect(savepointResult?.error).toBeInstanceOf(QErrors.TransactionConflict);
     // to be retried as a whole
     expect(result.error).toMatchObject({
       code: "TRANSACTION_CONFLICT",
       cause: conflictError,
     });
+    expect(result.error).toBeInstanceOf(QErrors.TransactionConflict);
     expect(calls).not.toContain("COMMIT");
   });
 
@@ -262,6 +267,7 @@ describe(runSavepoint, () => {
         code: "TRANSACTION_FAILED",
         cause: failure,
       });
+      expect(savepointResult?.error).toBeInstanceOf(QErrors.TransactionFailed);
       expect(savepointResult?.meta.getSpans()[0]).toMatchObject({
         status: "failed",
       });

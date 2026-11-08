@@ -140,11 +140,12 @@ describe(runTransaction, () => {
     });
     expect(driver.calls).toStrictEqual(["begin", "INSERT 1", "rollback"]);
     expect(result.data).toBeUndefined();
-    expect(result.error).toStrictEqual({
+    expect(result.error).toMatchObject({
       message: "Query failed: constraint violation",
       code: "ROLLED_BACK",
       cause: thrown,
     });
+    expect(result.error).toBeInstanceOf(QErrors.RolledBack);
     expect(result.meta.getSpans()[0]).toMatchObject({
       type: "transaction",
       status: "rolled back",
@@ -164,12 +165,13 @@ describe(runTransaction, () => {
       "Transaction rolled back: insufficient funds"
     );
     expect(result.error?.cause).toBeInstanceOf(QErrors.RolledBack);
+    expect(result.error).toBeInstanceOf(QErrors.RolledBack);
   });
 
   it("should report a domain rollback separately from a callback failure", async () => {
     const { driver, run } = createDriver();
     const domainError = new QErrors.DomainRollback("OUT_OF_STOCK", {
-      productId: 3,
+      details: { productId: 3 },
     });
     const result = await run(async () => {
       throw domainError;
@@ -182,7 +184,10 @@ describe(runTransaction, () => {
       details: { productId: 3 },
       cause: domainError,
     });
-    expect(result.toJsonifiable().error).toMatchObject({
+    expect(result.error).toBeInstanceOf(QErrors.DomainRollback);
+    expect(result.error).toBeInstanceOf(QErrors.TransactionDomainRollback);
+    expect(result.toJsonifiable().error).toStrictEqual({
+      message: "Domain rollback: OUT_OF_STOCK",
       code: "DOMAIN_ROLLBACK",
       reason: "OUT_OF_STOCK",
       details: { productId: 3 },
@@ -208,12 +213,13 @@ describe(runTransaction, () => {
     ]);
     expect(driver.commit).not.toHaveBeenCalled();
     // the first query error
-    expect(result.error).toStrictEqual({
+    expect(result.error).toMatchObject({
       message:
         "A query failed in the transaction, it can't be committed: current transaction is aborted",
       code: "TRANSACTION_FAILED",
       cause: queryError,
     });
+    expect(result.error).toBeInstanceOf(QErrors.TransactionFailed);
     expect(result.meta.getSpans()[0]).toMatchObject({ status: "rolled back" });
     expect(result.meta.getSpansByType("sql")).toHaveLength(3);
   });
@@ -345,11 +351,12 @@ describe(runTransaction, () => {
     expect(fn).not.toHaveBeenCalled();
     expect(driver.commit).not.toHaveBeenCalled();
     expect(driver.rollback).not.toHaveBeenCalled();
-    expect(result.error).toStrictEqual({
+    expect(result.error).toMatchObject({
       message: "pool timeout",
       code: "TRANSACTION_FAILED",
       cause: beginError,
     });
+    expect(result.error).toBeInstanceOf(QErrors.TransactionFailed);
     expect(result.meta.getSpans()[0]).toMatchObject({ status: "failed" });
   });
 
@@ -361,11 +368,12 @@ describe(runTransaction, () => {
     });
     const result = await run(async () => 1);
     expect(driver.calls).toStrictEqual(["begin", "commit", "rollback"]);
-    expect(result.error).toStrictEqual({
+    expect(result.error).toMatchObject({
       message: "could not serialize access",
       code: "TRANSACTION_FAILED",
       cause: commitError,
     });
+    expect(result.error).toBeInstanceOf(QErrors.TransactionFailed);
   });
 
   it("should return TRANSACTION_FAILED with both errors when rollback fails", async () => {
@@ -390,11 +398,12 @@ describe(runTransaction, () => {
     controller.abort(new Error("client gone"));
     const result = await run(async () => 1, { signal: controller.signal });
     expect(driver.begin).not.toHaveBeenCalled();
-    expect(result.error).toStrictEqual({
+    expect(result.error).toMatchObject({
       message: "client gone",
       code: "ABORTED",
       cause: controller.signal.reason,
     });
+    expect(result.error).toBeInstanceOf(QErrors.Aborted);
   });
 
   it("should return ABORTED when aborted while beginning", async () => {
@@ -407,11 +416,12 @@ describe(runTransaction, () => {
     });
     const result = await run(async () => 1, { signal: controller.signal });
     expect(driver.rollback).not.toHaveBeenCalled();
-    expect(result.error).toStrictEqual({
+    expect(result.error).toMatchObject({
       message: "timeout",
       code: "ABORTED",
       cause: controller.signal.reason,
     });
+    expect(result.error).toBeInstanceOf(QErrors.Aborted);
   });
 
   it("should not wait for begin once aborted, and roll back a late begin", async () => {
@@ -433,11 +443,12 @@ describe(runTransaction, () => {
     });
     controller.abort(new Error("client gone"));
     const result = await transaction;
-    expect(result.error).toStrictEqual({
+    expect(result.error).toMatchObject({
       message: "client gone",
       code: "ABORTED",
       cause: controller.signal.reason,
     });
+    expect(result.error).toBeInstanceOf(QErrors.Aborted);
     expect(result.meta.getSpans()[0]).toMatchObject({ status: "failed" });
     resolveBegin?.();
     await vi.waitFor(() => {
@@ -582,11 +593,12 @@ describe(runTransaction, () => {
         {},
         { isConflictError }
       );
-      expect(result.error).toStrictEqual({
+      expect(result.error).toMatchObject({
         message: "could not serialize access",
         code: "TRANSACTION_CONFLICT",
         cause: thrown,
       });
+      expect(result.error).toBeInstanceOf(QErrors.TransactionConflict);
       expect(result.meta.getSpans()[0]).toMatchObject({
         status: "rolled back",
       });
@@ -840,10 +852,11 @@ describe(runTransaction, () => {
         retry: { maxRetries: -1 },
       });
       expect(driver.begin).not.toHaveBeenCalled();
-      expect(result.error).toStrictEqual({
+      expect(result.error).toMatchObject({
         message: "retry.maxRetries must be a non-negative integer, got -1",
         code: "TRANSACTION_FAILED",
       });
+      expect(result.error).toBeInstanceOf(QErrors.TransactionFailed);
       expect(result.meta.name).toBe("invalid");
     });
   });

@@ -48,8 +48,8 @@ class OutOfStockError extends QErrors.DomainRollback {
   override readonly name = "OutOfStockError";
   readonly productId: number;
 
-  constructor(productId: number) {
-    super("OUT_OF_STOCK", { productId });
+  constructor(productId: number, options?: ErrorOptions) {
+    super("OUT_OF_STOCK", { ...options, details: { productId } });
     this.productId = productId;
   }
 }
@@ -60,7 +60,7 @@ describe("DuckdbDatasource transactions", () => {
       ds,
     }) => {
       const domainError = new QErrors.DomainRollback("OUT_OF_STOCK", {
-        productId: 1,
+        details: { productId: 1 },
       });
       const result = await ds.transaction(async (tx) => {
         await insert(tx, 1);
@@ -89,7 +89,9 @@ describe("DuckdbDatasource transactions", () => {
     it("should rethrow a domain rollback from transactionOrThrow", async ({
       ds,
     }) => {
-      const domainError = new OutOfStockError(1);
+      const cause = new Error("stock validation failed");
+      const domainError = new OutOfStockError(1, { cause });
+      expect(domainError.cause).toBe(cause);
       await expect(
         ds.transactionOrThrow(async (tx) => {
           await insert(tx, 1);

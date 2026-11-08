@@ -43,8 +43,8 @@ export class QTooManyResultsError extends Error {
    */
   readonly rowCount: number;
 
-  constructor(rowCount: number) {
-    super(`Expected exactly one row, received ${rowCount}`);
+  constructor(rowCount: number, options?: ErrorOptions) {
+    super(`Expected exactly one row, received ${rowCount}`, options);
     this.rowCount = rowCount;
     addBrand(this, new.target);
   }

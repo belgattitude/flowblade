@@ -90,7 +90,7 @@ describe("MSSQL e2e transactions", () => {
 
   it("should report domain rollback as a typed QResult error", async () => {
     const domainError = new QErrors.DomainRollback("OUT_OF_STOCK", {
-      productId: firstId,
+      details: { productId: firstId },
     });
     const result = await ds.transaction(async (tx) => {
       await insertLinked(tx, firstId);

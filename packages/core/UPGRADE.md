@@ -4,11 +4,26 @@ Breaking changes and how to migrate, by version. See the [CHANGELOG](./CHANGELOG
 
 ## Unreleased
 
-> **Note**: no runtime behavior changes. Query and transaction result types are more specific, and expected domain rollbacks now have a dedicated error class.
+> **Note**: `DomainRollback` now accepts an options bag as its second constructor parameter. Transaction errors returned by `transaction()` are now `Error` instances. Query and transaction result types are more specific, and expected domain rollbacks have dedicated error classes.
 
 ### Transaction domain rollbacks and narrowed transaction errors
 
 Throw `QErrors.DomainRollback` from a transaction callback when a business rejection should roll back the transaction. `transaction()` reports `DOMAIN_ROLLBACK`; `transactionOrThrow()` rethrows that same error instance. The result type is now `TransactionQError`, a discriminated union: check `error.code` before reading domain-only fields.
+
+`QErrors.DomainRollback` now follows the native `Error` constructor convention: pass an options object as the second argument. Move any positional `details` into `options.details`; use `options.cause` to retain an underlying error.
+
+```typescript
+// Before
+new QErrors.DomainRollback("OUT_OF_STOCK", { productId: 7 });
+
+// After
+new QErrors.DomainRollback("OUT_OF_STOCK", {
+  details: { productId: 7 },
+  cause: validationError,
+});
+```
+
+The `error` returned by `transaction()` is now an instance of its matching error class: `QErrors.RolledBack`, `QErrors.TransactionDomainRollback`, `QErrors.TransactionFailed`, `QErrors.TransactionConflict`, or `QErrors.Aborted`. `QErrors.TransactionDomainRollback` extends `QErrors.DomainRollback`, and its `cause` is the original domain error. `QResult.toJsonifiable()` keeps the QError fields and message while omitting the runtime-only cause and Error metadata.
 
 ```typescript
 import { QErrors } from "@flowblade/core";
@@ -16,8 +31,11 @@ import { QErrors } from "@flowblade/core";
 class OutOfStockError extends QErrors.DomainRollback {
   override readonly name = "OutOfStockError";
 
-  constructor(readonly productId: number) {
-    super("OUT_OF_STOCK", { productId });
+  constructor(
+    readonly productId: number,
+    options?: ErrorOptions
+  ) {
+    super("OUT_OF_STOCK", { ...options, details: { productId } });
   }
 }
 

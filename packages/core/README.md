@@ -119,7 +119,7 @@ try {
 
 Datasources supporting transactions implement `TransactionalDatasourceInterface`: `transaction()` (returns a QResult, never throws) and `transactionOrThrow()`. The callback receives a datasource running its queries in the transaction, committed when the callback returns and rolled back when it throws or calls `tx.rollback()`. Throw `QErrors.DomainRollback` for a domain rejection that should be classified separately.
 
-The `transaction()` result uses the `TransactionQError` discriminated union. Checking `error.code` narrows transaction-specific fields: only the `DOMAIN_ROLLBACK` variant has `reason` and `details`.
+The `transaction()` result uses the `TransactionQError` discriminated union. Its `error` is also an `Error` instance, so it can be checked with `instanceof QErrors.RolledBack`, `QErrors.TransactionDomainRollback`, `QErrors.TransactionFailed`, `QErrors.TransactionConflict`, or `QErrors.Aborted`. Checking `error.code` narrows transaction-specific fields: only the `DOMAIN_ROLLBACK` variant has `reason` and `details`.
 
 | `error.code` (`transaction()`) | When | Thrown by `transactionOrThrow()` |
 | --- | --- | --- |
@@ -157,7 +157,7 @@ const { data, error } = await ds.transaction(async (tx) => {
   const { data: order } = await tx.queryOneOrThrow(createOrder);
   if (order.stock < 1) {
     throw new QErrors.DomainRollback("OUT_OF_STOCK", {
-      productId: order.id,
+      details: { productId: order.id },
     });
   }
   await tx.queryOrThrow(decrementStock(order.id));
@@ -166,6 +166,9 @@ const { data, error } = await ds.transaction(async (tx) => {
 
 if (error?.code === "DOMAIN_ROLLBACK") {
   console.log(error.reason, error.details);
+  if (error instanceof QErrors.TransactionDomainRollback) {
+    console.log(error.cause instanceof QErrors.DomainRollback); // original instance
+  }
 } else if (error) {
   // Unexpected callback, query, transaction, conflict, or abort failure.
   throw error.cause;
@@ -182,8 +185,11 @@ import { QErrors } from "@flowblade/core";
 class OutOfStockError extends QErrors.DomainRollback {
   override readonly name = "OutOfStockError";
 
-  constructor(readonly productId: number) {
-    super("OUT_OF_STOCK", { productId });
+  constructor(
+    readonly productId: number,
+    options?: ErrorOptions
+  ) {
+    super("OUT_OF_STOCK", { ...options, details: { productId } });
   }
 }
 

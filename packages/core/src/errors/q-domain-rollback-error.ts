@@ -1,5 +1,9 @@
 import { addBrand, brandKey, hasBrand } from "../utils/brand";
 
+export type QDomainRollbackOptions = ErrorOptions & {
+  details?: unknown;
+};
+
 /**
  * Thrown inside a transaction to represent an expected domain rejection that
  * must roll back. `reason` and `details` are copied to the non-throwing
@@ -18,10 +22,10 @@ export class QDomainRollbackError extends Error {
   readonly reason: string;
   readonly details: unknown;
 
-  constructor(reason: string, details?: unknown) {
-    super(`Domain rollback: ${reason}`);
+  constructor(reason: string, options?: QDomainRollbackOptions) {
+    super(`Domain rollback: ${reason}`, options);
     this.reason = reason;
-    this.details = details;
+    this.details = options?.details;
     addBrand(this, new.target);
   }
 }

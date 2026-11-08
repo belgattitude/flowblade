@@ -6,7 +6,7 @@ const config = createSizeLimitConfig(
       name: "Import * (ESM)",
       path: ["dist/index.js"],
       import: "*",
-      limit: "4.6 kB",
+      limit: "4.7 kB",
     },
     {
       name: "Import { QResult } (ESM)",
@@ -18,7 +18,7 @@ const config = createSizeLimitConfig(
       name: "Import * from '@flowblade/core/datasource' (ESM)",
       path: ["dist/datasource.js"],
       import: "*",
-      limit: "6.6 kB",
+      limit: "6.7 kB",
     },
   ],
   { browserslist: true }

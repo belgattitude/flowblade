@@ -6,6 +6,7 @@ import { QNoResultError } from "./q-no-result-error";
 import { QQueryFailedError } from "./q-query-failed-error";
 import { QRolledBackError } from "./q-rolled-back-error";
 import { QTooManyResultsError } from "./q-too-many-results-error";
+import { QTransactionDomainRollbackError } from "./q-transaction-domain-rollback-error";
 import { QTransactionFailedError } from "./q-transaction-failed-error";
 
 describe("QErrors", () => {
@@ -21,6 +22,9 @@ describe("QErrors", () => {
     });
     expect(QErrors.RolledBack).toBe(QRolledBackError);
     expect(QErrors.TransactionFailed).toBe(QTransactionFailedError);
+    expect(QErrors.TransactionDomainRollback).toBe(
+      QTransactionDomainRollbackError
+    );
     expect(new QErrors.TransactionConflict("deadlock")).toMatchObject({
       name: "QTransactionConflictError",
       code: "TRANSACTION_CONFLICT",
@@ -35,6 +39,7 @@ describe("QErrors", () => {
       "RolledBack",
       "TooManyResults",
       "TransactionConflict",
+      "TransactionDomainRollback",
       "TransactionFailed",
     ]);
   });
@@ -49,13 +54,38 @@ describe("QErrors", () => {
   });
 
   it("should carry a reason and serializable domain details", () => {
+    const cause = new Error("domain validation failed");
     const error = new QErrors.DomainRollback("OUT_OF_STOCK", {
-      productId: 7,
+      details: { productId: 7 },
+      cause,
     });
     expect(error).toBeInstanceOf(QErrors.DomainRollback);
     expect(error.reason).toBe("OUT_OF_STOCK");
     expectTypeOf(error.reason).toEqualTypeOf<string>();
     expect(error.details).toStrictEqual({ productId: 7 });
+    expect(error.cause).toBe(cause);
+  });
+
+  it("should identify transaction domain rollback result errors", () => {
+    const cause = new QErrors.DomainRollback("OUT_OF_STOCK", {
+      details: { productId: 7 },
+    });
+    const error = new QErrors.TransactionDomainRollback("OUT_OF_STOCK", {
+      details: { productId: 7 },
+      cause,
+    });
+
+    expect(error).toBeInstanceOf(QErrors.TransactionDomainRollback);
+    expect(error).toBeInstanceOf(QErrors.DomainRollback);
+    expect(error).toMatchObject({
+      code: "DOMAIN_ROLLBACK",
+      reason: "OUT_OF_STOCK",
+      details: { productId: 7 },
+      cause,
+    });
+    expectTypeOf(error.cause).toEqualTypeOf<
+      QErrors.DomainRollback | undefined
+    >();
   });
 
   it("should be usable as types", () => {
@@ -65,14 +95,17 @@ describe("QErrors", () => {
   });
 
   it("should keep the error names and codes", () => {
-    expect(new QErrors.NoResult()).toMatchObject({
+    const cause = new Error("not found in cache");
+    expect(new QErrors.NoResult({ cause })).toMatchObject({
       name: "QNoResultError",
       code: "NO_RESULT",
+      cause,
     });
-    expect(new QErrors.TooManyResults(2)).toMatchObject({
+    expect(new QErrors.TooManyResults(2, { cause })).toMatchObject({
       name: "QTooManyResultsError",
       code: "TOO_MANY_RESULTS",
       rowCount: 2,
+      cause,
     });
   });
 

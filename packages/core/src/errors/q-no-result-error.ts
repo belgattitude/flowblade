@@ -38,8 +38,8 @@ export class QNoResultError extends Error {
    */
   readonly statusCode = 404 as const;
 
-  constructor() {
-    super("Expected exactly one row, received none");
+  constructor(options?: ErrorOptions) {
+    super("Expected exactly one row, received none", options);
     addBrand(this, new.target);
   }
 }

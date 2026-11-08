@@ -167,7 +167,7 @@ describe("KyselyDatasource transactions", () => {
     it("should classify a domain rollback and preserve its details", async () => {
       const { ds, calls } = createDatasource();
       const domainError = new QErrors.DomainRollback("OUT_OF_STOCK", {
-        productId: 1,
+        details: { productId: 1 },
       });
       const result = await ds.transaction(async (tx) => {
         await tx.queryOrThrow(insertProduct(tx, 1));
@@ -318,11 +318,12 @@ describe("KyselyDatasource transactions", () => {
       expect(calls).not.toContain("commit");
       expect(calls).toHaveLength(4);
       expect(getReleased()).toBe(1);
-      expect(result.error).toStrictEqual({
+      expect(result.error).toMatchObject({
         message: "Query failed: UNIQUE constraint failed",
         code: "ROLLED_BACK",
         cause: expect.any(QErrors.QueryFailed),
       });
+      expect(result.error).toBeInstanceOf(QErrors.RolledBack);
       expect(result.error?.cause).toHaveProperty("cause", driverError);
       // the failed query span is kept
       expect(result.meta.getSpansByType("sql")).toHaveLength(2);
@@ -362,11 +363,12 @@ describe("KyselyDatasource transactions", () => {
       const result = await ds.transaction(fn);
       expect(fn).not.toHaveBeenCalled();
       expect(getReleased()).toBe(1);
-      expect(result.error).toStrictEqual({
+      expect(result.error).toMatchObject({
         message: "connection refused",
         code: "TRANSACTION_FAILED",
         cause: beginError,
       });
+      expect(result.error).toBeInstanceOf(QErrors.TransactionFailed);
       expect(logger.error).toHaveBeenCalledOnce();
     });
 
@@ -378,11 +380,12 @@ describe("KyselyDatasource transactions", () => {
       const result = await ds.transaction(async () => 1);
       expect(calls).toStrictEqual(["begin", "commit", "rollback"]);
       expect(getReleased()).toBe(1);
-      expect(result.error).toStrictEqual({
+      expect(result.error).toMatchObject({
         message: "deadlock",
         code: "TRANSACTION_FAILED",
         cause: commitError,
       });
+      expect(result.error).toBeInstanceOf(QErrors.TransactionFailed);
     });
 
     it("should abort the queries and roll back with the transaction signal", async () => {
@@ -512,12 +515,13 @@ describe("KyselyDatasource transactions", () => {
       expect(calls).not.toContain("commit");
       expect(calls.at(-1)).toBe("rollback");
       expect(getReleased()).toBe(1);
-      expect(result.error).toStrictEqual({
+      expect(result.error).toMatchObject({
         message:
           "A query failed in the transaction, it can't be committed: current transaction is aborted",
         code: "TRANSACTION_FAILED",
         cause: driverError,
       });
+      expect(result.error).toBeInstanceOf(QErrors.TransactionFailed);
       expect(result.meta.getSpans()[0]).toMatchObject({
         status: "rolled back",
       });

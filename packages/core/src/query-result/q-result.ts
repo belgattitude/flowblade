@@ -12,6 +12,10 @@ import type { MapFailedQError, QError } from "./types";
  */
 export type QResultShape = "many" | "one";
 
+type QErrorJsonifiable<TError> = TError extends QError
+  ? Omit<TError, "cause" | "name" | "stack" | "statusCode">
+  : TError;
+
 interface ConstructorParams<TData, TError extends QError | undefined> {
   meta?: QMeta;
   data?: TData;
@@ -49,7 +53,7 @@ type QResultMappedData<TData, TMappedRow> = TData extends readonly unknown[]
 
 export type QResultJsonifiable<TData, TError extends QError | undefined> = {
   data?: TData;
-  error?: TError;
+  error?: QErrorJsonifiable<TError>;
   meta: QMetaJsonifiable;
 };
 
@@ -435,9 +439,23 @@ class QResultImpl<TData, TError extends QError | undefined> {
       json.data = this.data;
     }
     if (this.error !== undefined) {
-      // The cause (ie: driver error) isn't serializable and might leak internals
-      const { cause: _cause, ...error } = this.error;
-      json.error = error as TError;
+      // Error fields are non-enumerable; explicitly keep the message while
+      // omitting runtime-only details and fields outside the QError shape.
+      const {
+        cause: _cause,
+        name: _name,
+        stack: _stack,
+        statusCode: _statusCode,
+        ...error
+      } = this.error as TError & {
+        name?: unknown;
+        stack?: unknown;
+        statusCode?: unknown;
+      };
+      json.error = {
+        ...error,
+        message: this.error.message,
+      } as QErrorJsonifiable<TError>;
     }
     return json;
   };

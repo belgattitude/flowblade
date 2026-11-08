@@ -1,4 +1,8 @@
-import type { QDomainRollbackError } from "../errors/q-domain-rollback-error";
+import type { QAbortedError } from "../errors/q-aborted-error";
+import type { QRolledBackError } from "../errors/q-rolled-back-error";
+import type { QTransactionConflictError } from "../errors/q-transaction-conflict-error";
+import type { QTransactionDomainRollbackError } from "../errors/q-transaction-domain-rollback-error";
+import type { QTransactionFailedError } from "../errors/q-transaction-failed-error";
 import type { QResult } from "./q-result";
 
 /**
@@ -71,16 +75,11 @@ export type MapFailedQError = QErrorWithCode<"MAP_FAILED">;
  * runtime-only.
  */
 export type TransactionQError =
-  | (QError & { code: "ROLLED_BACK" })
-  | (QError & {
-      code: "DOMAIN_ROLLBACK";
-      reason: string;
-      details: unknown;
-      cause?: QDomainRollbackError;
-    })
-  | (QError & { code: "TRANSACTION_FAILED" })
-  | (QError & { code: "TRANSACTION_CONFLICT" })
-  | AbortedQError;
+  | QRolledBackError
+  | QTransactionDomainRollbackError
+  | QTransactionFailedError
+  | QTransactionConflictError
+  | QAbortedError;
 
 export type AsyncQResult<
   TData,

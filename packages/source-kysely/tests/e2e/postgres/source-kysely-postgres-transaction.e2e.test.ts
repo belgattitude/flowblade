@@ -105,7 +105,7 @@ describe("Postgres e2e transactions", () => {
 
   it("should report domain rollback as a typed QResult error", async () => {
     const domainError = new QErrors.DomainRollback("OUT_OF_STOCK", {
-      productId: 3,
+      details: { productId: 3 },
     });
     const result = await ds.transaction(async (tx) => {
       await insert(tx, 3);
