@@ -1,3 +1,4 @@
+import type { QDomainRollbackError } from "../errors/q-domain-rollback-error";
 import type { QResult } from "./q-result";
 
 /**
@@ -9,7 +10,7 @@ import type { QResult } from "./q-result";
  * - "ROLLED_BACK": the `transaction()` callback threw (or called `tx.rollback()`)
  *   and the transaction was rolled back, the thrown value is the cause,
  * - "DOMAIN_ROLLBACK": the callback threw a `QErrors.DomainRollback`; the
- *   reason and details are included for safe inspection and serialization,
+ *   transaction error includes its reason and serializable details,
  * - "TRANSACTION_FAILED": the transaction couldn't begin, commit or roll back,
  *   the driver error is the cause,
  * - "TRANSACTION_CONFLICT": the transaction conflicts with a concurrent one
@@ -33,14 +34,6 @@ export type QError = {
    */
   code: QErrorCode;
   /**
-   * Domain-specific reason for `DOMAIN_ROLLBACK` errors.
-   */
-  reason?: string;
-  /**
-   * Serializable domain details for `DOMAIN_ROLLBACK` errors.
-   */
-  details?: unknown;
-  /**
    * The original error (ie: the driver error), useful to inspect
    * driver specific details like error codes.
    *
@@ -49,6 +42,23 @@ export type QError = {
    */
   cause?: unknown;
 };
+
+/**
+ * Errors returned by `transaction()`. The code discriminates the available
+ * fields; `DOMAIN_ROLLBACK` requires `reason` and `details`, while `cause` is
+ * runtime-only.
+ */
+export type TransactionQError =
+  | (QError & { code: "ROLLED_BACK" })
+  | (QError & {
+      code: "DOMAIN_ROLLBACK";
+      reason: string;
+      details: unknown;
+      cause?: QDomainRollbackError;
+    })
+  | (QError & { code: "TRANSACTION_FAILED" })
+  | (QError & { code: "TRANSACTION_CONFLICT" })
+  | (QError & { code: "ABORTED" });
 
 export type AsyncQResult<
   TData,

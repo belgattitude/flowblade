@@ -11,7 +11,11 @@ import {
   type QMetaTransactionSpan,
 } from "../meta/q-meta";
 import { QResult } from "../query-result/q-result";
-import type { AsyncQResult, QError } from "../query-result/types";
+import type {
+  AsyncQResult,
+  QError,
+  TransactionQError,
+} from "../query-result/types";
 import { isError } from "./brand";
 import { createExponentialBackoff } from "./retry-backoff";
 
@@ -246,11 +250,11 @@ const raceAbort = async <T>(
 /**
  * Log the result of a transaction, and return it.
  */
-const logResult = <TData>(
-  result: QResult<TData, QError>,
+const logResult = <TData, TError extends QError>(
+  result: QResult<TData, TError>,
   logger: TransactionLogger | undefined,
   logProps: Record<string, unknown>
-): QResult<TData, QError> => {
+): QResult<TData, TError> => {
   if (logger === undefined) {
     return result;
   }
@@ -296,7 +300,7 @@ const logResult = <TData>(
 const runAttempt = async <TTx, TData>(
   params: RunTransactionParams<TTx, TData>,
   retries: number
-): AsyncQResult<TData> => {
+): AsyncQResult<TData, TransactionQError> => {
   const {
     begin,
     commit,
@@ -345,9 +349,9 @@ const runAttempt = async <TTx, TData>(
 
   const failure = (
     status: QMetaTransactionSpan["status"],
-    error: QError
-  ): QResult<TData, QError> =>
-    new QResult<TData, QError>({ meta: createMeta(status), error });
+    error: TransactionQError
+  ): QResult<TData, TransactionQError> =>
+    new QResult<TData, TransactionQError>({ meta: createMeta(status), error });
 
   const aborted = (status: QMetaTransactionSpan["status"]) =>
     failure(status, {
@@ -363,7 +367,7 @@ const runAttempt = async <TTx, TData>(
   const conflict = (
     status: QMetaTransactionSpan["status"],
     error: unknown
-  ): QResult<TData, QError> | undefined => {
+  ): QResult<TData, TransactionQError> | undefined => {
     if (isConflictError === undefined) {
       return undefined;
     }
@@ -443,7 +447,7 @@ const runAttempt = async <TTx, TData>(
    */
   const rollbackOrFail = async (
     error: unknown
-  ): Promise<QResult<TData, QError> | undefined> => {
+  ): Promise<QResult<TData, TransactionQError> | undefined> => {
     try {
       await timed(() => rollback(tx));
       return undefined;
@@ -481,17 +485,23 @@ const runAttempt = async <TTx, TData>(
     if (isAborted()) {
       return aborted("rolled back");
     }
+    if (error instanceof QDomainRollbackError) {
+      return (
+        conflict("rolled back", error) ??
+        failure("rolled back", {
+          message: getErrorMessage(error),
+          code: "DOMAIN_ROLLBACK",
+          reason: error.reason,
+          details: error.details,
+          cause: error,
+        })
+      );
+    }
     return (
       conflict("rolled back", error) ??
       failure("rolled back", {
         message: getErrorMessage(error),
-        code:
-          error instanceof QDomainRollbackError
-            ? "DOMAIN_ROLLBACK"
-            : "ROLLED_BACK",
-        ...(error instanceof QDomainRollbackError
-          ? { reason: error.reason, details: error.details }
-          : {}),
+        code: "ROLLED_BACK",
         cause: error,
       })
     );
@@ -527,7 +537,7 @@ const runAttempt = async <TTx, TData>(
     return conflict("failed", error) ?? transactionFailed(error);
   }
 
-  return new QResult<TData, QError>({
+  return new QResult<TData, TransactionQError>({
     meta: createMeta("committed"),
     data,
     shape: Array.isArray(data) ? "many" : "one",
@@ -586,7 +596,7 @@ const runAttempt = async <TTx, TData>(
  */
 export const runTransaction = async <TTx, TData>(
   params: RunTransactionParams<TTx, TData>
-): AsyncQResult<TData> => {
+): AsyncQResult<TData, TransactionQError> => {
   const { options, defaultRetry, onRetry, log } = params;
   const name = options?.name ?? "anonymous";
   const logProps = {
@@ -606,7 +616,7 @@ export const runTransaction = async <TTx, TData>(
   if (!isValidRetry(retry)) {
     // never throws, like the other failures
     return logResult(
-      new QResult<TData, QError>({
+      new QResult<TData, TransactionQError>({
         meta: new QMeta({ name }),
         error: {
           message: `retry.maxRetries must be a non-negative integer, got ${retry?.maxRetries}`,
@@ -891,7 +901,7 @@ export const runSavepoint = async <TSp, TData>(
     timeMs,
   };
   parent.addSpan(span);
-  return new QResult<TData, QError>({
+  return new QResult<TData, TransactionQError>({
     meta: new QMeta({ name, spans: [span, ...spans] }),
     data,
     shape: Array.isArray(data) ? "many" : "one",

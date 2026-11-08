@@ -41,7 +41,12 @@ const toDefaultException = (qError: QError): Error => {
   if (code === "DOMAIN_ROLLBACK") {
     return cause instanceof QDomainRollbackError
       ? cause
-      : new QDomainRollbackError(qError.reason ?? message, qError.details);
+      : new QDomainRollbackError(
+          "reason" in qError && typeof qError.reason === "string"
+            ? qError.reason
+            : message,
+          "details" in qError ? qError.details : undefined
+        );
   }
   if (code === "TRANSACTION_FAILED") {
     return new QTransactionFailedError(message, { cause });

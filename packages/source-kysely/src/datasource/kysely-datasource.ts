@@ -11,6 +11,7 @@ import {
   type QueryStreamOptions,
   type TransactionalDatasourceInterface,
   type TransactionOptions,
+  type TransactionQError,
   type TransactionOrThrowOptions,
   type TransactionScopeInterface,
   type SavepointOptions,
@@ -776,7 +777,7 @@ export class KyselyDatasource<TDatabase>
   transaction = async <TData>(
     fn: (tx: KyselyTransactionDatasource<TDatabase>) => Promise<TData>,
     options?: TransactionOptions
-  ): AsyncQResult<TData> => {
+  ): AsyncQResult<TData, TransactionQError> => {
     const { isolationLevel, accessMode } = options ?? {};
 
     const result = await runTransaction<

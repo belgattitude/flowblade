@@ -175,8 +175,17 @@ describe("KyselyDatasource transactions", () => {
       });
 
       expect(result.error?.code).toBe("DOMAIN_ROLLBACK");
-      expect(result.error?.reason).toBe("OUT_OF_STOCK");
-      expect(result.error?.details).toStrictEqual({ productId: 1 });
+      expect(result.error).toMatchObject({
+        reason: "OUT_OF_STOCK",
+        details: { productId: 1 },
+      });
+      if (result.error?.code === "DOMAIN_ROLLBACK") {
+        expectTypeOf(result.error.reason).toEqualTypeOf<string>();
+        expectTypeOf(result.error.details).toEqualTypeOf<unknown>();
+        expectTypeOf(result.error.cause).toEqualTypeOf<
+          QErrors.DomainRollback | undefined
+        >();
+      }
       expect(result.error?.cause).toBe(domainError);
       expect(calls.at(-1)).toBe("rollback");
       expect(calls).not.toContain("commit");

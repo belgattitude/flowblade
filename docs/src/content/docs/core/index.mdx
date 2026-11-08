@@ -92,6 +92,10 @@ datasource bound to the transaction. Use it for every query in the callback and
 await queries before returning. The transaction waits for tracked in-flight
 queries before it commits or rolls back.
 
+The `transaction()` result error is the `TransactionQError` discriminated
+union. Checking `error.code` narrows transaction-specific fields; only
+`DOMAIN_ROLLBACK` has `reason` and `details`.
+
 | Transaction error code | Meaning |
 | --- | --- |
 | `ROLLED_BACK` | The callback threw unexpectedly or called `tx.rollback()`. |
@@ -143,13 +147,11 @@ const { data, error } = await ds.transaction(async (tx) => {
   return order.id;
 });
 
-if (error) {
-  throw error.cause; // query or transaction failure
-}
 if (error?.code === "DOMAIN_ROLLBACK") {
   console.log(error.reason, error.details);
 } else if (error) {
   // Query, transaction, conflict, abort, or unexpected callback failure.
+  throw error.cause;
 } else {
   console.log(data); // committed
 }
@@ -159,15 +161,42 @@ if (error?.code === "DOMAIN_ROLLBACK") {
 be handled with `instanceof`:
 
 ```typescript
+import { QErrors } from "@flowblade/core";
+
+class OutOfStockError extends QErrors.DomainRollback {
+  override readonly name = "OutOfStockError";
+
+  constructor(readonly productId: number) {
+    super("OUT_OF_STOCK", { productId });
+  }
+}
+
 try {
   await ds.transactionOrThrow(async (tx) => {
-    throw new QErrors.DomainRollback("OUT_OF_STOCK", { productId: 7 });
+    throw new OutOfStockError(7);
   });
 } catch (error) {
-  if (error instanceof QErrors.DomainRollback) {
-    console.log(error.reason, error.details);
+  if (error instanceof OutOfStockError) {
+    console.log(error.productId); // custom, strongly typed property
+  } else if (error instanceof QErrors.DomainRollback) {
+    console.log(error.reason, error.details); // another domain rollback
   } else {
     throw error;
+  }
+}
+```
+
+With `transaction()`, branch on the transaction error code; the original
+custom instance is available as `cause`:
+
+```typescript
+const { error } = await ds.transaction(async () => {
+  throw new OutOfStockError(7);
+});
+
+if (error?.code === "DOMAIN_ROLLBACK") {
+  if (error.cause instanceof OutOfStockError) {
+    console.log(error.cause.productId);
   }
 }
 ```

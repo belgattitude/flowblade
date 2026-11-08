@@ -16,6 +16,7 @@ import {
   type QueryStreamOptions,
   type TransactionalDatasourceInterface,
   type TransactionOptions,
+  type TransactionQError,
   type TransactionOrThrowOptions,
   type TransactionScopeInterface,
 } from "@flowblade/core";
@@ -673,7 +674,7 @@ export class DuckdbDatasource
   transaction = async <TData>(
     fn: (tx: DuckdbTransactionDatasource) => Promise<TData>,
     options?: DuckdbTransactionOptions
-  ): AsyncQResult<TData> => {
+  ): AsyncQResult<TData, TransactionQError> => {
     const accessMode = options?.accessMode;
 
     const result = await runTransaction<

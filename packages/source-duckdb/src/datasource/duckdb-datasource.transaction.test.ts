@@ -58,8 +58,17 @@ describe("DuckdbDatasource transactions", () => {
       });
 
       expect(result.error?.code).toBe("DOMAIN_ROLLBACK");
-      expect(result.error?.reason).toBe("OUT_OF_STOCK");
-      expect(result.error?.details).toStrictEqual({ productId: 1 });
+      expect(result.error).toMatchObject({
+        reason: "OUT_OF_STOCK",
+        details: { productId: 1 },
+      });
+      if (result.error?.code === "DOMAIN_ROLLBACK") {
+        expectTypeOf(result.error.reason).toEqualTypeOf<string>();
+        expectTypeOf(result.error.details).toEqualTypeOf<unknown>();
+        expectTypeOf(result.error.cause).toEqualTypeOf<
+          QErrors.DomainRollback | undefined
+        >();
+      }
       expect(result.error?.cause).toBe(domainError);
       expect(result.meta.getSpans()[0]).toMatchObject({
         status: "rolled back",

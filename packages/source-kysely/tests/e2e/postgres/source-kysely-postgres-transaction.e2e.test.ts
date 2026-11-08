@@ -113,8 +113,10 @@ describe("Postgres e2e transactions", () => {
     });
 
     expect(result.error?.code).toBe("DOMAIN_ROLLBACK");
-    expect(result.error?.reason).toBe("OUT_OF_STOCK");
-    expect(result.error?.details).toStrictEqual({ productId: 3 });
+    expect(result.error).toMatchObject({
+      reason: "OUT_OF_STOCK",
+      details: { productId: 3 },
+    });
     expect(result.error?.cause).toBe(domainError);
     expect(result.meta.getSpans()[0]).toMatchObject({
       type: "transaction",

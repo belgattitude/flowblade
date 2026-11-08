@@ -1,6 +1,6 @@
 import type { QErrorFactory } from "../errors/q-error-factories";
 import type { QMeta } from "../meta/q-meta";
-import type { AsyncQResult } from "../query-result/types";
+import type { AsyncQResult, TransactionQError } from "../query-result/types";
 import type { DatasourceInterface } from "./datasource.interface";
 
 /**
@@ -271,7 +271,8 @@ export interface TransactionalDatasourceInterface<
    *   }
    * );
    * if (error) {
-   *   // "ROLLED_BACK", "TRANSACTION_FAILED", "TRANSACTION_CONFLICT" or "ABORTED"
+   *   // "ROLLED_BACK", "DOMAIN_ROLLBACK", "TRANSACTION_FAILED",
+   *   // "TRANSACTION_CONFLICT" or "ABORTED"
    *   console.error(error.code, error.message, error.cause);
    * }
    * ```
@@ -279,7 +280,7 @@ export interface TransactionalDatasourceInterface<
   transaction: <TData>(
     fn: (tx: TTx) => Promise<TData>,
     options?: TransactionOptions
-  ) => AsyncQResult<TData>;
+  ) => AsyncQResult<TData, TransactionQError>;
 
   /**
    * Run a callback in a transaction and return the value returned by the
