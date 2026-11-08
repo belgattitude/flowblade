@@ -157,6 +157,30 @@ describe("DuckdbDatasource transactions", () => {
       await expect(getIds(ds)).resolves.toStrictEqual([]);
     });
 
+    it("should roll back a failed statement and preserve a domain rollback", async ({
+      ds,
+    }) => {
+      const domainError = new QErrors.DomainRollback("DUPLICATE_PRODUCT", {
+        details: { productId: 1 },
+      });
+      const result = await ds.transaction(async (tx) => {
+        await insert(tx, 1);
+        const { error } = await tx.query(
+          sql`INSERT INTO product VALUES (1::INTEGER)`
+        );
+        expect(error?.code).toBe("QUERY_FAILED");
+        throw domainError;
+      });
+
+      // DuckDB rejects the statement but leaves the transaction roll-backable.
+      expect(result.error).toBeInstanceOf(QErrors.TransactionDomainRollback);
+      expect(result.error?.cause).toBe(domainError);
+      expect(result.meta.getSpans()[0]).toMatchObject({
+        status: "rolled back",
+      });
+      await expect(getIds(ds)).resolves.toStrictEqual([]);
+    });
+
     it("should roll back with tx.rollback()", async ({ ds }) => {
       const result = await ds.transaction(async (tx) => {
         await insert(tx, 1);

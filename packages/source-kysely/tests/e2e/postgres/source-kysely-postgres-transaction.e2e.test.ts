@@ -163,6 +163,60 @@ describe("Postgres e2e transactions", () => {
     await expect(getIds()).resolves.toStrictEqual([1, 2]);
   });
 
+  it("should roll back a PostgreSQL transaction aborted by a trigger", async () => {
+    await ds.queryOrThrow(sql`
+      CREATE OR REPLACE FUNCTION flowblade_test_abort_transaction()
+      RETURNS trigger
+      LANGUAGE plpgsql
+      AS $$
+      BEGIN
+        IF NEW.id = 3 THEN
+          RAISE EXCEPTION 'trigger rejected stock update';
+        END IF;
+        RETURN NEW;
+      END;
+      $$
+    `);
+    await ds.queryOrThrow(sql`
+      CREATE TRIGGER flowblade_test_abort_transaction
+      BEFORE INSERT ON stock
+      FOR EACH ROW
+      EXECUTE FUNCTION flowblade_test_abort_transaction()
+    `);
+    const domainError = new QErrors.DomainRollback("STOCK_REJECTED", {
+      details: { productId: 3 },
+    });
+
+    try {
+      const result = await ds.transaction(async (tx) => {
+        await insert(tx, 4);
+        const { error } = await tx.query(
+          tx.queryBuilder
+            .insertInto("stock")
+            .values({ id: 3, name: "trigger-rejected", quantity: 1 })
+        );
+        expect(error?.code).toBe("QUERY_FAILED");
+        throw domainError;
+      });
+
+      // PostgreSQL marks the transaction aborted after the trigger exception,
+      // but explicit ROLLBACK still succeeds; there is no SQL Server 3903 case.
+      expect(result.error).toBeInstanceOf(QErrors.TransactionDomainRollback);
+      expect(result.error?.cause).toBe(domainError);
+      expect(result.meta.getSpans()[0]).toMatchObject({
+        status: "rolled back",
+      });
+      await expect(getIds()).resolves.toStrictEqual([1, 2]);
+    } finally {
+      await ds.queryOrThrow(
+        sql`DROP TRIGGER IF EXISTS flowblade_test_abort_transaction ON stock`
+      );
+      await ds.queryOrThrow(
+        sql`DROP FUNCTION IF EXISTS flowblade_test_abort_transaction()`
+      );
+    }
+  });
+
   describe("savepoint", () => {
     it("should roll back the savepoint only, the transaction goes on", async () => {
       const result = await ds.transaction(async (tx) => {

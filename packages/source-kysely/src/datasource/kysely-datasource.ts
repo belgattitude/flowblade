@@ -43,6 +43,7 @@ import type {
 
 import { getKyselyErrorMessage } from "../internal/get-kysely-error-message.ts";
 import { isKyselyStreamable } from "../internal/is-kysely-streamable.ts";
+import { isKyselyTransactionAlreadyRolledBack } from "../internal/is-kysely-transaction-already-rolled-back.ts";
 import { isKyselyTransactionConflict } from "../internal/is-kysely-transaction-conflict.ts";
 import { parseBigIntToSafeInt } from "../internal/parse-bigint-to-safeint.ts";
 import { kyselyDefaultLogtapeLogger } from "../logger/kysely-default-logtape-logger.ts";
@@ -826,7 +827,13 @@ export class KyselyDatasource<TDatabase>
         await trx.commit().execute();
       },
       rollback: async ({ trx }) => {
-        await trx.rollback().execute();
+        try {
+          await trx.rollback().execute();
+        } catch (error) {
+          if (!isKyselyTransactionAlreadyRolledBack(error)) {
+            throw error;
+          }
+        }
       },
     });
 

@@ -354,6 +354,10 @@ const { data } = await ds.transactionOrThrow(async (tx) => {
 
 Throw `QErrors.DomainRollback` from the transaction callback for an expected domain rejection that should roll back. `transaction()` reports `DOMAIN_ROLLBACK` with serializable `reason` and `details`; `transactionOrThrow()` rethrows the error instance for `instanceof` handling. See the [core transaction guide](https://belgattitude.github.io/flowblade/docs/core#domain-rollbacks) for an example.
 
+On SQL Server, a trigger or other database logic can roll back the transaction before Flowblade starts its cleanup. If the cleanup rollback then returns driver error `3903` (no corresponding active transaction), Flowblade treats that rollback as already complete and preserves the original callback error, including `QErrors.DomainRollback`. Other rollback errors are still reported as `TRANSACTION_FAILED`.
+
+PostgreSQL behaves differently: a trigger exception marks the transaction as aborted, but the transaction remains open until the client issues `ROLLBACK`. Flowblade's rollback succeeds in that state, so the original callback/domain error is preserved without special handling for PostgreSQL.
+
 Conflicts with a concurrent transaction (serialization failure, deadlock) are reported as `TRANSACTION_CONFLICT`, run the transaction again with the `retry` option (the callback is called again: keep its side effects in the transaction):
 
 ```typescript
