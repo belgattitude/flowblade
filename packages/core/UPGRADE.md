@@ -2,6 +2,85 @@
 
 Breaking changes and how to migrate, by version. See the [CHANGELOG](./CHANGELOG.md) for all changes.
 
+## Unreleased
+
+> **Note**: no runtime behavior changes. Query and transaction result types are more specific, and expected domain rollbacks now have a dedicated error class.
+
+### Transaction domain rollbacks and narrowed transaction errors
+
+Throw `QErrors.DomainRollback` from a transaction callback when a business rejection should roll back the transaction. `transaction()` reports `DOMAIN_ROLLBACK`; `transactionOrThrow()` rethrows that same error instance. The result type is now `TransactionQError`, a discriminated union: check `error.code` before reading domain-only fields.
+
+```typescript
+import { QErrors } from "@flowblade/core";
+
+class OutOfStockError extends QErrors.DomainRollback {
+  override readonly name = "OutOfStockError";
+
+  constructor(readonly productId: number) {
+    super("OUT_OF_STOCK", { productId });
+  }
+}
+
+const { data, error } = await ds.transaction(async (tx) => {
+  const { data: order } = await tx.queryOneOrThrow(createOrder);
+  if (order.stock < 1) {
+    throw new OutOfStockError(order.id);
+  }
+  await tx.queryOrThrow(decrementStock(order.id));
+  return order.id;
+});
+
+if (error?.code === "DOMAIN_ROLLBACK") {
+  console.log(error.reason, error.details);
+  if (error.cause instanceof OutOfStockError) {
+    console.log(error.cause.productId);
+  }
+} else if (error) {
+  // Other transaction failures: ROLLED_BACK, TRANSACTION_FAILED,
+  // TRANSACTION_CONFLICT, or ABORTED.
+  throw error.cause;
+} else {
+  console.log(data); // committed
+}
+```
+
+For exception-style handling, `transactionOrThrow()` rethrows the same custom instance:
+
+```typescript
+try {
+  await ds.transactionOrThrow(async () => {
+    throw new OutOfStockError(7);
+  });
+} catch (error) {
+  if (error instanceof OutOfStockError) {
+    console.log(error.productId);
+  } else {
+    throw error;
+  }
+}
+```
+
+`details` should be serializable if it crosses a process boundary. In `transaction()` results, `cause` is runtime-only and may be absent after serialization; use `reason` and `details` for portable handling.
+
+### Query errors narrow by operation and code
+
+The broad `QError` shape remains available for generic code. Datasource `query()` and `queryOne()` now return `QueryQError` and `QueryOneQError`, respectively. This lets TypeScript narrow the error variant by `code`. `AbortedQError.cause` is `unknown`, matching `AbortSignal.reason`, which may be any JavaScript value. `QResult.map()` preserves its input errors and adds `MapFailedQError`.
+
+```typescript
+const { error } = await ds.query(query, { signal });
+if (error?.code === "ABORTED") {
+  // error is AbortedQError; cause may be a DOMException, Error, string, etc.
+  console.log(error.cause);
+}
+
+const one = await ds.queryOne(query, { signal });
+if (one.error?.code === "TOO_MANY_RESULTS") {
+  console.log(one.error.cause);
+}
+```
+
+Most callers need no changes: inferred results now provide better narrowing, and `QError` itself remains unchanged. Update explicit method-result types and custom datasource implementations to use `QueryQError` for `query()`, `QueryOneQError` for `queryOne()`, and `TransactionQError` for `transaction()`. When writing generic code that intentionally accepts any Flowblade error, continue to use `QError`.
+
 ## 0.8.0
 
 > **Note**: no breaking change, `QResult.getOrThrow()` is deprecated and will be removed in a future release.

@@ -43,6 +43,28 @@ export type QError = {
   cause?: unknown;
 };
 
+type QErrorWithCode<TCode extends QErrorCode> = Omit<QError, "code"> & {
+  code: TCode;
+};
+
+/**
+ * An aborted query result. `cause` is the signal's reason, which can be any
+ * JavaScript value.
+ */
+export type AbortedQError = QErrorWithCode<"ABORTED">;
+
+/** Errors returned by `query()`. */
+export type QueryQError = QErrorWithCode<"QUERY_FAILED"> | AbortedQError;
+
+/** A `queryOne()` result contains more than one row. */
+export type TooManyResultsQError = QErrorWithCode<"TOO_MANY_RESULTS">;
+
+/** Errors returned by `queryOne()`, including the multiple-row case. */
+export type QueryOneQError = QueryQError | TooManyResultsQError;
+
+/** Error added by `QResult.map()` when its mapper throws. */
+export type MapFailedQError = QErrorWithCode<"MAP_FAILED">;
+
 /**
  * Errors returned by `transaction()`. The code discriminates the available
  * fields; `DOMAIN_ROLLBACK` requires `reason` and `details`, while `cause` is
@@ -58,7 +80,7 @@ export type TransactionQError =
     })
   | (QError & { code: "TRANSACTION_FAILED" })
   | (QError & { code: "TRANSACTION_CONFLICT" })
-  | (QError & { code: "ABORTED" });
+  | AbortedQError;
 
 export type AsyncQResult<
   TData,

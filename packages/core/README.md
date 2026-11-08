@@ -69,6 +69,15 @@ result.map((row) => {
 });
 ```
 
+`QError` remains the broad error shape. Datasource `query()` and `queryOne()` results use `QueryQError` and `QueryOneQError`, so checking `error.code === "ABORTED"` narrows to `AbortedQError`. Its `cause` is `unknown`, matching `AbortSignal.reason`, which can be any JavaScript value. Mapping a result preserves its error variants and adds `MapFailedQError`.
+
+```typescript
+const { error } = await ds.query(query, { signal });
+if (error?.code === "ABORTED") {
+  console.log(error.cause); // the signal's reason; not necessarily an Error
+}
+```
+
 > **Deprecated**: `result.getOrThrow()` will be removed, use the datasource throwing methods instead (`ds.queryOrThrow(query)`, `ds.queryOneOrThrow(query, { defaultValue: null })`) or check `error` / `isError()`.
 
 ### QErrors
@@ -165,9 +174,7 @@ if (error?.code === "DOMAIN_ROLLBACK") {
 }
 ```
 
-For exception-based handling, subclass `QErrors.DomainRollback` to add a typed
-domain-specific error. `transactionOrThrow()` rethrows the same instance, so
-you can catch it with `instanceof`:
+For exception-based handling, subclass `QErrors.DomainRollback` to add a typed domain-specific error. `transactionOrThrow()` rethrows the same instance, so you can catch it with `instanceof`:
 
 ```typescript
 import { QErrors } from "@flowblade/core";
@@ -195,8 +202,7 @@ try {
 }
 ```
 
-With `transaction()`, branch on the transaction error code; the original
-custom instance is available as `cause`:
+With `transaction()`, branch on the transaction error code; the original custom instance is available as `cause`:
 
 ```typescript
 const { error } = await ds.transaction(async () => {

@@ -56,6 +56,20 @@ Throwing methods convert query and transaction failures to classes under
 `TransactionFailed`, and `TransactionConflict`. These errors provide suggested
 HTTP status codes; applications choose how to map them to responses.
 
+The general `QError` type remains broad. Datasource `query()` and `queryOne()`
+results use `QueryQError` and `QueryOneQError`; checking
+`error.code === "ABORTED"` narrows to `AbortedQError`. Its `cause` is
+`unknown`, matching `AbortSignal.reason`, which may be any JavaScript value.
+`QResult.map()` keeps this narrowing while adding its own `MAP_FAILED` variant.
+
+```typescript
+const { error } = await ds.query(query, { signal });
+if (error?.code === "ABORTED") {
+  // error is AbortedQError; the signal's reason is not necessarily an Error.
+  console.log(error.cause);
+}
+```
+
 ```typescript
 const { data, error, meta } = await ds.query(query);
 

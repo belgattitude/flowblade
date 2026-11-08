@@ -49,9 +49,14 @@ export type { InferQResult } from "./query-result/infer-q-result";
 export type { QResultJsonifiable, QResultShape } from "./query-result/q-result";
 export { QResult } from "./query-result/q-result";
 export type {
+  AbortedQError,
   AsyncQResult,
+  MapFailedQError,
   QError,
   QErrorCode,
+  QueryOneQError,
+  QueryQError,
+  TooManyResultsQError,
   TransactionQError,
 } from "./query-result/types";
 export {

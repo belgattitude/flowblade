@@ -13,6 +13,8 @@ import {
   type DatasourceInterface,
   type QError,
   QMeta,
+  type QueryOneQError,
+  type QueryQError,
   type DatasourceDefaultOptions,
   type QResult,
   type QueryOneOrThrowOptions,
@@ -89,7 +91,7 @@ export class DummyDatasource implements DatasourceInterface {
   query = async <TData extends unknown[]>(
     rawQuery: SqlTag<TData>,
     options?: QueryOptions
-  ): AsyncQResult<TData> => {
+  ): AsyncQResult<TData, QueryQError> => {
     const { name } = options ?? {};
     const { text: sql, values: params } = rawQuery;
     const meta = createSqlSpan({ sql, params });
@@ -178,7 +180,7 @@ export class DummyDatasource implements DatasourceInterface {
   queryOne = async <TData extends unknown[]>(
     rawQuery: SqlTag<TData>,
     options?: QueryOptions
-  ): AsyncQResult<TData[number] | null> =>
+  ): AsyncQResult<TData[number] | null, QueryOneQError> =>
     toOneRowQResult(await this.query<TData>(rawQuery, options));
 
   /**

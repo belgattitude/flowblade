@@ -8,7 +8,7 @@ import { QNoResultError } from "../errors/q-no-result-error";
 import { QTooManyResultsError } from "../errors/q-too-many-results-error";
 import type { QMeta, QMetaSqlSpan } from "../meta/q-meta";
 import { QResult } from "../query-result/q-result";
-import type { QError } from "../query-result/types";
+import type { QError, TooManyResultsQError } from "../query-result/types";
 
 /**
  * Create a new SQL span with sql query + params and initial timeMs: 0, affectedRows: 0.
@@ -42,10 +42,10 @@ export const createQResultSuccess = <T extends unknown[]>(
     data,
   });
 
-export const createQResultError = (
-  error: QError,
+export const createQResultError = <TError extends QError>(
+  error: TError,
   meta: QMeta
-): QResult<never, QError> =>
+): QResult<never, TError> =>
   new QResult({
     meta,
     error,
@@ -59,9 +59,9 @@ export const createQResultError = (
  * "TOO_MANY_RESULTS" and a `QErrors.TooManyResults` as cause.
  * Failed results are returned as is.
  */
-export const toOneRowQResult = <TData extends unknown[]>(
-  result: QResult<TData, QError>
-): QResult<TData[number] | null, QError> => {
+export const toOneRowQResult = <TData extends unknown[], TError extends QError>(
+  result: QResult<TData, TError>
+): QResult<TData[number] | null, TError | TooManyResultsQError> => {
   const { data, error, meta } = result;
   if (error !== undefined) {
     return new QResult({ meta, error, shape: "one" });
@@ -85,7 +85,7 @@ export const toOneRowQResult = <TData extends unknown[]>(
       cause: tooManyError,
     },
     shape: "one",
-  });
+  }) as QResult<TData[number] | null, TError | TooManyResultsQError>;
 };
 
 /**
