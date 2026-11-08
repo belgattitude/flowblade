@@ -12,7 +12,10 @@ import { QErrors } from "@flowblade/core";
 class OutOfStockError extends QErrors.DomainRollback {
   override readonly name = "OutOfStockError";
 
-  constructor(readonly productId: number, options?: ErrorOptions) {
+  constructor(
+    readonly productId: number,
+    options?: ErrorOptions
+  ) {
     super("OUT_OF_STOCK", { ...options, details: { productId } });
   }
 }
