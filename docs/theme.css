@@ -1,0 +1,23 @@
+@media (min-width: 64rem) {
+  header[data-blume-header] > div:first-child {
+    flex-wrap: nowrap;
+  }
+
+  header[data-blume-header] > div:first-child > div:has([data-blume-dropdown]) {
+    display: flex;
+  }
+
+  header[data-blume-header] > div:first-child > a {
+    display: none;
+  }
+
+  header[data-blume-header] [data-blume-dropdown] > summary {
+    background-color: var(--blume-accent);
+    color: var(--blume-accent-foreground);
+    font-weight: 600;
+  }
+
+  header[data-blume-header] [data-blume-dropdown] > summary:hover {
+    opacity: 0.9;
+  }
+}

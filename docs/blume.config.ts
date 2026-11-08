@@ -14,4 +14,18 @@ export default defineConfig({
     repo: "flowblade",
     dir: "docs",
   },
+  navigation: {
+    selectors: [
+      {
+        kind: "product",
+        label: "Package",
+        items: [
+          { label: "@flowblade/core", path: "/docs/core" },
+          { label: "@flowblade/source-kysely", path: "/docs/source-kysely" },
+          { label: "@flowblade/source-duckdb", path: "/docs/source-duckdb" },
+          { label: "@flowblade/sql-tag", path: "/docs/sql-tag" },
+        ],
+      },
+    ],
+  },
 });
