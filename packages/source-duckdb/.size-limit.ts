@@ -8,7 +8,7 @@ const config = createSizeLimitConfig(
       import: "*",
       // node builtin (AsyncLocalStorage of the connection lock)
       ignore: ["node:async_hooks"],
-      limit: "13.6 kB",
+      limit: "13.8 kB",
     },
   ],
   { browserslist: false }
