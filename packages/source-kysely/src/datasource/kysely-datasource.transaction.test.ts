@@ -388,6 +388,55 @@ describe("KyselyDatasource transactions", () => {
       expect(result.error).toBeInstanceOf(QErrors.TransactionFailed);
     });
 
+    it("should preserve the callback error if SQL Server already rolled back", async () => {
+      const rollbackError = Object.assign(
+        new Error("No corresponding BEGIN TRANSACTION"),
+        { number: 3903 }
+      );
+      const { ds, calls, getReleased } = createDatasource({
+        failOn: { rollback: rollbackError },
+      });
+      const domainError = new QErrors.DomainRollback("OUT_OF_STOCK", {
+        details: { productId: 7 },
+      });
+
+      const result = await ds.transaction(async () => {
+        throw domainError;
+      });
+
+      expect(calls).toStrictEqual(["begin", "rollback"]);
+      expect(getReleased()).toBe(1);
+      expect(result.error).toBeInstanceOf(QErrors.TransactionDomainRollback);
+      expect(result.error).toMatchObject({
+        code: "DOMAIN_ROLLBACK",
+        reason: "OUT_OF_STOCK",
+        details: { productId: 7 },
+        cause: domainError,
+      });
+    });
+
+    it("should report other rollback errors as transaction failures", async () => {
+      const rollbackError = Object.assign(new Error("rollback failed"), {
+        number: 50000,
+      });
+      const { ds } = createDatasource({
+        failOn: { rollback: rollbackError },
+      });
+      const callbackError = new Error("callback failed");
+
+      const result = await ds.transaction(async () => {
+        throw callbackError;
+      });
+
+      expect(result.error).toBeInstanceOf(QErrors.TransactionFailed);
+      expect(result.error).toMatchObject({
+        code: "TRANSACTION_FAILED",
+        cause: expect.objectContaining({
+          errors: [rollbackError, callbackError],
+        }),
+      });
+    });
+
     it("should abort the queries and roll back with the transaction signal", async () => {
       const controller = new AbortController();
       const { ds, calls } = createDatasource({

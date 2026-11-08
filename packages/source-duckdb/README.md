@@ -328,6 +328,8 @@ if (error) {
 
 Throw `QErrors.DomainRollback` from the transaction callback for an expected domain rejection that should roll back. `transaction()` reports `DOMAIN_ROLLBACK` with serializable `reason` and `details`; `transactionOrThrow()` rethrows the error instance for `instanceof` handling. See the [core transaction guide](https://belgattitude.github.io/flowblade/docs/core#domain-rollbacks) for an example.
 
+After a failed statement, DuckDB leaves the transaction available for an explicit rollback. Flowblade can therefore roll it back normally and preserve the callback or domain rollback error; no special handling like SQL Server error `3903` is needed.
+
 Conflicts with a concurrent transaction (serialization failure, deadlock) are reported as `TRANSACTION_CONFLICT`, run the transaction again with the `retry` option (the callback is called again: keep its side effects in the transaction):
 
 ```typescript
