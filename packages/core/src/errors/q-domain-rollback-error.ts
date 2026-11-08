@@ -13,7 +13,7 @@ export class QDomainRollbackError extends Error {
     return super[Symbol.hasInstance](value) || hasBrand(value, this);
   }
 
-  override readonly name = "QDomainRollbackError";
+  override readonly name: string = "QDomainRollbackError";
   readonly code = "DOMAIN_ROLLBACK";
   readonly reason: string;
   readonly details: unknown;

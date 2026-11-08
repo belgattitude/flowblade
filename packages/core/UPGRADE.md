@@ -44,7 +44,7 @@ if (error?.code === "DOMAIN_ROLLBACK") {
 }
 ```
 
-For exception-style handling, `transactionOrThrow()` rethrows the same custom instance:
+For exception-style handling, `transactionOrThrow()` rethrows the same custom instance, so `instanceof OutOfStockError` works when both sides use the same subclass constructor:
 
 ```typescript
 try {
@@ -59,6 +59,8 @@ try {
   }
 }
 ```
+
+Across duplicate package copies or realms, check `error instanceof QErrors.DomainRollback` instead. Flowblade brands that base class across copies; custom subclass constructors are not shared automatically.
 
 `details` should be serializable if it crosses a process boundary. In `transaction()` results, `cause` is runtime-only and may be absent after serialization; use `reason` and `details` for portable handling.
 

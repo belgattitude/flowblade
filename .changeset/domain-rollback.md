@@ -9,7 +9,10 @@ transaction, separate from unexpected callback and database failures. The
 non-throwing `transaction()` reports `DOMAIN_ROLLBACK` with the stable
 `reason`, serializable `details`, and original error as `cause`.
 `transactionOrThrow()` rethrows the same error instance, so application
-subclasses remain usable with `instanceof`.
+subclasses remain usable with `instanceof` when their constructors are shared.
+Across duplicate package copies or realms, use
+`instanceof QErrors.DomainRollback`; custom subclass constructors are not
+shared.
 
 ```typescript
 import { QErrors } from "@flowblade/core";

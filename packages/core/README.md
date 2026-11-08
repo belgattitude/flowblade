@@ -174,7 +174,7 @@ if (error?.code === "DOMAIN_ROLLBACK") {
 }
 ```
 
-For exception-based handling, subclass `QErrors.DomainRollback` to add a typed domain-specific error. `transactionOrThrow()` rethrows the same instance, so you can catch it with `instanceof`:
+For exception-based handling, subclass `QErrors.DomainRollback` to add a typed domain-specific error. `transactionOrThrow()` rethrows the same instance, so you can catch it with `instanceof` when the subclass constructor is shared:
 
 ```typescript
 import { QErrors } from "@flowblade/core";
@@ -201,6 +201,8 @@ try {
   }
 }
 ```
+
+For checks across duplicate package copies or realms, use `error instanceof QErrors.DomainRollback`; Flowblade brands that base class across copies. A custom subclass's `instanceof` check only recognizes the constructor used to create it.
 
 With `transaction()`, branch on the transaction error code; the original custom instance is available as `cause`:
 
