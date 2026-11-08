@@ -182,7 +182,7 @@ overrides:
   deepmerge-ts@<8.0.0: 8.0.2
   esbuild: ^0.28.2
   follow-redirects@>=1.16.0 <=1.16.1: 1.16.2
-  glob@>=9.0.0 <=14.0.1: 14.0.3
+  glob@>=9.0.0 <=14.0.1: 14.0.4
   http-cache-semantics@<=4.2.0: 4.3.0
   katex@>=0.11.0 <0.18.2: 0.19.1
   lodash-es@<=4.17.23: 4.18.1
@@ -3406,8 +3406,8 @@ packages:
     resolution: {integrity: sha512-Ucyvq4C/Nsg7hTsRcaFfnoNoMVv4R0BqX6q9d4l04P+IzhzNnu09H69VZaH0dOIMvA0XzqcdpfGUx2+ZoRkTRA==}
     engines: {node: '>=18.0.0'}
 
-  '@isaacs/nonrecursive-glob-match@1.0.3':
-    resolution: {integrity: sha512-4uew6n93R4VtuFofsfy8i/lQPqEenSjgcpX8thwL1xxL8hawMFznQBk08HCsjXR53O3hRlqZq7nayHUsvbeqkQ==}
+  '@isaacs/nonrecursive-glob-match@1.1.0':
+    resolution: {integrity: sha512-K3juMMkh8V8jdQcOxtNP7Loncshh6fieBjhWLWsv37yxgYMWPXuDDNgfn38mMIQZ7sw1IDUn/GfqimVCKLKing==}
 
   '@joshwooding/vite-plugin-react-docgen-typescript@0.7.0':
     resolution: {integrity: sha512-b9l7zD5ZtigDMqGd+ulhGcMEu8w3LRWjwkRQlq6jWxubJiMUPnBK/r4okP37LacODKb3ycBT8Qd3cziUzDbWdA==}
@@ -9923,6 +9923,10 @@ packages:
     resolution: {integrity: sha512-kYbiKS6CoRCWsAnH34+cSXCkwckXqnoilh3mnIwqquEGQAT9037qWf2i8NIJ7XMTqEGRobitTmUp6TZAOkG/Pg==}
     engines: {node: 18 || 20 || >=22}
 
+  glob@14.0.4:
+    resolution: {integrity: sha512-ZFU+ExYYK7rPRSPufRaNo3KoJ5BEhEnPmKuRaVI1nR5hcILCL9SP4/5ct8WMAXp4svjqUEYqgQhG97Dvow5zpw==}
+    engines: {node: 18 || 20 || >=22}
+
   globals@17.14.0:
     resolution: {integrity: sha512-wo1PFS3JCa4Ph8A7fGbb1EUeb5J1dozevJWYiVRjP+LUvx4pt4PT82PA90Gh3SYIG8l/EEVz2TcOq+6lvYWlAg==}
     engines: {node: '>=18'}
@@ -11173,6 +11177,10 @@ packages:
 
   minimatch@11.0.4:
     resolution: {integrity: sha512-FV4iT1GcDmxjAQweu5URyHxWjytljZe564vQ548AeCBY7f4XfnFu3mX3GMUqklB/L5FxtfVvah5Sek+V7rOVgQ==}
+    engines: {node: 20 || >=22}
+
+  minimatch@11.0.5:
+    resolution: {integrity: sha512-tylKtnNkLnhTUtsP74ALDBX4X6F0CeJqp9d+tYSvoOTGhwq1jMW8csfnQ7bAD6A+JAeuRYY8gAz9tSM0w/Xw6Q==}
     engines: {node: 20 || >=22}
 
   minimist@1.2.8:
@@ -15661,7 +15669,7 @@ snapshots:
       content-disposition: 3.0.0
       fastify-plugin: 6.0.1
       fastq: 1.20.3
-      glob: 14.0.3
+      glob: 14.0.4
 
   '@fastify/swagger-ui@6.1.3':
     dependencies:
@@ -15946,11 +15954,11 @@ snapshots:
     dependencies:
       minipass: 7.1.3
 
-  '@isaacs/nonrecursive-glob-match@1.0.3': {}
+  '@isaacs/nonrecursive-glob-match@1.1.0': {}
 
   '@joshwooding/vite-plugin-react-docgen-typescript@0.7.0(typescript@7.1.0-beta)(vite@8.3.6)':
     dependencies:
-      glob: 14.0.3
+      glob: 14.0.4
       react-docgen-typescript: 2.4.0(typescript@7.1.0-beta)
       vite: 8.3.6(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
     optionalDependencies:
@@ -18931,7 +18939,7 @@ snapshots:
       async-sema: 3.1.1
       bindings: 1.5.0
       estree-walker: 2.0.2
-      glob: 14.0.3
+      glob: 14.0.4
       graceful-fs: 4.2.11
       node-gyp-build: 4.8.4
       picomatch: 4.0.7
@@ -19412,7 +19420,7 @@ snapshots:
 
   archiver-utils@5.0.2:
     dependencies:
-      glob: 14.0.3
+      glob: 14.0.4
       graceful-fs: 4.2.11
       is-stream: 2.0.1
       lazystream: 1.0.1
@@ -21894,7 +21902,13 @@ snapshots:
 
   glob@14.0.3:
     dependencies:
-      minimatch: 11.0.4
+      minimatch: 11.0.5
+      minipass: 7.1.3
+      path-scurry: 3.0.0
+
+  glob@14.0.4:
+    dependencies:
+      minimatch: 11.0.5
       minipass: 7.1.3
       path-scurry: 3.0.0
 
@@ -23246,7 +23260,12 @@ snapshots:
 
   minimatch@11.0.4:
     dependencies:
-      '@isaacs/nonrecursive-glob-match': 1.0.3
+      '@isaacs/nonrecursive-glob-match': 1.1.0
+      brace-expansion: 5.0.12
+
+  minimatch@11.0.5:
+    dependencies:
+      '@isaacs/nonrecursive-glob-match': 1.1.0
       brace-expansion: 5.0.12
 
   minimist@1.2.8: {}
