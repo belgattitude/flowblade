@@ -1,0 +1,157 @@
+---
+title: "@flowblade/sqlduck"
+description: Load rows into DuckDB with the appender, or query Kysely data materialized in DuckDB.
+sidebar:
+    label: "sqlduck"
+---
+
+`@flowblade/sqlduck` creates DuckDB tables from Zod schemas and loads rows
+from arrays, generators, async iterables and streams. Its default loader uses
+the DuckDB appender for efficient chunked inserts. It also integrates Kysely
+queries with DuckDB through `withMaterializedKyselyQuery`.
+
+## Install
+
+```bash
+npm install @flowblade/sqlduck @duckdb/node-api zod
+```
+
+For the Kysely integration, also install `@flowblade/sql-tag`, `kysely` and
+the driver dependencies for your source database.
+
+## Load rows with the DuckDB appender
+
+Create a loader with a DuckDB connection, then pass it a table, Zod schema and
+row iterable. The schema defines the table columns and converts input values.
+
+```typescript
+import { DuckDBInstance } from "@duckdb/node-api";
+import { Table } from "@flowblade/sqlduck";
+import { DuckTableLoader } from "@flowblade/sqlduck/loader";
+import * as z from "zod";
+
+const instance = await DuckDBInstance.create();
+const conn = await instance.connect();
+const loader = new DuckTableLoader({ conn });
+
+const userSchema = z.object({
+  id: z.int32().meta({ primaryKey: true }),
+  name: z.string(),
+});
+
+async function* getUsers(): AsyncGenerator<z.input<typeof userSchema>> {
+  yield { id: 1, name: "Ada" };
+  yield { id: 2, name: "Grace" };
+}
+
+const result = await loader.load({
+  table: new Table({ name: "user" }),
+  schema: userSchema,
+  rows: getUsers(),
+});
+
+console.log(`Loaded ${result.totalRows} rows in ${result.timeMs}ms`);
+```
+
+`ChunkAppenderStrategy` is the default. It writes column chunks with DuckDB's
+appender, which is generally the fastest strategy for bulk loads. Set it
+explicitly to tune chunk size or flush frequency:
+
+```typescript
+import {
+  ChunkAppenderStrategy,
+  DuckTableLoader,
+} from "@flowblade/sqlduck/loader";
+
+const loader = new DuckTableLoader({
+  conn,
+  strategy: new ChunkAppenderStrategy({
+    chunkSize: 2048,
+    flushEveryRows: 204_800,
+  }),
+});
+```
+
+`chunkSize` is between 1 and 2048 rows. `flushEveryRows` controls when the
+appender flushes buffered rows into the table; it is not a database checkpoint.
+If the load runs in a transaction, other connections cannot see the flushed
+rows until the transaction commits. Frequent flushes add overhead, and the
+appender is flushed and closed when the load completes. Use
+`RowAppenderStrategy` to identify a failing row and column, or
+`PreparedInsertStrategy` when you need primary-key conflict handling.
+
+See the [loader guide](https://github.com/belgattitude/flowblade/blob/main/packages/sqlduck/docs/loader.md)
+for load modes, checkpoints, progress reporting, cancellation and strategy
+details.
+
+## Query Kysely data materialized in DuckDB
+
+> **Experimental:** this API may change in a minor release.
+
+`withMaterializedKyselyQuery` streams the results of a Kysely select query
+into a temporary DuckDB table, runs a DuckDB query against it, then attempts to
+drop the table whether the query succeeds, fails or throws. Cleanup is best
+effort; a failed drop may leave the table behind.
+
+```typescript
+import { DuckDBInstance } from "@duckdb/node-api";
+import { sql } from "@flowblade/sql-tag";
+import {
+  KyselyQueryWithZodSchema,
+  withMaterializedKyselyQuery,
+} from "@flowblade/sqlduck/kysely";
+import type { Kysely } from "kysely";
+import * as z from "zod";
+
+type DB = {
+  user: { id: number; name: string };
+};
+
+declare const db: Kysely<DB>; // Configured source Kysely instance
+
+const instance = await DuckDBInstance.create();
+const conn = await instance.connect();
+
+const table = new KyselyQueryWithZodSchema({
+  query: db.selectFrom("user").select(["id", "name"]),
+  schema: z.strictObject({ id: z.int32(), name: z.string() }),
+});
+
+const result = await withMaterializedKyselyQuery({
+  duckConn: conn,
+  table,
+  query: ({ dsDuck, table, signal }) =>
+    dsDuck.query(
+      sql<{ id: number; name: string }>`
+        SELECT id, name
+        FROM ${sql.raw(table.getFullName())}
+        WHERE id < ${1000}
+      `,
+      { signal }
+    ),
+});
+
+if (result.error) {
+  console.error(result.error.message);
+} else {
+  console.log(result.data);
+  console.log(result.meta.getSpansByType("materialization"));
+}
+```
+
+The Zod schema must match the selected columns. `duckConn` accepts either a
+`DuckDBConnection` or a `DuckdbDatasource`. The optional `database` and
+`schema` parameters choose where the temporary table is created; the schema
+must already exist. Both names must be valid, non-reserved DuckDB identifiers,
+or the function returns an error without running the query. An attached file
+database can keep large materializations out of the in-memory database.
+
+Pass an `AbortSignal` with `signal` to stop the Kysely stream and forward the
+callback's `signal` to `dsDuck.query` to cancel the DuckDB query. On success,
+the result metadata includes a `materialization` span with the table DDL, row
+count, elapsed time and table name.
+
+See the
+[package README](https://github.com/belgattitude/flowblade/blob/main/packages/sqlduck/README.md)
+and [API reference](https://github.com/belgattitude/flowblade/tree/main/packages/sqlduck/docs/api)
+for additional details.

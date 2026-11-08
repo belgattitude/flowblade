@@ -20,7 +20,8 @@ export type ChunkAppenderStrategyOptions = {
   /**
    * Flush the appender (`appender.flushSync()`) each time N more rows are
    * appended, at the end of the chunk crossing the threshold. Flushing
-   * makes the rows visible in the table, it is not a checkpoint.
+   * makes the rows visible in the table, it is not a checkpoint. Rows flushed
+   * in a transaction are not visible to other connections until commit.
    *
    * Each flush has a fixed cost, frequent flushes slow down inserts
    * (~30% slower every 20_480 rows than every 204_800 on a file database).
