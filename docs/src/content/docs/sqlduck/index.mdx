@@ -72,10 +72,12 @@ const loader = new DuckTableLoader({
 });
 ```
 
-`chunkSize` is between 1 and 2048 rows. `flushEveryRows` controls when buffered
-rows become visible in the table; it is not a database checkpoint. Frequent
-flushes add overhead, and the appender is flushed and closed when the load
-completes. Use `RowAppenderStrategy` to identify a failing row and column, or
+`chunkSize` is between 1 and 2048 rows. `flushEveryRows` controls when the
+appender flushes buffered rows into the table; it is not a database checkpoint.
+If the load runs in a transaction, other connections cannot see the flushed
+rows until the transaction commits. Frequent flushes add overhead, and the
+appender is flushed and closed when the load completes. Use
+`RowAppenderStrategy` to identify a failing row and column, or
 `PreparedInsertStrategy` when you need primary-key conflict handling.
 
 See the [loader guide](https://github.com/belgattitude/flowblade/blob/main/packages/sqlduck/docs/loader.md)
@@ -87,8 +89,9 @@ details.
 > **Experimental:** this API may change in a minor release.
 
 `withMaterializedKyselyQuery` streams the results of a Kysely select query
-into a temporary DuckDB table, runs a DuckDB query against it, then drops the
-table whether the query succeeds, fails or throws.
+into a temporary DuckDB table, runs a DuckDB query against it, then attempts to
+drop the table whether the query succeeds, fails or throws. Cleanup is best
+effort; a failed drop may leave the table behind.
 
 ```typescript
 import { DuckDBInstance } from "@duckdb/node-api";
@@ -117,13 +120,14 @@ const table = new KyselyQueryWithZodSchema({
 const result = await withMaterializedKyselyQuery({
   duckConn: conn,
   table,
-  query: ({ dsDuck, table }) =>
+  query: ({ dsDuck, table, signal }) =>
     dsDuck.query(
       sql<{ id: number; name: string }>`
         SELECT id, name
         FROM ${sql.raw(table.getFullName())}
         WHERE id < ${1000}
-      `
+      `,
+      { signal }
     ),
 });
 
@@ -142,9 +146,10 @@ must already exist. Both names must be valid, non-reserved DuckDB identifiers,
 or the function returns an error without running the query. An attached file
 database can keep large materializations out of the in-memory database.
 
-Pass an `AbortSignal` with `signal` to stop both the Kysely stream and the
-DuckDB query. On success, the result metadata includes a `materialization`
-span with the table DDL, row count, elapsed time and table name.
+Pass an `AbortSignal` with `signal` to stop the Kysely stream and forward the
+callback's `signal` to `dsDuck.query` to cancel the DuckDB query. On success,
+the result metadata includes a `materialization` span with the table DDL, row
+count, elapsed time and table name.
 
 See the
 [package README](https://github.com/belgattitude/flowblade/blob/main/packages/sqlduck/README.md)

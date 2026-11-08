@@ -30,8 +30,8 @@ type Params<TData extends unknown[]> = {
    */
   schema?: string;
   /**
-   * Abort the materialization: stops the kysely query stream and the load.
-   * Also given to `query`, to abort the duckdb query (ie: `dsDuck.query(sql, { signal })`).
+   * Abort the materialization: stops the Kysely query stream and the load.
+   * Also provided to `query`; pass it to `dsDuck.query` to abort the DuckDB query.
    */
   signal?: AbortSignal;
   /**
@@ -81,7 +81,9 @@ const dropTableQuietly = async (
 
 /**
  * Materialize a kysely query into a temporary duckdb table, run `query` on it,
- * then drop the table (whatever the outcome).
+ * then attempt to drop the table (whatever the outcome). Cleanup is best effort;
+ * a failed drop does not replace the query result or error and may leave the
+ * table behind.
  */
 export const withMaterializedKyselyQuery = async <
   TData extends unknown[] = unknown[],
