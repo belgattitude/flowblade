@@ -23,6 +23,7 @@ export default defineConfig({
           { label: "@flowblade/core", path: "/docs/core" },
           { label: "@flowblade/source-kysely", path: "/docs/source-kysely" },
           { label: "@flowblade/source-duckdb", path: "/docs/source-duckdb" },
+          { label: "@flowblade/sqlduck", path: "/docs/sqlduck" },
           { label: "@flowblade/sql-tag", path: "/docs/sql-tag" },
         ],
       },
