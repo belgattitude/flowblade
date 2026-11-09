@@ -172,7 +172,7 @@ settings:
 overrides:
   typescript@>=5.6.1-rc <6.0.3: 6.0.3
   '@azure/msal-node@>=5.0.0-beta.0 <7.1.0': 7.2.0
-  '@opentelemetry/core@<2.8.0': 3.0.0
+  '@opentelemetry/core@<2.8.0': 3.1.0
   '@xmldom/xmldom@>=0.9.0 <=0.9.10': 0.9.12
   '@xmldom/xmldom@>=0.9.0 <=0.9.11': 0.9.12
   '@xmldom/xmldom@>=0.9.0-beta.1 <=0.9.11': 0.9.12
@@ -227,7 +227,7 @@ importers:
         version: 0.0.93
       react-doctor:
         specifier: 0.9.22
-        version: 0.9.22(@opentelemetry/core@3.0.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2006)(react@19.3.1)(supports-color@7.2.0)
+        version: 0.9.22(@opentelemetry/core@3.1.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2006)(react@19.3.1)(supports-color@7.2.0)
       rimraf:
         specifier: 6.1.4
         version: 6.1.4
@@ -725,7 +725,7 @@ importers:
         version: 8.5.32
       react-doctor:
         specifier: 0.9.22
-        version: 0.9.22(@opentelemetry/core@3.0.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2006)(react@19.3.1)(supports-color@7.2.0)
+        version: 0.9.22(@opentelemetry/core@3.1.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2006)(react@19.3.1)(supports-color@7.2.0)
       rimraf:
         specifier: 6.1.4
         version: 6.1.4
@@ -943,7 +943,7 @@ importers:
         version: 19.3.1
       react-doctor:
         specifier: 0.9.22
-        version: 0.9.22(@opentelemetry/core@3.0.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2006)(react@19.3.1)(supports-color@7.2.0)
+        version: 0.9.22(@opentelemetry/core@3.1.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2006)(react@19.3.1)(supports-color@7.2.0)
       react-dom:
         specifier: 19.3.1
         version: 19.3.1(@types/react@19.3.0)(react@19.3.1)
@@ -3728,6 +3728,16 @@ packages:
       '@types/opentelemetry__api':
         optional: true
 
+  '@opentelemetry/core@3.1.0':
+    resolution: {integrity: sha512-a+e3CCH6p9Xe6IM+2oi3wS0AUbuWVNO6WrsbCSCs1DBH5m68rvnuYkAusPZ5vtsS3ET4jWP1lGMhqWlsE5GdDw==}
+    engines: {node: '>=22.15.0'}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.10.0 <1.11.0'
+      '@types/opentelemetry__api': '*'
+    peerDependenciesMeta:
+      '@types/opentelemetry__api':
+        optional: true
+
   '@opentelemetry/exporter-logs-otlp-grpc@0.208.0':
     resolution: {integrity: sha512-dqa/elk2KgWZOyzEykBW7BJS1uO0YTIgTdTtWOjTU5CPEwzks6/hQ82eXvG4vRHmELHcVJ1ESUt8V2kZ/fLbpw==}
     engines: {node: ^18.19.0 || >=20.6.0}
@@ -5737,7 +5747,7 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       '@opentelemetry/api': '>=1.9.0 <1.10.0'
-      '@opentelemetry/core': 3.0.0
+      '@opentelemetry/core': 3.1.0
       '@opentelemetry/exporter-trace-otlp-http': '>=0.57.0 <0.300.0'
       '@opentelemetry/instrumentation': '>=0.57.1 <0.300.0'
       '@opentelemetry/sdk-trace-base': ^1.30.1 || ^2.1.0
@@ -5777,7 +5787,7 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       '@opentelemetry/api': '>=1.9.0 <1.10.0'
-      '@opentelemetry/core': 3.0.0
+      '@opentelemetry/core': 3.1.0
       '@opentelemetry/sdk-trace-base': ^1.30.1 || ^2.1.0
       '@types/opentelemetry__api': '*'
       '@types/opentelemetry__core': '*'
@@ -16269,11 +16279,16 @@ snapshots:
       '@opentelemetry/api': 1.10.0
       '@opentelemetry/semantic-conventions': 1.44.0
 
+  '@opentelemetry/core@3.1.0(@opentelemetry/api@1.10.0)':
+    dependencies:
+      '@opentelemetry/api': 1.10.0
+      '@opentelemetry/semantic-conventions': 1.44.0
+
   '@opentelemetry/exporter-logs-otlp-grpc@0.208.0(@opentelemetry/api@1.10.0)':
     dependencies:
       '@grpc/grpc-js': 1.14.7
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.1.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-exporter-base': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-grpc-exporter-base': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-transformer': 0.208.0(@opentelemetry/api@1.10.0)
@@ -16283,7 +16298,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.10.0
       '@opentelemetry/api-logs': 0.208.0
-      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.1.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-exporter-base': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-transformer': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/sdk-logs': 0.208.0(@opentelemetry/api@1.10.0)
@@ -16292,7 +16307,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.10.0
       '@opentelemetry/api-logs': 0.208.0
-      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.1.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-exporter-base': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-transformer': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/resources': 2.2.0(@opentelemetry/api@1.10.0)
@@ -16319,14 +16334,14 @@ snapshots:
   '@opentelemetry/otlp-exporter-base@0.208.0(@opentelemetry/api@1.10.0)':
     dependencies:
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.1.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-transformer': 0.208.0(@opentelemetry/api@1.10.0)
 
   '@opentelemetry/otlp-grpc-exporter-base@0.208.0(@opentelemetry/api@1.10.0)':
     dependencies:
       '@grpc/grpc-js': 1.14.7
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.1.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-exporter-base': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/otlp-transformer': 0.208.0(@opentelemetry/api@1.10.0)
 
@@ -16334,7 +16349,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.10.0
       '@opentelemetry/api-logs': 0.208.0
-      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.1.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/resources': 2.2.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/sdk-logs': 0.208.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/sdk-metrics': 2.2.0(@opentelemetry/api@1.10.0)
@@ -16356,7 +16371,7 @@ snapshots:
   '@opentelemetry/resources@2.2.0(@opentelemetry/api@1.10.0)':
     dependencies:
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.1.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/semantic-conventions': 1.44.0
 
   '@opentelemetry/resources@3.0.0(@opentelemetry/api@1.10.0)':
@@ -16369,7 +16384,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.10.0
       '@opentelemetry/api-logs': 0.208.0
-      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.1.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/resources': 2.2.0(@opentelemetry/api@1.10.0)
 
   '@opentelemetry/sdk-logs@3.0.0(@opentelemetry/api@1.10.0)':
@@ -16382,7 +16397,7 @@ snapshots:
   '@opentelemetry/sdk-metrics@2.2.0(@opentelemetry/api@1.10.0)':
     dependencies:
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.1.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/resources': 2.2.0(@opentelemetry/api@1.10.0)
 
   '@opentelemetry/sdk-metrics@3.0.0(@opentelemetry/api@1.10.0)':
@@ -16410,7 +16425,7 @@ snapshots:
   '@opentelemetry/sdk-trace-base@2.2.0(@opentelemetry/api@1.10.0)':
     dependencies:
       '@opentelemetry/api': 1.10.0
-      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.1.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/resources': 2.2.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/semantic-conventions': 1.44.0
 
@@ -17702,27 +17717,27 @@ snapshots:
     dependencies:
       '@sentry/conventions': 0.16.0
 
-  '@sentry/node-core@10.78.0(@opentelemetry/api@1.9.1)(@opentelemetry/core@3.0.0)(@opentelemetry/instrumentation@0.220.0)(@opentelemetry/sdk-trace-base@2.12.0)':
+  '@sentry/node-core@10.78.0(@opentelemetry/api@1.9.1)(@opentelemetry/core@3.1.0)(@opentelemetry/instrumentation@0.220.0)(@opentelemetry/sdk-trace-base@2.12.0)':
     dependencies:
       '@sentry/conventions': 0.16.0
       '@sentry/core': 10.78.0
-      '@sentry/opentelemetry': 10.78.0(@opentelemetry/api@1.9.1)(@opentelemetry/core@3.0.0)(@opentelemetry/sdk-trace-base@2.12.0)
+      '@sentry/opentelemetry': 10.78.0(@opentelemetry/api@1.9.1)(@opentelemetry/core@3.1.0)(@opentelemetry/sdk-trace-base@2.12.0)
       import-in-the-middle: 3.5.3
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
-      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.1.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/instrumentation': 0.220.0(@opentelemetry/api@1.9.1)(supports-color@7.2.0)
       '@opentelemetry/sdk-trace-base': 2.12.0(@opentelemetry/api@1.9.1)
 
-  '@sentry/node@10.78.0(@opentelemetry/core@3.0.0)(supports-color@7.2.0)':
+  '@sentry/node@10.78.0(@opentelemetry/core@3.1.0)(supports-color@7.2.0)':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/instrumentation': 0.220.0(@opentelemetry/api@1.9.1)(supports-color@7.2.0)
       '@opentelemetry/sdk-trace-base': 2.12.0(@opentelemetry/api@1.9.1)
       '@sentry/conventions': 0.16.0
       '@sentry/core': 10.78.0
-      '@sentry/node-core': 10.78.0(@opentelemetry/api@1.9.1)(@opentelemetry/core@3.0.0)(@opentelemetry/instrumentation@0.220.0)(@opentelemetry/sdk-trace-base@2.12.0)
-      '@sentry/opentelemetry': 10.78.0(@opentelemetry/api@1.9.1)(@opentelemetry/core@3.0.0)(@opentelemetry/sdk-trace-base@2.12.0)
+      '@sentry/node-core': 10.78.0(@opentelemetry/api@1.9.1)(@opentelemetry/core@3.1.0)(@opentelemetry/instrumentation@0.220.0)(@opentelemetry/sdk-trace-base@2.12.0)
+      '@sentry/opentelemetry': 10.78.0(@opentelemetry/api@1.9.1)(@opentelemetry/core@3.1.0)(@opentelemetry/sdk-trace-base@2.12.0)
       '@sentry/server-utils': 10.78.0
       import-in-the-middle: 3.5.3
     transitivePeerDependencies:
@@ -17735,10 +17750,10 @@ snapshots:
       - '@types/opentelemetry__sdk-trace-base'
       - supports-color
 
-  '@sentry/opentelemetry@10.78.0(@opentelemetry/api@1.9.1)(@opentelemetry/core@3.0.0)(@opentelemetry/sdk-trace-base@2.12.0)':
+  '@sentry/opentelemetry@10.78.0(@opentelemetry/api@1.9.1)(@opentelemetry/core@3.1.0)(@opentelemetry/sdk-trace-base@2.12.0)':
     dependencies:
       '@opentelemetry/api': 1.9.1
-      '@opentelemetry/core': 3.0.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/core': 3.1.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/sdk-trace-base': 2.12.0(@opentelemetry/api@1.9.1)
       '@sentry/conventions': 0.16.0
       '@sentry/core': 10.78.0
@@ -24366,10 +24381,10 @@ snapshots:
       - '@types/browserslist'
       - supports-color
 
-  react-doctor@0.9.22(@opentelemetry/core@3.0.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2006)(react@19.3.1)(supports-color@7.2.0):
+  react-doctor@0.9.22(@opentelemetry/core@3.1.0)(@types/babel__core@7.20.5)(@types/react@19.3.0)(eslint@10.14.0)(oxlint-tsgolint@7.0.2006)(react@19.3.1)(supports-color@7.2.0):
     dependencies:
       '@astrojs/compiler': 4.0.0
-      '@sentry/node': 10.78.0(@opentelemetry/core@3.0.0)(supports-color@7.2.0)
+      '@sentry/node': 10.78.0(@opentelemetry/core@3.1.0)(supports-color@7.2.0)
       agent-install: 0.0.5
       bippy: 0.6.1(@types/react@19.3.0)(react@19.3.1)
       conf: 15.1.0
