@@ -43,6 +43,24 @@ export class DuckExtensionsManager {
     return true;
   };
 
+  /**
+   * Load an installed extension. A no-op when it is already loaded.
+   *
+   * @example
+   * ```typescript
+   * const extensions = new DuckExtensionsManager(conn);
+   * await extensions.install("azure");
+   * await extensions.load("azure");
+   * ```
+   */
+  load = async (name: string): Promise<true> => {
+    if (!extensionNameRegexp.test(name)) {
+      throw new Error(`Invalid extension name '${name}'`);
+    }
+    await this.#executor.getRowObjectsJS("load", `LOAD ${name}`);
+    return true;
+  };
+
   search = async (filters?: { installed?: boolean; name?: string }) => {
     const { installed, name } = filters ?? {};
 
