@@ -2,6 +2,36 @@
 
 Breaking changes and how to migrate, by version. See the [CHANGELOG](./CHANGELOG.md) for all changes.
 
+## 0.46.0
+
+No breaking change: `QueryExporter` (`@flowblade/sqlduck/export`) and `DuckSecretsManager` are additions, see [#1525](https://github.com/belgattitude/flowblade/pull/1525). A few things to know when adopting them:
+
+### `@flowblade/sqlduck/export` types reference Kysely
+
+`QueryExporter` accepts a Kysely query as `source`, so the types of the `@flowblade/sqlduck/export` entry import the types of `kysely`, an optional peer dependency. There is no runtime import: exporting DuckDB queries (`sql`) works without `kysely`.
+
+**Migrate**: nothing to do when `kysely` is installed or when `skipLibCheck` is enabled. Otherwise install `kysely` (ie: `pnpm add -D kysely`) or enable `skipLibCheck` in your tsconfig.
+
+### Exports to a response need their body to be read
+
+`toResponse()` exports to a temporary file, removed when the body is fully read, cancelled or aborted. A body left unread for `idleTimeoutMs` (60 seconds by default) fails and its file is removed.
+
+**Migrate**: nothing to do when the `Response` is returned to the client. Raise `idleTimeoutMs` when clients may stall for longer between two reads.
+
+### Extensions are installed on first use
+
+The Excel format and the object storage urls install and load a DuckDB extension the first time they are used (`excel`, `azure` or `httpfs`), which needs network access.
+
+**Migrate**: in an environment without network access, install the extensions beforehand (ie: in the docker image).
+
+```typescript
+import { DuckExtensionsManager } from "@flowblade/sqlduck";
+
+const extensions = new DuckExtensionsManager(conn);
+await extensions.install("azure");
+await extensions.load("azure");
+```
+
 ## 0.45.0
 
 ### DuckDB 1.x is no longer supported
