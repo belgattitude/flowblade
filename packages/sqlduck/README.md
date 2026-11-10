@@ -76,6 +76,54 @@ const rows = reader.getRowObjectsJS();
 
 The loading strategy (DuckDB appender by default, row appender, prepared inserts with upserts), modes, checkpoints, progress and tuning are described in the [loader documentation](./docs/loader.md).
 
+### Export a query to a temporary file
+
+`QueryExporter` exports a parameterized SQL-tag query to a CSV, Parquet or Excel file. Options shared by every export (like the `directory`) are set once in the constructor. `export()` completes the file before returning an artifact, which can then be streamed to an HTTP response:
+
+```typescript
+import { pipeline } from "node:stream/promises";
+
+import { DuckdbDatasource, sql } from "@flowblade/source-duckdb";
+import { QueryExporter } from "@flowblade/sqlduck/export";
+
+const exporter = new QueryExporter({
+  datasource: new DuckdbDatasource({ connection: conn }),
+  directory: "/var/tmp/exports", // optional, defaults to os.tmpdir()
+});
+
+const artifact = await exporter.export({
+  sql: sql`SELECT id, name FROM user WHERE active = ${true}`,
+  format: { type: "csv", header: true },
+});
+
+try {
+  response.setHeader("Content-Type", artifact.contentType);
+  response.setHeader("Content-Disposition", artifact.contentDisposition);
+  await pipeline(artifact.openStream(), response);
+} finally {
+  await artifact.dispose();
+}
+```
+
+Provide an existing `directory` to choose where temporary files are created; the default is the operating system's temp directory. It can also be overridden per `export()` call. Always call `dispose()` when the response finishes, is cancelled or fails. CSV supports header, delimiter, quoting, null/date/timestamp formatting and gzip/zstd compression. Parquet supports compression, row-group size and order preservation. Excel exports as XLSX and supports header, sheet name and sheet row limit; DuckDB's Excel extension may need network access the first time.
+
+#### Map the exported query
+
+Both options run inside DuckDB, so rows never go through JavaScript:
+
+- `mapQuery` rewrites the query, typically by wrapping it to filter, order or add computed columns.
+- `selectColumns` picks, reorders and renames the exported columns. Keys are the query's column names (after `mapQuery`), values are their names in the export; unlisted columns are dropped.
+
+```typescript
+const artifact = await exporter.export({
+  sql: sql`SELECT id, name, password FROM user`,
+  format: { type: "csv", header: true },
+  mapQuery: (query) =>
+    sql`SELECT *, upper(name) AS name_uc FROM (${query}) ORDER BY id`,
+  selectColumns: { id: "User ID", name_uc: "Name" },
+});
+```
+
 ### Query a materialized Kysely query
 
 > ⚠️ **Experimental**: the API below may change in a minor release.

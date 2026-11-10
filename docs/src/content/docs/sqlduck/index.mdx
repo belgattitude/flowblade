@@ -2,13 +2,10 @@
 title: "@flowblade/sqlduck"
 description: Load rows into DuckDB with the appender, or query Kysely data materialized in DuckDB.
 sidebar:
-    label: "sqlduck"
+  label: "sqlduck"
 ---
 
-`@flowblade/sqlduck` creates DuckDB tables from Zod schemas and loads rows
-from arrays, generators, async iterables and streams. Its default loader uses
-the DuckDB appender for efficient chunked inserts. It also integrates Kysely
-queries with DuckDB through `withMaterializedKyselyQuery`.
+`@flowblade/sqlduck` creates DuckDB tables from Zod schemas and loads rows from arrays, generators, async iterables and streams. Its default loader uses the DuckDB appender for efficient chunked inserts. It also integrates Kysely queries with DuckDB through `withMaterializedKyselyQuery`.
 
 ## Install
 
@@ -16,13 +13,68 @@ queries with DuckDB through `withMaterializedKyselyQuery`.
 npm install @flowblade/sqlduck @duckdb/node-api zod
 ```
 
-For the Kysely integration, also install `@flowblade/sql-tag`, `kysely` and
-the driver dependencies for your source database.
+For the Kysely integration, also install `@flowblade/sql-tag`, `kysely` and the driver dependencies for your source database.
+
+## Export a query to a temporary file
+
+`QueryExporter` is created with a `DuckdbDatasource` and optional defaults shared by every export, like the `directory`. Its `export()` method accepts a parameterized SQL-tag query and a format, and writes the completed export to a uniquely named file under that directory (the operating system's temporary directory by default). The artifact exposes the file path and metadata, plus a stream that can be piped into an HTTP response. Call `dispose()` after the response finishes, is cancelled or fails.
+
+```typescript
+import { DuckdbDatasource, sql } from "@flowblade/source-duckdb";
+import { QueryExporter } from "@flowblade/sqlduck/export";
+import { pipeline } from "node:stream/promises";
+
+const exporter = new QueryExporter({
+  datasource: new DuckdbDatasource({ connection: conn }),
+  directory: "/var/tmp/exports", // optional, defaults to os.tmpdir()
+});
+
+const artifact = await exporter.export({
+  sql: sql`SELECT id, name FROM user WHERE active = ${true}`,
+  format: { type: "csv", header: true, delimiter: ";" },
+});
+
+try {
+  response.setHeader("Content-Type", artifact.contentType);
+  response.setHeader("Content-Disposition", artifact.contentDisposition);
+  if (artifact.contentEncoding) {
+    response.setHeader("Content-Encoding", artifact.contentEncoding);
+  }
+  await pipeline(artifact.openStream(), response);
+} finally {
+  await artifact.dispose();
+}
+```
+
+The `format` option is a discriminated union:
+
+| Format | Supported options |
+| --- | --- |
+| `csv` | `header`, `delimiter`, `quote`, `escape`, `nullString`, `dateFormat`, `timestampFormat`, `compression` (`none`, `gzip`, `zstd`) |
+| `parquet` | `compression` (`uncompressed`, `snappy`, `gzip`, `zstd`, `brotli`, `lz4`, `lz4_raw`), `rowGroupSize`, `preserveOrder` |
+| `excel` | `header`, `sheet`, `sheetRowLimit` |
+
+Excel output is XLSX and uses DuckDB's Excel extension, which may need to be downloaded the first time. `directory` can be set to an existing local directory, either as a default in the constructor or per `export()` call. This API requires a `DuckdbDatasource`; it does not export queries from other Flowblade adapters.
+
+### Map the exported query
+
+Both options run inside DuckDB, so rows never go through JavaScript:
+
+- `mapQuery` rewrites the query, typically by wrapping it to filter, order or add computed columns.
+- `selectColumns` picks, reorders and renames the exported columns. Keys are the query's column names (after `mapQuery`), values are their names in the export; unlisted columns are dropped.
+
+```typescript
+const artifact = await exporter.export({
+  sql: sql`SELECT id, name, password FROM user`,
+  format: { type: "csv", header: true },
+  mapQuery: (query) => sql`SELECT *, upper(name) AS name_uc FROM (${query}) ORDER BY id`,
+  selectColumns: { id: "User ID", name_uc: "Name" },
+});
+```
 
 ## Load rows with the DuckDB appender
 
-Create a loader with a DuckDB connection, then pass it a table, Zod schema and
-row iterable. The schema defines the table columns and converts input values.
+Create a loader with a DuckDB connection, then pass it a table, Zod schema and row iterable. The schema defines the table columns and converts input values.
 
 ```typescript
 import { DuckDBInstance } from "@duckdb/node-api";
@@ -53,9 +105,7 @@ const result = await loader.load({
 console.log(`Loaded ${result.totalRows} rows in ${result.timeMs}ms`);
 ```
 
-`ChunkAppenderStrategy` is the default. It writes column chunks with DuckDB's
-appender, which is generally the fastest strategy for bulk loads. Set it
-explicitly to tune chunk size or flush frequency:
+`ChunkAppenderStrategy` is the default. It writes column chunks with DuckDB's appender, which is generally the fastest strategy for bulk loads. Set it explicitly to tune chunk size or flush frequency:
 
 ```typescript
 import {
@@ -72,26 +122,15 @@ const loader = new DuckTableLoader({
 });
 ```
 
-`chunkSize` is between 1 and 2048 rows. `flushEveryRows` controls when the
-appender flushes buffered rows into the table; it is not a database checkpoint.
-If the load runs in a transaction, other connections cannot see the flushed
-rows until the transaction commits. Frequent flushes add overhead, and the
-appender is flushed and closed when the load completes. Use
-`RowAppenderStrategy` to identify a failing row and column, or
-`PreparedInsertStrategy` when you need primary-key conflict handling.
+`chunkSize` is between 1 and 2048 rows. `flushEveryRows` controls when the appender flushes buffered rows into the table; it is not a database checkpoint. If the load runs in a transaction, other connections cannot see the flushed rows until the transaction commits. Frequent flushes add overhead, and the appender is flushed and closed when the load completes. Use `RowAppenderStrategy` to identify a failing row and column, or `PreparedInsertStrategy` when you need primary-key conflict handling.
 
-See the [loader guide](https://github.com/belgattitude/flowblade/blob/main/packages/sqlduck/docs/loader.md)
-for load modes, checkpoints, progress reporting, cancellation and strategy
-details.
+See the [loader guide](https://github.com/belgattitude/flowblade/blob/main/packages/sqlduck/docs/loader.md) for load modes, checkpoints, progress reporting, cancellation and strategy details.
 
 ## Query Kysely data materialized in DuckDB
 
 > **Experimental:** this API may change in a minor release.
 
-`withMaterializedKyselyQuery` streams the results of a Kysely select query
-into a temporary DuckDB table, runs a DuckDB query against it, then attempts to
-drop the table whether the query succeeds, fails or throws. Cleanup is best
-effort; a failed drop may leave the table behind.
+`withMaterializedKyselyQuery` streams the results of a Kysely select query into a temporary DuckDB table, runs a DuckDB query against it, then attempts to drop the table whether the query succeeds, fails or throws. Cleanup is best effort; a failed drop may leave the table behind.
 
 ```typescript
 import { DuckDBInstance } from "@duckdb/node-api";
@@ -139,19 +178,8 @@ if (result.error) {
 }
 ```
 
-The Zod schema must match the selected columns. `duckConn` accepts either a
-`DuckDBConnection` or a `DuckdbDatasource`. The optional `database` and
-`schema` parameters choose where the temporary table is created; the schema
-must already exist. Both names must be valid, non-reserved DuckDB identifiers,
-or the function returns an error without running the query. An attached file
-database can keep large materializations out of the in-memory database.
+The Zod schema must match the selected columns. `duckConn` accepts either a `DuckDBConnection` or a `DuckdbDatasource`. The optional `database` and `schema` parameters choose where the temporary table is created; the schema must already exist. Both names must be valid, non-reserved DuckDB identifiers, or the function returns an error without running the query. An attached file database can keep large materializations out of the in-memory database.
 
-Pass an `AbortSignal` with `signal` to stop the Kysely stream and forward the
-callback's `signal` to `dsDuck.query` to cancel the DuckDB query. On success,
-the result metadata includes a `materialization` span with the table DDL, row
-count, elapsed time and table name.
+Pass an `AbortSignal` with `signal` to stop the Kysely stream and forward the callback's `signal` to `dsDuck.query` to cancel the DuckDB query. On success, the result metadata includes a `materialization` span with the table DDL, row count, elapsed time and table name.
 
-See the
-[package README](https://github.com/belgattitude/flowblade/blob/main/packages/sqlduck/README.md)
-and [API reference](https://github.com/belgattitude/flowblade/tree/main/packages/sqlduck/docs/api)
-for additional details.
+See the [package README](https://github.com/belgattitude/flowblade/blob/main/packages/sqlduck/README.md) and [API reference](https://github.com/belgattitude/flowblade/tree/main/packages/sqlduck/docs/api) for additional details.
