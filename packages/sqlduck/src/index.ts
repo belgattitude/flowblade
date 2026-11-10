@@ -26,6 +26,17 @@ export { duckReservedKeywords } from "./validation/core/duck-reserved-keywords.t
 // Manager
 export { DuckDatabaseManager } from "./manager/database/duck-database-manager.ts";
 export { DuckExtensionsManager } from "./manager/extensions/duck-extensions-manager.ts";
+export { DuckSecretsManager } from "./manager/secrets/duck-secrets-manager.ts";
+export type {
+  CreateSecretParams,
+  DuckAzureSecret,
+  DuckCustomSecret,
+  DuckHttpSecret,
+  DuckS3Secret,
+  DuckSecret,
+  DuckSecretInfo,
+  DuckSecretOptionValue,
+} from "./manager/secrets/duck-secrets.types.ts";
 export { DuckSettingsManager } from "./manager/settings/duck-settings-manager.ts";
 export type {
   DuckGlobalSettings,

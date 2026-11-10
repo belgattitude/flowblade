@@ -1,6 +1,7 @@
 import type {
   DuckDBConnection,
   DuckDBMaterializedResult,
+  DuckDBValue,
 } from "@duckdb/node-api";
 import { withConnectionLock } from "@flowblade/source-duckdb";
 import type { Logger } from "@logtape/logtape";
@@ -28,13 +29,18 @@ export class ManagerQueryExecutor {
 
   getRowObjectsJS = async <TRow extends object = DefaultRow>(
     name: string,
-    rawSql: string
+    rawSql: string,
+    /**
+     * Values of the `$1`, `$2`... parameters. Unlike `rawSql` they are never
+     * logged: bind sensitive values instead of inlining them.
+     */
+    values?: DuckDBValue[]
   ): Promise<TRow[]> => {
     const fnName = `${this.#className}.${name}`;
     const startTime = Date.now();
     try {
       const result = await withConnectionLock(this.#conn, () =>
-        this.#conn.runAndReadAll(rawSql)
+        this.#conn.runAndReadAll(rawSql, values)
       );
       const timeMs = Date.now() - startTime;
       const data = result.getRowObjectsJS();

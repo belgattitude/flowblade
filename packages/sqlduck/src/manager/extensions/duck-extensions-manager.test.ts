@@ -27,6 +27,22 @@ describe("DuckExtensionsManagerTest", () => {
     });
   });
 
+  describe("load", () => {
+    it("should load a built-in extension", async ({ conn }) => {
+      const extManager = new DuckExtensionsManager(conn);
+      await expect(extManager.load("json")).resolves.toBe(true);
+    });
+
+    it("should reject an invalid extension name before running it", async ({
+      conn,
+    }) => {
+      const extManager = new DuckExtensionsManager(conn);
+      await expect(extManager.load("fts; DROP TABLE users")).rejects.toThrow(
+        "Invalid extension name 'fts; DROP TABLE users'"
+      );
+    });
+  });
+
   describe("sql injection", () => {
     it("should reject an invalid extension name before running it", async ({
       conn,

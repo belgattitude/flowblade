@@ -76,53 +76,209 @@ const rows = reader.getRowObjectsJS();
 
 The loading strategy (DuckDB appender by default, row appender, prepared inserts with upserts), modes, checkpoints, progress and tuning are described in the [loader documentation](./docs/loader.md).
 
-### Export a query to a temporary file
+### Export a query
 
-`QueryExporter` exports a parameterized SQL-tag query to a CSV, Parquet or Excel file. Options shared by every export (like the `directory`) are set once in the constructor. `export()` completes the file before returning an artifact, which can then be streamed to an HTTP response:
+`QueryExporter` exports a parameterized SQL-tag query to CSV, Parquet or Excel (XLSX) with DuckDB's `COPY`, so rows never go through JavaScript. It has one method per persistence strategy:
+
+| Method | Persistence | Returns |
+| --- | --- | --- |
+| `toFile()` | A local file you choose and own | The file description (`path`, `sizeBytes`, `rowCount`, `timeMs`...) |
+| `toObjectStorage()` | An object in Azure Blob Storage, S3, GCS or R2 | The object description (`url`, `rowCount`, `timeMs`...) |
+| `toResponse()` | A temporary file, removed once the response is sent or cancelled | A web `Response` streaming the download |
 
 ```typescript
-import { pipeline } from "node:stream/promises";
-
 import { DuckdbDatasource, sql } from "@flowblade/source-duckdb";
 import { QueryExporter } from "@flowblade/sqlduck/export";
 
 const exporter = new QueryExporter({
   datasource: new DuckdbDatasource({ connection: conn }),
-  directory: "/var/tmp/exports", // optional, defaults to os.tmpdir()
 });
-
-const artifact = await exporter.export({
-  sql: sql`SELECT id, name FROM user WHERE active = ${true}`,
-  format: { type: "csv", header: true },
-});
-
-try {
-  response.setHeader("Content-Type", artifact.contentType);
-  response.setHeader("Content-Disposition", artifact.contentDisposition);
-  await pipeline(artifact.openStream(), response);
-} finally {
-  await artifact.dispose();
-}
 ```
 
-Provide an existing `directory` to choose where temporary files are created; the default is the operating system's temp directory. It can also be overridden per `export()` call. Always call `dispose()` when the response finishes, is cancelled or fails. CSV supports header, delimiter, quoting, null/date/timestamp formatting and gzip/zstd compression. Parquet supports compression, row-group size and order preservation. Excel exports as XLSX and supports header, sheet name and sheet row limit; DuckDB's Excel extension may need network access the first time.
+#### Export to a file
+
+```typescript
+const file = await exporter.toFile({
+  sql: sql`SELECT id, name FROM user WHERE active = ${true}`,
+  format: { type: "parquet", compression: "zstd" },
+  file: "/data/exports/users.parquet",
+});
+
+console.log(`${file.path}: ${file.rowCount} rows, ${file.sizeBytes} bytes`);
+```
+
+The directory of `file` must exist. An existing file is replaced, but only once the export is complete: a failed export leaves no partial file and keeps the previous one untouched.
+
+#### Export to object storage
+
+`toObjectStorage` uploads the export straight to Azure Blob Storage (`az://`, `abfss://`), S3 (`s3://`), Google Cloud Storage (`gs://`) or Cloudflare R2 (`r2://`). DuckDB writes to the storage itself: nothing is written locally. Other urls and local paths are rejected.
+
+```typescript
+import { DuckSecretsManager } from "@flowblade/sqlduck";
+
+await new DuckSecretsManager(conn).create({
+  name: "exports_azure",
+  type: "azure",
+  connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+  scope: "az://exports/",
+});
+
+const exported = await exporter.toObjectStorage({
+  sql: sql`SELECT id, name FROM user WHERE active = ${true}`,
+  format: { type: "parquet" },
+  url: "az://exports/2026/users.parquet",
+});
+
+console.log(
+  `${exported.url}: ${exported.rowCount} rows in ${exported.timeMs}ms`
+);
+```
+
+The exporter takes no credentials: DuckDB uses the secret whose scope matches the url (see [Manage secrets](#manage-secrets)). The container or bucket must exist, and an existing object is replaced. The required DuckDB extension (`azure` or `httpfs`) is installed and loaded on the first export, which may need network access. On Azure, a failed export leaves no partial blob.
+
+#### Export to a response
+
+`toResponse` returns a web-standard `Response` with the `Content-Type`, `Content-Length` and `Content-Disposition` headers set. It can be returned as is from Hono, Next.js route handlers, Bun or Deno:
+
+```typescript
+return await exporter.toResponse({
+  sql: sql`SELECT id, name FROM user WHERE active = ${true}`,
+  format: { type: "csv", header: true },
+  filename: "users.csv", // optional, defaults to export.<extension>
+  signal: request.signal,
+});
+```
+
+With `node:http` or Express, pipe it into the server response:
+
+```typescript
+import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
+
+const response = await exporter.toResponse({ sql, format });
+res.writeHead(response.status, Object.fromEntries(response.headers));
+await pipeline(Readable.fromWeb(response.body), res);
+```
+
+The query is exported to a temporary file first, so a failing query rejects before any byte is sent. The temporary file is removed when the body has been fully read, is cancelled (the client disconnects), is aborted through `signal` or fails. As a safety net, a response whose body is left unread for `idleTimeoutMs`, before its first read or between two reads, fails and its temporary file is removed as well.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `filename` | `export.<extension>` | Download filename of the `Content-Disposition` header |
+| `directory` | `os.tmpdir()` | Existing directory in which the temporary file is created |
+| `headers` |  | Additional response headers, ie: `Cache-Control` |
+| `idleTimeoutMs` | `60_000` | Maximum time the body can wait to be read; `Infinity` disables it |
+| `signal` |  | Cancels the query, then the streaming of the response, read or not |
+
+A compressed CSV is sent as a compressed file (`application/gzip` or `application/zstd`, `export.csv.gz`), without `Content-Encoding`.
+
+#### Export a Kysely query
+
+The exports run on DuckDB, but the rows can come from another database (mssql, postgres...) through a Kysely query. Give it as `source` instead of `sql`: its rows are streamed into a temporary DuckDB table, exported, then the table is dropped whatever the outcome. It works with `toFile`, `toObjectStorage` and `toResponse`.
+
+```typescript
+import { KyselyQueryWithZodSchema } from "@flowblade/sqlduck/kysely";
+import * as z from "zod";
+
+const file = await exporter.toFile({
+  source: new KyselyQueryWithZodSchema({
+    query: db.selectFrom("user").select(["id", "name"]),
+    // Creates the temporary table, must match the selected columns
+    schema: z.strictObject({ id: z.int32(), name: z.string() }),
+  }),
+  format: { type: "parquet" },
+  file: "/data/exports/users.parquet",
+  // Optional: where the temporary table is created
+  materialization: { database: "scratch" }, // e.g. ATTACH 'scratch.duckdb' AS scratch
+});
+```
+
+`mapQuery` and `selectColumns` apply to the materialized rows: `mapQuery` receives a `SELECT` of the temporary table. The rows go through JavaScript once, from the source database into DuckDB; the write to CSV, Parquet or Excel stays inside DuckDB. `materialization.database` and `materialization.schema` must be valid, non-reserved DuckDB identifiers, and the schema must exist.
+
+#### Formats
+
+The `format` option is a discriminated union:
+
+| Format | Supported options |
+| --- | --- |
+| `csv` | `header`, `delimiter`, `quote`, `escape`, `nullString`, `dateFormat`, `timestampFormat`, `compression` (`none`, `gzip`, `zstd`) |
+| `parquet` | `compression` (`uncompressed`, `snappy`, `gzip`, `zstd`, `brotli`, `lz4`, `lz4_raw`), `rowGroupSize`, `preserveOrder` |
+| `excel` | `header`, `sheet`, `sheetRowLimit` |
+
+Excel uses DuckDB's Excel extension, installed and loaded on the first Excel export, which may need network access. The exporter itself requires a `DuckdbDatasource`; queries of other databases are exported through a Kysely `source`.
 
 #### Map the exported query
 
-Both options run inside DuckDB, so rows never go through JavaScript:
+Both options run inside DuckDB and are available in every method:
 
 - `mapQuery` rewrites the query, typically by wrapping it to filter, order or add computed columns.
-- `selectColumns` picks, reorders and renames the exported columns. Keys are the query's column names (after `mapQuery`), values are their names in the export; unlisted columns are dropped.
+- `selectColumns` picks, reorders and renames the exported columns. Keys are the query's column names (after `mapQuery`), values are their names in the export; unlisted columns are dropped. Columns follow the order of the keys.
 
 ```typescript
-const artifact = await exporter.export({
+const file = await exporter.toFile({
   sql: sql`SELECT id, name, password FROM user`,
   format: { type: "csv", header: true },
+  file: "/data/exports/users.csv",
   mapQuery: (query) =>
     sql`SELECT *, upper(name) AS name_uc FROM (${query}) ORDER BY id`,
   selectColumns: { id: "User ID", name_uc: "Name" },
 });
 ```
+
+#### Logging
+
+`QueryExporter` logs with [logtape](https://github.com/logtape/logtape) under the `["flowblade", "sqlduck"]` category, or with the `logger` given to the constructor:
+
+| Level | Event | Properties |
+| --- | --- | --- |
+| `info` | Export completed | `format`, `queryTimeMs`, `timeMs`, plus `path`, `sizeBytes`, `rowCount` (file), `url`, `rowCount` (object storage) or `filename`, `path`, `sizeBytes` (response) |
+| `warning` | Export aborted through its `signal` | `format`, `timeMs` |
+| `error` | Export failed | `format`, `sql` (text of the query or of the Kysely source, without parameter values), `timeMs`, `errorMessage` |
+| `error` | A partial or temporary file could not be removed | `path`, `errorMessage` |
+| `debug` | DuckDB extension loaded (`excel`, `azure`, `httpfs`) | `extension`, `timeMs` |
+| `debug` | Kysely source materialized | `table`, `rowCount`, `timeMs` |
+| `debug` | Response fully read or cancelled, temporary file removed | `filename`, `outcome`, `path`, `streamTimeMs` |
+| `warning` | Response aborted or left unread (`outcome`: `aborted`, `timeout`) | `filename`, `outcome`, `path`, `streamTimeMs` |
+| `error` | Response file could not be read (`outcome`: `failed`) | `filename`, `outcome`, `path`, `streamTimeMs` |
+
+### Manage secrets
+
+`DuckSecretsManager` creates the DuckDB secrets that give access to object storage (Azure, S3, GCS, R2) or HTTP endpoints. It follows the other managers: it is created from a connection and logs with logtape.
+
+```typescript
+import { DuckSecretsManager } from "@flowblade/sqlduck";
+
+const secrets = new DuckSecretsManager(conn);
+
+await secrets.create({
+  name: "exports_azure",
+  type: "azure",
+  connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+  scope: "az://exports/",
+});
+
+// Without keys: managed identity, cli, env...
+await secrets.create({
+  name: "lake_azure",
+  type: "azure",
+  provider: "credential_chain",
+  accountName: "mylake",
+});
+```
+
+| Method | Description |
+| --- | --- |
+| `create(secret, { persistent, onConflict })` | Create a secret. `onConflict` is `error` (default), `replace` or `ignore` |
+| `drop(name, { ifExists })` | Drop a secret |
+| `list({ name, type })` | List the secrets, with their sensitive values redacted by DuckDB |
+| `which(path, type)` | The secret DuckDB would use for a path, or `null` |
+| `withSecret(secret, fn)` | Run `fn` with a temporary secret, dropped when it completes or throws |
+
+- Secret values are bound as query parameters, so they never appear in the logged statements or in errors.
+- Secrets are temporary by default: they live in memory for the lifetime of the DuckDB instance. `persistent: true` stores them unencrypted in DuckDB's secret directory.
+- Secrets belong to the DuckDB instance: all its connections see them, including a `withSecret` secret while its function runs. Use `scope` to limit the paths a secret applies to.
+- `azure`, `s3`, `r2`, `gcs` and `http` secrets are typed. Other options go in `options` (camelCase keys), other types in `{ type: "custom", customType }`.
+- Creating a secret of an extension type (`azure`, `s3`...) makes DuckDB install and load that extension, which may need network access the first time.
 
 ### Query a materialized Kysely query
 
