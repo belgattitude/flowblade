@@ -26,7 +26,9 @@ const schema = z.object({
     .meta(duckMeta({ duckdbCollate: "NOCASE.NOACCENT" })),
 
   // city VARCHAR COLLATE fr NOT NULL (ICU collation)
-  city: z.string().meta(duckMeta({ duckdbType: "VARCHAR", duckdbCollate: "fr" })),
+  city: z
+    .string()
+    .meta(duckMeta({ duckdbType: "VARCHAR", duckdbCollate: "fr" })),
 
   // price DECIMAL(10,2) NOT NULL
   price: z.number().meta(duckMeta({ duckdbType: "DECIMAL(10,2)" })),
