@@ -179,6 +179,51 @@ describe(getTableCreateFromZod, () => {
       }
     );
   });
+  describe("When collate is set in the meta", () => {
+    it("should add the COLLATE clause on VARCHAR columns", () => {
+      const { ddl, columnTypes } = getTableCreateFromZod({
+        table: new Table("test"),
+        schema: z.object({
+          name: z.string().meta({ collate: "NOCASE" }),
+          code: z.string().nullable().meta({ collate: "NOCASE.NOACCENT" }),
+          id: z.string().meta({ collate: "en_US", primaryKey: true }),
+        }),
+      });
+      expect(ddl).toContain("name VARCHAR COLLATE NOCASE NOT NULL");
+      expect(ddl).toContain("code VARCHAR COLLATE NOCASE.NOACCENT");
+      expect(ddl).toContain("id VARCHAR COLLATE en_US PRIMARY KEY");
+      expect(columnTypes.get("name")).toStrictEqual(VARCHAR);
+    });
+
+    it.for(["NOCASE; DROP TABLE x", "", "no case", "'NOCASE'"])(
+      "should fail on an invalid collation name: %j",
+      (collate) => {
+        expect(() =>
+          getTableCreateFromZod({
+            table: new Table("test"),
+            schema: z.object({ name: z.string().meta({ collate }) }),
+          })
+        ).toThrow(/Invalid collate/);
+      }
+    );
+
+    it("should fail on non VARCHAR columns", () => {
+      expect(() =>
+        getTableCreateFromZod({
+          table: new Table("test"),
+          schema: z.object({ n: z.int32().meta({ collate: "NOCASE" }) }),
+        })
+      ).toThrow(/only supported on VARCHAR/);
+      expect(() =>
+        getTableCreateFromZod({
+          table: new Table("test"),
+          schema: z.object({
+            tags: z.array(z.string()).meta({ collate: "NOCASE" }),
+          }),
+        })
+      ).toThrow(/only supported on VARCHAR/);
+    });
+  });
   describe("When the zod schema uses multipleOf", () => {
     it("should infer the DECIMAL width and scale", () => {
       const { columnTypes } = getTableCreateFromZod({

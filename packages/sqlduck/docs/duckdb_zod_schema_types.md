@@ -179,3 +179,17 @@ Nullability doesn't change the DuckDB type, only the column constraint:
 | `z.object(...)`                         | Throws, nested objects aren't supported |
 | `z.array(z.array(...))`                 | Throws, nested lists aren't supported   |
 | `z.union(...)` / mixed TypeScript enums | Throws (`Cannot guess type`)            |
+
+## Collation (`collate`)
+
+`.meta({ collate })` adds a `COLLATE` clause to a `VARCHAR` column:
+
+```ts
+const schema = z.object({
+  name: z.string().meta({ collate: "NOCASE" }), // name VARCHAR COLLATE NOCASE NOT NULL
+  code: z.string().meta({ collate: "NOCASE.NOACCENT" }),
+});
+```
+
+Accepts built-in (`NOCASE`, `NOACCENT`, `NFC`), combined (`NOCASE.NOACCENT`) and
+ICU (`en_US`) collations. Any other column type (enum, uuid, array...) throws.

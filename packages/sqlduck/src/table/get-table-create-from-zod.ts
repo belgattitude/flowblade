@@ -26,6 +26,7 @@ type ColumnDDL = {
   name: string;
   duckdbType: DuckDBType;
   constraint?: "NOT NULL" | "PRIMARY KEY";
+  collate?: string;
 };
 
 export type TableCreateOptions = {
@@ -110,6 +111,10 @@ const getCustomDuckDbType = (duckdbType: string): DuckDBType | undefined => {
   return new DuckDBDecimalType(width, scale);
 };
 
+// Built-in (NOCASE, NOACCENT, NFC), combined (NOCASE.NOACCENT) or ICU (en_US) collations.
+// Restricted to identifier characters as the value is inlined in the DDL.
+const collateRegexp = /^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)*$/;
+
 type StringFormat =
   | "date"
   | "date-time"
@@ -184,6 +189,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       multipleOf?: number;
       enum?: string[];
       duckdbType?: string;
+      collate?: string;
       // only when type is array
       items?: {
         type: "string" | "boolean" | "number" | "integer";
@@ -200,6 +206,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
     const {
       type,
       duckdbType,
+      collate,
       nullable,
       primaryKey,
       minimum,
@@ -294,6 +301,19 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
     } else {
       c.duckdbType = customDuckDbType;
     }
+    if (collate !== undefined) {
+      if (typeof collate !== "string" || !collateRegexp.test(collate)) {
+        throw new Error(
+          `Invalid collate '${collate}' for '${columnName}', expected a collation name (ie: 'NOCASE', 'NOCASE.NOACCENT', 'en_US')`
+        );
+      }
+      if (c.duckdbType.toString() !== "VARCHAR") {
+        throw new Error(
+          `The collate '${collate}' for '${columnName}' is only supported on VARCHAR columns, got '${c.duckdbType.toString()}'`
+        );
+      }
+      c.collate = collate;
+    }
     if (primaryKey === true) {
       c.constraint = "PRIMARY KEY";
     } else if (nullable !== true) {
@@ -312,8 +332,13 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
     `${createDDL} ${fqTable} (\n`,
     columns
       .map((colDDL) => {
-        const { name, duckdbType, constraint } = colDDL;
-        const line = [name, duckdbType.toString(), constraint]
+        const { name, duckdbType, constraint, collate } = colDDL;
+        const line = [
+          name,
+          duckdbType.toString(),
+          collate === undefined ? undefined : `COLLATE ${collate}`,
+          constraint,
+        ]
           .filter(Boolean)
           .join(" ");
         return `  ${line}`;
