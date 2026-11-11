@@ -156,7 +156,7 @@ describe(getTableCreateFromZod, () => {
         table: new Table("test"),
         schema: z.object({
           price: z.number().meta({ duckdbType: "DECIMAL(10,2)" }),
-          rate: z.number().meta({ duckdbType: "decimal( 38, 10 )" }),
+          rate: z.number().meta({ duckdbType: "DECIMAL(38, 10)" }),
           amount: z.number().meta({ duckdbType: "DECIMAL" }),
         }),
       });
@@ -173,20 +173,25 @@ describe(getTableCreateFromZod, () => {
         expect(() =>
           getTableCreateFromZod({
             table: new Table("test"),
-            schema: z.object({ price: z.number().meta({ duckdbType }) }),
+            schema: z.object({
+              price: z.number().meta({ duckdbType: duckdbType as "DECIMAL" }),
+            }),
           })
         ).toThrow(/Invalid duckdbType/);
       }
     );
   });
-  describe("When collate is set in the meta", () => {
+  describe("When duckdbCollate is set in the meta", () => {
     it("should add the COLLATE clause on VARCHAR columns", () => {
       const { ddl, columnTypes } = getTableCreateFromZod({
         table: new Table("test"),
         schema: z.object({
-          name: z.string().meta({ collate: "NOCASE" }),
-          code: z.string().nullable().meta({ collate: "NOCASE.NOACCENT" }),
-          id: z.string().meta({ collate: "en_US", primaryKey: true }),
+          name: z.string().meta({ duckdbCollate: "NOCASE" }),
+          code: z
+            .string()
+            .nullable()
+            .meta({ duckdbCollate: "NOCASE.NOACCENT" }),
+          id: z.string().meta({ duckdbCollate: "en_US", primaryKey: true }),
         }),
       });
       expect(ddl).toContain("name VARCHAR COLLATE NOCASE NOT NULL");
@@ -197,13 +202,17 @@ describe(getTableCreateFromZod, () => {
 
     it.for(["NOCASE; DROP TABLE x", "", "no case", "'NOCASE'"])(
       "should fail on an invalid collation name: %j",
-      (collate) => {
+      (duckdbCollate) => {
         expect(() =>
           getTableCreateFromZod({
             table: new Table("test"),
-            schema: z.object({ name: z.string().meta({ collate }) }),
+            schema: z.object({
+              name: z
+                .string()
+                .meta({ duckdbCollate: duckdbCollate as "NOCASE" }),
+            }),
           })
-        ).toThrow(/Invalid collate/);
+        ).toThrow(/Invalid duckdbCollate/);
       }
     );
 
@@ -211,14 +220,14 @@ describe(getTableCreateFromZod, () => {
       expect(() =>
         getTableCreateFromZod({
           table: new Table("test"),
-          schema: z.object({ n: z.int32().meta({ collate: "NOCASE" }) }),
+          schema: z.object({ n: z.int32().meta({ duckdbCollate: "NOCASE" }) }),
         })
       ).toThrow(/only supported on VARCHAR/);
       expect(() =>
         getTableCreateFromZod({
           table: new Table("test"),
           schema: z.object({
-            tags: z.array(z.string()).meta({ collate: "NOCASE" }),
+            tags: z.array(z.string()).meta({ duckdbCollate: "NOCASE" }),
           }),
         })
       ).toThrow(/only supported on VARCHAR/);

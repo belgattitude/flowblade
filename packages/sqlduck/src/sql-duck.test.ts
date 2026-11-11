@@ -750,7 +750,7 @@ describe("Duckdb tests", () => {
       ]);
     });
 
-    it("Should create VARCHAR columns with the collate meta", async ({
+    it("Should create VARCHAR columns with the duckdbCollate meta", async ({
       conn,
     }) => {
       const sqlDuck = new SqlDuck({ conn });
@@ -765,8 +765,8 @@ describe("Duckdb tests", () => {
         table: testTable,
         schema: z.strictObject({
           id: z.int32(),
-          name: z.string().meta({ collate: "NOCASE" }),
-          code: z.string().meta({ collate: "NOCASE.NOACCENT" }),
+          name: z.string().meta({ duckdbCollate: "NOCASE" }),
+          code: z.string().meta({ duckdbCollate: "NOCASE.NOACCENT" }),
         }),
         rowStream: rowStream(),
         autoCheckpoint: false,

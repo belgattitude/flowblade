@@ -26,7 +26,7 @@ type ColumnDDL = {
   name: string;
   duckdbType: DuckDBType;
   constraint?: "NOT NULL" | "PRIMARY KEY";
-  collate?: string;
+  duckdbCollate?: string;
 };
 
 export type TableCreateOptions = {
@@ -113,7 +113,7 @@ const getCustomDuckDbType = (duckdbType: string): DuckDBType | undefined => {
 
 // Built-in (NOCASE, NOACCENT, NFC), combined (NOCASE.NOACCENT) or ICU (en_US) collations.
 // Restricted to identifier characters as the value is inlined in the DDL.
-const collateRegexp = /^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)*$/;
+const duckdbCollateRegexp = /^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)*$/;
 
 type StringFormat =
   | "date"
@@ -189,7 +189,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
       multipleOf?: number;
       enum?: string[];
       duckdbType?: string;
-      collate?: string;
+      duckdbCollate?: string;
       // only when type is array
       items?: {
         type: "string" | "boolean" | "number" | "integer";
@@ -206,7 +206,7 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
     const {
       type,
       duckdbType,
-      collate,
+      duckdbCollate,
       nullable,
       primaryKey,
       minimum,
@@ -301,18 +301,21 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
     } else {
       c.duckdbType = customDuckDbType;
     }
-    if (collate !== undefined) {
-      if (typeof collate !== "string" || !collateRegexp.test(collate)) {
+    if (duckdbCollate !== undefined) {
+      if (
+        typeof duckdbCollate !== "string" ||
+        !duckdbCollateRegexp.test(duckdbCollate)
+      ) {
         throw new Error(
-          `Invalid collate '${collate}' for '${columnName}', expected a collation name (ie: 'NOCASE', 'NOCASE.NOACCENT', 'en_US')`
+          `Invalid duckdbCollate '${duckdbCollate}' for '${columnName}', expected a collation name (ie: 'NOCASE', 'NOCASE.NOACCENT', 'en_US')`
         );
       }
       if (c.duckdbType.toString() !== "VARCHAR") {
         throw new Error(
-          `The collate '${collate}' for '${columnName}' is only supported on VARCHAR columns, got '${c.duckdbType.toString()}'`
+          `The duckdbCollate '${duckdbCollate}' for '${columnName}' is only supported on VARCHAR columns, got '${c.duckdbType.toString()}'`
         );
       }
-      c.collate = collate;
+      c.duckdbCollate = duckdbCollate;
     }
     if (primaryKey === true) {
       c.constraint = "PRIMARY KEY";
@@ -332,11 +335,11 @@ export const getTableCreateFromZod = <TSchema extends TableSchemaZod>(
     `${createDDL} ${fqTable} (\n`,
     columns
       .map((colDDL) => {
-        const { name, duckdbType, constraint, collate } = colDDL;
+        const { name, duckdbType, constraint, duckdbCollate } = colDDL;
         const line = [
           name,
           duckdbType.toString(),
-          collate === undefined ? undefined : `COLLATE ${collate}`,
+          duckdbCollate === undefined ? undefined : `COLLATE ${duckdbCollate}`,
           constraint,
         ]
           .filter(Boolean)
