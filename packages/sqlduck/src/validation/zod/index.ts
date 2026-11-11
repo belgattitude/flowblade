@@ -12,4 +12,5 @@ export { duckValidatorsZod } from "./duck-validators-zod.ts";
 export { ensureZodTableSchema } from "./ensure-zod-table-schema.ts";
 export type { InferZodRelaxedDataSchema } from "./infer-zod-relaxed-data-schema.ts";
 export type { TableSchemaZod } from "./table-schema-zod.ts";
+export { duckMeta } from "./zod-duckdb-meta.ts";
 export type { DuckdbCollation, DuckdbZodMeta } from "./zod-duckdb-meta.ts";

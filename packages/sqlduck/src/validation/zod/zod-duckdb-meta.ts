@@ -12,18 +12,52 @@ export type DuckdbCollation =
   | Lowercase<string>
   | `${Lowercase<string>}_${Uppercase<string>}`;
 
-/**
- * Metadata understood by sqlduck when creating a table from a zod schema.
- */
-export type DuckdbZodMeta = {
+type DuckdbVarcharMeta = {
   /** Explicit DuckDB column type, overrides the inferred one */
-  duckdbType?: SupportedCustomDuckDbTypes;
+  duckdbType?: "VARCHAR";
   /** Collation of a VARCHAR column, ie: 'NOCASE' */
   duckdbCollate?: DuckdbCollation;
-  primaryKey?: boolean;
 };
 
+type DuckdbNonVarcharMeta = {
+  duckdbType?: Exclude<SupportedCustomDuckDbTypes, "VARCHAR">;
+  /** Only VARCHAR columns can be collated */
+  duckdbCollate?: never;
+};
+
+/**
+ * Metadata understood by sqlduck when creating a table from a zod schema.
+ *
+ * A discriminated union: `duckdbCollate` is only allowed when `duckdbType` is
+ * omitted (inferred) or 'VARCHAR'.
+ */
+export type DuckdbZodMeta = {
+  primaryKey?: boolean;
+} & (DuckdbVarcharMeta | DuckdbNonVarcharMeta);
+
+/**
+ * Strictly typed helper for `.meta()`: unknown keys (ie: typos), unsupported
+ * values and a `duckdbCollate` on a non VARCHAR `duckdbType` are compile errors.
+ * Returns the meta unchanged.
+ *
+ * @example
+ * ```typescript
+ * const schema = z.object({
+ *   id: z.int32().meta(duckMeta({ primaryKey: true })),
+ *   name: z.string().meta(duckMeta({ duckdbCollate: "NOCASE" })),
+ *   price: z.number().meta(duckMeta({ duckdbType: "DECIMAL(10,2)" })),
+ * });
+ * ```
+ */
+export const duckMeta = <const T extends DuckdbZodMeta>(
+  meta: T & Record<Exclude<keyof T, keyof DuckdbZodMeta>, never>
+): T => meta;
+
 declare module "zod" {
-  // oxlint-disable-next-line typescript/no-empty-interface, typescript/no-empty-object-type, typescript/consistent-type-definitions -- module augmentation requires an interface
-  interface GlobalMeta extends DuckdbZodMeta {}
+  // oxlint-disable-next-line typescript/consistent-type-definitions -- module augmentation requires an interface
+  interface GlobalMeta {
+    duckdbType?: SupportedCustomDuckDbTypes;
+    duckdbCollate?: DuckdbCollation;
+    primaryKey?: boolean;
+  }
 }

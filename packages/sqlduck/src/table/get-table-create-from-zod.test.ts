@@ -21,6 +21,7 @@ import * as z from "zod";
 import { testFullSupportedColumnsZodSchema } from "#tests/data/test-full-supported-columns-zod-schema.ts";
 
 import { Table } from "../objects/table.ts";
+import { duckMeta } from "../validation/zod/zod-duckdb-meta.ts";
 import { getTableCreateFromZod } from "./get-table-create-from-zod.ts";
 
 describe(getTableCreateFromZod, () => {
@@ -198,6 +199,16 @@ describe(getTableCreateFromZod, () => {
       expect(ddl).toContain("code VARCHAR COLLATE NOCASE.NOACCENT");
       expect(ddl).toContain("id VARCHAR COLLATE en_US PRIMARY KEY");
       expect(columnTypes.get("name")).toStrictEqual(VARCHAR);
+    });
+
+    it("should work with duckMeta", () => {
+      const { ddl } = getTableCreateFromZod({
+        table: new Table("test"),
+        schema: z.object({
+          name: z.string().meta(duckMeta({ duckdbCollate: "NOCASE" })),
+        }),
+      });
+      expect(ddl).toContain("name VARCHAR COLLATE NOCASE NOT NULL");
     });
 
     it.for(["NOCASE; DROP TABLE x", "", "no case", "'NOCASE'"])(
