@@ -21,6 +21,7 @@ import * as z from "zod";
 import { testFullSupportedColumnsZodSchema } from "#tests/data/test-full-supported-columns-zod-schema.ts";
 
 import { Table } from "../objects/table.ts";
+import { duckMeta } from "../validation/zod/zod-duckdb-meta.ts";
 import { getTableCreateFromZod } from "./get-table-create-from-zod.ts";
 
 describe(getTableCreateFromZod, () => {
@@ -156,7 +157,7 @@ describe(getTableCreateFromZod, () => {
         table: new Table("test"),
         schema: z.object({
           price: z.number().meta({ duckdbType: "DECIMAL(10,2)" }),
-          rate: z.number().meta({ duckdbType: "decimal( 38, 10 )" }),
+          rate: z.number().meta({ duckdbType: "DECIMAL(38, 10)" }),
           amount: z.number().meta({ duckdbType: "DECIMAL" }),
         }),
       });
@@ -173,11 +174,75 @@ describe(getTableCreateFromZod, () => {
         expect(() =>
           getTableCreateFromZod({
             table: new Table("test"),
-            schema: z.object({ price: z.number().meta({ duckdbType }) }),
+            schema: z.object({
+              price: z.number().meta({ duckdbType: duckdbType as "DECIMAL" }),
+            }),
           })
         ).toThrow(/Invalid duckdbType/);
       }
     );
+  });
+  describe("When duckdbCollate is set in the meta", () => {
+    it("should add the COLLATE clause on VARCHAR columns", () => {
+      const { ddl, columnTypes } = getTableCreateFromZod({
+        table: new Table("test"),
+        schema: z.object({
+          name: z.string().meta({ duckdbCollate: "NOCASE" }),
+          code: z
+            .string()
+            .nullable()
+            .meta({ duckdbCollate: "NOCASE.NOACCENT" }),
+          id: z.string().meta({ duckdbCollate: "en_US", primaryKey: true }),
+        }),
+      });
+      expect(ddl).toContain("name VARCHAR COLLATE NOCASE NOT NULL");
+      expect(ddl).toContain("code VARCHAR COLLATE NOCASE.NOACCENT");
+      expect(ddl).toContain("id VARCHAR COLLATE en_US PRIMARY KEY");
+      expect(columnTypes.get("name")).toStrictEqual(VARCHAR);
+    });
+
+    it("should work with duckMeta", () => {
+      const { ddl } = getTableCreateFromZod({
+        table: new Table("test"),
+        schema: z.object({
+          name: z.string().meta(duckMeta({ duckdbCollate: "NOCASE" })),
+        }),
+      });
+      expect(ddl).toContain("name VARCHAR COLLATE NOCASE NOT NULL");
+    });
+
+    it.for(["NOCASE; DROP TABLE x", "", "no case", "'NOCASE'"])(
+      "should fail on an invalid collation name: %j",
+      (duckdbCollate) => {
+        expect(() =>
+          getTableCreateFromZod({
+            table: new Table("test"),
+            schema: z.object({
+              name: z
+                .string()
+                .meta({ duckdbCollate: duckdbCollate as "NOCASE" }),
+            }),
+          })
+        ).toThrow(/Invalid duckdbCollate/);
+      }
+    );
+
+    it("should fail on non VARCHAR columns", () => {
+      expect(() =>
+        getTableCreateFromZod({
+          table: new Table("test"),
+          schema: z.object({ n: z.int32().meta({ duckdbCollate: "NOCASE" }) }),
+        })
+      ).toThrow(/only supported on VARCHAR/);
+      expect(() =>
+        getTableCreateFromZod({
+          table: new Table("test"),
+          schema: z.object({
+            tags: z.array(z.string()).meta({ duckdbCollate: "NOCASE" }),
+          }),
+        })
+      ).toThrow(/only supported on VARCHAR/);
+    });
   });
   describe("When the zod schema uses multipleOf", () => {
     it("should infer the DECIMAL width and scale", () => {

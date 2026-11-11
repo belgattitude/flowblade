@@ -750,6 +750,50 @@ describe("Duckdb tests", () => {
       ]);
     });
 
+    it("Should create VARCHAR columns with the duckdbCollate meta", async ({
+      conn,
+    }) => {
+      const sqlDuck = new SqlDuck({ conn });
+      const testTable = new Table("test_collate");
+
+      async function* rowStream() {
+        yield { id: 1, name: "Alice", code: "Éclair" };
+        yield { id: 2, name: "bob", code: "eclair" };
+      }
+
+      const { totalRows } = await sqlDuck.toTable({
+        table: testTable,
+        schema: z.strictObject({
+          id: z.int32(),
+          name: z.string().meta({ duckdbCollate: "NOCASE" }),
+          code: z.string().meta({ duckdbCollate: "NOCASE.NOACCENT" }),
+        }),
+        rowStream: rowStream(),
+        autoCheckpoint: false,
+        createOptions: {
+          create: "CREATE_OR_REPLACE",
+        },
+      });
+
+      expect(totalRows).toBe(2);
+      const fq = testTable.getFullName();
+      const query = await conn.runAndReadAll(
+        `SELECT
+           (SELECT id FROM ${fq} WHERE name = 'ALICE') as nocase_match,
+           (SELECT count(*) FROM ${fq} WHERE name = 'alice') as nocase_count,
+           (SELECT count(*) FROM ${fq} WHERE code = 'ECLAIR') as noaccent_count,
+           (SELECT count(DISTINCT code) FROM ${fq}) as distinct_codes`
+      );
+      expect(query.getRowObjectsJson()).toStrictEqual([
+        {
+          nocase_match: 1,
+          nocase_count: "1",
+          noaccent_count: "2",
+          distinct_codes: "1",
+        },
+      ]);
+    });
+
     it("Should append decimal columns inferred from multipleOf", async ({
       conn,
     }) => {

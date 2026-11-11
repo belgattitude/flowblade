@@ -179,3 +179,39 @@ Nullability doesn't change the DuckDB type, only the column constraint:
 | `z.object(...)`                         | Throws, nested objects aren't supported |
 | `z.array(z.array(...))`                 | Throws, nested lists aren't supported   |
 | `z.union(...)` / mixed TypeScript enums | Throws (`Cannot guess type`)            |
+
+## Collation (`duckdbCollate`)
+
+`.meta({ duckdbCollate })` adds a `COLLATE` clause to a `VARCHAR` column:
+
+```ts
+const schema = z.object({
+  name: z.string().meta({ duckdbCollate: "NOCASE" }), // name VARCHAR COLLATE NOCASE NOT NULL
+  code: z.string().meta({ duckdbCollate: "NOCASE.NOACCENT" }),
+});
+```
+
+Accepts built-in (`NOCASE`, `NOACCENT`, `NFC`), combined (`NOCASE.NOACCENT`) and
+ICU (`fr`, `en_US`) collations. Any other column type (enum, uuid, number,
+array...) throws when the table is created.
+
+## Strictly typed meta (`duckMeta`)
+
+`.meta()` already type-checks the values of `duckdbType`, `duckdbCollate` and
+`primaryKey`, but zod accepts any other key, so a typo goes unnoticed. Wrap the
+meta in `duckMeta()` (from `@flowblade/sqlduck/zod`) to also reject unknown keys
+and a `duckdbCollate` on a non `VARCHAR` `duckdbType`. It returns its argument
+unchanged.
+
+```ts
+import { duckMeta } from "@flowblade/sqlduck/zod";
+
+const schema = z.object({
+  id: z.int32().meta(duckMeta({ primaryKey: true })),
+  name: z.string().meta(duckMeta({ duckdbCollate: "NOCASE" })),
+  price: z.number().meta(duckMeta({ duckdbType: "DECIMAL(10,2)" })),
+});
+
+z.string().meta(duckMeta({ duckdbColate: "NOCASE" })); // error: unknown key
+z.string().meta(duckMeta({ duckdbType: "UUID", duckdbCollate: "NOCASE" })); // error: only VARCHAR
+```

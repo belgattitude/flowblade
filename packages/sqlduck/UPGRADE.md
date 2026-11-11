@@ -2,6 +2,26 @@
 
 Breaking changes and how to migrate, by version. See the [CHANGELOG](./CHANGELOG.md) for all changes.
 
+## 0.47.0
+
+No breaking change: `duckdbCollate` and `duckMeta()` are additions. One thing to know:
+
+### `.meta()` values are now type-checked
+
+`duckdbType`, `duckdbCollate` and `primaryKey` are typed in zod's `.meta()`. A `duckdbType` that was not supported already threw when creating the table, it is now also a compile error.
+
+**Advice**: wrap your table schema meta in `duckMeta()` (`@flowblade/sqlduck/zod`). Zod accepts any other key in `.meta()`, so a typo like `duckdbColate` is silently ignored, `duckMeta()` turns it into a compile error. It also rejects a `duckdbCollate` on a non `VARCHAR` `duckdbType`. It returns its argument unchanged, so adopting it changes nothing at runtime.
+
+```typescript
+import { duckMeta } from "@flowblade/sqlduck/zod";
+
+const schema = z.object({
+  id: z.int32().meta(duckMeta({ primaryKey: true })),
+  name: z.string().meta(duckMeta({ duckdbCollate: "NOCASE" })),
+  price: z.number().meta(duckMeta({ duckdbType: "DECIMAL(10,2)" })),
+});
+```
+
 ## 0.46.0
 
 No breaking change: `QueryExporter` (`@flowblade/sqlduck/export`) and `DuckSecretsManager` are additions, see [#1525](https://github.com/belgattitude/flowblade/pull/1525). A few things to know when adopting them:
