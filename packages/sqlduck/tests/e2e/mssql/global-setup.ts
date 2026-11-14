@@ -11,7 +11,7 @@ import {
   type mssqlE2eDb,
 } from "./get-mssql-e2e-migrations.ts";
 
-const mssqlImage = "mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-24.04";
+const mssqlImage = "mcr.microsoft.com/mssql/server:2025-CU10-GDR1-ubuntu-24.04";
 
 /**
  * Start a single mssql container for all mssql e2e test files, seed it once
