@@ -11,4 +11,6 @@ Fix react-query GC timers retaining finished SSR requests in the nextjs-app exam
 
 Also fix `getNextjsHostInfo` resolving to `https://undefined` outside Vercel: unset Vercel env vars are now detected, so the `BASE_URL` / localhost fallback is reachable.
 
+Also enable `test-e2e` in the example: a vitest smoke suite that starts `next start` and requests the main pages (turbo builds first).
+
 See https://rohitpotato.xyz/thoughts/ssr-requests-still-alive

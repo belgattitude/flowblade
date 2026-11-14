@@ -42,6 +42,7 @@
     "lint-fix": "next typegen && dx-oxlint --fix && dx-oxfmt --write",
     "start": "next start",
     "test": "vitest run",
+    "test-e2e": "vitest --config=vitest.e2e.config.ts run",
     "test-unit": "vitest run",
     "test-unit-watch": "vitest --ui",
     "typecheck": "next typegen && dx-typecheck --project tsconfig.json --noEmit",

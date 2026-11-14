@@ -15,6 +15,11 @@
       // Only exception @flowblade/sqlduck that is used for env
       "dependsOn": ["@flowblade/sqlduck#build", "@flowblade/core#build"],
     },
+    "test-e2e": {
+      // e2e runs `next start`, it needs the production build
+      "dependsOn": ["build"],
+      "passThroughEnv": ["E2E_*"],
+    },
     "typecheck": {
       // We rely on tsconfig path aliases to ease starting
       // Only exception @flowblade/sqlduck that is used for env
