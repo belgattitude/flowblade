@@ -9,4 +9,6 @@ Fix react-query GC timers retaining finished SSR requests in the nextjs-app exam
 - `ReactQueryClientProvider` uses `getQueryClient()`: a new client per request on the server, a singleton in the browser (no more `useState`, which React may discard when suspending on initial mount).
 - Dehydrate pending queries so server prefetches can stream to the client.
 
+Also fix `getNextjsHostInfo` resolving to `https://undefined` outside Vercel: unset Vercel env vars are now detected, so the `BASE_URL` / localhost fallback is reachable.
+
 See https://rohitpotato.xyz/thoughts/ssr-requests-still-alive
