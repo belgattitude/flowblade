@@ -2,12 +2,14 @@ const isBrowser = globalThis.window !== undefined;
 
 const getVercelUrl = (): string | undefined => {
   const vercelEnv = process.env.NEXT_PUBLIC_VERCEL_ENV;
-  if (vercelEnv === null || vercelEnv === "") {
+  if (vercelEnv === undefined || vercelEnv === "") {
     return undefined;
   }
-  return process.env.NEXT_PUBLIC_VERCEL_ENV === "preview"
-    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-    : `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}`;
+  const host =
+    vercelEnv === "preview"
+      ? process.env.NEXT_PUBLIC_VERCEL_URL
+      : process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
+  return host === undefined || host === "" ? undefined : `https://${host}`;
 };
 
 /**
