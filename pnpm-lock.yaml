@@ -202,6 +202,8 @@ overrides:
   postcss-selector-parser@<7.1.6: 7.1.7
   seroval@<=1.6.2: 1.7.7
   zod@<4.6.6: 4.6.7
+  '@astrojs/node@<=11.1.11': 11.1.12
+  astro@>=5.14.3 <=7.4.6: 7.4.7
 
 importers:
 
@@ -254,7 +256,7 @@ importers:
     dependencies:
       '@astrojs/vercel':
         specifier: 11.0.21
-        version: 11.0.21(@types/react@19.3.0)(@types/ws@8.18.2)(astro@7.4.5)(next@16.4.6)(react@19.3.1)(supports-color@7.2.0)(ws@8.22.1)
+        version: 11.0.21(@types/react@19.3.0)(@types/ws@8.18.2)(astro@7.4.7)(next@16.4.6)(react@19.3.1)(supports-color@7.2.0)(ws@8.22.1)
       blume:
         specifier: 2.2.7
         version: 2.2.7(@azure/identity@4.14.1)(@emnapi/runtime@2.0.0-beta.2)(@shikijs/themes@4.6.0)(@types/d3-selection@3.0.12)(@types/react-dom@19.3.0)(@types/react@19.3.0)(@types/ws@8.18.2)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(csstype@3.2.3)(esbuild@0.28.2)(next@16.4.6)(prettier@3.9.10)(supports-color@7.2.0)(tsx@4.23.15)(vite@8.3.8)(ws@8.22.1)(yaml@2.9.1)
@@ -1861,6 +1863,9 @@ packages:
   '@astrojs/internal-helpers@0.13.0':
     resolution: {integrity: sha512-1AScHXGqOjz/SZgvorT0BZLPIGRouRQ1cP5aR01+HpiRu2MKE2hpjF+ho1hlszEIQqkXn6Tt0JZSrJH8Heukew==}
 
+  '@astrojs/internal-helpers@0.13.1':
+    resolution: {integrity: sha512-OGqEY2/9EGj0i01csgycVmWOUx+ngAZ96mMA5Xsc8rC7ku+cvOkyNudp3QuGSj2JYEyK1nkxbcMUd60aWqol0A==}
+
   '@astrojs/internal-helpers@0.13.2':
     resolution: {integrity: sha512-ELDb0CFLbVTBrz9ThTusGDR3QejFrnRdhpiUooLKSANLHccd6xzUM8cszQqtwHVNVtMAf3/MbnEIyIcbjc9D8g==}
 
@@ -1885,6 +1890,9 @@ packages:
   '@astrojs/markdown-satteri@0.4.6':
     resolution: {integrity: sha512-5S+OLjPgVZfXRBN1o0xa1x+J6YUdGqso0kkQmbGkxv136paCzJvIUUQUDa0iANSSGHZxVeWpD8a5kaHTcg9lHQ==}
 
+  '@astrojs/markdown-satteri@0.4.7':
+    resolution: {integrity: sha512-lYPHx2b5Bol3k/qZJ6MWbvmDXbfixJxLRouBq6aQ5Mfv6PAl2RhC1XxWkt91Ldhk+6tt1euhyqQi/PytJmoPGQ==}
+
   '@astrojs/mdx@8.1.2':
     resolution: {integrity: sha512-8RZHFq0OJpJaacppAXif51EbnHrDxruXDJKSf04sHvTbwQ3roQdK7VQlYe4F+9zqoTMiFOh5dWCTut2DoUvldA==}
     engines: {node: '>=22.23.4'}
@@ -1894,7 +1902,7 @@ packages:
       '@types/astro': '*'
       '@types/astrojs__markdown-remark': '*'
       '@types/astrojs__markdown-satteri': '*'
-      astro: ^7.2.10
+      astro: 7.4.7
     peerDependenciesMeta:
       '@astrojs/markdown-remark':
         optional: true
@@ -1905,11 +1913,11 @@ packages:
       '@types/astrojs__markdown-satteri':
         optional: true
 
-  '@astrojs/node@11.1.9':
-    resolution: {integrity: sha512-99xwvAfPyT3OQ7lpibZCblwjW2CKI94PUQ+nw4l4pI6V+05yZtCYxj6vBu9bE8PPXz/7ttjOmzZ1aDN1t/DRXA==}
+  '@astrojs/node@11.1.12':
+    resolution: {integrity: sha512-d51mh242PwgwL4XZpET1wSshl5zKzGGkw7qF2WzRgtAJuNI9NYheSIkH1w1+4vMI3GNmowmrODV/Kh9IxLqFWA==}
     peerDependencies:
       '@types/astro': '*'
-      astro: ^7.2.1
+      astro: 7.4.7
     peerDependenciesMeta:
       '@types/astro':
         optional: true
@@ -1942,7 +1950,7 @@ packages:
     resolution: {integrity: sha512-RVN6P/689QAJ7nokwNLS4Ru5hEuNFww24CvRMLw+PTSfPPyWpSC3fqZa8FaOWNYQTkpnvYBrywDOWlZPxSkoZw==}
     peerDependencies:
       '@types/astro': '*'
-      astro: ^7.0.0
+      astro: 7.4.7
     peerDependenciesMeta:
       '@types/astro':
         optional: true
@@ -2422,8 +2430,18 @@ packages:
   '@braintree/sanitize-url@7.1.2':
     resolution: {integrity: sha512-Swb15lUQl6/MG6ocuC4BSkeJLZKmdCDY8SbzwE/xcRJJCTinNj4L+XUw/WT20sK3MDd/TcG4cn7ho7YpS3Cj2g==}
 
+  '@bruits/satteri-android-arm64@0.11.7':
+    resolution: {integrity: sha512-9m/UAUqvCsau3HpqhWlZ2PhDg1FUuFN98X+LHhQdLWNhp86eBS2ps6pN2S6kmzClGgiIPK0rRd74Tb0zO4ARJA==}
+    cpu: [arm64]
+    os: [android]
+
   '@bruits/satteri-darwin-arm64@0.10.5':
     resolution: {integrity: sha512-8R4rjd/b+MseIktH7PCtRMwHjspoqBKI96nWUQjkwp0+YFczSfKYeHS4fO1gJI8geF7GbKVRuBjPzrN2KhTC0w==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@bruits/satteri-darwin-arm64@0.11.7':
+    resolution: {integrity: sha512-zaXBuKt7NZOPwlQ4nmSFhmUYKuSBeldPLVpfEz6cLQqdTgKa113l1QCo+3f06WibeOtBMwgDORwObRL/QgNs4w==}
     cpu: [arm64]
     os: [darwin]
 
@@ -2432,8 +2450,24 @@ packages:
     cpu: [x64]
     os: [darwin]
 
+  '@bruits/satteri-darwin-x64@0.11.7':
+    resolution: {integrity: sha512-3BQS0X3722ryYUosfLLsXewTd2CXfpWVx85JWw83IMN7kkFxyl2VU2JUKJ8F6bFfv4/qAbTxuRivcVf6q0NHIg==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@bruits/satteri-freebsd-x64@0.11.7':
+    resolution: {integrity: sha512-7kY+Z4Za4Bb+0VCmf126ikbIZWjd+o7//7UykA2caHHlcE0NTaGM5aJhj5y/bribYujsoWYpAq3EQFMSq9nAjA==}
+    cpu: [x64]
+    os: [freebsd]
+
   '@bruits/satteri-linux-arm64-gnu@0.10.5':
     resolution: {integrity: sha512-NjJ/2m5Ej31kUVTZpt+Fr34nzplPKhsM5T2lEd53jqK6Is0U60Cm8U2rtX0gVpycFZUyc7+jULTplYyKGq+nqA==}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@bruits/satteri-linux-arm64-gnu@0.11.7':
+    resolution: {integrity: sha512-MhT0nJTiIlpnqRitMratqLTGooWL+xVfXzNcKG12e01EnBEMYO7Ozf0vBwLgTBzTZCrigzQKUjOM62gLxU6sxA==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
@@ -2444,8 +2478,20 @@ packages:
     os: [linux]
     libc: [musl]
 
+  '@bruits/satteri-linux-arm64-musl@0.11.7':
+    resolution: {integrity: sha512-TX5FqBhldjVrMbsJvzDsbujnLifF0y1TlqN0C6A9N6BIUc+5OfHafe4PsJqZ3J9itWZmzFvK9JNQlVbInaRBxg==}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
   '@bruits/satteri-linux-x64-gnu@0.10.5':
     resolution: {integrity: sha512-HG6hAKlt/923i/VBNuV/YdrVYxSYWG/xCmTqaxm5Vfv5JQ/Z/ROQCBell2yDZBCtlZIp0SFEcqt6A+t4V76ByQ==}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@bruits/satteri-linux-x64-gnu@0.11.7':
+    resolution: {integrity: sha512-hrM2F7/7WkrImbkXj7ukIpt3uvHNDspUmK4Xv3GXqIJv8yoMMUvwZl+B+7+VPUhNLGO3OVEPtc3fxOSdSTpHGA==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
@@ -2456,8 +2502,19 @@ packages:
     os: [linux]
     libc: [musl]
 
+  '@bruits/satteri-linux-x64-musl@0.11.7':
+    resolution: {integrity: sha512-u80ZeekXqKgbdIfFceBn7NIJ89KlLmASzKy8CObVe8ynJu/ktIuCfiuquoLW1pPYV3DLmjK2cVuDNrxLFc0TNg==}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
   '@bruits/satteri-wasm32-wasi@0.10.5':
     resolution: {integrity: sha512-jEB+cxcZAgf5PiqDKIjmTYUQjgDuQNvlvAvhUSRz3MrFlKeub1rigrnO+jjy4Lf/kezeFkB68ezDizJZNRw0AQ==}
+    engines: {node: '>=14.0.0'}
+    cpu: [wasm32]
+
+  '@bruits/satteri-wasm32-wasi@0.11.7':
+    resolution: {integrity: sha512-0lqL7kklzjIRTJqrn4bSh8iwPq5lCZoAetTMMA9ZzLzSAwr+8HQA6tD7Zd9QGeaC9AHje0HNuUDBn6fHEnoDVg==}
     engines: {node: '>=14.0.0'}
     cpu: [wasm32]
 
@@ -2466,8 +2523,18 @@ packages:
     cpu: [arm64]
     os: [win32]
 
+  '@bruits/satteri-win32-arm64-msvc@0.11.7':
+    resolution: {integrity: sha512-JkArj9Lz/3bM+p3fweqT34UzT20kzGmw2NMNMSoxysx/s/gZ+TkWzJOG9OwmM32I7DbmpQp5KBnSrFeZJW014g==}
+    cpu: [arm64]
+    os: [win32]
+
   '@bruits/satteri-win32-x64-msvc@0.10.5':
     resolution: {integrity: sha512-BGfuf6bE/8FZNX/blzWXeDPLGZG8wk+/HSeT35RNkypn7RQyUmi5CXoVFKGnq2E+opBirebMdhIp3JFsw4rZYQ==}
+    cpu: [x64]
+    os: [win32]
+
+  '@bruits/satteri-win32-x64-msvc@0.11.7':
+    resolution: {integrity: sha512-1n0XnkYBlpJR6gOEOJlstEH51RQ4tQmiw2xiotn/7/Fls0LzQEtJsclK8qmxKreFPU3U36mX96vZwzfsMDEpqg==}
     cpu: [x64]
     os: [win32]
 
@@ -5817,7 +5884,7 @@ packages:
     engines: {node: '>=22'}
     peerDependencies:
       '@types/astro': '*'
-      astro: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+      astro: 7.4.7
     peerDependenciesMeta:
       '@types/astro':
         optional: true
@@ -8214,8 +8281,8 @@ packages:
   ast-v8-to-istanbul@1.0.7:
     resolution: {integrity: sha512-VH9YW5Ys57YS7gRm08dMc8pLt6jABrk2qt/+7Eb02a+kCHurlviMj5r7NFKT90ZRy4GuWXhd6tW5Dw75qI/AzA==}
 
-  astro@7.4.5:
-    resolution: {integrity: sha512-wIvuu3Nax/TbrPhI2pWMmsjN/dXTny3G5ZqEfmoYlAW/FF5+nVPmPZJOAxnCx69IfeBXcYPW2i9lv8GcJdydpw==}
+  astro@7.4.7:
+    resolution: {integrity: sha512-C31/vmS14R8SVC5xOTooq9NqzaSaRiUN0nludPX/M+vabVMdzm/8m9S0o1Wp7Le6mQtNxKJHIT0vZSuiLgkjkA==}
     engines: {node: '>=22.23.4', npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true
     peerDependencies:
@@ -11944,17 +12011,9 @@ packages:
     resolution: {integrity: sha512-EW66tjEbOkuPsLHAZ46JDSePabXcS1HLWoZuRaqO/FosA2MVQlSZ55kU/T3hNctvD+VHaHwKfdAAmfh3GsvEhQ==}
     engines: {node: '>=22'}
 
-  p-queue@9.3.5:
-    resolution: {integrity: sha512-FBDeA5Dg3s7jza6RlPUeXBJwpBOKIO03ZcMB8T6afHaVbNtp089OP0L2XruN7qDWrY4eo6GnXxoLM9eTTtmkmA==}
-    engines: {node: '>=20'}
-
   p-retry@8.0.1:
     resolution: {integrity: sha512-NpcsIHJ/jj2QL48izjgnrjQZhO4CG1E9+Or8R8XYvg9gmGDfMQpIhf3JDDdotG4He4B27FxtUsF6Gyllwg3NqA==}
     engines: {node: '>=22'}
-
-  p-timeout@7.0.2:
-    resolution: {integrity: sha512-Qh6Gc8FWPcOySKWZTcAdR1yTJAM8jiT4RBGUfnqMeStlAcn9WXtxHfw/or3xFeeNcjHz3PanWdtexP+zzsuYCA==}
-    engines: {node: '>=20'}
 
   p-try@2.2.0:
     resolution: {integrity: sha512-Ju5DiONkQEOpcBqK/oxQsCZTKpw4Q3I6poAVucaILEbnj5h9fCUBkSzJbNwEgU74wZ3P88hyVFvidBOgx1J3Vg==}
@@ -12837,6 +12896,9 @@ packages:
 
   satteri@0.10.5:
     resolution: {integrity: sha512-l4fYdrx/tbJRitYZYTi0jva/BoEHnTXASq7MZ3iWqUiJpE6nPOz03GAjv+70PQquSmx/XMVtKUmcOH50pR2bug==}
+
+  satteri@0.11.7:
+    resolution: {integrity: sha512-nlpkT9k6y4zjEhMk1mDgy0FEHK+3k3sCnN65l3KqEsCdaRwO5BhhrMTMQ5UPRCmmCCcwxVxd6Pv79jAriY+vrw==}
 
   sax@1.6.1:
     resolution: {integrity: sha512-eYy7abzJ28kGF2Gvp5HBnZtNiTfp/Xm39wKCL6jcHT4m8pVlinEveMAJntvyd6O26Z9Za51wKnhnpZkXEa5WZA==}
@@ -14707,6 +14769,17 @@ snapshots:
       unified: 11.0.5
       yaml: 2.9.1
 
+  '@astrojs/internal-helpers@0.13.1':
+    dependencies:
+      '@types/hast': 3.0.5
+      '@types/mdast': 4.0.4
+      picomatch: 4.0.7
+      retext-smartypants: 6.2.0
+      shiki: 4.6.0
+      smol-toml: 1.9.1
+      unified: 11.0.5
+      yaml: 2.9.1
+
   '@astrojs/internal-helpers@0.13.2':
     dependencies:
       '@types/hast': 3.0.5
@@ -14759,20 +14832,30 @@ snapshots:
       - '@types/emnapi__core'
       - '@types/emnapi__runtime'
 
-  '@astrojs/mdx@8.1.2(astro@7.4.5)':
+  '@astrojs/markdown-satteri@0.4.7':
+    dependencies:
+      '@astrojs/internal-helpers': 0.13.1
+      '@astrojs/prism': 4.1.2
+      github-slugger: 2.0.0
+      satteri: 0.11.7
+    transitivePeerDependencies:
+      - '@types/emnapi__core'
+      - '@types/emnapi__runtime'
+
+  '@astrojs/mdx@8.1.2(astro@7.4.7)':
     dependencies:
       '@astrojs/internal-helpers': 0.13.0
       '@astrojs/markdown-satteri': 0.4.6
-      astro: 7.4.5(@azure/identity@4.14.1)(@types/node@26.6.6)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+      astro: 7.4.7(@azure/identity@4.14.1)(@types/node@26.6.6)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
       es-module-lexer: 3.0.4
     transitivePeerDependencies:
       - '@types/emnapi__core'
       - '@types/emnapi__runtime'
 
-  '@astrojs/node@11.1.9(astro@7.4.5)(supports-color@7.2.0)':
+  '@astrojs/node@11.1.12(astro@7.4.7)(supports-color@7.2.0)':
     dependencies:
-      '@astrojs/internal-helpers': 0.13.0
-      astro: 7.4.5(@azure/identity@4.14.1)(@types/node@26.6.6)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+      '@astrojs/internal-helpers': 0.13.2
+      astro: 7.4.7(@azure/identity@4.14.1)(@types/node@26.6.6)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
       send: 1.2.1(supports-color@7.2.0)
       server-destroy: 1.0.1
     transitivePeerDependencies:
@@ -14833,14 +14916,14 @@ snapshots:
       is-docker: 4.0.0
       package-manager-detector: 1.9.0
 
-  '@astrojs/vercel@11.0.21(@types/react@19.3.0)(@types/ws@8.18.2)(astro@7.4.5)(next@16.4.6)(react@19.3.1)(supports-color@7.2.0)(ws@8.22.1)':
+  '@astrojs/vercel@11.0.21(@types/react@19.3.0)(@types/ws@8.18.2)(astro@7.4.7)(next@16.4.6)(react@19.3.1)(supports-color@7.2.0)(ws@8.22.1)':
     dependencies:
       '@astrojs/internal-helpers': 0.13.2
       '@vercel/analytics': 2.0.1(@types/react@19.3.0)(next@16.4.6)(react@19.3.1)
       '@vercel/functions': 3.11.1(@types/ws@8.18.2)(ws@8.22.1)
       '@vercel/nft': 1.11.1(supports-color@7.2.0)
       '@vercel/routing-utils': 6.6.1
-      astro: 7.4.5(@azure/identity@4.14.1)(@types/node@26.6.6)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+      astro: 7.4.7(@azure/identity@4.14.1)(@types/node@26.6.6)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
       rolldown: 1.2.18
       tinyglobby: 0.2.17
     transitivePeerDependencies:
@@ -15332,22 +15415,46 @@ snapshots:
 
   '@braintree/sanitize-url@7.1.2': {}
 
+  '@bruits/satteri-android-arm64@0.11.7':
+    optional: true
+
   '@bruits/satteri-darwin-arm64@0.10.5':
+    optional: true
+
+  '@bruits/satteri-darwin-arm64@0.11.7':
     optional: true
 
   '@bruits/satteri-darwin-x64@0.10.5':
     optional: true
 
+  '@bruits/satteri-darwin-x64@0.11.7':
+    optional: true
+
+  '@bruits/satteri-freebsd-x64@0.11.7':
+    optional: true
+
   '@bruits/satteri-linux-arm64-gnu@0.10.5':
+    optional: true
+
+  '@bruits/satteri-linux-arm64-gnu@0.11.7':
     optional: true
 
   '@bruits/satteri-linux-arm64-musl@0.10.5':
     optional: true
 
+  '@bruits/satteri-linux-arm64-musl@0.11.7':
+    optional: true
+
   '@bruits/satteri-linux-x64-gnu@0.10.5':
     optional: true
 
+  '@bruits/satteri-linux-x64-gnu@0.11.7':
+    optional: true
+
   '@bruits/satteri-linux-x64-musl@0.10.5':
+    optional: true
+
+  '@bruits/satteri-linux-x64-musl@0.11.7':
     optional: true
 
   '@bruits/satteri-wasm32-wasi@0.10.5':
@@ -15360,10 +15467,26 @@ snapshots:
       - '@types/emnapi__runtime'
     optional: true
 
+  '@bruits/satteri-wasm32-wasi@0.11.7':
+    dependencies:
+      '@emnapi/core': 1.11.1
+      '@emnapi/runtime': 1.11.1
+      '@napi-rs/wasm-runtime': 1.2.7(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
+    transitivePeerDependencies:
+      - '@types/emnapi__core'
+      - '@types/emnapi__runtime'
+    optional: true
+
   '@bruits/satteri-win32-arm64-msvc@0.10.5':
     optional: true
 
+  '@bruits/satteri-win32-arm64-msvc@0.11.7':
+    optional: true
+
   '@bruits/satteri-win32-x64-msvc@0.10.5':
+    optional: true
+
+  '@bruits/satteri-win32-x64-msvc@0.11.7':
     optional: true
 
   '@cacheable/memory@2.2.0':
@@ -17990,10 +18113,10 @@ snapshots:
       estree-walker: 2.0.2
       picomatch: 4.0.7
 
-  '@scalar/astro@0.4.34(astro@7.4.5)':
+  '@scalar/astro@0.4.34(astro@7.4.7)':
     dependencies:
       '@scalar/client-side-rendering': 0.4.16
-      astro: 7.4.5(@azure/identity@4.14.1)(@types/node@26.6.6)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+      astro: 7.4.7(@azure/identity@4.14.1)(@types/node@26.6.6)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
 
   '@scalar/client-side-rendering@0.4.16':
     dependencies:
@@ -19970,11 +20093,11 @@ snapshots:
       estree-walker: 3.0.3
       js-tokens: 10.0.0
 
-  astro@7.4.5(@azure/identity@4.14.1)(@types/node@22.20.5)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1):
+  astro@7.4.7(@azure/identity@4.14.1)(@types/node@22.20.5)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1):
     dependencies:
       '@astrojs/compiler-rs': 0.5.2
-      '@astrojs/internal-helpers': 0.13.0
-      '@astrojs/markdown-satteri': 0.4.6
+      '@astrojs/internal-helpers': 0.13.1
+      '@astrojs/markdown-satteri': 0.4.7
       '@astrojs/telemetry': 3.4.2
       '@capsizecss/unpack': 4.0.1
       '@clack/prompts': 1.8.1
@@ -20003,7 +20126,7 @@ snapshots:
       neotraverse: 1.0.1
       obug: 3.0.0
       p-limit: 7.3.3
-      p-queue: 9.3.5
+      p-queue: 10.0.0
       package-manager-detector: 1.9.0
       piccolore: 0.1.3
       picomatch: 4.0.7
@@ -20093,11 +20216,11 @@ snapshots:
       - uploadthing
       - yaml
 
-  astro@7.4.5(@azure/identity@4.14.1)(@types/node@26.6.6)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1):
+  astro@7.4.7(@azure/identity@4.14.1)(@types/node@26.6.6)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1):
     dependencies:
       '@astrojs/compiler-rs': 0.5.2
-      '@astrojs/internal-helpers': 0.13.0
-      '@astrojs/markdown-satteri': 0.4.6
+      '@astrojs/internal-helpers': 0.13.1
+      '@astrojs/markdown-satteri': 0.4.7
       '@astrojs/telemetry': 3.4.2
       '@capsizecss/unpack': 4.0.1
       '@clack/prompts': 1.8.1
@@ -20126,7 +20249,7 @@ snapshots:
       neotraverse: 1.0.1
       obug: 3.0.0
       p-limit: 7.3.3
-      p-queue: 9.3.5
+      p-queue: 10.0.0
       package-manager-detector: 1.9.0
       piccolore: 0.1.3
       picomatch: 4.0.7
@@ -20399,11 +20522,11 @@ snapshots:
   blume@2.2.7(@azure/identity@4.14.1)(@emnapi/runtime@2.0.0-beta.2)(@shikijs/themes@4.6.0)(@types/d3-selection@3.0.12)(@types/react-dom@19.3.0)(@types/react@19.3.0)(@types/ws@8.18.2)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(csstype@3.2.3)(esbuild@0.28.2)(next@16.4.6)(prettier@3.9.10)(supports-color@7.2.0)(tsx@4.23.15)(vite@8.3.8)(ws@8.22.1)(yaml@2.9.1):
     dependencies:
       '@astrojs/check': 0.9.12(@emnapi/runtime@2.0.0-beta.2)(prettier@3.9.10)(typescript@6.0.3)
-      '@astrojs/markdown-satteri': 0.4.6
-      '@astrojs/mdx': 8.1.2(astro@7.4.5)
-      '@astrojs/node': 11.1.9(astro@7.4.5)(supports-color@7.2.0)
+      '@astrojs/markdown-satteri': 0.4.7
+      '@astrojs/mdx': 8.1.2(astro@7.4.7)
+      '@astrojs/node': 11.1.12(astro@7.4.7)(supports-color@7.2.0)
       '@astrojs/react': 7.1.2(@types/node@22.20.5)(@types/react-dom@19.3.0)(@types/react@19.3.0)(esbuild@0.28.2)(jiti@2.7.0)(oxc-transform-react@0.145.0)(react-dom@19.3.1)(react@19.3.1)(tsx@4.23.15)(yaml@2.9.1)
-      '@astrojs/vercel': 11.0.21(@types/react@19.3.0)(@types/ws@8.18.2)(astro@7.4.5)(next@16.4.6)(react@19.3.1)(supports-color@7.2.0)(ws@8.22.1)
+      '@astrojs/vercel': 11.0.21(@types/react@19.3.0)(@types/ws@8.18.2)(astro@7.4.7)(next@16.4.6)(react@19.3.1)(supports-color@7.2.0)(ws@8.22.1)
       '@clack/prompts': 1.8.1
       '@iconify-json/lucide': 1.2.151
       '@iconify/types': 2.0.0
@@ -20411,7 +20534,7 @@ snapshots:
       '@modelcontextprotocol/sdk': 1.32.2(supports-color@7.2.0)
       '@orama/orama': 3.1.18
       '@pierre/diffs': 1.6.4(@shikijs/themes@4.6.0)(@types/react-dom@19.3.0)(@types/react@19.3.0)(react-dom@19.3.1)(react@19.3.1)
-      '@scalar/astro': 0.4.34(astro@7.4.5)
+      '@scalar/astro': 0.4.34(astro@7.4.7)
       '@scalar/openapi-parser': 0.29.19
       '@scalar/openapi-types': 0.9.8
       '@shikijs/transformers': 4.6.0
@@ -20423,7 +20546,7 @@ snapshots:
       '@vercel/analytics': 2.0.1(@types/react@19.3.0)(next@16.4.6)(react@19.3.1)
       '@vitejs/plugin-react': 6.1.1(oxc-transform-react@0.145.0)(vite@8.3.8)
       ai: 7.0.163(zod@4.6.7)
-      astro: 7.4.5(@azure/identity@4.14.1)(@types/node@22.20.5)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
+      astro: 7.4.7(@azure/identity@4.14.1)(@types/node@22.20.5)(@vercel/blob@2.9.0)(@vercel/functions@3.11.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
       chokidar: 5.0.0
       citty: 0.2.2
       consola: 3.4.2
@@ -24380,16 +24503,9 @@ snapshots:
 
   p-queue@10.0.0: {}
 
-  p-queue@9.3.5:
-    dependencies:
-      eventemitter3: 5.0.4
-      p-timeout: 7.0.2
-
   p-retry@8.0.1:
     dependencies:
       is-network-error: 1.3.2
-
-  p-timeout@7.0.2: {}
 
   p-try@2.2.0: {}
 
@@ -25324,6 +25440,28 @@ snapshots:
       '@bruits/satteri-wasm32-wasi': 0.10.5
       '@bruits/satteri-win32-arm64-msvc': 0.10.5
       '@bruits/satteri-win32-x64-msvc': 0.10.5
+    transitivePeerDependencies:
+      - '@types/emnapi__core'
+      - '@types/emnapi__runtime'
+
+  satteri@0.11.7:
+    dependencies:
+      '@types/estree-jsx': 1.0.5
+      '@types/hast': 3.0.5
+      '@types/mdast': 4.0.4
+      '@types/unist': 3.0.3
+    optionalDependencies:
+      '@bruits/satteri-android-arm64': 0.11.7
+      '@bruits/satteri-darwin-arm64': 0.11.7
+      '@bruits/satteri-darwin-x64': 0.11.7
+      '@bruits/satteri-freebsd-x64': 0.11.7
+      '@bruits/satteri-linux-arm64-gnu': 0.11.7
+      '@bruits/satteri-linux-arm64-musl': 0.11.7
+      '@bruits/satteri-linux-x64-gnu': 0.11.7
+      '@bruits/satteri-linux-x64-musl': 0.11.7
+      '@bruits/satteri-wasm32-wasi': 0.11.7
+      '@bruits/satteri-win32-arm64-msvc': 0.11.7
+      '@bruits/satteri-win32-x64-msvc': 0.11.7
     transitivePeerDependencies:
       - '@types/emnapi__core'
       - '@types/emnapi__runtime'
