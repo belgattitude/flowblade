@@ -1,5 +1,6 @@
 import type { ChildProcess } from "node:child_process";
 import { spawn } from "node:child_process";
+import { once } from "node:events";
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import { setTimeout as sleep } from "node:timers/promises";
@@ -19,7 +20,12 @@ const waitForServer = async (
       throw new Error(`next start exited early (code ${server.exitCode})`);
     }
     try {
-      const res = await fetch(`${url}/health`);
+      const res = await fetch(`${url}/health`, {
+        // a stalled response must not block the deadline check
+        signal: AbortSignal.timeout(
+          Math.max(1, Math.min(2000, deadline - Date.now()))
+        ),
+      });
       if (res.ok) {
         return;
       }
@@ -53,7 +59,16 @@ export default async function setup(): Promise<() => void> {
       stdio: "inherit",
     }
   );
-  await waitForServer(E2E_BASE_URL, server);
+  try {
+    await waitForServer(E2E_BASE_URL, server);
+  } catch (error) {
+    if (server.exitCode === null) {
+      const exited = once(server, "exit");
+      server.kill("SIGTERM");
+      await exited;
+    }
+    throw error;
+  }
   return () => {
     server.kill("SIGTERM");
   };

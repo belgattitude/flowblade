@@ -18,6 +18,8 @@
     "test-e2e": {
       // e2e runs `next start`, it needs the production build
       "dependsOn": ["build"],
+      // live-server smoke run: never replay a cached result
+      "cache": false,
       "passThroughEnv": ["E2E_*"],
     },
     "typecheck": {
