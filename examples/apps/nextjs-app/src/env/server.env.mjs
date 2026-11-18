@@ -1,5 +1,5 @@
 // @ts-check
-import { duckDsnZodSchema } from "@flowblade/sqlduck/zod";
+import { duckDsnZodSchema, duckValidatorsZod } from "@flowblade/sqlduck/zod";
 import { createEnv } from "@t3-oss/env-nextjs";
 import * as z from "zod";
 
@@ -29,19 +29,15 @@ export const serverEnv = createEnv({
           `,
       })
       .optional(),
-    DUCKDB_MEMORY_LIMIT: z
-      .string()
-      .regex(/^[1-9]\d*(MB|GB)$/)
+    DUCKDB_MEMORY_LIMIT: duckValidatorsZod.memoryLimit
       .meta({
         description:
-          'Memory limit for DuckDB connections. Must be a string with a number followed by MB or GB, e.g. "512MB" or "2GB".',
+          'Memory limit for DuckDB connections, e.g. "512MB", "2.7GB", "4GiB" or "80%".',
       })
       .optional(),
     DUCKDB_TEMP_DIRECTORY: z.string().optional(),
     /** Duckdb global configuration */
-    DUCKDB_THREADS: z
-      .string()
-      .regex(/^[1-9]\d*$/)
+    DUCKDB_THREADS: duckValidatorsZod.threads
       .meta({
         description:
           "Number of threads to use for DuckDB connections. Must be a string as per duckdb driver",
