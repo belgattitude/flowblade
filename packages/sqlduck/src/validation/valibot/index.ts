@@ -6,3 +6,7 @@ export {
 export { duckDsnValibotSchema } from "./duck-dsn-valibot-schema.ts";
 export { duckIdentifierValibotSchema } from "./duck-identifier-valibot-schema.ts";
 export { duckValidatorsValibot } from "./duck-validators-valibot.ts";
+export {
+  duckMemoryLimitValibotSchema,
+  duckThreadsValibotSchema,
+} from "./duck-settings-valibot-schemas.ts";

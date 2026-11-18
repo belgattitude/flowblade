@@ -14,3 +14,7 @@ export type { InferZodRelaxedDataSchema } from "./infer-zod-relaxed-data-schema.
 export type { TableSchemaZod } from "./table-schema-zod.ts";
 export { duckMeta } from "./zod-duckdb-meta.ts";
 export type { DuckdbCollation, DuckdbZodMeta } from "./zod-duckdb-meta.ts";
+export {
+  duckMemoryLimitZodSchema,
+  duckThreadsZodSchema,
+} from "./duck-settings-zod-schemas.ts";
