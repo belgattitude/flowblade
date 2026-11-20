@@ -15,5 +15,12 @@ export const scriptsConfig = {
       remote: foodRemoteParquetUrl,
       local: `${dataPath}/food.parquet`,
     },
+    foodEan13: {
+      macrosSql: fileURLToPath(
+        new URL("../sql/openfoodfact-macros.sql", import.meta.url)
+      ),
+      sql: fileURLToPath(new URL("../sql/food-ean13.sql", import.meta.url)),
+      local: `${dataPath}/food_ean13.parquet`,
+    },
   },
 } as const;
