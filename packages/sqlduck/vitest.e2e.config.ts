@@ -1,7 +1,17 @@
+import path from "node:path";
+
 import { createVitestConfig } from "@flowblade/dx/vitest";
 
 export default createVitestConfig({
   test: {
+    env: {
+      // Extensions installed by the e2e tests are kept in the package (git
+      // ignored) instead of the os tmp dir, so they are downloaded only once.
+      DUCKDB_TEST_EXTENSION_DIRECTORY: path.resolve(
+        import.meta.dirname,
+        "tests/tmp/duckdb-extensions"
+      ),
+    },
     coverage: {
       reporter: ["clover"],
     },
