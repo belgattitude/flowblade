@@ -116,7 +116,7 @@ const createVitestBaseConfig = (
     test: {
       // latest vitest 5.1.1 and bun 1.4.5 doesn't work with forks
       // Caused by: TypeError: child.channel?.unref is not a function. (In 'child.channel?.unref()', 'child.channel?.unref' is undefined)
-      pool: isBun ? 'threads' : 'forks',
+      pool: isBun ? "threads" : "forks",
       environment: withReact ? "happy-dom" : "node",
       isolate,
       ...(testingLibrary ? { setupFiles: [testingLibrarySetupFile] } : {}),
