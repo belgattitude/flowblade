@@ -12,6 +12,11 @@ export type DuckdbTestMemoryDbOptions = {
    * @default to ${os.tmpdir()}/duckdb-test
    */
   temp_directory?: string;
+  /**
+   * @default to ${os.tmpdir()}/duckdb-temp/extensions-${process.pid}
+   * Per worker process, so that parallel vitest workers installing or scanning
+   * extensions never fight over the same file locks.
+   */
   extension_directory?: string;
 };
 
@@ -32,7 +37,7 @@ export const openDuckdbTestMemoryDb = async (
     max_memory = "256M",
     threads = Math.max(1, Math.min(os.availableParallelism() - 1, 4)),
     temp_directory = path.join(os.tmpdir(), "duckdb-temp"),
-    extension_directory = path.join(os.tmpdir(), "duckdb-temp/extensions"),
+    extension_directory = path.join(os.tmpdir(), `duckdb-temp/extensions-${process.pid}`),
   } = options ?? {};
 
   const instance = await DuckDBInstance.create(undefined, {
