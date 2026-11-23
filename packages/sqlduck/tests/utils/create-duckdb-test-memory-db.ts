@@ -37,7 +37,10 @@ export const openDuckdbTestMemoryDb = async (
     max_memory = "256M",
     threads = Math.max(1, Math.min(os.availableParallelism() - 1, 4)),
     temp_directory = path.join(os.tmpdir(), "duckdb-temp"),
-    extension_directory = path.join(os.tmpdir(), `duckdb-temp/extensions-${process.pid}`),
+    extension_directory = path.join(
+      os.tmpdir(),
+      `duckdb-temp/extensions-${process.pid}`
+    ),
   } = options ?? {};
 
   const instance = await DuckDBInstance.create(undefined, {
