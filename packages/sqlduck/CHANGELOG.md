@@ -1,5 +1,23 @@
 # @flowblade/sqlduck
 
+## 0.49.0
+
+### Minor Changes
+
+- [#1538](https://github.com/belgattitude/flowblade/pull/1538) [`b423e18`](https://github.com/belgattitude/flowblade/commit/b423e18c10103fe38322813f184214adf7bc3c52) Thanks [@belgattitude](https://github.com/belgattitude)! - Support DuckDB 2.0.1 (`@duckdb/node-api` `2.0.1-r.1`).
+  
+  `@flowblade/sqlduck`:
+  
+  - The generated `DuckSessionSettings` and `DuckGlobalSettings` types now match DuckDB 2.0.1.
+    - Added: `http_retry_quota_throttled`, `http_retry_throttled_wait_ms`, `logging_sink`, `parquet_can_have_nan` and `parquet_use_page_index`.
+    - Removed: `delim_join_as_cte`, `error_on_division_by_zero`, `experimental_metadata_reuse`, `force_column_metadata_reuse`, `legacy_disable_null_type`, `logging_storage`, `regex_match_operator_semantics` and `table_function_identifier_conversion`.
+  - Every setting with a machine-independent default now documents it with a JSDoc `@default` tag.
+
+### Patch Changes
+
+- Updated dependencies [[`b423e18`](https://github.com/belgattitude/flowblade/commit/b423e18c10103fe38322813f184214adf7bc3c52)]:
+  - @flowblade/source-duckdb@0.36.0
+
 ## 0.48.0
 
 ### Minor Changes
