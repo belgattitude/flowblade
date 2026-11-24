@@ -604,6 +604,20 @@ const getDefaultBindings = (): DuckChunkBindings | null => {
   return defaultBindings;
 };
 
+export type DataChunkWriterOptions = {
+  /**
+   * Native bindings used to write the vectors, `null` to write every column
+   * with node-api.
+   * @default the bindings of `@duckdb/node-api`, `null` when they can't be loaded
+   */
+  bindings?: DuckChunkBindings | null;
+  /**
+   * Names of the columns (in the order of the types), quoted in the error of an
+   * invalid value (ie: `Column 'age' - number out of int32 range`).
+   */
+  columnNames?: readonly string[];
+};
+
 /**
  * For each type, whether `createDataChunkWriter` writes it directly in the
  * native vectors (true) or lets node-api write it (false).
@@ -615,19 +629,35 @@ const getDefaultBindings = (): DuckChunkBindings | null => {
  */
 export const getNativeWriterColumns = (
   types: readonly DuckDBType[],
-  bindings: DuckChunkBindings | null = getDefaultBindings()
-): boolean[] =>
-  bindings === null
+  options?: Pick<DataChunkWriterOptions, "bindings">
+): boolean[] => {
+  const { bindings = getDefaultBindings() } = options ?? {};
+  return bindings === null
     ? types.map(() => false)
     : types.map((t) => createVectorWriter(bindings, t) !== null);
+};
 
 export type DataChunkWriter = (
   chunk: DuckDBDataChunk,
   columns: readonly unknown[][]
 ) => void;
 
-const fallback: DataChunkWriter = (chunk, columns) => {
-  chunk.setColumns(columns as DuckDBValue[][]);
+/**
+ * Prefix the message of an error thrown while writing a column with its name.
+ */
+const withColumnContext = (
+  error: unknown,
+  index: number,
+  columnNames: readonly string[] | undefined
+): unknown => {
+  const name = columnNames?.[index];
+  const label = name === undefined ? `Column #${index}` : `Column '${name}'`;
+  if (error instanceof Error) {
+    // Keeps the class and the stack of the original error
+    error.message = `${label} - ${error.message}`;
+    return error;
+  }
+  return new Error(`${label} - ${String(error)}`, { cause: error });
 };
 
 /**
@@ -636,19 +666,18 @@ const fallback: DataChunkWriter = (chunk, columns) => {
  * in the native vectors (typed arrays and bulk copies) instead of going
  * through node-api per item vectors. Unsupported types, or every column when
  * the bindings can't be loaded (or `bindings` is null), use node-api.
+ *
+ * The error of an invalid value is prefixed with the name of its column when
+ * `columnNames` is provided.
  */
 export const createDataChunkWriter = (
   types: readonly DuckDBType[],
-  bindings: DuckChunkBindings | null = getDefaultBindings()
+  options?: DataChunkWriterOptions
 ): DataChunkWriter => {
-  if (bindings === null) {
-    return fallback;
-  }
-  const b = bindings;
-  const writers = types.map((t) => createVectorWriter(b, t));
-  if (writers.every((w) => w === null)) {
-    return fallback;
-  }
+  const { bindings = getDefaultBindings(), columnNames } = options ?? {};
+  const writers = types.map((t) =>
+    bindings === null ? null : createVectorWriter(bindings, t)
+  );
   const numColumns = types.length;
   return (chunk, columns) => {
     if (columns.length !== numColumns) {
@@ -662,10 +691,14 @@ export const createDataChunkWriter = (
         throw new Error(`number of values must equal chunk row count`);
       }
       const writer = writers[i];
-      if (writer === null || writer === undefined) {
-        chunk.setColumnValues(i, values as DuckDBValue[]);
-      } else {
-        writer(b.data_chunk_get_vector(chunk.chunk, i), values, n);
+      try {
+        if (writer === null || writer === undefined || bindings === null) {
+          chunk.setColumnValues(i, values as DuckDBValue[]);
+        } else {
+          writer(bindings.data_chunk_get_vector(chunk.chunk, i), values, n);
+        }
+      } catch (error) {
+        throw withColumnContext(error, i, columnNames);
       }
     }
   };

@@ -294,8 +294,9 @@ It takes the same options as `ChunkAppenderStrategy`.
   debug level.
 - It relies on `@duckdb/node-bindings` functions that aren't a public API: it
   may break with a `@duckdb/node-api` upgrade.
-- Invalid values are reported with a different message than with
-  `ChunkAppenderStrategy` (ie: `number out of int32 range`).
+- An invalid value is reported with the name of its column, and a different
+  message than with `ChunkAppenderStrategy` (ie:
+  `Column 'age' - number out of int32 range`).
 
 ### `RowAppenderStrategy`
 
@@ -357,12 +358,11 @@ transaction: when one fails, the rows of the statements before it are kept.
 > Rows of the same chunk sharing a key: DuckDB keeps the first one with both
 > `"ignore"` and `"replace"` (`"replace"` only overwrites rows inserted before the
 > chunk). Deduplicate the rows beforehand when the last one must win.
-Wrapping the load in a transaction only saves a few percent, the cost is in
-binding the values. There is nothing to flush: each statement writes into
-the table.
 
-256 rows per statement was the fastest size measured (64: ~780 ms,
-1024: ~660 ms for the 100k rows above).
+There is nothing to flush: each statement writes into the table. Larger
+statements are faster, which is why `chunkSize` defaults to the maximum (for the
+100k rows above: ~390 ms with 64 rows per statement, ~280 ms with 256 and ~235 ms
+with 1024 or 2048).
 
 ### Writing a custom strategy
 

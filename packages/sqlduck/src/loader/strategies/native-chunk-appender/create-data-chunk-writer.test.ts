@@ -110,7 +110,10 @@ describe("createDataChunkWriter", () => {
 
   it("writes the same chunk as node-api setColumns", () => {
     const fast = writeWith(createDataChunkWriter(types), columns);
-    const reference = writeWith(createDataChunkWriter(types, null), columns);
+    const reference = writeWith(
+      createDataChunkWriter(types, { bindings: null }),
+      columns
+    );
     expect(fast.rowCount).toBe(rowCount);
     expect(fast.getColumns()).toStrictEqual(reference.getColumns());
     // Sanity check of the reference itself
@@ -128,15 +131,69 @@ describe("createDataChunkWriter", () => {
     expect(
       writeWith(createDataChunkWriter(types), noNulls).getColumns()
     ).toStrictEqual(
-      writeWith(createDataChunkWriter(types, null), noNulls).getColumns()
+      writeWith(
+        createDataChunkWriter(types, { bindings: null }),
+        noNulls
+      ).getColumns()
     );
   });
 
-  it("uses chunk.setColumns when bindings are not available", () => {
+  it("uses node-api for every column when bindings are not available", () => {
     const chunk = DuckDBDataChunk.create(types);
-    const spy = vi.spyOn(chunk, "setColumns");
-    createDataChunkWriter(types, null)(chunk, columns);
-    expect(spy).toHaveBeenCalledOnce();
+    const spy = vi.spyOn(chunk, "setColumnValues");
+    createDataChunkWriter(types, { bindings: null })(chunk, columns);
+    expect(spy).toHaveBeenCalledTimes(types.length);
+  });
+
+  describe("column name in errors", () => {
+    const columnNames = ["id", "age", "big"];
+    const writerTypes = [INTEGER, INTEGER, HUGEINT];
+
+    it.skipIf(!nativeBindingsAvailable)(
+      "prefixes the error of a natively written column",
+      () => {
+        const writer = createDataChunkWriter(writerTypes, { columnNames });
+        expect(() =>
+          writer(DuckDBDataChunk.create(writerTypes), [[1], [2 ** 31], [3n]])
+        ).toThrow("Column 'age' - number out of int32 range");
+      }
+    );
+
+    it("prefixes the error of a column written by node-api", () => {
+      const writer = createDataChunkWriter(writerTypes, { columnNames });
+      expect(() =>
+        writer(DuckDBDataChunk.create(writerTypes), [[1], [2], ["abc"]])
+      ).toThrow(/^Column 'big' - /);
+    });
+
+    it("prefixes the error when bindings are not available", () => {
+      const writer = createDataChunkWriter(writerTypes, {
+        bindings: null,
+        columnNames,
+      });
+      expect(() =>
+        writer(DuckDBDataChunk.create(writerTypes), [[1], ["abc"], [3n]])
+      ).toThrow(/^Column 'age' - /);
+    });
+
+    it("uses the column index without names", () => {
+      const writer = createDataChunkWriter(writerTypes, { bindings: null });
+      expect(() =>
+        writer(DuckDBDataChunk.create(writerTypes), [[1], ["abc"], [3n]])
+      ).toThrow(/^Column #1 - /);
+    });
+
+    it.skipIf(!nativeBindingsAvailable)(
+      "keeps the class of the original error",
+      () => {
+        const writer = createDataChunkWriter([INTEGER], {
+          columnNames: ["age"],
+        });
+        expect(() =>
+          writer(DuckDBDataChunk.create([INTEGER]), [[1.5]])
+        ).toThrow(TypeError);
+      }
+    );
   });
 
   it.each<[string, DuckDBType, unknown, string]>([
@@ -161,7 +218,9 @@ describe("createDataChunkWriter", () => {
     // HUGEINT and DECIMAL(4,1) are written by node-api
     expect(flags.slice(-2)).toStrictEqual([false, false]);
     expect(flags.slice(0, -2).every(Boolean)).toBe(nativeBindingsAvailable);
-    expect(getNativeWriterColumns(types, null).some(Boolean)).toBe(false);
+    expect(
+      getNativeWriterColumns(types, { bindings: null }).some(Boolean)
+    ).toBe(false);
   });
 
   it("throws on column count or length mismatch", () => {

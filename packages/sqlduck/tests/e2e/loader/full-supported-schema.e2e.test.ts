@@ -13,6 +13,7 @@ import {
 
 import { Table } from "../../../src/index.ts";
 import { DuckTableLoader } from "../../../src/loader/index.ts";
+import type { LoadResult } from "../../../src/loader/index.ts";
 import { getTableCreateFromZod } from "../../../src/table/get-table-create-from-zod.ts";
 
 const it = createDuckTest({ threads: 1 });
@@ -20,9 +21,6 @@ const it = createDuckTest({ threads: 1 });
 // Not a multiple of the chunk size, to get a smaller last chunk
 const rowCount = 4321;
 const chunkSize = 1000;
-
-// md5 of the table content by strategy, compared once all strategies ran
-const fingerprints = new Map<string, string>();
 
 const sumOf = (fn: (row: (typeof rows)[number]) => number) =>
   rows.reduce((acc, row) => acc + fn(row), 0);
@@ -33,8 +31,11 @@ describe.each(loadStrategies)("%s", (name, createStrategy) => {
   const tableName = strategyTableName("full_supported", name);
   const table = new Table(tableName);
 
-  it("should load the full supported schema", async ({ conn }) => {
-    const result = await new DuckTableLoader({
+  // The table is loaded once, the tests below only read it (so that they don't
+  // depend on each other: filtering, shuffling...)
+  let result: LoadResult;
+  it.beforeAll(async ({ conn }) => {
+    result = await new DuckTableLoader({
       conn,
       strategy: createStrategy(chunkSize),
     }).load({
@@ -43,6 +44,9 @@ describe.each(loadStrategies)("%s", (name, createStrategy) => {
       rows: createFullSupportedRows(rowCount),
       mode: "createOrReplace",
     });
+  });
+
+  it("should load the full supported schema", async ({ conn }) => {
     expect(result).toMatchObject({
       totalRows: rowCount,
       mode: "createOrReplace",
@@ -140,22 +144,38 @@ describe.each(loadStrategies)("%s", (name, createStrategy) => {
     );
     expect(reader.getRowObjects()).toStrictEqual([{ count: 1 }]);
   });
-
-  it("should fingerprint the table content", async ({ conn }) => {
-    const reader = await conn.runAndReadAll(
-      `SELECT md5(string_agg(t::VARCHAR, '|' ORDER BY id)) AS fingerprint FROM ${tableName} t`
-    );
-    const fingerprint = reader.getRowObjects()[0]?.fingerprint;
-    expect(fingerprint).toStrictEqual(expect.any(String));
-    fingerprints.set(name, fingerprint as string);
-  });
 });
 
 describe("strategies parity", () => {
-  it("should store the same table content whatever the strategy", () => {
-    expect([...fingerprints.keys()].toSorted()).toStrictEqual(
-      loadStrategies.map(([name]) => name).toSorted()
+  // A small dataset with a partial last chunk, loaded by each strategy here
+  // so the test doesn't depend on the other ones (filtering, shuffling...)
+  const parityRowCount = 2500;
+
+  it("should store the same table content whatever the strategy", async ({
+    conn,
+  }) => {
+    const fingerprints: Record<string, string> = {};
+    for (const [name, createStrategy] of loadStrategies) {
+      const tableName = strategyTableName("parity", name);
+      await new DuckTableLoader({
+        conn,
+        strategy: createStrategy(chunkSize),
+      }).load({
+        table: new Table(tableName),
+        schema: loaderFullSupportedSchema,
+        rows: createFullSupportedRows(parityRowCount),
+        mode: "createOrReplace",
+      });
+      const reader = await conn.runAndReadAll(
+        `SELECT md5(string_agg(t::VARCHAR, '|' ORDER BY id)) AS fingerprint FROM ${tableName} t`
+      );
+      fingerprints[name] = String(reader.getRowObjects()[0]?.fingerprint);
+    }
+    const [reference] = Object.values(fingerprints);
+    expect(reference).toMatch(/^[0-9a-f]{32}$/);
+    // On a mismatch the diff shows which strategies differ
+    expect(fingerprints).toStrictEqual(
+      Object.fromEntries(loadStrategies.map(([name]) => [name, reference]))
     );
-    expect(new Set(fingerprints.values()).size).toBe(1);
   });
 });

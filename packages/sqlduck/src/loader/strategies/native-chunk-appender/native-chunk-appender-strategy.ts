@@ -41,9 +41,10 @@ export type NativeChunkAppenderStrategyOptions = {
  * platforms). The columns written natively are logged at the debug level.
  *
  * It relies on the `@duckdb/node-bindings` functions node-api itself uses, which
- * aren't a public API: the behavior and the error messages of invalid values
- * (ie: `number out of int32 range`) may differ from `ChunkAppenderStrategy`
- * and may change between `@duckdb/node-api` versions.
+ * aren't a public API: the behavior may change between `@duckdb/node-api`
+ * versions. The error of an invalid value names its column (ie:
+ * `Column 'age' - number out of int32 range`) and its message differs from the
+ * one of `ChunkAppenderStrategy`.
  *
  * @example
  * ```typescript
@@ -74,7 +75,7 @@ export class NativeChunkAppenderStrategy implements LoadStrategy {
       table.schemaName,
       table.databaseName
     );
-    const writeChunk = createDataChunkWriter(columnTypes);
+    const writeChunk = createDataChunkWriter(columnTypes, { columnNames });
     const nativeColumns = getNativeWriterColumns(columnTypes);
     logger.debug(
       "Native chunk writer for table '{table}': {nativeCount}/{total} columns written natively, node-api for: {fallback}",

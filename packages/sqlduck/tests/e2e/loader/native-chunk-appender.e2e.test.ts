@@ -12,26 +12,33 @@ import {
   DuckTableLoader,
   NativeChunkAppenderStrategy,
 } from "../../../src/loader/index.ts";
-import { getNativeWriterColumns } from "../../../src/loader/strategies/native-chunk-appender/create-data-chunk-writer.ts";
+import {
+  getNativeWriterColumns,
+  loadDuckChunkBindings,
+} from "../../../src/loader/strategies/native-chunk-appender/create-data-chunk-writer.ts";
 import { getTableCreateFromZod } from "../../../src/table/get-table-create-from-zod.ts";
 
 const it = createDuckTest({ threads: 1 });
 
 describe("NativeChunkAppenderStrategy", () => {
-  it("should write the columns of the full supported schema natively", () => {
-    const { columnTypes } = getTableCreateFromZod({
-      table: new Table("native_columns"),
-      schema: loaderFullSupportedSchema,
-    });
-    const names = [...columnTypes.keys()];
-    const flags = getNativeWriterColumns([...columnTypes.values()]);
-    // Guards against a silent fallback to node-api, which would make the
-    // other e2e tests pass without testing the native path
-    expect(names.filter((_, i) => !flags[i])).toStrictEqual([
-      "hugeint",
-      "decimal_38_10",
-    ]);
-  });
+  // The strategy falls back to node-api when the bindings can't be loaded (ie: Deno)
+  it.skipIf(loadDuckChunkBindings() === null)(
+    "should write the columns of the full supported schema natively",
+    () => {
+      const { columnTypes } = getTableCreateFromZod({
+        table: new Table("native_columns"),
+        schema: loaderFullSupportedSchema,
+      });
+      const names = [...columnTypes.keys()];
+      const flags = getNativeWriterColumns([...columnTypes.values()]);
+      // Guards against a silent fallback to node-api, which would make the
+      // other e2e tests pass without testing the native path
+      expect(names.filter((_, i) => !flags[i])).toStrictEqual([
+        "hugeint",
+        "decimal_38_10",
+      ]);
+    }
+  );
 
   it("should report its name and load rows", async ({ conn }) => {
     const result = await new DuckTableLoader({
@@ -71,7 +78,9 @@ describe("NativeChunkAppenderStrategy", () => {
         ],
         mode: "createOrReplace",
       })
-    ).rejects.toThrow(/out of int32 range/);
+    ).rejects.toThrow(
+      /Failed to load data into table 'native_out_of_range' - Column 'small' - number out of int32 range/
+    );
 
     // The first chunk was appended, the one holding the invalid value wasn't
     const reader = await conn.runAndReadAll(
