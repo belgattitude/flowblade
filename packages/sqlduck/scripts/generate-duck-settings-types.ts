@@ -9,9 +9,10 @@
  * Run it after upgrading `@duckdb/node-api`:
  *
  * ```bash
- * pnpm generate-settings-types && pnpm lint-fix
+ * pnpm generate-settings-types
  * ```
  */
+import { execFileSync } from "node:child_process";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -30,6 +31,24 @@ const isExcluded = (name: string) => name.startsWith("debug_");
 /**
  * Errors meaning the setting can't be set for a session only.
  */
+/**
+ * Settings whose default depends on the machine (cpu count, memory, user
+ * home, time zone...): no `@default` is generated for them.
+ */
+const environmentDependent = new Set([
+  "TimeZone",
+  "async_threads",
+  "duckdb_api",
+  "http_client_pool_capacity",
+  "max_memory",
+  "max_temp_directory_size",
+  "memory_limit",
+  "secret_directory",
+  "threads",
+  "worker_threads",
+  "write_buffer_row_group_memory_limit",
+]);
+
 const globalOnlyErrors = [
   /cannot be set locally/i,
   /cannot be set as a session variable/i,
@@ -47,17 +66,49 @@ const tsTypeByInputType: Record<string, string> = {
 
 type SettingRow = {
   name: string;
-  value: string;
+  value: string | null;
   description: string;
   input_type: string;
 };
 
-const toJsDoc = (row: SettingRow, aliasOf: string | undefined) => {
+/**
+ * `@default` literal of a setting, undefined when unknown, empty or
+ * machine dependent.
+ */
+const toDefault = (row: SettingRow, tsType: string): string | undefined => {
+  if (
+    environmentDependent.has(row.name) ||
+    row.value === null ||
+    row.value === ""
+  ) {
+    return undefined;
+  }
+  switch (tsType) {
+    case "boolean": {
+      return String(row.value === "true" || row.value === "1");
+    }
+    case "number": {
+      return row.value;
+    }
+    default: {
+      return JSON.stringify(row.value);
+    }
+  }
+};
+
+const toJsDoc = (
+  row: SettingRow,
+  aliasOf: string | undefined,
+  defaultValue: string | undefined
+) => {
   const lines = [row.description.replaceAll("*/", "*\\/")];
   if (aliasOf !== undefined) {
     lines.push(`Alias of \`${aliasOf}\`.`);
   }
   lines.push(`DuckDB type: \`${row.input_type}\``);
+  if (defaultValue !== undefined) {
+    lines.push(`@default ${defaultValue}`);
+  }
   return `  /**\n${lines.map((l) => `   * ${l}`).join("\n   *\n")}\n   */`;
 };
 
@@ -108,7 +159,7 @@ const main = async () => {
         re.test(error instanceof Error ? error.message : String(error))
       );
     }
-    const entry = `${toJsDoc(row, aliasOf.get(row.name))}\n  ${JSON.stringify(row.name)}?: ${tsType};`;
+    const entry = `${toJsDoc(row, aliasOf.get(row.name), toDefault(row, tsType))}\n  ${JSON.stringify(row.name)}?: ${tsType};`;
     (isGlobalOnly ? global : session).push(entry);
   }
   conn.closeSync();
@@ -134,6 +185,11 @@ ${global.join("\n")}
 };
 `;
   await writeFile(outputFile, content);
+  // Format/fix the generated file so it matches the repo lint rules
+  execFileSync("pnpm", ["lint-fix"], {
+    cwd: path.resolve(import.meta.dirname, ".."),
+    stdio: "inherit",
+  });
   console.log(
     `${outputFile}: ${session.length} session settings, ${global.length} global settings (DuckDB ${String(version?.version)})`
   );
