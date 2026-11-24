@@ -1,3 +1,4 @@
+import { DuckDBListType, listValue } from "@duckdb/node-api";
 import type { DuckDBPreparedStatement } from "@duckdb/node-api";
 
 import { quoteIdentifier } from "../../../utils/quote-value.ts";
@@ -22,7 +23,7 @@ export type PreparedInsertOnConflict = "error" | "ignore" | "replace";
 export type PreparedInsertStrategyOptions = {
   /**
    * Number of rows inserted by each `INSERT` statement, between 1 and 2048.
-   * @default 256
+   * @default 2048
    */
   chunkSize?: number;
   /**
@@ -38,11 +39,19 @@ const insertVerbs = {
 } as const satisfies Record<PreparedInsertOnConflict, string>;
 
 /**
- * Load rows with prepared multi-row `INSERT ... VALUES` statements.
+ * Load rows with a prepared `INSERT ... SELECT unnest(...)` statement: each
+ * column of a chunk is bound as a single list parameter.
  *
  * Slower than {@link ChunkAppenderStrategy}, but supports conflicts on
  * primary keys (`onConflict: 'ignore' | 'replace'`), which the appender
  * can't do.
+ *
+ * A chunk is inserted by one statement, if it fails the rows of the previous
+ * chunks are kept.
+ *
+ * Rows of the same chunk sharing a key: DuckDB keeps the first one with both
+ * `'ignore'` and `'replace'`, `'replace'` only overwrites rows inserted before
+ * the chunk. Deduplicate the rows beforehand when the last one must win.
  *
  * @example
  * ```typescript
@@ -60,7 +69,7 @@ export class PreparedInsertStrategy implements LoadStrategy {
   readonly #onConflict: PreparedInsertOnConflict;
 
   constructor(options?: PreparedInsertStrategyOptions) {
-    const { chunkSize = 256, onConflict = "error" } = options ?? {};
+    const { chunkSize = MAX_CHUNK_SIZE, onConflict = "error" } = options ?? {};
     assertPositiveInteger(chunkSize, "chunkSize", MAX_CHUNK_SIZE);
     this.chunkSize = chunkSize;
     this.#onConflict = onConflict;
@@ -68,63 +77,40 @@ export class PreparedInsertStrategy implements LoadStrategy {
 
   open = async (context: LoadStrategyContext): Promise<LoadStrategySession> => {
     const { conn, table, columnNames, columnTypes } = context;
-    const { chunkSize } = this;
-    const columnCount = columnNames.length;
     const tableName = [table.databaseName, table.schemaName, table.tableName]
       .filter((part) => part !== undefined)
       .map(quoteIdentifier)
       .join(".");
-    const insertPrefix = `${insertVerbs[this.#onConflict]} ${tableName} (${columnNames.map(quoteIdentifier).join(", ")}) VALUES `;
-    const rowPlaceholders = `(${Array.from({ length: columnCount }, () => "?").join(", ")})`;
+    // One list parameter per column, cast to the column type. Without the
+    // cast DuckDB can't type the parameter when preparing, which is ~25%
+    // slower. `toString()` renders valid SQL types (enum members are quoted).
+    const unnests = columnTypes
+      .map((type) => `unnest(?::${type.toString()}[])`)
+      .join(", ");
+    const sql = `${insertVerbs[this.#onConflict]} ${tableName} (${columnNames.map(quoteIdentifier).join(", ")}) SELECT ${unnests}`;
+    const listTypes = columnTypes.map((type) => new DuckDBListType(type));
 
-    const prepare = (rowCount: number) =>
-      conn.prepare(
-        insertPrefix +
-          Array.from({ length: rowCount }, () => rowPlaceholders).join(", ")
-      );
-    // Only the full chunk statement is reused: smaller chunks (the last one,
-    // or yielded early for progress) can have any size, caching them would
-    // keep up to chunkSize statements alive.
-    let fullChunkStatement: DuckDBPreparedStatement | undefined;
-    const destroyFullChunkStatement = () => {
-      fullChunkStatement?.destroySync();
-      fullChunkStatement = undefined;
+    // Prepared with the first chunk (not on open), the table must exist then
+    let statement: DuckDBPreparedStatement | undefined;
+    const destroyStatement = () => {
+      statement?.destroySync();
+      statement = undefined;
     };
 
     return {
       appendChunk: async (columns) => {
-        const rowCount = columns[0]?.length ?? 0;
-        if (rowCount === 0) {
+        if ((columns[0]?.length ?? 0) === 0) {
           return;
         }
-        const isFullChunk = rowCount === chunkSize;
-        if (isFullChunk) {
-          fullChunkStatement ??= await prepare(rowCount);
+        statement ??= await conn.prepare(sql);
+        // Parameters are 1-based
+        for (const [c, column] of columns.entries()) {
+          statement.bindValue(c + 1, listValue(column), listTypes[c]);
         }
-        const statement = isFullChunk
-          ? // eslint-disable-next-line typescript/no-non-null-assertion
-            fullChunkStatement!
-          : await prepare(rowCount);
-        try {
-          for (let c = 0; c < columnCount; c++) {
-            // eslint-disable-next-line typescript/no-non-null-assertion
-            const column = columns[c]!;
-            const type = columnTypes[c];
-            for (let r = 0; r < rowCount; r++) {
-              // Parameters are 1-based, row-major
-              // eslint-disable-next-line typescript/no-non-null-assertion
-              statement.bindValue(r * columnCount + c + 1, column[r]!, type);
-            }
-          }
-          await statement.run();
-        } finally {
-          if (!isFullChunk) {
-            statement.destroySync();
-          }
-        }
+        await statement.run();
       },
-      complete: destroyFullChunkStatement,
-      abort: destroyFullChunkStatement,
+      complete: destroyStatement,
+      abort: destroyStatement,
     };
   };
 }

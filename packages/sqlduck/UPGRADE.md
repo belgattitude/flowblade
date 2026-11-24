@@ -2,6 +2,24 @@
 
 Breaking changes and how to migrate, by version. See the [CHANGELOG](./CHANGELOG.md) for all changes.
 
+## 0.50.0
+
+### `SqlDuck` and `toTable` are removed
+
+`SqlDuck` only had the `toTable` method, deprecated since 0.44.0. The `SqlDuck` class and the `SqlDuckParams`, `ToTableParams`, `OnChunkAppendedCb` and `OnChunkAppendedStats` types are removed.
+
+**Migrate**: use `DuckTableLoader` (`@flowblade/sqlduck/loader`), see the [`toTable` to `DuckTableLoader` migration table](#from-sqlducktotable-to-ducktableloader) below (0.44.0). Remember that the frequencies are counted in **rows** instead of chunks.
+
+```typescript
+// Before
+await new SqlDuck({ conn }).toTable({ table, schema, rowStream });
+
+// After
+import { DuckTableLoader } from "@flowblade/sqlduck/loader";
+
+await new DuckTableLoader({ conn }).load({ table, schema, rows: rowStream });
+```
+
 ## 0.47.0
 
 No breaking change: `duckdbCollate` and `duckMeta()` are additions. One thing to know:
@@ -88,7 +106,7 @@ await new DuckSettingsManager(conn).withSessionSettings(
 
 ### From `SqlDuck.toTable` to `DuckTableLoader`
 
-`toTable` is deprecated, use the new `DuckTableLoader` (`@flowblade/sqlduck/loader`). `toTable` keeps working, it delegates to the loader.
+`toTable` is deprecated, use the new `DuckTableLoader` (`@flowblade/sqlduck/loader`). `toTable` kept working by delegating to the loader, until it was removed in 0.50.0.
 
 **Migrate**: the frequencies are now counted in **rows** instead of chunks, multiply them by the chunk size (2048 by default).
 

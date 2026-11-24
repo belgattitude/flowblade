@@ -352,7 +352,7 @@ if (result.error) {
 
 sqlduck takes part in the `DuckdbDatasource` transactions of the same connection (see [@flowblade/source-duckdb](https://github.com/belgattitude/flowblade/tree/main/packages/source-duckdb#transactions)):
 
-- a transaction waits for a running load (`toTable()`) or manager query, and they wait for a running transaction,
+- a transaction waits for a running load (`DuckTableLoader`) or manager query, and they wait for a running transaction,
 - in a transaction callback, they run in the transaction: a failed load prevents the commit.
 
 ```typescript
@@ -360,11 +360,16 @@ const ds = new DuckdbDatasource({ connection: conn });
 await ds.transactionOrThrow(async (tx) => {
   await tx.queryOrThrow(sql`DELETE FROM product`);
   // rolled back with the delete if anything fails
-  await sqlDuck.toTable({ table, schema, rowStream, autoCheckpoint: false });
+  await new DuckTableLoader({ conn }).load({
+    table,
+    schema,
+    rows,
+    checkpoint: { onComplete: false },
+  });
 });
 ```
 
-> **Note**: DuckDB can't checkpoint in a transaction, the checkpoints of the loads run in a transaction callback are skipped (`autoCheckpoint`, `checkpointChunksFrequency`, the `checkpoint` options of `DuckTableLoader`). Use `isInConnectionTransaction(conn)` from `@flowblade/source-duckdb` to do the same in your code.
+> **Note**: DuckDB can't checkpoint in a transaction, the checkpoints of the loads run in a transaction callback are skipped (the `checkpoint` options of `DuckTableLoader`). Use `isInConnectionTransaction(conn)` from `@flowblade/source-duckdb` to do the same in your code.
 
 ## Compatibility
 

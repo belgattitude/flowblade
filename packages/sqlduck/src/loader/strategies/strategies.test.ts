@@ -4,33 +4,17 @@ import { describe, expect, vi } from "vitest";
 import * as z from "zod";
 
 import { createDuckTest } from "#tests/utils/duck-test.ts";
+import { loadStrategies } from "#tests/utils/load-strategies.ts";
 
 import { sqlduckDefaultLogtapeLogger } from "../../logger/sqlduck-default-logtape-logger.ts";
 import { Table } from "../../objects/table.ts";
 import { zodCodecs } from "../../utils/zod-codecs.ts";
 import type { InferZodRelaxedDataSchema } from "../../validation/zod/index.ts";
 import { DuckTableLoader } from "../duck-table-loader.ts";
-import type { LoadStrategy } from "../types.ts";
-import { ChunkAppenderStrategy } from "./chunk-appender/chunk-appender-strategy.ts";
 import { PreparedInsertStrategy } from "./prepared-insert/prepared-insert-strategy.ts";
 import { RowAppenderStrategy } from "./row-appender/row-appender-strategy.ts";
 
 const it = createDuckTest({ threads: 1 });
-
-const strategies: [string, (chunkSize: number) => LoadStrategy][] = [
-  [
-    "ChunkAppenderStrategy",
-    (chunkSize) => new ChunkAppenderStrategy({ chunkSize }),
-  ],
-  [
-    "RowAppenderStrategy",
-    (chunkSize) => new RowAppenderStrategy({ chunkSize }),
-  ],
-  [
-    "PreparedInsertStrategy",
-    (chunkSize) => new PreparedInsertStrategy({ chunkSize }),
-  ],
-];
 
 const typesSchema = z.strictObject({
   id: z.int32().meta({ primaryKey: true }),
@@ -88,7 +72,7 @@ const selectAsText = async (conn: DuckDBConnection, table: string) => {
   return reader.getRowObjectsJson();
 };
 
-describe.each(strategies)("%s", (name, createStrategy) => {
+describe.each(loadStrategies)("%s", (name, createStrategy) => {
   const tableName = `test_strategy_${name.toLowerCase()}`;
 
   it("should load all supported types", async ({ conn }) => {
@@ -288,7 +272,7 @@ describe("PreparedInsertStrategy", () => {
     expect(result.totalRows).toBe(1);
   });
 
-  it("should destroy every prepared statement, whatever the chunk sizes", async ({
+  it("should use one prepared statement, whatever the chunk sizes", async ({
     conn,
   }) => {
     let prepared = 0;
@@ -316,16 +300,15 @@ describe("PreparedInsertStrategy", () => {
       await conn.run(
         "CREATE OR REPLACE TABLE test_prepared_sizes (id INTEGER, name VARCHAR)"
       );
-      // Full chunks reuse one statement, partial chunks of any size don't stay
+      // Full chunks, partial chunks of any size and an empty one
       let id = 0;
-      for (const size of [4, 1, 4, 2, 3, 4, 1]) {
+      for (const size of [4, 1, 4, 0, 2, 3, 4, 1]) {
         const ids = Array.from({ length: size }, () => id++);
         await session.appendChunk([ids, ids.map(String)]);
       }
       await session.complete();
-      // 1 statement for the full chunks + 1 per partial chunk
-      expect(prepared).toBe(1 + 4);
-      expect(destroyed).toBe(prepared);
+      expect(prepared).toBe(1);
+      expect(destroyed).toBe(1);
       const reader = await conn.runAndReadAll(
         "SELECT count(*)::INTEGER AS count FROM test_prepared_sizes"
       );
@@ -333,6 +316,66 @@ describe("PreparedInsertStrategy", () => {
     } finally {
       spy.mockRestore();
     }
+  });
+
+  it("should not prepare a statement when there is no row", async ({
+    conn,
+  }) => {
+    const spy = vi.spyOn(conn, "prepare");
+    try {
+      const session = await new PreparedInsertStrategy().open({
+        conn,
+        table: new Table("test_prepared_no_rows"),
+        columnNames: ["id"],
+        columnTypes: [INTEGER],
+        logger: sqlduckDefaultLogtapeLogger,
+      });
+      await session.appendChunk([[]]);
+      await session.complete();
+      expect(spy).not.toHaveBeenCalled();
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  // DuckDB doesn't let a row of a statement replace an earlier row of the
+  // same statement: 'replace' only overwrites rows inserted before the chunk
+  for (const onConflict of ["replace", "ignore"] as const) {
+    it(`should keep the first of the rows sharing a key within a chunk with onConflict '${onConflict}'`, async ({
+      conn,
+    }) => {
+      await conn.run(`DROP TABLE IF EXISTS ${table.getFullName()}`);
+      await loadInto(conn, new PreparedInsertStrategy({ onConflict }), [
+        { id: 1, name: "first" },
+        { id: 1, name: "middle" },
+        { id: 1, name: "last" },
+      ]);
+      await expect(selectAll(conn)).resolves.toStrictEqual([
+        { id: 1, name: "first" },
+      ]);
+    });
+  }
+
+  it("should load enum members containing quotes", async ({ conn }) => {
+    const enumTable = new Table("test_prepared_enum_quotes");
+    await new DuckTableLoader({
+      conn,
+      strategy: new PreparedInsertStrategy(),
+    }).load({
+      table: enumTable,
+      schema: z.strictObject({
+        status: z.enum(["it's", 'say "hi"']),
+        tags: z.array(z.enum(["a'b", "c"])),
+      }),
+      rows: [{ status: "it's", tags: ["a'b", "c"] }],
+      mode: "createOrReplace",
+    });
+    const reader = await conn.runAndReadAll(
+      `SELECT status::VARCHAR AS status, tags FROM ${enumTable.getFullName()}`
+    );
+    expect(reader.getRowObjectsJson()).toStrictEqual([
+      { status: "it's", tags: ["a'b", "c"] },
+    ]);
   });
 
   it("should reject an invalid chunkSize", () => {

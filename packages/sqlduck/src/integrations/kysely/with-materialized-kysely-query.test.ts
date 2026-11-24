@@ -144,7 +144,7 @@ describe("withMaterializedKyselyQuery", () => {
       expect(result.error?.message).toMatch(
         /Can't materialize table _materialized.*stream boom/
       );
-      // The original error is kept (toTable error, caused by the stream one)
+      // The original error is kept (loader error, caused by the stream one)
       expect(result.error?.cause).toMatchObject({
         cause: expect.objectContaining({ message: "stream boom" }),
       });

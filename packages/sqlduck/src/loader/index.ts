@@ -6,6 +6,8 @@ export type {
 } from "./progress/progress-collector.ts";
 export { ChunkAppenderStrategy } from "./strategies/chunk-appender/chunk-appender-strategy.ts";
 export type { ChunkAppenderStrategyOptions } from "./strategies/chunk-appender/chunk-appender-strategy.ts";
+export { NativeChunkAppenderStrategy } from "./strategies/native-chunk-appender/native-chunk-appender-strategy.ts";
+export type { NativeChunkAppenderStrategyOptions } from "./strategies/native-chunk-appender/native-chunk-appender-strategy.ts";
 export { PreparedInsertStrategy } from "./strategies/prepared-insert/prepared-insert-strategy.ts";
 export type {
   PreparedInsertOnConflict,
