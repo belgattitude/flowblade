@@ -2,6 +2,38 @@
 
 Breaking changes and how to migrate, by version. See the [CHANGELOG](./CHANGELOG.md) for all changes.
 
+## 0.50.0
+
+### `SqlDuck` and `toTable` are removed
+
+`SqlDuck` only had the `toTable` method, deprecated since 0.44.0. The `SqlDuck` class and the `SqlDuckParams`, `ToTableParams`, `OnChunkAppendedCb` and `OnChunkAppendedStats` types are removed.
+
+**Migrate**: use `DuckTableLoader` (`@flowblade/sqlduck/loader`), see the [`toTable` to `DuckTableLoader` migration table](#from-sqlducktotable-to-ducktableloader) below (0.44.0). Remember that the frequencies are counted in **rows** instead of chunks.
+
+```typescript
+// Before
+await new SqlDuck({ conn }).toTable({ table, schema, rowStream });
+
+// After
+import { DuckTableLoader } from "@flowblade/sqlduck/loader";
+
+await new DuckTableLoader({ conn }).load({ table, schema, rows: rowStream });
+```
+
+### `PreparedInsertStrategy` inserts 2048 rows per statement by default
+
+`PreparedInsertStrategy` now inserts each chunk with a single `INSERT ... SELECT unnest(...)` statement (about 6x faster on simple columns), and its default `chunkSize` goes from `256` to `2048`.
+
+A statement is atomic, so when a value or a row fails, the rows of the previous statements are kept and the ones of the failing statement are not. With the new default, up to 2048 rows (instead of 256) can be lost in the failing statement.
+
+**Migrate**: nothing to do unless you rely on the number of rows kept after a failure, or on `progress: { intervalMs: 0 }` (one report per chunk) being called every 256 rows: pass `chunkSize: 256` to keep the previous behavior.
+
+```typescript
+new PreparedInsertStrategy({ chunkSize: 256 });
+```
+
+Conflicts (`onConflict`) behave as before: when several rows of the same statement share a key, DuckDB keeps the first one with both `"ignore"` and `"replace"`.
+
 ## 0.47.0
 
 No breaking change: `duckdbCollate` and `duckMeta()` are additions. One thing to know:
@@ -88,7 +120,7 @@ await new DuckSettingsManager(conn).withSessionSettings(
 
 ### From `SqlDuck.toTable` to `DuckTableLoader`
 
-`toTable` is deprecated, use the new `DuckTableLoader` (`@flowblade/sqlduck/loader`). `toTable` keeps working, it delegates to the loader.
+`toTable` is deprecated, use the new `DuckTableLoader` (`@flowblade/sqlduck/loader`). `toTable` kept working by delegating to the loader, until it was removed in 0.50.0.
 
 **Migrate**: the frequencies are now counted in **rows** instead of chunks, multiply them by the chunk size (2048 by default).
 

@@ -234,14 +234,20 @@ await promise; // rejects with an AbortError
 
 ### Choosing a strategy
 
-| Strategy                 | Writes with                   | 100k rows\* | Use it for                                    | Rows kept when a value fails         |
-| ------------------------ | ----------------------------- | ----------- | --------------------------------------------- | ------------------------------------ |
-| `ChunkAppenderStrategy`  | appender, one chunk at a time | ~45 ms      | Default, fastest                              | Chunks before the failing one        |
-| `RowAppenderStrategy`    | appender, one value at a time | ~210 ms     | Finding which row and column has bad data     | Only rows flushed before the failure |
-| `PreparedInsertStrategy` | multi-row `INSERT` statements | ~600 ms     | Upserts, ignoring duplicates on a primary key | Statements before the failing one    |
+| Strategy                                     | Writes with                          | 100k rows\* | Use it for                                    | Rows kept when a value fails         |
+| -------------------------------------------- | ------------------------------------ | ----------- | --------------------------------------------- | ------------------------------------ |
+| `ChunkAppenderStrategy`                      | appender, one chunk at a time        | ~54 ms      | Default, fastest stable strategy              | Chunks before the failing one        |
+| `NativeChunkAppenderStrategy` (experimental) | appender, native vectors             | ~45 ms      | Faster loads, if you accept the caveats below | Chunks before the failing one        |
+| `RowAppenderStrategy`                        | appender, one value at a time        | ~240 ms     | Finding which row and column has bad data     | Only rows flushed before the failure |
+| `PreparedInsertStrategy`                     | prepared `INSERT` with lists         | ~295 ms     | Upserts, ignoring duplicates on a primary key | Statements before the failing one    |
 
 \* 5 columns (integer, varchar, nullable varchar, bigint, timestamp), memory
-database, 4 threads, Node 24. Indicative only, measure with your data.
+database, 4 threads, Node 24, each strategy with its default options
+(`bench/loader-strategies.bench.ts`). Indicative only, measure with your data:
+the gaps depend on the column types, ie: on a 42 columns schema (lists, enums,
+decimals...) `NativeChunkAppenderStrategy` is only ~4% faster than
+`ChunkAppenderStrategy`, and `PreparedInsertStrategy` is about as fast as
+`RowAppenderStrategy`.
 
 All strategies take a `chunkSize` (1 to 2048): the number of rows handed
 to the strategy at once.
@@ -265,6 +271,32 @@ slower every 20_480 rows than every 204_800 on a file database). Smaller
 chunks are slower too: loading 1M rows with chunks of 2048 is about 1.6x
 faster than with 1024 (`bench/appender.bench.mitata.ts`). The appender is
 always flushed and closed at the end of the load.
+
+### `NativeChunkAppenderStrategy` (experimental)
+
+Same as `ChunkAppenderStrategy`, but each chunk is written directly in the
+native DuckDB vectors (typed arrays and bulk copies) instead of node-api per
+item vectors. About 18% faster on a 1M rows load of 5 simple columns (memory
+database), but the gain depends on the column types: about 4% on the 42 columns
+of the full supported schema, where value conversion weighs more
+(`bench/loader-strategies.bench.ts`).
+
+```typescript
+new NativeChunkAppenderStrategy({ chunkSize: 2048, flushEveryRows: 204_800 });
+```
+
+It takes the same options as `ChunkAppenderStrategy`.
+
+- Columns of a type that isn't handled natively (ie: `HUGEINT`, `BIGNUM`,
+  `DECIMAL` widths other than 10 to 18) are written by node-api. So is every
+  column when the native bindings used by `@duckdb/node-api` can't be loaded
+  (or on big endian platforms). The columns written natively are logged at the
+  debug level.
+- It relies on `@duckdb/node-bindings` functions that aren't a public API: it
+  may break with a `@duckdb/node-api` upgrade.
+- An invalid value is reported with the name of its column, and a different
+  message than with `ChunkAppenderStrategy` (ie:
+  `Column 'age' - number out of int32 range`).
 
 ### `RowAppenderStrategy`
 
@@ -292,9 +324,11 @@ new RowAppenderStrategy({ chunkSize: 2048, flushEveryRows: 204_800 });
 
 ### `PreparedInsertStrategy`
 
-Inserts rows with prepared multi-row statements
-(`INSERT INTO t (a, b) VALUES (?, ?), (?, ?), ...`). It is the slowest
-strategy, but the only one that handles primary key conflicts.
+Inserts each chunk with a prepared statement
+(`INSERT INTO t (a, b) SELECT unnest(?::INTEGER[]), unnest(?::VARCHAR[])`): every
+column of the chunk is bound as a single list parameter. It is slower than the
+chunk appenders (about 5x on simple columns), but the only strategy that handles
+primary key conflicts.
 
 ```typescript
 // Upsert: create the table the first time, then replace rows by primary key
@@ -307,7 +341,7 @@ await loader.load({ table, schema, rows, mode: "createIfNotExists" });
 
 | Option       | Default   | Description                                       |
 | ------------ | --------- | ------------------------------------------------- |
-| `chunkSize`  | `256`     | Rows per `INSERT` statement, 1 to 2048            |
+| `chunkSize`  | `2048`    | Rows per `INSERT` statement, 1 to 2048            |
 | `onConflict` | `"error"` | What to do when a row conflicts with a key, below |
 
 | `onConflict` | Statement                | Effect                       |
@@ -319,12 +353,16 @@ await loader.load({ table, schema, rows, mode: "createIfNotExists" });
 `"ignore"` and `"replace"` need a primary key or unique constraint, set with
 `.meta({ primaryKey: true })` in the schema. Each statement runs in its own
 transaction: when one fails, the rows of the statements before it are kept.
-Wrapping the load in a transaction only saves a few percent, the cost is in
-binding the values. There is nothing to flush: each statement writes into
-the table.
 
-256 rows per statement was the fastest size measured (64: ~780 ms,
-1024: ~660 ms for the 100k rows above).
+> [!NOTE]
+> Rows of the same chunk sharing a key: DuckDB keeps the first one with both
+> `"ignore"` and `"replace"` (`"replace"` only overwrites rows inserted before the
+> chunk). Deduplicate the rows beforehand when the last one must win.
+
+There is nothing to flush: each statement writes into the table. Larger
+statements are faster, which is why `chunkSize` defaults to the maximum (for the
+100k rows above: ~390 ms with 64 rows per statement, ~280 ms with 256 and ~235 ms
+with 1024 or 2048).
 
 ### Writing a custom strategy
 

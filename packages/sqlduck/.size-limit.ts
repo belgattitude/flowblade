@@ -9,9 +9,9 @@ const config = createSizeLimitConfig(
       limit: "60Kb",
     },
     {
-      name: "Only { SqlDuck } (ESM)",
+      name: "Only { DuckDatabaseManager } (ESM)",
       path: ["dist/index.mjs"],
-      import: "{ SqlDuck }",
+      import: "{ DuckDatabaseManager }",
       limit: "50Kb",
     },
   ],

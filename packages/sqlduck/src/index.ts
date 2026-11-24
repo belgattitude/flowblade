@@ -1,11 +1,4 @@
 export * from "./helpers/index.ts";
-export type {
-  OnChunkAppendedCb,
-  OnChunkAppendedStats,
-  SqlDuckParams,
-  ToTableParams,
-} from "./sql-duck.ts";
-export { SqlDuck } from "./sql-duck.ts";
 export {
   getTableCreateFromZod,
   type SupportedCustomDuckDbTypes,

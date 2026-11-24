@@ -4,12 +4,16 @@ import { setTimeout as sleep } from "node:timers/promises";
 
 import { DuckDBInstance } from "@duckdb/node-api";
 import type { DuckDBConnection, DuckDBValue } from "@duckdb/node-api";
-import { afterEach, describe, expect, vi } from "vitest";
+import { reset } from "@logtape/logtape";
+import type { LogRecord } from "@logtape/logtape";
+import { afterEach, beforeEach, describe, expect, vi } from "vitest";
 import * as z from "zod";
 
+import { configureTestLogger } from "#tests/utils/configure-test-logger.ts";
 import { createDuckTest } from "#tests/utils/duck-test.ts";
 import { testTempDir } from "#tests/utils/get-test-temp-dir.ts";
 
+import { flowbladeLogtapeSqlduckConfig } from "../config/flowblade-logtape-sqlduck.config.ts";
 import { DuckDatabaseManager } from "../manager/database/duck-database-manager.ts";
 import { Table } from "../objects/table.ts";
 import { zodCodecs } from "../utils/zod-codecs.ts";
@@ -657,4 +661,72 @@ describe("ChunkAppenderStrategy", () => {
       );
     }
   );
+});
+
+describe("DuckTableLoader logging", () => {
+  let logBuffer: LogRecord[] = [];
+  beforeEach(async () => {
+    await configureTestLogger(logBuffer);
+  });
+
+  afterEach(async () => {
+    await reset();
+    logBuffer = [];
+  });
+
+  const attachTable = async (conn: DuckDBConnection) => {
+    const database = await new DuckDatabaseManager(conn).attachIfNotExists({
+      type: "memory",
+      alias: "sql_duck_test",
+    });
+    return new Table({ name: "test_logging", database: database.alias });
+  };
+
+  it("should log success", async ({ conn }) => {
+    const table = await attachTable(conn);
+    await new DuckTableLoader({ conn }).load({
+      table,
+      schema: z.object({ id: z.string() }),
+      rows: [{ id: "test" }, { id: "test2" }],
+      mode: "createOrReplace",
+    });
+    expect(logBuffer.at(-1)).toMatchObject({
+      category: flowbladeLogtapeSqlduckConfig.categories,
+      rawMessage: "Loaded {totalRows} rows into table '{table}' in {timeMs}ms",
+      level: "info",
+      properties: {
+        table: "sql_duck_test.test_logging",
+        timeMs: expect.any(Number),
+        totalRows: 2,
+      },
+    });
+  });
+
+  it("should log error", async ({ conn }) => {
+    const table = await attachTable(conn);
+    // on nodejs: Cannot convert 1 to a BigInt
+    // on bun: Invalid argument type in ToBigInt ope…
+    const regexpError =
+      /failed to load data into table (.*)test_logging(.*)bigint/i;
+
+    await expect(
+      new DuckTableLoader({ conn }).load({
+        table,
+        schema: z.strictObject({ id: z.number() }),
+        rows: [{ id: "not a number" as unknown as number }],
+        mode: "createOrReplace",
+      })
+    ).rejects.toThrow(regexpError);
+
+    expect(logBuffer.at(-1)).toMatchObject({
+      category: flowbladeLogtapeSqlduckConfig.categories,
+      rawMessage:
+        "Failed to load data into table '{table}' after {totalRows} rows - {errorMessage}",
+      level: "error",
+      properties: {
+        table: "sql_duck_test.test_logging",
+        errorMessage: expect.stringMatching(/bigint/i),
+      },
+    });
+  });
 });

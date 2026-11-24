@@ -19,10 +19,12 @@ const it = createDuckTestIsolated({
 });
 
 /**
- * Return a path in the test temp directory, removing any database file
+ * Return a path in the test temp directory (created if needed, it is git
+ * ignored and doesn't exist on a fresh checkout), removing any database file
  * left over by a previous run.
  */
 const getFreshDbFile = (filename: string) => {
+  fs.mkdirSync(testTempDir, { recursive: true });
   const fsUtils = new FileSystemUtils();
   const dbFile = path.join(testTempDir, filename);
   fsUtils.removeFileIfExists(dbFile);
