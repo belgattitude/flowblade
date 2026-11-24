@@ -1,5 +1,17 @@
 # @flowblade/sqlduck
 
+## 0.50.0
+
+### Minor Changes
+
+- [#1540](https://github.com/belgattitude/flowblade/pull/1540) [`bbf2831`](https://github.com/belgattitude/flowblade/commit/bbf2831d88093b8690d44f4ac3afe313e6a34993) Thanks [@belgattitude](https://github.com/belgattitude)! - Add an experimental `NativeChunkAppenderStrategy` (from `@flowblade/sqlduck/loader`): same as `ChunkAppenderStrategy`, but data chunks are written directly in the native DuckDB vectors (typed arrays and bulk copies) instead of node-api per item vectors, up to ~18% faster on a 1M rows load of simple columns (~4% on a wide schema with lists, enums and decimals). Columns of a type not handled (ie: HUGEINT, BIGNUM, DECIMAL widths other than 10-18), or every column when the bindings used by `@duckdb/node-api` can't be loaded, are written by node-api. An invalid value is reported with the name of its column (ie: `Column 'age' - number out of int32 range`). It relies on `@duckdb/node-bindings` internals, so it stays opt-in.
+
+- [#1540](https://github.com/belgattitude/flowblade/pull/1540) [`bbf2831`](https://github.com/belgattitude/flowblade/commit/bbf2831d88093b8690d44f4ac3afe313e6a34993) Thanks [@belgattitude](https://github.com/belgattitude)! - **Breaking**: remove `SqlDuck` and its deprecated `toTable` method (its only method), along with the `SqlDuckParams`, `ToTableParams`, `OnChunkAppendedCb` and `OnChunkAppendedStats` types. Use `DuckTableLoader` from `@flowblade/sqlduck/loader`, see the migration table in `UPGRADE.md`.
+
+### Patch Changes
+
+- [#1540](https://github.com/belgattitude/flowblade/pull/1540) [`bbf2831`](https://github.com/belgattitude/flowblade/commit/bbf2831d88093b8690d44f4ac3afe313e6a34993) Thanks [@belgattitude](https://github.com/belgattitude)! - `PreparedInsertStrategy` is ~6x faster on simple columns (~2.6x on a 42 columns schema): chunks are now inserted with a single prepared `INSERT ... SELECT unnest(?)` statement binding one list per column, instead of a multi-row `INSERT ... VALUES` statement. The default `chunkSize` goes from 256 to 2048 (pass `chunkSize: 256` to keep the previous granularity of the rows kept when a statement fails). The behavior on primary key conflicts is unchanged.
+
 ## 0.49.0
 
 ### Minor Changes
