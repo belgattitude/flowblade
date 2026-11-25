@@ -54,6 +54,7 @@ Each package in `packages/` has its own `package.json` and local scripts:
 - `@flowblade/sqlduck`: DuckDB-powered data processing.
 - `@flowblade/source-duckdb`: DuckDB datasource.
 - `@flowblade/source-kysely`: Kysely datasource.
+- `@flowblade/source-knex`: Knex datasource.
 - `@flowblade/sql-tag`: SQL template tag utilities.
 
 <!-- BEGIN:turborepo-agent-rules -->

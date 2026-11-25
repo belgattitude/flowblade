@@ -1,0 +1,32 @@
+import { defineConfig, mergeConfig } from "@flowblade/dx/vitest";
+
+import { sharedConfig } from "./vitest.shared.ts";
+
+export default mergeConfig(
+  sharedConfig,
+  defineConfig({
+    test: {
+      // Inline projects inherit the options above
+      projects: [
+        {
+          test: {
+            name: "e2e-mssql",
+            include: ["./tests/e2e/mssql/**/*.test.ts"],
+            // Starts one container shared by all mssql test files
+            globalSetup: ["./tests/e2e/mssql/global-setup.ts"],
+            testTimeout: 15_000,
+          },
+        },
+        {
+          test: {
+            name: "e2e-postgres",
+            include: ["./tests/e2e/postgres/**/*.test.ts"],
+            // Starts one container shared by all postgres test files
+            globalSetup: ["./tests/e2e/postgres/global-setup.ts"],
+            testTimeout: 15_000,
+          },
+        },
+      ],
+    },
+  })
+);

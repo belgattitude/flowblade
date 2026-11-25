@@ -1,0 +1,91 @@
+{
+  "name": "@flowblade/source-knex",
+  "version": "0.0.0",
+  "description": "Knex datasource",
+  "keywords": [],
+  "homepage": "https://belgattitude.github.io/flowblade",
+  "license": "MIT",
+  "author": {
+    "name": "Vanvelthem Sébastien",
+    "url": "https://github.com/belgattitude"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/belgattitude/flowblade.git",
+    "directory": "packages/source-knex"
+  },
+  "files": [
+    "dist",
+    "UPGRADE.md",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "flowblade-monorepo-source": "./src/index.ts",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "dx-build",
+    "build-release": "dx-build",
+    "check-dist": "dx-escheck",
+    "check-size": "dx-size-limit",
+    "ci-coverage-upload": "../../.github/scripts/download/codecov -F flowblade-source-knex --dir ./coverage",
+    "clean": "rimraf --glob ./dist ./build ./coverage './tsconfig*.tsbuildinfo'",
+    "dev": "dx-build --watch",
+    "docgen": "run-s docgen-typedoc",
+    "docgen-typedoc": "rimraf ./docs/api && typedoc --plugin typedoc-plugin-markdown --out ./docs/api",
+    "format": "dx-oxfmt --write",
+    "lint": "dx-oxfmt --check --no-error-on-unmatched-pattern && dx-oxlint",
+    "lint-fix": "dx-oxlint --fix && dx-oxfmt --write",
+    "test": "vitest run",
+    "test-e2e": "dotenvx run --ignore=MISSING_ENV_FILE -f .env.test.local -f env.test -- vitest --config=vitest.e2e.config.ts run",
+    "test-e2e-watch": "vitest --config=vitest.e2e.config.ts --ui",
+    "test-unit": "vitest run",
+    "test-unit-bun": "bun --bun run vitest run",
+    "test-unit-coverage": "vitest run --coverage",
+    "test-unit-deno": "deno run test-unit",
+    "test-unit-watch": "vitest --ui --api 4518 --coverage.enabled=true --coverage.reporter=html",
+    "typecheck": "dx-typecheck --project tsconfig.json --noEmit",
+    "typecheck-build": "dx-typecheck --project tsconfig.build.json --noEmit",
+    "typecheck-bun": "dx-typecheck-bun --project tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@flowblade/core": "workspace:^",
+    "@logtape/logtape": "^2.4.2"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "2.38.2",
+    "@flowblade/dx": "workspace:*",
+    "@testcontainers/mssqlserver": "12.2.2",
+    "@testcontainers/postgresql": "12.2.2",
+    "@types/better-sqlite3": "9.6.0",
+    "@types/node": "26.6.6",
+    "@types/pg": "8.23.1",
+    "better-sqlite3": "13.2.0",
+    "knex": "3.3.0",
+    "npm-run-all2": "9.1.0",
+    "pg": "8.23.1",
+    "pg-query-stream": "4.17.1",
+    "rimraf": "6.1.4",
+    "tedious": "20.4.2",
+    "typedoc": "0.28.20",
+    "typedoc-plugin-markdown": "4.14.1",
+    "typescript": "7.1.0-beta",
+    "vitest": "5.1.1"
+  },
+  "peerDependencies": {
+    "knex": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}
