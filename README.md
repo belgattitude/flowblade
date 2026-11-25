@@ -19,6 +19,7 @@ See the [Kysely quick start](https://github.com/belgattitude/flowblade/tree/main
 | Datasource | Description |
 | --- | --- |
 | [@flowblade/source-kysely](https://github.com/belgattitude/flowblade/tree/main/packages/source-kysely#readme) | Kysely datasource reader |
+| [@flowblade/source-knex](https://github.com/belgattitude/flowblade/tree/main/packages/source-knex#readme) | Knex datasource reader |
 | [@flowblade/source-duckdb](https://github.com/belgattitude/flowblade/tree/main/packages/source-duckdb#readme) | Duckdb nodejs datasource |
 
 ### Utilities
@@ -51,6 +52,7 @@ NextJs: https://flowblade-next-app.vercel.app/demo/duckdb
 │       └── duckdb-openfoodfact
 └── packages
     │── source-duckdb
+    │── source-knex
     │── source-kysely
     │── sql-tag
     │── sql-tag-format

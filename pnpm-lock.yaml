@@ -835,7 +835,7 @@ importers:
         version: 0.29.9
       kysely-codegen:
         specifier: 0.20.0
-        version: 0.20.0(@tediousjs/connection-string@1.1.3)(@types/pg@8.23.1)(kysely@0.29.9)(pg@8.23.1)(tarn@3.1.2)(tedious@20.4.2)(typescript@7.1.0-beta)
+        version: 0.20.0(@tediousjs/connection-string@1.1.3)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(kysely@0.29.9)(pg@8.23.1)(tarn@3.1.2)(tedious@20.4.2)(typescript@7.1.0-beta)
       picocolors:
         specifier: 1.1.1
         version: 1.1.1
@@ -1041,7 +1041,7 @@ importers:
         version: 9.1.0
       prisma:
         specifier: 7.10.1
-        version: 7.10.1(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.1)(react@19.3.1)(typescript@7.1.0-beta)
+        version: 7.10.1(@types/better-sqlite3@9.6.0)(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(better-sqlite3@13.2.0)(magicast@0.5.5)(react-dom@19.3.1)(react@19.3.1)(typescript@7.1.0-beta)
       prisma-kysely:
         specifier: 3.2.1
         version: 3.2.1(magicast@0.5.5)(prisma@7.10.1)
@@ -1272,6 +1272,70 @@ importers:
       tsx:
         specifier: 4.23.15
         version: 4.23.15
+      typedoc:
+        specifier: 0.28.20
+        version: 0.28.20(typescript@7.1.0-beta)
+      typedoc-plugin-markdown:
+        specifier: 4.14.1
+        version: 4.14.1(typedoc@0.28.20)
+      typescript:
+        specifier: 7.1.0-beta
+        version: 7.1.0-beta
+      vitest:
+        specifier: 5.1.1
+        version: 5.1.1(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/coverage-v8@5.1.1)(@vitest/ui@5.1.1)(happy-dom@21.0.4)(vite@8.3.8)
+
+  packages/source-knex:
+    dependencies:
+      '@flowblade/core':
+        specifier: workspace:^
+        version: link:../core
+      '@logtape/logtape':
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@dotenvx/dotenvx':
+        specifier: 2.38.2
+        version: 2.38.2
+      '@flowblade/dx':
+        specifier: workspace:*
+        version: link:../../tools/dx
+      '@testcontainers/mssqlserver':
+        specifier: 12.2.2
+        version: 12.2.2(bare-buffer@3.7.3)(supports-color@7.2.0)
+      '@testcontainers/postgresql':
+        specifier: 12.2.2
+        version: 12.2.2(bare-buffer@3.7.3)(supports-color@7.2.0)
+      '@types/better-sqlite3':
+        specifier: 9.6.0
+        version: 9.6.0
+      '@types/node':
+        specifier: 26.6.6
+        version: 26.6.6
+      '@types/pg':
+        specifier: 8.23.1
+        version: 8.23.1
+      better-sqlite3:
+        specifier: 13.2.0
+        version: 13.2.0
+      knex:
+        specifier: 3.3.0
+        version: 3.3.0(better-sqlite3@13.2.0)(mysql2@3.24.4)(pg-query-stream@4.17.1)(pg@8.23.1)(supports-color@7.2.0)(tedious@20.4.2)
+      npm-run-all2:
+        specifier: 9.1.0
+        version: 9.1.0
+      pg:
+        specifier: 8.23.1
+        version: 8.23.1(@types/pg@8.23.1)
+      pg-query-stream:
+        specifier: 4.17.1
+        version: 4.17.1(@types/pg@8.23.1)(pg@8.23.1)
+      rimraf:
+        specifier: 6.1.4
+        version: 6.1.4
+      tedious:
+        specifier: 20.4.2
+        version: 20.4.2(supports-color@7.2.0)
       typedoc:
         specifier: 0.28.20
         version: 0.28.20(typescript@7.1.0-beta)
@@ -7005,6 +7069,9 @@ packages:
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-kh+wFtrsKP40jzlvCNscBDHSwDVRlbXuy9zJ7MKUh7LYQxN1XrqlfyVboCplp/NJvkdEKgnnLhRjQpNeiGpP2A==}
 
+  '@types/better-sqlite3@9.6.0':
+    resolution: {integrity: sha512-MBqJ+neCwSAJFFKRVgOtXskJkDE+5Q7bTbG9g1p2YVsx+yviYKE6X9FwQeMjaa0+Q48ttXE7idVnryvrbQlmNA==}
+
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-OFK2KcKEQjL6jBTXSSgcGGGfTSHbkDSy16MgdOvxOIEY79unzvZKrcBBGVspsdoxkF6/rHHw0w7mouYn+kZ8+w==}
 
@@ -8420,6 +8487,10 @@ packages:
   better-result@3.0.1:
     resolution: {integrity: sha512-kehiRWY88gH406XMgNA/+932x1K+r2xNzcxFwvy2h4owSrh/S+fg6wJo00dSmxI/enz25H7yreE4ERI+OuYumQ==}
 
+  better-sqlite3@13.2.0:
+    resolution: {integrity: sha512-gmL++YyWvJCeyMhXEr83rT9lMERDCz0hE2atGJqodjHXGvK+DD/NnIQ4Ens9eqQnq+a8pyQipjxlV3xKAExTpA==}
+    engines: {node: '>=22'}
+
   bindings@1.5.0:
     resolution: {integrity: sha512-yvS0qI4/BE2gQHQeGXG1YIQggrOFCI1hIb5O8ISf56OaymR4t88pODUFFSB99xp+f48nYFlrasHEsygGJAC9Wg==}
 
@@ -8814,6 +8885,9 @@ packages:
   color-name@1.1.4:
     resolution: {integrity: sha512-KMMYy5lOtMzAuWtMV7PCjKoaLl6eAPAE7kTNCb4NU2h2KHo0K1hZ8vx4JoijqZtH8C3Y+SvmCFuCySNvDyIybg==}
 
+  colorette@2.0.19:
+    resolution: {integrity: sha512-TmDalj8YVK19a+aYQDZjIj583Mnxh4JwzCepevcFMzSBvXWbmnje1IYVLebeDnmlwUZEc9npjNqSTrLS7bixog==}
+
   colorette@2.0.20:
     resolution: {integrity: sha512-XmCZ5KPwAP/sVM/dz71AqX+gyGdCIx1n4+m+1Z1EHHE2wenaynZK3SyHDpRQSoDiuVq2A66UZYAVkAc6YFpTvg==}
 
@@ -8831,6 +8905,10 @@ packages:
   command-line-usage@7.0.4:
     resolution: {integrity: sha512-O20oaYRmlSzDgpVI5o7TLsOZf05EbLk+59ZTaty9ItGRw8oFVs66Jv6GgAWhmXVcyxipceVF+CmrqRFxEPne+w==}
     engines: {node: '>=12.20.0'}
+
+  commander@10.0.1:
+    resolution: {integrity: sha512-B4mwm9SLck9jGaR9bLx0GEsbeFcd0vrodZE2D8M+tQN99asXQb06Evs0UKuHi135WP7smJJJMbOhquAiXRRfKA==}
+    engines: {node: '>=14'}
 
   commander@11.1.0:
     resolution: {integrity: sha512-Hb9vghaP/OXClKJbWAQHTB4J/j75hTi5JMxCTc7Q1JKM9v2zWcKPhgPCUiesIDC1DEmO2L773Qr/cMRdQqdQbA==}
@@ -9266,6 +9344,15 @@ packages:
     resolution: {integrity: sha512-pBj/2aa7JT30Dyt3+lWzUSuN7EktIAVDBptYysDTWDhk0VMjKnumeN0Sm8BI+s0wfesbMu4vUW0Zfxus3p0tAQ==}
     engines: {node: '>=18'}
 
+  debug@4.3.4:
+    resolution: {integrity: sha512-BIX17pQKqKcukWlbgpQcc49ZNdLWrD+Fa0F1z167WKYmxSLN3lSlubMQJR/eX0cHvC3wafqjfXTtIFPPjwhINA==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
   debug@4.4.3:
     resolution: {integrity: sha512-kNoszW5VzcIJ1Yj9zBZ5tt/pzA9YbcftZoqdoDcw2LsxHjSfqBJvERhb402vUgDCF3rxt8VD9Jk0gWSLSE2fng==}
     engines: {node: '>=6.0'}
@@ -9700,6 +9787,10 @@ packages:
       jiti:
         optional: true
 
+  esm@3.2.25:
+    resolution: {integrity: sha512-rBMthL3wXZjs1CONgnx7uFdjsECvEnVisHj7KHQWYggQVtPcTIDWWQqD6iTDh+ug8WvSNzNEC9ffkOsy/04tgw==}
+    engines: {node: '>=6'}
+
   espree@11.2.0:
     resolution: {integrity: sha512-qj+AUJ5Jmoq/No2b8P1utT9nPkAvaph4ax7JkLs58AQoQwZuIaw0++jtnru38HvomrJFixHLTdazbRoUNAYuLg==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
@@ -10064,6 +10155,10 @@ packages:
     resolution: {integrity: sha512-f5BNkAgjxP6HAiocNHUgBmq54/Qht8Yy7JLy/W+GUacvdLAuRsSjlDAgBcb+/+AbTsHtATYJ4K/ZrI+J8CBKGg==}
     engines: {node: '>=14.16'}
 
+  get-package-type@0.1.0:
+    resolution: {integrity: sha512-zE/ghlG8OrKdWOjIJFZBcECm4zTq+gXuWFma5DUhAqne05GbrLB421HOuC5Ch6rA/lWq7wIYN+CSk3k2erNzGA==}
+    engines: {node: '>=8.0.0'}
+
   get-port-please@3.2.0:
     resolution: {integrity: sha512-Ulz1W6OjFmOANjBEknenUDumhNb1kv+9neObyWv0uMwDa585g+VpymuecLyklBVb0fQeUCKeft2KR2E91o7EIQ==}
 
@@ -10093,6 +10188,9 @@ packages:
   get-tsconfig@5.0.0-beta.6:
     resolution: {integrity: sha512-m6Dhw94spbdYEOJJZgiJECV2KV+1j/gwD6UxSZJ7iBPikR+czt//tPN7Lrif+zvtifc1oLZehWtndrfvQWB/Aw==}
     engines: {node: '>=20.20.0'}
+
+  getopts@2.3.0:
+    resolution: {integrity: sha512-fjiihDVwDWdPsWV5LqATDPAUEBkVTHj5D+ln8jSwfRKuCVYDeaHeF21wmOWUxZJXp8rxOXaEm1dZ0WbUajyJOQ==}
 
   giget@3.3.1:
     resolution: {integrity: sha512-BCXWZ/FnPvzdx8nVKgOBDMwelZahLL/42xiFxCQswjJYDCg1umCxg79UeDGelWwth7S80mj4Uh0BOBtV7ClDIA==}
@@ -10349,6 +10447,10 @@ packages:
   internmap@2.0.3:
     resolution: {integrity: sha512-4Gy5jWcHkGrIsiWdiiDsoVsHYhZql3IwFht4IxWxCubCm22RzguVGdO1fZIFr5osx3y8ga5wngOpyjYWsyNacw==}
     engines: {node: '>=12'}
+
+  interpret@2.2.0:
+    resolution: {integrity: sha512-xwK7ELW87pLA6lr5PBt4q8fJzjSrisrRp4NCqwuMd38aD/b4DORsrmwpqCGT/ywmVIPUwbEE9tilIh+LNEXLkg==}
+    engines: {node: '>= 0.10'}
 
   ip-address@10.7.6:
     resolution: {integrity: sha512-ijMaC7iIRgQzov9eze8m/BVfZHQigFmbEBE3/pVY0/8WIJv8XvtkraWvYo8WjudFnF54+Z4TdhH47uQPCWLsvw==}
@@ -10765,6 +10867,43 @@ packages:
   kleur@4.1.5:
     resolution: {integrity: sha512-E8DIfKUGTGftwc5c+XsVrszSM6n0T8wf8sThxKff3JE8bktjxgYcrK43g4Q6VjEmxx/rbz0gFElxFtIyI/5ZWg==}
     engines: {node: '>=6'}
+
+  knex@3.3.0:
+    resolution: {integrity: sha512-VCA1vnrURkXE0IZi/Bej1mo5s1uJ6Cely/MbrmiWBBboXpjinlY5cWfwurKY5Ek/0Lm0rsKzA1f2qpSEOb/a+A==}
+    engines: {node: '>=16'}
+    hasBin: true
+    peerDependencies:
+      '@types/pg-query-stream': '*'
+      better-sqlite3: '*'
+      mariadb: '*'
+      mysql: '*'
+      mysql2: '*'
+      pg: '*'
+      pg-native: '*'
+      pg-query-stream: ^4.14.0
+      sqlite3: '*'
+      tedious: '*'
+    peerDependenciesMeta:
+      '@types/pg-query-stream':
+        optional: true
+      better-sqlite3:
+        optional: true
+      mariadb:
+        optional: true
+      mysql:
+        optional: true
+      mysql2:
+        optional: true
+      pg:
+        optional: true
+      pg-native:
+        optional: true
+      pg-query-stream:
+        optional: true
+      sqlite3:
+        optional: true
+      tedious:
+        optional: true
 
   ky@2.2.0:
     resolution: {integrity: sha512-Cf57nYuiTujGmgBewzvJiW+WqAoVOTUXcwX/BwOvoTOYmQGyciFVKbQRr9B3XCHFFHPUn0Dnj+HvLXHcKxwQhg==}
@@ -11399,6 +11538,9 @@ packages:
     resolution: {integrity: sha512-FCX2YHo2e0MJd0+cwYWaoa7HW578B55zPuDuT5+wtEoW0GMED/raAit+TqErkiBVCvoanCuWgtL8v/woXoUC1Q==}
     engines: {node: '>=10'}
 
+  ms@2.1.2:
+    resolution: {integrity: sha512-6yzgdz4woXG+CmzYPHReNnhuRuf4FEMvC9KJO1zDLN7JWMYv15XISQ6jZuZgxTI/psdaHZcnwTzbYVKyOzWSsQ==}
+
   ms@2.1.3:
     resolution: {integrity: sha512-fLo5oHxrkRFZXsm0hMhxsW5v4Rv7W6rtzUk3I0t79RCgQnAFba8HxySVNPK+qBfJMhfFeTwz3j/O1Cy4hf1xzQ==}
 
@@ -11527,6 +11669,10 @@ packages:
   nock@15.0.6:
     resolution: {integrity: sha512-oKGh+2c/v225j5i5UrPSHCprECwc4lfTmOtFmwM3xNgKlqDH5D87t7B+z8vLqOD2jTcZ/IunIE5etYm7iZet6A==}
     engines: {node: '>=22.20.0'}
+
+  node-addon-api@8.9.2:
+    resolution: {integrity: sha512-mP+gpKHVIxWZ2U9N185t8vaRY7ivKlD4lAB2pUbsyO9N9NgObu8D9oPThP8cnRi9vKwajOwmrVGPWP5FfzzEsw==}
+    engines: {node: ^18 || ^20 || >= 21}
 
   node-downloader-helper@2.1.11:
     resolution: {integrity: sha512-FR2u55hUFr4njFRM/FLhHpLKzvmHUe1L01qnME619C0wBcDd+Z1f/KrRblkjBk7lnkgn6sUygrbCpQcZXyCApQ==}
@@ -11960,6 +12106,18 @@ packages:
   pg-connection-string@2.14.1:
     resolution: {integrity: sha512-euPh2XkBAIyVH7tYByPHFEF2Ao9Sb5MMJbaZ8ZuPDAaZUtDK+qhB4aqKBIytF7n97pQM9Eb+S43nyNxWqzvZWA==}
 
+  pg-connection-string@2.6.2:
+    resolution: {integrity: sha512-wMO4foL9sIpPSZMCRBmG2rwhwkBkHw8MjxFQxnRFnRmR0ABqGBCK9qB2R3/3AfuIG4rWvdf1BELnQZAe+9mrxQ==}
+
+  pg-cursor@2.22.1:
+    resolution: {integrity: sha512-gL6m5MsCVW5ojXFgujX/qrX+ofgegBXcYScSSyf7tt51haDt806QYQoM3hnSmiBIWH28MIK3zXspCWRC5hct0Q==}
+    peerDependencies:
+      '@types/pg': '*'
+      pg: ^8
+    peerDependenciesMeta:
+      '@types/pg':
+        optional: true
+
   pg-int8@1.0.1:
     resolution: {integrity: sha512-3yLaLJayxDiOgTMXHMumVELYyfDa05Vuph8KaSujjeMqeQd8bVSq5VKrTi2DCPYGDOCdnELDycenKKjwZ13Nxw==}
     engines: {node: '>=4.0.0'}
@@ -11975,6 +12133,15 @@ packages:
 
   pg-protocol@1.16.1:
     resolution: {integrity: sha512-4ChYUgCBGUeB/wrrGk7N8gKjaM/ykddCTfjkxOFVqBUhk40hRNJp0e31U/iEkWTwxyeXMHm/GkxlraTG6rcFcA==}
+
+  pg-query-stream@4.17.1:
+    resolution: {integrity: sha512-XG+7GNaUnUnSVFXysRovr5ZaP+pSIybzLQgxUn58bS13DL4wcZbI3Kthq9/YGvki0+KXs/u6PIHtOolsQm0k7w==}
+    peerDependencies:
+      '@types/pg': '*'
+      pg: ^8
+    peerDependenciesMeta:
+      '@types/pg':
+        optional: true
 
   pg-types@2.2.0:
     resolution: {integrity: sha512-m6eZ/i8N2MVut59qpPTH0XDCaQtb+CNpxB7XbqX1/r74rmO70HOddYx4yb9y7J6sGfc2eDh6CR374QGOtxLgTw==}
@@ -12487,6 +12654,10 @@ packages:
         optional: true
       '@types/react-is':
         optional: true
+
+  rechoir@0.8.0:
+    resolution: {integrity: sha512-WphVlarY87/fU02HFOuKLQBZLgZ5LGJV4jUuZCld6s0MtC9z2w5FxvvHO4FriQK74UdZrFyJ1mVPxLDvV9E+VA==}
+    engines: {node: '>= 10.13.0'}
 
   redent@3.0.0:
     resolution: {integrity: sha512-HBq+uVLqcY+XlIg3fPVqCkDQ2r6BERJtEiyKxqDrQpya/hEe8WDqv+4QUMzSlUG75C85r0DqFq4hzkGk9ZODdQ==}
@@ -13265,6 +13436,10 @@ packages:
   throttleit@2.1.0:
     resolution: {integrity: sha512-Tmz8iZQ+Rzal18G2g1D91R8MuiPDZL9UueFBqefa7a/UInMXAZO7r4en7/xu80l1KzBaFdX6GTJF2RWbqvhiOw==}
     engines: {node: '>=18'}
+
+  tildify@2.0.0:
+    resolution: {integrity: sha512-rdn3HP4xr45GZl+wqcedjO0R0hFxwJ7VPI41YinaKTKDtcjQH5YA95lmNRGJQdhOtFt2qF4ITxcPKUQ/d1UIKg==}
+    engines: {node: '>=8'}
 
   tiny-glob@0.2.9:
     resolution: {integrity: sha512-7Rp/RI5cWuhTsvc9L6S7Xpk06QbpmniUt8lHt7WqnTAKXuMcrMSrXWteuaGMYDtzRPeowt/LfpX+910t9CiWAQ==}
@@ -17461,7 +17636,7 @@ snapshots:
     dependencies:
       '@prisma/client-runtime-utils': 7.10.1
     optionalDependencies:
-      prisma: 7.10.1(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.1)(react@19.3.1)(typescript@7.1.0-beta)
+      prisma: 7.10.1(@types/better-sqlite3@9.6.0)(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(better-sqlite3@13.2.0)(magicast@0.5.5)(react-dom@19.3.1)(react@19.3.1)(typescript@7.1.0-beta)
       typescript: 7.1.0-beta
 
   '@prisma/config@7.10.1(magicast@0.5.5)':
@@ -18804,6 +18979,10 @@ snapshots:
   '@types/babel__traverse@7.28.0':
     dependencies:
       '@babel/types': 7.29.15
+
+  '@types/better-sqlite3@9.6.0':
+    dependencies:
+      '@types/node': 26.6.6
 
   '@types/chai@5.2.3':
     dependencies:
@@ -20229,6 +20408,10 @@ snapshots:
 
   better-result@3.0.1: {}
 
+  better-sqlite3@13.2.0:
+    dependencies:
+      node-addon-api: 8.9.2
+
   bindings@1.5.0:
     dependencies:
       file-uri-to-path: 1.0.0
@@ -20729,6 +20912,8 @@ snapshots:
 
   color-name@1.1.4: {}
 
+  colorette@2.0.19: {}
+
   colorette@2.0.20: {}
 
   combined-stream@1.0.8:
@@ -20750,6 +20935,8 @@ snapshots:
       chalk-template: 0.4.0
       table-layout: 4.1.1
       typical: 7.3.0
+
+  commander@10.0.1: {}
 
   commander@11.1.0: {}
 
@@ -21208,6 +21395,12 @@ snapshots:
   debounce-fn@6.0.0:
     dependencies:
       mimic-function: 5.0.1
+
+  debug@4.3.4(supports-color@7.2.0):
+    dependencies:
+      ms: 2.1.2
+    optionalDependencies:
+      supports-color: 7.2.0
 
   debug@4.4.3(supports-color@7.2.0):
     dependencies:
@@ -21724,6 +21917,8 @@ snapshots:
       - '@types/keyv'
       - supports-color
 
+  esm@3.2.25: {}
+
   espree@11.2.0:
     dependencies:
       acorn: 8.19.0
@@ -22182,6 +22377,8 @@ snapshots:
 
   get-own-enumerable-keys@1.0.0: {}
 
+  get-package-type@0.1.0: {}
+
   get-port-please@3.2.0: {}
 
   get-port@5.1.1: {}
@@ -22211,6 +22408,8 @@ snapshots:
   get-tsconfig@5.0.0-beta.6:
     dependencies:
       resolve-pkg-maps: 1.0.0
+
+  getopts@2.3.0: {}
 
   giget@3.3.1: {}
 
@@ -22523,6 +22722,8 @@ snapshots:
   internmap@1.0.1: {}
 
   internmap@2.0.3: {}
+
+  interpret@2.2.0: {}
 
   ip-address@10.7.6: {}
 
@@ -22874,9 +23075,34 @@ snapshots:
 
   kleur@4.1.5: {}
 
+  knex@3.3.0(better-sqlite3@13.2.0)(mysql2@3.24.4)(pg-query-stream@4.17.1)(pg@8.23.1)(supports-color@7.2.0)(tedious@20.4.2):
+    dependencies:
+      colorette: 2.0.19
+      commander: 10.0.1
+      debug: 4.3.4(supports-color@7.2.0)
+      escalade: 3.2.0
+      esm: 3.2.25
+      get-package-type: 0.1.0
+      getopts: 2.3.0
+      interpret: 2.2.0
+      lodash: 4.18.1
+      pg-connection-string: 2.6.2
+      rechoir: 0.8.0
+      resolve-from: 5.0.0
+      tarn: 3.1.2
+      tildify: 2.0.0
+    optionalDependencies:
+      better-sqlite3: 13.2.0
+      mysql2: 3.24.4(@types/node@26.6.6)
+      pg: 8.23.1(@types/pg@8.23.1)
+      pg-query-stream: 4.17.1(@types/pg@8.23.1)(pg@8.23.1)
+      tedious: 20.4.2(supports-color@7.2.0)
+    transitivePeerDependencies:
+      - supports-color
+
   ky@2.2.0: {}
 
-  kysely-codegen@0.20.0(@tediousjs/connection-string@1.1.3)(@types/pg@8.23.1)(kysely@0.29.9)(pg@8.23.1)(tarn@3.1.2)(tedious@20.4.2)(typescript@7.1.0-beta):
+  kysely-codegen@0.20.0(@tediousjs/connection-string@1.1.3)(@types/better-sqlite3@9.6.0)(@types/pg@8.23.1)(kysely@0.29.9)(pg@8.23.1)(tarn@3.1.2)(tedious@20.4.2)(typescript@7.1.0-beta):
     dependencies:
       chalk: 4.1.2
       cosmiconfig: 9.0.2(typescript@7.1.0-beta)
@@ -22890,6 +23116,7 @@ snapshots:
       zod: 4.6.7
     optionalDependencies:
       '@tediousjs/connection-string': 1.1.3
+      '@types/better-sqlite3': 9.6.0
       '@types/pg': 8.23.1
       pg: 8.23.1(@types/pg@8.23.1)
       tarn: 3.1.2
@@ -23615,6 +23842,8 @@ snapshots:
 
   mrmime@2.0.1: {}
 
+  ms@2.1.2: {}
+
   ms@2.1.3: {}
 
   mssql@12.8.0(supports-color@7.2.0):
@@ -23729,6 +23958,8 @@ snapshots:
       '@mswjs/interceptors': 0.45.12(supports-color@7.2.0)
     transitivePeerDependencies:
       - supports-color
+
+  node-addon-api@8.9.2: {}
 
   node-downloader-helper@2.1.11: {}
 
@@ -24315,6 +24546,14 @@ snapshots:
 
   pg-connection-string@2.14.1: {}
 
+  pg-connection-string@2.6.2: {}
+
+  pg-cursor@2.22.1(@types/pg@8.23.1)(pg@8.23.1):
+    dependencies:
+      pg: 8.23.1(@types/pg@8.23.1)
+    optionalDependencies:
+      '@types/pg': 8.23.1
+
   pg-int8@1.0.1: {}
 
   pg-pool@3.14.0(@types/pg@8.23.1)(pg@8.23.1):
@@ -24324,6 +24563,13 @@ snapshots:
       '@types/pg': 8.23.1
 
   pg-protocol@1.16.1: {}
+
+  pg-query-stream@4.17.1(@types/pg@8.23.1)(pg@8.23.1):
+    dependencies:
+      pg: 8.23.1(@types/pg@8.23.1)
+      pg-cursor: 2.22.1(@types/pg@8.23.1)(pg@8.23.1)
+    optionalDependencies:
+      '@types/pg': 8.23.1
 
   pg-types@2.2.0:
     dependencies:
@@ -24506,7 +24752,7 @@ snapshots:
       '@mrleebo/prisma-ast': 0.14.0
       '@prisma/generator-helper': 7.10.1
       '@prisma/internals': 7.10.1(magicast@0.5.5)(typescript@6.0.3)
-      prisma: 7.10.1(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.1)(react@19.3.1)(typescript@7.1.0-beta)
+      prisma: 7.10.1(@types/better-sqlite3@9.6.0)(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(better-sqlite3@13.2.0)(magicast@0.5.5)(react-dom@19.3.1)(react@19.3.1)(typescript@7.1.0-beta)
       typescript: 6.0.3
       zod: 4.6.7
     transitivePeerDependencies:
@@ -24517,9 +24763,9 @@ snapshots:
   prisma-markdown@4.0.1(prisma@7.10.1):
     dependencies:
       '@prisma/generator-helper': 7.10.1
-      prisma: 7.10.1(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.1)(react@19.3.1)(typescript@7.1.0-beta)
+      prisma: 7.10.1(@types/better-sqlite3@9.6.0)(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(better-sqlite3@13.2.0)(magicast@0.5.5)(react-dom@19.3.1)(react@19.3.1)(typescript@7.1.0-beta)
 
-  prisma@7.10.1(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.1)(react@19.3.1)(typescript@7.1.0-beta):
+  prisma@7.10.1(@types/better-sqlite3@9.6.0)(@types/node@26.6.6)(@types/react-dom@19.3.0)(@types/react@19.3.0)(better-sqlite3@13.2.0)(magicast@0.5.5)(react-dom@19.3.1)(react@19.3.1)(typescript@7.1.0-beta):
     dependencies:
       '@prisma/config': 7.10.1(magicast@0.5.5)
       '@prisma/dev': 0.24.17(typescript@7.1.0-beta)
@@ -24528,6 +24774,8 @@ snapshots:
       mysql2: 3.24.4(@types/node@26.6.6)
       postgres: 3.4.7
     optionalDependencies:
+      '@types/better-sqlite3': 9.6.0
+      better-sqlite3: 13.2.0
       typescript: 7.1.0-beta
     transitivePeerDependencies:
       - '@types/electric-sql__pglite'
@@ -24882,6 +25130,10 @@ snapshots:
       - '@types/react-redux'
       - '@types/redux'
       - redux
+
+  rechoir@0.8.0:
+    dependencies:
+      resolve: 1.22.14
 
   redent@3.0.0:
     dependencies:
@@ -25912,6 +26164,8 @@ snapshots:
       real-require: 1.0.0
 
   throttleit@2.1.0: {}
+
+  tildify@2.0.0: {}
 
   tiny-glob@0.2.9:
     dependencies:

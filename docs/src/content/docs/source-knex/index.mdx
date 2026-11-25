@@ -1,0 +1,211 @@
+---
+title: "@flowblade/source-knex"
+description: A Flowblade datasource adapter for Knex and its supported database clients.
+sidebar:
+    label: "source-knex"
+---
+
+`@flowblade/source-knex` wraps an existing [Knex](https://knexjs.org/) instance
+and provides Flowblade's result, error, metadata, streaming and transaction
+APIs. Use your existing Knex client, driver and pool configuration.
+
+## Install
+
+```bash
+npm install @flowblade/source-knex knex
+```
+
+Install the driver of your database (`pg`, `mysql2`, `tedious`,
+`better-sqlite3`...). Streaming a Postgres query also requires
+`pg-query-stream`.
+
+The adapter is tested on Postgres and SQL Server (e2e) and SQLite (unit).
+MySQL is supported by design but is not tested against a real database yet.
+
+## Quick start
+
+```typescript
+import knex from "knex";
+import { KnexDatasource } from "@flowblade/source-knex";
+
+const db = knex({ client: "pg", connection: process.env.DATABASE_URL });
+const ds = new KnexDatasource({ connection: db });
+
+const query = ds
+  .queryBuilder("person")
+  .select("id", "name")
+  .where("active", true);
+
+const result = await ds.query(query, { name: "listActivePeople" });
+
+if (result.error) {
+  console.error(result.error.code, result.error.message, result.error.cause);
+} else {
+  console.log(result.data);
+}
+
+// Or use exception-based control flow:
+const { data: people, meta } = await ds.queryOrThrow(query);
+console.log(`${people.length} rows in ${meta.getTotalTimeMs()}ms`);
+```
+
+The `queryBuilder` getter is the Knex instance itself (the transaction in a
+transaction callback). The datasource accepts Knex query builders and
+`knex.raw()` queries.
+
+## Query methods and results
+
+`query()` and `queryOne()` return `QResult` and do not throw. Their `OrThrow`
+counterparts return data directly and throw typed errors. `queryOne()` returns
+`null` when no row matches and reports `TOO_MANY_RESULTS` for multiple rows.
+`queryOneOrThrow()` throws `QErrors.NoResult` for no row unless `defaultValue`
+is set.
+
+One-row methods do not add `LIMIT` or otherwise rewrite SQL: all matching rows
+are fetched before checking the count, so bound non-unique queries yourself
+with `.limit(2)`.
+
+Knex resolves differently by method and dialect, so the adapter normalizes
+the result `data`:
+
+| Query | `data` | `meta` |
+| --- | --- | --- |
+| `select`, `returning` | the rows | |
+| `first()` | `[row]`, or `[]` without match | |
+| `insert` (mysql, sqlite) | the inserted ids, as returned by Knex | |
+| `update`, `del` | `[]` | `affectedRows` of the sql span |
+| `raw()` | the rows (Postgres `rows`, MySQL `[rows]`, SQL Server and SQLite arrays) or `[]` | `affectedRows` for the writes |
+
+On SQL Server, Knex does not return the affected rows of a `raw()` write
+(`affectedRows` is `0`): use a query builder when you need the count.
+
+Rows follow the Knex typing of the query (`knex<Person>("person")`). A `raw()`
+query is typed `unknown[]`: pass the row type as the second generic of
+`query()`.
+
+`QResult` contains either `data` or `error`, plus `meta`. Driver errors are
+available as `error.cause` but omitted by `toJsonifiable()`. Knex prefixes the
+SQL to the driver message, so `error.message` looks like
+`select ... - relation "x" does not exist`. See [Flowblade core](/docs/core)
+for the shared error codes, HTTP status suggestions, metadata and
+error-factory options.
+
+## Streaming
+
+`stream()` yields individual rows (Knex `.stream()`) rather than loading the
+full result into memory. `chunkSize` is passed to the stream as its
+`highWaterMark`.
+
+```typescript
+const rows = ds.stream(ds.queryBuilder("person").select("id", "name"), {
+  name: "streamPeople",
+  chunkSize: 500,
+});
+
+for await (const row of rows) {
+  console.log(row.name);
+  if (row.name === "Stop here") {
+    break;
+  }
+}
+```
+
+Breaking early, failing or aborting releases the database connection: the
+stream waits for the driver to close it. Errors are thrown during iteration.
+
+## Errors and cancellation
+
+`query()` returns `QUERY_FAILED` for execution/compilation errors and `ABORTED`
+for aborted work. Throwing methods expose `QErrors.QueryFailed`,
+`QErrors.Aborted`, `QErrors.NoResult` and `QErrors.TooManyResults`. Use the
+`onError`, `onNoResult` and `onTooManyResults` factories to map them to
+application-specific errors; factories can also be set in `defaultOptions`.
+
+Query methods and streams accept an `AbortSignal`:
+
+```typescript
+const result = await ds.query(query, {
+  signal: AbortSignal.timeout(5_000),
+});
+```
+
+**Knex cannot cancel a running query.** When the signal aborts, the result is
+an `ABORTED` error, but the query keeps running on the database and its
+connection is released when it settles. There is no `inflightQueryAbortStrategy`
+as in `@flowblade/source-kysely`.
+
+## Transactions and savepoints
+
+`transaction()` returns a result; `transactionOrThrow()` throws. Both pass a
+transaction-scoped datasource to the callback. Use and await `tx` queries in
+the callback. Nested transactions are not supported: use savepoints.
+
+```typescript
+const { data: newId } = await ds.transactionOrThrow(
+  async (tx) => {
+    const { data: rows } = await tx.queryOrThrow(
+      tx.queryBuilder("person").insert({ name: "Ada", active: true }).returning("id")
+    );
+    return rows[0].id;
+  },
+  {
+    name: "createPerson",
+    isolationLevel: "serializable",
+    retry: { maxRetries: 3 },
+  }
+);
+```
+
+Transaction options include `isolationLevel`, `accessMode` (Knex `readOnly`),
+`signal`, `retry` and `onFailedQuery`. Database support varies. Conflicts such
+as serialization failures and deadlocks are recognized for Postgres, SQL Server
+and MySQL; configure `isTransactionConflict` for other drivers. Retries are
+opt-in, use exponential backoff with jitter, and call the callback again.
+Keep external side effects outside retried callbacks.
+
+A query built with the parent datasource but run with `tx.query()` runs in the
+transaction. Failed queries roll back the transaction by default, even if the
+callback handles the returned error.
+
+`tx.savepoint()` and `tx.savepointOrThrow()` isolate a callback's work and can
+be nested (a savepoint is a nested Knex transaction). They are useful for
+handling expected statement failures, such as a duplicate insert, without
+rolling back the whole transaction.
+
+```typescript
+await ds.transactionOrThrow(async (tx) => {
+  await tx.queryOrThrow(tx.queryBuilder("person").insert({ name: "Ada" }));
+  // rolled back to the savepoint, the transaction continues
+  await tx.savepoint(async (sp) => {
+    await sp.queryOrThrow(sp.queryBuilder("person").insert({ name: "Tmp" }));
+    sp.rollback("not needed");
+  });
+});
+```
+
+When a transaction is aborted while a query is running, the commit or rollback
+waits for that query to end first (SQL Server cannot run a request on a busy
+connection). Rolling back an aborted transaction therefore takes as long as its
+running query.
+
+See [core transaction semantics](/docs/core#transactions) for error states,
+retry defaults, metadata and general guidance.
+
+## Logging and lifecycle
+
+The adapter logs through LogTape in the `["flowblade", "knex"]` category.
+Configure LogTape in your application to enable output. Query logs include SQL
+and, by default, bound parameters. Use `logParams: false` to keep parameters
+out of logs; they remain available in result metadata. You may also supply a
+custom `logger`.
+
+The datasource uses the supplied Knex instance; it does not own it or manage
+application shutdown. Close the Knex instance when the application stops:
+
+```typescript
+await db.destroy();
+```
+
+See the
+[package README](https://github.com/belgattitude/flowblade/blob/main/packages/source-knex/README.md)
+for the full list of limitations.

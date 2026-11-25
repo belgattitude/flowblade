@@ -5,6 +5,7 @@ export default defineMeta({
   pages: [
     "core",
     "source-kysely",
+    "source-knex",
     "source-duckdb",
     "sqlduck",
     "sql-tag",
